@@ -18,9 +18,12 @@ export function cleanupStaleQuestKeys(): void {
     const today = localDateStr();
     const _d = new Date();
     _d.setDate(_d.getDate() - 1);
-    const yesterday = _d.getFullYear() + '-'
-      + String(_d.getMonth() + 1).padStart(2, '0') + '-'
-      + String(_d.getDate()).padStart(2, '0');
+    const yesterday =
+      _d.getFullYear() +
+      '-' +
+      String(_d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(_d.getDate()).padStart(2, '0');
     const toRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -31,7 +34,11 @@ export function cleanupStaleQuestKeys(): void {
         toRemove.push(key);
       }
     }
-    toRemove.forEach(k => { try { localStorage.removeItem(k); } catch (_) {} });
+    toRemove.forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch (_) {}
+    });
   } catch (_) {}
 }
 

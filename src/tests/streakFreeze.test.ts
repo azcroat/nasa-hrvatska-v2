@@ -6,11 +6,16 @@ import {
   FREEZE_COST_XP,
 } from '../lib/streakFreeze';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 describe('streakFreeze', () => {
   beforeEach(clearLS);
-  afterEach(() => { clearLS(); vi.useRealTimers(); });
+  afterEach(() => {
+    clearLS();
+    vi.useRealTimers();
+  });
 
   // ── FREEZE_COST_XP ──────────────────────────────────────────────────────────
 
@@ -110,8 +115,11 @@ describe('streakFreeze', () => {
   it('returns applied=false when last is today', () => {
     // Build today string
     const d = new Date();
-    const today = d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    const today =
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(d.getDate()).padStart(2, '0');
     const result = applyFreezeIfNeeded({ count: 5, last: today });
     expect(result.applied).toBe(false);
@@ -121,8 +129,11 @@ describe('streakFreeze', () => {
   it('returns applied=false when last is yesterday (streak still active)', () => {
     const d = new Date();
     d.setDate(d.getDate() - 1);
-    const yesterday = d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    const yesterday =
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(d.getDate()).padStart(2, '0');
     const result = applyFreezeIfNeeded({ count: 5, last: yesterday });
     expect(result.applied).toBe(false);
@@ -131,8 +142,11 @@ describe('streakFreeze', () => {
   it('returns applied=false when no freezes stored and missed one day', () => {
     const d = new Date();
     d.setDate(d.getDate() - 2);
-    const dayBefore = d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    const dayBefore =
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(d.getDate()).padStart(2, '0');
     // No freezes in storage
     const result = applyFreezeIfNeeded({ count: 5, last: dayBefore });
@@ -143,8 +157,11 @@ describe('streakFreeze', () => {
     localStorage.setItem('nh_streak_freezes', '1');
     const d = new Date();
     d.setDate(d.getDate() - 2);
-    const dayBefore = d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    const dayBefore =
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(d.getDate()).padStart(2, '0');
     const result = applyFreezeIfNeeded({ count: 7, last: dayBefore });
     expect(result.applied).toBe(true);
@@ -153,8 +170,11 @@ describe('streakFreeze', () => {
     // streakData.last should be yesterday
     const yd = new Date();
     yd.setDate(yd.getDate() - 1);
-    const yesterday = yd.getFullYear() + '-' +
-      String(yd.getMonth() + 1).padStart(2, '0') + '-' +
+    const yesterday =
+      yd.getFullYear() +
+      '-' +
+      String(yd.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(yd.getDate()).padStart(2, '0');
     expect(result.streakData.last).toBe(yesterday);
     expect(result.streakData.count).toBe(7); // count preserved
@@ -170,8 +190,11 @@ describe('streakFreeze', () => {
     localStorage.setItem('nh_streak_freezes', '2');
     const d = new Date();
     d.setDate(d.getDate() - 10);
-    const oldDate = d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    const oldDate =
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(d.getDate()).padStart(2, '0');
     const result = applyFreezeIfNeeded({ count: 5, last: oldDate });
     expect(result.applied).toBe(false);

@@ -42,24 +42,40 @@ export default function StorySetupPanel({
     <div className="scr-wrap">
       <style>{SETUP_CSS}</style>
 
-      {H('📖 Immersive Stories', 'AI-generated stories set in real Croatian places, tailored to your level')}
+      {H(
+        '📖 Immersive Stories',
+        'AI-generated stories set in real Croatian places, tailored to your level',
+      )}
 
       {/* Goal-aware recommendation banner */}
       {goalMeta && (
-        <div style={{
-          display: 'flex', alignItems: 'flex-start', gap: 12,
-          padding: '12px 14px', borderRadius: 12, marginBottom: 16,
-          background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
-          border: '1.5px solid #86efac',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 12,
+            padding: '12px 14px',
+            borderRadius: 12,
+            marginBottom: 16,
+            background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+            border: '1.5px solid #86efac',
+          }}
+        >
           <span style={{ fontSize: 22, flexShrink: 0 }}>{goalMeta.icon}</span>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 800,
+                color: '#15803d',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: 2,
+              }}
+            >
               Personalized for You · {goalMeta.label}
             </div>
-            <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.5 }}>
-              {goalMeta.tip}
-            </div>
+            <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.5 }}>{goalMeta.tip}</div>
             <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>
               Recommended: {goalMeta.cities?.join(', ') || 'Multiple cities'}
             </div>
@@ -69,17 +85,28 @@ export default function StorySetupPanel({
 
       {/* City selector */}
       <div className="c" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--subtext)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 700,
+            color: 'var(--subtext)',
+            marginBottom: 12,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
           Choose a city
         </div>
-        <div style={{
-          display: 'flex',
-          gap: 8,
-          overflowX: 'auto',
-          paddingBottom: 8,
-          scrollbarWidth: 'none',
-        }}>
-          {STORY_CITIES.map(city => (
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            overflowX: 'auto',
+            paddingBottom: 8,
+            scrollbarWidth: 'none',
+          }}
+        >
+          {STORY_CITIES.map((city) => (
             <button
               key={city.name}
               className="city-chip"
@@ -93,17 +120,22 @@ export default function StorySetupPanel({
                 padding: '10px 14px',
                 borderRadius: 12,
                 border: `2px solid ${selectedCity.name === city.name ? city.color : 'var(--card-b)'}`,
-                backgroundColor: selectedCity.name === city.name ? city.color + '18' : 'var(--card)',
+                backgroundColor:
+                  selectedCity.name === city.name ? city.color + '18' : 'var(--card)',
                 cursor: 'pointer',
                 minWidth: 72,
               }}
             >
               <span style={{ fontSize: 22 }}>{city.icon}</span>
-              <span style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: selectedCity.name === city.name ? city.color : 'var(--heading)',
-              }}>{city.name}</span>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: selectedCity.name === city.name ? city.color : 'var(--heading)',
+                }}
+              >
+                {city.name}
+              </span>
             </button>
           ))}
         </div>
@@ -111,11 +143,20 @@ export default function StorySetupPanel({
 
       {/* Level selector */}
       <div className="c" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--subtext)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 700,
+            color: 'var(--subtext)',
+            marginBottom: 12,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
           Your level
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {LEVELS.map(lvl => (
+          {LEVELS.map((lvl) => (
             <button
               key={lvl}
               className="level-btn"
@@ -139,13 +180,23 @@ export default function StorySetupPanel({
 
       {/* Character name */}
       <div className="c" style={{ marginBottom: 24 }}>
-        <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--subtext)', display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <label
+          style={{
+            fontSize: 13,
+            fontWeight: 700,
+            color: 'var(--subtext)',
+            display: 'block',
+            marginBottom: 8,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
           Your name (for the story)
         </label>
         <input
           type="text"
           value={characterName}
-          onChange={e => setCharacterName(e.target.value)}
+          onChange={(e) => setCharacterName(e.target.value)}
           placeholder="Optional — leave blank to use 'you'"
           maxLength={40}
           style={{
@@ -162,7 +213,17 @@ export default function StorySetupPanel({
       </div>
 
       {error && (
-        <div style={{ padding: '12px 16px', borderRadius: 10, backgroundColor: 'var(--error-bg)', border: '1px solid var(--error-b)', color: 'var(--error)', fontSize: 14, marginBottom: 16 }}>
+        <div
+          style={{
+            padding: '12px 16px',
+            borderRadius: 10,
+            backgroundColor: 'var(--error-bg)',
+            border: '1px solid var(--error-b)',
+            color: 'var(--error)',
+            fontSize: 14,
+            marginBottom: 16,
+          }}
+        >
           {error}
         </div>
       )}
@@ -184,7 +245,18 @@ export default function StorySetupPanel({
         ✨ Generate Story in {selectedCity.icon} {selectedCity.name}
       </button>
 
-      <button className="b" onClick={onBack} style={{ width: '100%', marginTop: 12, fontSize: 14, backgroundColor: 'transparent', border: '1.5px solid var(--card-b)', color: 'var(--subtext)' }}>
+      <button
+        className="b"
+        onClick={onBack}
+        style={{
+          width: '100%',
+          marginTop: 12,
+          fontSize: 14,
+          backgroundColor: 'transparent',
+          border: '1.5px solid var(--card-b)',
+          color: 'var(--subtext)',
+        }}
+      >
         ← Back
       </button>
     </div>

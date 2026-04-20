@@ -16,10 +16,14 @@ import React from 'react';
 
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
   updateProfile: vi.fn(),
   initializeAuth: vi.fn(() => ({})),
   indexedDBLocalPersistence: {},
@@ -31,15 +35,30 @@ vi.mock('firebase/auth', () => ({
   deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
-  initializeFirestore: vi.fn(() => ({})), persistentLocalCache: vi.fn(() => ({})),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
+  initializeFirestore: vi.fn(() => ({})),
+  persistentLocalCache: vi.fn(() => ({})),
   persistentMultipleTabManager: vi.fn(() => ({})),
 }));
 
 // Mock StatsContext so LessonScreen can call useStats() without a provider
 vi.mock('../context/StatsContext.tsx', () => ({
-  useStats: () => ({ writeDelta: vi.fn(), stats: {}, setStats: vi.fn(), dispatch: vi.fn(), award: vi.fn(), level: 1 }),
+  useStats: () => ({
+    writeDelta: vi.fn(),
+    stats: {},
+    setStats: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+  }),
   StatsProvider: ({ children }) => children,
 }));
 
@@ -50,7 +69,8 @@ vi.mock('../data', async (importOriginal) => {
     srMark: vi.fn(),
     speak: vi.fn(),
     H: (title) => React.createElement('h2', null, title),
-    Bar: ({ v, mx }) => React.createElement('div', { 'data-testid': 'bar', 'data-v': v, 'data-mx': mx }),
+    Bar: ({ v, mx }) =>
+      React.createElement('div', { 'data-testid': 'bar', 'data-v': v, 'data-mx': mx }),
     V: actual.V || {},
     shuffleArr: actual.shuffleArr || ((a) => a),
   };
@@ -63,14 +83,16 @@ const SAMPLE_WORDS = [
   ['Bog', 'Hello / Hi', 'bog'],
   ['Dobar dan', 'Good day', 'DOH-bar dan'],
   ['Hvala', 'Thank you', 'HVA-la'],
-  ['Molim', 'Please / You\'re welcome', 'MOH-lim'],
+  ['Molim', "Please / You're welcome", 'MOH-lim'],
 ];
 
 // A quiz item has the word tuple plus opts array and correct-index (ci)
 function makeQuizItems(words = SAMPLE_WORDS) {
   return words.map((w, i) => ({
     ...w,
-    0: w[0], 1: w[1], 2: w[2],
+    0: w[0],
+    1: w[1],
+    2: w[2],
     opts: [w[1], `wrong${i}a`, `wrong${i}b`, `wrong${i}c`],
     ci: 0, // correct answer is always index 0
   }));
@@ -95,14 +117,23 @@ const BASE_PROPS = {
   sQi: vi.fn(),
   goBack: vi.fn(),
   award: vi.fn(),
-  setSt: vi.fn(),   // ← CRITICAL: must be setSt not setStats
+  setSt: vi.fn(), // ← CRITICAL: must be setSt not setStats
 };
 
 function renderLesson(overrides = {}) {
-  const props = { ...BASE_PROPS, ...overrides,
-    sLi: vi.fn(), sLx: vi.fn(), sLs: vi.fn(), sLp: vi.fn(),
-    sLa: vi.fn(), sLsl: vi.fn(), sQi: vi.fn(),
-    goBack: vi.fn(), award: vi.fn(), setSt: vi.fn(),
+  const props = {
+    ...BASE_PROPS,
+    ...overrides,
+    sLi: vi.fn(),
+    sLx: vi.fn(),
+    sLs: vi.fn(),
+    sLp: vi.fn(),
+    sLa: vi.fn(),
+    sLsl: vi.fn(),
+    sQi: vi.fn(),
+    goBack: vi.fn(),
+    award: vi.fn(),
+    setSt: vi.fn(),
     ...overrides,
   };
   const utils = render(<LessonScreen {...props} />);
@@ -199,14 +230,29 @@ describe('LessonScreen — setSt prop contract (the bug that killed progress)', 
     const qi = makeQuizItems();
 
     // Render at the last question, already answered
-    render(<LessonScreen
-      lt="Greetings" li={SAMPLE_WORDS} icons={{ Greetings: '👋' }}
-      lp="quiz" lx={qi.length - 1} ls={3} la={true} lsl={0}
-      qi={qi}
-      sLi={vi.fn()} sLx={vi.fn()} sLs={vi.fn()} sLp={vi.fn()}
-      sLa={vi.fn()} sLsl={vi.fn()} sQi={vi.fn()}
-      goBack={vi.fn()} award={award} setSt={setSt}
-    />);
+    render(
+      <LessonScreen
+        lt="Greetings"
+        li={SAMPLE_WORDS}
+        icons={{ Greetings: '👋' }}
+        lp="quiz"
+        lx={qi.length - 1}
+        ls={3}
+        la={true}
+        lsl={0}
+        qi={qi}
+        sLi={vi.fn()}
+        sLx={vi.fn()}
+        sLs={vi.fn()}
+        sLp={vi.fn()}
+        sLa={vi.fn()}
+        sLsl={vi.fn()}
+        sQi={vi.fn()}
+        goBack={vi.fn()}
+        award={award}
+        setSt={setSt}
+      />,
+    );
 
     fireEvent.click(screen.getByText(/Results/i));
     // setSt MUST have been called — this is the bug that wiped all progress
@@ -217,14 +263,29 @@ describe('LessonScreen — setSt prop contract (the bug that killed progress)', 
     const award = vi.fn();
     const qi = makeQuizItems();
 
-    render(<LessonScreen
-      lt="Greetings" li={SAMPLE_WORDS} icons={{ Greetings: '👋' }}
-      lp="quiz" lx={qi.length - 1} ls={4} la={true} lsl={0}
-      qi={qi}
-      sLi={vi.fn()} sLx={vi.fn()} sLs={vi.fn()} sLp={vi.fn()}
-      sLa={vi.fn()} sLsl={vi.fn()} sQi={vi.fn()}
-      goBack={vi.fn()} award={award} setSt={vi.fn()}
-    />);
+    render(
+      <LessonScreen
+        lt="Greetings"
+        li={SAMPLE_WORDS}
+        icons={{ Greetings: '👋' }}
+        lp="quiz"
+        lx={qi.length - 1}
+        ls={4}
+        la={true}
+        lsl={0}
+        qi={qi}
+        sLi={vi.fn()}
+        sLx={vi.fn()}
+        sLs={vi.fn()}
+        sLp={vi.fn()}
+        sLa={vi.fn()}
+        sLsl={vi.fn()}
+        sQi={vi.fn()}
+        goBack={vi.fn()}
+        award={award}
+        setSt={vi.fn()}
+      />,
+    );
 
     fireEvent.click(screen.getByText(/Results/i));
     expect(award).toHaveBeenCalled();
@@ -235,14 +296,29 @@ describe('LessonScreen — setSt prop contract (the bug that killed progress)', 
     const award = vi.fn();
     const qi = makeQuizItems();
 
-    render(<LessonScreen
-      lt="Greetings" li={SAMPLE_WORDS} icons={{ Greetings: '👋' }}
-      lp="quiz" lx={qi.length - 1} ls={4} la={true} lsl={0}
-      qi={qi}
-      sLi={vi.fn()} sLx={vi.fn()} sLs={vi.fn()} sLp={vi.fn()}
-      sLa={vi.fn()} sLsl={vi.fn()} sQi={vi.fn()}
-      goBack={vi.fn()} award={award} setSt={vi.fn()}
-    />);
+    render(
+      <LessonScreen
+        lt="Greetings"
+        li={SAMPLE_WORDS}
+        icons={{ Greetings: '👋' }}
+        lp="quiz"
+        lx={qi.length - 1}
+        ls={4}
+        la={true}
+        lsl={0}
+        qi={qi}
+        sLi={vi.fn()}
+        sLx={vi.fn()}
+        sLs={vi.fn()}
+        sLp={vi.fn()}
+        sLa={vi.fn()}
+        sLsl={vi.fn()}
+        sQi={vi.fn()}
+        goBack={vi.fn()}
+        award={award}
+        setSt={vi.fn()}
+      />,
+    );
 
     const btn = screen.getByText(/Results/i);
     fireEvent.click(btn);
@@ -257,14 +333,29 @@ describe('LessonScreen — setSt prop contract (the bug that killed progress)', 
     const setSt = vi.fn();
     const qi = makeQuizItems();
 
-    render(<LessonScreen
-      lt="Greetings" li={SAMPLE_WORDS} icons={{ Greetings: '👋' }}
-      lp="quiz" lx={qi.length - 1} ls={3} la={true} lsl={0}
-      qi={qi}
-      sLi={vi.fn()} sLx={vi.fn()} sLs={vi.fn()} sLp={vi.fn()}
-      sLa={vi.fn()} sLsl={vi.fn()} sQi={vi.fn()}
-      goBack={vi.fn()} award={vi.fn()} setSt={setSt}
-    />);
+    render(
+      <LessonScreen
+        lt="Greetings"
+        li={SAMPLE_WORDS}
+        icons={{ Greetings: '👋' }}
+        lp="quiz"
+        lx={qi.length - 1}
+        ls={3}
+        la={true}
+        lsl={0}
+        qi={qi}
+        sLi={vi.fn()}
+        sLx={vi.fn()}
+        sLs={vi.fn()}
+        sLp={vi.fn()}
+        sLa={vi.fn()}
+        sLsl={vi.fn()}
+        sQi={vi.fn()}
+        goBack={vi.fn()}
+        award={vi.fn()}
+        setSt={setSt}
+      />,
+    );
 
     fireEvent.click(screen.getByText(/Results/i));
     // setSt should be called with a function updater s => ({...s, lc: s.lc+1, ...})

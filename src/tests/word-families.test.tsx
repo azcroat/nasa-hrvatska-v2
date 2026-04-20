@@ -16,18 +16,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -77,9 +93,11 @@ describe('WordFamilies — rendering', () => {
   it('renders 4 option buttons for the first question', () => {
     renderWordFamilies();
     // The component shows 4 options in a 2×2 grid
-    const optionBtns = screen.getAllByRole('button').filter(
-      b => b.textContent && !b.textContent.includes('Done') && !b.textContent.includes('Next')
-    );
+    const optionBtns = screen
+      .getAllByRole('button')
+      .filter(
+        (b) => b.textContent && !b.textContent.includes('Done') && !b.textContent.includes('Next'),
+      );
     expect(optionBtns.length).toBeGreaterThanOrEqual(4);
   });
 

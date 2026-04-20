@@ -18,11 +18,14 @@ export function useJournal(): {
   setJEn: React.Dispatch<React.SetStateAction<string>>;
 } {
   const [jWords, setJWords] = useState<JournalWord[]>(() => {
-    try { return JSON.parse(localStorage.getItem('uJournal') || '[]') as JournalWord[]; }
-    catch { return []; }
+    try {
+      return JSON.parse(localStorage.getItem('uJournal') || '[]') as JournalWord[];
+    } catch {
+      return [];
+    }
   });
-  const [jIn, setJIn] = useState('');   // Croatian input
-  const [jEn, setJEn] = useState('');   // English input
+  const [jIn, setJIn] = useState(''); // Croatian input
+  const [jEn, setJEn] = useState(''); // English input
 
   return { jWords, setJWords, jIn, setJIn, jEn, setJEn };
 }

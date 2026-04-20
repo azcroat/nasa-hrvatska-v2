@@ -22,18 +22,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -51,10 +67,10 @@ vi.mock('../data', async (importOriginal) => {
   const MOCK_V = {
     basic: [
       ['zdravo', 'Hello'],
-      ['molim',  'Please'],
-      ['hvala',  'Thank you'],
-      ['da',     'Yes'],
-      ['ne',     'No'],
+      ['molim', 'Please'],
+      ['hvala', 'Thank you'],
+      ['da', 'Yes'],
+      ['ne', 'No'],
     ],
   };
   return {
@@ -94,10 +110,10 @@ function completeAllWords(award: ReturnType<typeof vi.fn> = vi.fn()) {
 
   const pool: [string, string][] = [
     ['zdravo', 'Hello'],
-    ['molim',  'Please'],
-    ['hvala',  'Thank you'],
-    ['da',     'Yes'],
-    ['ne',     'No'],
+    ['molim', 'Please'],
+    ['hvala', 'Thank you'],
+    ['da', 'Yes'],
+    ['ne', 'No'],
   ];
 
   for (const [hr] of pool) {
@@ -296,7 +312,7 @@ describe('TypingScreen — knight flash reactions', () => {
     typeAnswer('kruh'); // clearly wrong answer for 'zdravo'
     fireEvent.click(screen.getByText('Check Answer'));
 
-    expect(flashes.some(e => e.detail?.mood === 'oops')).toBe(true);
+    expect(flashes.some((e) => e.detail?.mood === 'oops')).toBe(true);
 
     window.removeEventListener('knight:flash', handler);
   });
@@ -327,7 +343,11 @@ describe('TypingScreen — navigation', () => {
     render(<TypingScreen goBack={goBack} award={award} />);
 
     const pool: [string, string][] = [
-      ['zdravo', 'Hello'], ['molim', 'Please'], ['hvala', 'Thank you'], ['da', 'Yes'], ['ne', 'No'],
+      ['zdravo', 'Hello'],
+      ['molim', 'Please'],
+      ['hvala', 'Thank you'],
+      ['da', 'Yes'],
+      ['ne', 'No'],
     ];
     for (const [hr] of pool) {
       typeAnswer(hr);

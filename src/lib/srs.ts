@@ -19,14 +19,28 @@
 
 // ─── FSRS-4.5 default weights (W0–W18) ───────────────────────────────────────
 const W = [
-  0.4072, 1.1829, 3.1262, 15.4722,  // W0–W3  initial stability for grades 1–4
-  7.2102, 0.5316, 1.0651, 0.0589,   // W4–W7  difficulty / forgetting
-  1.5330, 0.1400, 0.9394, 2.1597,   // W8–W11 recall / forget stability
-  0.0100, 0.9667, 0.1544, 2.9898,   // W12–W15
-  0.5100, 0.4100, 0.8420,           // W16–W18
+  0.4072,
+  1.1829,
+  3.1262,
+  15.4722, // W0–W3  initial stability for grades 1–4
+  7.2102,
+  0.5316,
+  1.0651,
+  0.0589, // W4–W7  difficulty / forgetting
+  1.533,
+  0.14,
+  0.9394,
+  2.1597, // W8–W11 recall / forget stability
+  0.01,
+  0.9667,
+  0.1544,
+  2.9898, // W12–W15
+  0.51,
+  0.41,
+  0.842, // W16–W18
 ];
 
-const DESIRED_RETENTION = 0.90; // 90 % target recall
+const DESIRED_RETENTION = 0.9; // 90 % target recall
 const LS_KEY = 'nh_sr';
 
 // ─── Card type ────────────────────────────────────────────────────────────────
@@ -70,23 +84,12 @@ function _initD(grade: number): number {
 
 /** Stability after a successful review (grade ≥ 3) */
 function _nextS_recall(D: number, S: number, R: number): number {
-  return S * (
-    Math.exp(W[8]) *
-    (11 - D) *
-    Math.pow(S, -W[9]) *
-    (Math.exp(W[10] * (1 - R)) - 1) +
-    1
-  );
+  return S * (Math.exp(W[8]) * (11 - D) * Math.pow(S, -W[9]) * (Math.exp(W[10] * (1 - R)) - 1) + 1);
 }
 
 /** Stability after forgetting (grade < 3) */
 function _nextS_forget(D: number, S: number, R: number): number {
-  return (
-    W[11] *
-    Math.pow(D, -W[12]) *
-    (Math.pow(S + 1, W[13]) - 1) *
-    Math.exp(W[14] * (1 - R))
-  );
+  return W[11] * Math.pow(D, -W[12]) * (Math.pow(S + 1, W[13]) - 1) * Math.exp(W[14] * (1 - R));
 }
 
 /** Update difficulty after a review */
@@ -96,7 +99,7 @@ function _nextD(D: number, grade: number): number {
 
 /** Optimal next interval in days from stability (capped at 365 days) */
 function _nextInterval(S: number): number {
-  return Math.min(365, Math.max(1, Math.round(S * Math.log(DESIRED_RETENTION) / Math.log(0.9))));
+  return Math.min(365, Math.max(1, Math.round((S * Math.log(DESIRED_RETENTION)) / Math.log(0.9))));
 }
 
 // ─── Grade mapping ────────────────────────────────────────────────────────────
@@ -112,12 +115,12 @@ function _gradeFromResult(correct: boolean, timeMs: number): number {
 
 // ─── Migration from SM-2 card format ─────────────────────────────────────────
 function _migrate(card: SRCard): SRCard {
-  const easeVal     = card.ease     !== undefined ? card.ease     : card.ef;
+  const easeVal = card.ease !== undefined ? card.ease : card.ef;
   const intervalVal = card.interval !== undefined ? card.interval : card.iv;
 
   if (easeVal !== undefined || intervalVal !== undefined) {
     const ease = Math.min(Math.max(easeVal !== undefined ? easeVal : 2.5, 1.3), 2.5);
-    const iv   = intervalVal !== undefined ? intervalVal : 1;
+    const iv = intervalVal !== undefined ? intervalVal : 1;
 
     card.s = Math.max(iv, 0.1);
     card.d = Math.round(10 - (ease - 1.3) * 3.7);
@@ -185,10 +188,10 @@ export function addWordToSRS(word: string): void {
   try {
     const sr = getSR();
     if (sr[w]) return;
-    const s    = _initS(3);
-    const d    = _initD(3);
+    const s = _initS(3);
+    const d = _initD(3);
     const intv = _nextInterval(s);
-    const due  = Date.now() + intv * 86400000;
+    const due = Date.now() + intv * 86400000;
     sr[w] = { s, d, r: 0, w: 0, l: 0, b: 1, due, nextDue: due };
     saveSR(sr);
   } catch (_) {}
@@ -198,7 +201,7 @@ export function addWordToSRS(word: string): void {
  * Return an array of Croatian word strings that are due for review right now.
  */
 export function getDueReviews(): string[] {
-  const sr  = getSR();
+  const sr = getSR();
   const now = Date.now();
   const due: string[] = [];
   // Cards with no due date are legitimately new (never reviewed) and should be
@@ -225,17 +228,17 @@ export function getDueReviews(): string[] {
  * Record a review result for a word using FSRS-4.5, save, and return the updated card.
  */
 export function getSRScore(word: string, correct: boolean, timeMs: number): SRCard {
-  const sr    = getSR();
-  const now   = Date.now();
+  const sr = getSR();
+  const now = Date.now();
   const grade = _gradeFromResult(correct, timeMs || 0);
 
   let card = sr[word];
 
   if (!card) {
-    const s    = _initS(grade);
-    const d    = _initD(grade);
+    const s = _initS(grade);
+    const d = _initD(grade);
     const intv = _nextInterval(s);
-    const due  = now + intv * 86400000;
+    const due = now + intv * 86400000;
     card = {
       s,
       d,
@@ -269,14 +272,14 @@ export function getSRScore(word: string, correct: boolean, timeMs: number): SRCa
     newD = Math.min(Math.max(newD, 1), 10);
 
     const intv = _nextInterval(newS);
-    const due  = now + intv * 86400000;
+    const due = now + intv * 86400000;
 
-    card.s       = newS;
-    card.d       = newD;
-    card.r       = (card.r || 0) + (correct ? 1 : 0);
-    card.w       = (card.w || 0) + (correct ? 0 : 1);
-    card.b       = Math.min(Math.max((card.b || 0) + (correct ? 1 : -2), 0), 5);
-    card.due     = due;
+    card.s = newS;
+    card.d = newD;
+    card.r = (card.r || 0) + (correct ? 1 : 0);
+    card.w = (card.w || 0) + (correct ? 0 : 1);
+    card.b = Math.min(Math.max((card.b || 0) + (correct ? 1 : -2), 0), 5);
+    card.due = due;
     card.nextDue = due;
   }
 
@@ -291,36 +294,72 @@ export function getSRScore(word: string, correct: boolean, timeMs: number): SRCa
  * @deprecated Use getSRScore() instead.
  * SM-2-compatible wrapper — runs one FSRS update and returns a card-like object.
  */
-export function sm2(card: SRCard | null, quality: number): SRCard & { ease: number; interval: number; reps: number; nextReview: number; lastQuality: number } {
+export function sm2(
+  card: SRCard | null,
+  quality: number,
+): SRCard & {
+  ease: number;
+  interval: number;
+  reps: number;
+  nextReview: number;
+  lastQuality: number;
+} {
   const correct = quality >= 3;
-  const timeMs  = quality === 5 ? 1000 : quality === 4 ? 3000 : quality === 3 ? 9000 : quality === 1 ? 3000 : 8000;
-  const grade   = _gradeFromResult(correct, timeMs);
-  const now     = Date.now();
+  const timeMs =
+    quality === 5
+      ? 1000
+      : quality === 4
+        ? 3000
+        : quality === 3
+          ? 9000
+          : quality === 1
+            ? 3000
+            : 8000;
+  const grade = _gradeFromResult(correct, timeMs);
+  const now = Date.now();
   if (!card || card.s === undefined) {
-    const s    = _initS(grade);
-    const d    = _initD(grade);
+    const s = _initS(grade);
+    const d = _initD(grade);
     const intv = _nextInterval(s);
-    return { s, d, r: correct ? 1 : 0, w: correct ? 0 : 1, l: 0, b: 1,
-             due: now + intv * 86400000, nextDue: now + intv * 86400000,
-             ease: 2.5, interval: intv, reps: 1, nextReview: now + intv * 86400000, lastQuality: quality };
+    return {
+      s,
+      d,
+      r: correct ? 1 : 0,
+      w: correct ? 0 : 1,
+      l: 0,
+      b: 1,
+      due: now + intv * 86400000,
+      nextDue: now + intv * 86400000,
+      ease: 2.5,
+      interval: intv,
+      reps: 1,
+      nextReview: now + intv * 86400000,
+      lastQuality: quality,
+    };
   }
-  const elapsedDays = card.due && card.interval
-    ? Math.max(0, (now - (card.due - card.interval * 86400000)) / 86400000)
-    : 0;
-  const R    = _R(elapsedDays, card.s || 1);
-  const D    = card.d || 5;
-  const S    = card.s || 1;
+  const elapsedDays =
+    card.due && card.interval
+      ? Math.max(0, (now - (card.due - card.interval * 86400000)) / 86400000)
+      : 0;
+  const R = _R(elapsedDays, card.s || 1);
+  const D = card.d || 5;
+  const S = card.s || 1;
   const newS = grade >= 3 ? _nextS_recall(D, S, R) : _nextS_forget(D, S, R);
   const newD = _nextD(D, grade);
   const intv = _nextInterval(Math.max(newS, 0.1));
   return {
     ...card,
-    s: Math.max(newS, 0.1), d: Math.min(Math.max(newD, 1), 10),
+    s: Math.max(newS, 0.1),
+    d: Math.min(Math.max(newD, 1), 10),
     r: (card.r || 0) + (correct ? 1 : 0),
     w: (card.w || 0) + (correct ? 0 : 1),
-    due: now + intv * 86400000, nextDue: now + intv * 86400000,
-    ease: 2.5, interval: intv, reps: (card.reps || 0) + 1,
-    nextReview: now + intv * 86400000, lastQuality: quality,
+    due: now + intv * 86400000,
+    nextDue: now + intv * 86400000,
+    ease: 2.5,
+    interval: intv,
+    reps: (card.reps || 0) + 1,
+    nextReview: now + intv * 86400000,
+    lastQuality: quality,
   };
 }
 
@@ -336,7 +375,12 @@ interface DueCardEntry extends VocabEntry {
 /**
  * @deprecated Use getDueReviews() instead.
  */
-export function getDueCards(srMap: SRMap, allCards: VocabEntry[], maxNew = 10, maxReview = 20): (VocabEntry | DueCardEntry)[] {
+export function getDueCards(
+  srMap: SRMap,
+  allCards: VocabEntry[],
+  maxNew = 10,
+  maxReview = 20,
+): (VocabEntry | DueCardEntry)[] {
   const now = Date.now();
   const due: DueCardEntry[] = [];
   const fresh: VocabEntry[] = [];
@@ -364,7 +408,9 @@ interface SRStats {
  */
 export function getSRStats(srMap: SRMap): SRStats {
   const now = Date.now();
-  let due = 0, learning = 0, mastered = 0;
+  let due = 0,
+    learning = 0,
+    mastered = 0;
   for (const id in srMap) {
     const c = srMap[id];
     const dueTs = c.due || c.nextDue || 0;
@@ -383,18 +429,18 @@ export function getSRStats(srMap: SRMap): SRStats {
  * Return a prioritized review queue from the vocabulary pool.
  */
 export function getPrioritizedReviewQueue(pool: unknown[][]): unknown[][] {
-  const sr  = getSR();
+  const sr = getSR();
   const now = Date.now();
 
-  const poolWords = new Set(pool.map(w => w[0] as string));
+  const poolWords = new Set(pool.map((w) => w[0] as string));
 
-  const overdue:  { word: string; state: SRCard; daysOverdue: number }[] = [];
+  const overdue: { word: string; state: SRCard; daysOverdue: number }[] = [];
   const dueToday: { word: string; state: SRCard; R: number }[] = [];
 
   for (const [word, state] of Object.entries(sr)) {
     if (!poolWords.has(word)) continue;
     if (!state.due) continue;
-    const dueMs       = state.due;
+    const dueMs = state.due;
     const daysOverdue = (now - dueMs) / 86400000;
 
     if (daysOverdue > 1) {
@@ -422,7 +468,7 @@ export function getPrioritizedReviewQueue(pool: unknown[][]): unknown[][] {
 
   if (!pool || !pool.length) return [];
 
-  const poolMap = new Map(pool.map(w => [w[0] as string, w]));
+  const poolMap = new Map(pool.map((w) => [w[0] as string, w]));
   const result = prioritized
     .map(({ word }) => poolMap.get(word))
     .filter((w): w is unknown[] => Boolean(w))
@@ -432,10 +478,10 @@ export function getPrioritizedReviewQueue(pool: unknown[][]): unknown[][] {
     const seenWords = new Set(
       Object.entries(sr)
         .filter(([w, s]) => poolWords.has(w) && s && s.due)
-        .map(([w]) => w)
+        .map(([w]) => w),
     );
     const newWords = pool
-      .filter(w => !seenWords.has(w[0] as string))
+      .filter((w) => !seenWords.has(w[0] as string))
       .slice(0, Math.min(5, 10 - result.length));
     result.push(...newWords);
   }

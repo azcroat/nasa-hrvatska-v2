@@ -28,18 +28,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -57,7 +73,7 @@ vi.mock('../data', async (importOriginal) => {
   return {
     ...actual,
     speak: mockSpeak,
-    sh: (arr: unknown[]) => arr,   // identity — Build tiles in deterministic order
+    sh: (arr: unknown[]) => arr, // identity — Build tiles in deterministic order
   };
 });
 
@@ -73,35 +89,35 @@ function renderScreen(overrides: Record<string, unknown> = {}) {
 
 /** Click a mode card button by its English title text. */
 function clickMode(titleEn: string) {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.includes(titleEn));
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes(titleEn));
   if (!btn) throw new Error(`Mode card "${titleEn}" not found`);
   fireEvent.click(btn);
 }
 
 /** Click "Otkrij odgovor" (Transform) or "Otkrij prijevod" (Translate). */
 function clickReveal(text: string) {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.trim() === text);
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === text);
   if (!btn) throw new Error(`"${text}" button not found`);
   fireEvent.click(btn);
 }
 
 /** Click the "✓ Točno" self-grade button. */
 function clickCorrect() {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('✓ Točno'));
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('✓ Točno'));
   if (!btn) throw new Error('"✓ Točno" not found');
   fireEvent.click(btn);
 }
 
 /** Click the "✗ Pogrešno" self-grade button. */
 function clickWrong() {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('✗ Pogrešno'));
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('✗ Pogrešno'));
   if (!btn) throw new Error('"✗ Pogrešno" not found');
   fireEvent.click(btn);
 }
 
 /** Click "Nazad na izbor" (back to mode selection from done screen). */
 function _clickNazadNaIzbor() {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Nazad na izbor'));
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Nazad na izbor'));
   if (!btn) throw new Error('"Nazad na izbor" not found');
   fireEvent.click(btn);
 }
@@ -109,7 +125,9 @@ function _clickNazadNaIzbor() {
 // ─── Mode selection ───────────────────────────────────────────────────────────
 
 describe('ProductionDrillScreen — mode selection', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "Production Drill" heading', () => {
     renderScreen();
@@ -118,8 +136,8 @@ describe('ProductionDrillScreen — mode selection', () => {
 
   it('shows all 4 mode cards', () => {
     renderScreen();
-    expect(screen.getByText(/Preoblikuj/)).toBeTruthy();    // Transform
-    expect(screen.getByText(/Prevedi/)).toBeTruthy();       // Translate
+    expect(screen.getByText(/Preoblikuj/)).toBeTruthy(); // Transform
+    expect(screen.getByText(/Prevedi/)).toBeTruthy(); // Translate
     expect(screen.getByText(/Složi rečenicu/)).toBeTruthy(); // Build
     expect(screen.getByText(/Ispravi grešku/)).toBeTruthy(); // Error
   });
@@ -131,7 +149,7 @@ describe('ProductionDrillScreen — mode selection', () => {
 
   it('back button (←) from mode selection calls goBack()', () => {
     const { props } = renderScreen();
-    const backBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === '←');
+    const backBtn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === '←');
     if (!backBtn) throw new Error('Back button not found');
     fireEvent.click(backBtn);
     expect(props.goBack).toHaveBeenCalled();
@@ -141,7 +159,9 @@ describe('ProductionDrillScreen — mode selection', () => {
 // ─── Transform mode ───────────────────────────────────────────────────────────
 
 describe('ProductionDrillScreen — Transform mode', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking Transform card shows first item source sentence', () => {
     renderScreen();
@@ -152,7 +172,9 @@ describe('ProductionDrillScreen — Transform mode', () => {
   it('shows "Otkrij odgovor" button before revealing', () => {
     renderScreen();
     clickMode('Transform');
-    expect(screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Otkrij odgovor')).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'Otkrij odgovor'),
+    ).toBeTruthy();
   });
 
   it('"Otkrij odgovor" reveals the target sentence', () => {
@@ -166,7 +188,9 @@ describe('ProductionDrillScreen — Transform mode', () => {
     renderScreen();
     clickMode('Transform');
     clickReveal('Otkrij odgovor');
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('✓ Točno'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('✓ Točno')),
+    ).toBeTruthy();
   });
 
   it('"✓ Točno" calls award(2)', () => {
@@ -207,7 +231,7 @@ describe('ProductionDrillScreen — Transform mode', () => {
   it('back button (←) from Transform returns to mode selection', () => {
     const { props } = renderScreen();
     clickMode('Transform');
-    const backBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === '←');
+    const backBtn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === '←');
     if (!backBtn) throw new Error('Back button not found');
     fireEvent.click(backBtn);
     // Mode selection should be visible again
@@ -219,7 +243,9 @@ describe('ProductionDrillScreen — Transform mode', () => {
 // ─── Translate mode ───────────────────────────────────────────────────────────
 
 describe('ProductionDrillScreen — Translate mode', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking Translate card shows first English sentence', () => {
     renderScreen();
@@ -230,7 +256,9 @@ describe('ProductionDrillScreen — Translate mode', () => {
   it('shows "Otkrij prijevod" button before revealing', () => {
     renderScreen();
     clickMode('Translate');
-    expect(screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Otkrij prijevod')).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'Otkrij prijevod'),
+    ).toBeTruthy();
   });
 
   it('"Otkrij prijevod" reveals Croatian translation', () => {
@@ -262,7 +290,9 @@ describe('ProductionDrillScreen — Translate mode', () => {
 // ─── Error Correction mode ────────────────────────────────────────────────────
 
 describe('ProductionDrillScreen — Error Correction mode', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking Error card shows "Ispravi grešku" instruction', () => {
     renderScreen();
@@ -291,7 +321,9 @@ describe('ProductionDrillScreen — Error Correction mode', () => {
     renderScreen();
     clickMode('Correct the Error');
     // First item correct = 'lijepu'
-    const correctBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'lijepu');
+    const correctBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'lijepu');
     if (!correctBtn) throw new Error('"lijepu" option not found');
     fireEvent.click(correctBtn);
     expect(screen.getByText(/✓ Točno!/)).toBeTruthy();
@@ -300,7 +332,9 @@ describe('ProductionDrillScreen — Error Correction mode', () => {
   it('clicking correct option shows the explanation', () => {
     renderScreen();
     clickMode('Correct the Error');
-    const correctBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'lijepu')!;
+    const correctBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'lijepu')!;
     fireEvent.click(correctBtn);
     expect(screen.getByText(/Akuzativ ženskog roda/)).toBeTruthy();
   });
@@ -309,7 +343,9 @@ describe('ProductionDrillScreen — Error Correction mode', () => {
     const award = vi.fn();
     render(<ProductionDrillScreen goBack={vi.fn()} award={award} />);
     clickMode('Correct the Error');
-    const correctBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'lijepu')!;
+    const correctBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'lijepu')!;
     fireEvent.click(correctBtn);
     expect(award).toHaveBeenCalledWith(3);
   });
@@ -318,7 +354,7 @@ describe('ProductionDrillScreen — Error Correction mode', () => {
     renderScreen();
     clickMode('Correct the Error');
     // 'lijep' is wrong
-    const wrongBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'lijep')!;
+    const wrongBtn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'lijep')!;
     fireEvent.click(wrongBtn);
     expect(screen.getByText(/✗ Netočno/)).toBeTruthy();
   });
@@ -327,7 +363,7 @@ describe('ProductionDrillScreen — Error Correction mode', () => {
     const award = vi.fn();
     render(<ProductionDrillScreen goBack={vi.fn()} award={award} />);
     clickMode('Correct the Error');
-    const wrongBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'lijep')!;
+    const wrongBtn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'lijep')!;
     fireEvent.click(wrongBtn);
     expect(award).not.toHaveBeenCalled();
   });
@@ -335,16 +371,22 @@ describe('ProductionDrillScreen — Error Correction mode', () => {
   it('"Sljedeće →" appears after answering', () => {
     renderScreen();
     clickMode('Correct the Error');
-    const correctBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'lijepu')!;
+    const correctBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'lijepu')!;
     fireEvent.click(correctBtn);
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Sljedeće'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Sljedeće')),
+    ).toBeTruthy();
   });
 });
 
 // ─── Build Sentence mode ──────────────────────────────────────────────────────
 
 describe('ProductionDrillScreen — Build Sentence mode', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking Build card shows first sentence English hint', () => {
     renderScreen();
@@ -380,13 +422,15 @@ describe('ProductionDrillScreen — Build Sentence mode', () => {
     clickMode('Build a Sentence');
     // With sh=identity, tiles are in original order: Sutra, idem, u, Zagreb, vlakom
     // Click each remaining tile in order
-    ['Sutra', 'idem', 'u', 'Zagreb', 'vlakom'].forEach(word => {
-      const tile = screen.getAllByRole('button').find(b => b.textContent?.trim() === word);
+    ['Sutra', 'idem', 'u', 'Zagreb', 'vlakom'].forEach((word) => {
+      const tile = screen.getAllByRole('button').find((b) => b.textContent?.trim() === word);
       if (!tile) throw new Error(`Tile "${word}" not found`);
       fireEvent.click(tile);
     });
     // Click "Provjeri"
-    const checkBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Provjeri')!;
+    const checkBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'Provjeri')!;
     fireEvent.click(checkBtn);
     expect(screen.getByText(/Točno!/)).toBeTruthy();
   });
@@ -395,11 +439,13 @@ describe('ProductionDrillScreen — Build Sentence mode', () => {
     const award = vi.fn();
     render(<ProductionDrillScreen goBack={vi.fn()} award={award} />);
     clickMode('Build a Sentence');
-    ['Sutra', 'idem', 'u', 'Zagreb', 'vlakom'].forEach(word => {
-      const tile = screen.getAllByRole('button').find(b => b.textContent?.trim() === word)!;
+    ['Sutra', 'idem', 'u', 'Zagreb', 'vlakom'].forEach((word) => {
+      const tile = screen.getAllByRole('button').find((b) => b.textContent?.trim() === word)!;
       fireEvent.click(tile);
     });
-    const checkBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Provjeri')!;
+    const checkBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'Provjeri')!;
     fireEvent.click(checkBtn);
     expect(award).toHaveBeenCalledWith(5);
   });
@@ -407,7 +453,9 @@ describe('ProductionDrillScreen — Build Sentence mode', () => {
   it('"Provjeri" disabled when no words are placed', () => {
     renderScreen();
     clickMode('Build a Sentence');
-    const checkBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Provjeri') as HTMLButtonElement;
+    const checkBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'Provjeri') as HTMLButtonElement;
     expect(checkBtn.disabled).toBe(true);
   });
 });
@@ -415,7 +463,9 @@ describe('ProductionDrillScreen — Build Sentence mode', () => {
 // ─── handleDone / markQuest ───────────────────────────────────────────────────
 
 describe('ProductionDrillScreen — handleDone calls markQuest', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('"Nazad na izbor" in Error Correction done mode calls markQuest("grammar")', () => {
     // Reach done state in Error Correction by navigating through all 15 items

@@ -10,12 +10,14 @@ import { WORD_OF_DAY_POOL } from '../data/daily-content.js';
 export function getWordOfDay(): [string, string, string] | null {
   try {
     // Day-of-year as seed for consistent daily word across all users.
-    const now   = new Date();
+    const now = new Date();
     const start = new Date(now.getFullYear(), 0, 1);
     const dayOfYear = Math.floor((now.getTime() - start.getTime()) / 86400000);
 
     if (WORD_OF_DAY_POOL?.length) {
-      const entry = WORD_OF_DAY_POOL[dayOfYear % WORD_OF_DAY_POOL.length] as { hr: string; en: string; pos?: string; note?: string } | undefined;
+      const entry = WORD_OF_DAY_POOL[dayOfYear % WORD_OF_DAY_POOL.length] as
+        | { hr: string; en: string; pos?: string; note?: string }
+        | undefined;
       // Normalize to [hr, en, note] array format used by HomeTab
       if (entry) return [entry.hr, entry.en, entry.note || entry.pos || ''];
     }

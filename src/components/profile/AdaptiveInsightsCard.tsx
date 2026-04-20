@@ -38,10 +38,10 @@ function _loadSRWeakWords() {
       .filter(([, v]) => {
         const r = v.r || 0;
         const w = v.w || 0;
-        return w > r && (r + w) >= 3;
+        return w > r && r + w >= 3;
       })
       .map(([word, v]) => ({ word, right: v.r || 0, wrong: v.w || 0 }))
-      .sort((a, b) => (b.wrong - b.right) - (a.wrong - a.right))
+      .sort((a, b) => b.wrong - b.right - (a.wrong - a.right))
       .slice(0, 10);
   } catch {
     return [];
@@ -50,19 +50,19 @@ function _loadSRWeakWords() {
 
 // ── Severity dot ──────────────────────────────────────────────────────────────
 function SeverityDot({ severity }) {
-  const color = severity === 'high' ? '#D4002D'
-    : severity === 'medium' ? '#d97706'
-    : '#16a34a';
+  const color = severity === 'high' ? '#D4002D' : severity === 'medium' ? '#d97706' : '#16a34a';
   return (
-    <span style={{
-      display: 'inline-block',
-      width: 8,
-      height: 8,
-      borderRadius: '50%',
-      background: color,
-      marginRight: 6,
-      flexShrink: 0,
-    }} />
+    <span
+      style={{
+        display: 'inline-block',
+        width: 8,
+        height: 8,
+        borderRadius: '50%',
+        background: color,
+        marginRight: 6,
+        flexShrink: 0,
+      }}
+    />
   );
 }
 
@@ -90,21 +90,25 @@ function Skeleton() {
 // ── Empty state ───────────────────────────────────────────────────────────────
 function EmptyState() {
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 10,
-      padding: '18px 12px',
-      textAlign: 'center',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 10,
+        padding: '18px 12px',
+        textAlign: 'center',
+      }}
+    >
       <span style={{ fontSize: 32 }}>🎯</span>
-      <div style={{
-        fontSize: 14,
-        color: 'var(--subtext)',
-        lineHeight: 1.5,
-        maxWidth: 260,
-      }}>
+      <div
+        style={{
+          fontSize: 14,
+          color: 'var(--subtext)',
+          lineHeight: 1.5,
+          maxWidth: 260,
+        }}
+      >
         Complete a few lessons and I'll personalize your practice!
       </div>
     </div>
@@ -123,12 +127,20 @@ function EmptyState() {
  *   goToScreen?: (screen: string) => void
  * }} props
  */
-export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsCompleted = 0, goToScreen }) {
+export default function AdaptiveInsightsCard({
+  uid,
+  level = 'A2',
+  lessonsCompleted = 0,
+  goToScreen,
+}) {
   const [phase, setPhase] = useState('loading'); // 'loading' | 'ready' | 'empty'
   const [insights, setInsights] = useState(null);
 
   const fetchInsights = useCallback(async () => {
-    if (!uid) { setPhase('empty'); return; }
+    if (!uid) {
+      setPhase('empty');
+      return;
+    }
 
     // 1. Check cache first — show immediately if available
     const cached = _loadCache(uid);
@@ -177,20 +189,24 @@ export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsComplet
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{
-      background: 'var(--card)',
-      border: '1px solid var(--card-b)',
-      borderRadius: 16,
-      overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        background: 'var(--card)',
+        border: '1px solid var(--card-b)',
+        borderRadius: 16,
+        overflow: 'hidden',
+      }}
+    >
       {/* Card header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '14px 16px 10px',
-        borderBottom: '1px solid var(--card-b)',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '14px 16px 10px',
+          borderBottom: '1px solid var(--card-b)',
+        }}
+      >
         <span style={{ fontSize: 20 }}>🧠</span>
         <div>
           <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--heading)' }}>
@@ -204,7 +220,6 @@ export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsComplet
 
       {/* Card body */}
       <div style={{ padding: '14px 16px 16px' }}>
-
         {/* Loading skeleton */}
         {phase === 'loading' && <Skeleton />}
 
@@ -216,16 +231,18 @@ export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsComplet
           <div>
             {/* todaysFocus */}
             {insights.todaysFocus && (
-              <div style={{
-                background: BRAND_TEAL_DIM,
-                border: `1px solid ${BRAND_TEAL_BORDER}`,
-                borderRadius: 10,
-                padding: '10px 13px',
-                fontSize: 14,
-                color: 'var(--heading)',
-                lineHeight: 1.55,
-                marginBottom: 14,
-              }}>
+              <div
+                style={{
+                  background: BRAND_TEAL_DIM,
+                  border: `1px solid ${BRAND_TEAL_BORDER}`,
+                  borderRadius: 10,
+                  padding: '10px 13px',
+                  fontSize: 14,
+                  color: 'var(--heading)',
+                  lineHeight: 1.55,
+                  marginBottom: 14,
+                }}
+              >
                 {insights.todaysFocus}
               </div>
             )}
@@ -233,14 +250,16 @@ export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsComplet
             {/* weakAreas badges */}
             {insights.weakAreas && insights.weakAreas.length > 0 && (
               <div style={{ marginBottom: 14 }}>
-                <div style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: 'var(--subtext)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.07em',
-                  marginBottom: 8,
-                }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: 'var(--subtext)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.07em',
+                    marginBottom: 8,
+                  }}
+                >
                   Areas to strengthen
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -258,11 +277,13 @@ export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsComplet
                       }}
                     >
                       <SeverityDot severity={area.severity} />
-                      <span style={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: 'var(--heading)',
-                      }}>
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: 'var(--heading)',
+                        }}
+                      >
                         {area.label}
                       </span>
                     </div>
@@ -274,14 +295,16 @@ export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsComplet
             {/* drillSuggestions */}
             {insights.drillSuggestions && insights.drillSuggestions.length > 0 && (
               <div style={{ marginBottom: 14 }}>
-                <div style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: 'var(--subtext)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.07em',
-                  marginBottom: 8,
-                }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: 'var(--subtext)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.07em',
+                    marginBottom: 8,
+                  }}
+                >
                   Quick drills
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -304,9 +327,7 @@ export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsComplet
                         fontFamily: "'Outfit', sans-serif",
                       }}
                     >
-                      {suggestion.icon && (
-                        <span style={{ fontSize: 15 }}>{suggestion.icon}</span>
-                      )}
+                      {suggestion.icon && <span style={{ fontSize: 15 }}>{suggestion.icon}</span>}
                       {suggestion.label}
                     </button>
                   ))}
@@ -316,14 +337,16 @@ export default function AdaptiveInsightsCard({ uid, level = 'A2', lessonsComplet
 
             {/* encouragement */}
             {insights.encouragement && (
-              <div style={{
-                fontSize: 13,
-                fontStyle: 'italic',
-                color: 'var(--subtext)',
-                lineHeight: 1.5,
-                borderTop: '1px solid var(--card-b)',
-                paddingTop: 12,
-              }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontStyle: 'italic',
+                  color: 'var(--subtext)',
+                  lineHeight: 1.5,
+                  borderTop: '1px solid var(--card-b)',
+                  paddingTop: 12,
+                }}
+              >
                 {insights.encouragement}
               </div>
             )}

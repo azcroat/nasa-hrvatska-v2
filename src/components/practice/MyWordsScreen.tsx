@@ -5,7 +5,11 @@ import { speak, srMark } from '../../data';
 const STORAGE_KEY = 'nh_custom_words';
 
 function loadWords() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch {
+    return [];
+  }
 }
 
 function saveWords(words) {
@@ -359,11 +363,14 @@ const S = {
 /* ─── Sub-views ───────────────────────────────────────────────────────── */
 
 function WordList({ words, setWords, setView }) {
-  const deleteWord = useCallback((idx) => {
-    const updated = words.filter((_, i) => i !== idx);
-    setWords(updated);
-    saveWords(updated);
-  }, [words, setWords]);
+  const deleteWord = useCallback(
+    (idx) => {
+      const updated = words.filter((_, i) => i !== idx);
+      setWords(updated);
+      saveWords(updated);
+    },
+    [words, setWords],
+  );
 
   if (words.length === 0) {
     return (
@@ -383,7 +390,9 @@ function WordList({ words, setWords, setView }) {
   return (
     <>
       <div style={S.topBar}>
-        <span style={S.countText}>{words.length} word{words.length === 1 ? '' : 's'} in your deck</span>
+        <span style={S.countText}>
+          {words.length} word{words.length === 1 ? '' : 's'} in your deck
+        </span>
         <div style={S.btnGroup}>
           <button style={S.btnGhost} onClick={() => setView('drill')}>
             Drill My Words
@@ -395,11 +404,7 @@ function WordList({ words, setWords, setView }) {
       </div>
       {words.map((w, i) => (
         <div key={i} style={S.card}>
-          <button
-            style={S.deleteBtn}
-            title="Delete word"
-            onClick={() => deleteWord(i)}
-          >
+          <button style={S.deleteBtn} title="Delete word" onClick={() => deleteWord(i)}>
             ×
           </button>
           <div style={S.hrWord}>{w.hr}</div>
@@ -415,7 +420,9 @@ function WordList({ words, setWords, setView }) {
             </button>
           ) : null}
           {w.example ? (
-            <div style={{ fontSize: 13, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 4 }}>
+            <div
+              style={{ fontSize: 13, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 4 }}
+            >
               "{w.example}"
             </div>
           ) : null}
@@ -434,8 +441,14 @@ function AddWordForm({ words, setWords, setView }) {
   const [error, setError] = useState('');
 
   function handleSave() {
-    if (!hr.trim()) { setError('Croatian word is required.'); return; }
-    if (!en.trim()) { setError('English meaning is required.'); return; }
+    if (!hr.trim()) {
+      setError('Croatian word is required.');
+      return;
+    }
+    if (!en.trim()) {
+      setError('English meaning is required.');
+      return;
+    }
     setError('');
     const newWord = {
       hr: hr.trim(),
@@ -454,21 +467,25 @@ function AddWordForm({ words, setWords, setView }) {
     <div style={S.formCard}>
       <div style={S.formTitle}>Add a New Word</div>
       <div style={S.fieldGroup}>
-        <label style={S.label}>Croatian word <span style={{ color: '#dc2626' }}>*</span></label>
+        <label style={S.label}>
+          Croatian word <span style={{ color: '#dc2626' }}>*</span>
+        </label>
         <input
           style={S.input}
           value={hr}
-          onChange={e => setHr(e.target.value)}
+          onChange={(e) => setHr(e.target.value)}
           placeholder="e.g. krastavac"
           autoFocus
         />
       </div>
       <div style={S.fieldGroup}>
-        <label style={S.label}>English meaning <span style={{ color: '#dc2626' }}>*</span></label>
+        <label style={S.label}>
+          English meaning <span style={{ color: '#dc2626' }}>*</span>
+        </label>
         <input
           style={S.input}
           value={en}
-          onChange={e => setEn(e.target.value)}
+          onChange={(e) => setEn(e.target.value)}
           placeholder="e.g. cucumber"
         />
       </div>
@@ -477,7 +494,7 @@ function AddWordForm({ words, setWords, setView }) {
         <input
           style={S.input}
           value={phonetic}
-          onChange={e => setPhonetic(e.target.value)}
+          onChange={(e) => setPhonetic(e.target.value)}
           placeholder="e.g. kra-STAH-vats"
         />
       </div>
@@ -486,7 +503,7 @@ function AddWordForm({ words, setWords, setView }) {
         <input
           style={S.input}
           value={example}
-          onChange={e => setExample(e.target.value)}
+          onChange={(e) => setExample(e.target.value)}
           placeholder="e.g. Volim krastavce u salati."
         />
       </div>
@@ -515,7 +532,9 @@ function DrillMode({ words, setView, onComplete }) {
         <div style={S.resultIcon}>📭</div>
         <div style={S.resultTitle}>No words to drill yet!</div>
         <div style={S.resultScore}>Add some words first to drill.</div>
-        <button style={S.btnPrimary} onClick={() => setView('list')}>Go Back</button>
+        <button style={S.btnPrimary} onClick={() => setView('list')}>
+          Go Back
+        </button>
       </div>
     );
   }
@@ -525,9 +544,13 @@ function DrillMode({ words, setView, onComplete }) {
       <div style={S.resultWrap}>
         <div style={S.resultIcon}>{correct === words.length ? '🏆' : '📚'}</div>
         <div style={S.resultTitle}>Well done!</div>
-        <div style={S.resultScore}>You got {correct} out of {words.length} correct.</div>
+        <div style={S.resultScore}>
+          You got {correct} out of {words.length} correct.
+        </div>
         <div style={S.btnGroup}>
-          <button style={S.btnPrimary} onClick={() => setView('list')}>Back to List</button>
+          <button style={S.btnPrimary} onClick={() => setView('list')}>
+            Back to List
+          </button>
         </div>
       </div>
     );
@@ -544,30 +567,39 @@ function DrillMode({ words, setView, onComplete }) {
       setDone(true);
       if (typeof onComplete === 'function') onComplete(newCorrect, words.length);
     } else {
-      setIdx(i => i + 1);
+      setIdx((i) => i + 1);
     }
   }
 
   return (
     <div style={S.drillWrap}>
-      <div style={S.drillProgress}>Card {idx + 1} of {words.length}</div>
+      <div style={S.drillProgress}>
+        Card {idx + 1} of {words.length}
+      </div>
       <div
         style={S.drillCard}
         onClick={() => !flipped && setFlipped(true)}
         role="button"
         tabIndex={0}
-        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!flipped) setFlipped(true); } }}
-        aria-label={flipped ? `Translation: ${word.en}` : `Croatian word: ${word.hr}. Tap to reveal.`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (!flipped) setFlipped(true);
+          }
+        }}
+        aria-label={
+          flipped ? `Translation: ${word.en}` : `Croatian word: ${word.hr}. Tap to reveal.`
+        }
       >
         <div style={S.drillHr}>{word.hr}</div>
-        {word.phonetic ? (
-          <div style={S.drillPhonetic}>{word.phonetic}</div>
-        ) : null}
+        {word.phonetic ? <div style={S.drillPhonetic}>{word.phonetic}</div> : null}
         {flipped ? (
           <>
             <div style={S.drillEn}>{word.en}</div>
             {word.example ? (
-              <div style={{ fontSize: 13, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 6 }}>
+              <div
+                style={{ fontSize: 13, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 6 }}
+              >
                 "{word.example}"
               </div>
             ) : null}
@@ -607,8 +639,8 @@ export default function MyWordsScreen({ onBack, award }) {
     view === 'add'
       ? 'Save a new word to your deck'
       : view === 'drill'
-      ? 'Test yourself on your words'
-      : 'Your personal vocabulary deck';
+        ? 'Test yourself on your words'
+        : 'Your personal vocabulary deck';
 
   return (
     <div style={S.wrap}>
@@ -628,16 +660,16 @@ export default function MyWordsScreen({ onBack, award }) {
       </div>
 
       <div style={S.body}>
-        {view === 'list' && (
-          <WordList words={words} setWords={setWords} setView={setView} />
-        )}
-        {view === 'add' && (
-          <AddWordForm words={words} setWords={setWords} setView={setView} />
-        )}
+        {view === 'list' && <WordList words={words} setWords={setWords} setView={setView} />}
+        {view === 'add' && <AddWordForm words={words} setWords={setWords} setView={setView} />}
         {view === 'drill' && (
-          <DrillMode words={words} setView={setView} onComplete={(correct, total) => {
-            if (typeof award === 'function' && correct > 0) award(correct * 5);
-          }} />
+          <DrillMode
+            words={words}
+            setView={setView}
+            onComplete={(correct, total) => {
+              if (typeof award === 'function' && correct > 0) award(correct * 5);
+            }}
+          />
         )}
       </div>
     </div>

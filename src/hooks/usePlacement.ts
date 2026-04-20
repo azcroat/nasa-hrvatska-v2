@@ -40,11 +40,16 @@ export function usePlacement(): {
   }
 
   return {
-    placementIdx, setPlacementIdx,
-    placementScore, setPlacementScore,
-    placementAnswers, setPlacementAnswers,
-    placementXp, setPlacementXp,
-    placementQ, setPlacementQ,
+    placementIdx,
+    setPlacementIdx,
+    placementScore,
+    setPlacementScore,
+    placementAnswers,
+    setPlacementAnswers,
+    placementXp,
+    setPlacementXp,
+    placementQ,
+    setPlacementQ,
     getPlacementCt,
   };
 }

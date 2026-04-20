@@ -71,51 +71,73 @@ export interface ConversationSession {
 }
 
 export function useConversationSession(initialLevel: string): ConversationSession {
-  const [phase,               setPhase]               = useState<'setup' | 'chat' | 'result'>('setup');
-  const [scenario,            setScenario]            = useState<Record<string, unknown> | null>(null);
-  const [level,               setLevel]               = useState<string>(initialLevel);
-  const [turnCount,           setTurnCount]           = useState<number>(0);
-  const [messages,            setMessages]            = useState<ConversationMessage[]>([]);
-  const [input,               setInput]               = useState<string>('');
-  const [loading,             setLoading]             = useState<boolean>(false);
-  const [chatError,           setChatError]           = useState<string>('');
-  const [sendError,           setSendError]           = useState<string>('');
-  const [evaluation,          setEvaluation]          = useState<Record<string, unknown> | null>(null);
-  const [evalError,           setEvalError]           = useState<string>('');
-  const [convoVocab,          setConvoVocab]          = useState<unknown[]>([]);
+  const [phase, setPhase] = useState<'setup' | 'chat' | 'result'>('setup');
+  const [scenario, setScenario] = useState<Record<string, unknown> | null>(null);
+  const [level, setLevel] = useState<string>(initialLevel);
+  const [turnCount, setTurnCount] = useState<number>(0);
+  const [messages, setMessages] = useState<ConversationMessage[]>([]);
+  const [input, setInput] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [chatError, setChatError] = useState<string>('');
+  const [sendError, setSendError] = useState<string>('');
+  const [evaluation, setEvaluation] = useState<Record<string, unknown> | null>(null);
+  const [evalError, setEvalError] = useState<string>('');
+  const [convoVocab, setConvoVocab] = useState<unknown[]>([]);
   const [weakAreasForSession, setWeakAreasForSession] = useState<string[]>([]);
-  const [corrections,         setCorrections]         = useState<Record<string, unknown>>({});
-  const [tooltip,             setTooltip]             = useState<unknown | null>(null);
-  const [showStarters,        setShowStarters]        = useState<boolean>(false);
-  const [listening,           setListening]           = useState<boolean>(false);
-  const [muted,               setMuted]               = useState<boolean>(false);
-  const [npcVideoUrl,         setNpcVideoUrl]         = useState<string | null>(null);
-  const [npcVideoLoading,     setNpcVideoLoading]     = useState<boolean>(false);
-  const [isSpeaking,          setIsSpeaking]          = useState<boolean>(false);
-  const [savedWords,          setSavedWords]          = useState<Set<string>>(new Set());
+  const [corrections, setCorrections] = useState<Record<string, unknown>>({});
+  const [tooltip, setTooltip] = useState<unknown | null>(null);
+  const [showStarters, setShowStarters] = useState<boolean>(false);
+  const [listening, setListening] = useState<boolean>(false);
+  const [muted, setMuted] = useState<boolean>(false);
+  const [npcVideoUrl, setNpcVideoUrl] = useState<string | null>(null);
+  const [npcVideoLoading, setNpcVideoLoading] = useState<boolean>(false);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [savedWords, setSavedWords] = useState<Set<string>>(new Set());
 
   return {
-    phase, setPhase,
-    scenario, setScenario,
-    level, setLevel,
-    turnCount, setTurnCount,
-    messages, setMessages,
-    input, setInput,
-    loading, setLoading,
-    chatError, setChatError,
-    sendError, setSendError,
-    evaluation, setEvaluation,
-    evalError, setEvalError,
-    convoVocab, setConvoVocab,
-    weakAreasForSession, setWeakAreasForSession,
-    corrections, setCorrections,
-    tooltip, setTooltip,
-    showStarters, setShowStarters,
-    listening, setListening,
-    muted, setMuted,
-    npcVideoUrl, setNpcVideoUrl,
-    npcVideoLoading, setNpcVideoLoading,
-    isSpeaking, setIsSpeaking,
-    savedWords, setSavedWords,
+    phase,
+    setPhase,
+    scenario,
+    setScenario,
+    level,
+    setLevel,
+    turnCount,
+    setTurnCount,
+    messages,
+    setMessages,
+    input,
+    setInput,
+    loading,
+    setLoading,
+    chatError,
+    setChatError,
+    sendError,
+    setSendError,
+    evaluation,
+    setEvaluation,
+    evalError,
+    setEvalError,
+    convoVocab,
+    setConvoVocab,
+    weakAreasForSession,
+    setWeakAreasForSession,
+    corrections,
+    setCorrections,
+    tooltip,
+    setTooltip,
+    showStarters,
+    setShowStarters,
+    listening,
+    setListening,
+    muted,
+    setMuted,
+    npcVideoUrl,
+    setNpcVideoUrl,
+    npcVideoLoading,
+    setNpcVideoLoading,
+    isSpeaking,
+    setIsSpeaking,
+    savedWords,
+    setSavedWords,
   };
 }

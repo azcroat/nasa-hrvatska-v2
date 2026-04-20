@@ -39,7 +39,7 @@ function _mwFallbackCheck(key, limit) {
 
 // ── Rate limit config ─────────────────────────────────────────────────────────
 const AI_ENDPOINTS = ['/api/ai-chat', '/api/news', '/api/correct'];
-const AI_RATE_LIMIT = 20;      // per minute
+const AI_RATE_LIMIT = 20; // per minute
 const GENERAL_RATE_LIMIT = 60; // per minute
 
 async function getRateLimit(cache, key) {
@@ -64,11 +64,12 @@ export async function onRequest(context) {
   // Only apply to API routes
   if (!pathname.startsWith('/api/')) return next();
 
-  const ip = request.headers.get('cf-connecting-ip')
-    || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || 'unknown';
+  const ip =
+    request.headers.get('cf-connecting-ip') ||
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    'unknown';
 
-  const isAI = AI_ENDPOINTS.some(ep => pathname.startsWith(ep));
+  const isAI = AI_ENDPOINTS.some((ep) => pathname.startsWith(ep));
   const limit = isAI ? AI_RATE_LIMIT : GENERAL_RATE_LIMIT;
   const cacheKey = `rl:${ip}:${pathname}`;
 
@@ -77,15 +78,18 @@ export async function onRequest(context) {
     const current = await getRateLimit(cache, cacheKey);
 
     if (current >= limit) {
-      return new Response(JSON.stringify({ error: 'Too many requests. Please wait before trying again.' }), {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
-          'Retry-After': '60',
-          'X-RateLimit-Limit': String(limit),
-          'X-RateLimit-Remaining': '0',
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please wait before trying again.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': '60',
+            'X-RateLimit-Limit': String(limit),
+            'X-RateLimit-Remaining': '0',
+          },
         },
-      });
+      );
     }
 
     // Increment — fire and forget to avoid adding latency
@@ -95,15 +99,18 @@ export async function onRequest(context) {
     console.warn('[Middleware] Cache API unavailable — using in-memory fallback');
     const allowed = _mwFallbackCheck(cacheKey, limit);
     if (!allowed) {
-      return new Response(JSON.stringify({ error: 'Too many requests. Please wait before trying again.' }), {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
-          'Retry-After': '60',
-          'X-RateLimit-Limit': String(limit),
-          'X-RateLimit-Remaining': '0',
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please wait before trying again.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': '60',
+            'X-RateLimit-Limit': String(limit),
+            'X-RateLimit-Remaining': '0',
+          },
         },
-      });
+      );
     }
   }
 

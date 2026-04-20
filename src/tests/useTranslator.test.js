@@ -10,19 +10,27 @@ function mockFetch(responseData, status = 200) {
       status,
       ok: status >= 200 && status < 300,
       json: () => Promise.resolve(responseData),
-    })
+    }),
   );
 }
 
 // Helper: set tIn then flush state before calling doTr
 async function setInputAndTranslate(result, input) {
-  await act(async () => { result.current.setTIn(input); });
-  await act(async () => { await result.current.doTr(); });
+  await act(async () => {
+    result.current.setTIn(input);
+  });
+  await act(async () => {
+    await result.current.doTr();
+  });
 }
 
 describe('useTranslator — state and fetch logic', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
-  afterEach(() => { globalThis.fetch = originalFetch; });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
 
   // ── initial state ─────────────────────────────────────────────────────────
 
@@ -47,15 +55,21 @@ describe('useTranslator — state and fetch logic', () => {
   it('does not call fetch when input is empty', async () => {
     globalThis.fetch = vi.fn();
     const { result } = renderHook(() => useTranslator());
-    await act(async () => { await result.current.doTr(); });
+    await act(async () => {
+      await result.current.doTr();
+    });
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it('does not call fetch when input is only whitespace', async () => {
     globalThis.fetch = vi.fn();
     const { result } = renderHook(() => useTranslator());
-    await act(async () => { result.current.setTIn('   '); });
-    await act(async () => { await result.current.doTr(); });
+    await act(async () => {
+      result.current.setTIn('   ');
+    });
+    await act(async () => {
+      await result.current.doTr();
+    });
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
@@ -84,7 +98,9 @@ describe('useTranslator — state and fetch logic', () => {
   it('uses hr→en pair when direction is hr-en', async () => {
     mockFetch({ translation: 'bread' });
     const { result } = renderHook(() => useTranslator());
-    await act(async () => { result.current.setTDir('hr-en'); });
+    await act(async () => {
+      result.current.setTDir('hr-en');
+    });
     await setInputAndTranslate(result, 'kruh');
     const [, opts] = globalThis.fetch.mock.calls[0];
     const body = JSON.parse(opts.body);
@@ -133,19 +149,25 @@ describe('useTranslator — state and fetch logic', () => {
 
   it('setTDir updates direction', async () => {
     const { result } = renderHook(() => useTranslator());
-    await act(() => { result.current.setTDir('hr-en'); });
+    await act(() => {
+      result.current.setTDir('hr-en');
+    });
     expect(result.current.tDir).toBe('hr-en');
   });
 
   it('setTIn updates input text', async () => {
     const { result } = renderHook(() => useTranslator());
-    await act(() => { result.current.setTIn('hvala'); });
+    await act(() => {
+      result.current.setTIn('hvala');
+    });
     expect(result.current.tIn).toBe('hvala');
   });
 
   it('setTOut updates output text', async () => {
     const { result } = renderHook(() => useTranslator());
-    await act(() => { result.current.setTOut('thank you'); });
+    await act(() => {
+      result.current.setTOut('thank you');
+    });
     expect(result.current.tOut).toBe('thank you');
   });
 });

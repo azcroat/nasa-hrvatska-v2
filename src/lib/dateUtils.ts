@@ -1,6 +1,12 @@
 /** Returns local date as YYYY-MM-DD string (never UTC). */
 export function localDateStr(d: Date = new Date()): string {
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  return (
+    d.getFullYear() +
+    '-' +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(d.getDate()).padStart(2, '0')
+  );
 }
 
 /**
@@ -12,11 +18,15 @@ export async function getServerDateStr(): Promise<string> {
   try {
     const ctrl = new AbortController();
     const id = setTimeout(() => ctrl.abort(), 3000);
-    const apiBase = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.() ? 'https://nasahrvatska.com' : '';
+    const apiBase = (
+      window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }
+    ).Capacitor?.isNativePlatform?.()
+      ? 'https://nasahrvatska.com'
+      : '';
     const res = await fetch(`${apiBase}/api/server-time`, { signal: ctrl.signal });
     clearTimeout(id);
     if (!res.ok) throw new Error('non-ok');
-    const { ts } = await res.json() as { ts: number };
+    const { ts } = (await res.json()) as { ts: number };
     return localDateStr(new Date(ts));
   } catch {
     return localDateStr(new Date());

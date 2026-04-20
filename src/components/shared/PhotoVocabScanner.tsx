@@ -27,83 +27,97 @@ const _BRAND_TEAL = '#0e7490';
 // ── VocabCard ─────────────────────────────────────────────────────────────────
 function VocabCard({ item, checked, onToggle }) {
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'flex-start',
-      background: 'var(--card)',
-      border: '1px solid var(--card-b)',
-      borderRadius: 14,
-      marginBottom: 10,
-      overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        background: 'var(--card)',
+        border: '1px solid var(--card-b)',
+        borderRadius: 14,
+        marginBottom: 10,
+        overflow: 'hidden',
+      }}
+    >
       {/* Left accent bar */}
-      <div style={{
-        width: 5,
-        alignSelf: 'stretch',
-        background: BRAND_RED,
-        flexShrink: 0,
-        borderRadius: '14px 0 0 14px',
-      }} />
+      <div
+        style={{
+          width: 5,
+          alignSelf: 'stretch',
+          background: BRAND_RED,
+          flexShrink: 0,
+          borderRadius: '14px 0 0 14px',
+        }}
+      />
 
       {/* Content */}
       <div style={{ flex: 1, padding: '12px 12px 12px 14px' }}>
         {/* Croatian word */}
-        <div style={{
-          fontSize: 18,
-          fontWeight: 800,
-          color: BRAND_RED,
-          lineHeight: 1.2,
-          marginBottom: 2,
-          fontFamily: "'Playfair Display', serif",
-        }}>
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 800,
+            color: BRAND_RED,
+            lineHeight: 1.2,
+            marginBottom: 2,
+            fontFamily: "'Playfair Display', serif",
+          }}
+        >
           {item.word}
         </div>
 
         {/* English translation */}
-        <div style={{
-          fontSize: 14,
-          color: 'var(--subtext)',
-          marginBottom: 2,
-          fontWeight: 500,
-        }}>
+        <div
+          style={{
+            fontSize: 14,
+            color: 'var(--subtext)',
+            marginBottom: 2,
+            fontWeight: 500,
+          }}
+        >
           {item.translation}
         </div>
 
         {/* Pronunciation hint */}
         {item.pronunciation && (
-          <div style={{
-            fontSize: 12,
-            fontStyle: 'italic',
-            color: '#78716c',
-            marginBottom: 6,
-          }}>
+          <div
+            style={{
+              fontSize: 12,
+              fontStyle: 'italic',
+              color: '#78716c',
+              marginBottom: 6,
+            }}
+          >
             ({item.pronunciation})
           </div>
         )}
 
         {/* Example sentence */}
         {item.example && (
-          <div style={{
-            fontSize: 13,
-            color: 'var(--heading)',
-            lineHeight: 1.5,
-            borderTop: '1px solid var(--card-b)',
-            paddingTop: 6,
-            marginTop: 2,
-          }}>
+          <div
+            style={{
+              fontSize: 13,
+              color: 'var(--heading)',
+              lineHeight: 1.5,
+              borderTop: '1px solid var(--card-b)',
+              paddingTop: 6,
+              marginTop: 2,
+            }}
+          >
             {item.example}
           </div>
         )}
       </div>
 
       {/* Checkbox */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '14px 14px 14px 4px',
-        flexShrink: 0,
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '14px 14px 14px 4px',
+          flexShrink: 0,
+        }}
+      >
         <input
           type="checkbox"
           aria-label={`Select ${item.word} — ${item.translation}`}
@@ -124,36 +138,40 @@ function VocabCard({ item, checked, onToggle }) {
 // ── Loading spinner ───────────────────────────────────────────────────────────
 function Spinner() {
   return (
-    <div style={{
-      width: 40,
-      height: 40,
-      borderRadius: '50%',
-      border: `4px solid rgba(212,0,45,0.15)`,
-      borderTopColor: BRAND_RED,
-      animation: 'pv-spin 0.8s linear infinite',
-    }} />
+    <div
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: '50%',
+        border: `4px solid rgba(212,0,45,0.15)`,
+        borderTopColor: BRAND_RED,
+        animation: 'pv-spin 0.8s linear infinite',
+      }}
+    />
   );
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function Toast({ message }) {
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: 80,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      background: '#16a34a',
-      color: '#fff',
-      fontWeight: 700,
-      fontSize: 14,
-      padding: '12px 24px',
-      borderRadius: 30,
-      zIndex: 9999,
-      boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
-      pointerEvents: 'none',
-      whiteSpace: 'nowrap',
-    }}>
+    <div
+      style={{
+        position: 'fixed',
+        bottom: 80,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: '#16a34a',
+        color: '#fff',
+        fontWeight: 700,
+        fontSize: 14,
+        padding: '12px 24px',
+        borderRadius: 30,
+        zIndex: 9999,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+        pointerEvents: 'none',
+        whiteSpace: 'nowrap',
+      }}
+    >
       {message}
     </div>
   );
@@ -168,7 +186,9 @@ function Toast({ message }) {
  */
 export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords }) {
   // Inject keyframes on first render
-  useEffect(() => { injectKeyframes(); }, []);
+  useEffect(() => {
+    injectKeyframes();
+  }, []);
 
   const desktop = isDesktop();
 
@@ -176,9 +196,9 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   const [phase, setPhase] = useState('idle');
   const [imageDataUrl, setImageDataUrl] = useState(null);
   const [context, setContext] = useState('');
-  const [results, setResults] = useState(null);   // { scene, words: [...] }
+  const [results, setResults] = useState(null); // { scene, words: [...] }
   const [errorMsg, setErrorMsg] = useState('');
-  const [checked, setChecked] = useState({});     // word index → boolean
+  const [checked, setChecked] = useState({}); // word index → boolean
   const [toast, setToast] = useState(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -199,13 +219,16 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   }, []);
 
   // ── File input change ───────────────────────────────────────────────────────
-  const handleFileChange = useCallback((e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    loadFile(file);
-    // Reset so same file can be re-selected
-    e.target.value = '';
-  }, [loadFile]);
+  const handleFileChange = useCallback(
+    (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      loadFile(file);
+      // Reset so same file can be re-selected
+      e.target.value = '';
+    },
+    [loadFile],
+  );
 
   // ── Drag-and-drop ───────────────────────────────────────────────────────────
   const handleDragOver = useCallback((e) => {
@@ -217,18 +240,23 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
     setDragOver(false);
   }, []);
 
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files?.[0];
-    loadFile(file);
-  }, [loadFile]);
+  const handleDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      setDragOver(false);
+      const file = e.dataTransfer.files?.[0];
+      loadFile(file);
+    },
+    [loadFile],
+  );
 
   // ── Clipboard paste (Ctrl+V / Cmd+V) ───────────────────────────────────────
   useEffect(() => {
     if (!desktop) return;
     const handlePaste = (e) => {
-      const item = Array.from(e.clipboardData?.items || []).find(i => i.type.startsWith('image/'));
+      const item = Array.from(e.clipboardData?.items || []).find((i) =>
+        i.type.startsWith('image/'),
+      );
       if (item) loadFile(item.getAsFile());
     };
     document.addEventListener('paste', handlePaste);
@@ -241,15 +269,17 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
     setPhase('loading');
     setErrorMsg('');
     try {
-      const data = /** @type {any} */ (await apiFetch('/api/photo-vocab', {
+      const data = /** @type {any} */ await apiFetch('/api/photo-vocab', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: imageDataUrl, level, context: context.trim() }),
-      }));
+      });
       setResults(data);
       // Default: all words checked
       const initial = {};
-      (data.words || []).forEach((_, i) => { initial[i] = true; });
+      (data.words || []).forEach((_, i) => {
+        initial[i] = true;
+      });
       setChecked(initial);
       setPhase('results');
     } catch (err) {
@@ -286,14 +316,16 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
       {toast && <Toast message={toast} />}
 
       {/* ── Header ── */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        marginBottom: 18,
-        paddingBottom: 12,
-        borderBottom: '1px solid var(--card-b)',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          marginBottom: 18,
+          paddingBottom: 12,
+          borderBottom: '1px solid var(--card-b)',
+        }}
+      >
         <button
           onClick={goBack}
           style={{
@@ -332,7 +364,9 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
               role="button"
               tabIndex={0}
               aria-label="Drop an image here, paste from clipboard, or click to choose a file"
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click();
+              }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -389,7 +423,7 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
             type="text"
             aria-label="Optional context about the photo"
             value={context}
-            onChange={e => setContext(e.target.value)}
+            onChange={(e) => setContext(e.target.value)}
             placeholder="What is this? (optional)"
             style={{
               width: '100%',
@@ -410,17 +444,19 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
       {/* ── PREVIEW: image + scan button ── */}
       {(phase === 'preview' || phase === 'error') && imageDataUrl && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{
-            borderRadius: 14,
-            overflow: 'hidden',
-            border: '2px solid var(--card-b)',
-            marginBottom: 14,
-            background: '#000',
-            maxHeight: 260,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+          <div
+            style={{
+              borderRadius: 14,
+              overflow: 'hidden',
+              border: '2px solid var(--card-b)',
+              marginBottom: 14,
+              background: '#000',
+              maxHeight: 260,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <img
               src={imageDataUrl}
               alt="Selected"
@@ -429,15 +465,17 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
           </div>
 
           {phase === 'error' && (
-            <div style={{
-              background: '#fee2e2',
-              color: '#991b1b',
-              borderRadius: 10,
-              padding: '10px 14px',
-              fontSize: 13,
-              fontWeight: 600,
-              marginBottom: 12,
-            }}>
+            <div
+              style={{
+                background: '#fee2e2',
+                color: '#991b1b',
+                borderRadius: 10,
+                padding: '10px 14px',
+                fontSize: 13,
+                fontWeight: 600,
+                marginBottom: 12,
+              }}
+            >
               ⚠️ {errorMsg}
             </div>
           )}
@@ -468,20 +506,24 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
 
       {/* ── LOADING ── */}
       {phase === 'loading' && (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 18,
-          padding: '40px 20px',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 18,
+            padding: '40px 20px',
+          }}
+        >
           <Spinner />
-          <div style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: 'var(--subtext)',
-            textAlign: 'center',
-          }}>
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: 'var(--subtext)',
+              textAlign: 'center',
+            }}
+          >
             Identifying vocabulary…
           </div>
         </div>
@@ -492,32 +534,36 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
         <div>
           {/* Scene description */}
           {results.scene && (
-            <div style={{
-              fontSize: 13,
-              color: 'var(--subtext)',
-              fontStyle: 'italic',
-              marginBottom: 16,
-              paddingBottom: 12,
-              borderBottom: '1px solid var(--card-b)',
-              lineHeight: 1.5,
-            }}>
+            <div
+              style={{
+                fontSize: 13,
+                color: 'var(--subtext)',
+                fontStyle: 'italic',
+                marginBottom: 16,
+                paddingBottom: 12,
+                borderBottom: '1px solid var(--card-b)',
+                lineHeight: 1.5,
+              }}
+            >
               {results.scene}
             </div>
           )}
 
           {/* Image thumbnail */}
           {imageDataUrl && (
-            <div style={{
-              borderRadius: 12,
-              overflow: 'hidden',
-              border: '1px solid var(--card-b)',
-              marginBottom: 16,
-              maxHeight: 160,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: '#000',
-            }}>
+            <div
+              style={{
+                borderRadius: 12,
+                overflow: 'hidden',
+                border: '1px solid var(--card-b)',
+                marginBottom: 16,
+                maxHeight: 160,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#000',
+              }}
+            >
               <img
                 src={imageDataUrl}
                 alt="Scanned"
@@ -527,12 +573,14 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
           )}
 
           {/* Header row */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 12,
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 12,
+            }}
+          >
             <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--heading)' }}>
               {results.words?.length || 0} words found
             </div>
@@ -560,7 +608,7 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
               key={item.word ? `${item.word}-${i}` : i}
               item={item}
               checked={!!checked[i]}
-              onToggle={() => setChecked(prev => ({ ...prev, [i]: !prev[i] }))}
+              onToggle={() => setChecked((prev) => ({ ...prev, [i]: !prev[i] }))}
             />
           ))}
 
@@ -591,13 +639,15 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
             >
               💾 Save Selected to Journal
               {selectedCount > 0 && (
-                <span style={{
-                  background: 'rgba(255,255,255,0.25)',
-                  borderRadius: 20,
-                  padding: '1px 9px',
-                  fontSize: 13,
-                  fontWeight: 800,
-                }}>
+                <span
+                  style={{
+                    background: 'rgba(255,255,255,0.25)',
+                    borderRadius: 20,
+                    padding: '1px 9px',
+                    fontSize: 13,
+                    fontWeight: 800,
+                  }}
+                >
                   {selectedCount}
                 </span>
               )}

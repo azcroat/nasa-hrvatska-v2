@@ -3,7 +3,13 @@ import type { StatsContextValue } from '../types/index.js';
 
 const StatsContext = createContext<StatsContextValue | null>(null);
 
-export function StatsProvider({ value, children }: { value: StatsContextValue; children: React.ReactNode }) {
+export function StatsProvider({
+  value,
+  children,
+}: {
+  value: StatsContextValue;
+  children: React.ReactNode;
+}) {
   return <StatsContext.Provider value={value}>{children}</StatsContext.Provider>;
 }
 

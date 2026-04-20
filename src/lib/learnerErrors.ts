@@ -28,13 +28,17 @@ interface ErrorMap {
 }
 
 function _load(): ErrorMap {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-  catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  } catch {
+    return {};
+  }
 }
 
 function _save(data: ErrorMap): void {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-  catch {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {}
 }
 
 export function logError(pattern: string, category: string, context: ErrorContext = {}): void {
@@ -61,8 +65,8 @@ export function getTopErrors(n = 10, category: string | null = null): ErrorEntry
   const data = _load();
   const now = Date.now();
   return Object.values(data)
-    .filter(e => !category || e.category === category)
-    .map(e => {
+    .filter((e) => !category || e.category === category)
+    .map((e) => {
       const daysSince = (now - (e.lastSeen || now)) / 86400000;
       const recencyWeight = Math.exp(-daysSince / 30);
       const score = e.count * recencyWeight;
@@ -74,7 +78,13 @@ export function getTopErrors(n = 10, category: string | null = null): ErrorEntry
 
 export function getErrorsByCategory(): Record<string, ErrorEntry[]> {
   const data = _load();
-  const result: Record<string, ErrorEntry[]> = { grammar: [], vocabulary: [], pronunciation: [], speaking: [], reading: [] };
+  const result: Record<string, ErrorEntry[]> = {
+    grammar: [],
+    vocabulary: [],
+    pronunciation: [],
+    speaking: [],
+    reading: [],
+  };
   for (const e of Object.values(data)) {
     if (result[e.category]) result[e.category].push(e);
   }
@@ -84,12 +94,22 @@ export function getErrorsByCategory(): Record<string, ErrorEntry[]> {
 export function getErrorSummaryForAI(maxErrors = 5): string | null {
   const top = getTopErrors(maxErrors);
   if (top.length === 0) return null;
-  return top.map(e => `${e.pattern} (${e.category}, ${e.count}x)`).join(', ');
+  return top.map((e) => `${e.pattern} (${e.category}, ${e.count}x)`).join(', ');
 }
 
-export function getErrorsForAPI(maxErrors = 8): Array<{ pattern: string; category: string; count: number; lastSeen?: number; recentExample: ErrorContext | null }> {
+export function getErrorsForAPI(maxErrors = 8): Array<{
+  pattern: string;
+  category: string;
+  count: number;
+  lastSeen?: number;
+  recentExample: ErrorContext | null;
+}> {
   return getTopErrors(maxErrors).map(({ pattern, category, count, lastSeen, contexts }) => ({
-    pattern, category, count, lastSeen, recentExample: contexts[0] || null,
+    pattern,
+    category,
+    count,
+    lastSeen,
+    recentExample: contexts[0] || null,
   }));
 }
 
@@ -101,7 +121,11 @@ export function getErrorCount(): number {
   return Object.keys(_load()).length;
 }
 
-export function detectAndLogCroatianErrors(userText: string, correctText: string, source = 'exercise'): void {
+export function detectAndLogCroatianErrors(
+  userText: string,
+  correctText: string,
+  source = 'exercise',
+): void {
   if (!userText || !correctText) return;
   const user = userText.trim().toLowerCase();
   const correct = correctText.trim().toLowerCase();
@@ -111,7 +135,10 @@ export function detectAndLogCroatianErrors(userText: string, correctText: string
 
   const normC = (s: string) => s.replace(/[čć]/g, 'c');
   if (normC(user) === normC(correct) && user !== correct) {
-    if (user.includes('č') !== correct.includes('č') || user.includes('ć') !== correct.includes('ć')) {
+    if (
+      user.includes('č') !== correct.includes('č') ||
+      user.includes('ć') !== correct.includes('ć')
+    ) {
       logError('c_vs_c_confusion', 'pronunciation', ctx);
     }
   }
@@ -121,9 +148,12 @@ export function detectAndLogCroatianErrors(userText: string, correctText: string
     logError('dj_diacritics', 'pronunciation', ctx);
   }
 
-  const stripDiacritics = (s: string) => s.replace(/[šžčćđ]/g, (match: string) => (
-    ({ š: 's', ž: 'z', č: 'c', ć: 'c', đ: 'd' } as Record<string, string>)[match] || match
-  ));
+  const stripDiacritics = (s: string) =>
+    s.replace(
+      /[šžčćđ]/g,
+      (match: string) =>
+        (({ š: 's', ž: 'z', č: 'c', ć: 'c', đ: 'd' }) as Record<string, string>)[match] || match,
+    );
   if (stripDiacritics(user) === stripDiacritics(correct) && user !== correct) {
     logError('diacritics_dropped', 'pronunciation', ctx);
   }
@@ -147,17 +177,35 @@ export function detectAndLogCroatianErrors(userText: string, correctText: string
     }
   }
 
-  if ((user.includes('dva') && correct.includes('dvije')) ||
-      (user.includes('dvije') && correct.includes('dva'))) {
+  if (
+    (user.includes('dva') && correct.includes('dvije')) ||
+    (user.includes('dvije') && correct.includes('dva'))
+  ) {
     logError('numeral_gender_dva_dvije', 'grammar', ctx);
   }
-  if ((user.includes('jedan') && correct.includes('jedno')) ||
-      (user.includes('jedno') && correct.includes('jedan')) ||
-      (user.includes('jedna') && correct.includes('jedan'))) {
+  if (
+    (user.includes('jedan') && correct.includes('jedno')) ||
+    (user.includes('jedno') && correct.includes('jedan')) ||
+    (user.includes('jedna') && correct.includes('jedan'))
+  ) {
     logError('numeral_gender_agreement', 'grammar', ctx);
   }
 
-  const CLITICS = new Set(['sam', 'si', 'je', 'smo', 'ste', 'su', 'ga', 'ju', 'mu', 'joj', 'im', 'se', 'li']);
+  const CLITICS = new Set([
+    'sam',
+    'si',
+    'je',
+    'smo',
+    'ste',
+    'su',
+    'ga',
+    'ju',
+    'mu',
+    'joj',
+    'im',
+    'se',
+    'li',
+  ]);
   const uWords = user.split(/\s+/);
   const cWords = correct.split(/\s+/);
   const uLast = uWords[uWords.length - 1];

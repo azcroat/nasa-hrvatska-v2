@@ -35,9 +35,14 @@ vi.mock('firebase/auth', () => ({
 }));
 vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(() => ({})),
-  doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(),
-  query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── Imports ───────────────────────────────────────────────────────────────────
@@ -55,14 +60,20 @@ import {
 } from '../data';
 
 // ── localStorage helper ───────────────────────────────────────────────────────
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 // ── Streak date helpers ───────────────────────────────────────────────────────
 /** Format a Date as YYYY-MM-DD (same algorithm as localDateStr in content.jsx) */
 function fmtDate(d) {
-  return d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0');
+  return (
+    d.getFullYear() +
+    '-' +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(d.getDate()).padStart(2, '0')
+  );
 }
 
 /** Write a streak record directly to localStorage, bypassing updateStreak. */
@@ -71,7 +82,9 @@ function setStreakLS(count, last) {
 }
 
 /** Shortcut for today's date string (local time). */
-function today() { return fmtDate(new Date()); }
+function today() {
+  return fmtDate(new Date());
+}
 
 /** Shortcut for yesterday's date string (local time). */
 function yesterday() {
@@ -207,7 +220,9 @@ describe('Streak calculation — d) streak freeze', () => {
   });
 
   it('earnFreeze is capped at 2', () => {
-    earnFreeze(); earnFreeze(); earnFreeze(); // should cap at 2
+    earnFreeze();
+    earnFreeze();
+    earnFreeze(); // should cap at 2
     expect(getStreakFreezes()).toBe(2);
   });
 
@@ -306,12 +321,12 @@ describe('XP award — lvl (XP → level)', () => {
   it('49 XP is still level 1', () => expect(lvl(49)).toBe(1));
   it('level-up triggers at correct threshold (50 XP → level 2)', () => {
     const before = lvl(49);
-    const after  = lvl(50);
+    const after = lvl(50);
     expect(after).toBe(before + 1);
   });
   it('level-up triggers at 150 XP (level 2 → 3)', () => {
     const before = lvl(149);
-    const after  = lvl(150);
+    const after = lvl(150);
     expect(after).toBe(before + 1);
   });
 });
@@ -364,9 +379,9 @@ describe('SRS scheduling — new card', () => {
   });
 
   it('"Easy" grade (correct + fast ≤8s) produces higher stability than "Hard" (correct + slow >8s)', () => {
-    const easy = getSRScore('easy_word', true, 1000);   // grade 4
+    const easy = getSRScore('easy_word', true, 1000); // grade 4
     clearLS();
-    const hard = getSRScore('hard_word', true, 10000);  // grade 3
+    const hard = getSRScore('hard_word', true, 10000); // grade 3
     expect(easy.s).toBeGreaterThan(hard.s);
   });
 
@@ -380,7 +395,10 @@ describe('SRS scheduling — new card', () => {
     let prevS = 0;
     for (let i = 0; i < 4; i++) {
       const sr = getSR();
-      if (sr.mono_srs) { sr.mono_srs.due = Date.now() - 1; saveSR(sr); }
+      if (sr.mono_srs) {
+        sr.mono_srs.due = Date.now() - 1;
+        saveSR(sr);
+      }
       const card = getSRScore('mono_srs', true, 1000);
       expect(card.s).toBeGreaterThan(prevS);
       prevS = card.s;
@@ -442,7 +460,10 @@ describe('SRS scheduling — existing card updates', () => {
   it('due date is always in the future after any review', () => {
     for (let i = 0; i < 5; i++) {
       const sr = getSR();
-      if (sr.future_check) { sr.future_check.due = Date.now() - 1; saveSR(sr); }
+      if (sr.future_check) {
+        sr.future_check.due = Date.now() - 1;
+        saveSR(sr);
+      }
       const card = getSRScore('future_check', i % 2 === 0 ? true : false, 1000);
       expect(card.due).toBeGreaterThan(Date.now() - 100); // small tolerance
     }
@@ -521,88 +542,88 @@ describe('Badge conditions — BADGES array structure', () => {
   });
 
   it('all badge ids are unique', () => {
-    const ids = BADGES.map(b => b.id);
+    const ids = BADGES.map((b) => b.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 });
 
 describe('Badge conditions — XP milestone badges', () => {
   it('"first" badge (lc >= 1): triggers when lc is 1', () => {
-    const firstBadge = BADGES.find(b => b.id === 'first');
+    const firstBadge = BADGES.find((b) => b.id === 'first');
     expect(firstBadge.r({ lc: 1, xp: 0, streak: 0, badges: [] })).toBe(true);
   });
 
   it('"first" badge does NOT trigger at lc = 0', () => {
-    const firstBadge = BADGES.find(b => b.id === 'first');
+    const firstBadge = BADGES.find((b) => b.id === 'first');
     expect(firstBadge.r({ lc: 0, xp: 0, streak: 0, badges: [] })).toBe(false);
   });
 
   it('"x100" XP badge triggers at exactly 100 XP', () => {
-    const badge = BADGES.find(b => b.id === 'x100');
+    const badge = BADGES.find((b) => b.id === 'x100');
     expect(badge.r({ xp: 100, lc: 1, streak: 0 })).toBe(true);
   });
 
   it('"x100" badge does NOT trigger at 99 XP', () => {
-    const badge = BADGES.find(b => b.id === 'x100');
+    const badge = BADGES.find((b) => b.id === 'x100');
     expect(badge.r({ xp: 99, lc: 1, streak: 0 })).toBe(false);
   });
 
   it('"x500" badge triggers at 500 XP', () => {
-    const badge = BADGES.find(b => b.id === 'x500');
+    const badge = BADGES.find((b) => b.id === 'x500');
     expect(badge.r({ xp: 500, lc: 10, streak: 0 })).toBe(true);
   });
 
   it('"x500" badge does NOT trigger at 499 XP', () => {
-    const badge = BADGES.find(b => b.id === 'x500');
+    const badge = BADGES.find((b) => b.id === 'x500');
     expect(badge.r({ xp: 499, lc: 10, streak: 0 })).toBe(false);
   });
 
   it('"x1k" badge triggers at 1000 XP', () => {
-    const badge = BADGES.find(b => b.id === 'x1k');
+    const badge = BADGES.find((b) => b.id === 'x1k');
     expect(badge.r({ xp: 1000, lc: 20, streak: 0 })).toBe(true);
   });
 });
 
 describe('Badge conditions — streak badges', () => {
   it('"str3" badge triggers at streak = 3', () => {
-    const badge = BADGES.find(b => b.id === 'str3');
+    const badge = BADGES.find((b) => b.id === 'str3');
     expect(badge.r({ streak: 3, xp: 50, lc: 3 })).toBe(true);
   });
 
   it('"str3" badge does NOT trigger at streak = 2', () => {
-    const badge = BADGES.find(b => b.id === 'str3');
+    const badge = BADGES.find((b) => b.id === 'str3');
     expect(badge.r({ streak: 2, xp: 50, lc: 2 })).toBe(false);
   });
 
   it('"str7" badge triggers at streak = 7', () => {
-    const badge = BADGES.find(b => b.id === 'str7');
+    const badge = BADGES.find((b) => b.id === 'str7');
     expect(badge.r({ streak: 7, xp: 100, lc: 7 })).toBe(true);
   });
 
   it('"str7" badge does NOT trigger at streak = 6', () => {
-    const badge = BADGES.find(b => b.id === 'str7');
+    const badge = BADGES.find((b) => b.id === 'str7');
     expect(badge.r({ streak: 6, xp: 80, lc: 6 })).toBe(false);
   });
 
   it('"str30" badge triggers at streak = 30', () => {
-    const badge = BADGES.find(b => b.id === 'str30');
+    const badge = BADGES.find((b) => b.id === 'str30');
     expect(badge.r({ streak: 30, xp: 500, lc: 30 })).toBe(true);
   });
 });
 
 describe('Badge conditions — lesson count badges', () => {
   it('"ded" (dedicated) badge triggers at lc = 5', () => {
-    const badge = BADGES.find(b => b.id === 'ded');
+    const badge = BADGES.find((b) => b.id === 'ded');
     expect(badge.r({ lc: 5, xp: 100, streak: 0 })).toBe(true);
   });
 
   it('"ded" badge does NOT trigger at lc = 4', () => {
-    const badge = BADGES.find(b => b.id === 'ded');
+    const badge = BADGES.find((b) => b.id === 'ded');
     expect(badge.r({ lc: 4, xp: 80, streak: 0 })).toBe(false);
   });
 
   it('"lc20" badge triggers at lc = 20', () => {
-    const badge = BADGES.find(b => b.id === 'lc20');
+    const badge = BADGES.find((b) => b.id === 'lc20');
     expect(badge.r({ lc: 20, xp: 200, streak: 0 })).toBe(true);
   });
 });
@@ -617,13 +638,13 @@ describe('Badge conditions — double-award prevention', () => {
    */
 
   it('badge predicate returns same result on repeated calls with same stats', () => {
-    const badge = BADGES.find(b => b.id === 'x100');
+    const badge = BADGES.find((b) => b.id === 'x100');
     const stats = { xp: 100, lc: 5, streak: 0 };
     expect(badge.r(stats)).toBe(badge.r(stats));
   });
 
   it('badge predicate is deterministic: true stays true with same XP', () => {
-    const badge = BADGES.find(b => b.id === 'x500');
+    const badge = BADGES.find((b) => b.id === 'x500');
     const stats = { xp: 600, lc: 10, streak: 0 };
     const result1 = badge.r(stats);
     const result2 = badge.r(stats);
@@ -635,12 +656,16 @@ describe('Badge conditions — double-award prevention', () => {
     // Simulate useAward logic: filter out already-earned badges
     const earnedBadges = ['first', 'x100'];
     const stats = { xp: 500, lc: 10, streak: 0, badges: earnedBadges };
-    const newBadges = BADGES.filter(b => {
+    const newBadges = BADGES.filter((b) => {
       if (earnedBadges.includes(b.id)) return false;
-      try { return b.r(stats); } catch { return false; }
+      try {
+        return b.r(stats);
+      } catch {
+        return false;
+      }
     });
     // x500 should now be in new badges; x100 and first should NOT
-    const newIds = newBadges.map(b => b.id);
+    const newIds = newBadges.map((b) => b.id);
     expect(newIds).not.toContain('first');
     expect(newIds).not.toContain('x100');
     expect(newIds).toContain('x500');
@@ -649,16 +674,24 @@ describe('Badge conditions — double-award prevention', () => {
   it('awarding a badge and re-checking with updated list prevents double-award', () => {
     const stats = { xp: 100, lc: 1, streak: 0 };
     // First pass: find newly earned badges
-    const firstPass = BADGES.filter(b => {
-      try { return b.r(stats); } catch { return false; }
-    }).map(b => b.id);
+    const firstPass = BADGES.filter((b) => {
+      try {
+        return b.r(stats);
+      } catch {
+        return false;
+      }
+    }).map((b) => b.id);
     // Second pass: same stats, but earned list includes firstPass
-    const secondPass = BADGES.filter(b => {
+    const secondPass = BADGES.filter((b) => {
       if (firstPass.includes(b.id)) return false;
-      try { return b.r(stats); } catch { return false; }
-    }).map(b => b.id);
+      try {
+        return b.r(stats);
+      } catch {
+        return false;
+      }
+    }).map((b) => b.id);
     // No badge should appear in both passes
-    const overlap = firstPass.filter(id => secondPass.includes(id));
+    const overlap = firstPass.filter((id) => secondPass.includes(id));
     expect(overlap).toHaveLength(0);
   });
 });

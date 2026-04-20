@@ -42,7 +42,11 @@ export async function onRequestPost(context) {
   if (!REPLICATE_API_KEY) return err(503, 'Image generation not configured', origin);
 
   let body;
-  try { body = await request.json(); } catch { return err(400, 'Invalid JSON', origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON', origin);
+  }
 
   const { type = 'vocab' } = body;
   let prompt;
@@ -68,24 +72,27 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const res = await fetch('https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${REPLICATE_API_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'wait',
-      },
-      body: JSON.stringify({
-        input: {
-          prompt,
-          aspect_ratio: aspectRatio,
-          output_format: 'webp',
-          output_quality: 78,
-          num_inference_steps: 4,
+    const res = await fetch(
+      'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${REPLICATE_API_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'wait',
         },
-      }),
-      signal: AbortSignal.timeout(55000),
-    });
+        body: JSON.stringify({
+          input: {
+            prompt,
+            aspect_ratio: aspectRatio,
+            output_format: 'webp',
+            output_quality: 78,
+            num_inference_steps: 4,
+          },
+        }),
+        signal: AbortSignal.timeout(55000),
+      },
+    );
 
     if (!res.ok) {
       const text = await res.text().catch(() => '');
@@ -104,7 +111,7 @@ export async function onRequestPost(context) {
     if (data.id) {
       const pollUrl = `https://api.replicate.com/v1/predictions/${data.id}`;
       for (let i = 0; i < 10; i++) {
-        await new Promise(r => setTimeout(r, 2500));
+        await new Promise((r) => setTimeout(r, 2500));
         const poll = await fetch(pollUrl, {
           headers: { Authorization: `Bearer ${REPLICATE_API_KEY}` },
           signal: AbortSignal.timeout(8000),

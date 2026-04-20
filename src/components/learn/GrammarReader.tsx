@@ -5,23 +5,23 @@ import { apiFetch } from '../../lib/apiFetch.js';
 
 // ─── Level style map ──────────────────────────────────────────────────────────
 const LEVEL_STYLE = {
-  'A1':   { levelColor: '#166534', levelBg: '#dcfce7' },
-  'A2':   { levelColor: '#1e40af', levelBg: '#dbeafe' },
-  'B1':   { levelColor: '#92400e', levelBg: '#fef3c7' },
-  'B2':   { levelColor: '#6b21a8', levelBg: '#f3e8ff' },
-  'C1':   { levelColor: '#b91c1c', levelBg: '#fee2e2' },
-  'C2':   { levelColor: '#0f172a', levelBg: '#f1f5f9' },
+  A1: { levelColor: '#166534', levelBg: '#dcfce7' },
+  A2: { levelColor: '#1e40af', levelBg: '#dbeafe' },
+  B1: { levelColor: '#92400e', levelBg: '#fef3c7' },
+  B2: { levelColor: '#6b21a8', levelBg: '#f3e8ff' },
+  C1: { levelColor: '#b91c1c', levelBg: '#fee2e2' },
+  C2: { levelColor: '#0f172a', levelBg: '#f1f5f9' },
 };
 
 // ─── Map READ library to GrammarReader format ─────────────────────────────────
 function buildLibraryTexts() {
   try {
     const buckets = [
-      { key: 'beginner',     level: 'A1' },
+      { key: 'beginner', level: 'A1' },
       { key: 'intermediate', level: 'B1' },
-      { key: 'advanced',     level: 'B2' },
-      { key: 'b2',           level: 'B2' },
-      { key: 'c1',           level: 'C1' },
+      { key: 'advanced', level: 'B2' },
+      { key: 'b2', level: 'B2' },
+      { key: 'c1', level: 'C1' },
     ];
     const out = [];
     buckets.forEach(({ key, level }) => {
@@ -53,7 +53,8 @@ const FALLBACK_TEXTS = [
     title: 'Na tržnici',
     english: 'At the Market',
     level: 'A1',
-    levelColor: '#166534', levelBg: '#dcfce7',
+    levelColor: '#166534',
+    levelBg: '#dcfce7',
     text: 'Marija ide na tržnicu svaki dan. Ona kupuje voće i povrće. Danas ima jabuke, kruške i rajčice. Prodavač je ljubazan. Marija plaća i odlazi kući.',
   },
   {
@@ -61,7 +62,8 @@ const FALLBACK_TEXTS = [
     title: 'U kafiću',
     english: 'In the Café',
     level: 'A1',
-    levelColor: '#166534', levelBg: '#dcfce7',
+    levelColor: '#166534',
+    levelBg: '#dcfce7',
     text: 'Ivan sjedi u kafiću. On pije kavu i čita novine. Konobar donosi vodu. Ivan je sretan. Kafić je mali ali lijep.',
   },
   {
@@ -69,7 +71,8 @@ const FALLBACK_TEXTS = [
     title: 'Moja obitelj',
     english: 'My Family',
     level: 'A2',
-    levelColor: '#1e40af', levelBg: '#dbeafe',
+    levelColor: '#1e40af',
+    levelBg: '#dbeafe',
     text: 'Imam veliku obitelj. Moja mama se zove Ana i radi kao učiteljica. Tata je inženjer i voli čitati knjige. Imam jednu sestru i dva brata. Svake nedjelje idemo zajedno na ručak.',
   },
   {
@@ -77,7 +80,8 @@ const FALLBACK_TEXTS = [
     title: 'Zagreb',
     english: 'Zagreb',
     level: 'A2',
-    levelColor: '#1e40af', levelBg: '#dbeafe',
+    levelColor: '#1e40af',
+    levelBg: '#dbeafe',
     text: 'Zagreb je glavni grad Hrvatske. U njemu živi oko milijun ljudi. Gornji grad je stari dio grada s lijepim crkvama i muzejima. Donji grad ima moderne zgrade i parkove. Tramvaj je glavno prijevozno sredstvo.',
   },
   {
@@ -85,7 +89,8 @@ const FALLBACK_TEXTS = [
     title: 'Ljetni odmor',
     english: 'Summer Holiday',
     level: 'B1',
-    levelColor: '#92400e', levelBg: '#fef3c7',
+    levelColor: '#92400e',
+    levelBg: '#fef3c7',
     text: 'Prošlog ljeta otišli smo na Jadransko more. Odsjeli smo u malom apartmanu blizu plaže. Svako jutro kupali smo se u moru i sunčali na pijesku. Navečer smo jeli ribu u lokalnim restoranima i šetali po obali. Bila je to nezaboravna pustolovina.',
   },
   {
@@ -93,7 +98,8 @@ const FALLBACK_TEXTS = [
     title: 'Na poslu',
     english: 'At Work',
     level: 'B1',
-    levelColor: '#92400e', levelBg: '#fef3c7',
+    levelColor: '#92400e',
+    levelBg: '#fef3c7',
     text: 'Radim u informatičkoj tvrtki već tri godine. Moj posao uključuje pisanje programa i rješavanje tehničkih problema. Volim svoj posao jer svaki dan naučim nešto novo. Kolege su mi prijatelji s kojima često ručam. Jedini nedostatak je dug put do ureda.',
   },
   {
@@ -101,7 +107,8 @@ const FALLBACK_TEXTS = [
     title: 'Hrvatska kultura',
     english: 'Croatian Culture',
     level: 'B2',
-    levelColor: '#6b21a8', levelBg: '#f3e8ff',
+    levelColor: '#6b21a8',
+    levelBg: '#f3e8ff',
     text: 'Hrvatska kultura duboko je ukorijenjena u mediteranskom i srednjoeuropskom nasljeđu. Tradicija klape, višeglasnog pjevanja bez pratnje, upisana je na UNESCO-ov popis nematerijalne kulturne baštine. Vezovi i čipkarstvo iz Paga i Lepoglave pokazuju iznimnu vještinu domaćih majstorica. Karnevalske tradicije poput riječkog karnevala privlače posjetitelje iz cijelog svijeta.',
   },
   {
@@ -109,7 +116,8 @@ const FALLBACK_TEXTS = [
     title: 'O jeziku',
     english: 'About Language',
     level: 'B2',
-    levelColor: '#6b21a8', levelBg: '#f3e8ff',
+    levelColor: '#6b21a8',
+    levelBg: '#f3e8ff',
     text: 'Jezik nije samo sredstvo komunikacije — on oblikuje naš način razmišljanja. Svaki jezik ima pojmove koji se ne mogu lako prevesti na drugi. Hrvatska ima bogat sustav glagolskih vidova koji razlikuje trajanje radnje od njezine dovršenosti. Učenjem stranog jezika ne usvajamo samo gramatiku, nego i novi pogled na svijet.',
   },
 ];
@@ -130,19 +138,34 @@ const POS_COLOR = {
 };
 
 const POS_LABEL = {
-  noun: 'Noun', verb: 'Verb', adjective: 'Adj', adverb: 'Adv',
-  preposition: 'Prep', conjunction: 'Conj', pronoun: 'Pron',
-  numeral: 'Num', particle: 'Part',
+  noun: 'Noun',
+  verb: 'Verb',
+  adjective: 'Adj',
+  adverb: 'Adv',
+  preposition: 'Prep',
+  conjunction: 'Conj',
+  pronoun: 'Pron',
+  numeral: 'Num',
+  particle: 'Part',
 };
 
 const CASE_ABBR = {
-  Nominative: 'NOM', Genitive: 'GEN', Dative: 'DAT',
-  Accusative: 'ACC', Vocative: 'VOC', Locative: 'LOC', Instrumental: 'INS',
+  Nominative: 'NOM',
+  Genitive: 'GEN',
+  Dative: 'DAT',
+  Accusative: 'ACC',
+  Vocative: 'VOC',
+  Locative: 'LOC',
+  Instrumental: 'INS',
 };
 
 // Strip punctuation for lookup key but keep original for display
-function stripPunct(w) { return w.replace(/[.,!?;:"""'()–-]/g, '').toLowerCase(); }
-function _hasPunct(w) { return /[.,!?;:"""'()]$/.test(w); }
+function stripPunct(w) {
+  return w.replace(/[.,!?;:"""'()–-]/g, '').toLowerCase();
+}
+function _hasPunct(w) {
+  return /[.,!?;:"""'()]$/.test(w);
+}
 
 // ─── Inline style tag ─────────────────────────────────────────────────────────
 const STYLE = `
@@ -163,7 +186,12 @@ function WordToken({ word, cache, loading, onTap }) {
       className={`gr-word${analyzed ? ' gr-analyzed' : ''}${isLoading ? ' gr-loading' : ''}`}
       onClick={() => onTap(word)}
       tabIndex={0}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(word); } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onTap(word);
+        }
+      }}
       aria-label={`Analyze word: ${key}`}
     >
       {word}
@@ -180,37 +208,65 @@ function AnalysisSheet({ word, data, onClose }) {
     <div
       onClick={onClose}
       style={{
-        position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(0,0,0,.35)', display: 'flex', alignItems: 'flex-end',
+        position: 'fixed',
+        inset: 0,
+        zIndex: 200,
+        background: 'rgba(0,0,0,.35)',
+        display: 'flex',
+        alignItems: 'flex-end',
       }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Word analysis"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%', maxHeight: '70vh', overflowY: 'auto',
-          background: 'var(--card)', borderRadius: '20px 20px 0 0',
+          width: '100%',
+          maxHeight: '70vh',
+          overflowY: 'auto',
+          background: 'var(--card)',
+          borderRadius: '20px 20px 0 0',
           padding: '20px 18px 32px',
           animation: 'grSheet .22s ease',
           boxShadow: '0 -4px 24px rgba(0,0,0,.15)',
         }}
       >
         {/* Drag handle */}
-        <div style={{ width: 36, height: 4, background: 'var(--card-b)', borderRadius: 2, margin: '0 auto 16px' }} />
+        <div
+          style={{
+            width: 36,
+            height: 4,
+            background: 'var(--card-b)',
+            borderRadius: 2,
+            margin: '0 auto 16px',
+          }}
+        />
 
         {/* Word + POS badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--heading)' }}>{word.replace(/[.,!?;:]/g, '')}</span>
+          <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--heading)' }}>
+            {word.replace(/[.,!?;:]/g, '')}
+          </span>
           {data.base_form && data.base_form.toLowerCase() !== stripPunct(word) && (
-            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)' }}>← {data.base_form}</span>
+            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)' }}>
+              ← {data.base_form}
+            </span>
           )}
-          <span style={{
-            marginLeft: 'auto', fontSize: 'var(--text-xs)', fontWeight: 800,
-            color: '#fff', background: posColor,
-            borderRadius: 6, padding: '3px 9px', letterSpacing: '.04em',
-          }}>{posLabel}</span>
+          <span
+            style={{
+              marginLeft: 'auto',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 800,
+              color: '#fff',
+              background: posColor,
+              borderRadius: 6,
+              padding: '3px 9px',
+              letterSpacing: '.04em',
+            }}
+          >
+            {posLabel}
+          </span>
         </div>
 
         {/* Grammar tags row */}
@@ -219,29 +275,49 @@ function AnalysisSheet({ word, data, onClose }) {
             <Tag label={CASE_ABBR[data.case] || data.case} sub={data.case} color="#0891b2" />
           )}
           {data.gender && (
-            <Tag label={data.gender === 'm' ? 'Masc' : data.gender === 'f' ? 'Fem' : 'Neut'}
-              sub="gender" color={data.gender === 'm' ? '#1e40af' : data.gender === 'f' ? '#be185d' : '#166534'} />
+            <Tag
+              label={data.gender === 'm' ? 'Masc' : data.gender === 'f' ? 'Fem' : 'Neut'}
+              sub="gender"
+              color={data.gender === 'm' ? '#1e40af' : data.gender === 'f' ? '#be185d' : '#166534'}
+            />
           )}
           {data.number && (
-            <Tag label={data.number === 'singular' ? 'Sg' : 'Pl'} sub={data.number} color="#6b7280" />
+            <Tag
+              label={data.number === 'singular' ? 'Sg' : 'Pl'}
+              sub={data.number}
+              color="#6b7280"
+            />
           )}
           {data.tense && (
-            <Tag label={data.tense.charAt(0).toUpperCase() + data.tense.slice(1)} sub="tense" color="#7c3aed" />
+            <Tag
+              label={data.tense.charAt(0).toUpperCase() + data.tense.slice(1)}
+              sub="tense"
+              color="#7c3aed"
+            />
           )}
-          {data.person && (
-            <Tag label={data.person} sub="person" color="#d97706" />
-          )}
+          {data.person && <Tag label={data.person} sub="person" color="#d97706" />}
           {data.aspect && (
-            <Tag label={data.aspect === 'imperfective' ? 'Impf' : 'Pf'} sub={data.aspect} color={data.aspect === 'imperfective' ? '#0369a1' : '#166534'} />
+            <Tag
+              label={data.aspect === 'imperfective' ? 'Impf' : 'Pf'}
+              sub={data.aspect}
+              color={data.aspect === 'imperfective' ? '#0369a1' : '#166534'}
+            />
           )}
         </div>
 
         {/* Explanation */}
         {data.explanation && (
-          <div style={{
-            padding: '10px 14px', borderRadius: 10, background: 'var(--bar-bg)',
-            fontSize: 'var(--text-sm)', color: 'var(--subtext)', lineHeight: 1.55, marginBottom: 12,
-          }}>
+          <div
+            style={{
+              padding: '10px 14px',
+              borderRadius: 10,
+              background: 'var(--bar-bg)',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--subtext)',
+              lineHeight: 1.55,
+              marginBottom: 12,
+            }}
+          >
             {data.explanation}
           </div>
         )}
@@ -249,12 +325,30 @@ function AnalysisSheet({ word, data, onClose }) {
         {/* Examples */}
         {data.examples && data.examples.length > 0 && (
           <div>
-            <div style={{ fontSize: 'var(--text-xs)', fontWeight: 800, color: 'var(--subtext)', letterSpacing: '.06em', marginBottom: 6 }}>EXAMPLES</div>
+            <div
+              style={{
+                fontSize: 'var(--text-xs)',
+                fontWeight: 800,
+                color: 'var(--subtext)',
+                letterSpacing: '.06em',
+                marginBottom: 6,
+              }}
+            >
+              EXAMPLES
+            </div>
             {data.examples.map((ex, i) => (
-              <div key={i} style={{
-                fontSize: 'var(--text-sm)', color: 'var(--heading)', fontStyle: 'italic',
-                padding: '6px 0', borderBottom: i < data.examples.length - 1 ? '1px solid var(--card-b)' : 'none',
-              }}>{ex}</div>
+              <div
+                key={i}
+                style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--heading)',
+                  fontStyle: 'italic',
+                  padding: '6px 0',
+                  borderBottom: i < data.examples.length - 1 ? '1px solid var(--card-b)' : 'none',
+                }}
+              >
+                {ex}
+              </div>
             ))}
           </div>
         )}
@@ -262,12 +356,21 @@ function AnalysisSheet({ word, data, onClose }) {
         <button
           onClick={onClose}
           style={{
-            marginTop: 18, width: '100%', padding: '12px', borderRadius: 12,
-            border: '1px solid var(--card-b)', background: 'var(--card)',
-            color: 'var(--subtext)', fontSize: 'var(--text-sm)', fontWeight: 700,
-            cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+            marginTop: 18,
+            width: '100%',
+            padding: '12px',
+            borderRadius: 12,
+            border: '1px solid var(--card-b)',
+            background: 'var(--card)',
+            color: 'var(--subtext)',
+            fontSize: 'var(--text-sm)',
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontFamily: "'Outfit',sans-serif",
           }}
-        >Close</button>
+        >
+          Close
+        </button>
       </div>
     </div>
   );
@@ -275,11 +378,17 @@ function AnalysisSheet({ word, data, onClose }) {
 
 function Tag({ label, sub, color }) {
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      padding: '4px 10px', borderRadius: 8,
-      background: color + '18', border: `1px solid ${color}44`,
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '4px 10px',
+        borderRadius: 8,
+        background: color + '18',
+        border: `1px solid ${color}44`,
+      }}
+    >
       <span style={{ fontSize: 'var(--text-xs)', fontWeight: 900, color }}>{label}</span>
       <span style={{ fontSize: 10, color: 'var(--subtext)', marginTop: 1 }}>{sub}</span>
     </div>
@@ -287,72 +396,127 @@ function Tag({ label, sub, color }) {
 }
 
 // ─── Reading pane ─────────────────────────────────────────────────────────────
-function ReadingPane({ text, title, english, level, levelColor, levelBg, cache, loading, onWordTap, goBack }) {
+function ReadingPane({
+  text,
+  title,
+  english,
+  level,
+  levelColor,
+  levelBg,
+  cache,
+  loading,
+  onWordTap,
+  goBack,
+}) {
   const words = text.split(/(\s+)/);
   return (
     <div className="scr-wrap">
       <style>{STYLE}</style>
       {H('🔍 Grammar X-Ray', '', goBack)}
 
-      <p style={{ margin: '0 0 16px', fontSize: 'var(--text-sm)', color: 'var(--subtext)', lineHeight: 1.6 }}>
+      <p
+        style={{
+          margin: '0 0 16px',
+          fontSize: 'var(--text-sm)',
+          color: 'var(--subtext)',
+          lineHeight: 1.6,
+        }}
+      >
         Tap any word to see its full grammatical analysis — case, gender, tense, aspect, and more.
       </p>
 
       {/* Text card */}
-      <div style={{
-        background: 'var(--card)', borderRadius: 16,
-        border: '1px solid var(--card-b)',
-        padding: '18px 16px',
-        boxShadow: '0 2px 10px rgba(0,0,0,.05)',
-        marginBottom: 20,
-      }}>
+      <div
+        style={{
+          background: 'var(--card)',
+          borderRadius: 16,
+          border: '1px solid var(--card-b)',
+          padding: '18px 16px',
+          boxShadow: '0 2px 10px rgba(0,0,0,.05)',
+          marginBottom: 20,
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <span style={{ fontSize: 'var(--text-base)', fontWeight: 800, color: 'var(--heading)', flex: 1 }}>{title}</span>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontStyle: 'italic' }}>{english}</span>
-          <span style={{
-            fontSize: 'var(--text-xs)', fontWeight: 800,
-            color: levelColor, background: levelBg,
-            borderRadius: 6, padding: '2px 7px',
-          }}>{level}</span>
+          <span
+            style={{
+              fontSize: 'var(--text-base)',
+              fontWeight: 800,
+              color: 'var(--heading)',
+              flex: 1,
+            }}
+          >
+            {title}
+          </span>
+          <span
+            style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontStyle: 'italic' }}
+          >
+            {english}
+          </span>
+          <span
+            style={{
+              fontSize: 'var(--text-xs)',
+              fontWeight: 800,
+              color: levelColor,
+              background: levelBg,
+              borderRadius: 6,
+              padding: '2px 7px',
+            }}
+          >
+            {level}
+          </span>
         </div>
 
-        <p style={{
-          margin: 0, fontSize: 'var(--text-base)', lineHeight: 2,
-          color: 'var(--heading)',
-        }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: 'var(--text-base)',
+            lineHeight: 2,
+            color: 'var(--heading)',
+          }}
+        >
           {words.map((token, i) => {
             if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
             if (!token.trim()) return null;
             return (
-              <WordToken
-                key={i}
-                word={token}
-                cache={cache}
-                loading={loading}
-                onTap={onWordTap}
-              />
+              <WordToken key={i} word={token} cache={cache} loading={loading} onTap={onWordTap} />
             );
           })}
         </p>
       </div>
 
-      <div style={{
-        padding: '10px 14px', borderRadius: 10,
-        background: 'var(--info-bg, #e0f2fe)', border: '1px solid var(--info-b, #bae6fd)',
-        fontSize: 'var(--text-xs)', color: 'var(--info, #0369a1)', lineHeight: 1.55, marginBottom: 20,
-      }}>
-        <strong>Tip:</strong> Underlined words have already been analyzed — tap again to review. Each tap makes one AI call.
+      <div
+        style={{
+          padding: '10px 14px',
+          borderRadius: 10,
+          background: 'var(--info-bg, #e0f2fe)',
+          border: '1px solid var(--info-b, #bae6fd)',
+          fontSize: 'var(--text-xs)',
+          color: 'var(--info, #0369a1)',
+          lineHeight: 1.55,
+          marginBottom: 20,
+        }}
+      >
+        <strong>Tip:</strong> Underlined words have already been analyzed — tap again to review.
+        Each tap makes one AI call.
       </div>
 
       <button
         onClick={goBack}
         style={{
-          width: '100%', padding: '14px', borderRadius: 14,
-          border: '1px solid var(--card-b)', background: 'var(--card)',
-          color: 'var(--subtext)', fontSize: 'var(--text-sm)', fontWeight: 700,
-          cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+          width: '100%',
+          padding: '14px',
+          borderRadius: 14,
+          border: '1px solid var(--card-b)',
+          background: 'var(--card)',
+          color: 'var(--subtext)',
+          fontSize: 'var(--text-sm)',
+          fontWeight: 700,
+          cursor: 'pointer',
+          fontFamily: "'Outfit',sans-serif",
         }}
-      >← Back to texts</button>
+      >
+        ← Back to texts
+      </button>
     </div>
   );
 }
@@ -361,72 +525,120 @@ function ReadingPane({ text, title, english, level, levelColor, levelBg, cache, 
 function TextPicker({ onSelect, goBack }) {
   const [filter, setFilter] = useState('All');
   // Derive available levels from the actual texts so new levels appear automatically
-  const levels = ['All', ...Array.from(new Set(TEXTS.map(t => t.level)))];
-  const visible = filter === 'All' ? TEXTS : TEXTS.filter(t => t.level === filter);
+  const levels = ['All', ...Array.from(new Set(TEXTS.map((t) => t.level)))];
+  const visible = filter === 'All' ? TEXTS : TEXTS.filter((t) => t.level === filter);
   return (
     <div className="scr-wrap">
       <style>{STYLE}</style>
       {H('🔍 Grammar X-Ray', '', goBack)}
-      <p style={{ margin: '0 0 18px', fontSize: 'var(--text-sm)', color: 'var(--subtext)', lineHeight: 1.6 }}>
-        Choose a text to read. Tap any word to instantly see its grammatical breakdown — case, gender, tense, aspect, and more — powered by AI.
+      <p
+        style={{
+          margin: '0 0 18px',
+          fontSize: 'var(--text-sm)',
+          color: 'var(--subtext)',
+          lineHeight: 1.6,
+        }}
+      >
+        Choose a text to read. Tap any word to instantly see its grammatical breakdown — case,
+        gender, tense, aspect, and more — powered by AI.
       </p>
 
       {/* Level filter */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        {levels.map(lv => (
+        {levels.map((lv) => (
           <button
             key={lv}
             onClick={() => setFilter(lv)}
             style={{
-              padding: '6px 14px', borderRadius: 20,
+              padding: '6px 14px',
+              borderRadius: 20,
               border: `1px solid ${filter === lv ? 'var(--accent)' : 'var(--card-b)'}`,
               background: filter === lv ? 'var(--accent)' : 'var(--card)',
               color: filter === lv ? '#fff' : 'var(--subtext)',
-              fontSize: 'var(--text-xs)', fontWeight: 800,
-              cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+              fontSize: 'var(--text-xs)',
+              fontWeight: 800,
+              cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif",
             }}
-          >{lv}</button>
+          >
+            {lv}
+          </button>
         ))}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-        {visible.map(t => (
+        {visible.map((t) => (
           <button
             key={t.id}
             onClick={() => onSelect(t)}
             style={{
-              background: 'var(--card)', borderRadius: 14,
+              background: 'var(--card)',
+              borderRadius: 14,
               border: '1px solid var(--card-b)',
               padding: '14px 16px',
-              display: 'flex', alignItems: 'center', gap: 14,
-              cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif",
               textAlign: 'left',
               boxShadow: '0 2px 8px rgba(0,0,0,.04)',
             }}
           >
-            <div style={{
-              width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-              background: t.levelBg, border: `1px solid ${t.levelColor}44`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 'var(--text-xl)',
-            }}>📖</div>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                flexShrink: 0,
+                background: t.levelBg,
+                border: `1px solid ${t.levelColor}44`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 'var(--text-xl)',
+              }}
+            >
+              📖
+            </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)' }}>{t.title}</span>
-                <span style={{
-                  fontSize: 10, fontWeight: 800,
-                  color: t.levelColor, background: t.levelBg,
-                  borderRadius: 5, padding: '2px 6px',
-                }}>{t.level}</span>
+                <span
+                  style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)' }}
+                >
+                  {t.title}
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 800,
+                    color: t.levelColor,
+                    background: t.levelBg,
+                    borderRadius: 5,
+                    padding: '2px 6px',
+                  }}
+                >
+                  {t.level}
+                </span>
               </div>
               <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>{t.english}</div>
-              <div style={{
-                fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 4,
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                opacity: .7,
-              }}>{t.text.slice(0, 60)}…</div>
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--subtext)',
+                  marginTop: 4,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  opacity: 0.7,
+                }}
+              >
+                {t.text.slice(0, 60)}…
+              </div>
             </div>
-            <span style={{ fontSize: 'var(--text-xl)', color: 'var(--subtext)', opacity: .3 }}>›</span>
+            <span style={{ fontSize: 'var(--text-xl)', color: 'var(--subtext)', opacity: 0.3 }}>
+              ›
+            </span>
           </button>
         ))}
       </div>
@@ -434,12 +646,20 @@ function TextPicker({ onSelect, goBack }) {
       <button
         onClick={goBack}
         style={{
-          width: '100%', padding: '14px', borderRadius: 14,
-          border: '1px solid var(--card-b)', background: 'var(--card)',
-          color: 'var(--subtext)', fontSize: 'var(--text-sm)', fontWeight: 700,
-          cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
+          width: '100%',
+          padding: '14px',
+          borderRadius: 14,
+          border: '1px solid var(--card-b)',
+          background: 'var(--card)',
+          color: 'var(--subtext)',
+          fontSize: 'var(--text-sm)',
+          fontWeight: 700,
+          cursor: 'pointer',
+          fontFamily: "'Outfit',sans-serif",
         }}
-      >← Back</button>
+      >
+        ← Back
+      </button>
     </div>
   );
 }
@@ -447,52 +667,57 @@ function TextPicker({ onSelect, goBack }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function GrammarReader({ goBack }) {
   const [selectedText, setSelectedText] = useState(null);
-  const [cache, setCache] = useState({});   // { word_key: analysisObj }
-  const [loading, setLoading] = useState(null);  // word key currently being fetched
-  const [activeWord, setActiveWord] = useState(null);   // { word, data }
+  const [cache, setCache] = useState({}); // { word_key: analysisObj }
+  const [loading, setLoading] = useState(null); // word key currently being fetched
+  const [activeWord, setActiveWord] = useState(null); // { word, data }
   const [error, setError] = useState(null);
   const inFlightRef = useRef(false);
 
-  const handleWordTap = useCallback(async (word) => {
-    const key = stripPunct(word);
-    if (!key) return;
+  const handleWordTap = useCallback(
+    async (word) => {
+      const key = stripPunct(word);
+      if (!key) return;
 
-    // Show cached result immediately
-    if (cache[key]) {
-      setActiveWord({ word, data: cache[key] });
-      return;
-    }
+      // Show cached result immediately
+      if (cache[key]) {
+        setActiveWord({ word, data: cache[key] });
+        return;
+      }
 
-    if (inFlightRef.current || loading) return;
-    inFlightRef.current = true;
-    setLoading(key);
-    setError(null);
+      if (inFlightRef.current || loading) return;
+      inFlightRef.current = true;
+      setLoading(key);
+      setError(null);
 
-    try {
-      const sentence = selectedText ? selectedText.text : '';
-      const res = await apiFetch('/api/ai-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: 'wordanalyze',
-          messages: [{
-            role: 'user',
-            content: `Word: "${key}"\nSentence context: "${sentence}"`,
-          }],
-        }),
-      });
-      if (!res.ok) throw new Error('API error');
-      const { text } = await res.json();
-      const parsed = JSON.parse(text);
-      setCache(prev => ({ ...prev, [key]: parsed }));
-      setActiveWord({ word, data: parsed });
-    } catch (e) {
-      setError('Could not analyze word. Try again.');
-    } finally {
-      setLoading(null);
-      inFlightRef.current = false;
-    }
-  }, [cache, loading, selectedText]);
+      try {
+        const sentence = selectedText ? selectedText.text : '';
+        const res = await apiFetch('/api/ai-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'wordanalyze',
+            messages: [
+              {
+                role: 'user',
+                content: `Word: "${key}"\nSentence context: "${sentence}"`,
+              },
+            ],
+          }),
+        });
+        if (!res.ok) throw new Error('API error');
+        const { text } = await res.json();
+        const parsed = JSON.parse(text);
+        setCache((prev) => ({ ...prev, [key]: parsed }));
+        setActiveWord({ word, data: parsed });
+      } catch (e) {
+        setError('Could not analyze word. Try again.');
+      } finally {
+        setLoading(null);
+        inFlightRef.current = false;
+      }
+    },
+    [cache, loading, selectedText],
+  );
 
   if (!selectedText) {
     return <TextPicker onSelect={setSelectedText} goBack={goBack} />;
@@ -501,13 +726,22 @@ export default function GrammarReader({ goBack }) {
   return (
     <>
       {error && (
-        <div style={{
-          position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
-          background: '#fef2f2', border: '1px solid #fca5a5',
-          borderRadius: 10, padding: '8px 16px',
-          fontSize: 'var(--text-xs)', color: '#b91c1c', zIndex: 300,
-          boxShadow: '0 2px 8px rgba(0,0,0,.1)',
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 12,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#fef2f2',
+            border: '1px solid #fca5a5',
+            borderRadius: 10,
+            padding: '8px 16px',
+            fontSize: 'var(--text-xs)',
+            color: '#b91c1c',
+            zIndex: 300,
+            boxShadow: '0 2px 8px rgba(0,0,0,.1)',
+          }}
+        >
           {error}
         </div>
       )}
@@ -517,7 +751,11 @@ export default function GrammarReader({ goBack }) {
         cache={cache}
         loading={loading}
         onWordTap={handleWordTap}
-        goBack={() => { setSelectedText(null); setCache({}); setActiveWord(null); }}
+        goBack={() => {
+          setSelectedText(null);
+          setCache({});
+          setActiveWord(null);
+        }}
       />
 
       {activeWord && (

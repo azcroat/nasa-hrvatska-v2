@@ -15,18 +15,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -38,7 +54,7 @@ vi.mock('../data', async (importOriginal) => {
   const actual = await importOriginal();
   const MOCK_UNJUMBLE = [
     { words: ['Ja', 'volim', 'Hrvatsku'], correct: 'Ja volim Hrvatsku.', en: 'I love Croatia.' },
-    { words: ['Ana', 'čita', 'knjigu'],   correct: 'Ana čita knjigu.',   en: 'Ana reads a book.' },
+    { words: ['Ana', 'čita', 'knjigu'], correct: 'Ana čita knjigu.', en: 'Ana reads a book.' },
   ];
   return {
     ...actual,
@@ -62,7 +78,7 @@ function renderUnjumble(overrides = {}) {
 /** Click word buttons in order to build a sentence in the input field. */
 function buildAnswer(words: string[]) {
   for (const w of words) {
-    const btn = screen.getAllByText(w).find(el => el.tagName === 'BUTTON');
+    const btn = screen.getAllByText(w).find((el) => el.tagName === 'BUTTON');
     if (btn) fireEvent.click(btn);
   }
 }

@@ -90,20 +90,28 @@ describe('getServerDateStr', () => {
 
   it('returns server date when fetch returns ok with ts', async () => {
     const serverTs = new Date(2026, 3, 10).getTime(); // Apr 10 2026
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ ts: serverTs }),
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ ts: serverTs }),
+      }),
+    );
     const result = await getServerDateStr();
     expect(result).toBe('2026-04-10');
     vi.unstubAllGlobals();
   });
 
   it('falls back to local date when response json is malformed', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => { throw new Error('bad json'); },
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => {
+          throw new Error('bad json');
+        },
+      }),
+    );
     const result = await getServerDateStr();
     expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     vi.unstubAllGlobals();

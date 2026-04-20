@@ -37,14 +37,29 @@ vi.mock('firebase/firestore', () => ({
 }));
 
 import {
-  isValidEmail, sh, lvl, lXP, nXP, shuffleArr, buildSearchIndex,
-  generateFamilyCode, friendlyError,
-  getSR, saveSR, srMark, getStreak, updateStreak,
-  getProverbOfDay, getDailyChallenge, shMemo,
+  isValidEmail,
+  sh,
+  lvl,
+  lXP,
+  nXP,
+  shuffleArr,
+  buildSearchIndex,
+  generateFamilyCode,
+  friendlyError,
+  getSR,
+  saveSR,
+  srMark,
+  getStreak,
+  updateStreak,
+  getProverbOfDay,
+  getDailyChallenge,
+  shMemo,
 } from '../data';
 
 // ── localStorage helpers ─────────────────────────────────────────────────────
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 // ── isValidEmail ─────────────────────────────────────────────────────────────
 describe('isValidEmail', () => {
@@ -155,17 +170,21 @@ describe('friendlyError', () => {
     expect(friendlyError(null)).toBe('Something went wrong. Please try again.');
     expect(friendlyError('')).toBe('Something went wrong. Please try again.');
   });
-  it('handles email-already-in-use', () => expect(friendlyError('email-already-in-use')).toMatch(/already has an account/i));
+  it('handles email-already-in-use', () =>
+    expect(friendlyError('email-already-in-use')).toMatch(/already has an account/i));
   it('handles wrong-password, invalid-credential, and user-not-found with same generic message (anti-enumeration)', () => {
     // All three map to the same message to prevent email enumeration attacks
     expect(friendlyError('wrong-password')).toBe('Invalid email or password.');
     expect(friendlyError('invalid-credential')).toBe('Invalid email or password.');
     expect(friendlyError('user-not-found')).toBe('Invalid email or password.');
   });
-  it('handles network-request-failed', () => expect(friendlyError('network-request-failed')).toMatch(/no internet/i));
-  it('handles too-many-requests', () => expect(friendlyError('too-many-requests')).toMatch(/too many attempts/i));
+  it('handles network-request-failed', () =>
+    expect(friendlyError('network-request-failed')).toMatch(/no internet/i));
+  it('handles too-many-requests', () =>
+    expect(friendlyError('too-many-requests')).toMatch(/too many attempts/i));
   it('handles user-disabled', () => expect(friendlyError('user-disabled')).toMatch(/disabled/i));
-  it('handles expired-action-code', () => expect(friendlyError('expired-action-code')).toMatch(/expired/i));
+  it('handles expired-action-code', () =>
+    expect(friendlyError('expired-action-code')).toMatch(/expired/i));
   it('strips Firebase: prefix from unknown errors', () => {
     expect(friendlyError('Firebase: Some error (auth/unknown).')).not.toMatch(/^Firebase:/i);
   });
@@ -175,20 +194,20 @@ describe('friendlyError', () => {
 describe('buildSearchIndex', () => {
   it('returns an array', () => expect(Array.isArray(buildSearchIndex())).toBe(true));
   it('returns items with hr and en fields', () => {
-    expect(buildSearchIndex().filter(i => i.hr).length).toBeGreaterThan(0);
+    expect(buildSearchIndex().filter((i) => i.hr).length).toBeGreaterThan(0);
   });
   it('is cached (returns same reference on second call)', () => {
     expect(buildSearchIndex()).toBe(buildSearchIndex());
   });
   it('contains both vocab and screen entries', () => {
     const idx = buildSearchIndex();
-    const hasVocab = idx.some(i => i.type === 'vocab');
-    const hasScreen = idx.some(i => i.type === 'screen');
+    const hasVocab = idx.some((i) => i.type === 'vocab');
+    const hasScreen = idx.some((i) => i.type === 'screen');
     expect(hasVocab).toBe(true);
     expect(hasScreen).toBe(true);
   });
   it('has go field for navigation', () => {
-    expect(buildSearchIndex().every(i => typeof i.go === 'string')).toBe(true);
+    expect(buildSearchIndex().every((i) => typeof i.go === 'string')).toBe(true);
   });
 });
 
@@ -203,8 +222,8 @@ describe('SRS (spaced repetition)', () => {
     expect(getSR()).toEqual({});
   });
   it('saveSR persists data', () => {
-    saveSR({ 'куча': { r: 3, w: 1 } });
-    expect(getSR()).toEqual({ 'куча': { r: 3, w: 1 } });
+    saveSR({ куча: { r: 3, w: 1 } });
+    expect(getSR()).toEqual({ куча: { r: 3, w: 1 } });
   });
   it('srMark(word, true) increments right count', () => {
     srMark('hello', true);
@@ -267,7 +286,8 @@ describe('XP cooldown (localStorage contract)', () => {
   });
   it('after marking done today → cooldown key equals today', () => {
     const today = new Date().toISOString().slice(0, 10);
-    const cd = {}; cd['mcgame'] = today;
+    const cd = {};
+    cd['mcgame'] = today;
     localStorage.setItem('xpCooldown', JSON.stringify(cd));
     const stored = JSON.parse(localStorage.getItem('xpCooldown'));
     expect(stored['mcgame']).toBe(today);
@@ -314,7 +334,7 @@ describe('getDailyChallenge', () => {
     expect(getDailyChallenge()).toBe(getDailyChallenge()); // same cached reference
   });
   it('each challenge has q, a, and opts fields', () => {
-    getDailyChallenge().challenges.forEach(item => {
+    getDailyChallenge().challenges.forEach((item) => {
       expect(typeof item.q).toBe('string');
       expect(typeof item.a).toBe('string');
       expect(Array.isArray(item.opts)).toBe(true);

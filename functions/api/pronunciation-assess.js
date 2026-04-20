@@ -36,7 +36,10 @@ function ok(body, origin) {
   return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
 }
 function err(status, msg, origin) {
-  return new Response(JSON.stringify({ ok: false, error: msg }), { status, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify({ ok: false, error: msg }), {
+    status,
+    headers: corsHeaders(origin),
+  });
 }
 
 // ── Input sanitisation ────────────────────────────────────────────────────────
@@ -55,7 +58,7 @@ function sanitizeText(value, maxLen = 500) {
 function base64ToUint8Array(b64) {
   const binary = atob(b64.replace(/\s/g, ''));
   const bytes = new Uint8Array(binary.length);
-   
+
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return bytes;
 }
@@ -69,17 +72,17 @@ function parseAzureResponse(azureData) {
   if (!nbest) return null;
 
   const pa = nbest.PronunciationAssessment || {};
-  const overall      = Math.round(pa.PronScore       ?? 0);
-  const accuracy     = Math.round(pa.AccuracyScore    ?? 0);
-  const fluency      = Math.round(pa.FluencyScore     ?? 0);
+  const overall = Math.round(pa.PronScore ?? 0);
+  const accuracy = Math.round(pa.AccuracyScore ?? 0);
+  const fluency = Math.round(pa.FluencyScore ?? 0);
   const completeness = Math.round(pa.CompletenessScore ?? 0);
 
-  const word_scores = (nbest.Words || []).map(w => ({
-    word:     w.Word || '',
-    score:    Math.round(w.PronunciationAssessment?.AccuracyScore ?? 0),
-    phonemes: (w.Phonemes || []).map(p => ({
+  const word_scores = (nbest.Words || []).map((w) => ({
+    word: w.Word || '',
+    score: Math.round(w.PronunciationAssessment?.AccuracyScore ?? 0),
+    phonemes: (w.Phonemes || []).map((p) => ({
       phoneme: p.Phoneme || '',
-      score:   Math.round(p.PronunciationAssessment?.AccuracyScore ?? 0),
+      score: Math.round(p.PronunciationAssessment?.AccuracyScore ?? 0),
     })),
   }));
 
@@ -95,7 +98,7 @@ export async function onRequestOptions({ request }) {
 // ── Main handler ──────────────────────────────────────────────────────────────
 export async function onRequestPost({ request, env }) {
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev  = env.ENVIRONMENT !== 'production';
+  const isDev = env.ENVIRONMENT !== 'production';
 
   if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
@@ -109,7 +112,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   // Check env vars early — return a clear signal so the client can fall back.
-  const AZURE_KEY    = env.AZURE_SPEECH_KEY;
+  const AZURE_KEY = env.AZURE_SPEECH_KEY;
   const AZURE_REGION = env.AZURE_SPEECH_REGION;
   if (!AZURE_KEY || !AZURE_REGION) {
     return ok({ ok: false, error: 'not_configured' }, origin);
@@ -120,8 +123,11 @@ export async function onRequestPost({ request, env }) {
   if (!ct.includes('application/json')) return err(400, 'Expected application/json', origin);
 
   let body;
-  try { body = await request.json(); }
-  catch { return err(400, 'Invalid JSON', origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON', origin);
+  }
 
   const { audioBase64, referenceText, locale = 'hr-HR', audioMimeType = 'audio/wav' } = body;
 
@@ -157,10 +163,16 @@ export async function onRequestPost({ request, env }) {
   // Sending 'audio/wav' when the audio is actually WebM caused Azure to misparse the binary
   // and return a garbage-but-consistent score (~84%). We now use the real format.
   const ALLOWED_MIME_TYPES = new Set([
-    'audio/wav', 'audio/pcm',
-    'audio/ogg', 'audio/ogg;codecs=opus', 'audio/ogg; codecs=opus',
-    'audio/webm', 'audio/webm;codecs=opus', 'audio/webm; codecs=opus',
-    'audio/mpeg', 'audio/mp4',
+    'audio/wav',
+    'audio/pcm',
+    'audio/ogg',
+    'audio/ogg;codecs=opus',
+    'audio/ogg; codecs=opus',
+    'audio/webm',
+    'audio/webm;codecs=opus',
+    'audio/webm; codecs=opus',
+    'audio/mpeg',
+    'audio/mp4',
   ]);
   // Normalise: lowercase, strip extra whitespace
   const normMime = String(audioMimeType).toLowerCase().replace(/\s+/g, ' ').trim();
@@ -169,10 +181,10 @@ export async function onRequestPost({ request, env }) {
   // Build the Pronunciation-Assessment header value.
   // Azure requires this as a base64-encoded JSON object.
   const assessmentConfig = {
-    ReferenceText:  safeReferenceText,
-    GradingSystem:  'HundredMark',
-    Granularity:    'Phoneme',
-    EnableMiscue:   true,
+    ReferenceText: safeReferenceText,
+    GradingSystem: 'HundredMark',
+    Granularity: 'Phoneme',
+    EnableMiscue: true,
   };
   const assessmentHeader = btoa(JSON.stringify(assessmentConfig));
 
@@ -186,9 +198,9 @@ export async function onRequestPost({ request, env }) {
       method: 'POST',
       headers: {
         'Ocp-Apim-Subscription-Key': AZURE_KEY,
-        'Content-Type':              azureContentType,
-        'Accept':                    'application/json',
-        'Pronunciation-Assessment':  assessmentHeader,
+        'Content-Type': azureContentType,
+        Accept: 'application/json',
+        'Pronunciation-Assessment': assessmentHeader,
       },
       body: audioBytes,
       signal: AbortSignal.timeout(20000),
@@ -210,8 +222,16 @@ export async function onRequestPost({ request, env }) {
   // Block 3: check res.ok
   if (!azureRes.ok) {
     let errMsg;
-    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
-    console.error('pronunciation-assess.js: Azure HTTP error:', azureRes.status, errMsg || rawBody.slice(0, 300));
+    try {
+      errMsg = JSON.parse(rawBody)?.error?.message;
+    } catch {
+      /* not JSON */
+    }
+    console.error(
+      'pronunciation-assess.js: Azure HTTP error:',
+      azureRes.status,
+      errMsg || rawBody.slice(0, 300),
+    );
     return err(502, 'azure_error', origin);
   }
 
@@ -226,7 +246,10 @@ export async function onRequestPost({ request, env }) {
 
   const parsed = parseAzureResponse(azureData);
   if (!parsed) {
-    console.error('pronunciation-assess.js: unexpected Azure response shape:', JSON.stringify(azureData).slice(0, 300));
+    console.error(
+      'pronunciation-assess.js: unexpected Azure response shape:',
+      JSON.stringify(azureData).slice(0, 300),
+    );
     return err(502, 'parse_failed', origin);
   }
 

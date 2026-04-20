@@ -3,11 +3,26 @@ import { statsReducer } from '../lib/statsReducer';
 
 // Minimal valid Stats shape — all required fields present
 const DS: any = {
-  xp: 0, lc: 0, gc: 0, sp: 0, de: 0, rc: 0, str: 0, pf: 0, mv: 0, hi: 0,
+  xp: 0,
+  lc: 0,
+  gc: 0,
+  sp: 0,
+  de: 0,
+  rc: 0,
+  str: 0,
+  pf: 0,
+  mv: 0,
+  hi: 0,
   authLoading: 0,
   diff: 'beginner',
-  ct: [], vs: [], rs: [], badges: [],
-  srsTotal: 0, mistakesMastered: 0, readingDone: 0, mediaVisits: 0,
+  ct: [],
+  vs: [],
+  rs: [],
+  badges: [],
+  srsTotal: 0,
+  mistakesMastered: 0,
+  readingDone: 0,
+  mediaVisits: 0,
 };
 
 function makeState(overrides: Record<string, unknown> = {}): any {
@@ -62,7 +77,10 @@ describe('statsReducer — APPLY', () => {
     let received: any;
     statsReducer(state, {
       type: 'APPLY',
-      payload: (prev: any) => { received = prev; return prev; },
+      payload: (prev: any) => {
+        received = prev;
+        return prev;
+      },
     });
     expect(received.lc).toBe(5);
     expect(received.ct).toEqual(['food']);

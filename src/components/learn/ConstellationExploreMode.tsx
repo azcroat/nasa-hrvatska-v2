@@ -3,7 +3,12 @@ import React from 'react';
 import { CASES } from './ConstellationData.js';
 import { CaseCard } from './ConstellationPieces';
 
-export default function ConstellationExploreMode({ goBack, expandedCase, onToggleCase, onStartQuiz }) {
+export default function ConstellationExploreMode({
+  goBack,
+  expandedCase,
+  onToggleCase,
+  onStartQuiz,
+}) {
   return (
     <>
       {/* Header */}
@@ -33,8 +38,7 @@ export default function ConstellationExploreMode({ goBack, expandedCase, onToggl
       </div>
 
       <p style={{ color: '#94a3b8', fontSize: 14, margin: '0 0 18px 50px', lineHeight: 1.5 }}>
-        Croatian has 7 cases. Each one answers a different question.
-        Tap a card to explore it.
+        Croatian has 7 cases. Each one answers a different question. Tap a card to explore it.
       </p>
 
       {/* Case grid */}
@@ -46,7 +50,7 @@ export default function ConstellationExploreMode({ goBack, expandedCase, onToggl
           marginBottom: 20,
         }}
       >
-        {CASES.map(c => (
+        {CASES.map((c) => (
           <CaseCard
             key={c.id}
             caseData={c}

@@ -1,10 +1,5 @@
 // @ts-nocheck
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
@@ -98,13 +93,15 @@ export default function MajaScreen() {
       clearInterval(elapsedTimerRef.current);
     }
     return () => clearInterval(elapsedTimerRef.current);
-   
   }, [sessionActive]);
 
   // cleanup on unmount
   useEffect(() => {
     return () => {
-      if (streamAbortRef.current) { streamAbortRef.current.abort(); streamAbortRef.current = null; }
+      if (streamAbortRef.current) {
+        streamAbortRef.current.abort();
+        streamAbortRef.current = null;
+      }
       stopMicImmediate();
       stopWaveform();
       clearTimeout(silenceTimerRef.current);
@@ -118,7 +115,6 @@ export default function MajaScreen() {
         audioUrlRef.current = null;
       }
     };
-     
   }, []);
 
   // ── waveform helpers ───────────────────────
@@ -195,7 +191,11 @@ export default function MajaScreen() {
 
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-      const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
+      const url = await new Promise((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.readAsDataURL(blob);
+      });
       audioUrlRef.current = url;
       const audio = new Audio(url);
       audioRef.current = audio;
@@ -309,17 +309,21 @@ export default function MajaScreen() {
                   streamedText += parsed.delta.text;
                   setConversation((prev) =>
                     prev.map((m, i) =>
-                      i === prev.length - 1 && m.streaming
-                        ? { ...m, content: streamedText }
-                        : m
-                    )
+                      i === prev.length - 1 && m.streaming ? { ...m, content: streamedText } : m,
+                    ),
                   );
                 }
-              } catch { continue; }
+              } catch {
+                continue;
+              }
             }
           }
         } finally {
-          try { reader.cancel(); } catch { /* ignore */ }
+          try {
+            reader.cancel();
+          } catch {
+            /* ignore */
+          }
         }
 
         // Mark streaming complete — parse accumulated JSON reply from Maja
@@ -329,20 +333,25 @@ export default function MajaScreen() {
         let newFacts = {};
         let emotion = 'warm';
         try {
-          const cleaned = streamedText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+          const cleaned = streamedText
+            .replace(/^```(?:json)?\s*/i, '')
+            .replace(/\s*```$/, '')
+            .trim();
           const parsed = JSON.parse(cleaned);
           replyText = parsed.reply || streamedText;
           correction = parsed.correction || null;
           newFacts = parsed.newFacts || {};
           emotion = parsed.emotion || 'warm';
-        } catch { /* use raw streamedText as reply if JSON parse fails */ }
+        } catch {
+          /* use raw streamedText as reply if JSON parse fails */
+        }
 
         setConversation((prev) =>
           prev.map((m, i) =>
             i === prev.length - 1 && m.streaming
               ? { ...m, content: replyText, streaming: false, correction, emotion }
-              : m
-          )
+              : m,
+          ),
         );
 
         if (newFacts && Object.keys(newFacts).length) {
@@ -363,10 +372,8 @@ export default function MajaScreen() {
         // Finalize any in-progress streaming bubble so it doesn't remain stuck
         setConversation((prev) =>
           prev.map((m, i) =>
-            i === prev.length - 1 && m.streaming
-              ? { ...m, streaming: false }
-              : m
-          )
+            i === prev.length - 1 && m.streaming ? { ...m, streaming: false } : m,
+          ),
         );
         if (phaseRef.current !== 'debrief') {
           setErrorMsg('Nešto je pošlo po krivu. Pokušaj ponovo.');
@@ -374,8 +381,8 @@ export default function MajaScreen() {
         }
       }
     },
-     
-    [conversation, session, level, name, playTTS]
+
+    [conversation, session, level, name, playTTS],
   );
 
   // ── start listening ────────────────────────
@@ -438,7 +445,6 @@ export default function MajaScreen() {
     } catch {
       // rec already started — ignore
     }
-   
   }, [startWaveform, stopMic, sendMessage]);
 
   // ── start session ──────────────────────────
@@ -514,7 +520,6 @@ export default function MajaScreen() {
       setPhase('error');
       setSessionActive(false);
     }
-
   }, [level, name, playTTS, startListening]);
 
   // ── end session ────────────────────────────
@@ -553,10 +558,7 @@ export default function MajaScreen() {
       const mem = loadMemory();
       const newSessionCount = mem.sessionCount + 1;
       const mergedFacts = { ...mem.knownFacts, ...(data.updatedFacts || {}) };
-      const mergedVocab = [
-        ...(data.newVocab || []),
-        ...(mem.recentVocab || []),
-      ].slice(0, 30);
+      const mergedVocab = [...(data.newVocab || []), ...(mem.recentVocab || [])].slice(0, 30);
 
       const updatedMem = {
         ...mem,
@@ -596,7 +598,6 @@ export default function MajaScreen() {
       });
       setPhase('debrief');
     }
-   
   }, [conversation, elapsedSecs, level, name, session, stopMic]);
 
   // ── continue conversation ──────────────────
@@ -728,7 +729,6 @@ export default function MajaScreen() {
               showWelcome={!sessionActive}
             />
 
-
             {/* ── SR not supported banner ── */}
             {!SR_SUPPORTED && (
               <div
@@ -745,8 +745,8 @@ export default function MajaScreen() {
               >
                 <strong>Prepoznavanje govora nije dostupno u ovom pregledniku.</strong>
                 <br />
-                Za glasovni razgovor koristite Chrome ili Edge. Možete i dalje razgovarati
-                s Majom upisivanjem teksta u polje ispod.
+                Za glasovni razgovor koristite Chrome ili Edge. Možete i dalje razgovarati s Majom
+                upisivanjem teksta u polje ispod.
               </div>
             )}
 
@@ -764,8 +764,8 @@ export default function MajaScreen() {
                   lineHeight: 1.5,
                 }}
               >
-                <strong>Pristup mikrofonu odbijen.</strong> Dopusti pristup mikrofonu u
-                postavkama preglednika ili koristi tekstualni unos ispod.
+                <strong>Pristup mikrofonu odbijen.</strong> Dopusti pristup mikrofonu u postavkama
+                preglednika ili koristi tekstualni unos ispod.
                 <br />
                 <button
                   onClick={() => setMicDenied(false)}
@@ -786,7 +786,12 @@ export default function MajaScreen() {
             )}
 
             {/* ── THE ORB ── */}
-            <MajaOrb phase={phase} waveform={waveform} liveTranscript={liveTranscript} personaCfg={personaCfg} />
+            <MajaOrb
+              phase={phase}
+              waveform={waveform}
+              liveTranscript={liveTranscript}
+              personaCfg={personaCfg}
+            />
 
             {/* ── Error message ── */}
             {phase === 'error' && (
@@ -920,11 +925,15 @@ export default function MajaScreen() {
                     }}
                   >
                     {phase === 'listening' ? (
-                      <span style={{ color: personaCfg.listenColor, fontWeight: 600 }}>Govoriš…</span>
+                      <span style={{ color: personaCfg.listenColor, fontWeight: 600 }}>
+                        Govoriš…
+                      </span>
                     ) : phase === 'thinking' ? (
                       <span style={{ color: '#d97706', fontWeight: 600 }}>Obrađujem…</span>
                     ) : phase === 'maja-speaking' ? (
-                      <span style={{ color: personaCfg.speakingColor, fontWeight: 600 }}>{personaCfg.name.split(' ')[0]} govori…</span>
+                      <span style={{ color: personaCfg.speakingColor, fontWeight: 600 }}>
+                        {personaCfg.name.split(' ')[0]} govori…
+                      </span>
                     ) : null}
                   </span>
                   <span

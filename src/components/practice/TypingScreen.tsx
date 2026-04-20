@@ -10,7 +10,9 @@ import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 
 /** Normalize diacritics for fuzzy matching (č→c, ć→c, š→s, ž→z, đ→d) */
 function normalize(s) {
-  return s.trim().toLowerCase()
+  return s
+    .trim()
+    .toLowerCase()
     .replace(/[čć]/g, 'c')
     .replace(/[šś]/g, 's')
     .replace(/[žź]/g, 'z')
@@ -19,7 +21,8 @@ function normalize(s) {
 
 /** Levenshtein edit distance between two strings */
 function levenshtein(a, b) {
-  const m = a.length, n = b.length;
+  const m = a.length,
+    n = b.length;
   const dp = [];
   for (let i = 0; i <= m; i++) {
     dp[i] = [i];
@@ -27,9 +30,10 @@ function levenshtein(a, b) {
   }
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      dp[i][j] = a[i - 1] === b[j - 1]
-        ? dp[i - 1][j - 1]
-        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
     }
   }
   return dp[m][n];
@@ -59,8 +63,8 @@ function buildPool() {
   const allWords = Object.values(V).flat();
   try {
     const dueSet = new Set(getDueReviews());
-    const dueWords = allWords.filter(w => dueSet.has(w[0]));
-    const otherWords = allWords.filter(w => !dueSet.has(w[0]));
+    const dueWords = allWords.filter((w) => dueSet.has(w[0]));
+    const otherWords = allWords.filter((w) => !dueSet.has(w[0]));
     const pool = [...sh(dueWords), ...sh(otherWords)].slice(0, 15);
     return pool.length >= 5 ? pool : sh(allWords).slice(0, 15);
   } catch {
@@ -71,29 +75,57 @@ function buildPool() {
 // ── Result UI helpers ─────────────────────────────────────────────────────────
 
 const RESULT_CONFIG = {
-  perfect:  { color: '#16a34a', bg: 'rgba(22,163,74,0.08)',  border: 'rgba(22,163,74,0.3)',  icon: '✅', label: 'Perfect!' },
-  diacritic:{ color: '#d97706', bg: 'rgba(217,119,6,0.08)', border: 'rgba(217,119,6,0.3)',  icon: '🔤', label: 'Close — check diacritics' },
-  close:    { color: '#2563eb', bg: 'rgba(37,99,235,0.08)',  border: 'rgba(37,99,235,0.3)',  icon: '💡', label: 'Almost — 1 typo' },
-  wrong:    { color: '#dc2626', bg: 'rgba(220,38,38,0.08)',  border: 'rgba(220,38,38,0.3)',  icon: '❌', label: 'Not quite' },
+  perfect: {
+    color: '#16a34a',
+    bg: 'rgba(22,163,74,0.08)',
+    border: 'rgba(22,163,74,0.3)',
+    icon: '✅',
+    label: 'Perfect!',
+  },
+  diacritic: {
+    color: '#d97706',
+    bg: 'rgba(217,119,6,0.08)',
+    border: 'rgba(217,119,6,0.3)',
+    icon: '🔤',
+    label: 'Close — check diacritics',
+  },
+  close: {
+    color: '#2563eb',
+    bg: 'rgba(37,99,235,0.08)',
+    border: 'rgba(37,99,235,0.3)',
+    icon: '💡',
+    label: 'Almost — 1 typo',
+  },
+  wrong: {
+    color: '#dc2626',
+    bg: 'rgba(220,38,38,0.08)',
+    border: 'rgba(220,38,38,0.3)',
+    icon: '❌',
+    label: 'Not quite',
+  },
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function TypingScreen({ goBack, award }) {
-  const finishFired      = useRef(false);
-  const inputRef         = useRef(/** @type {HTMLInputElement|null} */ (null));
-  const startTsRef       = useRef(0); // tracks when current word was presented
+  const finishFired = useRef(false);
+  const inputRef = useRef(/** @type {HTMLInputElement|null} */ null);
+  const startTsRef = useRef(0); // tracks when current word was presented
   const consecCorrectRef = useRef(0);
-  const consecWrongRef   = useRef(0);
+  const consecWrongRef = useRef(0);
 
   const [tyPool] = useState(() => buildPool());
   const [tyI, sTyI] = useState(0);
   const [tyS, sTyS] = useState(0); // correct count (perfect + close accepted)
   const [tyIn, sTyIn] = useState('');
-  const [result, setResult] = useState(/** @type {null|'perfect'|'diacritic'|'close'|'wrong'} */ (null));
+  const [result, setResult] = useState(
+    /** @type {null|'perfect'|'diacritic'|'close'|'wrong'} */ null,
+  );
 
   // Record when word is presented
-  useEffect(() => { startTsRef.current = Date.now(); }, [tyI]);
+  useEffect(() => {
+    startTsRef.current = Date.now();
+  }, [tyI]);
 
   if (!tyPool.length) return null;
 
@@ -107,8 +139,12 @@ export default function TypingScreen({ goBack, award }) {
         {H('⌨️ Typing Practice', 'Type Croatian words with special characters', goBack)}
         <div style={{ textAlign: 'center', paddingTop: 32 }}>
           <div style={{ fontSize: 64 }}>{tyS >= tyPool.length * 0.8 ? '🏆' : '📚'}</div>
-          <h2 style={{ margin: '12px 0 4px', color: 'var(--heading)' }}>{tyS} / {tyPool.length}</h2>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#d97706', marginBottom: 20 }}>+{xp} XP</div>
+          <h2 style={{ margin: '12px 0 4px', color: 'var(--heading)' }}>
+            {tyS} / {tyPool.length}
+          </h2>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#d97706', marginBottom: 20 }}>
+            +{xp} XP
+          </div>
           <button
             className="b bp"
             onClick={() => {
@@ -120,7 +156,8 @@ export default function TypingScreen({ goBack, award }) {
               if (typeof award === 'function') award(xp);
               markQuest('vocab');
               goBack();
-            }}>
+            }}
+          >
             🏠 Done
           </button>
         </div>
@@ -132,12 +169,12 @@ export default function TypingScreen({ goBack, award }) {
   function submitAnswer() {
     if (result) return; // already answered
     const verdict = checkAnswer(tyIn, tyW[0]);
-    const timeMs  = Math.max(500, Date.now() - startTsRef.current);
+    const timeMs = Math.max(500, Date.now() - startTsRef.current);
     const isCorrect = verdict === 'perfect' || verdict === 'diacritic' || verdict === 'close';
     srMark(tyW[0], isCorrect, timeMs);
     recordTopicResult('production', isCorrect);
     if (isCorrect) {
-      sTyS(s => s + 1);
+      sTyS((s) => s + 1);
       consecWrongRef.current = 0;
       consecCorrectRef.current += 1;
       if (consecCorrectRef.current >= 3) {
@@ -148,7 +185,10 @@ export default function TypingScreen({ goBack, award }) {
     } else {
       consecCorrectRef.current = 0;
       consecWrongRef.current += 1;
-      knightFlash(consecWrongRef.current >= 3 ? 'struggling' : 'oops', consecWrongRef.current >= 3 ? 2000 : 1500);
+      knightFlash(
+        consecWrongRef.current >= 3 ? 'struggling' : 'oops',
+        consecWrongRef.current >= 3 ? 2000 : 1500,
+      );
     }
     setResult(verdict);
     speak(tyW[0]);
@@ -164,11 +204,18 @@ export default function TypingScreen({ goBack, award }) {
 
   function insertChar(char) {
     const el = inputRef.current;
-    if (!el) { sTyIn(v => v + char); return; }
-    const start = el.selectionStart || 0, end = el.selectionEnd || 0;
+    if (!el) {
+      sTyIn((v) => v + char);
+      return;
+    }
+    const start = el.selectionStart || 0,
+      end = el.selectionEnd || 0;
     const newVal = tyIn.slice(0, start) + char + tyIn.slice(end);
     sTyIn(newVal);
-    setTimeout(() => { el.focus(); el.setSelectionRange(start + 1, start + 1); }, 0);
+    setTimeout(() => {
+      el.focus();
+      el.setSelectionRange(start + 1, start + 1);
+    }, 0);
   }
 
   const cfg = result ? RESULT_CONFIG[result] : null;
@@ -180,10 +227,26 @@ export default function TypingScreen({ goBack, award }) {
 
       {/* Word prompt */}
       <div className="c" style={{ textAlign: 'center', marginTop: 16, padding: '16px 20px' }}>
-        <div style={{ fontSize: 13, color: 'var(--subtext)', fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div
+          style={{
+            fontSize: 13,
+            color: 'var(--subtext)',
+            fontWeight: 600,
+            marginBottom: 8,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
           Type this word in Croatian:
         </div>
-        <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>
+        <div
+          style={{
+            fontSize: 28,
+            fontWeight: 900,
+            color: 'var(--heading)',
+            fontFamily: "'Playfair Display',serif",
+          }}
+        >
           {tyW[1]}
         </div>
       </div>
@@ -193,13 +256,23 @@ export default function TypingScreen({ goBack, award }) {
         ref={inputRef}
         type="text"
         value={tyIn}
-        onChange={e => { if (!result) sTyIn(e.target.value); }}
-        onKeyDown={e => { if (e.key === 'Enter') { if (!result) submitAnswer(); else nextWord(); } }}
+        onChange={(e) => {
+          if (!result) sTyIn(e.target.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            if (!result) submitAnswer();
+            else nextWord();
+          }
+        }}
         placeholder="Type Croatian…"
         disabled={!!result}
         style={{
-          marginTop: 14, textAlign: 'center', fontSize: 20, fontWeight: 700,
-          background: result ? (cfg.bg) : undefined,
+          marginTop: 14,
+          textAlign: 'center',
+          fontSize: 20,
+          fontWeight: 700,
+          background: result ? cfg.bg : undefined,
           borderColor: result ? cfg.border : undefined,
           color: result ? cfg.color : undefined,
           transition: 'all .2s',
@@ -214,35 +287,58 @@ export default function TypingScreen({ goBack, award }) {
         <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
           <button
             className="b"
-            style={{ flex: '0 0 auto', padding: '12px 16px', background: 'var(--bar-bg)', color: 'var(--subtext)', border: '1px solid var(--card-b)', borderRadius: 12, fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+            style={{
+              flex: '0 0 auto',
+              padding: '12px 16px',
+              background: 'var(--bar-bg)',
+              color: 'var(--subtext)',
+              border: '1px solid var(--card-b)',
+              borderRadius: 12,
+              fontFamily: 'inherit',
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
             onClick={() => {
               srMark(tyW[0], false, 999999);
               recordTopicResult('production', false);
               setResult('wrong');
               speak(tyW[0]);
-            }}>
+            }}
+          >
             Skip
           </button>
           <button
             className="b bp"
             style={{ flex: 1 }}
             onClick={submitAnswer}
-            disabled={!tyIn.trim()}>
+            disabled={!tyIn.trim()}
+          >
             Check Answer
           </button>
         </div>
       ) : (
-        <div style={{
-          marginTop: 14, padding: '14px 16px',
-          background: cfg.bg, border: `1px solid ${cfg.border}`,
-          borderRadius: 14, textAlign: 'center',
-        }}>
+        <div
+          style={{
+            marginTop: 14,
+            padding: '14px 16px',
+            background: cfg.bg,
+            border: `1px solid ${cfg.border}`,
+            borderRadius: 14,
+            textAlign: 'center',
+          }}
+        >
           <div style={{ fontSize: 18, fontWeight: 800, color: cfg.color, marginBottom: 6 }}>
             {cfg.icon} {cfg.label}
           </div>
           {result !== 'perfect' && (
-            <div style={{ fontSize: 16, color: 'var(--heading)', fontWeight: 700, marginBottom: 4 }}>
-              Correct: <span style={{ color: cfg.color, fontFamily: "'Playfair Display',serif" }}>{tyW[0]}</span>
+            <div
+              style={{ fontSize: 16, color: 'var(--heading)', fontWeight: 700, marginBottom: 4 }}
+            >
+              Correct:{' '}
+              <span style={{ color: cfg.color, fontFamily: "'Playfair Display',serif" }}>
+                {tyW[0]}
+              </span>
             </div>
           )}
           {result === 'diacritic' && (

@@ -9,14 +9,62 @@ import { getVoicePreference } from '../../lib/soundSettings.js';
 
 // ── Region data ───────────────────────────────────────────────────────────────
 const REGIONS = [
-  { name: 'Dalmatia',          icon: '☀️', color: '#b45309', desc: 'Adriatic coast & islands',     image: '/images/scenes/dalmatian-ai.webp' },
-  { name: 'Slavonia',          icon: '🌾', color: '#16a34a', desc: 'Eastern plains & forests',      image: '/images/scenes/zagreb.webp' },
-  { name: 'Istria',            icon: '🫒', color: '#7c3aed', desc: 'Mediterranean peninsula',       image: '/images/scenes/labin.webp' },
-  { name: 'Zagorje',           icon: '🏰', color: '#0369a1', desc: 'Castles & rolling hills',       image: '/images/scenes/zagreb.webp' },
-  { name: 'Lika',              icon: '🦅', color: '#dc2626', desc: 'Mountains & tradition',          image: '/images/scenes/plitvice.webp' },
-  { name: 'Dubrovnik Region',  icon: '🏯', color: '#7c3aed', desc: 'The pearl of the Adriatic',    image: '/images/scenes/dubrovnik-ai.webp' },
-  { name: 'Kvarner',           icon: '⛵', color: '#0e7490', desc: 'Islands & sea breezes',         image: '/images/scenes/dalmatian-ai.webp' },
-  { name: 'Herzegovina',       icon: '🌉', color: '#b45309', desc: 'Ancient bridges & stone towns', image: '/images/scenes/mostar.webp' },
+  {
+    name: 'Dalmatia',
+    icon: '☀️',
+    color: '#b45309',
+    desc: 'Adriatic coast & islands',
+    image: '/images/scenes/dalmatian-ai.webp',
+  },
+  {
+    name: 'Slavonia',
+    icon: '🌾',
+    color: '#16a34a',
+    desc: 'Eastern plains & forests',
+    image: '/images/scenes/zagreb.webp',
+  },
+  {
+    name: 'Istria',
+    icon: '🫒',
+    color: '#7c3aed',
+    desc: 'Mediterranean peninsula',
+    image: '/images/scenes/labin.webp',
+  },
+  {
+    name: 'Zagorje',
+    icon: '🏰',
+    color: '#0369a1',
+    desc: 'Castles & rolling hills',
+    image: '/images/scenes/zagreb.webp',
+  },
+  {
+    name: 'Lika',
+    icon: '🦅',
+    color: '#dc2626',
+    desc: 'Mountains & tradition',
+    image: '/images/scenes/plitvice.webp',
+  },
+  {
+    name: 'Dubrovnik Region',
+    icon: '🏯',
+    color: '#7c3aed',
+    desc: 'The pearl of the Adriatic',
+    image: '/images/scenes/dubrovnik-ai.webp',
+  },
+  {
+    name: 'Kvarner',
+    icon: '⛵',
+    color: '#0e7490',
+    desc: 'Islands & sea breezes',
+    image: '/images/scenes/dalmatian-ai.webp',
+  },
+  {
+    name: 'Herzegovina',
+    icon: '🌉',
+    color: '#b45309',
+    desc: 'Ancient bridges & stone towns',
+    image: '/images/scenes/mostar.webp',
+  },
 ];
 
 const ERAS = ['Early 1900s', 'Mid 1900s', 'Late 1800s', 'Any era'];
@@ -25,7 +73,8 @@ const ERAS = ['Early 1900s', 'Mid 1900s', 'Late 1800s', 'Any era'];
 // iOS detection — HTMLAudioElement.play() is blocked after async gaps (the fetch
 // and blob conversion lose the user gesture context). Use the pre-unlocked
 // AudioContext from audio.js instead, which ignores autoplay policy once unlocked.
-const _iosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+const _iosDevice =
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 async function playTTS(text) {
@@ -50,8 +99,14 @@ async function playTTS(text) {
       src.start(0);
       // Return a control shim matching the HTMLAudioElement interface used by handleTTS
       return {
-        pause() { try { src.stop(); } catch {} },
-        addEventListener(ev, fn) { if (ev === 'ended') src.onended = fn; },
+        pause() {
+          try {
+            src.stop();
+          } catch {}
+        },
+        addEventListener(ev, fn) {
+          if (ev === 'ended') src.onended = fn;
+        },
       };
     } catch {
       throw new Error('TTS playback failed');
@@ -59,9 +114,17 @@ async function playTTS(text) {
   }
 
   // Non-iOS: use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-  const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
+  const url = await new Promise((resolve) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.readAsDataURL(blob);
+  });
   const audio = new Audio(url);
-  try { await audio.play(); } catch { throw new Error('play() blocked'); }
+  try {
+    await audio.play();
+  } catch {
+    throw new Error('play() blocked');
+  }
   return audio;
 }
 
@@ -79,7 +142,7 @@ function NarrativePart({ part, index, accentColor, onRead }) {
           onRead(index);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
     obs.observe(ref.current);
     return () => obs.disconnect();
@@ -101,45 +164,53 @@ function NarrativePart({ part, index, accentColor, onRead }) {
       }}
     >
       {/* Accent stripe */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        width: 4,
-        backgroundColor: accentColor,
-        borderRadius: '16px 0 0 16px',
-      }} />
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: 4,
+          backgroundColor: accentColor,
+          borderRadius: '16px 0 0 16px',
+        }}
+      />
       <div style={{ paddingLeft: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <span style={{
-            fontSize: 11,
-            fontWeight: 800,
-            color: accentColor,
-            backgroundColor: accentColor + '18',
-            padding: '3px 10px',
-            borderRadius: 20,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 800,
+              color: accentColor,
+              backgroundColor: accentColor + '18',
+              padding: '3px 10px',
+              borderRadius: 20,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}
+          >
             Part {romanNumerals[index] || index + 1}
           </span>
         </div>
-        <h3 style={{
-          fontSize: 17,
-          fontWeight: 800,
-          color: accentColor,
-          marginBottom: 12,
-          lineHeight: 1.35,
-        }}>
+        <h3
+          style={{
+            fontSize: 17,
+            fontWeight: 800,
+            color: accentColor,
+            marginBottom: 12,
+            lineHeight: 1.35,
+          }}
+        >
           {part.heading}
         </h3>
-        <p style={{
-          fontSize: 15,
-          lineHeight: 1.85,
-          color: 'var(--heading)',
-          margin: 0,
-        }}>
+        <p
+          style={{
+            fontSize: 15,
+            lineHeight: 1.85,
+            color: 'var(--heading)',
+            margin: 0,
+          }}
+        >
           {part.text}
         </p>
       </div>
@@ -150,13 +221,15 @@ function NarrativePart({ part, index, accentColor, onRead }) {
 // ── Phrase card ───────────────────────────────────────────────────────────────
 function PhraseCard({ phrase, accentColor }) {
   return (
-    <div style={{
-      padding: '14px 16px',
-      borderRadius: 12,
-      backgroundColor: accentColor + '0d',
-      border: `1.5px solid ${accentColor}30`,
-      marginBottom: 10,
-    }}>
+    <div
+      style={{
+        padding: '14px 16px',
+        borderRadius: 12,
+        backgroundColor: accentColor + '0d',
+        border: `1.5px solid ${accentColor}30`,
+        marginBottom: 10,
+      }}
+    >
       <div style={{ fontSize: 16, fontWeight: 700, color: accentColor, marginBottom: 4 }}>
         {phrase.croatian || phrase.hr}
       </div>
@@ -175,18 +248,24 @@ function PhraseCard({ phrase, accentColor }) {
 // ── Word card ─────────────────────────────────────────────────────────────────
 function WordCard({ word, accentColor }) {
   return (
-    <div style={{
-      display: 'inline-flex',
-      flexDirection: 'column',
-      padding: '10px 14px',
-      borderRadius: 10,
-      backgroundColor: 'var(--card)',
-      border: `1px solid var(--card-b)`,
-      marginRight: 8,
-      marginBottom: 8,
-    }}>
-      <span style={{ fontWeight: 700, color: accentColor, fontSize: 14 }}>{word.croatian || word.hr || word.word}</span>
-      <span style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>{word.english || word.en || word.translation}</span>
+    <div
+      style={{
+        display: 'inline-flex',
+        flexDirection: 'column',
+        padding: '10px 14px',
+        borderRadius: 10,
+        backgroundColor: 'var(--card)',
+        border: `1px solid var(--card-b)`,
+        marginRight: 8,
+        marginBottom: 8,
+      }}
+    >
+      <span style={{ fontWeight: 700, color: accentColor, fontSize: 14 }}>
+        {word.croatian || word.hr || word.word}
+      </span>
+      <span style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
+        {word.english || word.en || word.translation}
+      </span>
     </div>
   );
 }
@@ -195,13 +274,18 @@ function WordCard({ word, accentColor }) {
 function PulsingDots({ color }) {
   return (
     <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-      {[0, 1, 2].map(i => (
-        <span key={i} style={{
-          width: 9, height: 9, borderRadius: '50%',
-          backgroundColor: color || '#0e7490',
-          display: 'inline-block',
-          animation: `heritage-pulse ${1.2}s ease-in-out ${i * 0.2}s infinite`,
-        }} />
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          style={{
+            width: 9,
+            height: 9,
+            borderRadius: '50%',
+            backgroundColor: color || '#0e7490',
+            display: 'inline-block',
+            animation: `heritage-pulse ${1.2}s ease-in-out ${i * 0.2}s infinite`,
+          }}
+        />
       ))}
     </span>
   );
@@ -230,17 +314,23 @@ export default function HeritageStoryScreen({ goBack, award }) {
   const awardFired = useRef(false);
   const _unmountedRef = useRef(false);
 
-  const handlePartRead = useCallback((index) => {
-    readParts.current.add(index);
-    if (readParts.current.size >= 3 && !awardFired.current) {
-      awardFired.current = true;
-      if (typeof award === 'function') award(20);
-      markQuest('culture');
-    }
-  }, [award]);
+  const handlePartRead = useCallback(
+    (index) => {
+      readParts.current.add(index);
+      if (readParts.current.size >= 3 && !awardFired.current) {
+        awardFired.current = true;
+        if (typeof award === 'function') award(20);
+        markQuest('culture');
+      }
+    },
+    [award],
+  );
 
   const generateHeritage = useCallback(async () => {
-    if (!isOnline) { setError('You need an internet connection to generate your heritage story.'); return; }
+    if (!isOnline) {
+      setError('You need an internet connection to generate your heritage story.');
+      return;
+    }
     setPhase('loading');
     setError('');
     awardFired.current = false;
@@ -251,7 +341,9 @@ export default function HeritageStoryScreen({ goBack, award }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mode: 'heritage',
-          messages: [{ role: 'user', content: `Tell the heritage story of ${selectedRegion.name}` }],
+          messages: [
+            { role: 'user', content: `Tell the heritage story of ${selectedRegion.name}` },
+          ],
           params: {
             region: selectedRegion.name,
             family_notes: familyNotes,
@@ -275,25 +367,38 @@ export default function HeritageStoryScreen({ goBack, award }) {
     if (!heritageData || ttsPlaying) return;
     setTtsPlaying(true);
     try {
-      const fullText = (heritageData.parts || []).map(p => p.text).join(' ');
+      const fullText = (heritageData.parts || []).map((p) => p.text).join(' ');
       const audio = await playTTS(fullText);
       if (_unmountedRef.current) return;
       audioRef.current = audio;
-      audio.addEventListener('ended', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
-      audio.addEventListener('error', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
+      audio.addEventListener('ended', () => {
+        if (!_unmountedRef.current) setTtsPlaying(false);
+      });
+      audio.addEventListener('error', () => {
+        if (!_unmountedRef.current) setTtsPlaying(false);
+      });
       // Android: sync UI if system interrupts audio (screen lock, incoming call)
-      audio.addEventListener('pause', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
+      audio.addEventListener('pause', () => {
+        if (!_unmountedRef.current) setTtsPlaying(false);
+      });
     } catch {
       if (!_unmountedRef.current) setTtsPlaying(false);
     }
   }, [heritageData, ttsPlaying]);
 
   const stopTTS = useCallback(() => {
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     setTtsPlaying(false);
   }, []);
 
-  useEffect(() => { return () => { _unmountedRef.current = true; }; }, []);
+  useEffect(() => {
+    return () => {
+      _unmountedRef.current = true;
+    };
+  }, []);
 
   const saveToProfile = useCallback(() => {
     if (!heritageData) return;
@@ -335,15 +440,28 @@ export default function HeritageStoryScreen({ goBack, award }) {
           .era-btn:hover { transform: scale(1.03); }
         `}</style>
 
-        {H('🧬 Your Croatian Heritage', 'Discover the story of your roots — AI-crafted from history, culture, and your family\'s region', goBack)}
+        {H(
+          '🧬 Your Croatian Heritage',
+          "Discover the story of your roots — AI-crafted from history, culture, and your family's region",
+          goBack,
+        )}
 
         {/* Region selector */}
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--subtext)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'var(--subtext)',
+              marginBottom: 12,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
             Your ancestral region
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {REGIONS.map(region => (
+            {REGIONS.map((region) => (
               <div
                 key={region.name}
                 className="region-card c"
@@ -352,22 +470,36 @@ export default function HeritageStoryScreen({ goBack, award }) {
                   padding: '14px 16px',
                   borderRadius: 14,
                   border: `2px solid ${selectedRegion.name === region.name ? region.color : 'var(--card-b)'}`,
-                  backgroundColor: selectedRegion.name === region.name ? region.color + '12' : 'var(--card)',
-                  boxShadow: selectedRegion.name === region.name ? `0 4px 16px ${region.color}30` : undefined,
+                  backgroundColor:
+                    selectedRegion.name === region.name ? region.color + '12' : 'var(--card)',
+                  boxShadow:
+                    selectedRegion.name === region.name
+                      ? `0 4px 16px ${region.color}30`
+                      : undefined,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 24 }}>{region.icon}</span>
                   <div>
-                    <div style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: selectedRegion.name === region.name ? region.color : 'var(--heading)',
-                      lineHeight: 1.2,
-                    }}>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color:
+                          selectedRegion.name === region.name ? region.color : 'var(--heading)',
+                        lineHeight: 1.2,
+                      }}
+                    >
                       {region.name}
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, lineHeight: 1.3 }}>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: 'var(--subtext)',
+                        marginTop: 2,
+                        lineHeight: 1.3,
+                      }}
+                    >
                       {region.desc}
                     </div>
                   </div>
@@ -379,13 +511,23 @@ export default function HeritageStoryScreen({ goBack, award }) {
 
         {/* User name */}
         <div className="c" style={{ marginBottom: 12 }}>
-          <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--subtext)', display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <label
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'var(--subtext)',
+              display: 'block',
+              marginBottom: 8,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
             Your name
           </label>
           <input
             type="text"
             value={userName}
-            onChange={e => setUserName(e.target.value)}
+            onChange={(e) => setUserName(e.target.value)}
             placeholder="For a personal touch"
             maxLength={50}
             style={{
@@ -403,12 +545,22 @@ export default function HeritageStoryScreen({ goBack, award }) {
 
         {/* Family notes */}
         <div className="c" style={{ marginBottom: 12 }}>
-          <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--subtext)', display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <label
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'var(--subtext)',
+              display: 'block',
+              marginBottom: 8,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
             What do you know about your family?
           </label>
           <textarea
             value={familyNotes}
-            onChange={e => setFamilyNotes(e.target.value)}
+            onChange={(e) => setFamilyNotes(e.target.value)}
             placeholder="e.g. My grandparents emigrated in the 1920s, they were fishermen, they spoke a dialect..."
             rows={4}
             maxLength={500}
@@ -432,11 +584,20 @@ export default function HeritageStoryScreen({ goBack, award }) {
 
         {/* Era selector */}
         <div className="c" style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--subtext)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'var(--subtext)',
+              marginBottom: 12,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
             Historical era
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {ERAS.map(era => (
+            {ERAS.map((era) => (
               <button
                 key={era}
                 className="era-btn"
@@ -459,7 +620,17 @@ export default function HeritageStoryScreen({ goBack, award }) {
         </div>
 
         {error && (
-          <div style={{ padding: '12px 16px', borderRadius: 10, backgroundColor: 'var(--error-bg)', border: '1px solid var(--error-b)', color: 'var(--error)', fontSize: 14, marginBottom: 16 }}>
+          <div
+            style={{
+              padding: '12px 16px',
+              borderRadius: 10,
+              backgroundColor: 'var(--error-bg)',
+              border: '1px solid var(--error-b)',
+              color: 'var(--error)',
+              fontSize: 14,
+              marginBottom: 16,
+            }}
+          >
             {error}
           </div>
         )}
@@ -485,7 +656,14 @@ export default function HeritageStoryScreen({ goBack, award }) {
         <button
           className="b"
           onClick={goBack}
-          style={{ width: '100%', marginTop: 12, fontSize: 14, backgroundColor: 'transparent', border: '1.5px solid var(--card-b)', color: 'var(--subtext)' }}
+          style={{
+            width: '100%',
+            marginTop: 12,
+            fontSize: 14,
+            backgroundColor: 'transparent',
+            border: '1.5px solid var(--card-b)',
+            color: 'var(--subtext)',
+          }}
         >
           ← Back
         </button>
@@ -515,54 +693,82 @@ export default function HeritageStoryScreen({ goBack, award }) {
             95% { width: 92%; }
           }
         `}</style>
-        <div style={{ minHeight: '65vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 32, padding: '0 20px' }}>
+        <div
+          style={{
+            minHeight: '65vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 32,
+            padding: '0 20px',
+          }}
+        >
           <div style={{ fontSize: 64, animation: 'heritage-scroll 2.5s ease-in-out infinite' }}>
             {selectedRegion.icon}
           </div>
           <div style={{ textAlign: 'center', width: '100%', maxWidth: 340 }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--heading)', marginBottom: 6 }}>
+            <div
+              style={{ fontSize: 18, fontWeight: 800, color: 'var(--heading)', marginBottom: 6 }}
+            >
               Researching {selectedRegion.name} history…
             </div>
-            <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 28, lineHeight: 1.6 }}>
+            <div
+              style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 28, lineHeight: 1.6 }}
+            >
               Weaving your family's story into the tapestry of Croatian heritage
             </div>
 
             {/* Progress bar */}
-            <div style={{
-              width: '100%',
-              height: 6,
-              backgroundColor: accentColor + '25',
-              borderRadius: 9999,
-              overflow: 'hidden',
-              marginBottom: 20,
-            }}>
-              <div style={{
-                height: '100%',
+            <div
+              style={{
+                width: '100%',
+                height: 6,
+                backgroundColor: accentColor + '25',
                 borderRadius: 9999,
-                backgroundColor: accentColor,
-                animation: 'heritage-bar 8s ease-out forwards',
-              }} />
+                overflow: 'hidden',
+                marginBottom: 20,
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  borderRadius: 9999,
+                  backgroundColor: accentColor,
+                  animation: 'heritage-bar 8s ease-out forwards',
+                }}
+              />
             </div>
 
             <PulsingDots color={accentColor} />
           </div>
 
-          <div style={{
-            display: 'flex',
-            gap: 10,
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            opacity: 0.6,
-          }}>
-            {['📜 Archival records', '🗺️ Regional geography', '🏛️ Cultural context', '🌿 Ancestral phrases'].map(label => (
-              <span key={label} style={{
-                fontSize: 11,
-                padding: '4px 10px',
-                borderRadius: 20,
-                backgroundColor: accentColor + '18',
-                color: accentColor,
-                fontWeight: 600,
-              }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 10,
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              opacity: 0.6,
+            }}
+          >
+            {[
+              '📜 Archival records',
+              '🗺️ Regional geography',
+              '🏛️ Cultural context',
+              '🌿 Ancestral phrases',
+            ].map((label) => (
+              <span
+                key={label}
+                style={{
+                  fontSize: 11,
+                  padding: '4px 10px',
+                  borderRadius: 20,
+                  backgroundColor: accentColor + '18',
+                  color: accentColor,
+                  fontWeight: 600,
+                }}
+              >
                 {label}
               </span>
             ))}
@@ -594,41 +800,66 @@ export default function HeritageStoryScreen({ goBack, award }) {
         `}</style>
 
         {/* Region image header — full bleed */}
-        <div style={{
-          position: 'relative',
-          height: 220,
-          borderRadius: 18,
-          overflow: 'hidden',
-          marginBottom: 28,
-        }}>
+        <div
+          style={{
+            position: 'relative',
+            height: 220,
+            borderRadius: 18,
+            overflow: 'hidden',
+            marginBottom: 28,
+          }}
+        >
           <img
             src={regionImage}
             alt={selectedRegion.name}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             loading="lazy"
-            onError={e => { /** @type {HTMLImageElement} */ (e.target).src = '/images/scenes/dalmatian-ai.webp'; }}
+            onError={(e) => {
+              /** @type {HTMLImageElement} */ e.target.src = '/images/scenes/dalmatian-ai.webp';
+            }}
           />
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: `linear-gradient(to top, ${accentColor}cc 0%, rgba(0,0,0,0.15) 55%, transparent 100%)`,
-          }} />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: `linear-gradient(to top, ${accentColor}cc 0%, rgba(0,0,0,0.15) 55%, transparent 100%)`,
+            }}
+          />
           {/* Museum-style label */}
-          <div style={{
-            position: 'absolute',
-            top: 16,
-            left: 16,
-            padding: '5px 12px',
-            borderRadius: 20,
-            backgroundColor: 'rgba(255,255,255,0.15)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,255,255,0.3)',
-          }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#fff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 16,
+              left: 16,
+              padding: '5px 12px',
+              borderRadius: 20,
+              backgroundColor: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.3)',
+            }}
+          >
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: '#fff',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+              }}
+            >
               Heritage Narrative
             </span>
           </div>
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 22px' }}>
-            <div style={{ fontSize: 26, fontWeight: 900, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', lineHeight: 1.2 }}>
+            <div
+              style={{
+                fontSize: 26,
+                fontWeight: 900,
+                color: '#fff',
+                textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                lineHeight: 1.2,
+              }}
+            >
               {heritageData.title || `The ${selectedRegion.name} Story`}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
@@ -651,14 +882,18 @@ export default function HeritageStoryScreen({ goBack, award }) {
         {/* Ancestral phrases */}
         {heritageData.ancestral_phrases && heritageData.ancestral_phrases.length > 0 && (
           <div className="heritage-section" style={{ marginBottom: 16 }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              marginBottom: 14,
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                marginBottom: 14,
+              }}
+            >
               <span style={{ fontSize: 20 }}>🗣️</span>
-              <h2 style={{ fontSize: 17, fontWeight: 800, color: 'var(--heading)' }}>Ancestral Phrases</h2>
+              <h2 style={{ fontSize: 17, fontWeight: 800, color: 'var(--heading)' }}>
+                Ancestral Phrases
+              </h2>
             </div>
             {heritageData.ancestral_phrases.map((phrase, i) => (
               <PhraseCard key={i} phrase={phrase} accentColor={accentColor} />
@@ -669,14 +904,18 @@ export default function HeritageStoryScreen({ goBack, award }) {
         {/* Regional words */}
         {heritageData.regional_words && heritageData.regional_words.length > 0 && (
           <div className="heritage-section" style={{ marginBottom: 16 }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              marginBottom: 14,
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                marginBottom: 14,
+              }}
+            >
               <span style={{ fontSize: 20 }}>📖</span>
-              <h2 style={{ fontSize: 17, fontWeight: 800, color: 'var(--heading)' }}>Regional Words</h2>
+              <h2 style={{ fontSize: 17, fontWeight: 800, color: 'var(--heading)' }}>
+                Regional Words
+              </h2>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
               {heritageData.regional_words.map((word, i) => (
@@ -688,17 +927,29 @@ export default function HeritageStoryScreen({ goBack, award }) {
 
         {/* Did you know */}
         {heritageData.did_you_know && (
-          <div className="heritage-section" style={{
-            padding: '18px 20px',
-            borderRadius: 14,
-            backgroundColor: accentColor + '12',
-            border: `2px solid ${accentColor}30`,
-            marginBottom: 20,
-          }}>
+          <div
+            className="heritage-section"
+            style={{
+              padding: '18px 20px',
+              borderRadius: 14,
+              backgroundColor: accentColor + '12',
+              border: `2px solid ${accentColor}30`,
+              marginBottom: 20,
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
               <span style={{ fontSize: 24, flexShrink: 0 }}>💡</span>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: accentColor, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: accentColor,
+                    marginBottom: 6,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                  }}
+                >
                   Did You Know?
                 </div>
                 <div style={{ fontSize: 14, color: 'var(--heading)', lineHeight: 1.7 }}>
@@ -731,17 +982,25 @@ export default function HeritageStoryScreen({ goBack, award }) {
           >
             {ttsPlaying ? (
               <>
-                <span style={{
-                  width: 11, height: 11,
-                  border: '2px solid currentColor',
-                  borderTopColor: 'transparent',
-                  borderRadius: '50%',
-                  display: 'inline-block',
-                  animation: 'spin 0.7s linear infinite',
-                }} />
+                <span
+                  style={{
+                    width: 11,
+                    height: 11,
+                    border: '2px solid currentColor',
+                    borderTopColor: 'transparent',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    animation: 'spin 0.7s linear infinite',
+                  }}
+                />
                 Stop
               </>
-            ) : <><span aria-hidden="true">🔊</span>{' Read Aloud'}</>}
+            ) : (
+              <>
+                <span aria-hidden="true">🔊</span>
+                {' Read Aloud'}
+              </>
+            )}
           </button>
 
           <button
@@ -765,7 +1024,11 @@ export default function HeritageStoryScreen({ goBack, award }) {
         <div style={{ display: 'flex', gap: 10 }}>
           <button
             className="b"
-            onClick={() => { stopTTS(); setPhase('form'); setHeritageData(null); }}
+            onClick={() => {
+              stopTTS();
+              setPhase('form');
+              setHeritageData(null);
+            }}
             style={{
               flex: 1,
               padding: '14px',
@@ -781,7 +1044,10 @@ export default function HeritageStoryScreen({ goBack, award }) {
           </button>
           <button
             className="b"
-            onClick={() => { stopTTS(); goBack(); }}
+            onClick={() => {
+              stopTTS();
+              goBack();
+            }}
             style={{
               flex: 1,
               padding: '14px',

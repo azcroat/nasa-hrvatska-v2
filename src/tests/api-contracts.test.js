@@ -345,10 +345,12 @@ describe('validateNewsResponse — null guard coverage', () => {
 
   it('reports error when article.source is missing', () => {
     const { valid, errors } = validateNewsResponse({
-      articles: [{
-        simplified_title: 'Title',
-        simplified_text: 'Text',
-      }],
+      articles: [
+        {
+          simplified_title: 'Title',
+          simplified_text: 'Text',
+        },
+      ],
     });
     expect(valid).toBe(false);
     expect(errors.some((e) => e.includes('source'))).toBe(true);
@@ -356,10 +358,12 @@ describe('validateNewsResponse — null guard coverage', () => {
 
   it('reports error when article.simplified_text is missing', () => {
     const { valid, errors } = validateNewsResponse({
-      articles: [{
-        source: 'HRT',
-        simplified_title: 'Title',
-      }],
+      articles: [
+        {
+          source: 'HRT',
+          simplified_title: 'Title',
+        },
+      ],
     });
     expect(valid).toBe(false);
     expect(errors.some((e) => e.includes('simplified_text'))).toBe(true);
@@ -367,12 +371,14 @@ describe('validateNewsResponse — null guard coverage', () => {
 
   it('reports error when key_vocabulary is not an array', () => {
     const { valid, errors } = validateNewsResponse({
-      articles: [{
-        source: 'HRT',
-        simplified_title: 'Title',
-        simplified_text: 'Text',
-        key_vocabulary: 'not an array', // wrong type
-      }],
+      articles: [
+        {
+          source: 'HRT',
+          simplified_title: 'Title',
+          simplified_text: 'Text',
+          key_vocabulary: 'not an array', // wrong type
+        },
+      ],
     });
     expect(valid).toBe(false);
     expect(errors.some((e) => e.includes('key_vocabulary'))).toBe(true);
@@ -450,9 +456,7 @@ describe('validateListeningResponse — valid mock responses', () => {
         { name: 'Ana', lines: [] },
         { name: 'Ivan', lines: ['Zdravo!'] },
       ],
-      questions: [
-        { q: 'Who speaks?', options: ['Ana', 'Ivan', 'Marko', 'Petra'], correct: 1 },
-      ],
+      questions: [{ q: 'Who speaks?', options: ['Ana', 'Ivan', 'Marko', 'Petra'], correct: 1 }],
     };
 
     const { valid, errors } = validateListeningResponse(data);
@@ -465,7 +469,11 @@ describe('validateListeningResponse — valid mock responses', () => {
       en_summary: 'Ordering food at a Croatian restaurant.',
       narrator: 'Molim vas, što preporučate?',
       questions: [
-        { q: 'What is being ordered?', options: ['Food', 'Books', 'Clothes', 'Tickets'], correct: 0 },
+        {
+          q: 'What is being ordered?',
+          options: ['Food', 'Books', 'Clothes', 'Tickets'],
+          correct: 0,
+        },
       ],
       vocab: [],
     };
@@ -478,7 +486,8 @@ describe('validateListeningResponse — valid mock responses', () => {
 describe('validateExplainErrorResponse — valid mock responses', () => {
   it('accepts a full response with all optional fields', () => {
     const data = {
-      explanation: 'You used the accusative case instead of the dative. With the verb "dati", the recipient takes dative.',
+      explanation:
+        'You used the accusative case instead of the dative. With the verb "dati", the recipient takes dative.',
       rule: 'Verb "dati" governs dative for the indirect object.',
       tip: 'Think of who is receiving the gift — that noun takes dative.',
       example: 'Dajem knjigu prijatelju. (I give a book to a friend.)',
@@ -514,7 +523,8 @@ describe('validateNewsResponse — valid mock responses', () => {
         {
           source: 'HRT',
           simplified_title: 'Hrvatska pobijeda na Euro 2024',
-          simplified_text: 'Hrvatska je pobijedila u uzbudljivoj utakmici. Bio je to veliki uspjeh za cijelu naciju.',
+          simplified_text:
+            'Hrvatska je pobijedila u uzbudljivoj utakmici. Bio je to veliki uspjeh za cijelu naciju.',
           key_vocabulary: [
             { word: 'pobijeda', translation: 'victory', pos: 'noun' },
             { word: 'uzbudljiv', translation: 'exciting', pos: 'adjective' },

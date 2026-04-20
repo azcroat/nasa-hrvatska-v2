@@ -1,4 +1,3 @@
- 
 // Cloudflare Pages Function — Maja AI Voice Conversation Partner
 // Maja Kovačević: 34-year-old Croatian language teacher from Zadar, lives in Zagreb
 // Keeps the API key server-side; never exposed to the browser
@@ -7,8 +6,8 @@ import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
 
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-6';
 
 // ── Security helpers ──────────────────────────────────────────────────────────
 
@@ -28,47 +27,55 @@ function isAllowedOrigin(origin, isDev) {
   if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
-    if (isDev && hostname === "localhost") return true;
-    return hostname === "nasahrvatska.com"
-      || hostname.endsWith(".nasahrvatska.com")
-      || hostname === "nasa-hrvatska-v2.pages.dev"
-      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
-  } catch { return false; }
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
   return {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Cache-Control": "no-cache",
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Cache-Control': 'no-cache',
   };
 }
 
 function corsStreamHeaders(origin) {
   return {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    "Connection": "keep-alive",
-    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 }
 
-function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
-function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
+function ok(body, origin) {
+  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+}
+function err(status, msg, origin) {
+  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+}
 
 // ── Input validation ──────────────────────────────────────────────────────────
 
-const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
-const VALID_PERSONAS = ["teacher", "fisherman", "secretary", "baka"];
+const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+const VALID_PERSONAS = ['teacher', 'fisherman', 'secretary', 'baka'];
 
 function sanitizeLevel(level) {
-  return VALID_LEVELS.includes(level) ? level : "B1";
+  return VALID_LEVELS.includes(level) ? level : 'B1';
 }
 
 function sanitizePersona(persona) {
-  return VALID_PERSONAS.includes(persona) ? persona : "teacher";
+  return VALID_PERSONAS.includes(persona) ? persona : 'teacher';
 }
 
 function sanitizeSessionCount(count) {
@@ -80,19 +87,14 @@ function sanitizeSessionCount(count) {
 // ── System prompt builder ─────────────────────────────────────────────────────
 
 function buildMajaSystemPrompt(params) {
-  const {
-    userLevel,
-    userName,
-    isSessionStart,
-    session,
-  } = params;
+  const { userLevel, userName, isSessionStart, session } = params;
 
-  const level           = sanitizeLevel(userLevel);
-  const name            = sanitizeParam(userName || "", 50);
-  const count           = sanitizeSessionCount(session?.count);
+  const level = sanitizeLevel(userLevel);
+  const name = sanitizeParam(userName || '', 50);
+  const count = sanitizeSessionCount(session?.count);
   const relationshipLevel = Math.min(Math.max(Number(session?.relationshipLevel) || 0, 0), 4);
-  const lastSummary     = sanitizeParam(session?.lastSummary || "", 300);
-  const nextTopic       = sanitizeParam(session?.nextTopic || "", 150);
+  const lastSummary = sanitizeParam(session?.lastSummary || '', 300);
+  const nextTopic = sanitizeParam(session?.nextTopic || '', 150);
 
   // Sanitize knownFacts — only keep string/array primitives, no nesting beyond one level
   const rawFacts = session?.knownFacts || {};
@@ -101,8 +103,11 @@ function buildMajaSystemPrompt(params) {
     const safeKey = sanitizeParam(k, 40);
     if (!safeKey) continue;
     if (Array.isArray(v)) {
-      const safeArr = v.slice(0, 10).map(x => sanitizeParam(String(x), 60)).filter(Boolean);
-      if (safeArr.length) knownFactsLines.push(`- ${safeKey}: ${safeArr.join(", ")}`);
+      const safeArr = v
+        .slice(0, 10)
+        .map((x) => sanitizeParam(String(x), 60))
+        .filter(Boolean);
+      if (safeArr.length) knownFactsLines.push(`- ${safeKey}: ${safeArr.join(', ')}`);
     } else if (v !== null && v !== undefined) {
       const safeVal = sanitizeParam(String(v), 100);
       if (safeVal) knownFactsLines.push(`- ${safeKey}: ${safeVal}`);
@@ -111,11 +116,14 @@ function buildMajaSystemPrompt(params) {
 
   // Sanitize mistake patterns
   const rawPatterns = Array.isArray(session?.mistakePatterns) ? session.mistakePatterns : [];
-  const mistakeLines = rawPatterns.slice(0, 10).map(p => {
-    const pattern = sanitizeParam(String(p?.pattern || ""), 60);
-    const pCount  = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
-    return pattern ? `- ${pattern} (count: ${pCount})` : null;
-  }).filter(Boolean);
+  const mistakeLines = rawPatterns
+    .slice(0, 10)
+    .map((p) => {
+      const pattern = sanitizeParam(String(p?.pattern || ''), 60);
+      const pCount = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
+      return pattern ? `- ${pattern} (count: ${pCount})` : null;
+    })
+    .filter(Boolean);
 
   // ── Relationship tone ──
   const relationshipTone = {
@@ -137,18 +145,20 @@ function buildMajaSystemPrompt(params) {
   };
 
   // ── Session start vs continuation ──
-  let sessionGuidance = "";
+  let sessionGuidance = '';
   if (isSessionStart) {
     if (count === 0) {
       sessionGuidance = `This is your very first conversation with this student. Introduce yourself fully and warmly. Be curious about them. Start with exactly this opening (adapt if their name is already known): "Bok! Ja sam Maja Kovačević. Predajem hrvatski jezik strancima već desetak godina i jako se veselim što si se odlučio/odlučila učiti. A ti, kako se zoveš?" Ask: where are they from, why are they learning Croatian. Do NOT launch into a language lesson yet — just connect as people first.`;
     } else if (lastSummary) {
-      const topicHint = nextTopic ? ` Also let them know you have something to share about: ${nextTopic}.` : "";
+      const topicHint = nextTopic
+        ? ` Also let them know you have something to share about: ${nextTopic}.`
+        : '';
       sessionGuidance = `Welcome the student back warmly. Reference the last conversation naturally — something specific from: "${lastSummary}". Ask how they have been and whether they have been practising.${topicHint}`;
     } else {
-      sessionGuidance = `Welcome the student back warmly. You have talked before but there is no specific summary to reference. Ask how they have been, express genuine happiness to hear from them again.${nextTopic ? ` Mention you have something to share about: ${nextTopic}.` : ""}`;
+      sessionGuidance = `Welcome the student back warmly. You have talked before but there is no specific summary to reference. Ask how they have been, express genuine happiness to hear from them again.${nextTopic ? ` Mention you have something to share about: ${nextTopic}.` : ''}`;
     }
   } else {
-    sessionGuidance = `Respond naturally and conversationally to the student's message. ${knownFactsLines.length ? `Weave in references to what you know about them when it feels natural.` : ""} Keep the conversation flowing with a follow-up question at the end.`;
+    sessionGuidance = `Respond naturally and conversationally to the student's message. ${knownFactsLines.length ? `Weave in references to what you know about them when it feels natural.` : ''} Keep the conversation flowing with a follow-up question at the end.`;
   }
 
   // ── Correction strategy ──
@@ -162,12 +172,12 @@ CORRECTION STRATEGY:
 - Never say "you made a mistake" or "that's wrong" directly. Keep corrections warm and encouraging.
 
 KNOWN MISTAKE PATTERNS (for this student):
-${mistakeLines.length ? mistakeLines.join("\n") : "None recorded yet."}`;
+${mistakeLines.length ? mistakeLines.join('\n') : 'None recorded yet.'}`;
 
   // ── Known facts ──
   const factsSection = knownFactsLines.length
-    ? `\nKNOWN FACTS ABOUT THIS STUDENT:\n${knownFactsLines.join("\n")}\nUse these naturally in conversation — don't list them, just weave them in when relevant.`
-    : "";
+    ? `\nKNOWN FACTS ABOUT THIS STUDENT:\n${knownFactsLines.join('\n')}\nUse these naturally in conversation — don't list them, just weave them in when relevant.`
+    : '';
 
   // ── Full system prompt ──
   return `You ARE Maja Kovačević. You are not an AI assistant playing a role — you ARE Maja. Never break character. Never refer to yourself as an AI, a language model, or an assistant.
@@ -179,13 +189,13 @@ YOUR SPEECH PATTERNS:
 You say "Joj!" when surprised or exasperated. You say "Pa vidi..." when you want to explain something patiently. You say "Baš tako!" when someone gets something right. You say "Znači..." to think out loud or introduce a point. You are warm and genuinely funny. With students you know well you are gently sardonic. You are deeply proud of Croatia and Croatian culture.
 
 YOUR STUDENT:
-${name ? `Name: ${name}` : "Name not yet known — find out."}
+${name ? `Name: ${name}` : 'Name not yet known — find out.'}
 Level: ${level}
 Relationship: ${relationshipLevel}/4 — ${relationshipTone[relationshipLevel]}
 ${factsSection}
 
 LANGUAGE COMPLEXITY:
-${complexityRules[level] || complexityRules["B1"]}
+${complexityRules[level] || complexityRules['B1']}
 - ALWAYS reply in Croatian. NEVER switch to English in the "reply" field.
 - EXCEPTION: if the student is A1 and clearly struggling to understand even basic Croatian, you may add a brief English hint in parentheses — but keep the main reply in Croatian.
 - Keep reply length proportional to level: A1=1-2 sentences, A2=2-3 sentences, B1=3-4 sentences, B2=4-5 sentences, C1/C2=4-6 sentences.
@@ -239,28 +249,23 @@ When there IS an explicit correction to make:
 // ── Persona system prompt dispatcher ─────────────────────────────────────────
 
 function buildPersonaSystemPrompt(persona, params) {
-  if (persona === "fisherman") return buildFishermanSystemPrompt(params);
-  if (persona === "secretary") return buildSecretarySystemPrompt(params);
-  if (persona === "baka")      return buildBakaSystemPrompt(params);
+  if (persona === 'fisherman') return buildFishermanSystemPrompt(params);
+  if (persona === 'secretary') return buildSecretarySystemPrompt(params);
+  if (persona === 'baka') return buildBakaSystemPrompt(params);
   return buildMajaSystemPrompt(params); // default: teacher
 }
 
 // ── Fisherman: Marko, Stari Grad, Hvar ───────────────────────────────────────
 
 function buildFishermanSystemPrompt(params) {
-  const {
-    userLevel,
-    userName,
-    isSessionStart,
-    session,
-  } = params;
+  const { userLevel, userName, isSessionStart, session } = params;
 
-  const level           = sanitizeLevel(userLevel);
-  const name            = sanitizeParam(userName || "", 50);
-  const count           = sanitizeSessionCount(session?.count);
+  const level = sanitizeLevel(userLevel);
+  const name = sanitizeParam(userName || '', 50);
+  const count = sanitizeSessionCount(session?.count);
   const relationshipLevel = Math.min(Math.max(Number(session?.relationshipLevel) || 0, 0), 4);
-  const lastSummary     = sanitizeParam(session?.lastSummary || "", 300);
-  const nextTopic       = sanitizeParam(session?.nextTopic || "", 150);
+  const lastSummary = sanitizeParam(session?.lastSummary || '', 300);
+  const nextTopic = sanitizeParam(session?.nextTopic || '', 150);
 
   const rawFacts = session?.knownFacts || {};
   const knownFactsLines = [];
@@ -268,8 +273,11 @@ function buildFishermanSystemPrompt(params) {
     const safeKey = sanitizeParam(k, 40);
     if (!safeKey) continue;
     if (Array.isArray(v)) {
-      const safeArr = v.slice(0, 10).map(x => sanitizeParam(String(x), 60)).filter(Boolean);
-      if (safeArr.length) knownFactsLines.push(`- ${safeKey}: ${safeArr.join(", ")}`);
+      const safeArr = v
+        .slice(0, 10)
+        .map((x) => sanitizeParam(String(x), 60))
+        .filter(Boolean);
+      if (safeArr.length) knownFactsLines.push(`- ${safeKey}: ${safeArr.join(', ')}`);
     } else if (v !== null && v !== undefined) {
       const safeVal = sanitizeParam(String(v), 100);
       if (safeVal) knownFactsLines.push(`- ${safeKey}: ${safeVal}`);
@@ -277,11 +285,14 @@ function buildFishermanSystemPrompt(params) {
   }
 
   const rawPatterns = Array.isArray(session?.mistakePatterns) ? session.mistakePatterns : [];
-  const mistakeLines = rawPatterns.slice(0, 10).map(p => {
-    const pattern = sanitizeParam(String(p?.pattern || ""), 60);
-    const pCount  = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
-    return pattern ? `- ${pattern} (count: ${pCount})` : null;
-  }).filter(Boolean);
+  const mistakeLines = rawPatterns
+    .slice(0, 10)
+    .map((p) => {
+      const pattern = sanitizeParam(String(p?.pattern || ''), 60);
+      const pCount = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
+      return pattern ? `- ${pattern} (count: ${pCount})` : null;
+    })
+    .filter(Boolean);
 
   const relationshipTone = {
     0: `Marko is suspicious and gruff with this stranger. Short answers, not much warmth. He'll answer but won't ask questions back yet.`,
@@ -300,22 +311,22 @@ function buildFishermanSystemPrompt(params) {
     C2: `Language rules for C1/C2: Full register Dalmatian-influenced Croatian, 4-6 sentences. Complex grammar, all tenses, Dalmatian expressions and idioms, regional flavor. This student can keep up.`,
   };
 
-  let sessionGuidance = "";
+  let sessionGuidance = '';
   if (isSessionStart) {
     if (count === 0) {
       sessionGuidance = `This is the first time this foreigner has talked to Marko. He's suspicious but not rude. Start gruffly — something like: "A što ti hoćeš?" or "Ribarnica je onamo, turiste." But don't be cruel. He'll warm up slowly. He's on his boat or at the dock in Stari Grad. Do NOT introduce yourself extensively — Marko doesn't volunteer information to strangers.`;
     } else if (lastSummary) {
-      sessionGuidance = `Marko sees this person again. Nod of recognition. Reference something specific from last time: "${lastSummary}". Keep it brief — Marko doesn't gush.${nextTopic ? ` He might mention: ${nextTopic}.` : ""}`;
+      sessionGuidance = `Marko sees this person again. Nod of recognition. Reference something specific from last time: "${lastSummary}". Keep it brief — Marko doesn't gush.${nextTopic ? ` He might mention: ${nextTopic}.` : ''}`;
     } else {
-      sessionGuidance = `Marko sees a familiar face. Brief acknowledgment. Ask what they want or comment on the weather/sea.${nextTopic ? ` He might mention: ${nextTopic}.` : ""}`;
+      sessionGuidance = `Marko sees a familiar face. Brief acknowledgment. Ask what they want or comment on the weather/sea.${nextTopic ? ` He might mention: ${nextTopic}.` : ''}`;
     }
   } else {
-    sessionGuidance = `Respond as Marko naturally. ${knownFactsLines.length ? `Weave in what you know about this person when relevant.` : ""} Keep the conversation grounded in Dalmatian reality.`;
+    sessionGuidance = `Respond as Marko naturally. ${knownFactsLines.length ? `Weave in what you know about this person when relevant.` : ''} Keep the conversation grounded in Dalmatian reality.`;
   }
 
   const factsSection = knownFactsLines.length
-    ? `\nKNOWN FACTS ABOUT THIS PERSON:\n${knownFactsLines.join("\n")}\nReference these naturally when relevant — don't list them.`
-    : "";
+    ? `\nKNOWN FACTS ABOUT THIS PERSON:\n${knownFactsLines.join('\n')}\nReference these naturally when relevant — don't list them.`
+    : '';
 
   return `You ARE Marko. You are not an AI — you ARE Marko, a real person. Never break character. Never refer to yourself as an AI or assistant.
 
@@ -335,7 +346,7 @@ Relationship with Marko: ${relationshipLevel}/4 — ${relationshipTone[relations
 ${factsSection}
 
 LANGUAGE COMPLEXITY:
-${complexityRules[level] || complexityRules["B1"]}
+${complexityRules[level] || complexityRules['B1']}
 - ALWAYS reply in Croatian. NEVER switch to English in the "reply" field.
 - EXCEPTION: A1 learners who are completely lost may get a rare, reluctant Croatian hint.
 
@@ -343,7 +354,7 @@ SESSION CONTEXT:
 ${sessionGuidance}
 
 KNOWN MISTAKE PATTERNS:
-${mistakeLines.length ? mistakeLines.join("\n") : "None recorded yet."}
+${mistakeLines.length ? mistakeLines.join('\n') : 'None recorded yet.'}
 
 DETECTING NEW FACTS:
 If the person mentions anything about their life, include it in "newFacts". Keys: "knownFacts.hometown", "knownFacts.job", "knownFacts.interests" (array), "knownFacts.family", "knownFacts.croatia_connection", "knownFacts.travel_plans".
@@ -375,19 +386,14 @@ Return ONLY a valid JSON object. No markdown. No code blocks. No explanation.
 // ── Secretary: Ana Perković, Zagreb city hall ─────────────────────────────────
 
 function buildSecretarySystemPrompt(params) {
-  const {
-    userLevel,
-    userName,
-    isSessionStart,
-    session,
-  } = params;
+  const { userLevel, userName, isSessionStart, session } = params;
 
-  const level           = sanitizeLevel(userLevel);
-  const name            = sanitizeParam(userName || "", 50);
-  const count           = sanitizeSessionCount(session?.count);
+  const level = sanitizeLevel(userLevel);
+  const name = sanitizeParam(userName || '', 50);
+  const count = sanitizeSessionCount(session?.count);
   const relationshipLevel = Math.min(Math.max(Number(session?.relationshipLevel) || 0, 0), 4);
-  const lastSummary     = sanitizeParam(session?.lastSummary || "", 300);
-  const nextTopic       = sanitizeParam(session?.nextTopic || "", 150);
+  const lastSummary = sanitizeParam(session?.lastSummary || '', 300);
+  const nextTopic = sanitizeParam(session?.nextTopic || '', 150);
 
   const rawFacts = session?.knownFacts || {};
   const knownFactsLines = [];
@@ -395,8 +401,11 @@ function buildSecretarySystemPrompt(params) {
     const safeKey = sanitizeParam(k, 40);
     if (!safeKey) continue;
     if (Array.isArray(v)) {
-      const safeArr = v.slice(0, 10).map(x => sanitizeParam(String(x), 60)).filter(Boolean);
-      if (safeArr.length) knownFactsLines.push(`- ${safeKey}: ${safeArr.join(", ")}`);
+      const safeArr = v
+        .slice(0, 10)
+        .map((x) => sanitizeParam(String(x), 60))
+        .filter(Boolean);
+      if (safeArr.length) knownFactsLines.push(`- ${safeKey}: ${safeArr.join(', ')}`);
     } else if (v !== null && v !== undefined) {
       const safeVal = sanitizeParam(String(v), 100);
       if (safeVal) knownFactsLines.push(`- ${safeKey}: ${safeVal}`);
@@ -404,11 +413,14 @@ function buildSecretarySystemPrompt(params) {
   }
 
   const rawPatterns = Array.isArray(session?.mistakePatterns) ? session.mistakePatterns : [];
-  const mistakeLines = rawPatterns.slice(0, 10).map(p => {
-    const pattern = sanitizeParam(String(p?.pattern || ""), 60);
-    const pCount  = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
-    return pattern ? `- ${pattern} (count: ${pCount})` : null;
-  }).filter(Boolean);
+  const mistakeLines = rawPatterns
+    .slice(0, 10)
+    .map((p) => {
+      const pattern = sanitizeParam(String(p?.pattern || ''), 60);
+      const pCount = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
+      return pattern ? `- ${pattern} (count: ${pCount})` : null;
+    })
+    .filter(Boolean);
 
   // Ana uses Vi form until relationship 3+
   const usesVi = relationshipLevel < 3;
@@ -430,22 +442,22 @@ function buildSecretarySystemPrompt(params) {
     C2: `Language rules for C1/C2: Fully formal bureaucratic Croatian, 4-6 sentences. Complex subordinate clauses, passive constructions, formal register vocabulary. This student can handle "Sukladno članku 12. stavku 3. Zakona o..."`,
   };
 
-  let sessionGuidance = "";
+  let sessionGuidance = '';
   if (isSessionStart) {
     if (count === 0) {
       sessionGuidance = `This is the first time this person has come to Ana's window. She greets them formally: "Dobar dan. Čime mogu poslužiti?" She asks what paperwork they need and what office matter brings them in. She is professional and slightly hurried.`;
     } else if (lastSummary) {
-      sessionGuidance = `Ana recognizes this person from a previous visit. Professional acknowledgment. Reference the previous matter naturally: "${lastSummary}".${nextTopic ? ` The matter to address now: ${nextTopic}.` : ""}`;
+      sessionGuidance = `Ana recognizes this person from a previous visit. Professional acknowledgment. Reference the previous matter naturally: "${lastSummary}".${nextTopic ? ` The matter to address now: ${nextTopic}.` : ''}`;
     } else {
-      sessionGuidance = `Ana has seen this person before. Brief professional greeting. Ask what they need today.${nextTopic ? ` Possible topic: ${nextTopic}.` : ""}`;
+      sessionGuidance = `Ana has seen this person before. Brief professional greeting. Ask what they need today.${nextTopic ? ` Possible topic: ${nextTopic}.` : ''}`;
     }
   } else {
-    sessionGuidance = `Respond as Ana — professional, helpful, with dry bureaucratic humor when appropriate. ${knownFactsLines.length ? `Reference what you know when relevant.` : ""}`;
+    sessionGuidance = `Respond as Ana — professional, helpful, with dry bureaucratic humor when appropriate. ${knownFactsLines.length ? `Reference what you know when relevant.` : ''}`;
   }
 
   const factsSection = knownFactsLines.length
-    ? `\nKNOWN FACTS ABOUT THIS PERSON:\n${knownFactsLines.join("\n")}\nReference these when professionally appropriate.`
-    : "";
+    ? `\nKNOWN FACTS ABOUT THIS PERSON:\n${knownFactsLines.join('\n')}\nReference these when professionally appropriate.`
+    : '';
 
   return `You ARE Ana Perković. You are not an AI — you ARE Ana, a real person working at a Zagreb city government office. Never break character. Never refer to yourself as an AI or assistant.
 
@@ -460,13 +472,13 @@ SPECIALTY:
 You naturally model formal Croatian: polite conditional ("Biste li mogli donijeti..."), written conventions, formal requests. This is a golden opportunity for the student to learn formal register without it being a lesson — it just IS how you talk.
 
 YOUR VISITOR:
-${name ? `Name: ${name}` : "Name not yet known."}
+${name ? `Name: ${name}` : 'Name not yet known.'}
 Level: ${level}
 Relationship: ${relationshipLevel}/4 — ${relationshipTone[relationshipLevel]}
 ${factsSection}
 
 LANGUAGE COMPLEXITY:
-${complexityRules[level] || complexityRules["B1"]}
+${complexityRules[level] || complexityRules['B1']}
 - ALWAYS reply in Croatian. NEVER switch to English in the "reply" field.
 - Maintain formal register appropriate to Ana's character at all times.
 
@@ -477,7 +489,7 @@ CORRECTION APPROACH:
 Ana corrects errors implicitly through her own perfectly correct formal Croatian. She does NOT point out mistakes — she just naturally models the correct form in her response. Use the "correction" JSON field only for errors that would genuinely confuse the administrative matter at hand.
 
 KNOWN MISTAKE PATTERNS:
-${mistakeLines.length ? mistakeLines.join("\n") : "None recorded yet."}
+${mistakeLines.length ? mistakeLines.join('\n') : 'None recorded yet.'}
 
 DETECTING NEW FACTS:
 If the visitor mentions anything about their situation, include in "newFacts". Keys: "knownFacts.hometown", "knownFacts.job", "knownFacts.interests", "knownFacts.family", "knownFacts.croatia_connection", "knownFacts.travel_plans".
@@ -509,18 +521,13 @@ Return ONLY a valid JSON object. No markdown. No code blocks. No explanation.
 // ── Baka Mara, Vinkovci, Slavonija ────────────────────────────────────────────
 
 function buildBakaSystemPrompt(params) {
-  const {
-    userLevel,
-    userName,
-    isSessionStart,
-    session,
-  } = params;
+  const { userLevel, userName, isSessionStart, session } = params;
 
-  const level           = sanitizeLevel(userLevel);
-  const name            = sanitizeParam(userName || "", 50);
-  const count           = sanitizeSessionCount(session?.count);
-  const lastSummary     = sanitizeParam(session?.lastSummary || "", 300);
-  const nextTopic       = sanitizeParam(session?.nextTopic || "", 150);
+  const level = sanitizeLevel(userLevel);
+  const name = sanitizeParam(userName || '', 50);
+  const count = sanitizeSessionCount(session?.count);
+  const lastSummary = sanitizeParam(session?.lastSummary || '', 300);
+  const nextTopic = sanitizeParam(session?.nextTopic || '', 150);
 
   const rawFacts = session?.knownFacts || {};
   const knownFactsLines = [];
@@ -528,8 +535,11 @@ function buildBakaSystemPrompt(params) {
     const safeKey = sanitizeParam(k, 40);
     if (!safeKey) continue;
     if (Array.isArray(v)) {
-      const safeArr = v.slice(0, 10).map(x => sanitizeParam(String(x), 60)).filter(Boolean);
-      if (safeArr.length) knownFactsLines.push(`- ${safeKey}: ${safeArr.join(", ")}`);
+      const safeArr = v
+        .slice(0, 10)
+        .map((x) => sanitizeParam(String(x), 60))
+        .filter(Boolean);
+      if (safeArr.length) knownFactsLines.push(`- ${safeKey}: ${safeArr.join(', ')}`);
     } else if (v !== null && v !== undefined) {
       const safeVal = sanitizeParam(String(v), 100);
       if (safeVal) knownFactsLines.push(`- ${safeKey}: ${safeVal}`);
@@ -545,22 +555,22 @@ function buildBakaSystemPrompt(params) {
     C2: `Language rules for C1/C2: Full warm Croatian, 4-6 sentences. Complex grammar fine. Slavonian phrases, diminutives, food metaphors, storytelling register.`,
   };
 
-  let sessionGuidance = "";
+  let sessionGuidance = '';
   if (isSessionStart) {
     if (count === 0) {
       sessionGuidance = `Baka Mara is meeting this person for the first time — but she immediately treats them like a long-lost grandchild. Start with warmth and curiosity: "Bok, dušo moja! Otkud ti?" Ask where they're from and whether they've eaten. She probably offers food within the first two sentences.`;
     } else if (lastSummary) {
-      sessionGuidance = `Baka Mara is delighted to see this person again. Warm welcome. Reference something from last time: "${lastSummary}". Probably mentions what she cooked recently.${nextTopic ? ` She wants to tell them about: ${nextTopic}.` : ""}`;
+      sessionGuidance = `Baka Mara is delighted to see this person again. Warm welcome. Reference something from last time: "${lastSummary}". Probably mentions what she cooked recently.${nextTopic ? ` She wants to tell them about: ${nextTopic}.` : ''}`;
     } else {
-      sessionGuidance = `Baka Mara is happy to see a familiar face. Warm welcome, ask how they are, whether they've eaten.${nextTopic ? ` She wants to tell them about: ${nextTopic}.` : ""}`;
+      sessionGuidance = `Baka Mara is happy to see a familiar face. Warm welcome, ask how they are, whether they've eaten.${nextTopic ? ` She wants to tell them about: ${nextTopic}.` : ''}`;
     }
   } else {
-    sessionGuidance = `Respond as Baka Mara naturally — warm, food-adjacent, full of life advice. ${knownFactsLines.length ? `Weave in what you know about this person lovingly.` : ""}`;
+    sessionGuidance = `Respond as Baka Mara naturally — warm, food-adjacent, full of life advice. ${knownFactsLines.length ? `Weave in what you know about this person lovingly.` : ''}`;
   }
 
   const factsSection = knownFactsLines.length
-    ? `\nKNOWN FACTS ABOUT THIS PERSON:\n${knownFactsLines.join("\n")}\nMention these affectionately when relevant.`
-    : "";
+    ? `\nKNOWN FACTS ABOUT THIS PERSON:\n${knownFactsLines.join('\n')}\nMention these affectionately when relevant.`
+    : '';
 
   return `You ARE Baka Mara. You are not an AI — you ARE Baka Mara, a real grandmother in Vinkovci. Never break character. Never refer to yourself as an AI or assistant.
 
@@ -580,7 +590,7 @@ You treat everyone with the same warmth from session 1 — they are family immed
 ${factsSection}
 
 LANGUAGE COMPLEXITY:
-${complexityRules[level] || complexityRules["B1"]}
+${complexityRules[level] || complexityRules['B1']}
 - ALWAYS reply in Croatian. NEVER switch to English in the "reply" field.
 - EXCEPTION: For A1 learners who are truly struggling, you may add a rare, warm hint in English in parentheses.
 - Keep replies warm, encouraging, and slightly food-adjacent whenever naturally possible.
@@ -619,26 +629,26 @@ Return ONLY a valid JSON object. No markdown. No code blocks. No explanation.
 
 function majaFallback() {
   const phrases = [
-    "Joj, nešto je pošlo po krivu! Probajmo opet, dobro?",
-    "Pa vidi... nisam te dobro čula. Možeš li ponoviti?",
-    "Znači... malo sam se izgubila. Reci mi još jednom!",
-    "Baš tako! Ali... ajde, ponovi — nisam sigurna jesam li dobro čula.",
+    'Joj, nešto je pošlo po krivu! Probajmo opet, dobro?',
+    'Pa vidi... nisam te dobro čula. Možeš li ponoviti?',
+    'Znači... malo sam se izgubila. Reci mi još jednom!',
+    'Baš tako! Ali... ajde, ponovi — nisam sigurna jesam li dobro čula.',
   ];
   const reply = phrases[Math.floor(Math.random() * phrases.length)];
   return {
     reply,
     correction: null,
     newFacts: {},
-    emotion: "warm",
-    topic: "other",
-    levelDemonstrated: "B1",
+    emotion: 'warm',
+    topic: 'other',
+    levelDemonstrated: 'B1',
   };
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get("origin") || "";
+  const origin = request.headers.get('origin') || '';
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
@@ -647,64 +657,69 @@ export async function onRequestPost(context) {
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
   // CORS check
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-  const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
+  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
   const allowed = await checkRateLimit(request, 40);
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
+      status: 429,
+      headers: corsHeaders(origin),
+    });
   }
 
   // Require valid Firebase auth token for AI endpoints
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
+      headers: corsHeaders(origin),
+    });
   }
 
   // Daily AI quota check (cost 2 — streaming conversation is heavier)
   const quota = await checkAIQuota(request, env, uid, 2);
   if (!quota.allowed) {
     return new Response(
-      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
-      { status: 429, headers: corsHeaders(origin) }
+      JSON.stringify({
+        error: 'daily_quota_exceeded',
+        message: 'Daily AI limit reached. Resets at midnight UTC.',
+        resetAt: quota.resetAt,
+      }),
+      { status: 429, headers: corsHeaders(origin) },
     );
   }
 
   // API key check
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
+  if (!ANTHROPIC_KEY) return err(500, 'Service not configured', origin);
 
   // Content-type check
-  const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);
 
   // Parse body
   let body;
-  try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body", origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON in request body', origin);
+  }
 
-  const {
-    message,
-    history,
-    session,
-    userLevel,
-    userName,
-    isSessionStart,
-    persona,
-    stream,
-  } = body;
+  const { message, history, session, userLevel, userName, isSessionStart, persona, stream } = body;
 
   // ── Validate persona ──
   const safePersona = sanitizePersona(persona);
 
   // ── Validate message ──
   // isSessionStart sends an intentionally empty message to get Maja's opening line
-  if (!isSessionStart && (typeof message !== "string" || !message.trim())) {
-    return err(400, "Missing or invalid message", origin);
+  if (!isSessionStart && (typeof message !== 'string' || !message.trim())) {
+    return err(400, 'Missing or invalid message', origin);
   }
   const safeMessage = isSessionStart ? '' : sanitizeParam(message, 500);
-  if (!isSessionStart && !safeMessage) return err(400, "Message is empty after sanitization", origin);
+  if (!isSessionStart && !safeMessage)
+    return err(400, 'Message is empty after sanitization', origin);
 
   // ── Validate userLevel ──
   const safeLevel = sanitizeLevel(userLevel);
@@ -714,19 +729,20 @@ export async function onRequestPost(context) {
 
   // ── Validate history ──
   if (history !== undefined && !Array.isArray(history)) {
-    return err(400, "history must be an array", origin);
+    return err(400, 'history must be an array', origin);
   }
   const rawHistory = Array.isArray(history) ? history : [];
-  if (rawHistory.length > 100) return err(400, "history too long (max 100 turns)", origin);
+  if (rawHistory.length > 100) return err(400, 'history too long (max 100 turns)', origin);
 
   // Build conversation messages for Anthropic
   // History roles are "maja" and "user" — map "maja" -> "assistant"
   const anthropicMessages = [];
-  for (const turn of rawHistory.slice(-30)) { // limit to last 30 turns
-    if (typeof turn !== "object" || !turn) continue;
-    const role = turn.role === "maja" ? "assistant" : turn.role === "user" ? "user" : null;
+  for (const turn of rawHistory.slice(-30)) {
+    // limit to last 30 turns
+    if (typeof turn !== 'object' || !turn) continue;
+    const role = turn.role === 'maja' ? 'assistant' : turn.role === 'user' ? 'user' : null;
     if (!role) continue;
-    const content = sanitizeParam(String(turn.content || ""), 1000);
+    const content = sanitizeParam(String(turn.content || ''), 1000);
     if (!content) continue;
     anthropicMessages.push({ role, content });
   }
@@ -735,21 +751,22 @@ export async function onRequestPost(context) {
   const merged = [];
   for (const msg of anthropicMessages) {
     if (merged.length > 0 && merged[merged.length - 1].role === msg.role) {
-      merged[merged.length - 1].content += "\n" + msg.content;
+      merged[merged.length - 1].content += '\n' + msg.content;
     } else {
       merged.push({ ...msg });
     }
   }
 
   // Ensure conversation starts with a user message
-  while (merged.length > 0 && merged[0].role !== "user") merged.shift();
+  while (merged.length > 0 && merged[0].role !== 'user') merged.shift();
 
   // Append the current user message
   // For session start, use a neutral trigger so Anthropic never sees an empty content field
-  const effectiveMessage = (isSessionStart && !safeMessage) ? "[Start the conversation]" : safeMessage;
-  const currentUserMsg = { role: "user", content: effectiveMessage };
-  if (merged.length > 0 && merged[merged.length - 1].role === "user") {
-    merged[merged.length - 1].content += "\n" + effectiveMessage;
+  const effectiveMessage =
+    isSessionStart && !safeMessage ? '[Start the conversation]' : safeMessage;
+  const currentUserMsg = { role: 'user', content: effectiveMessage };
+  if (merged.length > 0 && merged[merged.length - 1].role === 'user') {
+    merged[merged.length - 1].content += '\n' + effectiveMessage;
   } else {
     merged.push(currentUserMsg);
   }
@@ -757,15 +774,15 @@ export async function onRequestPost(context) {
   // ── Build system prompt ──
   const systemPrompt = buildPersonaSystemPrompt(safePersona, {
     userLevel: safeLevel,
-    userName: sanitizeParam(userName || "", 50),
+    userName: sanitizeParam(userName || '', 50),
     isSessionStart: Boolean(isSessionStart),
     session: {
       count: safeCount,
       relationshipLevel: session?.relationshipLevel,
       knownFacts: session?.knownFacts || {},
       mistakePatterns: session?.mistakePatterns || [],
-      lastSummary: session?.lastSummary || "",
-      nextTopic: session?.nextTopic || "",
+      lastSummary: session?.lastSummary || '',
+      nextTopic: session?.nextTopic || '',
     },
   });
 
@@ -774,11 +791,11 @@ export async function onRequestPost(context) {
     let streamRes;
     try {
       streamRes = await fetch(ANTHROPIC_URL, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          "x-api-key": ANTHROPIC_KEY,
-          "anthropic-version": "2023-06-01",
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01',
         },
         signal: AbortSignal.timeout(30000),
         body: JSON.stringify({
@@ -790,17 +807,29 @@ export async function onRequestPost(context) {
         }),
       });
     } catch (fetchErr) {
-      console.error("maja.js: network error calling Anthropic (stream):", fetchErr.message);
-      return err(502, "Service temporarily unavailable", origin);
+      console.error('maja.js: network error calling Anthropic (stream):', fetchErr.message);
+      return err(502, 'Service temporarily unavailable', origin);
     }
 
     if (!streamRes.ok) {
       // Read body as text first — non-2xx streaming responses may not be JSON
-      const errText = await streamRes.text().catch(() => "");
+      const errText = await streamRes.text().catch(() => '');
       let errMsg;
-      try { errMsg = JSON.parse(errText)?.error?.message; } catch { /* body not JSON */ }
-      console.error("maja.js: Anthropic streaming error", streamRes.status, errMsg || errText.slice(0, 200));
-      return err(streamRes.status >= 500 ? 502 : streamRes.status, errMsg || "Anthropic API error", origin);
+      try {
+        errMsg = JSON.parse(errText)?.error?.message;
+      } catch {
+        /* body not JSON */
+      }
+      console.error(
+        'maja.js: Anthropic streaming error',
+        streamRes.status,
+        errMsg || errText.slice(0, 200),
+      );
+      return err(
+        streamRes.status >= 500 ? 502 : streamRes.status,
+        errMsg || 'Anthropic API error',
+        origin,
+      );
     }
 
     return new Response(streamRes.body, { status: 200, headers: corsStreamHeaders(origin) });
@@ -812,11 +841,11 @@ export async function onRequestPost(context) {
   let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_KEY,
-        "anthropic-version": "2023-06-01",
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
       },
       signal: AbortSignal.timeout(25000),
       body: JSON.stringify({
@@ -827,8 +856,8 @@ export async function onRequestPost(context) {
       }),
     });
   } catch (fetchErr) {
-    console.error("maja.js: network error calling Anthropic:", fetchErr.message);
-    return err(502, "Service temporarily unavailable", origin);
+    console.error('maja.js: network error calling Anthropic:', fetchErr.message);
+    return err(502, 'Service temporarily unavailable', origin);
   }
 
   // Block 2: read body — catches body-read failures
@@ -836,16 +865,24 @@ export async function onRequestPost(context) {
   try {
     rawBody = await res.text();
   } catch (bodyErr) {
-    console.error("maja.js: failed to read response body:", bodyErr.message);
-    return err(502, "Service temporarily unavailable", origin);
+    console.error('maja.js: failed to read response body:', bodyErr.message);
+    return err(502, 'Service temporarily unavailable', origin);
   }
 
   // Block 3: check res.ok — map errors to client-safe responses
   if (!res.ok) {
     let errMsg;
-    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
-    console.error("maja.js: Anthropic API error", res.status, errMsg);
-    return err(res.status >= 500 ? 502 : res.status, isDev ? (errMsg || "API error: HTTP " + res.status) : "AI service error", origin);
+    try {
+      errMsg = JSON.parse(rawBody)?.error?.message;
+    } catch {
+      /* not JSON */
+    }
+    console.error('maja.js: Anthropic API error', res.status, errMsg);
+    return err(
+      res.status >= 500 ? 502 : res.status,
+      isDev ? errMsg || 'API error: HTTP ' + res.status : 'AI service error',
+      origin,
+    );
   }
 
   // Block 4: parse JSON — catches malformed responses
@@ -853,13 +890,13 @@ export async function onRequestPost(context) {
   try {
     data = JSON.parse(rawBody);
   } catch {
-    console.error("maja.js: JSON parse failed:", rawBody.slice(0, 200));
-    return err(502, "Invalid response from AI", origin);
+    console.error('maja.js: JSON parse failed:', rawBody.slice(0, 200));
+    return err(502, 'Invalid response from AI', origin);
   }
 
-  const raw = data?.content?.[0]?.text?.trim() || "";
+  const raw = data?.content?.[0]?.text?.trim() || '';
   if (!raw) {
-    console.error("maja.js: Anthropic returned empty response");
+    console.error('maja.js: Anthropic returned empty response');
     return ok(majaFallback(), origin);
   }
 
@@ -867,41 +904,73 @@ export async function onRequestPost(context) {
   let parsed;
   try {
     // Strip markdown code fences if Claude wrapped the JSON (defensive)
-    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const cleaned = raw
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/, '')
+      .trim();
     parsed = JSON.parse(cleaned);
   } catch {
-    console.error("maja.js: JSON parse failed, using fallback. Raw:", raw.slice(0, 200));
+    console.error('maja.js: JSON parse failed, using fallback. Raw:', raw.slice(0, 200));
     return ok(majaFallback(), origin);
   }
 
   // ── Validate and sanitize the parsed response ──
-  const reply = typeof parsed.reply === "string" && parsed.reply.trim()
-    ? parsed.reply.trim()
-    : majaFallback().reply;
+  const reply =
+    typeof parsed.reply === 'string' && parsed.reply.trim()
+      ? parsed.reply.trim()
+      : majaFallback().reply;
 
-  const correction = (
-    parsed.correction
-    && typeof parsed.correction === "object"
-    && typeof parsed.correction.original === "string"
-    && typeof parsed.correction.corrected === "string"
-    && typeof parsed.correction.echo === "string"
-  ) ? {
-    original:  parsed.correction.original.slice(0, 300),
-    corrected: parsed.correction.corrected.slice(0, 300),
-    echo:      parsed.correction.echo.slice(0, 400),
-  } : null;
+  const correction =
+    parsed.correction &&
+    typeof parsed.correction === 'object' &&
+    typeof parsed.correction.original === 'string' &&
+    typeof parsed.correction.corrected === 'string' &&
+    typeof parsed.correction.echo === 'string'
+      ? {
+          original: parsed.correction.original.slice(0, 300),
+          corrected: parsed.correction.corrected.slice(0, 300),
+          echo: parsed.correction.echo.slice(0, 400),
+        }
+      : null;
 
-  const newFacts = (parsed.newFacts && typeof parsed.newFacts === "object" && !Array.isArray(parsed.newFacts))
-    ? parsed.newFacts
-    : {};
+  const newFacts =
+    parsed.newFacts && typeof parsed.newFacts === 'object' && !Array.isArray(parsed.newFacts)
+      ? parsed.newFacts
+      : {};
 
-  const VALID_EMOTIONS = ["warm", "encouraging", "playful", "proud", "curious", "concerned", "teasing", "neutral"];
-  const emotion = VALID_EMOTIONS.includes(parsed.emotion) ? parsed.emotion : "warm";
+  const VALID_EMOTIONS = [
+    'warm',
+    'encouraging',
+    'playful',
+    'proud',
+    'curious',
+    'concerned',
+    'teasing',
+    'neutral',
+  ];
+  const emotion = VALID_EMOTIONS.includes(parsed.emotion) ? parsed.emotion : 'warm';
 
-  const VALID_TOPICS = ["daily_life", "food", "family", "travel", "sport", "culture", "language", "history", "work", "greetings", "other"];
-  const topic = VALID_TOPICS.includes(parsed.topic) ? parsed.topic : "other";
+  const VALID_TOPICS = [
+    'daily_life',
+    'food',
+    'family',
+    'travel',
+    'sport',
+    'culture',
+    'language',
+    'history',
+    'work',
+    'greetings',
+    'other',
+  ];
+  const topic = VALID_TOPICS.includes(parsed.topic) ? parsed.topic : 'other';
 
-  const levelDemonstrated = VALID_LEVELS.includes(parsed.levelDemonstrated) ? parsed.levelDemonstrated : safeLevel;
+  const levelDemonstrated = VALID_LEVELS.includes(parsed.levelDemonstrated)
+    ? parsed.levelDemonstrated
+    : safeLevel;
 
-  return ok({ reply, correction, newFacts, emotion, topic, levelDemonstrated, persona: safePersona }, origin);
+  return ok(
+    { reply, correction, newFacts, emotion, topic, levelDemonstrated, persona: safePersona },
+    origin,
+  );
 }

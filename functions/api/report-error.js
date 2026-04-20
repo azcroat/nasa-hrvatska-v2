@@ -53,16 +53,24 @@ async function forwardToSentry(dsn, payload) {
       platform: 'javascript',
       level: 'error',
       exception: {
-        values: [{
-          type: 'Error',
-          value: String(payload.message).slice(0, 500),
-          stacktrace: payload.stack ? {
-            frames: String(payload.stack).split('\n').slice(1, 8).map(line => ({
-              filename: (line.match(/\((.+?):\d+:\d+\)/) || [])[1] || line.trim(),
-              function: (line.match(/at\s+(\S+)/) || [])[1] || '?',
-            })).reverse(),
-          } : undefined,
-        }],
+        values: [
+          {
+            type: 'Error',
+            value: String(payload.message).slice(0, 500),
+            stacktrace: payload.stack
+              ? {
+                  frames: String(payload.stack)
+                    .split('\n')
+                    .slice(1, 8)
+                    .map((line) => ({
+                      filename: (line.match(/\((.+?):\d+:\d+\)/) || [])[1] || line.trim(),
+                      function: (line.match(/at\s+(\S+)/) || [])[1] || '?',
+                    }))
+                    .reverse(),
+                }
+              : undefined,
+          },
+        ],
       },
       tags: {
         context: String(payload.context || '').slice(0, 100),
@@ -97,7 +105,10 @@ export async function onRequestPost(context) {
 
   // Allow same-origin sendBeacon (no Origin header) or known origins
   if (origin && !isAllowedOrigin(origin, isDev)) {
-    return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'forbidden' }), {
+      status: 403,
+      headers: corsHeaders(origin),
+    });
   }
 
   // 30 reports/min per IP — prevents log-flood abuse
@@ -111,13 +122,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const {
-      message = '',
-      stack = '',
-      context: ctx = '',
-      url = '',
-      ts = 0,
-    } = body;
+    const { message = '', stack = '', context: ctx = '', url = '', ts = 0 } = body;
 
     // Dedup guard — prevents log storms from a single error repeating rapidly
     if (!isDuplicate(message)) {
@@ -126,7 +131,9 @@ export async function onRequestPost(context) {
         message: String(message).slice(0, 500),
         stack: String(stack).slice(0, 1500),
         context: String(ctx).slice(0, 100),
-        url: String(url).replace(/[?#].*/, '').slice(0, 200),
+        url: String(url)
+          .replace(/[?#].*/, '')
+          .slice(0, 200),
         ts: Number(ts) || 0,
       };
 

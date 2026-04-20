@@ -3,22 +3,60 @@ import React from 'react';
 
 export function ConstellationBackground() {
   const points = [
-    [60, 40], [180, 80], [300, 30], [420, 70], [520, 45], [640, 85], [740, 50],
-    [100, 150], [250, 130], [380, 160], [500, 120], [620, 155], [720, 130],
-    [40, 220], [160, 200], [320, 240], [460, 210], [580, 230], [700, 200],
+    [60, 40],
+    [180, 80],
+    [300, 30],
+    [420, 70],
+    [520, 45],
+    [640, 85],
+    [740, 50],
+    [100, 150],
+    [250, 130],
+    [380, 160],
+    [500, 120],
+    [620, 155],
+    [720, 130],
+    [40, 220],
+    [160, 200],
+    [320, 240],
+    [460, 210],
+    [580, 230],
+    [700, 200],
   ];
   const connections = [
-    [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6],
-    [7, 8], [8, 9], [9, 10], [10, 11], [11, 12],
-    [0, 7], [2, 8], [4, 10], [6, 12],
-    [7, 13], [8, 14], [9, 15], [10, 16], [11, 17], [12, 18],
+    [0, 1],
+    [1, 2],
+    [2, 3],
+    [3, 4],
+    [4, 5],
+    [5, 6],
+    [7, 8],
+    [8, 9],
+    [9, 10],
+    [10, 11],
+    [11, 12],
+    [0, 7],
+    [2, 8],
+    [4, 10],
+    [6, 12],
+    [7, 13],
+    [8, 14],
+    [9, 15],
+    [10, 16],
+    [11, 17],
+    [12, 18],
   ];
 
   return (
     <svg
       style={{
-        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-        opacity: 0.12, pointerEvents: 'none',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        opacity: 0.12,
+        pointerEvents: 'none',
       }}
       viewBox="0 0 780 280"
       preserveAspectRatio="xMidYMid slice"
@@ -26,9 +64,12 @@ export function ConstellationBackground() {
       {connections.map(([a, b], i) => (
         <line
           key={i}
-          x1={points[a][0]} y1={points[a][1]}
-          x2={points[b][0]} y2={points[b][1]}
-          stroke="#60a5fa" strokeWidth="0.8"
+          x1={points[a][0]}
+          y1={points[a][1]}
+          x2={points[b][0]}
+          y2={points[b][1]}
+          stroke="#60a5fa"
+          strokeWidth="0.8"
         />
       ))}
       {points.map(([x, y], i) => (
@@ -41,16 +82,27 @@ export function ConstellationBackground() {
 export function EndingsTable({ endings }) {
   return (
     <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-      {[['M', endings.m], ['F', endings.f], ['N', endings.n]].map(([label, val]) => (
+      {[
+        ['M', endings.m],
+        ['F', endings.f],
+        ['N', endings.n],
+      ].map(([label, val]) => (
         <div
           key={label}
           style={{
-            flex: 1, background: '#f1f5f9', borderRadius: 6,
-            padding: '4px 0', textAlign: 'center',
+            flex: 1,
+            background: '#f1f5f9',
+            borderRadius: 6,
+            padding: '4px 0',
+            textAlign: 'center',
           }}
         >
-          <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, marginBottom: 2 }}>{label}</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', fontFamily: 'monospace' }}>{val}</div>
+          <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, marginBottom: 2 }}>
+            {label}
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', fontFamily: 'monospace' }}>
+            {val}
+          </div>
         </div>
       ))}
     </div>
@@ -154,7 +206,8 @@ export function CaseCard({ caseData, expanded, onToggle }) {
               lineHeight: 1.5,
             }}
           >
-            <span style={{ fontWeight: 700, color: color }}>Tip: </span>{tip}
+            <span style={{ fontWeight: 700, color: color }}>Tip: </span>
+            {tip}
           </div>
         </div>
       )}

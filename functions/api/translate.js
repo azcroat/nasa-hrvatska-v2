@@ -25,7 +25,8 @@ export async function onRequestPost(context) {
   const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
     return new Response(JSON.stringify({ error: 'rate_limit' }), {
-      status: 429, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+      status: 429,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
     });
   }
 
@@ -33,12 +34,14 @@ export async function onRequestPost(context) {
     const { text, from, to } = await request.json();
     if (typeof text !== 'string' || !text.trim() || text.length > 500) {
       return new Response(JSON.stringify({ error: 'invalid_input' }), {
-        status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
     if (!['en', 'hr'].includes(from) || !['en', 'hr'].includes(to) || from === to) {
       return new Response(JSON.stringify({ error: 'invalid_langpair' }), {
-        status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
 
@@ -65,14 +68,16 @@ export async function onRequestPost(context) {
     } catch (bodyErr) {
       console.error('[translate] failed to read upstream response body:', bodyErr.message);
       return new Response(JSON.stringify({ error: 'server_error' }), {
-        status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
 
     if (!upstream.ok) {
       console.error('[translate] upstream HTTP error', upstream.status, rawBody.slice(0, 200));
       return new Response(JSON.stringify({ error: 'unavailable' }), {
-        status: 502, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        status: 502,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
 
@@ -82,27 +87,40 @@ export async function onRequestPost(context) {
     } catch {
       console.error('[translate] JSON parse failed:', rawBody.slice(0, 200));
       return new Response(JSON.stringify({ error: 'unavailable' }), {
-        status: 502, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        status: 502,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
 
     if (data.responseStatus === 200 && data.responseData?.translatedText) {
       return new Response(JSON.stringify({ translation: data.responseData.translatedText }), {
         status: 200,
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, max-age=300', ...corsHeaders(origin) },
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'private, max-age=300',
+          ...corsHeaders(origin),
+        },
       });
     }
-    if (data.responseStatus === 429 || String(data.responseDetails || '').toLowerCase().includes('limit')) {
+    if (
+      data.responseStatus === 429 ||
+      String(data.responseDetails || '')
+        .toLowerCase()
+        .includes('limit')
+    ) {
       return new Response(JSON.stringify({ error: 'rate_limit' }), {
-        status: 429, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        status: 429,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
     return new Response(JSON.stringify({ error: 'unavailable' }), {
-      status: 502, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+      status: 502,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
     });
   } catch {
     return new Response(JSON.stringify({ error: 'server_error' }), {
-      status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
     });
   }
 }

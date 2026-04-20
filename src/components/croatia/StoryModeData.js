@@ -1,30 +1,30 @@
 // Static data for StoryModeScreen
 
 export const STORY_CITIES = [
-  { name: 'Zagreb',    icon: '🏛️', color: '#0e7490', region: 'Central Croatia' },
-  { name: 'Split',     icon: '🏟️', color: '#b45309', region: 'Dalmatia' },
+  { name: 'Zagreb', icon: '🏛️', color: '#0e7490', region: 'Central Croatia' },
+  { name: 'Split', icon: '🏟️', color: '#b45309', region: 'Dalmatia' },
   { name: 'Dubrovnik', icon: '🏯', color: '#7c3aed', region: 'Southern Dalmatia' },
-  { name: 'Hvar',      icon: '🌿', color: '#16a34a', region: 'Dalmatia' },
-  { name: 'Rovinj',    icon: '🎨', color: '#dc2626', region: 'Istria' },
-  { name: 'Šibenik',   icon: '⛪', color: '#0369a1', region: 'Northern Dalmatia' },
-  { name: 'Plitvice',  icon: '🌊', color: '#0e7490', region: 'Lika' },
-  { name: 'Labin',     icon: '⛏️', color: '#0e7490', region: 'Istria' },
-  { name: 'Mostar',    icon: '🌉', color: '#b45309', region: 'Herzegovina' },
-  { name: 'Varaždin',  icon: '🎶', color: '#7c3aed', region: 'Northern Croatia' },
-  { name: 'Zadar',     icon: '🌅', color: '#b45309', region: 'Northern Dalmatia' },
-  { name: 'Rijeka',    icon: '🚢', color: '#0369a1', region: 'Kvarner' },
+  { name: 'Hvar', icon: '🌿', color: '#16a34a', region: 'Dalmatia' },
+  { name: 'Rovinj', icon: '🎨', color: '#dc2626', region: 'Istria' },
+  { name: 'Šibenik', icon: '⛪', color: '#0369a1', region: 'Northern Dalmatia' },
+  { name: 'Plitvice', icon: '🌊', color: '#0e7490', region: 'Lika' },
+  { name: 'Labin', icon: '⛏️', color: '#0e7490', region: 'Istria' },
+  { name: 'Mostar', icon: '🌉', color: '#b45309', region: 'Herzegovina' },
+  { name: 'Varaždin', icon: '🎶', color: '#7c3aed', region: 'Northern Croatia' },
+  { name: 'Zadar', icon: '🌅', color: '#b45309', region: 'Northern Dalmatia' },
+  { name: 'Rijeka', icon: '🚢', color: '#0369a1', region: 'Kvarner' },
 ];
 
 export const CITY_PHOTOS = {
-  Zagreb:    '/images/scenes/zagreb.webp',
-  Split:     'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=85&fit=crop',
+  Zagreb: '/images/scenes/zagreb.webp',
+  Split: 'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=85&fit=crop',
   Dubrovnik: '/images/scenes/dubrovnik-ai.webp',
-  Hvar:      'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=800&q=85&fit=crop',
-  Rovinj:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=85&fit=crop',
-  Plitvice:  '/images/scenes/plitvice.webp',
-  Labin:     '/images/scenes/labin.webp',
-  Mostar:    '/images/scenes/mostar.webp',
-  default:   '/images/scenes/dalmatian-ai.webp',
+  Hvar: 'https://images.unsplash.com/photo-1527515637462-cff94edd89b6?w=800&q=85&fit=crop',
+  Rovinj: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=85&fit=crop',
+  Plitvice: '/images/scenes/plitvice.webp',
+  Labin: '/images/scenes/labin.webp',
+  Mostar: '/images/scenes/mostar.webp',
+  default: '/images/scenes/dalmatian-ai.webp',
 };
 
 export const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];

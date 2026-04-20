@@ -1,7 +1,7 @@
 // soundSettings.ts — persists user sound and haptic preferences
-const SOUND_KEY  = 'nh_sound_enabled';
+const SOUND_KEY = 'nh_sound_enabled';
 const HAPTIC_KEY = 'nh_haptic_enabled';
-const VOICE_KEY  = 'nh_voice_pref';
+const VOICE_KEY = 'nh_voice_pref';
 
 // Voice preference options:
 //   'gabrijela' — Azure hr-HR-GabrijelaNeural (native Croatian, phonemically accurate) [DEFAULT]
@@ -12,7 +12,9 @@ export function getVoicePreference(): string {
     const v = localStorage.getItem(VOICE_KEY);
     // 'charlotte' is an explicit opt-in; everything else (including 'auto' and unset) → gabrijela
     return v === 'charlotte' ? 'charlotte' : 'gabrijela';
-  } catch { return 'gabrijela'; }
+  } catch {
+    return 'gabrijela';
+  }
 }
 
 export function setVoicePreference(val: string): void {
@@ -30,22 +32,30 @@ export function isSoundEnabled(): boolean {
   try {
     const v = localStorage.getItem(SOUND_KEY);
     return v === null ? true : v === 'true';
-  } catch { return true; }
+  } catch {
+    return true;
+  }
 }
 
 export function setSoundEnabled(val: boolean): void {
-  try { localStorage.setItem(SOUND_KEY, String(val)); } catch {}
+  try {
+    localStorage.setItem(SOUND_KEY, String(val));
+  } catch {}
 }
 
 export function isHapticEnabled(): boolean {
   try {
     const v = localStorage.getItem(HAPTIC_KEY);
     return v === null ? true : v === 'true';
-  } catch { return true; }
+  } catch {
+    return true;
+  }
 }
 
 export function setHapticEnabled(val: boolean): void {
-  try { localStorage.setItem(HAPTIC_KEY, String(val)); } catch {}
+  try {
+    localStorage.setItem(HAPTIC_KEY, String(val));
+  } catch {}
 }
 
 interface AudioWindow {
@@ -71,7 +81,13 @@ interface PlayToneOptions {
 }
 
 // Play a synthesized tone if sound is enabled
-export function playTone({ freq = 440, type = 'sine' as OscillatorType, duration = 0.3, gain = 0.18, rampTo }: PlayToneOptions = {}): void {
+export function playTone({
+  freq = 440,
+  type = 'sine' as OscillatorType,
+  duration = 0.3,
+  gain = 0.18,
+  rampTo,
+}: PlayToneOptions = {}): void {
   if (!isSoundEnabled()) return;
   try {
     const ctx = getAudioCtx();
@@ -86,7 +102,9 @@ export function playTone({ freq = 440, type = 'sine' as OscillatorType, duration
     gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + duration);
-  } catch (_) { /* audio not supported */ }
+  } catch (_) {
+    /* audio not supported */
+  }
 }
 
 export function playCorrect(): void {
@@ -106,15 +124,17 @@ export function playFanfare(): void {
     const t0 = ctx.currentTime;
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      osc.connect(g); g.connect(ctx.destination);
+      const g = ctx.createGain();
+      osc.connect(g);
+      g.connect(ctx.destination);
       osc.type = 'sine';
       const t = t0 + i * 0.14;
       osc.frequency.setValueAtTime(freq, t);
       g.gain.setValueAtTime(0.001, t);
       g.gain.linearRampToValueAtTime(0.16, t + 0.05);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
-      osc.start(t); osc.stop(t + 0.5);
+      osc.start(t);
+      osc.stop(t + 0.5);
     });
   } catch (_) {}
 }
@@ -128,15 +148,17 @@ export function playLevelUp(): void {
     const t0 = ctx.currentTime;
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      osc.connect(g); g.connect(ctx.destination);
+      const g = ctx.createGain();
+      osc.connect(g);
+      g.connect(ctx.destination);
       osc.type = 'triangle';
       const t = t0 + i * 0.11;
       osc.frequency.setValueAtTime(freq, t);
       g.gain.setValueAtTime(0.001, t);
       g.gain.linearRampToValueAtTime(0.14, t + 0.04);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
-      osc.start(t); osc.stop(t + 0.42);
+      osc.start(t);
+      osc.stop(t + 0.42);
     });
   } catch (_) {}
 }
@@ -148,20 +170,24 @@ export function playStreak(): void {
     const ctx = getAudioCtx();
     [880, 1320].forEach((freq, i) => {
       const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      osc.connect(g); g.connect(ctx.destination);
+      const g = ctx.createGain();
+      osc.connect(g);
+      g.connect(ctx.destination);
       osc.type = 'sine';
       const t = ctx.currentTime + i * 0.18;
       osc.frequency.setValueAtTime(freq, t);
       g.gain.setValueAtTime(0.001, t);
       g.gain.linearRampToValueAtTime(0.13, t + 0.03);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-      osc.start(t); osc.stop(t + 0.35);
+      osc.start(t);
+      osc.stop(t + 0.35);
     });
   } catch (_) {}
 }
 
 export function haptic(pattern: number | number[]): void {
   if (!isHapticEnabled()) return;
-  try { navigator.vibrate?.(pattern); } catch (_) {}
+  try {
+    navigator.vibrate?.(pattern);
+  } catch (_) {}
 }

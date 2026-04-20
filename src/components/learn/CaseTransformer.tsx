@@ -7,26 +7,26 @@ import CaseTransformerDeclension from './CaseTransformerDeclension';
 import CaseTransformerQuiz from './CaseTransformerQuiz';
 
 export default function CaseTransformer({ goBack, award }) {
-  const [phase, setPhase]       = useState("picker");   // "picker" | "declension" | "quiz"
+  const [phase, setPhase] = useState('picker'); // "picker" | "declension" | "quiz"
   const [selectedNoun, setSelectedNoun] = useState(null);
-  const [number, setNumber]     = useState("sg");       // "sg" | "pl"
-  const [search, setSearch]     = useState("");
-  const [genderFilter, setGenderFilter] = useState("all");
+  const [number, setNumber] = useState('sg'); // "sg" | "pl"
+  const [search, setSearch] = useState('');
+  const [genderFilter, setGenderFilter] = useState('all');
 
   // Quiz state
   const [quizQuestions, setQuizQuestions] = useState([]);
-  const [quizIndex, setQuizIndex]         = useState(0);
-  const [quizScore, setQuizScore]         = useState(0);
-  const [quizChosen, setQuizChosen]       = useState(null);
-  const [quizDone, setQuizDone]           = useState(false);
-  const [xpAwarded, setXpAwarded]         = useState(false);
-  const xpAwardedRef                       = useRef(false); // synchronous guard against double-award
+  const [quizIndex, setQuizIndex] = useState(0);
+  const [quizScore, setQuizScore] = useState(0);
+  const [quizChosen, setQuizChosen] = useState(null);
+  const [quizDone, setQuizDone] = useState(false);
+  const [xpAwarded, setXpAwarded] = useState(false);
+  const xpAwardedRef = useRef(false); // synchronous guard against double-award
 
   // Filtered noun list
   const filteredNouns = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return NOUN_LIBRARY.filter(n => {
-      const matchGender = genderFilter === "all" || n.gender === genderFilter;
+    return NOUN_LIBRARY.filter((n) => {
+      const matchGender = genderFilter === 'all' || n.gender === genderFilter;
       const matchSearch = !q || n.hr.toLowerCase().includes(q) || n.en.toLowerCase().includes(q);
       return matchGender && matchSearch;
     });
@@ -41,12 +41,12 @@ export default function CaseTransformer({ goBack, award }) {
   // ── Noun picker ──────────────────────────────────────────────────────────────
   function pickNoun(noun) {
     setSelectedNoun(noun);
-    setNumber("sg");
-    setPhase("declension");
+    setNumber('sg');
+    setPhase('declension');
   }
 
   function backToPicker() {
-    setPhase("picker");
+    setPhase('picker');
     setSelectedNoun(null);
   }
 
@@ -63,16 +63,16 @@ export default function CaseTransformer({ goBack, award }) {
   function startQuiz() {
     const forms = declineNoun(selectedNoun);
     const questions = CASE_INFO.map((c, i) => {
-      const correct = forms.sg[i].replace("!", "");
+      const correct = forms.sg[i].replace('!', '');
       const others = forms.sg
         .filter((_, j) => j !== i)
-        .map(f => f.replace("!", ""))
-        .filter(f => f !== correct);
+        .map((f) => f.replace('!', ''))
+        .filter((f) => f !== correct);
       const uniqueOthers = [...new Set(others)];
       while (uniqueOthers.length < 3) uniqueOthers.push(selectedNoun.hr);
       const distractors = uniqueOthers.slice(0, 3);
       const opts = shuffle([correct, ...distractors]);
-      return { caseInfo: c, correct, opts, example: c.example.replace("[WORD]", "___") };
+      return { caseInfo: c, correct, opts, example: c.example.replace('[WORD]', '___') };
     });
     setQuizQuestions(questions);
     setQuizIndex(0);
@@ -81,19 +81,19 @@ export default function CaseTransformer({ goBack, award }) {
     setQuizDone(false);
     setXpAwarded(false);
     xpAwardedRef.current = false;
-    setPhase("quiz");
+    setPhase('quiz');
   }
 
   function chooseAnswer(opt) {
     if (quizChosen !== null) return;
     const q = quizQuestions[quizIndex];
     setQuizChosen(opt);
-    if (opt === q.correct) setQuizScore(s => s + 1);
+    if (opt === q.correct) setQuizScore((s) => s + 1);
   }
 
   function nextQuestion() {
     if (quizIndex < quizQuestions.length - 1) {
-      setQuizIndex(i => i + 1);
+      setQuizIndex((i) => i + 1);
       setQuizChosen(null);
     } else {
       setQuizDone(true);
@@ -107,7 +107,7 @@ export default function CaseTransformer({ goBack, award }) {
   }
 
   // ── Phase routing ─────────────────────────────────────────────────────────────
-  if (phase === "picker") {
+  if (phase === 'picker') {
     return (
       <CaseTransformerPicker
         goBack={goBack}
@@ -121,7 +121,7 @@ export default function CaseTransformer({ goBack, award }) {
     );
   }
 
-  if (phase === "quiz") {
+  if (phase === 'quiz') {
     return (
       <CaseTransformerQuiz
         selectedNoun={selectedNoun}
@@ -131,7 +131,7 @@ export default function CaseTransformer({ goBack, award }) {
         quizChosen={quizChosen}
         quizDone={quizDone}
         xpAwarded={xpAwarded}
-        onBackToDeclension={() => setPhase("declension")}
+        onBackToDeclension={() => setPhase('declension')}
         onChooseAnswer={chooseAnswer}
         onNextQuestion={nextQuestion}
         onStartQuiz={startQuiz}

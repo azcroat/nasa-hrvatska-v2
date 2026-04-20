@@ -72,15 +72,18 @@ export function usePreferences(uidRef?: MutableRefObject<string | null | undefin
   }, []);
 
   const [favs, setFavs] = useState<FavItem[]>(() => {
-    try { return JSON.parse(localStorage.getItem('uFavs') || '[]') as FavItem[]; }
-    catch { return []; }
+    try {
+      return JSON.parse(localStorage.getItem('uFavs') || '[]') as FavItem[];
+    } catch {
+      return [];
+    }
   });
 
   function toggleFav(item: FavItem): void {
     const key = item.hr || item.name;
-    const exists = favs.some(f => (f.hr || f.name) === key);
+    const exists = favs.some((f) => (f.hr || f.name) === key);
     const next = exists
-      ? favs.filter(f => (f.hr || f.name) !== key)
+      ? favs.filter((f) => (f.hr || f.name) !== key)
       : [{ hr: item.hr, en: item.en, type: item.type || 'custom', go: item.go }, ...favs];
     setFavs(next);
     localStorage.setItem('uFavs', JSON.stringify(next));
@@ -90,7 +93,7 @@ export function usePreferences(uidRef?: MutableRefObject<string | null | undefin
   }
 
   function isFav(key: string): boolean {
-    return favs.some(f => (f.hr || f.name) === key);
+    return favs.some((f) => (f.hr || f.name) === key);
   }
 
   return { darkMode, setDarkMode: setDarkModeExplicit, favs, setFavs, toggleFav, isFav };

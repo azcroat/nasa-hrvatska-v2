@@ -15,9 +15,21 @@ import { mergeStatsFromRemote } from '../lib/mergeStatsFromRemote.js';
 import type { Stats } from '../types/index.js';
 
 const DS: Stats = {
-  xp: 0, str: 1, diff: 'beginner', lc: 0, pf: 0,
-  gc: 0, sp: 0, de: 0, rc: 0, mv: 0, hi: 0,
-  rs: [], ct: [], vs: [], badges: [],
+  xp: 0,
+  str: 1,
+  diff: 'beginner',
+  lc: 0,
+  pf: 0,
+  gc: 0,
+  sp: 0,
+  de: 0,
+  rc: 0,
+  mv: 0,
+  hi: 0,
+  rs: [],
+  ct: [],
+  vs: [],
+  badges: [],
 };
 
 function prev(overrides: Partial<Stats> = {}): Stats {
@@ -49,15 +61,15 @@ describe('mergeStatsFromRemote — numeric counters never decrease', () => {
 
   it('gc, sp, de, rc, pf, mv, hi all take Math.max', () => {
     const loc = prev({ gc: 5, sp: 3, de: 2, rc: 8, pf: 1, mv: 4, hi: 7 });
-    const rem  = { gc: 8, sp: 1, de: 5, rc: 2, pf: 3, mv: 4, hi: 9 };
+    const rem = { gc: 8, sp: 1, de: 5, rc: 2, pf: 3, mv: 4, hi: 9 };
     const result = mergeStatsFromRemote(loc, rem, DS);
-    expect(result.gc).toBe(8);  // remote wins
-    expect(result.sp).toBe(3);  // local wins
-    expect(result.de).toBe(5);  // remote wins
-    expect(result.rc).toBe(8);  // local wins
-    expect(result.pf).toBe(3);  // remote wins
-    expect(result.mv).toBe(4);  // tie → either value
-    expect(result.hi).toBe(9);  // remote wins
+    expect(result.gc).toBe(8); // remote wins
+    expect(result.sp).toBe(3); // local wins
+    expect(result.de).toBe(5); // remote wins
+    expect(result.rc).toBe(8); // local wins
+    expect(result.pf).toBe(3); // remote wins
+    expect(result.mv).toBe(4); // tie → either value
+    expect(result.hi).toBe(9); // remote wins
   });
 
   it('str (streak) takes Math.max', () => {
@@ -73,19 +85,19 @@ describe('mergeStatsFromRemote — array fields are union (no items lost)', () =
     const result = mergeStatsFromRemote(
       prev({ ct: ['greetings', 'numbers'] }),
       { ct: ['family', 'numbers'] },
-      DS
+      DS,
     );
     expect(result.ct).toContain('greetings');
     expect(result.ct).toContain('numbers');
     expect(result.ct).toContain('family');
-    expect(result.ct.filter(x => x === 'numbers')).toHaveLength(1); // no duplicates
+    expect(result.ct.filter((x) => x === 'numbers')).toHaveLength(1); // no duplicates
   });
 
   it('vs union: no screen visits lost', () => {
     const result = mergeStatsFromRemote(
       prev({ vs: ['dashboard', 'lesson'] }),
       { vs: ['lesson', 'profile'] },
-      DS
+      DS,
     );
     expect(result.vs).toContain('dashboard');
     expect(result.vs).toContain('lesson');
@@ -96,20 +108,20 @@ describe('mergeStatsFromRemote — array fields are union (no items lost)', () =
     const result = mergeStatsFromRemote(
       prev({ badges: ['first_lesson', 'streak_3'] }),
       { badges: ['streak_7', 'first_lesson'] },
-      DS
+      DS,
     );
     expect(result.badges).toContain('first_lesson');
     expect(result.badges).toContain('streak_3');
     expect(result.badges).toContain('streak_7');
     // No duplicates
-    expect(result.badges.filter(b => b === 'first_lesson')).toHaveLength(1);
+    expect(result.badges.filter((b) => b === 'first_lesson')).toHaveLength(1);
   });
 
   it('empty remote ct does not wipe local ct', () => {
     const result = mergeStatsFromRemote(
       prev({ ct: ['greetings', 'food', 'colors'] }),
       { ct: [] },
-      DS
+      DS,
     );
     expect(result.ct).toHaveLength(3);
   });
@@ -134,12 +146,20 @@ describe('mergeStatsFromRemote — diff never regresses', () => {
   });
 
   it('intermediate local + intermediate remote → intermediate result', () => {
-    const result = mergeStatsFromRemote(prev({ diff: 'intermediate' }), { diff: 'intermediate' }, DS);
+    const result = mergeStatsFromRemote(
+      prev({ diff: 'intermediate' }),
+      { diff: 'intermediate' },
+      DS,
+    );
     expect(result.diff).toBe('intermediate');
   });
 
   it('unknown diff value falls back to DS default', () => {
-    const result = mergeStatsFromRemote(prev({ diff: 'beginner' }), { diff: 'fluent' as Stats['diff'] }, DS);
+    const result = mergeStatsFromRemote(
+      prev({ diff: 'beginner' }),
+      { diff: 'fluent' as Stats['diff'] },
+      DS,
+    );
     // neither local (beginner) nor remote (invalid) should cause a crash
     expect(['beginner', 'intermediate', 'advanced']).toContain(result.diff);
   });
@@ -166,8 +186,24 @@ describe('mergeStatsFromRemote — null/undefined safety', () => {
 
   it('all fields are defined in result (no undefined)', () => {
     const result = mergeStatsFromRemote(prev(), { xp: 50 }, DS);
-    const keyFields = ['xp', 'str', 'diff', 'lc', 'pf', 'gc', 'sp', 'de', 'rc', 'mv', 'hi', 'rs', 'ct', 'vs', 'badges'];
-    keyFields.forEach(k => {
+    const keyFields = [
+      'xp',
+      'str',
+      'diff',
+      'lc',
+      'pf',
+      'gc',
+      'sp',
+      'de',
+      'rc',
+      'mv',
+      'hi',
+      'rs',
+      'ct',
+      'vs',
+      'badges',
+    ];
+    keyFields.forEach((k) => {
       expect((result as Record<string, unknown>)[k]).not.toBeUndefined();
     });
   });
@@ -177,12 +213,24 @@ describe('mergeStatsFromRemote — null/undefined safety', () => {
 
 describe('mergeStatsFromRemote — real-world sync scenarios', () => {
   it('user syncs after completing lessons on phone — phone data wins on counters', () => {
-    const local = prev({ xp: 1200, lc: 8, gc: 3, ct: ['greetings', 'family'], badges: ['first_lesson'] });
-    const remote = { xp: 950, lc: 6, gc: 5, ct: ['numbers', 'greetings'], badges: ['first_lesson', 'streak_3'] };
+    const local = prev({
+      xp: 1200,
+      lc: 8,
+      gc: 3,
+      ct: ['greetings', 'family'],
+      badges: ['first_lesson'],
+    });
+    const remote = {
+      xp: 950,
+      lc: 6,
+      gc: 5,
+      ct: ['numbers', 'greetings'],
+      badges: ['first_lesson', 'streak_3'],
+    };
     const result = mergeStatsFromRemote(local, remote, DS);
-    expect(result.xp).toBe(1200);  // local wins
-    expect(result.lc).toBe(8);     // local wins
-    expect(result.gc).toBe(5);     // remote wins
+    expect(result.xp).toBe(1200); // local wins
+    expect(result.lc).toBe(8); // local wins
+    expect(result.gc).toBe(5); // remote wins
     expect(result.ct).toContain('greetings');
     expect(result.ct).toContain('family');
     expect(result.ct).toContain('numbers');
@@ -191,7 +239,14 @@ describe('mergeStatsFromRemote — real-world sync scenarios', () => {
 
   it('fresh sign-in on new device — remote data hydrates empty local', () => {
     const local = prev(); // empty (DS defaults)
-    const remote = { xp: 2400, lc: 15, gc: 8, diff: 'intermediate', ct: ['greetings','family','food'], badges: ['first_lesson','streak_7'] };
+    const remote = {
+      xp: 2400,
+      lc: 15,
+      gc: 8,
+      diff: 'intermediate',
+      ct: ['greetings', 'family', 'food'],
+      badges: ['first_lesson', 'streak_7'],
+    };
     const result = mergeStatsFromRemote(local, remote, DS);
     expect(result.xp).toBe(2400);
     expect(result.lc).toBe(15);

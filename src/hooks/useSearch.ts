@@ -38,17 +38,21 @@ export function useSearch(): {
 
   const doSearch = useCallback((q: string): void => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!q.trim()) { setSrchR([]); return; }
+    if (!q.trim()) {
+      setSrchR([]);
+      return;
+    }
     debounceRef.current = setTimeout(async () => {
       const idx = await getCachedIndex();
       const lq = q.toLowerCase();
       setSrchR(
         idx
-          .filter(i =>
-            (i.hr && i.hr.toLowerCase().includes(lq)) ||
-            (i.en && i.en.toLowerCase().includes(lq))
+          .filter(
+            (i) =>
+              (i.hr && i.hr.toLowerCase().includes(lq)) ||
+              (i.en && i.en.toLowerCase().includes(lq)),
           )
-          .slice(0, 15)
+          .slice(0, 15),
       );
     }, 200);
   }, []);

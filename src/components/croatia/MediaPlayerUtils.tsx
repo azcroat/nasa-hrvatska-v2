@@ -1,32 +1,76 @@
 // @ts-nocheck
 // ── Shared constants and helpers for the Media section ────────────────────────
 
-export const LEVEL_COLORS = {A1:'#16a34a',A2:'#65a30d',B1:'#ca8a04',B2:'#b45309',C1:'#0e7490',C2:'#7c3aed'};
-export const CAT_LABELS = {tv:"📺 TV & News",music:"🎵 Music & Radio",sport:"⚽ Sports",film:"🎬 Film & Series",podcast:"🎙️ Podcasts",culture:"🌍 Culture & Press"};
+export const LEVEL_COLORS = {
+  A1: '#16a34a',
+  A2: '#65a30d',
+  B1: '#ca8a04',
+  B2: '#b45309',
+  C1: '#0e7490',
+  C2: '#7c3aed',
+};
+export const CAT_LABELS = {
+  tv: '📺 TV & News',
+  music: '🎵 Music & Radio',
+  sport: '⚽ Sports',
+  film: '🎬 Film & Series',
+  podcast: '🎙️ Podcasts',
+  culture: '🌍 Culture & Press',
+};
 
 // ── Vocabulary previews by content domain ─────────────────────────────────────
 export const DOMAIN_VOCAB = {
-  tv:      [{hr:'vijesti',en:'news'},{hr:'izvješće',en:'report'},{hr:'ministar',en:'minister'}],
-  music:   [{hr:'pjesma',en:'song'},{hr:'ritam',en:'rhythm'},{hr:'osjećaj',en:'feeling'}],
-  film:    [{hr:'priča',en:'story'},{hr:'lik',en:'character'},{hr:'kraj',en:'ending'}],
-  sport:   [{hr:'utakmica',en:'match'},{hr:'gol',en:'goal'},{hr:'pobjednik',en:'winner'}],
-  podcast: [{hr:'razgovor',en:'conversation'},{hr:'tema',en:'topic'},{hr:'mišljenje',en:'opinion'}],
-  culture: [{hr:'tradicija',en:'tradition'},{hr:'nasljeđe',en:'heritage'},{hr:'kultura',en:'culture'}],
+  tv: [
+    { hr: 'vijesti', en: 'news' },
+    { hr: 'izvješće', en: 'report' },
+    { hr: 'ministar', en: 'minister' },
+  ],
+  music: [
+    { hr: 'pjesma', en: 'song' },
+    { hr: 'ritam', en: 'rhythm' },
+    { hr: 'osjećaj', en: 'feeling' },
+  ],
+  film: [
+    { hr: 'priča', en: 'story' },
+    { hr: 'lik', en: 'character' },
+    { hr: 'kraj', en: 'ending' },
+  ],
+  sport: [
+    { hr: 'utakmica', en: 'match' },
+    { hr: 'gol', en: 'goal' },
+    { hr: 'pobjednik', en: 'winner' },
+  ],
+  podcast: [
+    { hr: 'razgovor', en: 'conversation' },
+    { hr: 'tema', en: 'topic' },
+    { hr: 'mišljenje', en: 'opinion' },
+  ],
+  culture: [
+    { hr: 'tradicija', en: 'tradition' },
+    { hr: 'nasljeđe', en: 'heritage' },
+    { hr: 'kultura', en: 'culture' },
+  ],
 };
 
 // ── Immersion streak helpers ──────────────────────────────────────────────────
 export function getImmersionDays() {
-  try { return JSON.parse(localStorage.getItem('nh_immersion_days') || '[]'); } catch { return []; }
+  try {
+    return JSON.parse(localStorage.getItem('nh_immersion_days') || '[]');
+  } catch {
+    return [];
+  }
 }
 export function markImmersionToday() {
-  const today = new Date().toISOString().slice(0,10);
+  const today = new Date().toISOString().slice(0, 10);
   const days = getImmersionDays();
   if (!days.includes(today)) {
     days.push(today);
     localStorage.setItem('nh_immersion_days', JSON.stringify(days));
     // Notify App to award immersion XP and trigger knight speech
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('nh:immersion-new-day', { detail: { count: days.length } }));
+      window.dispatchEvent(
+        new CustomEvent('nh:immersion-new-day', { detail: { count: days.length } }),
+      );
     }
   }
 }
@@ -34,35 +78,44 @@ export function getWeekDots() {
   const days = getImmersionDays();
   const dots = [];
   for (let i = 6; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    dots.push(days.includes(d.toISOString().slice(0,10)));
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dots.push(days.includes(d.toISOString().slice(0, 10)));
   }
   return dots;
 }
 
 // ── Goal-based media sort/tag ─────────────────────────────────────────────────
 export function getGoalPersonalization() {
-  try { return localStorage.getItem('nh_goal') || ''; } catch { return ''; }
+  try {
+    return localStorage.getItem('nh_goal') || '';
+  } catch {
+    return '';
+  }
 }
 export function tagMediaForGoal(m, goal) {
   if (!goal) return null;
-  if ((goal === 'heritage' || goal === 'family') && (m.cat === 'music' || m.cat === 'culture')) return 'For the diaspora';
+  if ((goal === 'heritage' || goal === 'family') && (m.cat === 'music' || m.cat === 'culture'))
+    return 'For the diaspora';
   if (goal === 'travel' && (m.cat === 'tv' || m.cat === 'podcast')) return 'Great for travellers';
   return null;
 }
 export function sortMediaForGoal(items, goal) {
-  if (goal === 'fluent') return [...items].sort((a,b) => {
-    const order = {A1:0,A2:1,B1:2,B2:3,C1:4,C2:5};
-    return (order[a.level]??9) - (order[b.level]??9);
-  });
-  if (goal === 'heritage' || goal === 'family') return [...items].sort((a,b) => {
-    const priority = (m) => (m.cat === 'music' || m.cat === 'culture') ? 0 : 1;
-    return priority(a) - priority(b);
-  });
-  if (goal === 'travel') return [...items].sort((a,b) => {
-    const priority = (m) => (m.cat === 'tv' || m.cat === 'podcast') ? 0 : 1;
-    return priority(a) - priority(b);
-  });
+  if (goal === 'fluent')
+    return [...items].sort((a, b) => {
+      const order = { A1: 0, A2: 1, B1: 2, B2: 3, C1: 4, C2: 5 };
+      return (order[a.level] ?? 9) - (order[b.level] ?? 9);
+    });
+  if (goal === 'heritage' || goal === 'family')
+    return [...items].sort((a, b) => {
+      const priority = (m) => (m.cat === 'music' || m.cat === 'culture' ? 0 : 1);
+      return priority(a) - priority(b);
+    });
+  if (goal === 'travel')
+    return [...items].sort((a, b) => {
+      const priority = (m) => (m.cat === 'tv' || m.cat === 'podcast' ? 0 : 1);
+      return priority(a) - priority(b);
+    });
   return items;
 }
 
@@ -88,14 +141,19 @@ const MEDIA_CSS = `
 .nh-stagger > *:nth-child(n+11){animation-delay:.44s}
 `;
 if (typeof document !== 'undefined' && !document.getElementById('nh-media-css')) {
-  const s = document.createElement('style'); s.id = 'nh-media-css'; s.textContent = MEDIA_CSS;
+  const s = document.createElement('style');
+  s.id = 'nh-media-css';
+  s.textContent = MEDIA_CSS;
   document.head.appendChild(s);
 }
 
 export function getDomain(url) {
   if (!url) return null;
-  try { return new URL(url).hostname.replace(/^www\./, ''); }
-  catch(e) { return null; }
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch (e) {
+    return null;
+  }
 }
 
 export function getActionLabel(m, cat) {
@@ -105,6 +163,13 @@ export function getActionLabel(m, cat) {
     if (cat === 'music') return ['Listen Live ↗', true];
   }
   if (m.video) return ['Watch ↗', false];
-  const labels = {tv:'Read ↗', music:'Listen ↗', film:'Watch ↗', sport:'Visit ↗', podcast:'Listen ↗', culture:'Read ↗'};
+  const labels = {
+    tv: 'Read ↗',
+    music: 'Listen ↗',
+    film: 'Watch ↗',
+    sport: 'Visit ↗',
+    podcast: 'Listen ↗',
+    culture: 'Read ↗',
+  };
   return [labels[cat] || 'Open ↗', false];
 }

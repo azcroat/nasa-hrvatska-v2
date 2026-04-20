@@ -6,18 +6,75 @@
 // Audio engine: src/lib/audio.js
 
 import React from 'react';
-import { _fbReady, initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, fbToggleFavorite, fbGetIdToken } from '../lib/firebase.js';
-import { loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, preloadAudio } from '../lib/audio.js';
+import {
+  _fbReady,
+  initFirebase,
+  gP,
+  sP,
+  lP,
+  gS,
+  sS,
+  cS,
+  touchSession,
+  isSessionExpired,
+  isValidEmail,
+  fbSaveProgress,
+  fbLoadProgress,
+  fbWatchProgress,
+  fbRegister,
+  fbLogin,
+  fbLogout,
+  fbLoginGoogle,
+  fbResetPassword,
+  friendlyError,
+  generateFamilyCode,
+  getLocalFamily,
+  saveLocalFamily,
+  fbCreateFamily,
+  fbJoinFamily,
+  fbGetFamilyMembers,
+  fbWatchFamilyMembers,
+  fbLeaveFamily,
+  fbLoadUserFamily,
+  fbOnAuthStateChanged,
+  fbDeleteAccount,
+  fbToggleFavorite,
+  fbGetIdToken,
+} from '../lib/firebase.js';
+import {
+  loadVoices,
+  getBestVoice,
+  stopAudio,
+  speakAzure,
+  speakSynth,
+  speak,
+  speakSlow,
+  speakEN,
+  preloadAudio,
+} from '../lib/audio.js';
 import { getSR, saveSR, getDueReviews, getSRScore } from '../lib/srs.js';
 import { rnd } from '../lib/random.js';
 import {
-  lvl, lXP, nXP, lXPgain, getActiveCampaign, SEASONAL_CAMPAIGNS,
-  getStreak, getStreakFreezes, updateStreak, earnFreeze, spendFreeze,
-  getStreakEarnBack, applyStreakEarnBack,
-  getCultureStats, incrementCulture,
+  lvl,
+  lXP,
+  nXP,
+  lXPgain,
+  getActiveCampaign,
+  SEASONAL_CAMPAIGNS,
+  getStreak,
+  getStreakFreezes,
+  updateStreak,
+  earnFreeze,
+  spendFreeze,
+  getStreakEarnBack,
+  applyStreakEarnBack,
+  getCultureStats,
+  incrementCulture,
   BADGES,
-  recordJourneyMilestone, getJourneyMilestones,
-  BG_LIGHT, BG_DARK,
+  recordJourneyMilestone,
+  getJourneyMilestones,
+  BG_LIGHT,
+  BG_DARK,
 } from '../lib/appUtils.js';
 import * as _vocab from './vocabulary.js';
 import * as _grammar from './grammar.js';
@@ -25,27 +82,136 @@ import * as _cultural from './cultural.js';
 import * as _exercises from './exercises.js';
 import * as _scenarios from './scenarios.js';
 // ═══ RE-EXPORTS FROM DOMAIN MODULES ═══
-const { V, TOP100, BOJE, ALPHA, ZNAM, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, TECH_VOC, BUREAUCRATIC, V_B2 } = _vocab;
-const { PADEZI, PADEZI_FULL, GRAM, CONJ, MODAL, TENSES, ASPECT, ASPECT_PAIRS, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, PHONOLOGY, PITCH_ACCENT } = _grammar;
-const { HISTORY, EVENTS, PROVERBS, KINGS, HIST_FACTS, REGIONS, MAPPLACES, MEDIA, POPCULTURE, DIALECTS, SHADOWING, CROATIAN_CITIES } = _cultural;
-const { PLACE, READ, UNJUMBLE, IDIOMS, PREPS, LISTEN, NUMTIME, NUMCOUNT, FALSEFR, VOCATIVE, PREPDRILL, DECL, BRZALICE, DIMWORDS, WORDFORM, COLORQUIRK, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, POSSESS, ADJOPPOSITES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP } = _exercises;
-const { SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, PRACTICAL, RESTCONV, GROCERY, RECIPES, ROLEPLAY, BASKETBALL, GYM, STORIES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH } = _scenarios;
+const {
+  V,
+  TOP100,
+  BOJE,
+  ALPHA,
+  ZNAM,
+  COUNTRIES,
+  PROFESSIONS,
+  WEATHER,
+  CLOTHES,
+  BODYDESC,
+  TECH_VOC,
+  BUREAUCRATIC,
+  V_B2,
+} = _vocab;
+const {
+  PADEZI,
+  PADEZI_FULL,
+  GRAM,
+  CONJ,
+  MODAL,
+  TENSES,
+  ASPECT,
+  ASPECT_PAIRS,
+  CONDITIONAL,
+  FORMAL_REGISTER,
+  IMPERSONAL,
+  PHONOLOGY,
+  PITCH_ACCENT,
+} = _grammar;
+const {
+  HISTORY,
+  EVENTS,
+  PROVERBS,
+  KINGS,
+  HIST_FACTS,
+  REGIONS,
+  MAPPLACES,
+  MEDIA,
+  POPCULTURE,
+  DIALECTS,
+  SHADOWING,
+  CROATIAN_CITIES,
+} = _cultural;
+const {
+  PLACE,
+  READ,
+  UNJUMBLE,
+  IDIOMS,
+  PREPS,
+  LISTEN,
+  NUMTIME,
+  NUMCOUNT,
+  FALSEFR,
+  VOCATIVE,
+  PREPDRILL,
+  DECL,
+  BRZALICE,
+  DIMWORDS,
+  WORDFORM,
+  COLORQUIRK,
+  RIDDLES,
+  LOGICQUIZ,
+  ORDINALS,
+  ORDQUIZ,
+  RELPRON,
+  EMOGENDER,
+  QWORDS,
+  NEGATION,
+  COLORAGREE,
+  SIBIL,
+  PROFGENDER,
+  COMPARE,
+  COMPQUIZ,
+  FUTURE,
+  POSSESS,
+  ADJOPPOSITES,
+  PRONOUNCASE,
+  GENDERDRILL,
+  SENTBUILD,
+  VERBDRILL,
+  VBPERSONS,
+  TENSEFLIP,
+} = _exercises;
+const {
+  SCHOOL,
+  TEXTING,
+  FRIENDS,
+  FOODORDER,
+  TRANSPORT,
+  EMERGENCY,
+  FOOTBALL,
+  PRACTICAL,
+  RESTCONV,
+  GROCERY,
+  RECIPES,
+  ROLEPLAY,
+  BASKETBALL,
+  GYM,
+  STORIES,
+  CITYLOC,
+  AKUFOOD,
+  AKUCLOTHES,
+  CONVMATCH,
+} = _scenarios;
 
-function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function sh(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
 // lvl, lXP, nXP, lXPgain, getActiveCampaign — imported from ../lib/appUtils.js
 // ═══════════════════════════════════════
 // ═══════════════════════════════════════
 // ═══ TOP 100 WORDS BY SITUATION ═══
 // Make all TOP100 situational topics available as quizzable vocabulary
-Object.keys(TOP100).forEach(function(k){V[k]=TOP100[k];});
+Object.keys(TOP100).forEach(function (k) {
+  V[k] = TOP100[k];
+});
 // ─── LEARN_PATH vocabulary aliases ────────────────────────────────────────────
 // B2 topics use V_B2 vocabulary which is appropriate for that path level.
 // V["arts"] and V["law"] have dedicated vocabulary sets in vocabulary.js.
 // V["politics"] maps to civic — civic vocabulary IS political vocabulary.
-V["journalism"]  = (V_B2 && V_B2["media & journalism"])  || [];  // lp68 — B2 media vocabulary
-V["philosophy"]  = (V_B2 && V_B2["philosophy & ethics"]) || [];  // lp67 — B2 philosophy vocabulary
-V["literature"]  = (V_B2 && V_B2["academic language"])   || [];  // lp64 — B2 academic vocabulary
-V["politics"]    = V["civic"]  || [];   // lp58 — civic covers voting, parliament, government
+V['journalism'] = (V_B2 && V_B2['media & journalism']) || []; // lp68 — B2 media vocabulary
+V['philosophy'] = (V_B2 && V_B2['philosophy & ethics']) || []; // lp67 — B2 philosophy vocabulary
+V['literature'] = (V_B2 && V_B2['academic language']) || []; // lp64 — B2 academic vocabulary
+V['politics'] = V['civic'] || []; // lp58 — civic covers voting, parliament, government
 // ── end LEARN_PATH aliases ────────────────────────────────────────────────────
 // ═══ CROATIAN HISTORY — DOMOVINSKI RAT ═══
 // ═══ CROATIAN EVENTS CALENDAR ═══
@@ -55,22 +221,113 @@ V["politics"]    = V["civic"]  || [];   // lp58 — civic covers voting, parliam
 // BADGES — imported from ../lib/appUtils.js
 // ═══ DAILY QUESTS ═══
 const DAILY_QUESTS = [
-  { id: 'speak',        tier: 1, icon: '🎤', name: 'Speak Quest',        desc: 'Complete 1 speaking exercise',   xp: 25 },
-  { id: 'speak2',       tier: 2, icon: '🎤', name: 'Speak Twice',        desc: '2 speaking exercises',           xp: 50 },
-  { id: 'grammar',      tier: 1, icon: '📝', name: 'Grammar Quest',      desc: 'Complete 1 grammar lesson',      xp: 25 },
-  { id: 'grammar2',     tier: 2, icon: '📝', name: 'Grammar Double',     desc: '2 grammar exercises',            xp: 45 },
-  { id: 'master',       tier: 1, icon: '✨', name: 'Master Quest',       desc: 'Review 5+ SRS words',            xp: 30 },
-  { id: 'master2',      tier: 2, icon: '✨', name: 'Master Pro',         desc: 'Review 15+ SRS words',           xp: 55 },
-  { id: 'reading',      tier: 1, icon: '📖', name: 'Reading Quest',      desc: 'Complete 1 reading passage',     xp: 20 },
-  { id: 'reading2',     tier: 2, icon: '📖', name: 'Reading Double',     desc: '2 reading passages',             xp: 40 },
-  { id: 'culture',      tier: 1, icon: '🇭🇷', name: 'Culture Quest',      desc: 'Explore a Croatian region or media item', xp: 20 },
-  { id: 'culture2',     tier: 2, icon: '🇭🇷', name: 'Culture Deep Dive',  desc: 'Explore 2 culture items today',  xp: 35 },
-  { id: 'vocab',        tier: 1, icon: '📘', name: 'Vocab Quest',        desc: 'Complete 1 vocabulary lesson',   xp: 20 },
-  { id: 'vocab2',       tier: 2, icon: '📘', name: 'Vocab Double',       desc: '2 vocabulary lessons today',     xp: 35 },
-  { id: 'write',        tier: 1, icon: '✍️', name: 'Writing Quest',       desc: 'Submit a written exercise',      xp: 25 },
-  { id: 'streak',       tier: 1, icon: '🔥', name: 'Streak Quest',       desc: 'Keep your daily streak alive',   xp: 10 },
-  { id: 'streak_alive', tier: 1, icon: '🔥', name: 'Keep Streak',        desc: 'Practice anything today',        xp: 10 },
-  { id: 'perfect',      tier: 2, icon: '🎯', name: 'Perfect Score',      desc: 'Score 100% on any exercise',     xp: 60 },
+  {
+    id: 'speak',
+    tier: 1,
+    icon: '🎤',
+    name: 'Speak Quest',
+    desc: 'Complete 1 speaking exercise',
+    xp: 25,
+  },
+  { id: 'speak2', tier: 2, icon: '🎤', name: 'Speak Twice', desc: '2 speaking exercises', xp: 50 },
+  {
+    id: 'grammar',
+    tier: 1,
+    icon: '📝',
+    name: 'Grammar Quest',
+    desc: 'Complete 1 grammar lesson',
+    xp: 25,
+  },
+  {
+    id: 'grammar2',
+    tier: 2,
+    icon: '📝',
+    name: 'Grammar Double',
+    desc: '2 grammar exercises',
+    xp: 45,
+  },
+  { id: 'master', tier: 1, icon: '✨', name: 'Master Quest', desc: 'Review 5+ SRS words', xp: 30 },
+  { id: 'master2', tier: 2, icon: '✨', name: 'Master Pro', desc: 'Review 15+ SRS words', xp: 55 },
+  {
+    id: 'reading',
+    tier: 1,
+    icon: '📖',
+    name: 'Reading Quest',
+    desc: 'Complete 1 reading passage',
+    xp: 20,
+  },
+  {
+    id: 'reading2',
+    tier: 2,
+    icon: '📖',
+    name: 'Reading Double',
+    desc: '2 reading passages',
+    xp: 40,
+  },
+  {
+    id: 'culture',
+    tier: 1,
+    icon: '🇭🇷',
+    name: 'Culture Quest',
+    desc: 'Explore a Croatian region or media item',
+    xp: 20,
+  },
+  {
+    id: 'culture2',
+    tier: 2,
+    icon: '🇭🇷',
+    name: 'Culture Deep Dive',
+    desc: 'Explore 2 culture items today',
+    xp: 35,
+  },
+  {
+    id: 'vocab',
+    tier: 1,
+    icon: '📘',
+    name: 'Vocab Quest',
+    desc: 'Complete 1 vocabulary lesson',
+    xp: 20,
+  },
+  {
+    id: 'vocab2',
+    tier: 2,
+    icon: '📘',
+    name: 'Vocab Double',
+    desc: '2 vocabulary lessons today',
+    xp: 35,
+  },
+  {
+    id: 'write',
+    tier: 1,
+    icon: '✍️',
+    name: 'Writing Quest',
+    desc: 'Submit a written exercise',
+    xp: 25,
+  },
+  {
+    id: 'streak',
+    tier: 1,
+    icon: '🔥',
+    name: 'Streak Quest',
+    desc: 'Keep your daily streak alive',
+    xp: 10,
+  },
+  {
+    id: 'streak_alive',
+    tier: 1,
+    icon: '🔥',
+    name: 'Keep Streak',
+    desc: 'Practice anything today',
+    xp: 10,
+  },
+  {
+    id: 'perfect',
+    tier: 2,
+    icon: '🎯',
+    name: 'Perfect Score',
+    desc: 'Score 100% on any exercise',
+    xp: 60,
+  },
 ];
 // ═══ READING PASSAGES ═══
 // ═══ ALPHABET ═══
@@ -81,8 +338,7 @@ const DAILY_QUESTS = [
 // getSR / saveSR / getDueReviews are imported from ./lib/srs.js (FSRS-4.5).
 // Re-exported at the bottom of this file so all existing imports keep working.
 // getCultureStats, incrementCulture — imported from ../lib/appUtils.js
-function _unusedCulturePlaceholder() {
-}
+function _unusedCulturePlaceholder() {}
 // srMark — delegates to FSRS-4.5 getSRScore() imported from ./lib/srs.js.
 // Signature preserved: srMark(word, correct) — timeMs defaults to 4000 ms
 // (treated as a "medium" response giving grade 4 when correct).
@@ -90,50 +346,86 @@ function srMark(word, correct, timeMs) {
   return getSRScore(word, correct, timeMs != null ? timeMs : 4000);
 }
 // ═══ MISTAKE TRACKER ═══
-function getMistakes(){try{return JSON.parse(localStorage.getItem("uMistakes")||"[]");}catch{return[];}}
-function recordMistake(hr,en,q,category,initialCount){
-  try{
-    const list=getMistakes();
-    const existing=list.findIndex(function(m){return m.hr===hr;});
-    if(existing!==-1){list[existing].count=(list[existing].count||1)+1;list[existing].t=Date.now();list[existing].q=q||list[existing].q;}
-    else{list.push({hr,en:en||"",q:q||"",category:category||"",count:initialCount||1,t:Date.now()});}
-    if(list.length>200)list.splice(0,list.length-200);
-    localStorage.setItem("uMistakes",JSON.stringify(list));
-  }catch{}
+function getMistakes() {
+  try {
+    return JSON.parse(localStorage.getItem('uMistakes') || '[]');
+  } catch {
+    return [];
+  }
 }
-function clearMistake(hr){try{const list=getMistakes().filter(function(m){return m.hr!==hr;});localStorage.setItem("uMistakes",JSON.stringify(list));}catch{}}
-function clearAllMistakes(){try{localStorage.removeItem("uMistakes");}catch{}}
+function recordMistake(hr, en, q, category, initialCount) {
+  try {
+    const list = getMistakes();
+    const existing = list.findIndex(function (m) {
+      return m.hr === hr;
+    });
+    if (existing !== -1) {
+      list[existing].count = (list[existing].count || 1) + 1;
+      list[existing].t = Date.now();
+      list[existing].q = q || list[existing].q;
+    } else {
+      list.push({
+        hr,
+        en: en || '',
+        q: q || '',
+        category: category || '',
+        count: initialCount || 1,
+        t: Date.now(),
+      });
+    }
+    if (list.length > 200) list.splice(0, list.length - 200);
+    localStorage.setItem('uMistakes', JSON.stringify(list));
+  } catch {}
+}
+function clearMistake(hr) {
+  try {
+    const list = getMistakes().filter(function (m) {
+      return m.hr !== hr;
+    });
+    localStorage.setItem('uMistakes', JSON.stringify(list));
+  } catch {}
+}
+function clearAllMistakes() {
+  try {
+    localStorage.removeItem('uMistakes');
+  } catch {}
+}
 // Silently backfills mistakes from historical SRS wrong-answer data.
 // Runs once per device (guards with localStorage flag). Safe to call early —
 // only reads/writes localStorage, never blocks the UI.
-function bootstrapMistakesFromSRS(){
-  try{
-    if(localStorage.getItem("uMistakesBootstrapped"))return;
-    const sr=getSR();
-    const existing=new Set(getMistakes().map(function(m){return m.hr;}));
+function bootstrapMistakesFromSRS() {
+  try {
+    if (localStorage.getItem('uMistakesBootstrapped')) return;
+    const sr = getSR();
+    const existing = new Set(
+      getMistakes().map(function (m) {
+        return m.hr;
+      }),
+    );
     // Build a flat hr→{en,category} lookup from V
-    const lookup={};
-    for(const cat in V){
-      const items=V[cat];
-      if(!Array.isArray(items))continue;
-      for(const item of items){
-        if(Array.isArray(item)&&item.length>=2){
-          const hr=String(item[0]).trim();
-          const en=String(item[1]).trim();
-          if(hr&&en&&!lookup[hr.toLowerCase()])lookup[hr.toLowerCase()]={en,category:cat};
+    const lookup = {};
+    for (const cat in V) {
+      const items = V[cat];
+      if (!Array.isArray(items)) continue;
+      for (const item of items) {
+        if (Array.isArray(item) && item.length >= 2) {
+          const hr = String(item[0]).trim();
+          const en = String(item[1]).trim();
+          if (hr && en && !lookup[hr.toLowerCase()])
+            lookup[hr.toLowerCase()] = { en, category: cat };
         }
       }
     }
     // Import words missed 2+ times (threshold filters misclicks vs. real gaps)
-    for(const word in sr){
-      const card=sr[word];
-      if((card.w||0)<2)continue;
-      if(existing.has(word))continue;
-      const found=lookup[word.toLowerCase()];
-      recordMistake(word,found?found.en:"","",found?found.category:"",card.w);
+    for (const word in sr) {
+      const card = sr[word];
+      if ((card.w || 0) < 2) continue;
+      if (existing.has(word)) continue;
+      const found = lookup[word.toLowerCase()];
+      recordMistake(word, found ? found.en : '', '', found ? found.category : '', card.w);
     }
-    localStorage.setItem("uMistakesBootstrapped","1");
-  }catch{}
+    localStorage.setItem('uMistakesBootstrapped', '1');
+  } catch {}
 }
 // ═══ HRT & CROATIAN MEDIA ═══
 // ═══ CROATIAN CASES (PADE\u017dI) ═══
@@ -145,12 +437,20 @@ function bootstrapMistakesFromSRS(){
 // getStreak, getStreakFreezes, earnFreeze, spendFreeze, updateStreak,
 // getStreakEarnBack, applyStreakEarnBack — imported from ../lib/appUtils.js
 // ═══ CROATIAN PROVERBS ═══
-function getProverbOfDay(){
-  const n=new Date();
-  const dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+function getProverbOfDay() {
+  const n = new Date();
+  const dk =
+    n.getFullYear() +
+    '-' +
+    String(n.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(n.getDate()).padStart(2, '0');
   // Seed with date + a salt so proverb and fact never land on the same index
-  let h=5381;const s='prov:'+dk;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
-  return PROVERBS[h%PROVERBS.length];
+  let h = 5381;
+  const s = 'prov:' + dk;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  h = h >>> 0;
+  return PROVERBS[h % PROVERBS.length];
 }
 // ═══ LISTENING COMPREHENSION ═══
 // ═══ MINI STORIES (BRANCHING) ═══
@@ -184,163 +484,472 @@ function getProverbOfDay(){
 // ═══ WORD FORMATION (PREFIX PATTERNS) ═══
 // ═══ COLOR QUIRKS ═══
 // ═══ DAILY CHALLENGE ═══
-let _dcCache=null;
-function getDailyChallenge(){
+let _dcCache = null;
+function getDailyChallenge() {
   // Return cached result if same day — prevents non-determinism from multiple calls
-  const now=new Date();
-  const _dk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-  if(_dcCache&&_dcCache.dateKey===_dk)return _dcCache;
+  const now = new Date();
+  const _dk =
+    now.getFullYear() +
+    '-' +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(now.getDate()).padStart(2, '0');
+  if (_dcCache && _dcCache.dateKey === _dk) return _dcCache;
 
-  const dateKey=_dk;
+  const dateKey = _dk;
   // Seeded PRNG (LCG) — fully deterministic per date, different every day
-  function hashStr(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return h>>>0}
-  let _seed=hashStr(dateKey);
-  function rand(){_seed=(_seed*1664525+1013904223)>>>0;return _seed/4294967296}
-  function ri(n){return Math.floor(rand()*n)}
-  function shuf(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=ri(i+1);const t=a[i];a[i]=a[j];a[j]=t}return a}
+  function hashStr(s) {
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return h >>> 0;
+  }
+  let _seed = hashStr(dateKey);
+  function rand() {
+    _seed = (_seed * 1664525 + 1013904223) >>> 0;
+    return _seed / 4294967296;
+  }
+  function ri(n) {
+    return Math.floor(rand() * n);
+  }
+  function shuf(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = ri(i + 1);
+      const t = a[i];
+      a[i] = a[j];
+      a[j] = t;
+    }
+    return a;
+  }
   // Large hardcoded grammar/culture/translation pool (50+ questions)
-  const hard=[
-    {q:"Translate: 'I want to learn Croatian.'",a:"Želim učiti hrvatski.",opts:["Želim učiti hrvatski.","Moram učiti hrvatski.","Mogu učiti hrvatski.","Učim hrvatski."]},
-    {q:"Translate: 'Where is the pharmacy?'",a:"Gdje je ljekarna?",opts:["Gdje je ljekarna?","Gdje je bolnica?","Gdje je pošta?","Što je ljekarna?"]},
-    {q:"Translate: 'I like Croatia.'",a:"Sviđa mi se Hrvatska.",opts:["Sviđa mi se Hrvatska.","Volim Hrvatsku.","Idem u Hrvatsku.","Iz Hrvatske sam."]},
-    {q:"Translate: 'Can you help me?'",a:"Možete li mi pomoći?",opts:["Možete li mi pomoći?","Trebam pomoć.","Gdje je pomoć?","Moramo pomoći."]},
-    {q:"Translate: 'My children speak Croatian.'",a:"Moja djeca govore hrvatski.",opts:["Moja djeca govore hrvatski.","Moja djeca uče hrvatski.","Moji djeca govori hrvatski.","Moja djeca znaju hrvatski."]},
-    {q:"Translate: 'Good morning!'",a:"Dobro jutro!",opts:["Dobro jutro!","Dobar dan!","Dobra večer!","Laku noć!"]},
-    {q:"Translate: 'How much does this cost?'",a:"Koliko ovo košta?",opts:["Koliko ovo košta?","Gdje to kupiti?","Što ovo znači?","Kada to dolazi?"]},
-    {q:"Translate: 'I am from America.'",a:"Ja sam iz Amerike.",opts:["Ja sam iz Amerike.","Ja idem u Ameriku.","Ja živim u Americi.","Ja volim Ameriku."]},
-    {q:"Translate: 'Do you speak English?'",a:"Govorite li engleski?",opts:["Govorite li engleski?","Znate li engleski?","Učite li engleski?","Razumijete li engleski?"]},
-    {q:"Translate: 'I don't understand.'",a:"Ne razumijem.",opts:["Ne razumijem.","Ne znam.","Ne mogu.","Ne slušam."]},
-    {q:"Translate: 'The sea is beautiful.'",a:"More je lijepo.",opts:["More je lijepo.","Nebo je lijepo.","Grad je lijep.","Sunce je lijepo."]},
-    {q:"Translate: 'We are going to Dubrovnik.'",a:"Idemo u Dubrovnik.",opts:["Idemo u Dubrovnik.","Smo u Dubrovniku.","Dolazimo iz Dubrovnika.","Volimo Dubrovnik."]},
-    {q:"Translate: 'I am hungry.'",a:"Gladan/Gladna sam.",opts:["Gladan/Gladna sam.","Žedan/Žedna sam.","Umoran/Umorna sam.","Sretan/Sretna sam."]},
-    {q:"Translate: 'The train leaves at eight.'",a:"Vlak odlazi u osam.",opts:["Vlak odlazi u osam.","Vlak dolazi u osam.","Bus odlazi u osam.","Vlak staje u osam."]},
-    {q:"Translate: 'I love you.'",a:"Volim te.",opts:["Volim te.","Sviđaš mi se.","Trebam te.","Poznajem te."]},
-    {q:"Translate: 'See you tomorrow!'",a:"Vidimo se sutra!",opts:["Vidimo se sutra!","Do sutra!","Sutra dolazim.","Sutra idemo."]},
-    {q:"Translate: 'The coffee is hot.'",a:"Kava je vruća.",opts:["Kava je vruća.","Kava je hladna.","Kava je dobra.","Kava je slatka."]},
-    {q:"Translate: 'Happy birthday!'",a:"Sretan rođendan!",opts:["Sretan rođendan!","Sretan Božić!","Sretna Nova godina!","Čestitam!"]},
-    {q:"Conjugate: ja + pisati (present)",a:"pišem",opts:["pišem","pisam","pišim","pisem"]},
-    {q:"Conjugate: oni + ići (present)",a:"idu",opts:["idu","iću","idem","idaju"]},
-    {q:"Conjugate: mi + voljeti (present)",a:"volimo",opts:["volimo","volimu","volemo","voljemo"]},
-    {q:"Conjugate: ona + jesti (past)",a:"jela je",opts:["jela je","jeo je","jelo je","jeli je"]},
-    {q:"Conjugate: ja + čitati (future)",a:"čitat ću",opts:["čitat ću","čitam ću","čitati ću","čitaću"]},
-    {q:"Conjugate: ti + gledati (present)",a:"gledaš",opts:["gledaš","gledate","gleda","gledamo"]},
-    {q:"Conjugate: vi + raditi (present)",a:"radite",opts:["radite","radimo","rade","radiste"]},
-    {q:"Conjugate: on + htjeti (present)",a:"hoće",opts:["hoće","hoći","hoćem","hoćeš"]},
-    {q:"Conjugate: ja + moći (present)",a:"mogu",opts:["mogu","moći","možem","mognjem"]},
-    {q:"Conjugate: mi + znati (present)",a:"znamo",opts:["znamo","znademo","znate","znaju"]},
-    {q:"Conjugate: ona + doći (past)",a:"došla je",opts:["došla je","došao je","došlo je","dolazi"]},
-    {q:"Conjugate: ja + biti (present)",a:"jesam / sam",opts:["jesam / sam","jeste","jest","smo"]},
-    {q:"Put 'knjiga' in Accusative:",a:"knjigu",opts:["knjigu","knjige","knjizi","knjigo"]},
-    {q:"Put 'grad' in Locative (u ___):",a:"gradu",opts:["gradu","grada","grade","gradom"]},
-    {q:"Put 'prijatelj' in Instrumental (s ___):",a:"prijateljem",opts:["prijateljem","prijatelja","prijatelju","prijatelje"]},
-    {q:"Put 'žena' in Dative:",a:"ženi",opts:["ženi","ženu","žene","ženom"]},
-    {q:"Put 'more' in Genitive:",a:"mora",opts:["mora","moru","morom","more"]},
-    {q:"Put 'kuća' in Accusative:",a:"kuću",opts:["kuću","kuće","kući","kućom"]},
-    {q:"Put 'auto' in Locative (u ___):",a:"autu",opts:["autu","auta","autom","autima"]},
-    {q:"Put 'dijete' in Genitive:",a:"djeteta",opts:["djeteta","djetetu","dijete","djetetom"]},
-    {q:"Put 'sin' in Dative:",a:"sinu",opts:["sinu","sina","sinom","sini"]},
-    {q:"Put 'ruka' in Instrumental (s ___):",a:"rukom",opts:["rukom","ruku","ruke","ruci"]},
-    {q:"'Nemam' means:",a:"I don't have",opts:["I don't have","I'm not","I can't","I don't want"]},
-    {q:"'Trebam' means:",a:"I need",opts:["I need","I have","I want","I must"]},
-    {q:"'Mogu' means:",a:"I can",opts:["I can","I want","I go","I know"]},
-    {q:"'Idem kući' means:",a:"I'm going home",opts:["I'm going home","I'm at home","I came home","My house"]},
-    {q:"'Kako si?' means:",a:"How are you? (informal)",opts:["How are you? (informal)","What is your name?","Where are you?","Who are you?"]},
-    {q:"'Odakle si?' means:",a:"Where are you from?",opts:["Where are you from?","Where are you going?","Where do you live?","Where were you?"]},
-    {q:"What gender is 'more' (sea)?",a:"Neuter",opts:["Neuter","Masculine","Feminine","Both"]},
-    {q:"What gender is 'prijatelj' (male friend)?",a:"Masculine",opts:["Masculine","Feminine","Neuter","Variable"]},
-    {q:"What gender is 'knjiga' (book)?",a:"Feminine",opts:["Feminine","Masculine","Neuter","Variable"]},
-    {q:"What gender is 'selo' (village)?",a:"Neuter",opts:["Neuter","Masculine","Feminine","Variable"]},
-    {q:"Croatian has how many grammatical cases?",a:"7",opts:["7","6","5","8"]},
-    {q:"Which pronoun means 'we'?",a:"mi",opts:["mi","vi","oni","ono"]},
-    {q:"Which pronoun means 'they' (mixed/masc)?",a:"oni",opts:["oni","one","ona","ono"]},
-    {q:"'Doviđenja' means:",a:"Goodbye",opts:["Goodbye","Hello","Thank you","Please"]},
-    {q:"'Hvala' means:",a:"Thank you",opts:["Thank you","Please","Sorry","Welcome"]},
-    {q:"'Molim' means:",a:"Please / You're welcome",opts:["Please / You're welcome","Thank you","Sorry","Excuse me"]},
-    {q:"'Oprosti' means:",a:"Sorry (informal)",opts:["Sorry (informal)","Thank you","Please","Goodbye"]},
-    {q:"The Croatian word for 'island' is:",a:"otok",opts:["otok","rijeka","jezero","more"]},
-    {q:"'Lijepa naša' is the Croatian:",a:"National anthem",opts:["National anthem","National dish","Currency","Flag design"]},
-    {q:"Which case follows the preposition 'u' (location)?",a:"Locative",opts:["Locative","Accusative","Genitive","Dative"]},
-    {q:"Which case follows the preposition 'u' (movement)?",a:"Accusative",opts:["Accusative","Locative","Genitive","Instrumental"]},
-    {q:"The aspect 'svršeni' (perfective) expresses:",a:"Completed action",opts:["Completed action","Ongoing action","Habitual action","Future wish"]},
-    {q:"'Što' means:",a:"What",opts:["What","Who","Where","When"]},
-    {q:"'Tko' means:",a:"Who",opts:["Who","What","Where","Which"]},
-    {q:"'Kada' means:",a:"When",opts:["When","Where","Why","How"]},
-    {q:"'Zašto' means:",a:"Why",opts:["Why","When","How","Where"]},
-    {q:"'Koliko' means:",a:"How many / How much",opts:["How many / How much","How long","How far","How often"]},
-    {q:"The diminutive suffix '-ica' makes a word:",a:"Smaller / more endearing",opts:["Smaller / more endearing","Larger","Plural","Negative"]},
-    {q:"'Baka' means:",a:"Grandmother",opts:["Grandmother","Grandfather","Aunt","Mother"]},
-    {q:"'Djed' means:",a:"Grandfather",opts:["Grandfather","Grandmother","Uncle","Father"]},
-    {q:"Capital city of Croatia:",a:"Zagreb",opts:["Zagreb","Split","Rijeka","Osijek"]},
-    {q:"The Adriatic coast of Croatia is in which region?",a:"Dalmatia & Istria",opts:["Dalmatia & Istria","Slavonia","Zagorje","Baranja"]},
-    {q:"Croatian currency is:",a:"Euro (EUR)",opts:["Euro (EUR)","Kuna","Dinar","Kruna"]},
+  const hard = [
+    {
+      q: "Translate: 'I want to learn Croatian.'",
+      a: 'Želim učiti hrvatski.',
+      opts: [
+        'Želim učiti hrvatski.',
+        'Moram učiti hrvatski.',
+        'Mogu učiti hrvatski.',
+        'Učim hrvatski.',
+      ],
+    },
+    {
+      q: "Translate: 'Where is the pharmacy?'",
+      a: 'Gdje je ljekarna?',
+      opts: ['Gdje je ljekarna?', 'Gdje je bolnica?', 'Gdje je pošta?', 'Što je ljekarna?'],
+    },
+    {
+      q: "Translate: 'I like Croatia.'",
+      a: 'Sviđa mi se Hrvatska.',
+      opts: ['Sviđa mi se Hrvatska.', 'Volim Hrvatsku.', 'Idem u Hrvatsku.', 'Iz Hrvatske sam.'],
+    },
+    {
+      q: "Translate: 'Can you help me?'",
+      a: 'Možete li mi pomoći?',
+      opts: ['Možete li mi pomoći?', 'Trebam pomoć.', 'Gdje je pomoć?', 'Moramo pomoći.'],
+    },
+    {
+      q: "Translate: 'My children speak Croatian.'",
+      a: 'Moja djeca govore hrvatski.',
+      opts: [
+        'Moja djeca govore hrvatski.',
+        'Moja djeca uče hrvatski.',
+        'Moji djeca govori hrvatski.',
+        'Moja djeca znaju hrvatski.',
+      ],
+    },
+    {
+      q: "Translate: 'Good morning!'",
+      a: 'Dobro jutro!',
+      opts: ['Dobro jutro!', 'Dobar dan!', 'Dobra večer!', 'Laku noć!'],
+    },
+    {
+      q: "Translate: 'How much does this cost?'",
+      a: 'Koliko ovo košta?',
+      opts: ['Koliko ovo košta?', 'Gdje to kupiti?', 'Što ovo znači?', 'Kada to dolazi?'],
+    },
+    {
+      q: "Translate: 'I am from America.'",
+      a: 'Ja sam iz Amerike.',
+      opts: [
+        'Ja sam iz Amerike.',
+        'Ja idem u Ameriku.',
+        'Ja živim u Americi.',
+        'Ja volim Ameriku.',
+      ],
+    },
+    {
+      q: "Translate: 'Do you speak English?'",
+      a: 'Govorite li engleski?',
+      opts: [
+        'Govorite li engleski?',
+        'Znate li engleski?',
+        'Učite li engleski?',
+        'Razumijete li engleski?',
+      ],
+    },
+    {
+      q: "Translate: 'I don't understand.'",
+      a: 'Ne razumijem.',
+      opts: ['Ne razumijem.', 'Ne znam.', 'Ne mogu.', 'Ne slušam.'],
+    },
+    {
+      q: "Translate: 'The sea is beautiful.'",
+      a: 'More je lijepo.',
+      opts: ['More je lijepo.', 'Nebo je lijepo.', 'Grad je lijep.', 'Sunce je lijepo.'],
+    },
+    {
+      q: "Translate: 'We are going to Dubrovnik.'",
+      a: 'Idemo u Dubrovnik.',
+      opts: [
+        'Idemo u Dubrovnik.',
+        'Smo u Dubrovniku.',
+        'Dolazimo iz Dubrovnika.',
+        'Volimo Dubrovnik.',
+      ],
+    },
+    {
+      q: "Translate: 'I am hungry.'",
+      a: 'Gladan/Gladna sam.',
+      opts: ['Gladan/Gladna sam.', 'Žedan/Žedna sam.', 'Umoran/Umorna sam.', 'Sretan/Sretna sam.'],
+    },
+    {
+      q: "Translate: 'The train leaves at eight.'",
+      a: 'Vlak odlazi u osam.',
+      opts: [
+        'Vlak odlazi u osam.',
+        'Vlak dolazi u osam.',
+        'Bus odlazi u osam.',
+        'Vlak staje u osam.',
+      ],
+    },
+    {
+      q: "Translate: 'I love you.'",
+      a: 'Volim te.',
+      opts: ['Volim te.', 'Sviđaš mi se.', 'Trebam te.', 'Poznajem te.'],
+    },
+    {
+      q: "Translate: 'See you tomorrow!'",
+      a: 'Vidimo se sutra!',
+      opts: ['Vidimo se sutra!', 'Do sutra!', 'Sutra dolazim.', 'Sutra idemo.'],
+    },
+    {
+      q: "Translate: 'The coffee is hot.'",
+      a: 'Kava je vruća.',
+      opts: ['Kava je vruća.', 'Kava je hladna.', 'Kava je dobra.', 'Kava je slatka.'],
+    },
+    {
+      q: "Translate: 'Happy birthday!'",
+      a: 'Sretan rođendan!',
+      opts: ['Sretan rođendan!', 'Sretan Božić!', 'Sretna Nova godina!', 'Čestitam!'],
+    },
+    {
+      q: 'Conjugate: ja + pisati (present)',
+      a: 'pišem',
+      opts: ['pišem', 'pisam', 'pišim', 'pisem'],
+    },
+    { q: 'Conjugate: oni + ići (present)', a: 'idu', opts: ['idu', 'iću', 'idem', 'idaju'] },
+    {
+      q: 'Conjugate: mi + voljeti (present)',
+      a: 'volimo',
+      opts: ['volimo', 'volimu', 'volemo', 'voljemo'],
+    },
+    {
+      q: 'Conjugate: ona + jesti (past)',
+      a: 'jela je',
+      opts: ['jela je', 'jeo je', 'jelo je', 'jeli je'],
+    },
+    {
+      q: 'Conjugate: ja + čitati (future)',
+      a: 'čitat ću',
+      opts: ['čitat ću', 'čitam ću', 'čitati ću', 'čitaću'],
+    },
+    {
+      q: 'Conjugate: ti + gledati (present)',
+      a: 'gledaš',
+      opts: ['gledaš', 'gledate', 'gleda', 'gledamo'],
+    },
+    {
+      q: 'Conjugate: vi + raditi (present)',
+      a: 'radite',
+      opts: ['radite', 'radimo', 'rade', 'radiste'],
+    },
+    { q: 'Conjugate: on + htjeti (present)', a: 'hoće', opts: ['hoće', 'hoći', 'hoćem', 'hoćeš'] },
+    { q: 'Conjugate: ja + moći (present)', a: 'mogu', opts: ['mogu', 'moći', 'možem', 'mognjem'] },
+    {
+      q: 'Conjugate: mi + znati (present)',
+      a: 'znamo',
+      opts: ['znamo', 'znademo', 'znate', 'znaju'],
+    },
+    {
+      q: 'Conjugate: ona + doći (past)',
+      a: 'došla je',
+      opts: ['došla je', 'došao je', 'došlo je', 'dolazi'],
+    },
+    {
+      q: 'Conjugate: ja + biti (present)',
+      a: 'jesam / sam',
+      opts: ['jesam / sam', 'jeste', 'jest', 'smo'],
+    },
+    {
+      q: "Put 'knjiga' in Accusative:",
+      a: 'knjigu',
+      opts: ['knjigu', 'knjige', 'knjizi', 'knjigo'],
+    },
+    {
+      q: "Put 'grad' in Locative (u ___):",
+      a: 'gradu',
+      opts: ['gradu', 'grada', 'grade', 'gradom'],
+    },
+    {
+      q: "Put 'prijatelj' in Instrumental (s ___):",
+      a: 'prijateljem',
+      opts: ['prijateljem', 'prijatelja', 'prijatelju', 'prijatelje'],
+    },
+    { q: "Put 'žena' in Dative:", a: 'ženi', opts: ['ženi', 'ženu', 'žene', 'ženom'] },
+    { q: "Put 'more' in Genitive:", a: 'mora', opts: ['mora', 'moru', 'morom', 'more'] },
+    { q: "Put 'kuća' in Accusative:", a: 'kuću', opts: ['kuću', 'kuće', 'kući', 'kućom'] },
+    { q: "Put 'auto' in Locative (u ___):", a: 'autu', opts: ['autu', 'auta', 'autom', 'autima'] },
+    {
+      q: "Put 'dijete' in Genitive:",
+      a: 'djeteta',
+      opts: ['djeteta', 'djetetu', 'dijete', 'djetetom'],
+    },
+    { q: "Put 'sin' in Dative:", a: 'sinu', opts: ['sinu', 'sina', 'sinom', 'sini'] },
+    {
+      q: "Put 'ruka' in Instrumental (s ___):",
+      a: 'rukom',
+      opts: ['rukom', 'ruku', 'ruke', 'ruci'],
+    },
+    {
+      q: "'Nemam' means:",
+      a: "I don't have",
+      opts: ["I don't have", "I'm not", "I can't", "I don't want"],
+    },
+    { q: "'Trebam' means:", a: 'I need', opts: ['I need', 'I have', 'I want', 'I must'] },
+    { q: "'Mogu' means:", a: 'I can', opts: ['I can', 'I want', 'I go', 'I know'] },
+    {
+      q: "'Idem kući' means:",
+      a: "I'm going home",
+      opts: ["I'm going home", "I'm at home", 'I came home', 'My house'],
+    },
+    {
+      q: "'Kako si?' means:",
+      a: 'How are you? (informal)',
+      opts: ['How are you? (informal)', 'What is your name?', 'Where are you?', 'Who are you?'],
+    },
+    {
+      q: "'Odakle si?' means:",
+      a: 'Where are you from?',
+      opts: [
+        'Where are you from?',
+        'Where are you going?',
+        'Where do you live?',
+        'Where were you?',
+      ],
+    },
+    {
+      q: "What gender is 'more' (sea)?",
+      a: 'Neuter',
+      opts: ['Neuter', 'Masculine', 'Feminine', 'Both'],
+    },
+    {
+      q: "What gender is 'prijatelj' (male friend)?",
+      a: 'Masculine',
+      opts: ['Masculine', 'Feminine', 'Neuter', 'Variable'],
+    },
+    {
+      q: "What gender is 'knjiga' (book)?",
+      a: 'Feminine',
+      opts: ['Feminine', 'Masculine', 'Neuter', 'Variable'],
+    },
+    {
+      q: "What gender is 'selo' (village)?",
+      a: 'Neuter',
+      opts: ['Neuter', 'Masculine', 'Feminine', 'Variable'],
+    },
+    { q: 'Croatian has how many grammatical cases?', a: '7', opts: ['7', '6', '5', '8'] },
+    { q: "Which pronoun means 'we'?", a: 'mi', opts: ['mi', 'vi', 'oni', 'ono'] },
+    { q: "Which pronoun means 'they' (mixed/masc)?", a: 'oni', opts: ['oni', 'one', 'ona', 'ono'] },
+    { q: "'Doviđenja' means:", a: 'Goodbye', opts: ['Goodbye', 'Hello', 'Thank you', 'Please'] },
+    { q: "'Hvala' means:", a: 'Thank you', opts: ['Thank you', 'Please', 'Sorry', 'Welcome'] },
+    {
+      q: "'Molim' means:",
+      a: "Please / You're welcome",
+      opts: ["Please / You're welcome", 'Thank you', 'Sorry', 'Excuse me'],
+    },
+    {
+      q: "'Oprosti' means:",
+      a: 'Sorry (informal)',
+      opts: ['Sorry (informal)', 'Thank you', 'Please', 'Goodbye'],
+    },
+    {
+      q: "The Croatian word for 'island' is:",
+      a: 'otok',
+      opts: ['otok', 'rijeka', 'jezero', 'more'],
+    },
+    {
+      q: "'Lijepa naša' is the Croatian:",
+      a: 'National anthem',
+      opts: ['National anthem', 'National dish', 'Currency', 'Flag design'],
+    },
+    {
+      q: "Which case follows the preposition 'u' (location)?",
+      a: 'Locative',
+      opts: ['Locative', 'Accusative', 'Genitive', 'Dative'],
+    },
+    {
+      q: "Which case follows the preposition 'u' (movement)?",
+      a: 'Accusative',
+      opts: ['Accusative', 'Locative', 'Genitive', 'Instrumental'],
+    },
+    {
+      q: "The aspect 'svršeni' (perfective) expresses:",
+      a: 'Completed action',
+      opts: ['Completed action', 'Ongoing action', 'Habitual action', 'Future wish'],
+    },
+    { q: "'Što' means:", a: 'What', opts: ['What', 'Who', 'Where', 'When'] },
+    { q: "'Tko' means:", a: 'Who', opts: ['Who', 'What', 'Where', 'Which'] },
+    { q: "'Kada' means:", a: 'When', opts: ['When', 'Where', 'Why', 'How'] },
+    { q: "'Zašto' means:", a: 'Why', opts: ['Why', 'When', 'How', 'Where'] },
+    {
+      q: "'Koliko' means:",
+      a: 'How many / How much',
+      opts: ['How many / How much', 'How long', 'How far', 'How often'],
+    },
+    {
+      q: "The diminutive suffix '-ica' makes a word:",
+      a: 'Smaller / more endearing',
+      opts: ['Smaller / more endearing', 'Larger', 'Plural', 'Negative'],
+    },
+    {
+      q: "'Baka' means:",
+      a: 'Grandmother',
+      opts: ['Grandmother', 'Grandfather', 'Aunt', 'Mother'],
+    },
+    {
+      q: "'Djed' means:",
+      a: 'Grandfather',
+      opts: ['Grandfather', 'Grandmother', 'Uncle', 'Father'],
+    },
+    { q: 'Capital city of Croatia:', a: 'Zagreb', opts: ['Zagreb', 'Split', 'Rijeka', 'Osijek'] },
+    {
+      q: 'The Adriatic coast of Croatia is in which region?',
+      a: 'Dalmatia & Istria',
+      opts: ['Dalmatia & Istria', 'Slavonia', 'Zagorje', 'Baranja'],
+    },
+    { q: 'Croatian currency is:', a: 'Euro (EUR)', opts: ['Euro (EUR)', 'Kuna', 'Dinar', 'Kruna'] },
   ];
   // Generate vocab questions dynamically from vocabulary data V (seeded per day)
-  const allWords=[];
-  Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){if(w[0]&&w[1])allWords.push(w)})});
-  const vocabQs=[];
-  if(allWords.length>10){
-    const used=new Set();
-    for(let attempt=0;attempt<30&&vocabQs.length<30;attempt++){
-      const vi=ri(allWords.length);
-      if(used.has(vi))continue;
+  const allWords = [];
+  Object.keys(V).forEach(function (cat) {
+    V[cat].forEach(function (w) {
+      if (w[0] && w[1]) allWords.push(w);
+    });
+  });
+  const vocabQs = [];
+  if (allWords.length > 10) {
+    const used = new Set();
+    for (let attempt = 0; attempt < 30 && vocabQs.length < 30; attempt++) {
+      const vi = ri(allWords.length);
+      if (used.has(vi)) continue;
       used.add(vi);
-      const word=allWords[vi];
-      const wrongs=[];let wAttempts=0;const wUsed=new Set([vi]);
-      while(wrongs.length<3&&wAttempts<120){
-        const wi=ri(allWords.length);wAttempts++;
-        if(!wUsed.has(wi)&&allWords[wi][1]!==word[1]){wUsed.add(wi);wrongs.push(allWords[wi])}
+      const word = allWords[vi];
+      const wrongs = [];
+      let wAttempts = 0;
+      const wUsed = new Set([vi]);
+      while (wrongs.length < 3 && wAttempts < 120) {
+        const wi = ri(allWords.length);
+        wAttempts++;
+        if (!wUsed.has(wi) && allWords[wi][1] !== word[1]) {
+          wUsed.add(wi);
+          wrongs.push(allWords[wi]);
+        }
       }
-      if(wrongs.length<3)continue;
-      const dir=rand()<0.5;
-      if(dir){
-        vocabQs.push({q:"What does '"+word[0]+"' mean?",a:word[1],opts:shuf([word[1],wrongs[0][1],wrongs[1][1],wrongs[2][1]])});
+      if (wrongs.length < 3) continue;
+      const dir = rand() < 0.5;
+      if (dir) {
+        vocabQs.push({
+          q: "What does '" + word[0] + "' mean?",
+          a: word[1],
+          opts: shuf([word[1], wrongs[0][1], wrongs[1][1], wrongs[2][1]]),
+        });
       } else {
-        vocabQs.push({q:"How do you say '"+word[1]+"' in Croatian?",a:word[0],opts:shuf([word[0],wrongs[0][0],wrongs[1][0],wrongs[2][0]])});
+        vocabQs.push({
+          q: "How do you say '" + word[1] + "' in Croatian?",
+          a: word[0],
+          opts: shuf([word[0], wrongs[0][0], wrongs[1][0], wrongs[2][0]]),
+        });
       }
     }
   }
   // Shuffle opts for hard items using seeded RNG (correct answer is always first in hard pool — fix that)
-  const hardShuffled=hard.map(function(item){return{q:item.q,a:item.a,opts:shuf(item.opts.slice())};});
+  const hardShuffled = hard.map(function (item) {
+    return { q: item.q, a: item.a, opts: shuf(item.opts.slice()) };
+  });
   // Combine pools and pick THREE distinct challenges using the seeded RNG
-  const pool=hardShuffled.concat(vocabQs);
-  const challenges=[];const usedIdx=new Set();
-  for(let tries=0;tries<pool.length*3&&challenges.length<3;tries++){
-    const idx=ri(pool.length);
-    if(!usedIdx.has(idx)){usedIdx.add(idx);challenges.push(pool[idx]);}
+  const pool = hardShuffled.concat(vocabQs);
+  const challenges = [];
+  const usedIdx = new Set();
+  for (let tries = 0; tries < pool.length * 3 && challenges.length < 3; tries++) {
+    const idx = ri(pool.length);
+    if (!usedIdx.has(idx)) {
+      usedIdx.add(idx);
+      challenges.push(pool[idx]);
+    }
   }
   // Fallback: fill if pool too small
-  while(challenges.length<3)challenges.push(pool[ri(pool.length)]);
+  while (challenges.length < 3) challenges.push(pool[ri(pool.length)]);
   // SRS weak-word integration: replace last challenge with a due-review question if any words are due
   try {
-    const dueWords=getDueReviews();
-    if(dueWords.length>0){
-      let srsQ=null;
+    const dueWords = getDueReviews();
+    if (dueWords.length > 0) {
+      let srsQ = null;
       // Filter to only array-of-tuple categories — some V entries are arrays of
       // objects ({hr,en}) which don't have numeric indices; calling .find() on
       // them would throw TypeError and silently swallow the SRS review.
-      const vCats=Object.values(V).filter(function(c){return Array.isArray(c)&&c.length>0&&Array.isArray(c[0]);});
-      for(let di=0;di<dueWords.length&&!srsQ;di++){
-        const dueWord=dueWords[di];
-        for(let ci=0;ci<vCats.length&&!srsQ;ci++){
-          const found=vCats[ci].find(function(pair){return pair[0]===dueWord;});
-          if(found){
-            const wrongs=[];let wA=0;
-            while(wrongs.length<3&&wA<200){
-              const rc=vCats[ri(vCats.length)];wA++;
-              if(!rc||!rc.length)continue;
-              const rp=rc[ri(rc.length)];
-              if(rp&&rp[1]&&rp[1]!==found[1]&&!wrongs.some(function(w){return w===rp[1];}))wrongs.push(rp[1]);
+      const vCats = Object.values(V).filter(function (c) {
+        return Array.isArray(c) && c.length > 0 && Array.isArray(c[0]);
+      });
+      for (let di = 0; di < dueWords.length && !srsQ; di++) {
+        const dueWord = dueWords[di];
+        for (let ci = 0; ci < vCats.length && !srsQ; ci++) {
+          const found = vCats[ci].find(function (pair) {
+            return pair[0] === dueWord;
+          });
+          if (found) {
+            const wrongs = [];
+            let wA = 0;
+            while (wrongs.length < 3 && wA < 200) {
+              const rc = vCats[ri(vCats.length)];
+              wA++;
+              if (!rc || !rc.length) continue;
+              const rp = rc[ri(rc.length)];
+              if (
+                rp &&
+                rp[1] &&
+                rp[1] !== found[1] &&
+                !wrongs.some(function (w) {
+                  return w === rp[1];
+                })
+              )
+                wrongs.push(rp[1]);
             }
-            if(wrongs.length===3){
-              srsQ={q:"🔁 Review: What does '"+found[0]+"' mean?",a:found[1],opts:shuf([found[1],wrongs[0],wrongs[1],wrongs[2]]),isSRS:true};
+            if (wrongs.length === 3) {
+              srsQ = {
+                q: "🔁 Review: What does '" + found[0] + "' mean?",
+                a: found[1],
+                opts: shuf([found[1], wrongs[0], wrongs[1], wrongs[2]]),
+                isSRS: true,
+              };
             }
           }
         }
       }
-      if(srsQ)challenges[2]=srsQ;
+      if (srsQ) challenges[2] = srsQ;
     }
-  } catch(_){}
-  _dcCache={dateKey:dateKey,challenges:challenges};
+  } catch (_) {}
+  _dcCache = { dateKey: dateKey, challenges: challenges };
   return _dcCache;
 }
 // ═══ PADEŽI JEDNINA & MNOŽINA (SINGULAR & PLURAL CASES) ═══
@@ -350,287 +959,1813 @@ function getDailyChallenge(){
 // Module-level cache keyed by "YYYY-M-D" — guarantees every call within the same
 // calendar day returns the identical city object, regardless of render order or
 // which component (HomeTab vs CityOfDayScreen vs CroatiaTab) calls first.
-let _cotdCache={key:'',city:null};
-function getCityOfDay(){
-  const n=new Date();
-  const dateKey=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-  if(_cotdCache.key===dateKey)return _cotdCache.city;
-  const year=n.getFullYear();
-  const dayOfYear=Math.floor((Number(n)-Number(new Date(year,0,1)))/86400000);
+let _cotdCache = { key: '', city: null };
+function getCityOfDay() {
+  const n = new Date();
+  const dateKey =
+    n.getFullYear() +
+    '-' +
+    String(n.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(n.getDate()).padStart(2, '0');
+  if (_cotdCache.key === dateKey) return _cotdCache.city;
+  const year = n.getFullYear();
+  const dayOfYear = Math.floor((Number(n) - Number(new Date(year, 0, 1))) / 86400000);
   // Fisher-Yates shuffle seeded by year — every city appears once before any repeats
-  const idx=CROATIAN_CITIES.map(function(_,i){return i});
-  let seed=(year*2654435761)>>>0;
-  function rng(){seed=((seed*1664525+1013904223)>>>0);return seed/4294967296}
-  for(let i=idx.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t}
-  const city=CROATIAN_CITIES[idx[dayOfYear%idx.length]];
-  _cotdCache={key:dateKey,city};
+  const idx = CROATIAN_CITIES.map(function (_, i) {
+    return i;
+  });
+  let seed = (year * 2654435761) >>> 0;
+  function rng() {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const t = idx[i];
+    idx[i] = idx[j];
+    idx[j] = t;
+  }
+  const city = CROATIAN_CITIES[idx[dayOfYear % idx.length]];
+  _cotdCache = { key: dateKey, city };
   return city;
 }
 // ═══ TENSE & GENDER CONJUGATION SYSTEM ═══
 // ═══ INTERACTIVE MAP DATA ═══
 // ═══ GROCERY SHOPPING ═══
 // ═══ LEARNING PATH: wire specialized content into V for lesson+quiz support ═══
-V["Order Food"]=[].concat(
+V['Order Food'] = [].concat(
   FOODORDER.bakery.items,
   FOODORDER.fastfood.items,
   FOODORDER.icecream.items,
-  FOODORDER.restaurant.phrases
+  FOODORDER.restaurant.phrases,
 );
-V["Getting Around"]=TRANSPORT.map(function(t){return[t.hr,t.en];});
-V["School Kit"]=[].concat(SCHOOL.classroom,SCHOOL.phrases);
-V["Making Friends"]=FRIENDS.map(function(f){return[f.hr,f.en];});
-V["Grocery Shopping"]=[].concat(GROCERY.vocab,GROCERY.phrases);
-V["Alphabet"]=ALPHA.map(function(a){return[a[0],a[1]+" — "+a[2]+" ("+a[3]+")"];});
-V["Emergency"]=[].concat(EMERGENCY.phrases,EMERGENCY.bodyParts);
+V['Getting Around'] = TRANSPORT.map(function (t) {
+  return [t.hr, t.en];
+});
+V['School Kit'] = [].concat(SCHOOL.classroom, SCHOOL.phrases);
+V['Making Friends'] = FRIENDS.map(function (f) {
+  return [f.hr, f.en];
+});
+V['Grocery Shopping'] = [].concat(GROCERY.vocab, GROCERY.phrases);
+V['Alphabet'] = ALPHA.map(function (a) {
+  return [a[0], a[1] + ' — ' + a[2] + ' (' + a[3] + ')'];
+});
+V['Emergency'] = [].concat(EMERGENCY.phrases, EMERGENCY.bodyParts);
 // ═══ CROATIAN RECIPES ═══
 // ═══ CONVERSATION ROLE-PLAY ═══
 // ═══ POVIJESNE ČINJENICE ═══
-function getHistFact(){
-  const n=new Date();
-  const dk=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+function getHistFact() {
+  const n = new Date();
+  const dk =
+    n.getFullYear() +
+    '-' +
+    String(n.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(n.getDate()).padStart(2, '0');
   // Different salt from proverb so the two never share the same pick
-  let h=5381;const s='fact:'+dk;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;h=h>>>0;
-  return HIST_FACTS[h%HIST_FACTS.length];
+  let h = 5381;
+  const s = 'fact:' + dk;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  h = h >>> 0;
+  return HIST_FACTS[h % HIST_FACTS.length];
 }
 // ═══ LEARNING PATH ═══
 const LEARN_PATH = [
-  {level:1,title:"Survivor",desc:"First 48 hours",items:[
-    {id:"lp1",name:"Basic Greetings",diff:1,dur:"~5 min",ck:function(s){return (s.ct&&s.ct.includes("greetings"))||s.lc>=1},go:"lesson",topic:"greetings"},{id:"lp2",name:"Numbers",diff:1,dur:"~5 min",ck:function(s){return (s.ct&&s.ct.includes("numbers"))||s.lc>=2},go:"lesson",topic:"numbers"},{id:"lp_listen_basics",name:"Hear Croatian",cat:"listening",icon:"🎧",desc:"Train your ear — listen to basic Croatian phrases",dur:"~5 min",diff:1,go:"listening",ck:function(s){return (s.vs&&s.vs.includes('listening'))||s.lc>=2}},{id:"lp3",name:"Emergency Phrases",diff:1,dur:"~6 min",ck:function(s){return (s.ct&&s.ct.includes("health"))||s.lc>=3},go:"lesson",topic:"health"},{id:"lp4",name:"Order Food",diff:1,dur:"~6 min",ck:function(s){return (s.ct&&s.ct.includes("restaurant"))||s.lc>=4},go:"lesson",topic:"restaurant"},{id:"lp5",name:"Get Around",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("transport"))||s.lc>=5},go:"lesson",topic:"transport"}]},
-  {level:2,title:"Settler",desc:"First week",items:[
-    {id:"lp6",name:"Family Words",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("family"))||s.lc>=6},go:"lesson",topic:"family"},{id:"lp7",name:"School Kit",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("in the classroom"))||s.lc>=7},go:"lesson",topic:"in the classroom"},{id:"lp8",name:"Making Friends",diff:2,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("personality"))||s.lc>=8},go:"lesson",topic:"personality"},{id:"lp9",name:"Grocery Shopping",diff:1,dur:"~8 min",ck:function(s){return (s.ct&&s.ct.includes("shopping"))||s.lc>=9},go:"lesson",topic:"shopping"},{id:"lp10",name:"Alphabet",diff:2,dur:"~10 min",ck:function(s){return (s.vs&&s.vs.includes('alphabet'))||s.lc>=3},go:"alphabet",topic:"alphabet"},
-    {id:"lp_phonology",name:"Sounds & Diacritics",diff:2,dur:"~10 min",cat:"pronunciation",icon:"🎵",desc:"Č,Ć,Š,Ž,Đ — the 5 letters that define Croatian pronunciation and how to voice them correctly",ck:function(s){return (s.vs&&s.vs.includes('phonology'))||s.lc>=4},go:"phonology"},
-    {id:"lp_gender",name:"Noun Gender",diff:1,dur:"~10 min",cat:"grammar",icon:"⚧️",desc:"Every Croatian noun is masculine, feminine, or neuter — and the ending tells you which",ck:function(s){return (s.vs&&s.vs.includes('lp_gender'))||s.lc>=4},go:"animlesson",lessonId:"gender"},
-    {id:"lp11",name:"First Quiz",diff:1,dur:"~5 min",ck:function(s){return s.xp>=50},go:"mcgame"}]},
-  {level:3,title:"Communicator",desc:"First month",items:[
-    {id:"lp12",name:"Grammar Intro",diff:2,dur:"~10 min",ck:function(s){return s.gc>=1},go:"grammar"},{id:"lp13",name:"Texting/Slang",diff:2,dur:"~10 min",ck:function(s){return (s.vs&&s.vs.includes('texting'))||s.lc>=10},go:"texting"},{id:"lp14",name:"Role-Play",diff:2,dur:"~10 min",ck:function(s){return (s.vs&&s.vs.includes('roleplay'))||s.lc>=10},go:"roleplay"},{id:"lp15",name:"Read a Story",diff:2,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('readlist'))||s.lc>=12},go:"readlist",filter:["beginner"]},{id:"lp16",name:"Conjugation",diff:3,dur:"~12 min",ck:function(s){return s.gc>=2||s.lc>=12},go:"conjdrill"},{id:"lp17",name:"Listening",diff:2,dur:"~10 min",ck:function(s){return (s.vs&&s.vs.includes('listening'))||s.lc>=12},go:"listening"},{id:"lp18",name:"Tenses & Gender",diff:3,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('tenses'))||s.gc>=3},go:"tenses"},
-    {id:"lp_past_tense",name:"Past Tense",diff:2,dur:"~12 min",cat:"grammar",icon:"⏪",desc:"Govoriti→govorio/la sam — talk about what already happened",ck:function(s){return (s.vs&&s.vs.includes('past_tense_lesson'))||s.gc>=3},go:"past_tense_lesson"},
-    {id:"lp_fut_tense",name:"Future Tense",diff:2,dur:"~12 min",cat:"grammar",icon:"⏩",desc:"Govorit ću — express plans, predictions, and intentions",ck:function(s){return (s.vs&&s.vs.includes('future_tense_lesson'))||s.gc>=4},go:"future_tense_lesson"},
-    {id:"lp_adj_agree",name:"Adjective Agreement",diff:2,dur:"~12 min",cat:"grammar",icon:"🎨",desc:"Adjectives must match noun gender, case, and number — how Croatian sentences hold together",ck:function(s){return (s.vs&&s.vs.includes('lp_adj_agree'))||s.gc>=3},go:"animlesson",lessonId:"adjective-agreement"},
-    {id:"lp_acc_deep",name:"Accusative in Depth",diff:2,dur:"~12 min",cat:"grammar",icon:"⚖️",desc:"Animate vs inanimate, direction vs location — where Croatian gets precise",ck:function(s){return (s.vs&&s.vs.includes('lp_acc_deep'))||s.gc>=3},go:"animlesson",lessonId:"accusative-deep"},
-    {id:"lp34",name:"Vi ili ti?",diff:2,dur:"~10 min",ck:function(s){return (s.vs&&s.vs.includes('formalregister'))||s.gc>=3},go:"formalregister"},{id:"lp35",name:"Tech & Digital",diff:2,dur:"~10 min",ck:function(s){return (s.vs&&s.vs.includes('techvoc'))||s.lc>=12},go:"techvoc"},{id:"lp42",name:"Work & Career",diff:2,dur:"~10 min",ck:function(s){return (s.ct&&s.ct.includes("work"))||s.lc>=14},go:"lesson",topic:"work"},{id:"lp43",name:"Opinions & Debate",diff:2,dur:"~12 min",ck:function(s){return (s.ct&&s.ct.includes("opinions"))||s.lc>=15},go:"lesson",topic:"opinions"}]},
-  {level:4,title:"Explorer",desc:"Months 2-3",items:[
-    {id:"lp19",name:"7 Cases",diff:3,dur:"~12 min",ck:function(s){return s.gc>=4},go:"padezi"},{id:"lp20",name:"Padeži Master",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('padezifull'))||s.gc>=5},go:"padezifull"},{id:"lp21",name:"Verb Aspect",diff:3,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('aspect'))||s.gc>=5},go:"aspect"},
-    {id:"lp_asp_impf",name:"Aspect — Imperfective",diff:3,dur:"~12 min",cat:"grammar",icon:"🔄",desc:"Ongoing, habitual, general truth — understanding imperfective is half the battle with Croatian verbs",ck:function(s){return (s.vs&&s.vs.includes('lp_asp_impf'))||s.gc>=5},go:"animlesson",lessonId:"aspect-imperfective"},
-    {id:"lp_asp_pf",name:"Aspect — Perfective",diff:3,dur:"~12 min",cat:"grammar",icon:"✅",desc:"Completed events, narrative chains, results — perfective is how you tell stories in Croatian",ck:function(s){return (s.vs&&s.vs.includes('lp_asp_pf'))||s.gc>=5},go:"animlesson",lessonId:"aspect-perfective"},
-    {id:"lp_gen_deep",name:"Genitive in Depth",diff:3,dur:"~12 min",cat:"grammar",icon:"📦",desc:"Possession, nema, quantities, 8 key prepositions — genitive is used more than any other case",ck:function(s){return (s.vs&&s.vs.includes('lp_gen_deep'))||s.gc>=5},go:"animlesson",lessonId:"genitive-deep"},
-    {id:"lp_dat_loc",name:"Dative & Locative",diff:3,dur:"~12 min",cat:"grammar",icon:"📍",desc:"Shared endings, recipient structures, location prepositions — two cases, one learning load",ck:function(s){return (s.vs&&s.vs.includes('lp_dat_loc'))||s.gc>=5},go:"animlesson",lessonId:"dative-locative"},
-    {id:"lp_instr",name:"Instrumental Case",diff:3,dur:"~12 min",cat:"grammar",icon:"🛠️",desc:"Tools, means, accompaniment, s/sa — the case that connects nouns to action",ck:function(s){return (s.vs&&s.vs.includes('lp_instr'))||s.gc>=5},go:"animlesson",lessonId:"instrumental"},
-    {id:"lp_reflexive",name:"SE Reflexive Verbs",diff:3,dur:"~12 min",cat:"grammar",icon:"🧲",desc:"Tuširati se, zvati se, vratiti se — the 'se' that changes everything",ck:function(s){return (s.vs&&s.vs.includes('reflexive'))||s.gc>=5},go:"reflexive"},
-    {id:"lp_vocative",name:"Vocative Case",diff:3,dur:"~10 min",cat:"grammar",icon:"📣",desc:"'Petre!' not 'Petar!' — address people directly and correctly. Natives notice every single time.",ck:function(s){return (s.vs&&s.vs.includes('vocative'))||s.gc>=6},go:"vocative"},
-    {id:"lp22",name:"Modal Verbs",diff:2,dur:"~10 min",ck:function(s){return s.gc>=6},go:"modal"},{id:"lp23",name:"Declension",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('declension'))||s.gc>=6},go:"declension"},{id:"lp24",name:"False Friends",diff:2,dur:"~10 min",ck:function(s){return (s.vs&&s.vs.includes('falsefr'))||s.lc>=20},go:"falsefr"},{id:"lp25",name:"Dialects",diff:2,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('dialects'))||s.lc>=20},go:"dialects"},{id:"lp36",name:"Conditional Mood",diff:3,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('conditional'))||s.gc>=5},go:"conditional"},{id:"lp37",name:"Impersonal",diff:3,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('impersonal'))||s.gc>=6},go:"impersonal"},{id:"lp39",name:"Clitic Pronouns",diff:3,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('clitic'))||s.gc>=6},go:"clitic"},
-    {id:"lp_svojmoj",name:"Svoj vs Moj",diff:3,dur:"~10 min",cat:"grammar",icon:"🔄",desc:"The reflexive possessive — tiny detail, huge impact on sounding natural",ck:function(s){return (s.vs&&s.vs.includes('svojmoj'))||s.gc>=7},go:"svojmoj"},
-    {id:"lp44",name:"Environment",diff:2,dur:"~10 min",ck:function(s){return (s.ct&&s.ct.includes("environment"))||s.lc>=22},go:"lesson",topic:"environment"},{id:"lp45",name:"Society & Community",diff:2,dur:"~12 min",ck:function(s){return (s.ct&&s.ct.includes("society"))||s.lc>=23},go:"lesson",topic:"society"},
-    {id:"lp_writing",name:"Write in Croatian",diff:2,dur:"~15 min",cat:"writing",icon:"✍️",desc:"Put everything together — write structured paragraphs and get real-time AI grammar feedback",ck:function(s){return (s.vs&&s.vs.includes('writing'))||s.lc>=24},go:"writing"}]},
-  {level:5,title:"Hrvat",desc:"Months 4-6",items:[
-    {id:"lp_asp_neg",name:"Aspect + Negation",diff:3,dur:"~12 min",cat:"grammar",icon:"🚫",desc:"Negation flips the default aspect rule — the rule Croatian learners get wrong longest",ck:function(s){return (s.vs&&s.vs.includes('lp_asp_neg'))||s.gc>=6},go:"animlesson",lessonId:"aspect-negation"},
-    {id:"lp26",name:"Idioms",diff:3,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('idioms'))||s.lc>=25},go:"idioms"},{id:"lp27",name:"Tongue Twisters",diff:3,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('brzalice'))||s.lc>=25},go:"brzalice"},{id:"lp28",name:"Word Formation",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('wordform'))||s.lc>=25},go:"wordform"},{id:"lp29",name:"Diminutives",diff:3,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('diminutives'))||s.lc>=28},go:"diminutives"},{id:"lp31",name:"Domovinski Rat",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('history'))||s.lc>=30},go:"history"},{id:"lp32",name:"Cook Croatian!",diff:2,dur:"~12 min",ck:function(s){return (s.vs&&s.vs.includes('recipes'))||s.lc>=30},go:"recipes"},{id:"lp33",name:"200 XP!",diff:3,dur:"~5 min",ck:function(s){return s.xp>=200},go:"dashboard"},{id:"lp38",name:"Admin Life",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('bureaucratic'))||s.lc>=28},go:"bureaucratic"},{id:"lp40",name:"Subjunctive (da + Verb)",diff:3,dur:"~12 min",ck:function(s){return s.gc>=6},go:"grammar"},{id:"lp41",name:"Listening Path",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('listeningpath'))||s.lc>=25},go:"listeningpath"}]},
-  {level:6,title:"Virtuoz",desc:"Months 7-12",items:[
-    {id:"lp50",name:"Pitch Accent",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('pitchaccent'))||s.lc>=35},go:"pitchaccent"},
-    {id:"lp51",name:"Shadowing",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('shadowing'))||s.lc>=35},go:"shadowing"},
-    {id:"lp52",name:"Aspect Drill",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('aspectdrill'))||s.lc>=35},go:"aspectdrill"},
-    // Click-through gates: vs.includes(item.id) fires immediately when item is launched via the path.
-    // Count gates (lc/gc) remain as alternative conditions for users who earned them organically.
-    {id:"lp_clitics_adv",name:"Clitics: Advanced",diff:3,dur:"~15 min",cat:"grammar",icon:"🧬",desc:"Second-position law, full internal order, double je — the rule that makes Croatian speech flow",ck:function(s){return (s.vs&&s.vs.includes('lp_clitics_adv'))||s.gc>=7},go:"animlesson",lessonId:"clitics-advanced"},
-    {id:"lp_verbal_nouns",name:"Verbal Nouns & Participles",diff:3,dur:"~15 min",cat:"grammar",icon:"📝",desc:"Gerunds (-nje/-će), active/passive/adverbial forms — the nominalization patterns of formal Croatian",ck:function(s){return (s.vs&&s.vs.includes('lp_verbal_nouns'))||s.gc>=7},go:"animlesson",lessonId:"verbal-nouns"},
-    {id:"lp53",name:"Clitics: Mastery",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp53'))||s.lc>=36},go:"clitic"},
-    {id:"lp54",name:"Grammar Constellation",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('grammarmap'))||s.gc>=7},go:"grammarmap"},
-    {id:"lp55",name:"Impersonal: Mastery",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp55'))||s.gc>=8},go:"impersonal"},
-    {id:"lp56",name:"Conditional: Mastery",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp56'))||s.gc>=8},go:"conditional"},
-    {id:"lp57",name:"Word Formation: B2",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp57'))||s.lc>=38},go:"wordform"},
-    {id:"lp58",name:"Politics Vocabulary",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp58'))||(s.ct&&s.ct.includes("civic"))||s.lc>=38},go:"lesson",topic:"civic"},
-    {id:"lp59",name:"Arts & Culture",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&s.vs.includes('lp59'))||(s.ct&&s.ct.includes("arts"))||s.lc>=38},go:"lesson",topic:"arts"},
-    {id:"lp61",name:"Croatian History",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&(s.vs.includes('history')||s.vs.includes('lp61')))||s.lc>=40},go:"history"},
-    {id:"lp62",name:"Listening Mastery",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp62'))||s.lc>=40},go:"listeningpath"},
-    {id:"lp_speaking_b2",name:"Speaking Practice",diff:3,dur:"~20 min",cat:"speaking",icon:"🗣️",desc:"Train your spoken output — complete 3 speaking sessions to develop fluency beyond reading and writing",ck:function(s){return (s.vs&&s.vs.includes('lp_speaking_b2'))||s.sp>=3},go:"speaking"},
-    {id:"lp_production_drill",name:"Production Drills",diff:3,dur:"~20 min",cat:"grammar",icon:"✍️",desc:"Move beyond recognition — transform sentences, translate to Croatian, build from word tiles, and fix real errors",ck:function(s){return (s.vs&&s.vs.includes('lp_production_drill'))||s.gc>=7||s.lc>=42},go:"production_drill"},
-    {id:"lp_pronunciation_course",name:"Pronunciation Course",diff:3,dur:"~20 min",cat:"pronunciation",icon:"🎤",desc:"Systematic phoneme-by-phoneme training — eliminate your foreign accent at the source",ck:function(s){return (s.vs&&s.vs.includes('pronunciation_course'))||s.lc>=37},go:"pronunciation_course"}
-  ]},
-  {level:7,title:"Majstor",desc:"Year 1+",items:[
-    // Click-through gates: vs.includes(item.id) fires immediately when item is launched via the path.
-    // Count gates (lc/xp) remain as alternative conditions for users who earned them organically.
-    {id:"lp63",name:"Dialects: Deep Dive",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp63'))||s.lc>=45},go:"dialects"},
-    {id:"lp64",name:"Croatian Literature",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp64'))||(s.ct&&s.ct.includes("academic writing"))||s.lc>=45},go:"lesson",topic:"academic writing"},
-    {id:"lp65",name:"Proverbs Deep Dive",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&(s.vs.includes('proverbs')||s.vs.includes('lp65')))||s.lc>=45},go:"proverbs"},
-    {id:"lp66",name:"Idioms: Expert",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp66'))||s.xp>=2000||(s.lc>=40&&s.gc>=8)},go:"idioms"},
-    {id:"lp67",name:"Abstract Language",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp67'))||(s.ct&&s.ct.includes("abstract concepts"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"abstract concepts"},
-    {id:"lp68",name:"Media Language",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp68'))||(s.ct&&s.ct.includes("academic language"))||s.xp>=2000||s.gc>=8},go:"lesson",topic:"academic language"},
-    {id:"lp69",name:"Legal Croatian",diff:3,dur:"~20 min",ck:function(s){return (s.vs&&s.vs.includes('lp69'))||(s.ct&&s.ct.includes("law"))||s.xp>=2500||s.gc>=9},go:"lesson",topic:"law"},
-    {id:"lp70",name:"Tongue Twisters: Expert",diff:3,dur:"~15 min",ck:function(s){return (s.vs&&(s.vs.includes('lp70')||s.vs.includes('pitchaccent')))||s.xp>=2500},go:"brzalice"},
-    {id:"lp_speaking_c1",name:"Conversation: C1",diff:3,dur:"~25 min",cat:"speaking",icon:"🎯",desc:"Complete 10 speaking sessions — fluent speakers don't pause to translate in their head",ck:function(s){return (s.vs&&s.vs.includes('lp_speaking_c1'))||s.sp>=10},go:"speaking"},
-    {id:"lp_pitch_mastery",name:"Pitch Accent Mastery",diff:3,dur:"~20 min",cat:"pronunciation",icon:"🔊",desc:"The final phonological frontier — 4 accent types, tonal distinctions, native-like rhythm",ck:function(s){return (s.vs&&(s.vs.includes('lp_pitch_mastery')||s.vs.includes('pitch_accent')))||s.gc>=9},go:"pitch_accent"},
-    {id:"lp_idioms_reg",name:"Idioms & Register",diff:3,dur:"~20 min",cat:"grammar",icon:"🎭",desc:"Ti/Vi shift, diminutives, discourse markers, proverbs — this is what separates functional Croatian from fluency",ck:function(s){return (s.vs&&s.vs.includes('lp_idioms_reg'))||s.xp>=2000||s.gc>=8},go:"animlesson",lessonId:"idioms-register"}
-  ]}
+  {
+    level: 1,
+    title: 'Survivor',
+    desc: 'First 48 hours',
+    items: [
+      {
+        id: 'lp1',
+        name: 'Basic Greetings',
+        diff: 1,
+        dur: '~5 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('greetings')) || s.lc >= 1;
+        },
+        go: 'lesson',
+        topic: 'greetings',
+      },
+      {
+        id: 'lp2',
+        name: 'Numbers',
+        diff: 1,
+        dur: '~5 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('numbers')) || s.lc >= 2;
+        },
+        go: 'lesson',
+        topic: 'numbers',
+      },
+      {
+        id: 'lp_listen_basics',
+        name: 'Hear Croatian',
+        cat: 'listening',
+        icon: '🎧',
+        desc: 'Train your ear — listen to basic Croatian phrases',
+        dur: '~5 min',
+        diff: 1,
+        go: 'listening',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('listening')) || s.lc >= 2;
+        },
+      },
+      {
+        id: 'lp3',
+        name: 'Emergency Phrases',
+        diff: 1,
+        dur: '~6 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('health')) || s.lc >= 3;
+        },
+        go: 'lesson',
+        topic: 'health',
+      },
+      {
+        id: 'lp4',
+        name: 'Order Food',
+        diff: 1,
+        dur: '~6 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('restaurant')) || s.lc >= 4;
+        },
+        go: 'lesson',
+        topic: 'restaurant',
+      },
+      {
+        id: 'lp5',
+        name: 'Get Around',
+        diff: 1,
+        dur: '~8 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('transport')) || s.lc >= 5;
+        },
+        go: 'lesson',
+        topic: 'transport',
+      },
+    ],
+  },
+  {
+    level: 2,
+    title: 'Settler',
+    desc: 'First week',
+    items: [
+      {
+        id: 'lp6',
+        name: 'Family Words',
+        diff: 1,
+        dur: '~8 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('family')) || s.lc >= 6;
+        },
+        go: 'lesson',
+        topic: 'family',
+      },
+      {
+        id: 'lp7',
+        name: 'School Kit',
+        diff: 1,
+        dur: '~8 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('in the classroom')) || s.lc >= 7;
+        },
+        go: 'lesson',
+        topic: 'in the classroom',
+      },
+      {
+        id: 'lp8',
+        name: 'Making Friends',
+        diff: 2,
+        dur: '~8 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('personality')) || s.lc >= 8;
+        },
+        go: 'lesson',
+        topic: 'personality',
+      },
+      {
+        id: 'lp9',
+        name: 'Grocery Shopping',
+        diff: 1,
+        dur: '~8 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('shopping')) || s.lc >= 9;
+        },
+        go: 'lesson',
+        topic: 'shopping',
+      },
+      {
+        id: 'lp10',
+        name: 'Alphabet',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('alphabet')) || s.lc >= 3;
+        },
+        go: 'alphabet',
+        topic: 'alphabet',
+      },
+      {
+        id: 'lp_phonology',
+        name: 'Sounds & Diacritics',
+        diff: 2,
+        dur: '~10 min',
+        cat: 'pronunciation',
+        icon: '🎵',
+        desc: 'Č,Ć,Š,Ž,Đ — the 5 letters that define Croatian pronunciation and how to voice them correctly',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('phonology')) || s.lc >= 4;
+        },
+        go: 'phonology',
+      },
+      {
+        id: 'lp_gender',
+        name: 'Noun Gender',
+        diff: 1,
+        dur: '~10 min',
+        cat: 'grammar',
+        icon: '⚧️',
+        desc: 'Every Croatian noun is masculine, feminine, or neuter — and the ending tells you which',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_gender')) || s.lc >= 4;
+        },
+        go: 'animlesson',
+        lessonId: 'gender',
+      },
+      {
+        id: 'lp11',
+        name: 'First Quiz',
+        diff: 1,
+        dur: '~5 min',
+        ck: function (s) {
+          return s.xp >= 50;
+        },
+        go: 'mcgame',
+      },
+    ],
+  },
+  {
+    level: 3,
+    title: 'Communicator',
+    desc: 'First month',
+    items: [
+      {
+        id: 'lp12',
+        name: 'Grammar Intro',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return s.gc >= 1;
+        },
+        go: 'grammar',
+      },
+      {
+        id: 'lp13',
+        name: 'Texting/Slang',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('texting')) || s.lc >= 10;
+        },
+        go: 'texting',
+      },
+      {
+        id: 'lp14',
+        name: 'Role-Play',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('roleplay')) || s.lc >= 10;
+        },
+        go: 'roleplay',
+      },
+      {
+        id: 'lp15',
+        name: 'Read a Story',
+        diff: 2,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('readlist')) || s.lc >= 12;
+        },
+        go: 'readlist',
+        filter: ['beginner'],
+      },
+      {
+        id: 'lp16',
+        name: 'Conjugation',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return s.gc >= 2 || s.lc >= 12;
+        },
+        go: 'conjdrill',
+      },
+      {
+        id: 'lp17',
+        name: 'Listening',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('listening')) || s.lc >= 12;
+        },
+        go: 'listening',
+      },
+      {
+        id: 'lp18',
+        name: 'Tenses & Gender',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('tenses')) || s.gc >= 3;
+        },
+        go: 'tenses',
+      },
+      {
+        id: 'lp_past_tense',
+        name: 'Past Tense',
+        diff: 2,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '⏪',
+        desc: 'Govoriti→govorio/la sam — talk about what already happened',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('past_tense_lesson')) || s.gc >= 3;
+        },
+        go: 'past_tense_lesson',
+      },
+      {
+        id: 'lp_fut_tense',
+        name: 'Future Tense',
+        diff: 2,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '⏩',
+        desc: 'Govorit ću — express plans, predictions, and intentions',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('future_tense_lesson')) || s.gc >= 4;
+        },
+        go: 'future_tense_lesson',
+      },
+      {
+        id: 'lp_adj_agree',
+        name: 'Adjective Agreement',
+        diff: 2,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '🎨',
+        desc: 'Adjectives must match noun gender, case, and number — how Croatian sentences hold together',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_adj_agree')) || s.gc >= 3;
+        },
+        go: 'animlesson',
+        lessonId: 'adjective-agreement',
+      },
+      {
+        id: 'lp_acc_deep',
+        name: 'Accusative in Depth',
+        diff: 2,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '⚖️',
+        desc: 'Animate vs inanimate, direction vs location — where Croatian gets precise',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_acc_deep')) || s.gc >= 3;
+        },
+        go: 'animlesson',
+        lessonId: 'accusative-deep',
+      },
+      {
+        id: 'lp34',
+        name: 'Vi ili ti?',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('formalregister')) || s.gc >= 3;
+        },
+        go: 'formalregister',
+      },
+      {
+        id: 'lp35',
+        name: 'Tech & Digital',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('techvoc')) || s.lc >= 12;
+        },
+        go: 'techvoc',
+      },
+      {
+        id: 'lp42',
+        name: 'Work & Career',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('work')) || s.lc >= 14;
+        },
+        go: 'lesson',
+        topic: 'work',
+      },
+      {
+        id: 'lp43',
+        name: 'Opinions & Debate',
+        diff: 2,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('opinions')) || s.lc >= 15;
+        },
+        go: 'lesson',
+        topic: 'opinions',
+      },
+    ],
+  },
+  {
+    level: 4,
+    title: 'Explorer',
+    desc: 'Months 2-3',
+    items: [
+      {
+        id: 'lp19',
+        name: '7 Cases',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return s.gc >= 4;
+        },
+        go: 'padezi',
+      },
+      {
+        id: 'lp20',
+        name: 'Padeži Master',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('padezifull')) || s.gc >= 5;
+        },
+        go: 'padezifull',
+      },
+      {
+        id: 'lp21',
+        name: 'Verb Aspect',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('aspect')) || s.gc >= 5;
+        },
+        go: 'aspect',
+      },
+      {
+        id: 'lp_asp_impf',
+        name: 'Aspect — Imperfective',
+        diff: 3,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '🔄',
+        desc: 'Ongoing, habitual, general truth — understanding imperfective is half the battle with Croatian verbs',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_asp_impf')) || s.gc >= 5;
+        },
+        go: 'animlesson',
+        lessonId: 'aspect-imperfective',
+      },
+      {
+        id: 'lp_asp_pf',
+        name: 'Aspect — Perfective',
+        diff: 3,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '✅',
+        desc: 'Completed events, narrative chains, results — perfective is how you tell stories in Croatian',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_asp_pf')) || s.gc >= 5;
+        },
+        go: 'animlesson',
+        lessonId: 'aspect-perfective',
+      },
+      {
+        id: 'lp_gen_deep',
+        name: 'Genitive in Depth',
+        diff: 3,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '📦',
+        desc: 'Possession, nema, quantities, 8 key prepositions — genitive is used more than any other case',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_gen_deep')) || s.gc >= 5;
+        },
+        go: 'animlesson',
+        lessonId: 'genitive-deep',
+      },
+      {
+        id: 'lp_dat_loc',
+        name: 'Dative & Locative',
+        diff: 3,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '📍',
+        desc: 'Shared endings, recipient structures, location prepositions — two cases, one learning load',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_dat_loc')) || s.gc >= 5;
+        },
+        go: 'animlesson',
+        lessonId: 'dative-locative',
+      },
+      {
+        id: 'lp_instr',
+        name: 'Instrumental Case',
+        diff: 3,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '🛠️',
+        desc: 'Tools, means, accompaniment, s/sa — the case that connects nouns to action',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_instr')) || s.gc >= 5;
+        },
+        go: 'animlesson',
+        lessonId: 'instrumental',
+      },
+      {
+        id: 'lp_reflexive',
+        name: 'SE Reflexive Verbs',
+        diff: 3,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '🧲',
+        desc: "Tuširati se, zvati se, vratiti se — the 'se' that changes everything",
+        ck: function (s) {
+          return (s.vs && s.vs.includes('reflexive')) || s.gc >= 5;
+        },
+        go: 'reflexive',
+      },
+      {
+        id: 'lp_vocative',
+        name: 'Vocative Case',
+        diff: 3,
+        dur: '~10 min',
+        cat: 'grammar',
+        icon: '📣',
+        desc: "'Petre!' not 'Petar!' — address people directly and correctly. Natives notice every single time.",
+        ck: function (s) {
+          return (s.vs && s.vs.includes('vocative')) || s.gc >= 6;
+        },
+        go: 'vocative',
+      },
+      {
+        id: 'lp22',
+        name: 'Modal Verbs',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return s.gc >= 6;
+        },
+        go: 'modal',
+      },
+      {
+        id: 'lp23',
+        name: 'Declension',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('declension')) || s.gc >= 6;
+        },
+        go: 'declension',
+      },
+      {
+        id: 'lp24',
+        name: 'False Friends',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('falsefr')) || s.lc >= 20;
+        },
+        go: 'falsefr',
+      },
+      {
+        id: 'lp25',
+        name: 'Dialects',
+        diff: 2,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('dialects')) || s.lc >= 20;
+        },
+        go: 'dialects',
+      },
+      {
+        id: 'lp36',
+        name: 'Conditional Mood',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('conditional')) || s.gc >= 5;
+        },
+        go: 'conditional',
+      },
+      {
+        id: 'lp37',
+        name: 'Impersonal',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('impersonal')) || s.gc >= 6;
+        },
+        go: 'impersonal',
+      },
+      {
+        id: 'lp39',
+        name: 'Clitic Pronouns',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('clitic')) || s.gc >= 6;
+        },
+        go: 'clitic',
+      },
+      {
+        id: 'lp_svojmoj',
+        name: 'Svoj vs Moj',
+        diff: 3,
+        dur: '~10 min',
+        cat: 'grammar',
+        icon: '🔄',
+        desc: 'The reflexive possessive — tiny detail, huge impact on sounding natural',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('svojmoj')) || s.gc >= 7;
+        },
+        go: 'svojmoj',
+      },
+      {
+        id: 'lp44',
+        name: 'Environment',
+        diff: 2,
+        dur: '~10 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('environment')) || s.lc >= 22;
+        },
+        go: 'lesson',
+        topic: 'environment',
+      },
+      {
+        id: 'lp45',
+        name: 'Society & Community',
+        diff: 2,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('society')) || s.lc >= 23;
+        },
+        go: 'lesson',
+        topic: 'society',
+      },
+      {
+        id: 'lp_writing',
+        name: 'Write in Croatian',
+        diff: 2,
+        dur: '~15 min',
+        cat: 'writing',
+        icon: '✍️',
+        desc: 'Put everything together — write structured paragraphs and get real-time AI grammar feedback',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('writing')) || s.lc >= 24;
+        },
+        go: 'writing',
+      },
+    ],
+  },
+  {
+    level: 5,
+    title: 'Hrvat',
+    desc: 'Months 4-6',
+    items: [
+      {
+        id: 'lp_asp_neg',
+        name: 'Aspect + Negation',
+        diff: 3,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '🚫',
+        desc: 'Negation flips the default aspect rule — the rule Croatian learners get wrong longest',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_asp_neg')) || s.gc >= 6;
+        },
+        go: 'animlesson',
+        lessonId: 'aspect-negation',
+      },
+      {
+        id: 'lp26',
+        name: 'Idioms',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('idioms')) || s.lc >= 25;
+        },
+        go: 'idioms',
+      },
+      {
+        id: 'lp27',
+        name: 'Tongue Twisters',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('brzalice')) || s.lc >= 25;
+        },
+        go: 'brzalice',
+      },
+      {
+        id: 'lp28',
+        name: 'Word Formation',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('wordform')) || s.lc >= 25;
+        },
+        go: 'wordform',
+      },
+      {
+        id: 'lp29',
+        name: 'Diminutives',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('diminutives')) || s.lc >= 28;
+        },
+        go: 'diminutives',
+      },
+      {
+        id: 'lp31',
+        name: 'Domovinski Rat',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('history')) || s.lc >= 30;
+        },
+        go: 'history',
+      },
+      {
+        id: 'lp32',
+        name: 'Cook Croatian!',
+        diff: 2,
+        dur: '~12 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('recipes')) || s.lc >= 30;
+        },
+        go: 'recipes',
+      },
+      {
+        id: 'lp33',
+        name: '200 XP!',
+        diff: 3,
+        dur: '~5 min',
+        ck: function (s) {
+          return s.xp >= 200;
+        },
+        go: 'dashboard',
+      },
+      {
+        id: 'lp38',
+        name: 'Admin Life',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('bureaucratic')) || s.lc >= 28;
+        },
+        go: 'bureaucratic',
+      },
+      {
+        id: 'lp40',
+        name: 'Subjunctive (da + Verb)',
+        diff: 3,
+        dur: '~12 min',
+        ck: function (s) {
+          return s.gc >= 6;
+        },
+        go: 'grammar',
+      },
+      {
+        id: 'lp41',
+        name: 'Listening Path',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('listeningpath')) || s.lc >= 25;
+        },
+        go: 'listeningpath',
+      },
+    ],
+  },
+  {
+    level: 6,
+    title: 'Virtuoz',
+    desc: 'Months 7-12',
+    items: [
+      {
+        id: 'lp50',
+        name: 'Pitch Accent',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('pitchaccent')) || s.lc >= 35;
+        },
+        go: 'pitchaccent',
+      },
+      {
+        id: 'lp51',
+        name: 'Shadowing',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('shadowing')) || s.lc >= 35;
+        },
+        go: 'shadowing',
+      },
+      {
+        id: 'lp52',
+        name: 'Aspect Drill',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('aspectdrill')) || s.lc >= 35;
+        },
+        go: 'aspectdrill',
+      },
+      // Click-through gates: vs.includes(item.id) fires immediately when item is launched via the path.
+      // Count gates (lc/gc) remain as alternative conditions for users who earned them organically.
+      {
+        id: 'lp_clitics_adv',
+        name: 'Clitics: Advanced',
+        diff: 3,
+        dur: '~15 min',
+        cat: 'grammar',
+        icon: '🧬',
+        desc: 'Second-position law, full internal order, double je — the rule that makes Croatian speech flow',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_clitics_adv')) || s.gc >= 7;
+        },
+        go: 'animlesson',
+        lessonId: 'clitics-advanced',
+      },
+      {
+        id: 'lp_verbal_nouns',
+        name: 'Verbal Nouns & Participles',
+        diff: 3,
+        dur: '~15 min',
+        cat: 'grammar',
+        icon: '📝',
+        desc: 'Gerunds (-nje/-će), active/passive/adverbial forms — the nominalization patterns of formal Croatian',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_verbal_nouns')) || s.gc >= 7;
+        },
+        go: 'animlesson',
+        lessonId: 'verbal-nouns',
+      },
+      {
+        id: 'lp53',
+        name: 'Clitics: Mastery',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp53')) || s.lc >= 36;
+        },
+        go: 'clitic',
+      },
+      {
+        id: 'lp54',
+        name: 'Grammar Constellation',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('grammarmap')) || s.gc >= 7;
+        },
+        go: 'grammarmap',
+      },
+      {
+        id: 'lp55',
+        name: 'Impersonal: Mastery',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp55')) || s.gc >= 8;
+        },
+        go: 'impersonal',
+      },
+      {
+        id: 'lp56',
+        name: 'Conditional: Mastery',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp56')) || s.gc >= 8;
+        },
+        go: 'conditional',
+      },
+      {
+        id: 'lp57',
+        name: 'Word Formation: B2',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp57')) || s.lc >= 38;
+        },
+        go: 'wordform',
+      },
+      {
+        id: 'lp58',
+        name: 'Politics Vocabulary',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp58')) || (s.ct && s.ct.includes('civic')) || s.lc >= 38;
+        },
+        go: 'lesson',
+        topic: 'civic',
+      },
+      {
+        id: 'lp59',
+        name: 'Arts & Culture',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp59')) || (s.ct && s.ct.includes('arts')) || s.lc >= 38;
+        },
+        go: 'lesson',
+        topic: 'arts',
+      },
+      {
+        id: 'lp61',
+        name: 'Croatian History',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (s.vs && (s.vs.includes('history') || s.vs.includes('lp61'))) || s.lc >= 40;
+        },
+        go: 'history',
+      },
+      {
+        id: 'lp62',
+        name: 'Listening Mastery',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp62')) || s.lc >= 40;
+        },
+        go: 'listeningpath',
+      },
+      {
+        id: 'lp_speaking_b2',
+        name: 'Speaking Practice',
+        diff: 3,
+        dur: '~20 min',
+        cat: 'speaking',
+        icon: '🗣️',
+        desc: 'Train your spoken output — complete 3 speaking sessions to develop fluency beyond reading and writing',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_speaking_b2')) || s.sp >= 3;
+        },
+        go: 'speaking',
+      },
+      {
+        id: 'lp_production_drill',
+        name: 'Production Drills',
+        diff: 3,
+        dur: '~20 min',
+        cat: 'grammar',
+        icon: '✍️',
+        desc: 'Move beyond recognition — transform sentences, translate to Croatian, build from word tiles, and fix real errors',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_production_drill')) || s.gc >= 7 || s.lc >= 42;
+        },
+        go: 'production_drill',
+      },
+      {
+        id: 'lp_pronunciation_course',
+        name: 'Pronunciation Course',
+        diff: 3,
+        dur: '~20 min',
+        cat: 'pronunciation',
+        icon: '🎤',
+        desc: 'Systematic phoneme-by-phoneme training — eliminate your foreign accent at the source',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('pronunciation_course')) || s.lc >= 37;
+        },
+        go: 'pronunciation_course',
+      },
+    ],
+  },
+  {
+    level: 7,
+    title: 'Majstor',
+    desc: 'Year 1+',
+    items: [
+      // Click-through gates: vs.includes(item.id) fires immediately when item is launched via the path.
+      // Count gates (lc/xp) remain as alternative conditions for users who earned them organically.
+      {
+        id: 'lp63',
+        name: 'Dialects: Deep Dive',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp63')) || s.lc >= 45;
+        },
+        go: 'dialects',
+      },
+      {
+        id: 'lp64',
+        name: 'Croatian Literature',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (
+            (s.vs && s.vs.includes('lp64')) ||
+            (s.ct && s.ct.includes('academic writing')) ||
+            s.lc >= 45
+          );
+        },
+        go: 'lesson',
+        topic: 'academic writing',
+      },
+      {
+        id: 'lp65',
+        name: 'Proverbs Deep Dive',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (s.vs && (s.vs.includes('proverbs') || s.vs.includes('lp65'))) || s.lc >= 45;
+        },
+        go: 'proverbs',
+      },
+      {
+        id: 'lp66',
+        name: 'Idioms: Expert',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp66')) || s.xp >= 2000 || (s.lc >= 40 && s.gc >= 8);
+        },
+        go: 'idioms',
+      },
+      {
+        id: 'lp67',
+        name: 'Abstract Language',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (
+            (s.vs && s.vs.includes('lp67')) ||
+            (s.ct && s.ct.includes('abstract concepts')) ||
+            s.xp >= 2000 ||
+            s.gc >= 8
+          );
+        },
+        go: 'lesson',
+        topic: 'abstract concepts',
+      },
+      {
+        id: 'lp68',
+        name: 'Media Language',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (
+            (s.vs && s.vs.includes('lp68')) ||
+            (s.ct && s.ct.includes('academic language')) ||
+            s.xp >= 2000 ||
+            s.gc >= 8
+          );
+        },
+        go: 'lesson',
+        topic: 'academic language',
+      },
+      {
+        id: 'lp69',
+        name: 'Legal Croatian',
+        diff: 3,
+        dur: '~20 min',
+        ck: function (s) {
+          return (
+            (s.vs && s.vs.includes('lp69')) ||
+            (s.ct && s.ct.includes('law')) ||
+            s.xp >= 2500 ||
+            s.gc >= 9
+          );
+        },
+        go: 'lesson',
+        topic: 'law',
+      },
+      {
+        id: 'lp70',
+        name: 'Tongue Twisters: Expert',
+        diff: 3,
+        dur: '~15 min',
+        ck: function (s) {
+          return (s.vs && (s.vs.includes('lp70') || s.vs.includes('pitchaccent'))) || s.xp >= 2500;
+        },
+        go: 'brzalice',
+      },
+      {
+        id: 'lp_speaking_c1',
+        name: 'Conversation: C1',
+        diff: 3,
+        dur: '~25 min',
+        cat: 'speaking',
+        icon: '🎯',
+        desc: "Complete 10 speaking sessions — fluent speakers don't pause to translate in their head",
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_speaking_c1')) || s.sp >= 10;
+        },
+        go: 'speaking',
+      },
+      {
+        id: 'lp_pitch_mastery',
+        name: 'Pitch Accent Mastery',
+        diff: 3,
+        dur: '~20 min',
+        cat: 'pronunciation',
+        icon: '🔊',
+        desc: 'The final phonological frontier — 4 accent types, tonal distinctions, native-like rhythm',
+        ck: function (s) {
+          return (
+            (s.vs && (s.vs.includes('lp_pitch_mastery') || s.vs.includes('pitch_accent'))) ||
+            s.gc >= 9
+          );
+        },
+        go: 'pitch_accent',
+      },
+      {
+        id: 'lp_idioms_reg',
+        name: 'Idioms & Register',
+        diff: 3,
+        dur: '~20 min',
+        cat: 'grammar',
+        icon: '🎭',
+        desc: 'Ti/Vi shift, diminutives, discourse markers, proverbs — this is what separates functional Croatian from fluency',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_idioms_reg')) || s.xp >= 2000 || s.gc >= 8;
+        },
+        go: 'animlesson',
+        lessonId: 'idioms-register',
+      },
+    ],
+  },
 ];
 // ═══ REFLEXIVE VERBS ═══
 const REFLEXIVE = {
-  title:"Povratni Glagoli",
-  intro:"Reflexive verbs use SE (oneself). In Croatian, SE moves around in the sentence but never starts it.",
-  verbs:[
-    {inf:"tuširati se",en:"to shower",forms:{ja:"tuširam se",ti:"tuširaš se",on:"tušira se",mi:"tuširamo se",vi:"tuširate se",oni:"tuširaju se"},past:{m:"tuširao sam se",f:"tuširala sam se"}},
-    {inf:"obući se",en:"to get dressed",forms:{ja:"obučem se",ti:"obučeš se",on:"obuče se",mi:"obučemo se",vi:"obučete se",oni:"obuku se"},past:{m:"obukao sam se",f:"obukla sam se"}},
-    {inf:"obuti se",en:"to put on shoes",forms:{ja:"obujem se",ti:"obuješ se",on:"obuje se",mi:"obujemo se",vi:"obujete se",oni:"obuju se"},past:{m:"obuo sam se",f:"obula sam se"}},
-    {inf:"obrijati se",en:"to shave",forms:{ja:"obrijem se",ti:"obriješ se",on:"obrije se",mi:"obrijemo se",vi:"obrijete se",oni:"obriju se"},past:{m:"obrijao sam se",f:"obrijala sam se"}},
-    {inf:"počešljati se",en:"to comb hair",forms:{ja:"počešljam se",ti:"počešljaš se",on:"počešlja se",mi:"počešljamo se",vi:"počešljate se",oni:"počešljaju se"},past:{m:"počešljao sam se",f:"počešljala sam se"}},
-    {inf:"vratiti se",en:"to return",forms:{ja:"vratim se",ti:"vratiš se",on:"vrati se",mi:"vratimo se",vi:"vratite se",oni:"vrate se"},past:{m:"vratio sam se",f:"vratila sam se"}},
-    {inf:"koncentrirati se",en:"to concentrate",forms:{ja:"koncentriram se",ti:"koncentriraš se",on:"koncentrira se",mi:"koncentriramo se",vi:"koncentrirate se",oni:"koncentriraju se"},past:{m:"koncentrirao sam se",f:"koncentrirala sam se"}},
-    {inf:"probuditi se",en:"to wake up",forms:{ja:"probudim se",ti:"probudiš se",on:"probudi se",mi:"probudimo se",vi:"probudite se",oni:"probude se"},past:{m:"probudio sam se",f:"probudila sam se"}}
+  title: 'Povratni Glagoli',
+  intro:
+    'Reflexive verbs use SE (oneself). In Croatian, SE moves around in the sentence but never starts it.',
+  verbs: [
+    {
+      inf: 'tuširati se',
+      en: 'to shower',
+      forms: {
+        ja: 'tuširam se',
+        ti: 'tuširaš se',
+        on: 'tušira se',
+        mi: 'tuširamo se',
+        vi: 'tuširate se',
+        oni: 'tuširaju se',
+      },
+      past: { m: 'tuširao sam se', f: 'tuširala sam se' },
+    },
+    {
+      inf: 'obući se',
+      en: 'to get dressed',
+      forms: {
+        ja: 'obučem se',
+        ti: 'obučeš se',
+        on: 'obuče se',
+        mi: 'obučemo se',
+        vi: 'obučete se',
+        oni: 'obuku se',
+      },
+      past: { m: 'obukao sam se', f: 'obukla sam se' },
+    },
+    {
+      inf: 'obuti se',
+      en: 'to put on shoes',
+      forms: {
+        ja: 'obujem se',
+        ti: 'obuješ se',
+        on: 'obuje se',
+        mi: 'obujemo se',
+        vi: 'obujete se',
+        oni: 'obuju se',
+      },
+      past: { m: 'obuo sam se', f: 'obula sam se' },
+    },
+    {
+      inf: 'obrijati se',
+      en: 'to shave',
+      forms: {
+        ja: 'obrijem se',
+        ti: 'obriješ se',
+        on: 'obrije se',
+        mi: 'obrijemo se',
+        vi: 'obrijete se',
+        oni: 'obriju se',
+      },
+      past: { m: 'obrijao sam se', f: 'obrijala sam se' },
+    },
+    {
+      inf: 'počešljati se',
+      en: 'to comb hair',
+      forms: {
+        ja: 'počešljam se',
+        ti: 'počešljaš se',
+        on: 'počešlja se',
+        mi: 'počešljamo se',
+        vi: 'počešljate se',
+        oni: 'počešljaju se',
+      },
+      past: { m: 'počešljao sam se', f: 'počešljala sam se' },
+    },
+    {
+      inf: 'vratiti se',
+      en: 'to return',
+      forms: {
+        ja: 'vratim se',
+        ti: 'vratiš se',
+        on: 'vrati se',
+        mi: 'vratimo se',
+        vi: 'vratite se',
+        oni: 'vrate se',
+      },
+      past: { m: 'vratio sam se', f: 'vratila sam se' },
+    },
+    {
+      inf: 'koncentrirati se',
+      en: 'to concentrate',
+      forms: {
+        ja: 'koncentriram se',
+        ti: 'koncentriraš se',
+        on: 'koncentrira se',
+        mi: 'koncentriramo se',
+        vi: 'koncentrirate se',
+        oni: 'koncentriraju se',
+      },
+      past: { m: 'koncentrirao sam se', f: 'koncentrirala sam se' },
+    },
+    {
+      inf: 'probuditi se',
+      en: 'to wake up',
+      forms: {
+        ja: 'probudim se',
+        ti: 'probudiš se',
+        on: 'probudi se',
+        mi: 'probudimo se',
+        vi: 'probudite se',
+        oni: 'probude se',
+      },
+      past: { m: 'probudio sam se', f: 'probudila sam se' },
+    },
   ],
-  rules:[
-    {rule:"SE never opens a sentence",icon:"🚫",bad:"Se tuširam svaki dan.",good:"Tuširam se svaki dan.",note:"SE is a clitic — it must attach after the first stressed word or phrase."},
-    {rule:"Present tense: SE follows the verb",icon:"✅",bad:"Ja se vraćam kući.",good:"Vraćam se kući.",note:"The subject pronoun (ja/ti/on) is usually dropped. SE attaches right after the verb."},
-    {rule:"Past tense: auxiliary comes before SE",icon:"📌",bad:"Tuširali se su.",good:"Tuširali su se.",note:"Clitics stack in order: [aux] [se] — never swap them. 'Sam/si/je/smo/ste/su' always beats SE."},
-    {rule:"Future tense: SE follows ću/ćeš/će...",icon:"🔮",bad:"Se tuširaću.",good:"Tuširat ću se.",note:"In future, the ću-form comes second, SE comes after: 'Tuširat ću se', 'Obući ćeš se'."},
-    {rule:"Negative: NE attaches to the verb",icon:"✅",bad:"Se ne mogu koncentrirati.",good:"Ne mogu se koncentrirati.",note:"NE fuses with the verb. SE stays in its normal position after the conjugated verb. 'Ne mogu se koncentrirati' is more common in everyday speech; 'Ne se mogu koncentrirati' is also standard and found in literature."},
-    {rule:"Questions work the same way",icon:"❓",bad:"Se jesi umorio?",good:"Jesi li se umorio?",note:"LI follows the auxiliary. SE stays after the auxiliary: 'Jesi li se tuširao?'"}
+  rules: [
+    {
+      rule: 'SE never opens a sentence',
+      icon: '🚫',
+      bad: 'Se tuširam svaki dan.',
+      good: 'Tuširam se svaki dan.',
+      note: 'SE is a clitic — it must attach after the first stressed word or phrase.',
+    },
+    {
+      rule: 'Present tense: SE follows the verb',
+      icon: '✅',
+      bad: 'Ja se vraćam kući.',
+      good: 'Vraćam se kući.',
+      note: 'The subject pronoun (ja/ti/on) is usually dropped. SE attaches right after the verb.',
+    },
+    {
+      rule: 'Past tense: auxiliary comes before SE',
+      icon: '📌',
+      bad: 'Tuširali se su.',
+      good: 'Tuširali su se.',
+      note: "Clitics stack in order: [aux] [se] — never swap them. 'Sam/si/je/smo/ste/su' always beats SE.",
+    },
+    {
+      rule: 'Future tense: SE follows ću/ćeš/će...',
+      icon: '🔮',
+      bad: 'Se tuširaću.',
+      good: 'Tuširat ću se.',
+      note: "In future, the ću-form comes second, SE comes after: 'Tuširat ću se', 'Obući ćeš se'.",
+    },
+    {
+      rule: 'Negative: NE attaches to the verb',
+      icon: '✅',
+      bad: 'Se ne mogu koncentrirati.',
+      good: 'Ne mogu se koncentrirati.',
+      note: "NE fuses with the verb. SE stays in its normal position after the conjugated verb. 'Ne mogu se koncentrirati' is more common in everyday speech; 'Ne se mogu koncentrirati' is also standard and found in literature.",
+    },
+    {
+      rule: 'Questions work the same way',
+      icon: '❓',
+      bad: 'Se jesi umorio?',
+      good: 'Jesi li se umorio?',
+      note: "LI follows the auxiliary. SE stays after the auxiliary: 'Jesi li se tuširao?'",
+    },
   ],
-  tenseExamples:[
-    {verb:"tuširati se",en:"to shower",
-      present:{hr:"Tuširam se svako jutro.",en:"I shower every morning."},
-      past:{hr:"Tuširao sam se prije treninga.",en:"I showered before training."},
-      future:{hr:"Tuširat ću se poslije.",en:"I will shower afterwards."},
-      negative:{hr:"Ne tuširam se hladnom vodom.",en:"I don't shower in cold water."}},
-    {verb:"obući se",en:"to get dressed",
-      present:{hr:"Obučem se za deset minuta.",en:"I get dressed in ten minutes."},
-      past:{hr:"Obukla se i otišla.",en:"She got dressed and left."},
-      future:{hr:"Obući ćeš se toplo.",en:"You will dress warmly."},
-      negative:{hr:"Nije se još obukao.",en:"He hasn't gotten dressed yet."}},
-    {verb:"vratiti se",en:"to return",
-      present:{hr:"Vraćamo se kući u pet.",en:"We return home at five."},
-      past:{hr:"Vratio sam se kasno.",en:"I returned late."},
-      future:{hr:"Vratit će se sutra.",en:"He will return tomorrow."},
-      negative:{hr:"Nismo se još vratili.",en:"We haven't returned yet."}},
-    {verb:"probuditi se",en:"to wake up",
-      present:{hr:"Probudim se u sedam.",en:"I wake up at seven."},
-      past:{hr:"Probudila se rano.",en:"She woke up early."},
-      future:{hr:"Probudit ćemo se zajedno.",en:"We will wake up together."},
-      negative:{hr:"Nije se probudio na alarm.",en:"He didn't wake up to the alarm."}},
-    {verb:"koncentrirati se",en:"to concentrate",
-      present:{hr:"Ne mogu se koncentrirati.",en:"I can't concentrate."},
-      past:{hr:"Koncentrirali su se na zadatak.",en:"They concentrated on the task."},
-      future:{hr:"Koncentrirat ćeš se bolje.",en:"You will concentrate better."},
-      negative:{hr:"Djeca se ne mogu koncentrirati.",en:"Children can't concentrate."}}
+  tenseExamples: [
+    {
+      verb: 'tuširati se',
+      en: 'to shower',
+      present: { hr: 'Tuširam se svako jutro.', en: 'I shower every morning.' },
+      past: { hr: 'Tuširao sam se prije treninga.', en: 'I showered before training.' },
+      future: { hr: 'Tuširat ću se poslije.', en: 'I will shower afterwards.' },
+      negative: { hr: 'Ne tuširam se hladnom vodom.', en: "I don't shower in cold water." },
+    },
+    {
+      verb: 'obući se',
+      en: 'to get dressed',
+      present: { hr: 'Obučem se za deset minuta.', en: 'I get dressed in ten minutes.' },
+      past: { hr: 'Obukla se i otišla.', en: 'She got dressed and left.' },
+      future: { hr: 'Obući ćeš se toplo.', en: 'You will dress warmly.' },
+      negative: { hr: 'Nije se još obukao.', en: "He hasn't gotten dressed yet." },
+    },
+    {
+      verb: 'vratiti se',
+      en: 'to return',
+      present: { hr: 'Vraćamo se kući u pet.', en: 'We return home at five.' },
+      past: { hr: 'Vratio sam se kasno.', en: 'I returned late.' },
+      future: { hr: 'Vratit će se sutra.', en: 'He will return tomorrow.' },
+      negative: { hr: 'Nismo se još vratili.', en: "We haven't returned yet." },
+    },
+    {
+      verb: 'probuditi se',
+      en: 'to wake up',
+      present: { hr: 'Probudim se u sedam.', en: 'I wake up at seven.' },
+      past: { hr: 'Probudila se rano.', en: 'She woke up early.' },
+      future: { hr: 'Probudit ćemo se zajedno.', en: 'We will wake up together.' },
+      negative: { hr: 'Nije se probudio na alarm.', en: "He didn't wake up to the alarm." },
+    },
+    {
+      verb: 'koncentrirati se',
+      en: 'to concentrate',
+      present: { hr: 'Ne mogu se koncentrirati.', en: "I can't concentrate." },
+      past: { hr: 'Koncentrirali su se na zadatak.', en: 'They concentrated on the task.' },
+      future: { hr: 'Koncentrirat ćeš se bolje.', en: 'You will concentrate better.' },
+      negative: { hr: 'Djeca se ne mogu koncentrirati.', en: "Children can't concentrate." },
+    },
   ],
-  quiz:[
-    {q:"I woke up at seven.",a:"Probudio sam se u sedam.",opts:["Probudio sam se u sedam.","Probudim sam se u sedam.","Se probudio sam u sedam."]},
-    {q:"She got dressed quickly.",a:"Brzo se obukla.",opts:["Brzo se obukla.","Brzo obukla se.","Se brzo obukla."]},
-    {q:"We returned home.",a:"Vratili smo se kući.",opts:["Vratili smo se kući.","Se vratili smo kući.","Vratili se smo kući."]},
-    {q:"He shaved this morning.",a:"Obrijao se jutros.",opts:["Obrijao se jutros.","Se obrijao jutros.","Jutros obrijao se."]},
-    {q:"I can't concentrate.",a:"Ne mogu se koncentrirati.",opts:["Ne mogu se koncentrirati.","Se ne mogu koncentrirati.","Mogu se ne koncentrirati."]},
-    {q:"They showered after the gym.",a:"Tuširali su se nakon teretane.",opts:["Tuširali su se nakon teretane.","Se tuširali su nakon teretane.","Tuširali će su nakon teretane."]},
-    {q:"She combs her hair every morning.",a:"Počešlja se svako jutro.",opts:["Počešlja se svako jutro.","Se počešlja svako jutro.","Počešlja svako jutro se."]},
-    {q:"Will you get dressed now? (ti)",a:"Obući ćeš se sada?",opts:["Obući ćeš se sada?","Se obući ćeš sada?","Obući se ćeš sada?"]},
-    {q:"We will return soon.",a:"Vratit ćemo se uskoro.",opts:["Vratit ćemo se uskoro.","Se vratit ćemo uskoro.","Vratit se ćemo uskoro."]},
-    {q:"Did you shower? (ti)",a:"Jesi li se tuširao?",opts:["Jesi li se tuširao?","Se jesi li tuširao?","Jesi se li tuširao?"]}
-  ]
+  quiz: [
+    {
+      q: 'I woke up at seven.',
+      a: 'Probudio sam se u sedam.',
+      opts: ['Probudio sam se u sedam.', 'Probudim sam se u sedam.', 'Se probudio sam u sedam.'],
+    },
+    {
+      q: 'She got dressed quickly.',
+      a: 'Brzo se obukla.',
+      opts: ['Brzo se obukla.', 'Brzo obukla se.', 'Se brzo obukla.'],
+    },
+    {
+      q: 'We returned home.',
+      a: 'Vratili smo se kući.',
+      opts: ['Vratili smo se kući.', 'Se vratili smo kući.', 'Vratili se smo kući.'],
+    },
+    {
+      q: 'He shaved this morning.',
+      a: 'Obrijao se jutros.',
+      opts: ['Obrijao se jutros.', 'Se obrijao jutros.', 'Jutros obrijao se.'],
+    },
+    {
+      q: "I can't concentrate.",
+      a: 'Ne mogu se koncentrirati.',
+      opts: ['Ne mogu se koncentrirati.', 'Se ne mogu koncentrirati.', 'Mogu se ne koncentrirati.'],
+    },
+    {
+      q: 'They showered after the gym.',
+      a: 'Tuširali su se nakon teretane.',
+      opts: [
+        'Tuširali su se nakon teretane.',
+        'Se tuširali su nakon teretane.',
+        'Tuširali će su nakon teretane.',
+      ],
+    },
+    {
+      q: 'She combs her hair every morning.',
+      a: 'Počešlja se svako jutro.',
+      opts: ['Počešlja se svako jutro.', 'Se počešlja svako jutro.', 'Počešlja svako jutro se.'],
+    },
+    {
+      q: 'Will you get dressed now? (ti)',
+      a: 'Obući ćeš se sada?',
+      opts: ['Obući ćeš se sada?', 'Se obući ćeš sada?', 'Obući se ćeš sada?'],
+    },
+    {
+      q: 'We will return soon.',
+      a: 'Vratit ćemo se uskoro.',
+      opts: ['Vratit ćemo se uskoro.', 'Se vratit ćemo uskoro.', 'Vratit se ćemo uskoro.'],
+    },
+    {
+      q: 'Did you shower? (ti)',
+      a: 'Jesi li se tuširao?',
+      opts: ['Jesi li se tuširao?', 'Se jesi li tuširao?', 'Jesi se li tuširao?'],
+    },
+  ],
 };
 // ═══ SVOJ vs MOJ ═══
 const SVOJMOJ = {
-  title:"Svoj vs Moj",
-  intro:"In Croatian, 'svoj' (reflexive possessive) always refers back to the subject of the sentence. Using 'moj/tvoj/njegov' when 'svoj' is correct sounds unnatural — native speakers notice immediately.",
-  rule:"Use SVOJ when the possessor IS the subject of the sentence. Use MOJ/TVOJ/NJEGOV when referring to someone ELSE's item.",
-  pairs:[
-    {wrong:"Uzeo je njegov kaput.",right:"Uzeo je svoj kaput.",note:"Subject 'he' took HIS OWN coat → svoj. 'Njegov' would mean he took someone else's coat."},
-    {wrong:"Ona voli njezin pas.",right:"Ona voli svojeg psa.",note:"She loves HER OWN dog → svojeg. 'Njezin' implies the dog belongs to someone else."},
-    {wrong:"Idemo u naš stan.",right:"Idemo u svoj stan.",note:"We are going to OUR OWN apartment → svoj. 'Naš' could work too but 'svoj' is more natural."},
-    {wrong:"Zaboravila sam moj ključ.",right:"Zaboravila sam svoj ključ.",note:"I forgot MY OWN key → svoj. 'Moj' here is technically wrong in standard Croatian."},
-    {wrong:"Kupit će tvoj auto.",right:"Kupit će svoj auto.",note:"He will buy HIS OWN car → svoj. 'Tvoj' means he's buying YOUR car."},
-    {wrong:"Pišeš li tvoj zadatak?",right:"Pišeš li svoj zadatak?",note:"Are you writing YOUR OWN homework? → svoj. 'Tvoj' is redundant when you're the subject."}
+  title: 'Svoj vs Moj',
+  intro:
+    "In Croatian, 'svoj' (reflexive possessive) always refers back to the subject of the sentence. Using 'moj/tvoj/njegov' when 'svoj' is correct sounds unnatural — native speakers notice immediately.",
+  rule: "Use SVOJ when the possessor IS the subject of the sentence. Use MOJ/TVOJ/NJEGOV when referring to someone ELSE's item.",
+  pairs: [
+    {
+      wrong: 'Uzeo je njegov kaput.',
+      right: 'Uzeo je svoj kaput.',
+      note: "Subject 'he' took HIS OWN coat → svoj. 'Njegov' would mean he took someone else's coat.",
+    },
+    {
+      wrong: 'Ona voli njezin pas.',
+      right: 'Ona voli svojeg psa.',
+      note: "She loves HER OWN dog → svojeg. 'Njezin' implies the dog belongs to someone else.",
+    },
+    {
+      wrong: 'Idemo u naš stan.',
+      right: 'Idemo u svoj stan.',
+      note: "We are going to OUR OWN apartment → svoj. 'Naš' could work too but 'svoj' is more natural.",
+    },
+    {
+      wrong: 'Zaboravila sam moj ključ.',
+      right: 'Zaboravila sam svoj ključ.',
+      note: "I forgot MY OWN key → svoj. 'Moj' here is technically wrong in standard Croatian.",
+    },
+    {
+      wrong: 'Kupit će tvoj auto.',
+      right: 'Kupit će svoj auto.',
+      note: "He will buy HIS OWN car → svoj. 'Tvoj' means he's buying YOUR car.",
+    },
+    {
+      wrong: 'Pišeš li tvoj zadatak?',
+      right: 'Pišeš li svoj zadatak?',
+      note: "Are you writing YOUR OWN homework? → svoj. 'Tvoj' is redundant when you're the subject.",
+    },
   ],
-  forms:[
-    {case:"Nominative",m:"svoj",f:"svoja",n:"svoje",pl:"svoji/svoje"},
-    {case:"Genitive",m:"svojeg/svog",f:"svoje",n:"svojeg/svog",pl:"svojih"},
-    {case:"Dative",m:"svojem/svom",f:"svojoj",n:"svojem/svom",pl:"svojim"},
-    {case:"Accusative (animate)",m:"svojeg/svog",f:"svoju",n:"svoje",pl:"svoje/svoja"},
-    {case:"Instrumental",m:"svojim",f:"svojom",n:"svojim",pl:"svojim"},
-    {case:"Locative",m:"svojem/svom",f:"svojoj",n:"svojem/svom",pl:"svojim"}
+  forms: [
+    { case: 'Nominative', m: 'svoj', f: 'svoja', n: 'svoje', pl: 'svoji/svoje' },
+    { case: 'Genitive', m: 'svojeg/svog', f: 'svoje', n: 'svojeg/svog', pl: 'svojih' },
+    { case: 'Dative', m: 'svojem/svom', f: 'svojoj', n: 'svojem/svom', pl: 'svojim' },
+    { case: 'Accusative (animate)', m: 'svojeg/svog', f: 'svoju', n: 'svoje', pl: 'svoje/svoja' },
+    { case: 'Instrumental', m: 'svojim', f: 'svojom', n: 'svojim', pl: 'svojim' },
+    { case: 'Locative', m: 'svojem/svom', f: 'svojoj', n: 'svojem/svom', pl: 'svojim' },
   ],
-  exceptions:[
-    {text:"When the subject IS 'ja' and the sentence is simple present, both 'moj' and 'svoj' sound natural: 'Imam moj/svoj bicikl.'",icon:"💡"},
-    {text:"In questions where the subject is unclear, 'moj/tvoj' may be used for clarity: 'Je li to tvoj ili njegov?'",icon:"💡"},
-    {text:"After prepositions in set phrases: 'u svojoj koži' (in one's skin), 'biti svoj čovjek' (to be one's own person).",icon:"📌"}
+  exceptions: [
+    {
+      text: "When the subject IS 'ja' and the sentence is simple present, both 'moj' and 'svoj' sound natural: 'Imam moj/svoj bicikl.'",
+      icon: '💡',
+    },
+    {
+      text: "In questions where the subject is unclear, 'moj/tvoj' may be used for clarity: 'Je li to tvoj ili njegov?'",
+      icon: '💡',
+    },
+    {
+      text: "After prepositions in set phrases: 'u svojoj koži' (in one's skin), 'biti svoj čovjek' (to be one's own person).",
+      icon: '📌',
+    },
   ],
-  quiz:[
-    {q:"She forgot _____ keys. (her own)",a:"svoje",opts:["njezine","svoje","moje"],note:"Subject 'she' → svoje"},
-    {q:"He is washing _____ car. (his own)",a:"svoj",opts:["njegov","tvoj","svoj"],note:"Subject 'he' → svoj"},
-    {q:"We love _____ city. (our own)",a:"svoj",opts:["naš","njihov","svoj"],note:"Subject 'we' → svoj"},
-    {q:"Are you doing _____ homework? (your own)",a:"svoj",opts:["tvoj","njegov","svoj"],note:"Subject 'you' → svoj"},
-    {q:"They packed _____ bags. (their own)",a:"svoje",opts:["njihove","naše","svoje"],note:"Subject 'they' → svoje"},
-    {q:"I left _____ phone at home. (my own)",a:"svoj",opts:["moj","tvoj","svoj"],note:"Subject 'I' → svoj"},
-    {q:"Ivan pije _____ kavu. (his own coffee)",a:"svoju",opts:["njegovu","tvoju","svoju"],note:"Ivan is the subject, so his own coffee = svoju (acc, fem)"},
-    {q:"Ana voli _____ posao. (her own job)",a:"svoj",opts:["njezin","moj","svoj"],note:"Ana is the subject, posao is masc → svoj"},
-    {q:"Djeca čuvaju _____ igračke. (their own toys)",a:"svoje",opts:["njihove","naše","svoje"],note:"Djeca are the subject → svoje (neuter pl = svoje)"},
-    {q:"Uzeo je _____ kaput i otišao. (his own coat)",a:"svoj",opts:["njegov","moj","svoj"],note:"He (subject) took HIS OWN coat — 'njegov' would mean someone else's"},
-    {q:"Zaboravila sam _____ ključeve. (my own keys)",a:"svoje",opts:["moje","tvoje","svoje"],note:"I (subject) forgot MY OWN keys — use svoje"},
-    {q:"Volim _____ obitelj. (my own family)",a:"svoju",opts:["moju","njezinu","svoju"],note:"I am the subject — use svoju (acc, fem)"},
-    {q:"Ona ne voli _____ brata. (her own brother — correct Croatian)",a:"svog",opts:["njezin","svog","mog"],note:"She (subject) doesn't like HER OWN brother → svog (gen/acc masc)"},
-    {q:"'Uzeo je njegov auto' means:",a:"He took SOMEONE ELSE'S car",opts:["He took his own car","He took SOMEONE ELSE'S car","He bought a car"],note:"'Njegov' refers to a different person's possession"},
-    {q:"When should you use MOJE instead of SVOJE?",a:"When referring to someone else's item from your perspective",opts:["Never — always use svoje","When referring to someone else's item from your perspective","When the subject is 'ja'"],note:"Moj/tvoj/njegov are for possession not linked to the sentence subject"}
-  ]
+  quiz: [
+    {
+      q: 'She forgot _____ keys. (her own)',
+      a: 'svoje',
+      opts: ['njezine', 'svoje', 'moje'],
+      note: "Subject 'she' → svoje",
+    },
+    {
+      q: 'He is washing _____ car. (his own)',
+      a: 'svoj',
+      opts: ['njegov', 'tvoj', 'svoj'],
+      note: "Subject 'he' → svoj",
+    },
+    {
+      q: 'We love _____ city. (our own)',
+      a: 'svoj',
+      opts: ['naš', 'njihov', 'svoj'],
+      note: "Subject 'we' → svoj",
+    },
+    {
+      q: 'Are you doing _____ homework? (your own)',
+      a: 'svoj',
+      opts: ['tvoj', 'njegov', 'svoj'],
+      note: "Subject 'you' → svoj",
+    },
+    {
+      q: 'They packed _____ bags. (their own)',
+      a: 'svoje',
+      opts: ['njihove', 'naše', 'svoje'],
+      note: "Subject 'they' → svoje",
+    },
+    {
+      q: 'I left _____ phone at home. (my own)',
+      a: 'svoj',
+      opts: ['moj', 'tvoj', 'svoj'],
+      note: "Subject 'I' → svoj",
+    },
+    {
+      q: 'Ivan pije _____ kavu. (his own coffee)',
+      a: 'svoju',
+      opts: ['njegovu', 'tvoju', 'svoju'],
+      note: 'Ivan is the subject, so his own coffee = svoju (acc, fem)',
+    },
+    {
+      q: 'Ana voli _____ posao. (her own job)',
+      a: 'svoj',
+      opts: ['njezin', 'moj', 'svoj'],
+      note: 'Ana is the subject, posao is masc → svoj',
+    },
+    {
+      q: 'Djeca čuvaju _____ igračke. (their own toys)',
+      a: 'svoje',
+      opts: ['njihove', 'naše', 'svoje'],
+      note: 'Djeca are the subject → svoje (neuter pl = svoje)',
+    },
+    {
+      q: 'Uzeo je _____ kaput i otišao. (his own coat)',
+      a: 'svoj',
+      opts: ['njegov', 'moj', 'svoj'],
+      note: "He (subject) took HIS OWN coat — 'njegov' would mean someone else's",
+    },
+    {
+      q: 'Zaboravila sam _____ ključeve. (my own keys)',
+      a: 'svoje',
+      opts: ['moje', 'tvoje', 'svoje'],
+      note: 'I (subject) forgot MY OWN keys — use svoje',
+    },
+    {
+      q: 'Volim _____ obitelj. (my own family)',
+      a: 'svoju',
+      opts: ['moju', 'njezinu', 'svoju'],
+      note: 'I am the subject — use svoju (acc, fem)',
+    },
+    {
+      q: 'Ona ne voli _____ brata. (her own brother — correct Croatian)',
+      a: 'svog',
+      opts: ['njezin', 'svog', 'mog'],
+      note: "She (subject) doesn't like HER OWN brother → svog (gen/acc masc)",
+    },
+    {
+      q: "'Uzeo je njegov auto' means:",
+      a: "He took SOMEONE ELSE'S car",
+      opts: ['He took his own car', "He took SOMEONE ELSE'S car", 'He bought a car'],
+      note: "'Njegov' refers to a different person's possession",
+    },
+    {
+      q: 'When should you use MOJE instead of SVOJE?',
+      a: "When referring to someone else's item from your perspective",
+      opts: [
+        'Never — always use svoje',
+        "When referring to someone else's item from your perspective",
+        "When the subject is 'ja'",
+      ],
+      note: 'Moj/tvoj/njegov are for possession not linked to the sentence subject',
+    },
+  ],
 };
 // ═══ BASKETBALL PRACTICE ═══
 // ═══ AT THE GYM ═══
 // ═══ SCENE DESCRIPTION EXERCISES ═══
 const SCENES = [
-  {title:"U kuhinji",desc:"A family scene in the kitchen",qs:[
-    {q:"Gdje su ljudi?",hint:"u",a:"kuhinji",en:"Where are the people? In the kitchen."},
-    {q:"Što mama radi?",hint:"",a:"pere suđe",en:"What is mom doing? Washing dishes."},
-    {q:"Što djeca rade?",hint:"",a:"igraju se",en:"What are the children doing? Playing."}
-  ]},
-  {title:"U parku",desc:"A sunny day at the park",qs:[
-    {q:"Kakvo je vrijeme?",hint:"",a:"sunčano",en:"What's the weather like? Sunny."},
-    {q:"Što dječak vozi?",hint:"",a:"bicikl",en:"What is the boy riding? A bicycle."},
-    {q:"Gdje je pas?",hint:"u",a:"vodi",en:"Where is the dog? In the water."}
-  ]},
-  {title:"U školi",desc:"A classroom during a lesson",qs:[
-    {q:"Tko stoji ispred ploče?",hint:"",a:"učiteljica",en:"Who stands in front of the board? The teacher."},
-    {q:"Što djeca rade?",hint:"",a:"pišu",en:"What are the children doing? Writing."},
-    {q:"Je li učionica velika ili mala?",hint:"",a:"velika",en:"Is the classroom big or small? Big."}
-  ]},
-  {title:"Na plaži",desc:"Summer vacation at the beach",qs:[
-    {q:"Što radi djevojčica?",hint:"",a:"pliva",en:"What is the girl doing? Swimming."},
-    {q:"Gdje je suncobran?",hint:"na",a:"pijesku",en:"Where is the umbrella? On the sand."},
-    {q:"Je li more mirno ili nemirno?",hint:"",a:"mirno",en:"Is the sea calm or rough? Calm."}
-  ]}
+  {
+    title: 'U kuhinji',
+    desc: 'A family scene in the kitchen',
+    qs: [
+      { q: 'Gdje su ljudi?', hint: 'u', a: 'kuhinji', en: 'Where are the people? In the kitchen.' },
+      { q: 'Što mama radi?', hint: '', a: 'pere suđe', en: 'What is mom doing? Washing dishes.' },
+      {
+        q: 'Što djeca rade?',
+        hint: '',
+        a: 'igraju se',
+        en: 'What are the children doing? Playing.',
+      },
+    ],
+  },
+  {
+    title: 'U parku',
+    desc: 'A sunny day at the park',
+    qs: [
+      { q: 'Kakvo je vrijeme?', hint: '', a: 'sunčano', en: "What's the weather like? Sunny." },
+      { q: 'Što dječak vozi?', hint: '', a: 'bicikl', en: 'What is the boy riding? A bicycle.' },
+      { q: 'Gdje je pas?', hint: 'u', a: 'vodi', en: 'Where is the dog? In the water.' },
+    ],
+  },
+  {
+    title: 'U školi',
+    desc: 'A classroom during a lesson',
+    qs: [
+      {
+        q: 'Tko stoji ispred ploče?',
+        hint: '',
+        a: 'učiteljica',
+        en: 'Who stands in front of the board? The teacher.',
+      },
+      { q: 'Što djeca rade?', hint: '', a: 'pišu', en: 'What are the children doing? Writing.' },
+      {
+        q: 'Je li učionica velika ili mala?',
+        hint: '',
+        a: 'velika',
+        en: 'Is the classroom big or small? Big.',
+      },
+    ],
+  },
+  {
+    title: 'Na plaži',
+    desc: 'Summer vacation at the beach',
+    qs: [
+      { q: 'Što radi djevojčica?', hint: '', a: 'pliva', en: 'What is the girl doing? Swimming.' },
+      {
+        q: 'Gdje je suncobran?',
+        hint: 'na',
+        a: 'pijesku',
+        en: 'Where is the umbrella? On the sand.',
+      },
+      {
+        q: 'Je li more mirno ili nemirno?',
+        hint: '',
+        a: 'mirno',
+        en: 'Is the sea calm or rough? Calm.',
+      },
+    ],
+  },
 ];
 // ═══ FILL-IN STORIES ═══
 const FILL_STORIES = [
-  {title:"Markov dan",story:[
-    {text:"Marko se probudio u _____ ujutro.",blank:"sedam",opts:["sedam","tri","ponoć"],en:"Marko woke up at seven in the morning."},
-    {text:"Najprije se _____ i oprao zube.",blank:"istuširao",opts:["istuširao","najeo","zaigrao"],en:"First he showered and brushed his teeth."},
-    {text:"Za doručak je pojeo _____ s džemom.",blank:"palačinke",opts:["palačinke","juhu","salatu"],en:"For breakfast he ate pancakes with jam."},
-    {text:"Na posao je išao _____.",blank:"pješice",opts:["pješice","zrakoplovom","brodom"],en:"He went to work on foot."},
-    {text:"Putem je kupio _____ za čitanje.",blank:"novine",opts:["novine","cipele","cvijeće"],en:"On the way he bought a newspaper to read."},
-    {text:"Na poslu je primijetio da nema _____.",blank:"mobitela",opts:["mobitela","ručak","kapu"],en:"At work he noticed he didn't have his phone."}
-  ]},
-  {title:"Izlet na otok",story:[
-    {text:"Obitelj je išla na izlet na _____ Hvar.",blank:"otok",opts:["otok","planinu","rijeku"],en:"The family went on a trip to the island of Hvar."},
-    {text:"Bili su u _____.",blank:"hotelu",opts:["hotelu","šatoru","zrakoplovu"],en:"They were in a hotel."},
-    {text:"Kuhar je otišao _____ u Split.",blank:"brodom",opts:["brodom","biciklom","pješice"],en:"The cook went by boat to Split."},
-    {text:"Počeo je jako puhati _____.",blank:"vjetar",opts:["vjetar","snijeg","kiša"],en:"A strong wind started blowing."},
-    {text:"_____ nije bio zatvoren.",blank:"Restoran",opts:["Restoran","Hotel","Otok"],en:"The restaurant was closed."},
-    {text:"Tata je napravio _____ za večeru.",blank:"pizzu",opts:["pizzu","juhu","salatu"],en:"Dad made pizza for dinner."}
-  ]},
-  {title:"Kod zubara",story:[
-    {text:"Mama je rekla djeci da moraju _____ zube.",blank:"prati",opts:["prati","bojiti","brojiti"],en:"Mom told the children they must brush their teeth."},
-    {text:"Djeca su jako voljela _____ i bombone.",blank:"čokoladu",opts:["čokoladu","povrće","ribu"],en:"The children loved chocolate and candy."},
-    {text:"Mama im je obećala _____.",blank:"poklon",opts:["poklon","kaznu","zadaću"],en:"Mom promised them a gift."},
-    {text:"Zubar je rekao da su zubi _____.",blank:"zdravi",opts:["zdravi","bolesni","mali"],en:"The dentist said the teeth were healthy."},
-    {text:"Poklon su bile nove _____ za zube.",blank:"četkice",opts:["četkice","paste","čokolade"],en:"The gift was new toothbrushes."},
-    {text:"Djeca su bila jako _____.",blank:"razočarana",opts:["razočarana","sretna","umorna"],en:"The children were very disappointed."}
-  ]}
-,
-  {title:"Dan na farmi",story:[
-    {text:"Vjeverica _____ čita knjigu u parku.",blank:"ponekad",opts:["ponekad","nikad","kuha"],en:"The squirrel sometimes reads a book in the park."},
-    {text:"Pas _____ trči u vrtu.",blank:"uvijek",opts:["uvijek","rijetko","spava"],en:"The dog always runs in the garden."},
-    {text:"Mačka _____ spava na krevetu.",blank:"često",opts:["često","vozi","pjeva"],en:"The cat often sleeps on the bed."},
-    {text:"Konj _____ trči po polju.",blank:"svaki dan",opts:["svaki dan","nikad","kuha"],en:"The horse runs through the field every day."},
-    {text:"Krava _____ mlijeko.",blank:"daje",opts:["daje","pije","vozi"],en:"The cow gives milk."},
-    {text:"Ptica _____ pjeva ujutro.",blank:"uvijek",opts:["uvijek","vozi","kuha"],en:"The bird always sings in the morning."}
-  ]}];
+  {
+    title: 'Markov dan',
+    story: [
+      {
+        text: 'Marko se probudio u _____ ujutro.',
+        blank: 'sedam',
+        opts: ['sedam', 'tri', 'ponoć'],
+        en: 'Marko woke up at seven in the morning.',
+      },
+      {
+        text: 'Najprije se _____ i oprao zube.',
+        blank: 'istuširao',
+        opts: ['istuširao', 'najeo', 'zaigrao'],
+        en: 'First he showered and brushed his teeth.',
+      },
+      {
+        text: 'Za doručak je pojeo _____ s džemom.',
+        blank: 'palačinke',
+        opts: ['palačinke', 'juhu', 'salatu'],
+        en: 'For breakfast he ate pancakes with jam.',
+      },
+      {
+        text: 'Na posao je išao _____.',
+        blank: 'pješice',
+        opts: ['pješice', 'zrakoplovom', 'brodom'],
+        en: 'He went to work on foot.',
+      },
+      {
+        text: 'Putem je kupio _____ za čitanje.',
+        blank: 'novine',
+        opts: ['novine', 'cipele', 'cvijeće'],
+        en: 'On the way he bought a newspaper to read.',
+      },
+      {
+        text: 'Na poslu je primijetio da nema _____.',
+        blank: 'mobitela',
+        opts: ['mobitela', 'ručak', 'kapu'],
+        en: "At work he noticed he didn't have his phone.",
+      },
+    ],
+  },
+  {
+    title: 'Izlet na otok',
+    story: [
+      {
+        text: 'Obitelj je išla na izlet na _____ Hvar.',
+        blank: 'otok',
+        opts: ['otok', 'planinu', 'rijeku'],
+        en: 'The family went on a trip to the island of Hvar.',
+      },
+      {
+        text: 'Bili su u _____.',
+        blank: 'hotelu',
+        opts: ['hotelu', 'šatoru', 'zrakoplovu'],
+        en: 'They were in a hotel.',
+      },
+      {
+        text: 'Kuhar je otišao _____ u Split.',
+        blank: 'brodom',
+        opts: ['brodom', 'biciklom', 'pješice'],
+        en: 'The cook went by boat to Split.',
+      },
+      {
+        text: 'Počeo je jako puhati _____.',
+        blank: 'vjetar',
+        opts: ['vjetar', 'snijeg', 'kiša'],
+        en: 'A strong wind started blowing.',
+      },
+      {
+        text: '_____ nije bio zatvoren.',
+        blank: 'Restoran',
+        opts: ['Restoran', 'Hotel', 'Otok'],
+        en: 'The restaurant was closed.',
+      },
+      {
+        text: 'Tata je napravio _____ za večeru.',
+        blank: 'pizzu',
+        opts: ['pizzu', 'juhu', 'salatu'],
+        en: 'Dad made pizza for dinner.',
+      },
+    ],
+  },
+  {
+    title: 'Kod zubara',
+    story: [
+      {
+        text: 'Mama je rekla djeci da moraju _____ zube.',
+        blank: 'prati',
+        opts: ['prati', 'bojiti', 'brojiti'],
+        en: 'Mom told the children they must brush their teeth.',
+      },
+      {
+        text: 'Djeca su jako voljela _____ i bombone.',
+        blank: 'čokoladu',
+        opts: ['čokoladu', 'povrće', 'ribu'],
+        en: 'The children loved chocolate and candy.',
+      },
+      {
+        text: 'Mama im je obećala _____.',
+        blank: 'poklon',
+        opts: ['poklon', 'kaznu', 'zadaću'],
+        en: 'Mom promised them a gift.',
+      },
+      {
+        text: 'Zubar je rekao da su zubi _____.',
+        blank: 'zdravi',
+        opts: ['zdravi', 'bolesni', 'mali'],
+        en: 'The dentist said the teeth were healthy.',
+      },
+      {
+        text: 'Poklon su bile nove _____ za zube.',
+        blank: 'četkice',
+        opts: ['četkice', 'paste', 'čokolade'],
+        en: 'The gift was new toothbrushes.',
+      },
+      {
+        text: 'Djeca su bila jako _____.',
+        blank: 'razočarana',
+        opts: ['razočarana', 'sretna', 'umorna'],
+        en: 'The children were very disappointed.',
+      },
+    ],
+  },
+  {
+    title: 'Dan na farmi',
+    story: [
+      {
+        text: 'Vjeverica _____ čita knjigu u parku.',
+        blank: 'ponekad',
+        opts: ['ponekad', 'nikad', 'kuha'],
+        en: 'The squirrel sometimes reads a book in the park.',
+      },
+      {
+        text: 'Pas _____ trči u vrtu.',
+        blank: 'uvijek',
+        opts: ['uvijek', 'rijetko', 'spava'],
+        en: 'The dog always runs in the garden.',
+      },
+      {
+        text: 'Mačka _____ spava na krevetu.',
+        blank: 'često',
+        opts: ['često', 'vozi', 'pjeva'],
+        en: 'The cat often sleeps on the bed.',
+      },
+      {
+        text: 'Konj _____ trči po polju.',
+        blank: 'svaki dan',
+        opts: ['svaki dan', 'nikad', 'kuha'],
+        en: 'The horse runs through the field every day.',
+      },
+      {
+        text: 'Krava _____ mlijeko.',
+        blank: 'daje',
+        opts: ['daje', 'pije', 'vozi'],
+        en: 'The cow gives milk.',
+      },
+      {
+        text: 'Ptica _____ pjeva ujutro.',
+        blank: 'uvijek',
+        opts: ['uvijek', 'vozi', 'kuha'],
+        en: 'The bird always sings in the morning.',
+      },
+    ],
+  },
+];
 // ═══ SHUFFLE HELPER ═══
-const _shCache={};
-function shMemo(key,arr,n){if(!_shCache[key])_shCache[key]=shuffleArr(arr);return n?_shCache[key].slice(0,n):_shCache[key]}
-function shuffleArr(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+const _shCache = {};
+function shMemo(key, arr, n) {
+  if (!_shCache[key]) _shCache[key] = shuffleArr(arr);
+  return n ? _shCache[key].slice(0, n) : _shCache[key];
+}
+function shuffleArr(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    const t = a[i];
+    a[i] = a[j];
+    a[j] = t;
+  }
+  return a;
+}
 // ═══ PRONOUN CASES ═══
 // ═══ GENDER & PLURALS ═══
 // ═══ SENTENCE BUILDER ═══
@@ -654,123 +2789,345 @@ function shuffleArr(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const
 // ═══ CITY & COUNTRY LOCATIVE ═══
 // ═══ ACCUSATIVE FOOD & CLOTHES ═══
 // ═══ CONVERSATION MATCH ═══
-let _searchIdx=null;
-function buildSearchIndex(){if(_searchIdx)return _searchIdx;const idx=[];Object.keys(V).forEach(function(cat){V[cat].forEach(function(w){idx.push({hr:w[0],en:w[1],type:"vocab",go:"lesson",cat:cat})})});
-[{n:"School Kit",s:"school"},{n:"Texting",s:"texting"},{n:"Friends",s:"friends"},{n:"Food",s:"foodorder"},{n:"Transport",s:"transport"},{n:"Emergency",s:"emergency"},{n:"Football",s:"football"},{n:"Pop Culture",s:"popculture"},{n:"Practical Life",s:"practical"},{n:"Grocery",s:"grocery"},{n:"Recipes",s:"recipes"},{n:"Role-Play",s:"roleplay"},{n:"Map",s:"crmap"},{n:"Grammar",s:"grammar"},{n:"Cases",s:"padezi"},{n:"Padeži Master",s:"padezifull"},{n:"Aspect",s:"aspect"},{n:"Conjugation",s:"conjdrill"},{n:"Modal Verbs",s:"modal"},{n:"Declension",s:"declension"},{n:"Tenses Gender",s:"tenses"},{n:"Colors Gender",s:"boje"},{n:"Alphabet",s:"alphabet"},{n:"False Friends",s:"falsefr"},{n:"Dialects",s:"dialects"},{n:"Diminutives",s:"diminutives"},{n:"Word Formation",s:"wordform"},{n:"Tongue Twisters",s:"brzalice"},{n:"Flashcards",s:"flashcards"},{n:"Typing",s:"typing"},{n:"Idioms",s:"idioms"},{n:"Proverbs",s:"proverbs"},{n:"Leaderboard",s:"leaderboard"},{n:"Badges",s:"badges"},{n:"Domovinski Rat",s:"history"},{n:"Kings",s:"kings"},{n:"Labin Rabac",s:"region_labin"},{n:"Bibinje Zadar",s:"region_bibinje"},{n:"Hercegovina",s:"region_hercegovina"},{n:"Vukovar",s:"region_vukovar"},{n:"Vinkovci",s:"region_vinkovci"},{n:"Learning Path",s:"learnpath"},{n:"Favorites",s:"favorites"},{n:"Journal",s:"journal"},{n:"Conditional Mood",s:"conditional"},{n:"Vi ili ti? Formal",s:"formalregister"},{n:"Impersonal",s:"impersonal"},{n:"Tech & Digital",s:"techvoc"},{n:"Admin Life",s:"bureaucratic"}].forEach(function(x){idx.push({hr:x.n,en:x.n,type:"screen",go:x.s})});
-GROCERY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"grocery"})});SCHOOL.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"school"})});TRANSPORT.forEach(function(t){idx.push({hr:t.hr,en:t.en,type:"phrase",go:"transport"})});EMERGENCY.phrases.forEach(function(p){idx.push({hr:p[0],en:p[1],type:"phrase",go:"emergency"})});
-// Screen name entries for discoverability
-const screenEntries = [
-  { hr: 'Šatrovački Slang', en: 'slang urban street language', type: 'screen', go: 'slang' },
-  { hr: 'Poslovice', en: 'proverbs Croatian sayings', type: 'screen', go: 'proverbs' },
-  { hr: 'Sjenovni govor', en: 'shadowing speaking practice', type: 'screen', go: 'shadowing' },
-  { hr: 'Diktat', en: 'dictation listen and type', type: 'screen', go: 'dictation' },
-  { hr: 'Dijalog', en: 'dialogue conversation simulation', type: 'screen', go: 'dialogue' },
-  { hr: 'Dopuni rečenicu', en: 'cloze sentence fill blank grammar', type: 'screen', go: 'cloze' },
-  { hr: 'Glagolski vid', en: 'aspect drill verb aspect perfective imperfective', type: 'screen', go: 'aspectdrill' },
-  { hr: 'Povijest', en: 'history Croatia historical', type: 'screen', go: 'history' },
-  { hr: 'Baka', en: 'baka grandmother letters stories', type: 'screen', go: 'baka_summer' },
-  { hr: 'Izgovor', en: 'pronunciation contrast sounds phoneme', type: 'screen', go: 'proncontrast' },
-  { hr: 'Spajanje parova', en: 'match pairs matching game', type: 'screen', go: 'match' },
-  { hr: 'Naglasak', en: 'pitch accent intonation tone', type: 'screen', go: 'pitchaccent' },
-  { hr: 'Interaktivna karta', en: 'interactive map Croatia regions', type: 'screen', go: 'crmap' },
-  { hr: 'U kafiću', en: 'kafic cafe coffee culture', type: 'screen', go: 'kafic' },
-  { hr: 'Građanski rječnik', en: 'civic vocabulary government politics EU', type: 'screen', go: 'civic' },
-  { hr: 'Životni događaji', en: 'life events wedding funeral baptism', type: 'screen', go: 'lifeevents' },
-  { hr: 'Ti i Vi', en: 'ti vi formal informal address', type: 'screen', go: 'tivicompare' },
-  { hr: 'Dijaspora', en: 'diaspora heritage code switching', type: 'screen', go: 'diaspora' },
-  { hr: 'Uskrs u Hrvatskoj', en: 'Easter Croatian traditions pisanice lamb', type: 'screen', go: 'easter' },
-  { hr: 'Restoran', en: 'restaurant ordering food dining', type: 'screen', go: 'restaurant' },
-  { hr: 'Prijevoz', en: 'transport bus tram travel', type: 'screen', go: 'transport' },
-  { hr: 'Hitni slučajevi', en: 'emergency phrases help police hospital', type: 'screen', go: 'emergency' },
-  { hr: 'Slobodno pisanje', en: 'free writing AI correction essay', type: 'screen', go: 'writing' },
-  { hr: 'Konjugacija', en: 'conjugation verb forms present past', type: 'screen', go: 'conjdrill' },
-  { hr: 'Padeži', en: 'cases padezi grammar nominative accusative', type: 'screen', go: 'padezi' },
-];
-screenEntries.forEach(e => idx.push(e));
-_searchIdx=idx;return idx}
+let _searchIdx = null;
+function buildSearchIndex() {
+  if (_searchIdx) return _searchIdx;
+  const idx = [];
+  Object.keys(V).forEach(function (cat) {
+    V[cat].forEach(function (w) {
+      idx.push({ hr: w[0], en: w[1], type: 'vocab', go: 'lesson', cat: cat });
+    });
+  });
+  [
+    { n: 'School Kit', s: 'school' },
+    { n: 'Texting', s: 'texting' },
+    { n: 'Friends', s: 'friends' },
+    { n: 'Food', s: 'foodorder' },
+    { n: 'Transport', s: 'transport' },
+    { n: 'Emergency', s: 'emergency' },
+    { n: 'Football', s: 'football' },
+    { n: 'Pop Culture', s: 'popculture' },
+    { n: 'Practical Life', s: 'practical' },
+    { n: 'Grocery', s: 'grocery' },
+    { n: 'Recipes', s: 'recipes' },
+    { n: 'Role-Play', s: 'roleplay' },
+    { n: 'Map', s: 'crmap' },
+    { n: 'Grammar', s: 'grammar' },
+    { n: 'Cases', s: 'padezi' },
+    { n: 'Padeži Master', s: 'padezifull' },
+    { n: 'Aspect', s: 'aspect' },
+    { n: 'Conjugation', s: 'conjdrill' },
+    { n: 'Modal Verbs', s: 'modal' },
+    { n: 'Declension', s: 'declension' },
+    { n: 'Tenses Gender', s: 'tenses' },
+    { n: 'Colors Gender', s: 'boje' },
+    { n: 'Alphabet', s: 'alphabet' },
+    { n: 'False Friends', s: 'falsefr' },
+    { n: 'Dialects', s: 'dialects' },
+    { n: 'Diminutives', s: 'diminutives' },
+    { n: 'Word Formation', s: 'wordform' },
+    { n: 'Tongue Twisters', s: 'brzalice' },
+    { n: 'Flashcards', s: 'flashcards' },
+    { n: 'Typing', s: 'typing' },
+    { n: 'Idioms', s: 'idioms' },
+    { n: 'Proverbs', s: 'proverbs' },
+    { n: 'Leaderboard', s: 'leaderboard' },
+    { n: 'Badges', s: 'badges' },
+    { n: 'Domovinski Rat', s: 'history' },
+    { n: 'Kings', s: 'kings' },
+    { n: 'Labin Rabac', s: 'region_labin' },
+    { n: 'Bibinje Zadar', s: 'region_bibinje' },
+    { n: 'Hercegovina', s: 'region_hercegovina' },
+    { n: 'Vukovar', s: 'region_vukovar' },
+    { n: 'Vinkovci', s: 'region_vinkovci' },
+    { n: 'Learning Path', s: 'learnpath' },
+    { n: 'Favorites', s: 'favorites' },
+    { n: 'Journal', s: 'journal' },
+    { n: 'Conditional Mood', s: 'conditional' },
+    { n: 'Vi ili ti? Formal', s: 'formalregister' },
+    { n: 'Impersonal', s: 'impersonal' },
+    { n: 'Tech & Digital', s: 'techvoc' },
+    { n: 'Admin Life', s: 'bureaucratic' },
+  ].forEach(function (x) {
+    idx.push({ hr: x.n, en: x.n, type: 'screen', go: x.s });
+  });
+  GROCERY.phrases.forEach(function (p) {
+    idx.push({ hr: p[0], en: p[1], type: 'phrase', go: 'grocery' });
+  });
+  SCHOOL.phrases.forEach(function (p) {
+    idx.push({ hr: p[0], en: p[1], type: 'phrase', go: 'school' });
+  });
+  TRANSPORT.forEach(function (t) {
+    idx.push({ hr: t.hr, en: t.en, type: 'phrase', go: 'transport' });
+  });
+  EMERGENCY.phrases.forEach(function (p) {
+    idx.push({ hr: p[0], en: p[1], type: 'phrase', go: 'emergency' });
+  });
+  // Screen name entries for discoverability
+  const screenEntries = [
+    { hr: 'Šatrovački Slang', en: 'slang urban street language', type: 'screen', go: 'slang' },
+    { hr: 'Poslovice', en: 'proverbs Croatian sayings', type: 'screen', go: 'proverbs' },
+    { hr: 'Sjenovni govor', en: 'shadowing speaking practice', type: 'screen', go: 'shadowing' },
+    { hr: 'Diktat', en: 'dictation listen and type', type: 'screen', go: 'dictation' },
+    { hr: 'Dijalog', en: 'dialogue conversation simulation', type: 'screen', go: 'dialogue' },
+    { hr: 'Dopuni rečenicu', en: 'cloze sentence fill blank grammar', type: 'screen', go: 'cloze' },
+    {
+      hr: 'Glagolski vid',
+      en: 'aspect drill verb aspect perfective imperfective',
+      type: 'screen',
+      go: 'aspectdrill',
+    },
+    { hr: 'Povijest', en: 'history Croatia historical', type: 'screen', go: 'history' },
+    { hr: 'Baka', en: 'baka grandmother letters stories', type: 'screen', go: 'baka_summer' },
+    {
+      hr: 'Izgovor',
+      en: 'pronunciation contrast sounds phoneme',
+      type: 'screen',
+      go: 'proncontrast',
+    },
+    { hr: 'Spajanje parova', en: 'match pairs matching game', type: 'screen', go: 'match' },
+    { hr: 'Naglasak', en: 'pitch accent intonation tone', type: 'screen', go: 'pitchaccent' },
+    {
+      hr: 'Interaktivna karta',
+      en: 'interactive map Croatia regions',
+      type: 'screen',
+      go: 'crmap',
+    },
+    { hr: 'U kafiću', en: 'kafic cafe coffee culture', type: 'screen', go: 'kafic' },
+    {
+      hr: 'Građanski rječnik',
+      en: 'civic vocabulary government politics EU',
+      type: 'screen',
+      go: 'civic',
+    },
+    {
+      hr: 'Životni događaji',
+      en: 'life events wedding funeral baptism',
+      type: 'screen',
+      go: 'lifeevents',
+    },
+    { hr: 'Ti i Vi', en: 'ti vi formal informal address', type: 'screen', go: 'tivicompare' },
+    { hr: 'Dijaspora', en: 'diaspora heritage code switching', type: 'screen', go: 'diaspora' },
+    {
+      hr: 'Uskrs u Hrvatskoj',
+      en: 'Easter Croatian traditions pisanice lamb',
+      type: 'screen',
+      go: 'easter',
+    },
+    { hr: 'Restoran', en: 'restaurant ordering food dining', type: 'screen', go: 'restaurant' },
+    { hr: 'Prijevoz', en: 'transport bus tram travel', type: 'screen', go: 'transport' },
+    {
+      hr: 'Hitni slučajevi',
+      en: 'emergency phrases help police hospital',
+      type: 'screen',
+      go: 'emergency',
+    },
+    {
+      hr: 'Slobodno pisanje',
+      en: 'free writing AI correction essay',
+      type: 'screen',
+      go: 'writing',
+    },
+    {
+      hr: 'Konjugacija',
+      en: 'conjugation verb forms present past',
+      type: 'screen',
+      go: 'conjdrill',
+    },
+    {
+      hr: 'Padeži',
+      en: 'cases padezi grammar nominative accusative',
+      type: 'screen',
+      go: 'padezi',
+    },
+  ];
+  screenEntries.forEach((e) => idx.push(e));
+  _searchIdx = idx;
+  return idx;
+}
 // ═══ THEME OBJECTS (background/color tokens for inline root styles) ═══
 // BG_LIGHT, BG_DARK — imported from ../lib/appUtils.js
-const _BG=BG_LIGHT;
-const H=(t,s,back)=><div style={{marginBottom:22,paddingBottom:18,borderBottom:"1px solid var(--card-b)"}}>
-  {back&&<button onClick={back} style={{
-    display:"inline-flex",alignItems:"center",gap:6,
-    background:"var(--bar-bg)",
-    border:"1px solid var(--card-b)",
-    borderRadius:20,cursor:"pointer",
-    fontSize:13,fontWeight:700,color:"var(--subtext)",
-    marginBottom:12,padding:"6px 14px 6px 10px",
-    fontFamily:"'Outfit',sans-serif",
-    transition:"background .15s,color .15s,box-shadow .15s",
-    minHeight:36,
-    lineHeight:1,
-  }}
-  onMouseEnter={e=>{e.currentTarget.style.background='var(--accent-light,rgba(14,116,144,.1))';e.currentTarget.style.color='var(--accent,#0e7490)';e.currentTarget.style.boxShadow='0 2px 8px rgba(14,116,144,.12)'}}
-  onMouseLeave={e=>{e.currentTarget.style.background='var(--bar-bg)';e.currentTarget.style.color='var(--subtext)';e.currentTarget.style.boxShadow='none'}}
+const _BG = BG_LIGHT;
+const H = (t, s, back) => (
+  <div style={{ marginBottom: 22, paddingBottom: 18, borderBottom: '1px solid var(--card-b)' }}>
+    {back && (
+      <button
+        onClick={back}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          background: 'var(--bar-bg)',
+          border: '1px solid var(--card-b)',
+          borderRadius: 20,
+          cursor: 'pointer',
+          fontSize: 13,
+          fontWeight: 700,
+          color: 'var(--subtext)',
+          marginBottom: 12,
+          padding: '6px 14px 6px 10px',
+          fontFamily: "'Outfit',sans-serif",
+          transition: 'background .15s,color .15s,box-shadow .15s',
+          minHeight: 36,
+          lineHeight: 1,
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'var(--accent-light,rgba(14,116,144,.1))';
+          e.currentTarget.style.color = 'var(--accent,#0e7490)';
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(14,116,144,.12)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'var(--bar-bg)';
+          e.currentTarget.style.color = 'var(--subtext)';
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        Back
+      </button>
+    )}
+    <h2
+      style={{
+        fontFamily: "'Playfair Display',serif",
+        fontSize: 24,
+        color: 'var(--heading)',
+        fontWeight: 800,
+        letterSpacing: '-.02em',
+        lineHeight: 1.2,
+      }}
+    >
+      {t}
+    </h2>
+    {s && (
+      <p
+        style={{
+          color: 'var(--subtext)',
+          fontSize: 13,
+          marginTop: 6,
+          fontWeight: 500,
+          lineHeight: 1.5,
+        }}
+      >
+        {s}
+      </p>
+    )}
+  </div>
+);
+const Bar = ({ v, mx, color = '#0e7490', h = 8 }) => (
+  <div style={{ background: 'var(--bar-bg)', borderRadius: h / 2, height: h, overflow: 'hidden' }}>
+    <div
+      style={{
+        width: Math.min((v / mx) * 100, 100) + '%',
+        height: '100%',
+        background: color,
+        borderRadius: h / 2,
+        transition: 'width 0.7s cubic-bezier(.4,0,.2,1)',
+      }}
+    />
+  </div>
+);
+const Spk = ({ text, label }) => (
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      speak(text);
+    }}
+    style={{
+      background: 'rgba(14,116,144,.1)',
+      border: '1px solid rgba(14,116,144,.2)',
+      borderRadius: 10,
+      padding: '7px 12px',
+      cursor: 'pointer',
+      color: '#0e7490',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      fontWeight: 700,
+      fontSize: 14,
+    }}
   >
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-    Back
-  </button>}
-  <h2
-    style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"var(--heading)",fontWeight:800,letterSpacing:"-.02em",lineHeight:1.2}}>
-    {t}
-  </h2>
-  {s&&<p style={{color:"var(--subtext)",fontSize:13,marginTop:6,fontWeight:500,lineHeight:1.5}}>
-    {s}
-  </p>}
-</div>;
-const Bar=({v,mx,color="#0e7490",h=8})=><div
-  style={{background:"var(--bar-bg)",borderRadius:h/2,height:h,overflow:"hidden"}}>
-  <div
-    style={{width:Math.min((v/mx)*100,100)+"%",height:"100%",background:color,borderRadius:h/2,transition:"width 0.7s cubic-bezier(.4,0,.2,1)"}} />
-</div>;
-const Spk=({text,label})=><button
-  onClick={e=>{e.stopPropagation();speak(text)}}
-  style={{background:"rgba(14,116,144,.1)",border:"1px solid rgba(14,116,144,.2)",borderRadius:10,padding:"7px 12px",cursor:"pointer",color:"#0e7490",display:"inline-flex",alignItems:"center",gap:6,fontWeight:700,fontSize:14}}>
-  🔊
-  {label&&<span style={{fontSize:12}}>
-    {label}
-  </span>}
-</button>;
+    🔊
+    {label && <span style={{ fontSize: 12 }}>{label}</span>}
+  </button>
+);
 // ═══ MAIN APP ═══
 // ═══ ERROR BOUNDARY — Prevents white screen of death ═══
-class _ErrorBoundary extends React.Component{
-  constructor(props){super(props);this.state={hasError:false,error:null}}
-  static getDerivedStateFromError(error){return{hasError:true,error:error}}
-  componentDidCatch(error,info){console.error("App crash caught:",error,info)}
-  render(){
-    if(this.state.hasError){
+class _ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error: error };
+  }
+  componentDidCatch(error, info) {
+    console.error('App crash caught:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
       return (
         <div
-          style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"linear-gradient(135deg,#fef3c7,#fff7ed)",padding:24,textAlign:"center"}}>
+          style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg,#fef3c7,#fff7ed)',
+            padding: 24,
+            textAlign: 'center',
+          }}
+        >
           <div>
-            <div style={{fontSize:64,marginBottom:16}}>
-              ⚠️
-            </div>
+            <div style={{ fontSize: 64, marginBottom: 16 }}>⚠️</div>
             <h2
-              style={{fontFamily:"'Playfair Display',serif",fontSize:24,color:"#164e63",marginBottom:8}}>
+              style={{
+                fontFamily: "'Playfair Display',serif",
+                fontSize: 24,
+                color: '#164e63',
+                marginBottom: 8,
+              }}
+            >
               Something went wrong
             </h2>
-            <p style={{color:"#78716c",marginBottom:20,fontSize:14}}>
+            <p style={{ color: '#78716c', marginBottom: 20, fontSize: 14 }}>
               The app hit an unexpected error. Your progress is saved.
             </p>
             <button
-              onClick={function(){window.location.reload()}}
-              style={{padding:"12px 32px",background:"linear-gradient(135deg,#0e7490,#164e63)",color:"white",border:"none",borderRadius:14,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              onClick={function () {
+                window.location.reload();
+              }}
+              style={{
+                padding: '12px 32px',
+                background: 'linear-gradient(135deg,#0e7490,#164e63)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 14,
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
               Reload App
             </button>
           </div>
         </div>
       );
     }
-    return this.props.children
+    return this.props.children;
   }
 }
-
-
-
-
-
-
 
 // ═══ CONDITIONAL MOOD ═══
 
@@ -796,16 +3153,236 @@ class _ErrorBoundary extends React.Component{
 // SEASONAL_CAMPAIGNS, getActiveCampaign — imported from ../lib/appUtils.js
 // LEVEL_NARRATIVE is still used only in screen components via data.jsx barrel — keep it here:
 const LEVEL_NARRATIVE = {
-  heritage: ['First Words', 'Finding Your Voice', 'Reconnecting', 'Bridging Worlds', 'Coming Home', 'Naš Čovjek', 'Naš Čovjek'],
-  family:   ['Hello Family', 'Family Stories', 'Conversations', 'Deep Talks', 'Native Flow', 'Naš Čovjek', 'Naš Čovjek'],
-  travel:   ['Survival Mode', 'Getting Around', "Local's Path", 'Off the Map', 'Croatian Soul', 'Naš Čovjek', 'Naš Čovjek'],
-  culture:  ['First Steps', 'Culture Seeker', 'Insider', 'Deep Diver', 'Living Croatia', 'Naš Čovjek', 'Naš Čovjek'],
-  fluent:   ['Beginner', 'Elementary', 'Intermediate', 'Upper-Int', 'Advanced', 'Fluent', 'Fluent'],
-  partner:  ['Curious Spouse', 'Family Observer', 'Dinner Table Survivor', 'Welcome Addition', 'Part of the Family'],
+  heritage: [
+    'First Words',
+    'Finding Your Voice',
+    'Reconnecting',
+    'Bridging Worlds',
+    'Coming Home',
+    'Naš Čovjek',
+    'Naš Čovjek',
+  ],
+  family: [
+    'Hello Family',
+    'Family Stories',
+    'Conversations',
+    'Deep Talks',
+    'Native Flow',
+    'Naš Čovjek',
+    'Naš Čovjek',
+  ],
+  travel: [
+    'Survival Mode',
+    'Getting Around',
+    "Local's Path",
+    'Off the Map',
+    'Croatian Soul',
+    'Naš Čovjek',
+    'Naš Čovjek',
+  ],
+  culture: [
+    'First Steps',
+    'Culture Seeker',
+    'Insider',
+    'Deep Diver',
+    'Living Croatia',
+    'Naš Čovjek',
+    'Naš Čovjek',
+  ],
+  fluent: ['Beginner', 'Elementary', 'Intermediate', 'Upper-Int', 'Advanced', 'Fluent', 'Fluent'],
+  partner: [
+    'Curious Spouse',
+    'Family Observer',
+    'Dinner Table Survivor',
+    'Welcome Addition',
+    'Part of the Family',
+  ],
 };
 // recordJourneyMilestone, getJourneyMilestones — imported from ../lib/appUtils.js
 
-export { V, PADEZI, PROVERBS, HIST_FACTS, MEDIA, MAPPLACES, BADGES, DAILY_QUESTS, LEARN_PATH, REFLEXIVE, SVOJMOJ, BASKETBALL, GYM, CROATIAN_CITIES, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, SCENES, FILL_STORIES, PRONOUNCASE, GENDERDRILL, SENTBUILD, VERBDRILL, VBPERSONS, TENSEFLIP, RIDDLES, LOGICQUIZ, ORDINALS, ORDQUIZ, RELPRON, EMOGENDER, QWORDS, NEGATION, COLORAGREE, SIBIL, PROFGENDER, COMPARE, COMPQUIZ, FUTURE, RESTCONV, POSSESS, ADJOPPOSITES, CITYLOC, AKUFOOD, AKUCLOTHES, CONVMATCH, TOP100, HISTORY, EVENTS, MODAL, GRAM, PLACE, READ, ALPHA, ZNAM, BOJE, CONJ, UNJUMBLE, IDIOMS, PREPS, KINGS, LISTEN, STORIES, NUMTIME, NUMCOUNT, ASPECT, FALSEFR, VOCATIVE, PREPDRILL, DECL, BRZALICE, DIALECTS, DIMWORDS, WORDFORM, COLORQUIRK, PADEZI_FULL, SCHOOL, TEXTING, FRIENDS, FOODORDER, TRANSPORT, EMERGENCY, FOOTBALL, POPCULTURE, PRACTICAL, REGIONS, TENSES, GROCERY, RECIPES, ROLEPLAY, BG_LIGHT, BG_DARK, CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS, SEASONAL_CAMPAIGNS, LEVEL_NARRATIVE };
+export {
+  V,
+  PADEZI,
+  PROVERBS,
+  HIST_FACTS,
+  MEDIA,
+  MAPPLACES,
+  BADGES,
+  DAILY_QUESTS,
+  LEARN_PATH,
+  REFLEXIVE,
+  SVOJMOJ,
+  BASKETBALL,
+  GYM,
+  CROATIAN_CITIES,
+  COUNTRIES,
+  PROFESSIONS,
+  WEATHER,
+  CLOTHES,
+  BODYDESC,
+  PHONOLOGY,
+  SCENES,
+  FILL_STORIES,
+  PRONOUNCASE,
+  GENDERDRILL,
+  SENTBUILD,
+  VERBDRILL,
+  VBPERSONS,
+  TENSEFLIP,
+  RIDDLES,
+  LOGICQUIZ,
+  ORDINALS,
+  ORDQUIZ,
+  RELPRON,
+  EMOGENDER,
+  QWORDS,
+  NEGATION,
+  COLORAGREE,
+  SIBIL,
+  PROFGENDER,
+  COMPARE,
+  COMPQUIZ,
+  FUTURE,
+  RESTCONV,
+  POSSESS,
+  ADJOPPOSITES,
+  CITYLOC,
+  AKUFOOD,
+  AKUCLOTHES,
+  CONVMATCH,
+  TOP100,
+  HISTORY,
+  EVENTS,
+  MODAL,
+  GRAM,
+  PLACE,
+  READ,
+  ALPHA,
+  ZNAM,
+  BOJE,
+  CONJ,
+  UNJUMBLE,
+  IDIOMS,
+  PREPS,
+  KINGS,
+  LISTEN,
+  STORIES,
+  NUMTIME,
+  NUMCOUNT,
+  ASPECT,
+  FALSEFR,
+  VOCATIVE,
+  PREPDRILL,
+  DECL,
+  BRZALICE,
+  DIALECTS,
+  DIMWORDS,
+  WORDFORM,
+  COLORQUIRK,
+  PADEZI_FULL,
+  SCHOOL,
+  TEXTING,
+  FRIENDS,
+  FOODORDER,
+  TRANSPORT,
+  EMERGENCY,
+  FOOTBALL,
+  POPCULTURE,
+  PRACTICAL,
+  REGIONS,
+  TENSES,
+  GROCERY,
+  RECIPES,
+  ROLEPLAY,
+  BG_LIGHT,
+  BG_DARK,
+  CONDITIONAL,
+  FORMAL_REGISTER,
+  IMPERSONAL,
+  TECH_VOC,
+  BUREAUCRATIC,
+  PITCH_ACCENT,
+  SHADOWING,
+  ASPECT_PAIRS,
+  SEASONAL_CAMPAIGNS,
+  LEVEL_NARRATIVE,
+};
 export { _fbReady };
 export { H, Bar, Spk };
-export { initFirebase, gP, sP, lP, gS, sS, cS, touchSession, isSessionExpired, isValidEmail, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbToggleFavorite, fbGetIdToken, fbRegister, fbLogin, fbLogout, fbLoginGoogle, fbResetPassword, friendlyError, generateFamilyCode, getLocalFamily, saveLocalFamily, fbCreateFamily, fbJoinFamily, fbGetFamilyMembers, fbWatchFamilyMembers, fbLeaveFamily, fbLoadUserFamily, fbOnAuthStateChanged, fbDeleteAccount, loadVoices, getBestVoice, stopAudio, speakAzure, speakSynth, speak, speakSlow, speakEN, preloadAudio, sh, lvl, lXP, nXP, lXPgain, getSR, saveSR, srMark, getSRScore, getStreak, updateStreak, getStreakFreezes, earnFreeze, spendFreeze, getStreakEarnBack, applyStreakEarnBack, getProverbOfDay, getDailyChallenge, getHistFact, getCityOfDay, shMemo, shuffleArr, buildSearchIndex, getDueReviews, getMistakes, recordMistake, clearMistake, clearAllMistakes, bootstrapMistakesFromSRS, getActiveCampaign, recordJourneyMilestone, getJourneyMilestones, getCultureStats, incrementCulture };
+export {
+  initFirebase,
+  gP,
+  sP,
+  lP,
+  gS,
+  sS,
+  cS,
+  touchSession,
+  isSessionExpired,
+  isValidEmail,
+  fbSaveProgress,
+  fbLoadProgress,
+  fbWatchProgress,
+  fbToggleFavorite,
+  fbGetIdToken,
+  fbRegister,
+  fbLogin,
+  fbLogout,
+  fbLoginGoogle,
+  fbResetPassword,
+  friendlyError,
+  generateFamilyCode,
+  getLocalFamily,
+  saveLocalFamily,
+  fbCreateFamily,
+  fbJoinFamily,
+  fbGetFamilyMembers,
+  fbWatchFamilyMembers,
+  fbLeaveFamily,
+  fbLoadUserFamily,
+  fbOnAuthStateChanged,
+  fbDeleteAccount,
+  loadVoices,
+  getBestVoice,
+  stopAudio,
+  speakAzure,
+  speakSynth,
+  speak,
+  speakSlow,
+  speakEN,
+  preloadAudio,
+  sh,
+  lvl,
+  lXP,
+  nXP,
+  lXPgain,
+  getSR,
+  saveSR,
+  srMark,
+  getSRScore,
+  getStreak,
+  updateStreak,
+  getStreakFreezes,
+  earnFreeze,
+  spendFreeze,
+  getStreakEarnBack,
+  applyStreakEarnBack,
+  getProverbOfDay,
+  getDailyChallenge,
+  getHistFact,
+  getCityOfDay,
+  shMemo,
+  shuffleArr,
+  buildSearchIndex,
+  getDueReviews,
+  getMistakes,
+  recordMistake,
+  clearMistake,
+  clearAllMistakes,
+  bootstrapMistakesFromSRS,
+  getActiveCampaign,
+  recordJourneyMilestone,
+  getJourneyMilestones,
+  getCultureStats,
+  incrementCulture,
+};

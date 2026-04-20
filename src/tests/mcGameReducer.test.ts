@@ -136,7 +136,9 @@ describe('useMcGameReducer', () => {
     const q = makeQ();
     const { result } = renderHook(() => useMcGameReducer([q], 3));
     // First toggle practiceMode on
-    act(() => { result.current[1]({ type: 'TOGGLE_PRACTICE_MODE' }); });
+    act(() => {
+      result.current[1]({ type: 'TOGGLE_PRACTICE_MODE' });
+    });
     expect(result.current[0].practiceMode).toBe(true);
     act(() => {
       result.current[1]({
@@ -157,7 +159,9 @@ describe('useMcGameReducer', () => {
   it('ADVANCE_CORRECT removes first question from queue', () => {
     const qs = [makeQ({ _qIdx: 0 }), makeQ({ hr: 'pas', _qIdx: 1 })];
     const { result } = renderHook(() => useMcGameReducer(qs, 3));
-    act(() => { result.current[1]({ type: 'ADVANCE_CORRECT' }); });
+    act(() => {
+      result.current[1]({ type: 'ADVANCE_CORRECT' });
+    });
     expect(result.current[0].queue).toHaveLength(1);
     expect(result.current[0].clearedCount).toBe(1);
     expect(result.current[0].answered).toBe(false);
@@ -167,7 +171,9 @@ describe('useMcGameReducer', () => {
   it('RE_QUEUE_WRONG moves first item to end with _isRetry=true', () => {
     const qs = [makeQ({ hr: 'first', _qIdx: 0 }), makeQ({ hr: 'second', _qIdx: 1 })];
     const { result } = renderHook(() => useMcGameReducer(qs, 3));
-    act(() => { result.current[1]({ type: 'RE_QUEUE_WRONG' }); });
+    act(() => {
+      result.current[1]({ type: 'RE_QUEUE_WRONG' });
+    });
     // First item should be moved to end
     const queue = result.current[0].queue;
     expect(queue[queue.length - 1]._isRetry).toBe(true);
@@ -177,36 +183,52 @@ describe('useMcGameReducer', () => {
 
   it('COMPLETE_TRANSITION sets qTransition=false', () => {
     const { result } = renderHook(() => useMcGameReducer([makeQ()], 3));
-    act(() => { result.current[1]({ type: 'ADVANCE_CORRECT' }); });
-    act(() => { result.current[1]({ type: 'COMPLETE_TRANSITION' }); });
+    act(() => {
+      result.current[1]({ type: 'ADVANCE_CORRECT' });
+    });
+    act(() => {
+      result.current[1]({ type: 'COMPLETE_TRANSITION' });
+    });
     expect(result.current[0].qTransition).toBe(false);
   });
 
   it('TRIGGER_GAME_OVER sets gameOver=true', () => {
     const { result } = renderHook(() => useMcGameReducer([makeQ()], 3));
-    act(() => { result.current[1]({ type: 'TRIGGER_GAME_OVER' }); });
+    act(() => {
+      result.current[1]({ type: 'TRIGGER_GAME_OVER' });
+    });
     expect(result.current[0].gameOver).toBe(true);
   });
 
   it('SET_CONFIRM_QUIT updates confirmQuit', () => {
     const { result } = renderHook(() => useMcGameReducer([makeQ()], 3));
-    act(() => { result.current[1]({ type: 'SET_CONFIRM_QUIT', value: true }); });
+    act(() => {
+      result.current[1]({ type: 'SET_CONFIRM_QUIT', value: true });
+    });
     expect(result.current[0].confirmQuit).toBe(true);
   });
 
   it('TOGGLE_PRACTICE_MODE toggles practiceMode', () => {
     const { result } = renderHook(() => useMcGameReducer([makeQ()], 3));
     expect(result.current[0].practiceMode).toBe(false);
-    act(() => { result.current[1]({ type: 'TOGGLE_PRACTICE_MODE' }); });
+    act(() => {
+      result.current[1]({ type: 'TOGGLE_PRACTICE_MODE' });
+    });
     expect(result.current[0].practiceMode).toBe(true);
-    act(() => { result.current[1]({ type: 'TOGGLE_PRACTICE_MODE' }); });
+    act(() => {
+      result.current[1]({ type: 'TOGGLE_PRACTICE_MODE' });
+    });
     expect(result.current[0].practiceMode).toBe(false);
   });
 
   it('SET_CONTINUE_ANYWAY sets continueAnyway=true and gameOver=false', () => {
     const { result } = renderHook(() => useMcGameReducer([makeQ()], 3));
-    act(() => { result.current[1]({ type: 'TRIGGER_GAME_OVER' }); });
-    act(() => { result.current[1]({ type: 'SET_CONTINUE_ANYWAY' }); });
+    act(() => {
+      result.current[1]({ type: 'TRIGGER_GAME_OVER' });
+    });
+    act(() => {
+      result.current[1]({ type: 'SET_CONTINUE_ANYWAY' });
+    });
     expect(result.current[0].continueAnyway).toBe(true);
     expect(result.current[0].gameOver).toBe(false);
   });
@@ -217,10 +239,19 @@ describe('useMcGameReducer', () => {
     act(() => {
       result.current[1]({
         type: 'ANSWER',
-        payload: { isCorrect: true, optionIndex: 1, question: q, grammarTip: null, persistentHeartsAfter: undefined, isHeartsMode: false },
+        payload: {
+          isCorrect: true,
+          optionIndex: 1,
+          question: q,
+          grammarTip: null,
+          persistentHeartsAfter: undefined,
+          isHeartsMode: false,
+        },
       });
     });
-    act(() => { result.current[1]({ type: 'CLEAR_BURST' }); });
+    act(() => {
+      result.current[1]({ type: 'CLEAR_BURST' });
+    });
     expect(result.current[0].burst).toBe(-1);
   });
 
@@ -230,29 +261,44 @@ describe('useMcGameReducer', () => {
     act(() => {
       result.current[1]({
         type: 'ANSWER',
-        payload: { isCorrect: false, optionIndex: 0, question: q, grammarTip: null, persistentHeartsAfter: undefined, isHeartsMode: false },
+        payload: {
+          isCorrect: false,
+          optionIndex: 0,
+          question: q,
+          grammarTip: null,
+          persistentHeartsAfter: undefined,
+          isHeartsMode: false,
+        },
       });
     });
-    act(() => { result.current[1]({ type: 'CLEAR_SHAKE' }); });
+    act(() => {
+      result.current[1]({ type: 'CLEAR_SHAKE' });
+    });
     expect(result.current[0].shaking).toBe(false);
   });
 
   it('HIDE_COMBO clears showCombo and streakPulse', () => {
     const { result } = renderHook(() => useMcGameReducer([makeQ()], 3));
-    act(() => { result.current[1]({ type: 'HIDE_COMBO' }); });
+    act(() => {
+      result.current[1]({ type: 'HIDE_COMBO' });
+    });
     expect(result.current[0].showCombo).toBe(false);
     expect(result.current[0].streakPulse).toBe(false);
   });
 
   it('CLEAR_GLOW resets glowIndex to -1', () => {
     const { result } = renderHook(() => useMcGameReducer([makeQ()], 3));
-    act(() => { result.current[1]({ type: 'CLEAR_GLOW' }); });
+    act(() => {
+      result.current[1]({ type: 'CLEAR_GLOW' });
+    });
     expect(result.current[0].glowIndex).toBe(-1);
   });
 
   it('CLEAR_ON_A_ROLL sets showOnARoll=false', () => {
     const { result } = renderHook(() => useMcGameReducer([makeQ()], 3));
-    act(() => { result.current[1]({ type: 'CLEAR_ON_A_ROLL' }); });
+    act(() => {
+      result.current[1]({ type: 'CLEAR_ON_A_ROLL' });
+    });
     expect(result.current[0].showOnARoll).toBe(false);
   });
 
@@ -276,7 +322,14 @@ describe('useMcGameReducer', () => {
     act(() => {
       result.current[1]({
         type: 'ANSWER',
-        payload: { isCorrect: false, optionIndex: 0, question: q, grammarTip: null, persistentHeartsAfter: undefined, isHeartsMode: false },
+        payload: {
+          isCorrect: false,
+          optionIndex: 0,
+          question: q,
+          grammarTip: null,
+          persistentHeartsAfter: undefined,
+          isHeartsMode: false,
+        },
       });
     });
     expect(result.current[0].mistakes).toHaveLength(1);
@@ -287,7 +340,14 @@ describe('useMcGameReducer', () => {
     act(() => {
       result.current[1]({
         type: 'ANSWER',
-        payload: { isCorrect: false, optionIndex: 0, question: q, grammarTip: null, persistentHeartsAfter: undefined, isHeartsMode: false },
+        payload: {
+          isCorrect: false,
+          optionIndex: 0,
+          question: q,
+          grammarTip: null,
+          persistentHeartsAfter: undefined,
+          isHeartsMode: false,
+        },
       });
     });
     expect(result.current[0].mistakes).toHaveLength(1);
@@ -301,10 +361,19 @@ describe('useMcGameReducer', () => {
       act(() => {
         result.current[1]({
           type: 'ANSWER',
-          payload: { isCorrect: true, optionIndex: 1, question: q, grammarTip: null, persistentHeartsAfter: undefined, isHeartsMode: false },
+          payload: {
+            isCorrect: true,
+            optionIndex: 1,
+            question: q,
+            grammarTip: null,
+            persistentHeartsAfter: undefined,
+            isHeartsMode: false,
+          },
         });
       });
-      act(() => { result.current[1]({ type: 'ADVANCE_CORRECT' }); });
+      act(() => {
+        result.current[1]({ type: 'ADVANCE_CORRECT' });
+      });
     }
     // After 3rd correct answer, showCombo should have been true
     // (after ADVANCE_CORRECT it's still reflected in the streak count)

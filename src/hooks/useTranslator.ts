@@ -14,10 +14,10 @@ export function useTranslator(): {
   tL: boolean;
   doTr: () => Promise<void>;
 } {
-  const [tDir, setTDir] = useState('en-hr');   // translation direction
-  const [tIn, setTIn] = useState('');           // input text
-  const [tOut, setTOut] = useState('');         // translated output
-  const [tL, setTL] = useState(false);          // loading flag
+  const [tDir, setTDir] = useState('en-hr'); // translation direction
+  const [tIn, setTIn] = useState(''); // input text
+  const [tOut, setTOut] = useState(''); // translated output
+  const [tL, setTL] = useState(false); // loading flag
   const abortRef = useRef<AbortController | null>(null);
 
   async function doTr(): Promise<void> {
@@ -26,7 +26,8 @@ export function useTranslator(): {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    setTL(true); setTOut('');
+    setTL(true);
+    setTOut('');
     const [from, to] = tDir === 'en-hr' ? ['en', 'hr'] : ['hr', 'en'];
     try {
       const r = await fetch('/api/translate', {
@@ -35,11 +36,13 @@ export function useTranslator(): {
         body: JSON.stringify({ text: t, from, to }),
         signal: controller.signal,
       });
-      const d = await r.json() as { translation?: string; error?: string };
+      const d = (await r.json()) as { translation?: string; error?: string };
       if (d.translation) {
         setTOut(d.translation);
       } else if (d.error === 'rate_limit' || r.status === 429) {
-        setTOut('Daily translation limit reached. Try again tomorrow or visit translate.google.com');
+        setTOut(
+          'Daily translation limit reached. Try again tomorrow or visit translate.google.com',
+        );
       } else {
         setTOut('Translation unavailable. Try translate.google.com');
       }

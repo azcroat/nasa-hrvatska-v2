@@ -11,7 +11,9 @@ import {
   detectAndLogCroatianErrors,
 } from '../lib/learnerErrors.js';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 describe('learnerErrors — unified error ledger', () => {
   beforeEach(clearLS);
@@ -29,7 +31,7 @@ describe('learnerErrors — unified error ledger', () => {
     logError('accusative_case', 'grammar');
     logError('accusative_case', 'grammar');
     const errors = getTopErrors(5);
-    const e = errors.find(e => e.pattern === 'accusative_case');
+    const e = errors.find((e) => e.pattern === 'accusative_case');
     expect(e.count).toBe(3);
   });
 
@@ -103,8 +105,8 @@ describe('learnerErrors — unified error ledger', () => {
     logError('čć', 'pronunciation');
     logError('case', 'grammar');
     const grammarOnly = getTopErrors(10, 'grammar');
-    expect(grammarOnly.every(e => e.category === 'grammar')).toBe(true);
-    expect(grammarOnly.some(e => e.pattern === 'čć')).toBe(false);
+    expect(grammarOnly.every((e) => e.category === 'grammar')).toBe(true);
+    expect(grammarOnly.some((e) => e.pattern === 'čć')).toBe(false);
   });
 
   it('each error has a score field', () => {
@@ -120,9 +122,9 @@ describe('learnerErrors — unified error ledger', () => {
     logError('pattern2', 'pronunciation');
     logError('pattern3', 'vocabulary');
     const byCategory = getErrorsByCategory();
-    expect(byCategory.grammar.some(e => e.pattern === 'pattern1')).toBe(true);
-    expect(byCategory.pronunciation.some(e => e.pattern === 'pattern2')).toBe(true);
-    expect(byCategory.vocabulary.some(e => e.pattern === 'pattern3')).toBe(true);
+    expect(byCategory.grammar.some((e) => e.pattern === 'pattern1')).toBe(true);
+    expect(byCategory.pronunciation.some((e) => e.pattern === 'pattern2')).toBe(true);
+    expect(byCategory.vocabulary.some((e) => e.pattern === 'pattern3')).toBe(true);
   });
 
   it('returns empty arrays for unused categories', () => {
@@ -158,9 +160,9 @@ describe('learnerErrors — unified error ledger', () => {
       expect(summary).toContain(e.pattern);
     }
     // Patterns NOT in top3 should not appear in summary
-    const top3patterns = new Set(top3.map(e => e.pattern));
+    const top3patterns = new Set(top3.map((e) => e.pattern));
     const allPatterns = Array.from({ length: 10 }, (_, i) => `pattern${i}`);
-    const excluded = allPatterns.filter(p => !top3patterns.has(p));
+    const excluded = allPatterns.filter((p) => !top3patterns.has(p));
     for (const p of excluded) {
       expect(summary).not.toContain(p);
     }
@@ -238,31 +240,31 @@ describe('learnerErrors — unified error ledger', () => {
     // User types 'noč' but correct is 'noć' — only ć/č differ
     detectAndLogCroatianErrors('noč', 'noć', 'exercise');
     const errors = getTopErrors(5, 'pronunciation');
-    expect(errors.some(e => e.pattern === 'c_vs_c_confusion')).toBe(true);
+    expect(errors.some((e) => e.pattern === 'c_vs_c_confusion')).toBe(true);
   });
 
   it('detects diacritics dropped (e.g. cujem vs čujem)', () => {
     detectAndLogCroatianErrors('cujem', 'čujem', 'exercise');
     const errors = getTopErrors(5, 'pronunciation');
-    expect(errors.some(e => e.pattern === 'diacritics_dropped')).toBe(true);
+    expect(errors.some((e) => e.pattern === 'diacritics_dropped')).toBe(true);
   });
 
   it('detects missing reflexive se', () => {
     detectAndLogCroatianErrors('zovem Marko', 'zovem se Marko', 'exercise');
     const errors = getTopErrors(5, 'grammar');
-    expect(errors.some(e => e.pattern === 'reflexive_missing')).toBe(true);
+    expect(errors.some((e) => e.pattern === 'reflexive_missing')).toBe(true);
   });
 
   it('detects dva vs dvije numeral gender error', () => {
     detectAndLogCroatianErrors('imam dva sestre', 'imam dvije sestre', 'exercise');
     const errors = getTopErrors(5, 'grammar');
-    expect(errors.some(e => e.pattern === 'numeral_gender_dva_dvije')).toBe(true);
+    expect(errors.some((e) => e.pattern === 'numeral_gender_dva_dvije')).toBe(true);
   });
 
   it('detects đ vs dj confusion', () => {
     detectAndLogCroatianErrors('djak', 'đak', 'exercise');
     const errors = getTopErrors(5, 'pronunciation');
-    expect(errors.some(e => e.pattern === 'dj_diacritics')).toBe(true);
+    expect(errors.some((e) => e.pattern === 'dj_diacritics')).toBe(true);
   });
 
   it('detects clitic at sentence-final position', () => {

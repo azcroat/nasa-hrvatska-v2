@@ -5,8 +5,8 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { checkAIQuota } from './_aiQuota.js';
 
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-6';
 
 // ── Security helpers ──────────────────────────────────────────────────────────
 
@@ -25,32 +25,40 @@ function isAllowedOrigin(origin, isDev) {
   if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
-    if (isDev && hostname === "localhost") return true;
-    return hostname === "nasahrvatska.com"
-      || hostname.endsWith(".nasahrvatska.com")
-      || hostname === "nasa-hrvatska-v2.pages.dev"
-      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
-  } catch { return false; }
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
   return {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Cache-Control": "no-cache",
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Cache-Control': 'no-cache',
   };
 }
 
-function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
-function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
+function ok(body, origin) {
+  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+}
+function err(status, msg, origin) {
+  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+}
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
-const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 function sanitizeLevel(level) {
-  return VALID_LEVELS.includes(level) ? level : "B1";
+  return VALID_LEVELS.includes(level) ? level : 'B1';
 }
 
 // ── XP formula ────────────────────────────────────────────────────────────────
@@ -63,12 +71,16 @@ function calcXp(durationSecs, turnCount) {
 // ── Static fallback ───────────────────────────────────────────────────────────
 
 function staticFallback(durationSecs, turnCount, origin) {
-  return ok({
-    summary: "Odlično! We had a great practice session together. I really enjoyed our conversation and could see you working hard throughout.",
-    strength: "You stayed engaged and kept the conversation flowing.",
-    nextStep: "Try to use what we practised today in your next flashcard or writing session.",
-    xpEarned: calcXp(durationSecs, turnCount),
-  }, origin);
+  return ok(
+    {
+      summary:
+        'Odlično! We had a great practice session together. I really enjoyed our conversation and could see you working hard throughout.',
+      strength: 'You stayed engaged and kept the conversation flowing.',
+      nextStep: 'Try to use what we practised today in your next flashcard or writing session.',
+      xpEarned: calcXp(durationSecs, turnCount),
+    },
+    origin,
+  );
 }
 
 // ── PREFLIGHT ──────────────────────────────────────────────────────────────────
@@ -81,14 +93,17 @@ export async function onRequestOptions({ request }) {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestPost({ request, env }) {
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
 
-  const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+  const isDev = env.ENVIRONMENT !== 'production';
+  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
   const allowed = await checkRateLimit(request, 20);
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
+      status: 429,
+      headers: corsHeaders(origin),
+    });
   }
 
   // No auth required — no personal data stored
@@ -97,30 +112,39 @@ export async function onRequestPost({ request, env }) {
   const quota = await checkAIQuota(request, env, null, 1);
   if (!quota.allowed) {
     return new Response(
-      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
-      { status: 429, headers: corsHeaders(origin) }
+      JSON.stringify({
+        error: 'daily_quota_exceeded',
+        message: 'Daily AI limit reached. Resets at midnight UTC.',
+        resetAt: quota.resetAt,
+      }),
+      { status: 429, headers: corsHeaders(origin) },
     );
   }
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
+  if (!ANTHROPIC_KEY) return err(500, 'Service not configured', origin);
 
-  const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);
 
   let body;
-  try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body", origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON in request body', origin);
+  }
 
   const { transcript, level, topic, durationSecs, turnCount } = body;
 
-  const safeLevel = sanitizeLevel(typeof level === "string" ? level.trim() : "");
-  const safeTopic = sanitizeParam(typeof topic === "string" ? topic : "", 100);
-  const safeDurationSecs = Number.isFinite(durationSecs) ? Math.max(0, Math.floor(durationSecs)) : 0;
+  const safeLevel = sanitizeLevel(typeof level === 'string' ? level.trim() : '');
+  const safeTopic = sanitizeParam(typeof topic === 'string' ? topic : '', 100);
+  const safeDurationSecs = Number.isFinite(durationSecs)
+    ? Math.max(0, Math.floor(durationSecs))
+    : 0;
   const safeTurnCount = Number.isFinite(turnCount) ? Math.max(0, Math.floor(turnCount)) : 0;
 
   // Short/empty transcript fallback — no Claude call needed
-  const safeTranscript = typeof transcript === "string" ? transcript.trim() : "";
+  const safeTranscript = typeof transcript === 'string' ? transcript.trim() : '';
   if (safeTranscript.length < 20) {
     return staticFallback(safeDurationSecs, safeTurnCount, origin);
   }
@@ -159,22 +183,22 @@ export async function onRequestPost({ request, env }) {
   let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_KEY,
-        "anthropic-version": "2023-06-01",
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
       },
       signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 500,
         system: systemPrompt,
-        messages: [{ role: "user", content: userMessage }],
+        messages: [{ role: 'user', content: userMessage }],
       }),
     });
   } catch (fetchErr) {
-    console.error("live-tutor-summary.js: network error calling Anthropic:", fetchErr.message);
+    console.error('live-tutor-summary.js: network error calling Anthropic:', fetchErr.message);
     return staticFallback(safeDurationSecs, safeTurnCount, origin);
   }
 
@@ -183,15 +207,19 @@ export async function onRequestPost({ request, env }) {
   try {
     rawBody = await res.text();
   } catch (bodyErr) {
-    console.error("live-tutor-summary.js: failed to read response body:", bodyErr.message);
+    console.error('live-tutor-summary.js: failed to read response body:', bodyErr.message);
     return staticFallback(safeDurationSecs, safeTurnCount, origin);
   }
 
   // Block 3: check res.ok — map errors to client-safe responses
   if (!res.ok) {
     let errMsg;
-    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
-    console.error("live-tutor-summary.js: Anthropic API error", res.status, errMsg);
+    try {
+      errMsg = JSON.parse(rawBody)?.error?.message;
+    } catch {
+      /* not JSON */
+    }
+    console.error('live-tutor-summary.js: Anthropic API error', res.status, errMsg);
     return staticFallback(safeDurationSecs, safeTurnCount, origin);
   }
 
@@ -200,23 +228,26 @@ export async function onRequestPost({ request, env }) {
   try {
     data = JSON.parse(rawBody);
   } catch {
-    console.error("live-tutor-summary.js: JSON parse failed:", rawBody.slice(0, 200));
+    console.error('live-tutor-summary.js: JSON parse failed:', rawBody.slice(0, 200));
     return staticFallback(safeDurationSecs, safeTurnCount, origin);
   }
 
-  const raw = data?.content?.[0]?.text?.trim() || "";
+  const raw = data?.content?.[0]?.text?.trim() || '';
   if (!raw) {
-    console.error("live-tutor-summary.js: Anthropic returned empty response");
+    console.error('live-tutor-summary.js: Anthropic returned empty response');
     return staticFallback(safeDurationSecs, safeTurnCount, origin);
   }
 
   // ── Parse and validate response ────────────────────────────────────────────
   let parsed;
   try {
-    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const cleaned = raw
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/, '')
+      .trim();
     parsed = JSON.parse(cleaned);
   } catch {
-    console.error("live-tutor-summary.js: JSON parse failed. Raw:", raw.slice(0, 200));
+    console.error('live-tutor-summary.js: JSON parse failed. Raw:', raw.slice(0, 200));
     return staticFallback(safeDurationSecs, safeTurnCount, origin);
   }
 
@@ -224,10 +255,13 @@ export async function onRequestPost({ request, env }) {
   let xpEarned = Number.isFinite(parsed.xpEarned) ? Math.round(parsed.xpEarned) : xpHint;
   xpEarned = Math.min(75, Math.max(25, xpEarned));
 
-  return ok({
-    summary:  sanitizeParam(String(parsed.summary  || ""), 600),
-    strength: sanitizeParam(String(parsed.strength || ""), 300),
-    nextStep: sanitizeParam(String(parsed.nextStep || ""), 300),
-    xpEarned,
-  }, origin);
+  return ok(
+    {
+      summary: sanitizeParam(String(parsed.summary || ''), 600),
+      strength: sanitizeParam(String(parsed.strength || ''), 300),
+      nextStep: sanitizeParam(String(parsed.nextStep || ''), 300),
+      xpEarned,
+    },
+    origin,
+  );
 }

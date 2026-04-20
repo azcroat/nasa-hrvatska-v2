@@ -28,18 +28,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -100,7 +116,7 @@ function renderConjugationDrill(overrides = {}) {
 function completeAllAndFinish(
   award: ReturnType<typeof vi.fn> = vi.fn(),
   goBack: ReturnType<typeof vi.fn> = vi.fn(),
-  setSt: ReturnType<typeof vi.fn> = vi.fn()
+  setSt: ReturnType<typeof vi.fn> = vi.fn(),
 ) {
   const { container } = render(<ConjugationDrill award={award} goBack={goBack} setSt={setSt} />);
   // Click "All Tenses" to start the quiz
@@ -123,7 +139,10 @@ function completeAllAndFinish(
 // ── Rendering — menu screen ───────────────────────────────────────────────────
 
 describe('ConjugationDrill — menu screen', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); mockWriteDelta.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+    mockWriteDelta.mockClear();
+  });
 
   it('renders without crashing', () => {
     renderConjugationDrill();
@@ -152,7 +171,10 @@ describe('ConjugationDrill — menu screen', () => {
 // ── Quiz start ────────────────────────────────────────────────────────────────
 
 describe('ConjugationDrill — quiz start', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); mockWriteDelta.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+    mockWriteDelta.mockClear();
+  });
 
   it('clicking All Tenses transitions to quiz mode', () => {
     renderConjugationDrill();
@@ -199,7 +221,10 @@ describe('ConjugationDrill — quiz start', () => {
 // ── Answer mechanics ──────────────────────────────────────────────────────────
 
 describe('ConjugationDrill — answer mechanics', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); mockWriteDelta.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+    mockWriteDelta.mockClear();
+  });
 
   it('shows Next → after answering first question', () => {
     const { container } = renderConjugationDrill();
@@ -216,7 +241,9 @@ describe('ConjugationDrill — answer mechanics', () => {
 
   it('options are locked after answering — guard prevents double-count', () => {
     const award = vi.fn();
-    const { container } = render(<ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />);
+    const { container } = render(
+      <ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />,
+    );
     fireEvent.click(screen.getByText('All Tenses'));
     const optBtn = container.querySelector('button.ob')!;
     fireEvent.click(optBtn);
@@ -228,7 +255,9 @@ describe('ConjugationDrill — answer mechanics', () => {
 
   it('award(3) is called when a correct answer is given', () => {
     const award = vi.fn();
-    const { container } = render(<ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />);
+    const { container } = render(
+      <ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />,
+    );
     fireEvent.click(screen.getByText('All Tenses'));
     // First .ob is always correct (answer prepended, identity shuffle)
     fireEvent.click(container.querySelector('button.ob')!);
@@ -260,7 +289,10 @@ describe('ConjugationDrill — answer mechanics', () => {
 // ── Completion / XP award guard ───────────────────────────────────────────────
 
 describe('ConjugationDrill — completion + award guard', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); mockWriteDelta.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+    mockWriteDelta.mockClear();
+  });
 
   it('shows done screen after all 20 questions answered', () => {
     completeAllAndFinish();
@@ -270,7 +302,9 @@ describe('ConjugationDrill — completion + award guard', () => {
   });
 
   it('shows Conjugation Complete! heading on done screen', () => {
-    const { container } = render(<ConjugationDrill goBack={vi.fn()} award={vi.fn()} setSt={vi.fn()} />);
+    const { container } = render(
+      <ConjugationDrill goBack={vi.fn()} award={vi.fn()} setSt={vi.fn()} />,
+    );
     fireEvent.click(screen.getByText('All Tenses'));
     for (let i = 0; i < 20; i++) {
       const optBtn = container.querySelector('button.ob');
@@ -283,7 +317,9 @@ describe('ConjugationDrill — completion + award guard', () => {
   });
 
   it('shows score on done screen (20 / 20)', () => {
-    const { container } = render(<ConjugationDrill goBack={vi.fn()} award={vi.fn()} setSt={vi.fn()} />);
+    const { container } = render(
+      <ConjugationDrill goBack={vi.fn()} award={vi.fn()} setSt={vi.fn()} />,
+    );
     fireEvent.click(screen.getByText('All Tenses'));
     for (let i = 0; i < 20; i++) {
       const optBtn = container.querySelector('button.ob');
@@ -297,7 +333,9 @@ describe('ConjugationDrill — completion + award guard', () => {
 
   it('award called 20 times with 3 (once per correct answer)', () => {
     const award = vi.fn();
-    const { container } = render(<ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />);
+    const { container } = render(
+      <ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />,
+    );
     fireEvent.click(screen.getByText('All Tenses'));
     for (let i = 0; i < 20; i++) {
       const optBtn = container.querySelector('button.ob');
@@ -307,7 +345,7 @@ describe('ConjugationDrill — completion + award guard', () => {
       if (nextBtn) fireEvent.click(nextBtn);
     }
     // 20 correct answers → award(3) called 20 times (before Finish click)
-    expect(award.mock.calls.filter(c => c[0] === 3).length).toBe(20);
+    expect(award.mock.calls.filter((c) => c[0] === 3).length).toBe(20);
   });
 
   it('award(cjS * 2 + 10) called on Finish (20 correct → award(50))', () => {
@@ -342,7 +380,10 @@ describe('ConjugationDrill — completion + award guard', () => {
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 describe('ConjugationDrill — navigation', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); mockWriteDelta.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+    mockWriteDelta.mockClear();
+  });
 
   it('goBack is called when Finish is clicked on done screen', () => {
     const goBack = vi.fn();

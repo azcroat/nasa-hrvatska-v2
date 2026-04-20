@@ -21,7 +21,5 @@ export function knightSpeak(mood: string, text: string, delay = 0): void {
  */
 export function knightFlash(mood: string, durationMs = 1800): void {
   if (typeof window === 'undefined') return;
-  window.dispatchEvent(
-    new CustomEvent('knight:flash', { detail: { mood, durationMs } }),
-  );
+  window.dispatchEvent(new CustomEvent('knight:flash', { detail: { mood, durationMs } }));
 }

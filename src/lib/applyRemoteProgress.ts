@@ -30,7 +30,13 @@ export interface RemoteProgressSetters {
 
 function todayStr(): string {
   const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  return (
+    d.getFullYear() +
+    '-' +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(d.getDate()).padStart(2, '0')
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,19 +78,21 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   // Math.max policy used for all other numeric stats.
   if (fp.streak || (fp.stats as Record<string, unknown>)?.str) {
     let lSt: { count: number; last: string } = { count: 0, last: '' };
-    try { lSt = JSON.parse(localStorage.getItem('uStreak') || '{"count":0,"last":""}'); } catch (_) {}
+    try {
+      lSt = JSON.parse(localStorage.getItem('uStreak') || '{"count":0,"last":""}');
+    } catch (_) {}
     const remoteStreak = fp.streak as { count?: number; last?: string } | undefined;
     // Also consult stats.str (set by mergeStatsFromRemote in _processSnapshot) as a
     // source of truth — this ensures the streak count from the Firestore top-level
     // stats field is also respected.
     const fpCount = Math.max(
       remoteStreak?.count || 0,
-      ((fp.stats as Record<string, unknown>)?.str as number) || 0
+      ((fp.stats as Record<string, unknown>)?.str as number) || 0,
     );
     const fpLast = remoteStreak?.last || '';
     const newCount = Math.max(lSt.count || 0, fpCount);
     // Take the most-recent "last" date so we never backdate activity
-    const newLast = fpLast > (lSt.last || '') ? fpLast : (lSt.last || '');
+    const newLast = fpLast > (lSt.last || '') ? fpLast : lSt.last || '';
     if (newCount !== lSt.count || newLast !== lSt.last) {
       localStorage.setItem('uStreak', JSON.stringify({ ...lSt, count: newCount, last: newLast }));
     }
@@ -93,18 +101,27 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   // ── Streak freeze tokens — Math.max ───────────────────────────────────────
   if (fp.freezes !== undefined) {
     const lF = parseInt(localStorage.getItem('uFreeze') || '0', 10);
-    localStorage.setItem('uFreeze', String(Math.max(lF, Math.max(0, parseInt(fp.freezes, 10) || 0))));
+    localStorage.setItem(
+      'uFreeze',
+      String(Math.max(lF, Math.max(0, parseInt(fp.freezes, 10) || 0))),
+    );
   }
 
   // ── Favourites — dedup union keyed on hr ──────────────────────────────────
   if (fp.favs) {
     let lFv: unknown[] = [];
-    try { lFv = JSON.parse(localStorage.getItem('uFavs') || '[]'); } catch (_) {}
+    try {
+      lFv = JSON.parse(localStorage.getItem('uFavs') || '[]');
+    } catch (_) {}
     const favMap = new Map<string, unknown>();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [...lFv, ...fp.favs].forEach((f: any) => { if (f && f.hr) favMap.set(f.hr, f); });
+    [...lFv, ...fp.favs].forEach((f: any) => {
+      if (f && f.hr) favMap.set(f.hr, f);
+    });
     const mFv = [...favMap.values()];
-    try { localStorage.setItem('uFavs', JSON.stringify(mFv)); } catch (e: unknown) {
+    try {
+      localStorage.setItem('uFavs', JSON.stringify(mFv));
+    } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'QuotaExceededError') {
         console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
       }
@@ -115,17 +132,25 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   // ── Journal — dedup union keyed on word ───────────────────────────────────
   if (fp.journal) {
     let lJ: unknown[] = [];
-    try { lJ = JSON.parse(localStorage.getItem('uJournal') || '[]'); } catch (_) {}
+    try {
+      lJ = JSON.parse(localStorage.getItem('uJournal') || '[]');
+    } catch (_) {}
     const jM = new Map<string, unknown>();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // Remote entries set first; local entries set second so local wins on conflict
     // (preserves user notes/edits made on this device over older remote entries).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    fp.journal.forEach((e: any) => { if (e?.word) jM.set(e.word, e); });
+    fp.journal.forEach((e: any) => {
+      if (e?.word) jM.set(e.word, e);
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    lJ.forEach((e: any) => { if (e?.word) jM.set(e.word, e); });
+    lJ.forEach((e: any) => {
+      if (e?.word) jM.set(e.word, e);
+    });
     const mJ = Array.from(jM.values());
-    try { localStorage.setItem('uJournal', JSON.stringify(mJ)); } catch (e: unknown) {
+    try {
+      localStorage.setItem('uJournal', JSON.stringify(mJ));
+    } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'QuotaExceededError') {
         console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
       }
@@ -136,8 +161,10 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   // ── Daily challenge — restore today's answers ─────────────────────────────
   if (fp.dc?.day === today) {
     const ans = fp.dc.answered || [false, false, false];
-    const sel = Array.isArray(fp.dc.selected) && typeof fp.dc.selected[0] === 'string'
-      ? fp.dc.selected : ['', '', ''];
+    const sel =
+      Array.isArray(fp.dc.selected) && typeof fp.dc.selected[0] === 'string'
+        ? fp.dc.selected
+        : ['', '', ''];
     let lA: boolean[] = [false, false, false];
     try {
       const ld = JSON.parse(localStorage.getItem('dcDay3') || '{}');
@@ -152,8 +179,12 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   // ── XP cooldown — only restore today's cooldown entries ──────────────────
   if (fp.cooldown) {
     let cd: Record<string, string> = {};
-    try { cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}'); } catch (_) {}
-    for (const k in fp.cooldown) { if (fp.cooldown[k] === today) cd[k] = fp.cooldown[k]; }
+    try {
+      cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}');
+    } catch (_) {}
+    for (const k in fp.cooldown) {
+      if (fp.cooldown[k] === today) cd[k] = fp.cooldown[k];
+    }
     localStorage.setItem('xpCooldown', JSON.stringify(cd));
   }
 
@@ -177,63 +208,99 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
     const CEFR_NUM: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 6 };
     const localLevel = localStorage.getItem('nh_level') || '';
     const remoteOrd = CEFR_NUM[fp.nh_level as string] || 0;
-    const localOrd  = CEFR_NUM[localLevel] || 0;
+    const localOrd = CEFR_NUM[localLevel] || 0;
     if (remoteOrd >= localOrd) localStorage.setItem('nh_level', fp.nh_level);
   }
-  if (fp.nh_goal) { localStorage.setItem('nh_goal', fp.nh_goal); localStorage.setItem('nh_goal_set', '1'); }
+  if (fp.nh_goal) {
+    localStorage.setItem('nh_goal', fp.nh_goal);
+    localStorage.setItem('nh_goal_set', '1');
+  }
   if (fp.nh_culture) localStorage.setItem('nh_culture', fp.nh_culture);
   if (fp.nh_daily_goal_xp > 0) {
     const lDgx = parseInt(localStorage.getItem('nh_daily_goal_xp') || '0', 10);
     // Remote wins when it has a value and local has none; otherwise keep local (most recent edit)
     if (!lDgx) localStorage.setItem('nh_daily_goal_xp', String(fp.nh_daily_goal_xp));
   }
-  if (fp.nh_placement_done) { localStorage.setItem('nh_placement_done', 'true'); localStorage.setItem('placement_done', 'true'); }
+  if (fp.nh_placement_done) {
+    localStorage.setItem('nh_placement_done', 'true');
+    localStorage.setItem('placement_done', 'true');
+  }
   if (fp.nh_grammar_track_done) localStorage.setItem('nh_grammar_track_done', 'true');
 
   // ── UI/accessibility preferences ──────────────────────────────────────────
   // Three-state values (null | 'true' | 'false'): only write when remote is non-null
-  if (fp.darkMode !== null && fp.darkMode !== undefined) localStorage.setItem('darkMode', fp.darkMode);
+  if (fp.darkMode !== null && fp.darkMode !== undefined)
+    localStorage.setItem('darkMode', fp.darkMode);
   if (fp.nh_dm_explicit) localStorage.setItem('nh_dm_explicit', '1');
-  if (fp.nh_sound_enabled !== null && fp.nh_sound_enabled !== undefined) localStorage.setItem('nh_sound_enabled', fp.nh_sound_enabled);
-  if (fp.nh_haptic_enabled !== null && fp.nh_haptic_enabled !== undefined) localStorage.setItem('nh_haptic_enabled', fp.nh_haptic_enabled);
+  if (fp.nh_sound_enabled !== null && fp.nh_sound_enabled !== undefined)
+    localStorage.setItem('nh_sound_enabled', fp.nh_sound_enabled);
+  if (fp.nh_haptic_enabled !== null && fp.nh_haptic_enabled !== undefined)
+    localStorage.setItem('nh_haptic_enabled', fp.nh_haptic_enabled);
   if (fp.nh_voice_pref) localStorage.setItem('nh_voice_pref', fp.nh_voice_pref);
   // nh_font_size: null means "never explicitly set on remote device" — skip write.
   // Any non-null value (including 'medium') is an explicit user choice and should sync.
-  if (fp.nh_font_size !== null && fp.nh_font_size !== undefined) localStorage.setItem('nh_font_size', fp.nh_font_size);
+  if (fp.nh_font_size !== null && fp.nh_font_size !== undefined)
+    localStorage.setItem('nh_font_size', fp.nh_font_size);
   if (fp.nh_reduce_motion === true) localStorage.setItem('nh_reduce_motion', 'true');
   if (fp.nh_autotts === true) localStorage.setItem('nh_autotts', 'true');
 
   // ── Journey milestones — additive union: never discard history ────────────
   if (Array.isArray(fp.nh_journey) && fp.nh_journey.length > 0) {
     let lJ: Array<{ type: string; date: string }> = [];
-    try { lJ = JSON.parse(localStorage.getItem('nh_journey') || '[]'); } catch (_) {}
+    try {
+      lJ = JSON.parse(localStorage.getItem('nh_journey') || '[]');
+    } catch (_) {}
     const seen = new Set(lJ.map((m) => m.type + '|' + m.date));
     const incoming = fp.nh_journey.filter(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (m: any) => m && m.type && m.date && !seen.has(m.type + '|' + m.date)
+      (m: any) => m && m.type && m.date && !seen.has(m.type + '|' + m.date),
     );
     if (incoming.length) {
-      try { localStorage.setItem('nh_journey', JSON.stringify([...lJ, ...incoming].slice(-200))); } catch (_) {}
+      try {
+        localStorage.setItem('nh_journey', JSON.stringify([...lJ, ...incoming].slice(-200)));
+      } catch (_) {}
     }
   }
 
   // ── Weekend activity — merge sat/sun independently ────────────────────────
   if (fp.nh_weekend_days && typeof fp.nh_weekend_days === 'object') {
     let lWD: Record<string, boolean> = {};
-    try { lWD = JSON.parse(localStorage.getItem('nh_weekend_days') || '{}'); } catch (_) {}
+    try {
+      lWD = JSON.parse(localStorage.getItem('nh_weekend_days') || '{}');
+    } catch (_) {}
     const merged = { ...fp.nh_weekend_days, ...lWD }; // local wins for shared keys
     if (merged.sat || merged.sun) {
-      try { localStorage.setItem('nh_weekend_days', JSON.stringify(merged)); } catch (_) {}
+      try {
+        localStorage.setItem('nh_weekend_days', JSON.stringify(merged));
+      } catch (_) {}
     }
   }
 
   // ── Seasonal/campaign quest completion — additive ─────────────────────────
-  if (fp.nh_uskrs_kviz_done === true) try { localStorage.setItem('nh_uskrs_kviz_done', '1'); } catch (_) {}
-  if (fp.nh_cq_easter_uskrs_q1 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q1', '1'); } catch (_) {}
-  if (fp.nh_cq_easter_uskrs_q2 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q2', '1'); } catch (_) {}
-  if (fp.nh_cq_easter_uskrs_q3 === true) try { localStorage.setItem('nh_cq_easter_uskrs_q3', '1'); } catch (_) {}
-  if (fp.nh_cq_easter_uskrs_q1 === true || fp.nh_cq_easter_uskrs_q2 === true || fp.nh_cq_easter_uskrs_q3 === true) {
-    try { window.dispatchEvent(new CustomEvent('nh-campaign-quest-done')); } catch (_) {}
+  if (fp.nh_uskrs_kviz_done === true)
+    try {
+      localStorage.setItem('nh_uskrs_kviz_done', '1');
+    } catch (_) {}
+  if (fp.nh_cq_easter_uskrs_q1 === true)
+    try {
+      localStorage.setItem('nh_cq_easter_uskrs_q1', '1');
+    } catch (_) {}
+  if (fp.nh_cq_easter_uskrs_q2 === true)
+    try {
+      localStorage.setItem('nh_cq_easter_uskrs_q2', '1');
+    } catch (_) {}
+  if (fp.nh_cq_easter_uskrs_q3 === true)
+    try {
+      localStorage.setItem('nh_cq_easter_uskrs_q3', '1');
+    } catch (_) {}
+  if (
+    fp.nh_cq_easter_uskrs_q1 === true ||
+    fp.nh_cq_easter_uskrs_q2 === true ||
+    fp.nh_cq_easter_uskrs_q3 === true
+  ) {
+    try {
+      window.dispatchEvent(new CustomEvent('nh-campaign-quest-done'));
+    } catch (_) {}
   }
 
   // ── Hearts — remote wins only when its lastRegen is newer ────────────────
@@ -249,40 +316,69 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   // ── Prestige — Math.max ───────────────────────────────────────────────────
   if (fp.nh_prestige) {
     const lPr = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
-    try { localStorage.setItem('nh_prestige', String(Math.max(lPr, fp.nh_prestige))); } catch (_) {}
+    try {
+      localStorage.setItem('nh_prestige', String(Math.max(lPr, fp.nh_prestige)));
+    } catch (_) {}
   }
 
   // ── Checkpoints — union (local wins on conflict) ──────────────────────────
   if (fp.nh_checkpoints && typeof fp.nh_checkpoints === 'object') {
     let lCk: Record<string, unknown> = {};
-    try { lCk = JSON.parse(localStorage.getItem('nh_checkpoints') || '{}'); } catch (_) {}
-    try { localStorage.setItem('nh_checkpoints', JSON.stringify({ ...fp.nh_checkpoints, ...lCk })); } catch (_) {}
+    try {
+      lCk = JSON.parse(localStorage.getItem('nh_checkpoints') || '{}');
+    } catch (_) {}
+    try {
+      localStorage.setItem('nh_checkpoints', JSON.stringify({ ...fp.nh_checkpoints, ...lCk }));
+    } catch (_) {}
   }
 
   // ── Custom words — dedup union keyed on word.word ─────────────────────────
   if (Array.isArray(fp.nh_custom_words) && fp.nh_custom_words.length > 0) {
     let lCW: unknown[] = [];
-    try { lCW = JSON.parse(localStorage.getItem('nh_custom_words') || '[]'); } catch (_) {}
+    try {
+      lCW = JSON.parse(localStorage.getItem('nh_custom_words') || '[]');
+    } catch (_) {}
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cwMap = new Map([...fp.nh_custom_words, ...lCW].map((w: any) => [w?.word || JSON.stringify(w), w]));
-    try { localStorage.setItem('nh_custom_words', JSON.stringify([...cwMap.values()])); } catch (_) {}
+    const cwMap = new Map(
+      [...fp.nh_custom_words, ...lCW].map((w: any) => [w?.word || JSON.stringify(w), w]),
+    );
+    try {
+      localStorage.setItem('nh_custom_words', JSON.stringify([...cwMap.values()]));
+    } catch (_) {}
   }
 
   // ── Miscellaneous additive flags ──────────────────────────────────────────
-  if (fp.nh_hearts_always_on === true) try { localStorage.setItem('nh_hearts_always_on', 'true'); } catch (_) {}
-  if (fp.nh_used_free_repair === true) try { localStorage.setItem('nh_used_free_repair', '1'); } catch (_) {}
+  if (fp.nh_hearts_always_on === true)
+    try {
+      localStorage.setItem('nh_hearts_always_on', 'true');
+    } catch (_) {}
+  if (fp.nh_used_free_repair === true)
+    try {
+      localStorage.setItem('nh_used_free_repair', '1');
+    } catch (_) {}
 
   // ── Saved phrases — union ─────────────────────────────────────────────────
   if (Array.isArray(fp.nh_saved_phrases) && fp.nh_saved_phrases.length > 0) {
     let lSP: string[] = [];
-    try { lSP = JSON.parse(localStorage.getItem('nh_saved_phrases') || '[]'); } catch (_) {}
-    try { localStorage.setItem('nh_saved_phrases', JSON.stringify([...new Set([...lSP, ...fp.nh_saved_phrases])])); } catch (_) {}
+    try {
+      lSP = JSON.parse(localStorage.getItem('nh_saved_phrases') || '[]');
+    } catch (_) {}
+    try {
+      localStorage.setItem(
+        'nh_saved_phrases',
+        JSON.stringify([...new Set([...lSP, ...fp.nh_saved_phrases])]),
+      );
+    } catch (_) {}
   }
 
   // ── Media done — union (local wins on conflict) ───────────────────────────
   if (fp.nh_media_done && typeof fp.nh_media_done === 'object') {
     let lMD: Record<string, unknown> = {};
-    try { lMD = JSON.parse(localStorage.getItem('nh_media_done') || '{}'); } catch (_) {}
-    try { localStorage.setItem('nh_media_done', JSON.stringify({ ...fp.nh_media_done, ...lMD })); } catch (_) {}
+    try {
+      lMD = JSON.parse(localStorage.getItem('nh_media_done') || '{}');
+    } catch (_) {}
+    try {
+      localStorage.setItem('nh_media_done', JSON.stringify({ ...fp.nh_media_done, ...lMD }));
+    } catch (_) {}
   }
 }

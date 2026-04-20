@@ -23,7 +23,7 @@ export default function GrammarConstellation({ goBack, award }) {
   const shuffledQuiz = useMemo(() => sh([...QUIZ]), []);
 
   function toggleCase(id) {
-    setExpandedCase(prev => (prev === id ? null : id));
+    setExpandedCase((prev) => (prev === id ? null : id));
   }
 
   function startQuiz() {
@@ -39,13 +39,13 @@ export default function GrammarConstellation({ goBack, award }) {
     setSelected(opt);
     setAnswered(true);
     if (opt === shuffledQuiz[quizIdx].answer) {
-      setQuizScore(s => s + 1);
+      setQuizScore((s) => s + 1);
     }
   }
 
   function handleNext() {
     if (quizIdx < shuffledQuiz.length - 1) {
-      setQuizIdx(i => i + 1);
+      setQuizIdx((i) => i + 1);
       setSelected(null);
       setAnswered(false);
     } else {
@@ -57,7 +57,7 @@ export default function GrammarConstellation({ goBack, award }) {
         if (typeof award === 'function') award(fs * 10);
         markQuest('grammar');
         if (!stats.vs?.includes('grammarmap')) {
-          setStats(prev => {
+          setStats((prev) => {
             if (prev.vs?.includes('grammarmap')) return prev;
             return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'grammarmap'] };
           });

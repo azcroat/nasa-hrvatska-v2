@@ -16,7 +16,7 @@ export function isNative(): boolean {
   // Dev/CI servers always have a port (e.g. localhost:4173).
   if (window.location.hostname === 'localhost' && !window.location.port) return true;
   // Fallback: Capacitor bridge API (may not be injected at module load time)
-  return !!((window as unknown as CapacitorWindow).Capacitor?.isNativePlatform?.());
+  return !!(window as unknown as CapacitorWindow).Capacitor?.isNativePlatform?.();
 }
 
 export function isAndroid(): boolean {
@@ -34,8 +34,13 @@ export function isIos(): boolean {
 }
 
 export function isSpeechRecognitionSupported(): boolean {
-  return typeof window !== 'undefined' &&
-    !!((window as unknown as CapacitorWindow).SpeechRecognition || (window as unknown as CapacitorWindow).webkitSpeechRecognition);
+  return (
+    typeof window !== 'undefined' &&
+    !!(
+      (window as unknown as CapacitorWindow).SpeechRecognition ||
+      (window as unknown as CapacitorWindow).webkitSpeechRecognition
+    )
+  );
 }
 
 /**

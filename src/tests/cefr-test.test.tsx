@@ -22,18 +22,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -80,12 +96,15 @@ function completeA1(award: ReturnType<typeof vi.fn> = vi.fn()) {
   fireEvent.click(screen.getByText('A1 — Beginner'));
   for (let i = 0; i < 15; i++) {
     // Click first option button (always correct with identity shuffle + answer:0)
-    const opts = screen.getAllByRole('button').filter(b =>
-      !b.textContent?.includes('Change level') &&
-      !b.textContent?.includes('Next') &&
-      !b.textContent?.includes('See Results') &&
-      !b.textContent?.includes('Try Another')
-    );
+    const opts = screen
+      .getAllByRole('button')
+      .filter(
+        (b) =>
+          !b.textContent?.includes('Change level') &&
+          !b.textContent?.includes('Next') &&
+          !b.textContent?.includes('See Results') &&
+          !b.textContent?.includes('Try Another'),
+      );
     fireEvent.click(opts[0]);
     const nextBtn = screen.queryByText('Next Question →') ?? screen.queryByText('See Results →');
     if (nextBtn) fireEvent.click(nextBtn);
@@ -179,34 +198,42 @@ describe('CefrTest — answer mechanics', () => {
     startA1Level();
     // CefrTest option buttons render as <button><span>A</span><span>Thank you</span></button>
     // so textContent = "AThank you" — use includes() not exact equality
-    const opts = screen.getAllByRole('button').filter(b =>
-      ['Thank you', 'Hello', 'Goodbye', 'Please'].some(text => b.textContent?.includes(text))
-    );
+    const opts = screen
+      .getAllByRole('button')
+      .filter((b) =>
+        ['Thank you', 'Hello', 'Goodbye', 'Please'].some((text) => b.textContent?.includes(text)),
+      );
     expect(opts.length).toBe(4);
     fireEvent.click(opts[0]);
     // After answering, all option buttons should be disabled
-    opts.forEach(btn => expect((btn as HTMLButtonElement).disabled).toBe(true));
+    opts.forEach((btn) => expect((btn as HTMLButtonElement).disabled).toBe(true));
   });
 
   it('shows See Results → on the last question after answering', () => {
     renderCefrTest();
     fireEvent.click(screen.getByText('A1 — Beginner'));
     for (let i = 0; i < 14; i++) {
-      const opts = screen.getAllByRole('button').filter(b =>
-        !b.textContent?.includes('Change level') &&
-        !b.textContent?.includes('Next') &&
-        !b.textContent?.includes('See Results') &&
-        !b.textContent?.includes('Try Another')
-      );
+      const opts = screen
+        .getAllByRole('button')
+        .filter(
+          (b) =>
+            !b.textContent?.includes('Change level') &&
+            !b.textContent?.includes('Next') &&
+            !b.textContent?.includes('See Results') &&
+            !b.textContent?.includes('Try Another'),
+        );
       fireEvent.click(opts[0]);
       fireEvent.click(screen.getByText('Next Question →'));
     }
     // Last question (idx=14)
-    const opts = screen.getAllByRole('button').filter(b =>
-      !b.textContent?.includes('Change level') &&
-      !b.textContent?.includes('See Results') &&
-      !b.textContent?.includes('Try Another')
-    );
+    const opts = screen
+      .getAllByRole('button')
+      .filter(
+        (b) =>
+          !b.textContent?.includes('Change level') &&
+          !b.textContent?.includes('See Results') &&
+          !b.textContent?.includes('Try Another'),
+      );
     fireEvent.click(opts[0]);
     expect(screen.getByText('See Results →')).toBeTruthy();
   });

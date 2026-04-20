@@ -30,11 +30,17 @@ interface TopicMap {
 }
 
 function _load(): TopicMap {
-  try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(KEY) || '{}');
+  } catch {
+    return {};
+  }
 }
 
 function _save(data: TopicMap): void {
-  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {}
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  } catch {}
 }
 
 // ─── Core tracking ──────────────────────────────────────────────────────────
@@ -44,7 +50,7 @@ export function recordTopicResult(topicId: string, correct: boolean): void {
   const curr = data[topicId] || { attempts: 0, correct: 0, lastAttempt: 0 };
   // If last attempt was >30 days ago, start a fresh window so historical
   // struggles don't permanently haunt the adaptive panel.
-  const isStale = curr.lastAttempt > 0 && (Date.now() - curr.lastAttempt) > STALE_MS;
+  const isStale = curr.lastAttempt > 0 && Date.now() - curr.lastAttempt > STALE_MS;
   const base = isStale ? { attempts: 0, correct: 0 } : curr;
   data[topicId] = {
     attempts: base.attempts + 1,
@@ -61,18 +67,21 @@ export function getTopicAccuracy(topicId: string): { accuracy: number; attempts:
   return { accuracy: Math.round((t.correct / t.attempts) * 100), attempts: t.attempts };
 }
 
-export function getWeakTopics(threshold = 60): Array<{ id: string; accuracy: number; attempts: number }> {
+export function getWeakTopics(
+  threshold = 60,
+): Array<{ id: string; accuracy: number; attempts: number }> {
   const data = _load();
   const now = Date.now();
   return Object.entries(data)
-    .filter(([, v]) =>
-      v.attempts >= 3 &&
-      (v.correct / v.attempts * 100) < threshold &&
-      (now - v.lastAttempt) < STALE_MS  // only surface recent data
+    .filter(
+      ([, v]) =>
+        v.attempts >= 3 &&
+        (v.correct / v.attempts) * 100 < threshold &&
+        now - v.lastAttempt < STALE_MS, // only surface recent data
     )
     .map(([id, v]) => ({
       id,
-      accuracy: Math.round(v.correct / v.attempts * 100),
+      accuracy: Math.round((v.correct / v.attempts) * 100),
       attempts: v.attempts,
     }))
     .sort((a, b) => a.accuracy - b.accuracy);
@@ -89,12 +98,12 @@ export function getRecommendedLesson(cefrLevel: string): string {
 
   // Map topic IDs to animated lesson IDs
   const TOPIC_TO_LESSON: Record<string, string> = {
-    grammar:   'past-tense',
-    past:      'past-tense',
-    tenses:    'past-tense',
-    future:    'future-tense',
-    formal:    'vi-vs-ti',
-    alphabet:  'alphabet',
+    grammar: 'past-tense',
+    past: 'past-tense',
+    tenses: 'past-tense',
+    future: 'future-tense',
+    formal: 'vi-vs-ti',
+    alphabet: 'alphabet',
   };
 
   for (const { id } of weak) {
@@ -121,9 +130,10 @@ export function getDifficultyRecommendation(): 'beginner' | 'intermediate' | 'ad
   const entries = Object.values(data);
   if (entries.length < 5) return 'beginner';
 
-  const avg = entries.reduce((sum, v) => {
-    return sum + (v.attempts > 0 ? v.correct / v.attempts : 0);
-  }, 0) / entries.length;
+  const avg =
+    entries.reduce((sum, v) => {
+      return sum + (v.attempts > 0 ? v.correct / v.attempts : 0);
+    }, 0) / entries.length;
 
   const avgPct = avg * 100;
   if (avgPct >= 78) return 'advanced';
@@ -138,7 +148,7 @@ export function shouldTriggerRemedial(topicId: string): boolean {
   const data = _load();
   const t = data[topicId];
   if (!t || t.attempts < 5) return false;
-  return (t.correct / t.attempts) < 0.50;
+  return t.correct / t.attempts < 0.5;
 }
 
 interface PathItem {
@@ -166,7 +176,7 @@ export function getPersonalizedPath(cefrLevel: string, stats?: { diff?: string }
     });
   }
 
-  for (const { id, accuracy } of weak.filter(w => !critical.find(c => c.id === w.id))) {
+  for (const { id, accuracy } of weak.filter((w) => !critical.find((c) => c.id === w.id))) {
     path.push({
       id,
       label: id.charAt(0).toUpperCase() + id.slice(1),
@@ -177,18 +187,45 @@ export function getPersonalizedPath(cefrLevel: string, stats?: { diff?: string }
 
   if (path.length === 0) {
     const NEXT: Record<string, PathItem[]> = {
-      A1: [{ id: 'grammar', label: 'Basic Grammar', reason: 'Next step for A1 learners', urgent: false }],
+      A1: [
+        {
+          id: 'grammar',
+          label: 'Basic Grammar',
+          reason: 'Next step for A1 learners',
+          urgent: false,
+        },
+      ],
       A2: [{ id: 'past-tense', label: 'Past Tense', reason: 'Core A2 milestone', urgent: false }],
       B1: [
         { id: 'future-tense', label: 'Future Tense', reason: 'Core B1 milestone', urgent: false },
-        { id: 'aspect', label: 'Verb Aspect', reason: 'Imperfective vs perfective — key B1 concept', urgent: false },
+        {
+          id: 'aspect',
+          label: 'Verb Aspect',
+          reason: 'Imperfective vs perfective — key B1 concept',
+          urgent: false,
+        },
       ],
       B2: [
-        { id: 'conditionals', label: 'Conditional', reason: 'If-then structures — B2 requirement', urgent: false },
-        { id: 'formal-register', label: 'Formal Register', reason: 'Professional Croatian — B2 skill', urgent: false },
+        {
+          id: 'conditionals',
+          label: 'Conditional',
+          reason: 'If-then structures — B2 requirement',
+          urgent: false,
+        },
+        {
+          id: 'formal-register',
+          label: 'Formal Register',
+          reason: 'Professional Croatian — B2 skill',
+          urgent: false,
+        },
       ],
       C1: [
-        { id: 'phonology', label: 'Phonology & Pitch', reason: 'C1 precision — tonal accuracy', urgent: false },
+        {
+          id: 'phonology',
+          label: 'Phonology & Pitch',
+          reason: 'C1 precision — tonal accuracy',
+          urgent: false,
+        },
       ],
     };
     return NEXT[cefrLevel] || NEXT['B1'];

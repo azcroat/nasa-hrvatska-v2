@@ -28,18 +28,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── rnd mock — 0.99 makes shLocal() identity ──────────────────────────────────
@@ -54,7 +70,20 @@ const mockRecordTopicResult = vi.hoisted(() => vi.fn());
 vi.mock('../lib/adaptive.js', () => ({ recordTopicResult: mockRecordTopicResult }));
 
 // ── apiFetch mock ─────────────────────────────────────────────────────────────
-const mockApiFetch = vi.hoisted(() => vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ explanation: 'Test explanation', rule: 'Verb agreement', tip: 'Watch endings', example: '' }) })));
+const mockApiFetch = vi.hoisted(() =>
+  vi.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          explanation: 'Test explanation',
+          rule: 'Verb agreement',
+          tip: 'Watch endings',
+          example: '',
+        }),
+    }),
+  ),
+);
 vi.mock('../lib/apiFetch.js', () => ({ apiFetch: mockApiFetch }));
 
 // ── data mock — preserve H, Bar; mock speak ───────────────────────────────────
@@ -82,14 +111,14 @@ function typeInInput(text: string) {
 
 /** Click the Check ✓ button */
 function clickCheck() {
-  const checkBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Check'));
+  const checkBtn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Check'));
   if (!checkBtn) throw new Error('Check button not found');
   fireEvent.click(checkBtn);
 }
 
 /** Click the Next → button */
 function clickNext() {
-  const nextBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Next'));
+  const nextBtn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Next'));
   if (!nextBtn) throw new Error('Next button not found');
   fireEvent.click(nextBtn);
 }
@@ -97,7 +126,9 @@ function clickNext() {
 // ─── Rendering ───────────────────────────────────────────────────────────────
 
 describe('DictationScreen — rendering', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "Dictation" in the heading', () => {
     renderScreen();
@@ -135,7 +166,7 @@ describe('DictationScreen — rendering', () => {
 
   it('"Check ✓" button is disabled when input is empty', () => {
     renderScreen();
-    const checkBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Check'));
+    const checkBtn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Check'));
     expect(checkBtn).toBeTruthy();
     expect((checkBtn as HTMLButtonElement).disabled).toBe(true);
   });
@@ -143,7 +174,7 @@ describe('DictationScreen — rendering', () => {
   it('"Check ✓" button enabled after typing', () => {
     renderScreen();
     typeInInput('Dobar dan');
-    const checkBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Check'));
+    const checkBtn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Check'));
     expect((checkBtn as HTMLButtonElement).disabled).toBe(false);
   });
 });
@@ -151,7 +182,9 @@ describe('DictationScreen — rendering', () => {
 // ─── Audio ───────────────────────────────────────────────────────────────────
 
 describe('DictationScreen — audio', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking ▶ calls speak with first question text', () => {
     renderScreen();
@@ -163,7 +196,9 @@ describe('DictationScreen — audio', () => {
 // ─── Diacritic insertion ─────────────────────────────────────────────────────
 
 describe('DictationScreen — diacritic insertion', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking "Č" appends the character to the input', () => {
     renderScreen();
@@ -185,7 +220,9 @@ describe('DictationScreen — diacritic insertion', () => {
 // ─── Exact match ─────────────────────────────────────────────────────────────
 
 describe('DictationScreen — exact answer', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('exact answer shows "✓ Correct!"', () => {
     renderScreen();
@@ -198,7 +235,7 @@ describe('DictationScreen — exact answer', () => {
     renderScreen();
     typeInInput('Dobar dan, kako ste?');
     clickCheck();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Next'))).toBeTruthy();
+    expect(screen.getAllByRole('button').find((b) => b.textContent?.includes('Next'))).toBeTruthy();
   });
 
   it('exact answer: recordTopicResult("listening", true) called', () => {
@@ -227,7 +264,9 @@ describe('DictationScreen — exact answer', () => {
 // ─── Close match (diacritics stripped) ───────────────────────────────────────
 
 describe('DictationScreen — close match (missing diacritics)', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('missing diacritics shows "✓ Close! Watch your diacritics ✍️"', () => {
     renderScreen();
@@ -258,7 +297,9 @@ describe('DictationScreen — close match (missing diacritics)', () => {
 // ─── Wrong answer ─────────────────────────────────────────────────────────────
 
 describe('DictationScreen — wrong answer', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('wrong answer shows "Your answer:" line', () => {
     renderScreen();
@@ -299,7 +340,9 @@ describe('DictationScreen — wrong answer', () => {
 // ─── Input locking ───────────────────────────────────────────────────────────
 
 describe('DictationScreen — input locked after check', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('input cannot be changed after checking', () => {
     renderScreen();
@@ -315,7 +358,9 @@ describe('DictationScreen — input locked after check', () => {
 // ─── Enter key ───────────────────────────────────────────────────────────────
 
 describe('DictationScreen — Enter key triggers check', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('pressing Enter when input has content triggers check', () => {
     renderScreen();
@@ -329,7 +374,9 @@ describe('DictationScreen — Enter key triggers check', () => {
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
 describe('DictationScreen — question navigation', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('"Next →" advances progress counter to "2 / 20"', () => {
     renderScreen();
@@ -353,7 +400,9 @@ describe('DictationScreen — question navigation', () => {
     typeInInput('Dobar dan, kako ste?');
     clickCheck();
     clickNext();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Check'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Check')),
+    ).toBeTruthy();
     expect(screen.queryByText(/Next →/)).toBeNull();
   });
 });

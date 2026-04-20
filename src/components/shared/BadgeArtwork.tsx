@@ -3,32 +3,56 @@ import React from 'react';
 // Badge shape categories mapped to actual badge IDs from data.jsx
 const BADGE_SHAPES = {
   // Streak badges → FLAME shield
-  str3: 'flame', str7: 'flame', str30: 'flame',
+  str3: 'flame',
+  str7: 'flame',
+  str30: 'flame',
   // Lesson badges → SCROLL (open book)
-  first: 'scroll', ded: 'scroll', lc20: 'scroll', lc50: 'scroll', lc100: 'scroll',
+  first: 'scroll',
+  ded: 'scroll',
+  lc20: 'scroll',
+  lc50: 'scroll',
+  lc100: 'scroll',
   // XP badges → STAR burst
-  x100: 'star', x500: 'star', x1k: 'star', x2k: 'star', x5k: 'star', x10k: 'star',
+  x100: 'star',
+  x500: 'star',
+  x1k: 'star',
+  x2k: 'star',
+  x5k: 'star',
+  x10k: 'star',
   // Mastery / perfection → CROWN
-  perf: 'crown', perf5: 'crown',
+  perf: 'crown',
+  perf5: 'crown',
   // Cultural badges → CROSS (Croatian cross)
-  baka1: 'cross', baka5: 'cross', city5: 'cross', city15: 'cross',
-  media5: 'cross', media20: 'cross', region5: 'cross', proverb: 'cross',
+  baka1: 'cross',
+  baka5: 'cross',
+  city5: 'cross',
+  city15: 'cross',
+  media5: 'cross',
+  media20: 'cross',
+  region5: 'cross',
+  proverb: 'cross',
   amb: 'cross',
   // Speaking / practice / grammar → LIGHTNING bolt
-  spk: 'lightning', gram: 'lightning', mod: 'lightning', fix5: 'lightning',
+  spk: 'lightning',
+  gram: 'lightning',
+  mod: 'lightning',
+  fix5: 'lightning',
   // Reading / SRS → SCROLL (reuse)
-  srs10: 'scroll', srs50: 'scroll', read3: 'scroll', hist: 'scroll',
+  srs10: 'scroll',
+  srs50: 'scroll',
+  read3: 'scroll',
+  hist: 'scroll',
 };
 
 // Color themes per shape
 const SHAPE_COLORS = {
-  flame:     { bg: ['#7f1d1d', '#dc2626'], border: '#f87171', glow: '#ef4444', accent: '#fbbf24' },
-  scroll:    { bg: ['#1e3a5f', '#0e7490'], border: '#38bdf8', glow: '#0ea5e9', accent: '#ffffff' },
-  star:      { bg: ['#78350f', '#d97706'], border: '#fbbf24', glow: '#f59e0b', accent: '#ffffff' },
-  crown:     { bg: ['#4c1d95', '#7c3aed'], border: '#a78bfa', glow: '#8b5cf6', accent: '#fde68a' },
-  cross:     { bg: ['#0f172a', '#1e3a5f'], border: '#6b7280', glow: '#9ca3af', accent: '#FFE070' },
+  flame: { bg: ['#7f1d1d', '#dc2626'], border: '#f87171', glow: '#ef4444', accent: '#fbbf24' },
+  scroll: { bg: ['#1e3a5f', '#0e7490'], border: '#38bdf8', glow: '#0ea5e9', accent: '#ffffff' },
+  star: { bg: ['#78350f', '#d97706'], border: '#fbbf24', glow: '#f59e0b', accent: '#ffffff' },
+  crown: { bg: ['#4c1d95', '#7c3aed'], border: '#a78bfa', glow: '#8b5cf6', accent: '#fde68a' },
+  cross: { bg: ['#0f172a', '#1e3a5f'], border: '#6b7280', glow: '#9ca3af', accent: '#FFE070' },
   lightning: { bg: ['#0c4a6e', '#0369a1'], border: '#38bdf8', glow: '#0ea5e9', accent: '#fde68a' },
-  heart:     { bg: ['#881337', '#be123c'], border: '#fb7185', glow: '#f43f5e', accent: '#ffffff' },
+  heart: { bg: ['#881337', '#be123c'], border: '#fb7185', glow: '#f43f5e', accent: '#ffffff' },
 };
 
 // ── Shape renderers ──────────────────────────────────────────────────────────
@@ -85,11 +109,13 @@ function ScrollShape({ c, earned: _earned = false }) {
 }
 
 function StarShape({ c, earned: _earned = false }) {
-  const pts = Array.from({ length: 8 }).map((_, i) => {
-    const angle = (i * 45 - 90) * Math.PI / 180;
-    const r = i % 2 === 0 ? 24 : 14;
-    return `${30 + r * Math.cos(angle)},${30 + r * Math.sin(angle)}`;
-  }).join(' ');
+  const pts = Array.from({ length: 8 })
+    .map((_, i) => {
+      const angle = ((i * 45 - 90) * Math.PI) / 180;
+      const r = i % 2 === 0 ? 24 : 14;
+      return `${30 + r * Math.cos(angle)},${30 + r * Math.sin(angle)}`;
+    })
+    .join(' ');
   return (
     <>
       <circle cx="30" cy="30" r="28" fill={`url(#bg_star)`} stroke={c.border} strokeWidth="1" />
@@ -104,11 +130,7 @@ function CrownShape({ c, earned: _earned = false }) {
     <>
       <circle cx="30" cy="30" r="26" fill={`url(#bg_crown)`} stroke={c.border} strokeWidth="1.5" />
       {/* Crown body */}
-      <polygon
-        points="12,43 12,26 20,34 30,17 40,34 48,26 48,43"
-        fill={c.accent}
-        opacity="0.9"
-      />
+      <polygon points="12,43 12,26 20,34 30,17 40,34 48,26 48,43" fill={c.accent} opacity="0.9" />
       {/* Crown base band */}
       <rect x="12" y="43" width="36" height="5" rx="2" fill={c.accent} opacity="0.9" />
       {/* Gem at left point */}
@@ -145,13 +167,16 @@ function CrossShape({ c, earned: _earned = false }) {
 function LightningShape({ c, earned: _earned = false }) {
   return (
     <>
-      <circle cx="30" cy="30" r="26" fill={`url(#bg_lightning)`} stroke={c.border} strokeWidth="1.5" />
-      {/* Lightning bolt: top-right → center-left → tip */}
-      <polygon
-        points="34,12 22,32 30,32 26,50 40,28 32,28"
-        fill={c.accent}
-        opacity="0.9"
+      <circle
+        cx="30"
+        cy="30"
+        r="26"
+        fill={`url(#bg_lightning)`}
+        stroke={c.border}
+        strokeWidth="1.5"
       />
+      {/* Lightning bolt: top-right → center-left → tip */}
+      <polygon points="34,12 22,32 30,32 26,50 40,28 32,28" fill={c.accent} opacity="0.9" />
     </>
   );
 }
@@ -226,13 +251,13 @@ export default function BadgeArtwork({ badgeId, size = 52, earned = true }) {
       }}
     >
       <AllGradients />
-      {shape === 'flame'     && <FlameShape     c={c} earned={earned} />}
-      {shape === 'scroll'    && <ScrollShape    c={c} earned={earned} />}
-      {shape === 'star'      && <StarShape      c={c} earned={earned} />}
-      {shape === 'crown'     && <CrownShape     c={c} earned={earned} />}
-      {shape === 'cross'     && <CrossShape     c={c} earned={earned} />}
+      {shape === 'flame' && <FlameShape c={c} earned={earned} />}
+      {shape === 'scroll' && <ScrollShape c={c} earned={earned} />}
+      {shape === 'star' && <StarShape c={c} earned={earned} />}
+      {shape === 'crown' && <CrownShape c={c} earned={earned} />}
+      {shape === 'cross' && <CrossShape c={c} earned={earned} />}
       {shape === 'lightning' && <LightningShape c={c} earned={earned} />}
-      {shape === 'heart'     && <HeartShape     c={c} earned={earned} />}
+      {shape === 'heart' && <HeartShape c={c} earned={earned} />}
     </svg>
   );
 }

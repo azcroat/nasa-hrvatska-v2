@@ -2,7 +2,10 @@
 
 export const CASES = [
   {
-    id: 'nominativ', name: 'Nominativ', abbr: 'NOM', color: '#0e7490',
+    id: 'nominativ',
+    name: 'Nominativ',
+    abbr: 'NOM',
+    color: '#0e7490',
     question: 'WHO? WHAT? (subject)',
     shortDesc: 'The subject of the sentence — who does the action',
     pattern: 'Base form: žena, muž, dijete',
@@ -14,7 +17,10 @@ export const CASES = [
     endings: { m: '-', f: '-a', n: '-o/-e' },
   },
   {
-    id: 'genitiv', name: 'Genitiv', abbr: 'GEN', color: '#7c3aed',
+    id: 'genitiv',
+    name: 'Genitiv',
+    abbr: 'GEN',
+    color: '#7c3aed',
     question: 'OF WHO? OF WHAT? (possession, quantity)',
     shortDesc: 'Possession, negation, quantity — "of" in English',
     pattern: 'M/N: +-a, F: -e',
@@ -26,7 +32,10 @@ export const CASES = [
     endings: { m: '-a', f: '-e', n: '-a' },
   },
   {
-    id: 'dativ', name: 'Dativ', abbr: 'DAT', color: '#b45309',
+    id: 'dativ',
+    name: 'Dativ',
+    abbr: 'DAT',
+    color: '#b45309',
     question: 'TO WHO? FOR WHO? (recipient)',
     shortDesc: 'The recipient of an action — giving, sending, saying TO someone',
     pattern: 'M/N: +-u, F: -i',
@@ -38,7 +47,10 @@ export const CASES = [
     endings: { m: '-u', f: '-i', n: '-u' },
   },
   {
-    id: 'akuzativ', name: 'Akuzativ', abbr: 'ACC', color: '#dc2626',
+    id: 'akuzativ',
+    name: 'Akuzativ',
+    abbr: 'ACC',
+    color: '#dc2626',
     question: 'WHO? WHAT? (direct object)',
     shortDesc: 'The direct object — what the action is done TO',
     pattern: 'M animate: -a, F: -u, N: same as NOM',
@@ -50,7 +62,10 @@ export const CASES = [
     endings: { m: '-a (anim)', f: '-u', n: '= NOM' },
   },
   {
-    id: 'vokativ', name: 'Vokativ', abbr: 'VOC', color: '#16a34a',
+    id: 'vokativ',
+    name: 'Vokativ',
+    abbr: 'VOC',
+    color: '#16a34a',
     question: 'ADDRESSING someone directly',
     shortDesc: 'Calling someone by name or title — direct address',
     pattern: 'M: -e/-u, F: -o/-e',
@@ -62,7 +77,10 @@ export const CASES = [
     endings: { m: '-e/-u', f: '-o/-e', n: '= NOM' },
   },
   {
-    id: 'lokativ', name: 'Lokativ', abbr: 'LOC', color: '#0284c7',
+    id: 'lokativ',
+    name: 'Lokativ',
+    abbr: 'LOC',
+    color: '#0284c7',
     question: 'WHERE? ABOUT WHAT? (location, topic)',
     shortDesc: 'Location and topic — always used WITH a preposition',
     pattern: 'M/N: +-u, F: -i',
@@ -74,7 +92,10 @@ export const CASES = [
     endings: { m: '-u', f: '-i', n: '-u' },
   },
   {
-    id: 'instrumental', name: 'Instrumental', abbr: 'INS', color: '#78716c',
+    id: 'instrumental',
+    name: 'Instrumental',
+    abbr: 'INS',
+    color: '#78716c',
     question: 'WITH WHAT? BY WHAT MEANS?',
     shortDesc: 'The instrument or companion — doing something WITH something',
     pattern: 'M/N: +-om/-em, F: +-om/-om',
@@ -88,21 +109,81 @@ export const CASES = [
 ];
 
 export const QUIZ = [
-  { q: 'Tko spava? (Who sleeps?) — Which case?', answer: 'nominativ', options: ['nominativ', 'akuzativ', 'dativ', 'genitiv'] },
-  { q: 'Čaša ___. (A glass of water) — Which case is "water" in?', answer: 'genitiv', options: ['genitiv', 'lokativ', 'instrumental', 'akuzativ'] },
-  { q: 'Dajem ___. (I give to my friend) — Which case?', answer: 'dativ', options: ['dativ', 'nominativ', 'akuzativ', 'vokativ'] },
-  { q: 'Vidim ___. (I see him) — Which case?', answer: 'akuzativ', options: ['akuzativ', 'nominativ', 'genitiv', 'instrumental'] },
-  { q: 'Zdravo, ___! (Hello, [friend name]!) — Which case?', answer: 'vokativ', options: ['vokativ', 'nominativ', 'dativ', 'lokativ'] },
-  { q: 'U ___. (In the city) — Which case?', answer: 'lokativ', options: ['lokativ', 'akuzativ', 'dativ', 'instrumental'] },
-  { q: 'Pišem ___. (I write with a pencil) — Which case?', answer: 'instrumental', options: ['instrumental', 'lokativ', 'genitiv', 'nominativ'] },
-  { q: 'Nema ___. (There is no water) — Which case is "water" in?', answer: 'genitiv', options: ['genitiv', 'nominativ', 'akuzativ', 'dativ'] },
-  { q: 'Idem s ___. (I go with a friend) — Which case?', answer: 'instrumental', options: ['instrumental', 'akuzativ', 'lokativ', 'dativ'] },
-  { q: 'Govorim o ___. (I speak about Croatia) — Which case?', answer: 'lokativ', options: ['lokativ', 'genitiv', 'akuzativ', 'dativ'] },
-  { q: 'Mama! (Calling out to Mum) — Which case?', answer: 'vokativ', options: ['vokativ', 'nominativ', 'akuzativ', 'dativ'] },
-  { q: 'Čitam ___. (I read a book) — Which case is "book" in?', answer: 'akuzativ', options: ['akuzativ', 'nominativ', 'genitiv', 'lokativ'] },
-  { q: 'Dolazim iz ___. (I come from Zagreb) — Which case?', answer: 'genitiv', options: ['genitiv', 'lokativ', 'dativ', 'instrumental'] },
-  { q: 'Pišem pismo ___. (I write a letter to my sister) — Which case is "sister" in?', answer: 'dativ', options: ['dativ', 'akuzativ', 'genitiv', 'instrumental'] },
-  { q: 'Ana radi. (Ana works) — Which case is "Ana" in?', answer: 'nominativ', options: ['nominativ', 'akuzativ', 'vokativ', 'dativ'] },
+  {
+    q: 'Tko spava? (Who sleeps?) — Which case?',
+    answer: 'nominativ',
+    options: ['nominativ', 'akuzativ', 'dativ', 'genitiv'],
+  },
+  {
+    q: 'Čaša ___. (A glass of water) — Which case is "water" in?',
+    answer: 'genitiv',
+    options: ['genitiv', 'lokativ', 'instrumental', 'akuzativ'],
+  },
+  {
+    q: 'Dajem ___. (I give to my friend) — Which case?',
+    answer: 'dativ',
+    options: ['dativ', 'nominativ', 'akuzativ', 'vokativ'],
+  },
+  {
+    q: 'Vidim ___. (I see him) — Which case?',
+    answer: 'akuzativ',
+    options: ['akuzativ', 'nominativ', 'genitiv', 'instrumental'],
+  },
+  {
+    q: 'Zdravo, ___! (Hello, [friend name]!) — Which case?',
+    answer: 'vokativ',
+    options: ['vokativ', 'nominativ', 'dativ', 'lokativ'],
+  },
+  {
+    q: 'U ___. (In the city) — Which case?',
+    answer: 'lokativ',
+    options: ['lokativ', 'akuzativ', 'dativ', 'instrumental'],
+  },
+  {
+    q: 'Pišem ___. (I write with a pencil) — Which case?',
+    answer: 'instrumental',
+    options: ['instrumental', 'lokativ', 'genitiv', 'nominativ'],
+  },
+  {
+    q: 'Nema ___. (There is no water) — Which case is "water" in?',
+    answer: 'genitiv',
+    options: ['genitiv', 'nominativ', 'akuzativ', 'dativ'],
+  },
+  {
+    q: 'Idem s ___. (I go with a friend) — Which case?',
+    answer: 'instrumental',
+    options: ['instrumental', 'akuzativ', 'lokativ', 'dativ'],
+  },
+  {
+    q: 'Govorim o ___. (I speak about Croatia) — Which case?',
+    answer: 'lokativ',
+    options: ['lokativ', 'genitiv', 'akuzativ', 'dativ'],
+  },
+  {
+    q: 'Mama! (Calling out to Mum) — Which case?',
+    answer: 'vokativ',
+    options: ['vokativ', 'nominativ', 'akuzativ', 'dativ'],
+  },
+  {
+    q: 'Čitam ___. (I read a book) — Which case is "book" in?',
+    answer: 'akuzativ',
+    options: ['akuzativ', 'nominativ', 'genitiv', 'lokativ'],
+  },
+  {
+    q: 'Dolazim iz ___. (I come from Zagreb) — Which case?',
+    answer: 'genitiv',
+    options: ['genitiv', 'lokativ', 'dativ', 'instrumental'],
+  },
+  {
+    q: 'Pišem pismo ___. (I write a letter to my sister) — Which case is "sister" in?',
+    answer: 'dativ',
+    options: ['dativ', 'akuzativ', 'genitiv', 'instrumental'],
+  },
+  {
+    q: 'Ana radi. (Ana works) — Which case is "Ana" in?',
+    answer: 'nominativ',
+    options: ['nominativ', 'akuzativ', 'vokativ', 'dativ'],
+  },
 ];
 
 export function getDoneMessage(score) {

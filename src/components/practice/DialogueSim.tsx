@@ -13,7 +13,17 @@ import { SCENARIOS } from './dialogueScenarios.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 // Normalize Croatian diacritics for lenient free-text comparison
-function normCro(s){return s.toLowerCase().replace(/[čć]/g,'c').replace(/š/g,'s').replace(/ž/g,'z').replace(/đ/g,'d').replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim();}
+function normCro(s) {
+  return s
+    .toLowerCase()
+    .replace(/[čć]/g, 'c')
+    .replace(/š/g, 's')
+    .replace(/ž/g, 'z')
+    .replace(/đ/g, 'd')
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 // Build a shuffled options array for a single turn; returns { opts, correctIdx }
 function shuffleTurnOpts(turn) {
@@ -22,7 +32,7 @@ function shuffleTurnOpts(turn) {
     const j = Math.floor(rnd() * (i + 1));
     [indices[i], indices[j]] = [indices[j], indices[i]];
   }
-  const shuffledOpts = indices.map(i => turn.opts[i]);
+  const shuffledOpts = indices.map((i) => turn.opts[i]);
   const correctIdx = indices.indexOf(turn.answer);
   return { opts: shuffledOpts, correctIdx };
 }
@@ -56,7 +66,7 @@ export default function DialogueSim({ award }) {
     if (!scenario || !scenario.turns[turnIdx] || aiMode) return;
     const line = scenario.turns[turnIdx].line;
     if (line && !line.startsWith('[')) speak(line);
-  }, [scenario, turnIdx, aiMode]);  
+  }, [scenario, turnIdx, aiMode]);
 
   function startScenario(s) {
     finishFired.current = false;
@@ -84,7 +94,7 @@ export default function DialogueSim({ award }) {
     setSelected(i);
     setAnswered(true);
     if (i === shuffledTurns[turnIdx].correctIdx) {
-      setScore(sc => sc + 1);
+      setScore((sc) => sc + 1);
     }
   }
 
@@ -94,11 +104,12 @@ export default function DialogueSim({ award }) {
     const correctAnswer = turn.opts[turn.answer];
     const userTrimmed = freeInput.trim().toLowerCase();
     const correctTrimmed = correctAnswer.toLowerCase();
-    const matched = userTrimmed === correctTrimmed || normCro(userTrimmed) === normCro(correctTrimmed);
+    const matched =
+      userTrimmed === correctTrimmed || normCro(userTrimmed) === normCro(correctTrimmed);
     setFreeResult({ matched, input: freeInput.trim(), correct: correctAnswer });
     setAnswered(true);
     if (matched) {
-      setScore(sc => sc + 1);
+      setScore((sc) => sc + 1);
     }
   }
 
@@ -109,8 +120,12 @@ export default function DialogueSim({ award }) {
         finishFired.current = true;
         if (award) {
           const lastCorrect = freeMode
-            ? (freeResult && freeResult.matched ? 1 : 0)
-            : (selected === shuffledTurns[turnIdx].correctIdx ? 1 : 0);
+            ? freeResult && freeResult.matched
+              ? 1
+              : 0
+            : selected === shuffledTurns[turnIdx].correctIdx
+              ? 1
+              : 0;
           award((score + lastCorrect) * 6);
         }
         markQuest('speak');
@@ -169,7 +184,7 @@ export default function DialogueSim({ award }) {
       const data = await res.json();
       setAiHistory([...newHistory, { role: 'assistant', content: data.reply, id: Date.now() + 1 }]);
       setAiCoaching(data.coaching || null);
-      setAiTurns(t => t + 1);
+      setAiTurns((t) => t + 1);
     } catch {
       setAiError('Could not connect. Check your internet and try again.');
       setAiHistory(aiHistory);
@@ -204,33 +219,71 @@ export default function DialogueSim({ award }) {
 
   return (
     <div className="scr-wrap">
-      {H("💬 " + scenario.title, scenario.subtitle)}
+      {H('💬 ' + scenario.title, scenario.subtitle)}
       <Bar v={turnIdx + 1} mx={totalTurns} h={6} color="#0e7490" />
 
-      <div style={{marginTop:16,marginBottom:8,fontSize:12,fontWeight:700,color:"var(--subtext)"}}>
+      <div
+        style={{
+          marginTop: 16,
+          marginBottom: 8,
+          fontSize: 12,
+          fontWeight: 700,
+          color: 'var(--subtext)',
+        }}
+      >
         Turn {turnIdx + 1} of {totalTurns}
       </div>
 
       {/* Mode toggle */}
-      <div style={{display:'flex', gap:8, marginBottom:16}}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <button
-          onClick={() => { setAiMode(false); setAiHistory([]); setAiInput(''); setAiTurns(0); setAiDone(false); setAiCoaching(null); }}
+          onClick={() => {
+            setAiMode(false);
+            setAiHistory([]);
+            setAiInput('');
+            setAiTurns(0);
+            setAiDone(false);
+            setAiCoaching(null);
+          }}
           style={{
-            flex:1, padding:'9px', borderRadius:10, border:'none', cursor:'pointer',
+            flex: 1,
+            padding: '9px',
+            borderRadius: 10,
+            border: 'none',
+            cursor: 'pointer',
             background: !aiMode ? '#0e7490' : 'var(--card)',
             color: !aiMode ? '#fff' : 'var(--subtext)',
-            fontWeight:700, fontSize:12, fontFamily:"'Outfit',sans-serif",
+            fontWeight: 700,
+            fontSize: 12,
+            fontFamily: "'Outfit',sans-serif",
           }}
-        >📋 Guided Practice</button>
+        >
+          📋 Guided Practice
+        </button>
         <button
-          onClick={() => { setAiMode(true); setAiHistory([]); setAiInput(''); setAiTurns(0); setAiDone(false); setAiCoaching(null); }}
+          onClick={() => {
+            setAiMode(true);
+            setAiHistory([]);
+            setAiInput('');
+            setAiTurns(0);
+            setAiDone(false);
+            setAiCoaching(null);
+          }}
           style={{
-            flex:1, padding:'9px', borderRadius:10, border:'none', cursor:'pointer',
+            flex: 1,
+            padding: '9px',
+            borderRadius: 10,
+            border: 'none',
+            cursor: 'pointer',
             background: aiMode ? '#7c3aed' : 'var(--card)',
             color: aiMode ? '#fff' : 'var(--subtext)',
-            fontWeight:700, fontSize:12, fontFamily:"'Outfit',sans-serif",
+            fontWeight: 700,
+            fontSize: 12,
+            fontFamily: "'Outfit',sans-serif",
           }}
-        >✨ AI Conversation</button>
+        >
+          ✨ AI Conversation
+        </button>
       </div>
 
       {aiMode ? (
@@ -274,8 +327,14 @@ export default function DialogueSim({ award }) {
           onFreeSubmit={handleFreeSubmit}
           onContinue={handleContinue}
           onBack={goBack}
-          onToggleFreeMode={() => { setFreeMode(m => !m); setFreeInput(''); setFreeResult(null); }}
-          onSwitchToAi={() => { setAiMode(true); }}
+          onToggleFreeMode={() => {
+            setFreeMode((m) => !m);
+            setFreeInput('');
+            setFreeResult(null);
+          }}
+          onSwitchToAi={() => {
+            setAiMode(true);
+          }}
         />
       )}
     </div>

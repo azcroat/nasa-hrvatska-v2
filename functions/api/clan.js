@@ -25,8 +25,12 @@ function corsHeaders(origin) {
     'Cache-Control': 'no-cache',
   };
 }
-function ok(body, origin) { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
-function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
+function ok(body, origin) {
+  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+}
+function err(status, msg, origin) {
+  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+}
 
 function weekKey() {
   const d = new Date();
@@ -73,7 +77,7 @@ export async function onRequestGet({ request, env }) {
   const wk = weekKey();
   if (raw.weekKey !== wk) {
     raw.weekKey = wk;
-    raw.members = (raw.members || []).map(m => ({ ...m, weekXP: 0 }));
+    raw.members = (raw.members || []).map((m) => ({ ...m, weekXP: 0 }));
     await kv.put(`clan:${clanId}`, JSON.stringify(raw));
   }
 
@@ -92,7 +96,11 @@ export async function onRequestPost({ request, env }) {
   if (!kv) return err(503, 'Clan service unavailable', origin);
 
   let body;
-  try { body = await request.json(); } catch { return err(400, 'Invalid JSON', origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON', origin);
+  }
 
   const { action, clanId, uid, displayName, name, xp } = body || {};
   if (!action || !uid) return err(400, 'action and uid required', origin);
@@ -120,7 +128,9 @@ export async function onRequestPost({ request, env }) {
       name: safeName,
       created: Date.now(),
       weekKey: weekKey(),
-      members: [{ uid, name: (displayName || 'Učenik').slice(0, 32), weekXP: 0, joinedAt: Date.now() }],
+      members: [
+        { uid, name: (displayName || 'Učenik').slice(0, 32), weekXP: 0, joinedAt: Date.now() },
+      ],
     };
     await kv.put(`clan:${id}`, JSON.stringify(clan), { expirationTtl: 365 * 86400 });
     await kv.put(`member:${uid}:clan`, id, { expirationTtl: 365 * 86400 });
@@ -135,10 +145,14 @@ export async function onRequestPost({ request, env }) {
 
     const raw = await kv.get(`clan:${clanId}`, { type: 'json' });
     if (!raw) return err(404, 'Clan not found', origin);
-    if ((raw.members || []).length >= MAX_CLAN_SIZE) return err(409, 'Clan is full (max 5 members)', origin);
-    if ((raw.members || []).some(m => m.uid === uid)) return err(409, 'Already a member', origin);
+    if ((raw.members || []).length >= MAX_CLAN_SIZE)
+      return err(409, 'Clan is full (max 5 members)', origin);
+    if ((raw.members || []).some((m) => m.uid === uid)) return err(409, 'Already a member', origin);
 
-    const newMembers = [...(raw.members || []), { uid, name: (displayName || 'Učenik').slice(0, 32), weekXP: 0, joinedAt: Date.now() }];
+    const newMembers = [
+      ...(raw.members || []),
+      { uid, name: (displayName || 'Učenik').slice(0, 32), weekXP: 0, joinedAt: Date.now() },
+    ];
     // Write-time guard: recheck capacity after adding to catch concurrent-join races.
     // KV lacks compare-and-swap, so we store the count in the value and validate post-write.
     if (newMembers.length > MAX_CLAN_SIZE) return err(409, 'Clan is full (max 5 members)', origin);
@@ -151,7 +165,8 @@ export async function onRequestPost({ request, env }) {
 
   // ── RECORD XP ────────────────────────────────────────────────────────────────
   if (action === 'xp') {
-    if (!clanId || !Number.isFinite(xp) || xp <= 0) return err(400, 'clanId and xp required', origin);
+    if (!clanId || !Number.isFinite(xp) || xp <= 0)
+      return err(400, 'clanId and xp required', origin);
     const raw = await kv.get(`clan:${clanId}`, { type: 'json' });
     if (!raw) return err(404, 'Clan not found', origin);
 
@@ -159,15 +174,18 @@ export async function onRequestPost({ request, env }) {
     const wk = weekKey();
     if (raw.weekKey !== wk) {
       raw.weekKey = wk;
-      raw.members = (raw.members || []).map(m => ({ ...m, weekXP: 0 }));
+      raw.members = (raw.members || []).map((m) => ({ ...m, weekXP: 0 }));
     }
 
-    const idx = (raw.members || []).findIndex(m => m.uid === uid);
+    const idx = (raw.members || []).findIndex((m) => m.uid === uid);
     if (idx === -1) return err(403, 'Not a clan member', origin);
     raw.members[idx].weekXP = Math.min((raw.members[idx].weekXP || 0) + Math.floor(xp), 9999);
     await kv.put(`clan:${clanId}`, JSON.stringify(raw), { expirationTtl: 365 * 86400 });
     const totalXP = raw.members.reduce((s, m) => s + (m.weekXP || 0), 0);
-    return ok({ ok: true, totalXP, weeklyGoal: WEEKLY_GOAL, goalMet: totalXP >= WEEKLY_GOAL }, origin);
+    return ok(
+      { ok: true, totalXP, weeklyGoal: WEEKLY_GOAL, goalMet: totalXP >= WEEKLY_GOAL },
+      origin,
+    );
   }
 
   // ── LEAVE ────────────────────────────────────────────────────────────────────
@@ -176,7 +194,7 @@ export async function onRequestPost({ request, env }) {
     const raw = await kv.get(`clan:${clanId}`, { type: 'json' });
     if (!raw) return err(404, 'Clan not found', origin);
 
-    raw.members = (raw.members || []).filter(m => m.uid !== uid);
+    raw.members = (raw.members || []).filter((m) => m.uid !== uid);
     // Delete empty clans
     if (raw.members.length === 0) {
       await kv.delete(`clan:${clanId}`);
@@ -192,11 +210,14 @@ export async function onRequestPost({ request, env }) {
     const myClanId = await kv.get(`member:${uid}:clan`);
     if (!myClanId) return ok({ clan: null }, origin);
     const raw = await kv.get(`clan:${myClanId}`, { type: 'json' });
-    if (!raw) { await kv.delete(`member:${uid}:clan`); return ok({ clan: null }, origin); }
+    if (!raw) {
+      await kv.delete(`member:${uid}:clan`);
+      return ok({ clan: null }, origin);
+    }
     const wk = weekKey();
     if (raw.weekKey !== wk) {
       raw.weekKey = wk;
-      raw.members = (raw.members || []).map(m => ({ ...m, weekXP: 0 }));
+      raw.members = (raw.members || []).map((m) => ({ ...m, weekXP: 0 }));
       await kv.put(`clan:${myClanId}`, JSON.stringify(raw));
     }
     const totalXP = (raw.members || []).reduce((s, m) => s + (m.weekXP || 0), 0);

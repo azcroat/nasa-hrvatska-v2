@@ -6,28 +6,28 @@ import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
 
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-6';
 
 // ── Security: sanitize user-supplied prompt parameters ────────────────────────
 function sanitizeParam(value, maxLen = 200) {
   if (value === null || value === undefined) return '';
   // Remove characters that could be used for prompt injection
   return String(value)
-    .replace(/[\r\n]/g, ' ')          // newline injection
-    .replace(/[`\\]/g, '')            // backtick/backslash injection
+    .replace(/[\r\n]/g, ' ') // newline injection
+    .replace(/[`\\]/g, '') // backtick/backslash injection
     .replace(/\bignore\b.*\binstruction/gi, '') // crude prompt injection attempt filter
     .trim()
     .slice(0, maxLen);
 }
 
 function sanitizeLevel(level) {
-  const VALID = ['A1','A2','B1','B2','C1','C2'];
+  const VALID = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   return VALID.includes(level) ? level : 'B1';
 }
 
 function sanitizeCategory(cat) {
-  const VALID = ['greeting','work','travel','food','slang','love','sports','family'];
+  const VALID = ['greeting', 'work', 'travel', 'food', 'slang', 'love', 'sports', 'family'];
   return VALID.includes(cat) ? cat : 'greeting';
 }
 
@@ -36,45 +36,56 @@ function isAllowedOrigin(origin, isDev) {
   if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
-    if (isDev && hostname === "localhost") return true;
-    return hostname === "nasahrvatska.com"
-      || hostname.endsWith(".nasahrvatska.com")
-      || hostname === "nasa-hrvatska-v2.pages.dev"
-      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
-  } catch { return false; }
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
   return {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Cache-Control": "no-cache",
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Cache-Control': 'no-cache',
   };
 }
 
-function ok(body, origin)           { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
-function err(status, msg, origin)   { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
+function ok(body, origin) {
+  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+}
+function err(status, msg, origin) {
+  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+}
 
 // ── Server-side prompt builders ──────────────────────────────────────────────
 function buildConvoPrompt(params) {
-  const rawLevel = params?.level; const rawName = params?.aiName; const rawRole = params?.aiRole; const rawCtx = params?.context;
+  const rawLevel = params?.level;
+  const rawName = params?.aiName;
+  const rawRole = params?.aiRole;
+  const rawCtx = params?.context;
   const level = sanitizeLevel(rawLevel);
-  const aiName = sanitizeParam(rawName || "Maja", 50);
-  const aiRole = sanitizeParam(rawRole || "native speaker", 80);
-  const context = sanitizeParam(rawCtx || "", 300);
+  const aiName = sanitizeParam(rawName || 'Maja', 50);
+  const aiRole = sanitizeParam(rawRole || 'native speaker', 80);
+  const context = sanitizeParam(rawCtx || '', 300);
   const complexity = {
-    A1: "Use ONLY simple present tense. Maximum 1-2 very short sentences. Very basic, high-frequency vocabulary only.",
-    A2: "Use present tense primarily. 2 short sentences. Common everyday vocabulary.",
-    B1: "Use present, past (perfective), and near-future naturally. 2-3 sentences. Conversational vocabulary.",
-    B2: "Speak naturally and fluently. 3-4 sentences. You may use idioms, participles, and varied tenses.",
-    C1: "Speak exactly as you would to a native speaker. Rich vocabulary, idioms, subordinate clauses, all tenses.",
-    C2: "Full native speaker register. Regional expressions, idiomatic speech, cultural references are welcome.",
+    A1: 'Use ONLY simple present tense. Maximum 1-2 very short sentences. Very basic, high-frequency vocabulary only.',
+    A2: 'Use present tense primarily. 2 short sentences. Common everyday vocabulary.',
+    B1: 'Use present, past (perfective), and near-future naturally. 2-3 sentences. Conversational vocabulary.',
+    B2: 'Speak naturally and fluently. 3-4 sentences. You may use idioms, participles, and varied tenses.',
+    C1: 'Speak exactly as you would to a native speaker. Rich vocabulary, idioms, subordinate clauses, all tenses.',
+    C2: 'Full native speaker register. Regional expressions, idiomatic speech, cultural references are welcome.',
   };
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
-   
-  const complexityRule = complexity[safeLevel] || complexity["B1"];
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'B1';
+
+  const complexityRule = complexity[safeLevel] || complexity['B1'];
   return `You are ${aiName}, a native Croatian speaker. Role: ${aiRole}.
 ${context}
 
@@ -90,8 +101,8 @@ Language rules for YOU:
 
 function buildEvalPrompt(params) {
   const level = sanitizeLevel(params?.level);
-  const scenarioTitle = sanitizeParam(params?.scenarioTitle || "Croatian conversation", 100);
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  const scenarioTitle = sanitizeParam(params?.scenarioTitle || 'Croatian conversation', 100);
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'B1';
   return `You are an expert Croatian language teacher and applied linguist. Analyze the conversation below between a ${safeLevel} learner and an AI partner in the scenario: "${scenarioTitle}".
 
 Return ONLY a valid JSON object with this exact structure (no markdown, no explanation, just JSON):
@@ -126,8 +137,8 @@ Rules:
 }
 
 function buildWriteEvalPrompt(params) {
-  const { level = "B1", writingPrompt = "Write about yourself in Croatian" } = params;
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  const { level = 'B1', writingPrompt = 'Write about yourself in Croatian' } = params;
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'B1';
   return `You are an expert Croatian language teacher. Evaluate the following Croatian writing sample from a ${safeLevel} learner responding to this prompt: "${writingPrompt}"
 
 Return ONLY a valid JSON object (no markdown, no explanation):
@@ -182,8 +193,8 @@ Give 2-3 sentences in English explaining what to say next. Include 1-2 example C
 }
 
 function buildExplainPrompt(params) {
-  const { level = "A2" } = params || {};
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "A2";
+  const { level = 'A2' } = params || {};
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'A2';
   return `You are a world-class Croatian language teacher creating a personalized grammar lesson.
 The learner is at level: ${safeLevel}
 
@@ -212,25 +223,25 @@ For A1/A2: simple vocabulary, present tense only. For B1: include past and futur
 }
 
 function buildStoryPrompt(params) {
-  const city = sanitizeParam(params?.city || "Zagreb", 50);
-  const region = sanitizeParam(params?.region || "Croatia", 50);
+  const city = sanitizeParam(params?.city || 'Zagreb', 50);
+  const region = sanitizeParam(params?.region || 'Croatia', 50);
   const level = sanitizeLevel(params?.level);
-  const character_name = sanitizeParam(params?.character_name || "Marko", 40);
+  const character_name = sanitizeParam(params?.character_name || 'Marko', 40);
   const goal_theme = params?.goal_theme ? sanitizeParam(params.goal_theme, 120) : null;
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'B1';
   const complexity = {
-    A1: "Use ONLY present tense, very short sentences (max 8 words each), and the 200 most common Croatian words. Every 3rd sentence should have an English hint in parentheses.",
-    A2: "Use mostly present tense with occasional simple past. Short clear sentences. Common everyday vocabulary. Add English hints for any uncommon words.",
-    B1: "Use present and past tense naturally. Conversational vocabulary. Include some cultural details. No English hints needed — context makes meaning clear.",
-    B2: "Write like a skilled author for a native Croatian teen. All tenses, idioms welcome. Rich descriptive language. Cultural depth.",
-    C1: "Write literary Croatian. Complex sentences, subordinate clauses, all tenses, idiomatic expressions. Rich and authentic.",
-    C2: "Write like a published Croatian author. Use regional color, colloquialisms, literary devices. Completely authentic native-level Croatian.",
+    A1: 'Use ONLY present tense, very short sentences (max 8 words each), and the 200 most common Croatian words. Every 3rd sentence should have an English hint in parentheses.',
+    A2: 'Use mostly present tense with occasional simple past. Short clear sentences. Common everyday vocabulary. Add English hints for any uncommon words.',
+    B1: 'Use present and past tense naturally. Conversational vocabulary. Include some cultural details. No English hints needed — context makes meaning clear.',
+    B2: 'Write like a skilled author for a native Croatian teen. All tenses, idioms welcome. Rich descriptive language. Cultural depth.',
+    C1: 'Write literary Croatian. Complex sentences, subordinate clauses, all tenses, idiomatic expressions. Rich and authentic.',
+    C2: 'Write like a published Croatian author. Use regional color, colloquialisms, literary devices. Completely authentic native-level Croatian.',
   };
-   
-  const complexityRule = complexity[safeLevel] || complexity["B1"];
+
+  const complexityRule = complexity[safeLevel] || complexity['B1'];
   const goalLine = goal_theme
     ? `\nPersonalization theme: The story should weave in themes of ${goal_theme}. Let this shape the plot, setting details, and emotional arc naturally.`
-    : "";
+    : '';
   return `You are a master Croatian storyteller creating an immersive language learning experience.
 
 Write a vivid, emotionally engaging short story (350-450 words) set in ${city}, ${region}, Croatia.
@@ -260,15 +271,15 @@ The story must feel like literature, not a language exercise — engaging plot, 
 }
 
 function buildHeritagePrompt(params) {
-  const region = sanitizeParam(params?.region || "Croatia", 50);
-  const family_notes = sanitizeParam(params?.family_notes || "", 400);
-  const user_name = sanitizeParam(params?.user_name || "you", 50);
-  const ancestor_era = sanitizeParam(params?.ancestor_era || "early 20th century", 80);
+  const region = sanitizeParam(params?.region || 'Croatia', 50);
+  const family_notes = sanitizeParam(params?.family_notes || '', 400);
+  const user_name = sanitizeParam(params?.user_name || 'you', 50);
+  const ancestor_era = sanitizeParam(params?.ancestor_era || 'early 20th century', 80);
   return `You are a Croatian cultural historian and storyteller. Create a deeply personal, emotionally resonant narrative connecting someone to their Croatian roots.
 
 User name: ${user_name}
 Their Croatian connection: ${region}
-Family notes they provided: ${family_notes || "No specific details provided"}
+Family notes they provided: ${family_notes || 'No specific details provided'}
 Historical era: ${ancestor_era}
 
 Write a 3-part narrative (400-500 words total):
@@ -300,20 +311,21 @@ The tone must be warm, poetic, and personal — this should move someone to tear
 function buildPhraseOfDayPrompt(params) {
   const category = sanitizeCategory(params?.category);
   const level = sanitizeLevel(params?.level);
-  const seed = sanitizeParam(params?.seed || "", 20);
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  const seed = sanitizeParam(params?.seed || '', 20);
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'B1';
   const categoryDesc = {
-    greeting: "everyday Croatian greetings and farewells — include some that are uniquely Croatian or regional",
-    work: "professional Croatian — office, business, career phrases",
-    travel: "Croatian travel phrases — transport, hotels, asking directions, emergencies",
-    food: "Croatian food culture — ordering, complimenting food, market shopping, restaurant phrases",
-    slang: "authentic Croatian slang and colloquialisms — what young Croatians actually say today",
-    love: "Croatian expressions of affection, friendship, and relationships",
-    sports: "Croatian sports culture — football, basketball, cheering, sports talk",
-    family: "Croatian family vocabulary and expressions — terms of endearment, family dynamics",
+    greeting:
+      'everyday Croatian greetings and farewells — include some that are uniquely Croatian or regional',
+    work: 'professional Croatian — office, business, career phrases',
+    travel: 'Croatian travel phrases — transport, hotels, asking directions, emergencies',
+    food: 'Croatian food culture — ordering, complimenting food, market shopping, restaurant phrases',
+    slang: 'authentic Croatian slang and colloquialisms — what young Croatians actually say today',
+    love: 'Croatian expressions of affection, friendship, and relationships',
+    sports: 'Croatian sports culture — football, basketball, cheering, sports talk',
+    family: 'Croatian family vocabulary and expressions — terms of endearment, family dynamics',
   };
-   
-  const catDesc = categoryDesc[category] || categoryDesc["greeting"];
+
+  const catDesc = categoryDesc[category] || categoryDesc['greeting'];
 
   return `You are a Croatian language and culture expert creating a "Phrase of the Day" for a learner at CEFR level ${safeLevel}.
 
@@ -353,34 +365,36 @@ Include 2-3 related phrases. The cultural note must be genuinely interesting, no
 
 function buildAdaptiveConvoPrompt(params) {
   const level = sanitizeLevel(params?.level);
-  const aiName = sanitizeParam(params?.aiName || "Maja", 50);
-  const aiRole = sanitizeParam(params?.aiRole || "native speaker", 80);
-  const context = sanitizeParam(params?.context || "", 300);
+  const aiName = sanitizeParam(params?.aiName || 'Maja', 50);
+  const aiRole = sanitizeParam(params?.aiRole || 'native speaker', 80);
+  const context = sanitizeParam(params?.context || '', 300);
   const weak_areas = Array.isArray(params?.weak_areas)
-    ? params.weak_areas.slice(0, 5).map(a => sanitizeParam(String(a), 50))
+    ? params.weak_areas.slice(0, 5).map((a) => sanitizeParam(String(a), 50))
     : [];
   const topics_mastered = Array.isArray(params?.topics_mastered)
-    ? params.topics_mastered.slice(0, 10).map(t => sanitizeParam(String(t), 50))
+    ? params.topics_mastered.slice(0, 10).map((t) => sanitizeParam(String(t), 50))
     : [];
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'B1';
   const complexity = {
-    A1: "Use ONLY simple present tense. Maximum 1-2 very short sentences. Very basic vocabulary only.",
-    A2: "Use present tense primarily. 2 short sentences. Common everyday vocabulary.",
-    B1: "Use present, past (perfective), and near-future naturally. 2-3 sentences. Conversational vocabulary.",
-    B2: "Speak naturally and fluently. 3-4 sentences. You may use idioms, participles, and varied tenses.",
-    C1: "Speak exactly as you would to a native speaker. Rich vocabulary, idioms, subordinate clauses, all tenses.",
-    C2: "Full native speaker register. Regional expressions, idiomatic speech, cultural references are welcome.",
+    A1: 'Use ONLY simple present tense. Maximum 1-2 very short sentences. Very basic vocabulary only.',
+    A2: 'Use present tense primarily. 2 short sentences. Common everyday vocabulary.',
+    B1: 'Use present, past (perfective), and near-future naturally. 2-3 sentences. Conversational vocabulary.',
+    B2: 'Speak naturally and fluently. 3-4 sentences. You may use idioms, participles, and varied tenses.',
+    C1: 'Speak exactly as you would to a native speaker. Rich vocabulary, idioms, subordinate clauses, all tenses.',
+    C2: 'Full native speaker register. Regional expressions, idiomatic speech, cultural references are welcome.',
   };
-   
-  const complexityRule = complexity[safeLevel] || complexity["B1"];
 
-  const weakAreasText = weak_areas.length > 0
-    ? `\nThe learner struggles with: ${weak_areas.join(", ")}. Naturally weave opportunities to practice these into the conversation — e.g. ask questions that require them to use dative case, or construct sentences that invite past tense responses. Never comment on their grammar; just model correct usage in your own speech.`
-    : "";
+  const complexityRule = complexity[safeLevel] || complexity['B1'];
 
-  const masteredText = topics_mastered.length > 0
-    ? `\nThe learner has mastered: ${topics_mastered.slice(0, 5).join(", ")}. You can use these confidently in your speech.`
-    : "";
+  const weakAreasText =
+    weak_areas.length > 0
+      ? `\nThe learner struggles with: ${weak_areas.join(', ')}. Naturally weave opportunities to practice these into the conversation — e.g. ask questions that require them to use dative case, or construct sentences that invite past tense responses. Never comment on their grammar; just model correct usage in your own speech.`
+      : '';
+
+  const masteredText =
+    topics_mastered.length > 0
+      ? `\nThe learner has mastered: ${topics_mastered.slice(0, 5).join(', ')}. You can use these confidently in your speech.`
+      : '';
 
   return `You are ${aiName}, a native Croatian speaker. Role: ${aiRole}.
 ${context}
@@ -397,18 +411,18 @@ Language rules for YOU:
 
 function buildNewsSimplifyPrompt(params) {
   const level = sanitizeLevel(params?.level);
-  const title = sanitizeParam(params?.title || "", 200);
-  const original = sanitizeParam(params?.original || "", 1000);
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  const title = sanitizeParam(params?.title || '', 200);
+  const original = sanitizeParam(params?.original || '', 1000);
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'B1';
   const complexity = {
-    A1: "Use ONLY the 500 most common Croatian words. Maximum 8 words per sentence. Present tense only. No subordinate clauses.",
-    A2: "Simple vocabulary (top 1000 Croatian words). Short sentences (max 12 words). Present tense mostly. One subordinate clause max.",
-    B1: "Conversational Croatian. 15-word sentences max. All tenses allowed. Some compound sentences. Common idioms OK.",
-    B2: "Natural Croatian. Full complexity of the original, but simplify any bureaucratic or highly technical language.",
-    C1: "Keep close to original Croatian. Simplify only jargon or highly specialized terms.",
+    A1: 'Use ONLY the 500 most common Croatian words. Maximum 8 words per sentence. Present tense only. No subordinate clauses.',
+    A2: 'Simple vocabulary (top 1000 Croatian words). Short sentences (max 12 words). Present tense mostly. One subordinate clause max.',
+    B1: 'Conversational Croatian. 15-word sentences max. All tenses allowed. Some compound sentences. Common idioms OK.',
+    B2: 'Natural Croatian. Full complexity of the original, but simplify any bureaucratic or highly technical language.',
+    C1: 'Keep close to original Croatian. Simplify only jargon or highly specialized terms.',
   };
-   
-  const complexityRule = complexity[safeLevel] || complexity["B1"];
+
+  const complexityRule = complexity[safeLevel] || complexity['B1'];
 
   return `You are a Croatian language teacher simplifying a news article for a language learner at CEFR level ${safeLevel}.
 
@@ -433,12 +447,12 @@ Include 6-8 key vocabulary items. Keep the simplified text accurate to the origi
 }
 
 function buildPostcardCoachPrompt(params) {
-  const city = sanitizeParam(params?.city || "Croatia", 50);
+  const city = sanitizeParam(params?.city || 'Croatia', 50);
   const level = sanitizeLevel(params?.level);
-  const user_name = sanitizeParam(params?.user_name || "", 50);
-  const safeLevel = /^[ABC][12]$/.test(level) ? level : "B1";
+  const user_name = sanitizeParam(params?.user_name || '', 50);
+  const safeLevel = /^[ABC][12]$/.test(level) ? level : 'B1';
   return `You are a warm, encouraging Croatian language teacher helping a student write a postcard from ${city}.
-The student is at CEFR level ${safeLevel}.${user_name ? ` Their name is ${user_name}.` : ""}
+The student is at CEFR level ${safeLevel}.${user_name ? ` Their name is ${user_name}.` : ''}
 
 Evaluate their Croatian postcard message and provide corrections.
 
@@ -461,34 +475,34 @@ Max 5 changes. Be encouraging — postcard writing is joyful!`;
 
 function buildSystemPrompt(mode, params) {
   switch (mode) {
-    case "convo":
-    case "chat":
+    case 'convo':
+    case 'chat':
       return buildConvoPrompt(params || {});
-    case "adaptive_convo":
+    case 'adaptive_convo':
       return buildAdaptiveConvoPrompt(params || {});
-    case "evaluate":
+    case 'evaluate':
       return buildEvalPrompt(params || {});
-    case "correct":
+    case 'correct':
       return buildCorrectPrompt();
-    case "writeeval":
+    case 'writeeval':
       return buildWriteEvalPrompt(params || {});
-    case "translate":
+    case 'translate':
       return buildTranslatePrompt();
-    case "wordanalyze":
+    case 'wordanalyze':
       return buildWordAnalyzePrompt();
-    case "hint":
+    case 'hint':
       return buildHintPrompt();
-    case "explain":
+    case 'explain':
       return buildExplainPrompt(params || {});
-    case "story":
+    case 'story':
       return buildStoryPrompt(params || {});
-    case "heritage":
+    case 'heritage':
       return buildHeritagePrompt(params || {});
-    case "phrase_of_day":
+    case 'phrase_of_day':
       return buildPhraseOfDayPrompt(params || {});
-    case "news_simplify":
+    case 'news_simplify':
       return buildNewsSimplifyPrompt(params || {});
-    case "postcard":
+    case 'postcard':
       return buildPostcardCoachPrompt(params || {});
     default:
       return null;
@@ -496,7 +510,7 @@ function buildSystemPrompt(mode, params) {
 }
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get("origin") || "";
+  const origin = request.headers.get('origin') || '';
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
@@ -504,168 +518,230 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-  const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
+  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
   const allowed = await checkRateLimit(request, 40);
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
+      status: 429,
+      headers: corsHeaders(origin),
+    });
   }
 
   // Require valid Firebase auth token for AI endpoints
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
+      headers: corsHeaders(origin),
+    });
   }
 
   // Daily AI quota check (cost 1)
   const quota = await checkAIQuota(request, env, uid, 1);
   if (!quota.allowed) {
     return new Response(
-      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
-      { status: 429, headers: corsHeaders(origin) }
+      JSON.stringify({
+        error: 'daily_quota_exceeded',
+        message: 'Daily AI limit reached. Resets at midnight UTC.',
+        resetAt: quota.resetAt,
+      }),
+      { status: 429, headers: corsHeaders(origin) },
     );
   }
 
-  if (!ANTHROPIC_KEY) return err(503, "AI_KEY_MISSING", origin);
+  if (!ANTHROPIC_KEY) return err(503, 'AI_KEY_MISSING', origin);
 
   const ct = request.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) return err(400, "Invalid content type", origin);
+  if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);
 
   // Request size guard — reject oversized payloads before parsing
   const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
-  if (contentLength > 102400) { // 100KB max
+  if (contentLength > 102400) {
+    // 100KB max
     return err(413, 'Request too large', origin);
   }
 
   let body;
-  try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body", origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON in request body', origin);
+  }
 
   const { messages, mode, params } = body;
 
   // ── Input type validation ────────────────────────────────────────────────────
-  if (typeof mode !== 'string' || mode.length > 30) return err(400, "Invalid request", origin);
+  if (typeof mode !== 'string' || mode.length > 30) return err(400, 'Invalid request', origin);
   if (params !== undefined && (typeof params !== 'object' || Array.isArray(params))) {
-    return err(400, "Invalid request", origin);
+    return err(400, 'Invalid request', origin);
   }
-  if (messages !== undefined && !Array.isArray(messages)) return err(400, "Invalid request", origin);
+  if (messages !== undefined && !Array.isArray(messages))
+    return err(400, 'Invalid request', origin);
   if (Array.isArray(messages)) {
-    if (messages.length > 50) return err(400, "Too many messages", origin);
+    if (messages.length > 50) return err(400, 'Too many messages', origin);
     for (const msg of messages) {
-      if (typeof msg !== 'object' || !msg) return err(400, "Invalid message format", origin);
-      if (!['user','assistant'].includes(msg.role)) return err(400, "Invalid message role", origin);
-      if (typeof msg.content !== 'string') return err(400, "Invalid message content", origin);
-      if (msg.content.length > 4000) return err(400, "Message too long", origin);
+      if (typeof msg !== 'object' || !msg) return err(400, 'Invalid message format', origin);
+      if (!['user', 'assistant'].includes(msg.role))
+        return err(400, 'Invalid message role', origin);
+      if (typeof msg.content !== 'string') return err(400, 'Invalid message content', origin);
+      if (msg.content.length > 4000) return err(400, 'Message too long', origin);
     }
   }
 
   // ── "explain" mode: no messages array needed — topic comes from params ──────
-  if (mode === "explain") {
-    const topic = sanitizeParam(params?.topic || "Croatian grammar", 80);
+  if (mode === 'explain') {
+    const topic = sanitizeParam(params?.topic || 'Croatian grammar', 80);
     const systemPrompt = buildExplainPrompt(params || {});
     let explainRes;
     try {
       explainRes = await fetch(ANTHROPIC_URL, {
-        method: "POST",
-        headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        method: 'POST',
+        headers: {
+          'x-api-key': ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
+        },
         signal: AbortSignal.timeout(20000),
-        body: JSON.stringify({ model: MODEL, max_tokens: 1200, system: systemPrompt, messages: [{ role: "user", content: `Explain: ${topic}` }] }),
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 1200,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: `Explain: ${topic}` }],
+        }),
       });
     } catch {
-      return err(502, "Service temporarily unavailable", origin);
+      return err(502, 'Service temporarily unavailable', origin);
     }
     let explainBody;
-    try { explainBody = await explainRes.text(); } catch { return err(502, "Service temporarily unavailable", origin); }
-    if (!explainRes.ok) return err(explainRes.status >= 500 ? 502 : explainRes.status, "Upstream error", origin);
+    try {
+      explainBody = await explainRes.text();
+    } catch {
+      return err(502, 'Service temporarily unavailable', origin);
+    }
+    if (!explainRes.ok)
+      return err(explainRes.status >= 500 ? 502 : explainRes.status, 'Upstream error', origin);
     let explainData;
-    try { explainData = JSON.parse(explainBody); } catch { return err(500, "Generation failed", origin); }
-    const raw = explainData.content?.[0]?.text || "";
+    try {
+      explainData = JSON.parse(explainBody);
+    } catch {
+      return err(500, 'Generation failed', origin);
+    }
+    const raw = explainData.content?.[0]?.text || '';
     try {
       const parsed = JSON.parse(raw);
       return new Response(JSON.stringify(parsed), { status: 200, headers: corsHeaders(origin) });
     } catch {
-      return err(500, "Generation failed", origin);
+      return err(500, 'Generation failed', origin);
     }
   }
 
   // ── Single-prompt modes (no conversation history needed) ──────────────────
-  const SINGLE_PROMPT_MODES = ["story", "heritage", "phrase_of_day", "news_simplify", "postcard"];
+  const SINGLE_PROMPT_MODES = ['story', 'heritage', 'phrase_of_day', 'news_simplify', 'postcard'];
   if (SINGLE_PROMPT_MODES.includes(mode)) {
     const systemPrompt = buildSystemPrompt(mode, params);
-    if (!systemPrompt) return err(400, "Unknown mode: " + mode, origin);
-    const userContent = (messages && messages[0]?.content) ? String(messages[0].content).slice(0, 2000) : "Generate content";
+    if (!systemPrompt) return err(400, 'Unknown mode: ' + mode, origin);
+    const userContent =
+      messages && messages[0]?.content
+        ? String(messages[0].content).slice(0, 2000)
+        : 'Generate content';
     let singleRes;
     try {
       singleRes = await fetch(ANTHROPIC_URL, {
-        method: "POST",
-        headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        method: 'POST',
+        headers: {
+          'x-api-key': ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
+        },
         signal: AbortSignal.timeout(20000),
         body: JSON.stringify({
           model: MODEL,
-          max_tokens: (mode === "story" || mode === "heritage") ? 2000 : 1000,
+          max_tokens: mode === 'story' || mode === 'heritage' ? 2000 : 1000,
           system: systemPrompt,
-          messages: [{ role: "user", content: userContent }],
+          messages: [{ role: 'user', content: userContent }],
         }),
       });
     } catch (fetchErr) {
-      console.error("Network error calling Anthropic:", fetchErr.message);
-      return err(502, "Service temporarily unavailable", origin);
+      console.error('Network error calling Anthropic:', fetchErr.message);
+      return err(502, 'Service temporarily unavailable', origin);
     }
     let singleBody;
-    try { singleBody = await singleRes.text(); } catch { return err(502, "Service temporarily unavailable", origin); }
-    if (!singleRes.ok) return err(singleRes.status >= 500 ? 502 : singleRes.status, "Upstream error", origin);
+    try {
+      singleBody = await singleRes.text();
+    } catch {
+      return err(502, 'Service temporarily unavailable', origin);
+    }
+    if (!singleRes.ok)
+      return err(singleRes.status >= 500 ? 502 : singleRes.status, 'Upstream error', origin);
     let singleData;
-    try { singleData = JSON.parse(singleBody); } catch { return err(502, "Invalid response from AI", origin); }
-    const raw = singleData.content?.[0]?.text || "";
+    try {
+      singleData = JSON.parse(singleBody);
+    } catch {
+      return err(502, 'Invalid response from AI', origin);
+    }
+    const raw = singleData.content?.[0]?.text || '';
     // Try to return parsed JSON for these structured modes
     try {
       const parsed = JSON.parse(raw);
-      return new Response(JSON.stringify({ ...parsed, _raw: raw, model: MODEL }), { status: 200, headers: corsHeaders(origin) });
+      return new Response(JSON.stringify({ ...parsed, _raw: raw, model: MODEL }), {
+        status: 200,
+        headers: corsHeaders(origin),
+      });
     } catch {
       return ok({ text: raw, model: MODEL }, origin);
     }
   }
 
   if (!messages || !Array.isArray(messages) || !mode) {
-    return err(400, "Missing required fields: messages (array) and mode", origin);
+    return err(400, 'Missing required fields: messages (array) and mode', origin);
   }
   if (messages.length > 50) {
-    return err(400, "Too many messages: max 50 allowed", origin);
+    return err(400, 'Too many messages: max 50 allowed', origin);
   }
 
   const systemPrompt = buildSystemPrompt(mode, params);
   if (!systemPrompt) {
-    return err(400, "Unknown mode: " + mode, origin);
+    return err(400, 'Unknown mode: ' + mode, origin);
   }
 
   let anthropicMsgs = messages
-    .filter(m => m.role === "user" || m.role === "assistant")
-    .map(m => ({ role: m.role, content: m.content || "" }));
+    .filter((m) => m.role === 'user' || m.role === 'assistant')
+    .map((m) => ({ role: m.role, content: m.content || '' }));
 
-  while (anthropicMsgs.length > 0 && anthropicMsgs[0].role !== "user") {
+  while (anthropicMsgs.length > 0 && anthropicMsgs[0].role !== 'user') {
     anthropicMsgs.shift();
   }
 
   const merged = [];
   for (const msg of anthropicMsgs) {
     if (merged.length > 0 && merged[merged.length - 1].role === msg.role) {
-      merged[merged.length - 1].content += "\n" + msg.content;
+      merged[merged.length - 1].content += '\n' + msg.content;
     } else {
       merged.push({ ...msg });
     }
   }
   anthropicMsgs = merged;
 
-  if (anthropicMsgs.length === 0 || anthropicMsgs[0].role !== "user") {
-    return err(400, "No valid user messages to send");
+  if (anthropicMsgs.length === 0 || anthropicMsgs[0].role !== 'user') {
+    return err(400, 'No valid user messages to send');
   }
 
   const payload = {
     model: MODEL,
-    max_tokens: (mode === "evaluate" || mode === "writeeval" || mode === "story" || mode === "heritage") ? 2000 : (mode === "phrase_of_day" || mode === "postcard" || mode === "news_simplify") ? 1000 : (mode === "correct" || mode === "translate") ? 200 : mode === "wordanalyze" ? 400 : 500,
+    max_tokens:
+      mode === 'evaluate' || mode === 'writeeval' || mode === 'story' || mode === 'heritage'
+        ? 2000
+        : mode === 'phrase_of_day' || mode === 'postcard' || mode === 'news_simplify'
+          ? 1000
+          : mode === 'correct' || mode === 'translate'
+            ? 200
+            : mode === 'wordanalyze'
+              ? 400
+              : 500,
     system: systemPrompt,
     messages: anthropicMsgs,
   };
@@ -673,34 +749,40 @@ export async function onRequestPost(context) {
   let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_KEY,
-        "anthropic-version": "2023-06-01",
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
       },
       signal: AbortSignal.timeout(28000),
       body: JSON.stringify(payload),
     });
   } catch (fetchErr) {
-    console.error("Network error calling Anthropic:", fetchErr.message);
-    return err(502, "Service temporarily unavailable", origin);
+    console.error('Network error calling Anthropic:', fetchErr.message);
+    return err(502, 'Service temporarily unavailable', origin);
   }
 
   let rawBody;
   try {
     rawBody = await res.text();
   } catch (bodyErr) {
-    console.error("ai-chat.js: failed to read response body:", bodyErr.message);
-    return err(502, "Service temporarily unavailable", origin);
+    console.error('ai-chat.js: failed to read response body:', bodyErr.message);
+    return err(502, 'Service temporarily unavailable', origin);
   }
 
   if (!res.ok) {
     let errMsg;
-    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
-    console.error("ai-chat.js: Anthropic API error", res.status, errMsg);
+    try {
+      errMsg = JSON.parse(rawBody)?.error?.message;
+    } catch {
+      /* not JSON */
+    }
+    console.error('ai-chat.js: Anthropic API error', res.status, errMsg);
     const isProduction = (env.ENVIRONMENT || 'production') !== 'development';
-    const clientMsg = isProduction ? 'AI service temporarily unavailable' : (errMsg || ('Anthropic API error: HTTP ' + res.status));
+    const clientMsg = isProduction
+      ? 'AI service temporarily unavailable'
+      : errMsg || 'Anthropic API error: HTTP ' + res.status;
     return err(res.status >= 500 ? 502 : res.status, clientMsg, origin);
   }
 
@@ -708,14 +790,14 @@ export async function onRequestPost(context) {
   try {
     data = JSON.parse(rawBody);
   } catch {
-    console.error("ai-chat.js: JSON parse failed:", rawBody.slice(0, 200));
-    return err(502, "Invalid response from AI", origin);
+    console.error('ai-chat.js: JSON parse failed:', rawBody.slice(0, 200));
+    return err(502, 'Invalid response from AI', origin);
   }
 
-  const text = data?.content?.[0]?.text?.trim() || "";
+  const text = data?.content?.[0]?.text?.trim() || '';
   if (!text) {
-    console.error("Anthropic empty response, stop_reason:", data?.stop_reason);
-    return err(500, "AI service returned an empty response", origin);
+    console.error('Anthropic empty response, stop_reason:', data?.stop_reason);
+    return err(500, 'AI service returned an empty response', origin);
   }
 
   return ok({ text, model: MODEL }, origin);

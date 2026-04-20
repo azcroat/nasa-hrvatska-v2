@@ -12,7 +12,7 @@ import { corsHeaders, isAllowedOrigin, sanitizeParam, ok, err } from './_helpers
 
 const CROATIAN_VOICES = {
   female: 'hr-HR-GabrijelaNeural',
-  male:   'hr-HR-SreckoNeural',
+  male: 'hr-HR-SreckoNeural',
 };
 
 export async function onRequestOptions({ request }) {
@@ -35,7 +35,11 @@ export async function onRequestPost(context) {
   if (!DID_API_KEY) return err(503, 'Avatar video not configured', origin);
 
   let body;
-  try { body = await request.json(); } catch { return err(400, 'Invalid JSON', origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON', origin);
+  }
 
   const { imageUrl, text, gender = 'female' } = body;
   if (!imageUrl || !text) return err(400, 'Missing imageUrl or text', origin);
@@ -44,7 +48,7 @@ export async function onRequestPost(context) {
   try {
     const u = new URL(imageUrl);
     const allowed = ['nasahrvatska.com', 'nasa-hrvatska-v2.pages.dev', 'localhost'];
-    if (!isDev && !allowed.some(h => u.hostname === h || u.hostname.endsWith('.' + h))) {
+    if (!isDev && !allowed.some((h) => u.hostname === h || u.hostname.endsWith('.' + h))) {
       return err(400, 'Invalid imageUrl domain', origin);
     }
   } catch {
@@ -52,7 +56,7 @@ export async function onRequestPost(context) {
   }
 
   const safeText = sanitizeParam(text, 400);
-   
+
   const voiceId = CROATIAN_VOICES[gender] || CROATIAN_VOICES.female;
 
   // D-ID uses Basic auth: base64(apiKey:)
@@ -89,7 +93,7 @@ export async function onRequestPost(context) {
 
     // 2. Poll for completion — up to 25 seconds (10 × 2.5s)
     for (let i = 0; i < 10; i++) {
-      await new Promise(r => setTimeout(r, 2500));
+      await new Promise((r) => setTimeout(r, 2500));
       const pollRes = await fetch(`https://api.d-id.com/talks/${id}`, {
         headers: { Authorization: authHeader },
         signal: AbortSignal.timeout(8000),

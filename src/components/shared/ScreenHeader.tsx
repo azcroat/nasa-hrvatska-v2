@@ -14,11 +14,7 @@ export default function ScreenHeader({ title, goBack, pill }) {
   return (
     <div className="screen-header">
       {goBack && (
-        <button
-          className="screen-header__back"
-          onClick={goBack}
-          aria-label="Go back"
-        >
+        <button className="screen-header__back" onClick={goBack} aria-label="Go back">
           ‹
         </button>
       )}

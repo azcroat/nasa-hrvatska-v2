@@ -131,7 +131,11 @@ export default function PhonemePracticeScreen({ goBack, award }) {
   const [celebrated, setCelebrated] = useState(false);
 
   useEffect(() => {
-    knightSpeak('teaching', 'These 6 sounds are your secret weapon. Master them and Croats will think you studied for years! 🎯', 800);
+    knightSpeak(
+      'teaching',
+      'These 6 sounds are your secret weapon. Master them and Croats will think you studied for years! 🎯',
+      800,
+    );
   }, []);
 
   function markMastered(key) {
@@ -147,7 +151,11 @@ export default function PhonemePracticeScreen({ goBack, award }) {
       if (typeof award === 'function') award(100, true);
       markQuest('grammar');
       setTimeout(() => {
-        knightSpeak('victory', 'Phoneme Master! Native speakers will be amazed. Svaka čast! 🏆', 300);
+        knightSpeak(
+          'victory',
+          'Phoneme Master! Native speakers will be amazed. Svaka čast! 🏆',
+          300,
+        );
       }, 400);
     }
   }
@@ -161,43 +169,78 @@ export default function PhonemePracticeScreen({ goBack, award }) {
         <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
           ← Back
         </button>
-        <div style={{
-          background: 'linear-gradient(135deg, #0e7490, #7c3aed)',
-          borderRadius: 18, padding: '32px 24px', marginBottom: 24,
-          color: 'white', textAlign: 'center',
-        }}>
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #0e7490, #7c3aed)',
+            borderRadius: 18,
+            padding: '32px 24px',
+            marginBottom: 24,
+            color: 'white',
+            textAlign: 'center',
+          }}
+        >
           <div style={{ fontSize: 64, marginBottom: 12 }}>🏆</div>
           <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 8 }}>Phoneme Master!</div>
           <div style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.6 }}>
-            You've mastered all 6 Croatian phonemes.<br />
+            You've mastered all 6 Croatian phonemes.
+            <br />
             Native speakers will notice the difference immediately.
           </div>
         </div>
-        <div style={{
-          background: 'var(--card)', border: '1px solid var(--card-b)',
-          borderRadius: 14, padding: '16px 18px', marginBottom: 16,
-          textAlign: 'center',
-        }}>
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--card-b)',
+            borderRadius: 14,
+            padding: '16px 18px',
+            marginBottom: 16,
+            textAlign: 'center',
+          }}
+        >
           <div style={{ fontSize: 32, marginBottom: 8 }}>+100 XP</div>
-          <div style={{ fontSize: 14, color: 'var(--subtext)' }}>Bonus awarded for mastering all phonemes</div>
+          <div style={{ fontSize: 14, color: 'var(--subtext)' }}>
+            Bonus awarded for mastering all phonemes
+          </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
-          {PHONEMES.map(p => (
-            <div key={p.key} style={{
-              background: 'var(--card)', borderRadius: 14, padding: '14px 16px',
-              border: `2px solid ${p.color}`,
-              display: 'flex', alignItems: 'center', gap: 10,
-            }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 10,
-                background: p.color, color: 'white',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 18, fontWeight: 900, fontFamily: "'Playfair Display', serif",
-                flexShrink: 0,
-              }}>{p.letter}</div>
+          {PHONEMES.map((p) => (
+            <div
+              key={p.key}
+              style={{
+                background: 'var(--card)',
+                borderRadius: 14,
+                padding: '14px 16px',
+                border: `2px solid ${p.color}`,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+              }}
+            >
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: p.color,
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 18,
+                  fontWeight: 900,
+                  fontFamily: "'Playfair Display', serif",
+                  flexShrink: 0,
+                }}
+              >
+                {p.letter}
+              </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>{p.letter}</div>
-                <div style={{ fontSize: 10, color: 'var(--subtext)', fontFamily: 'monospace' }}>{p.ipa}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
+                  {p.letter}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--subtext)', fontFamily: 'monospace' }}>
+                  {p.ipa}
+                </div>
               </div>
               <span style={{ marginLeft: 'auto', fontSize: 18 }}>✅</span>
             </div>
@@ -225,27 +268,43 @@ export default function PhonemePracticeScreen({ goBack, award }) {
         </button>
 
         {/* Letter hero */}
-        <div style={{
-          background: `linear-gradient(135deg, ${p.color}dd, ${p.color})`,
-          borderRadius: 18, padding: '28px 24px', marginBottom: 20,
-          color: 'white', textAlign: 'center',
-        }}>
-          <div style={{
-            fontSize: 80, fontWeight: 900, lineHeight: 1,
-            fontFamily: "'Playfair Display', Georgia, serif",
-          }}>
+        <div
+          style={{
+            background: `linear-gradient(135deg, ${p.color}dd, ${p.color})`,
+            borderRadius: 18,
+            padding: '28px 24px',
+            marginBottom: 20,
+            color: 'white',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 80,
+              fontWeight: 900,
+              lineHeight: 1,
+              fontFamily: "'Playfair Display', Georgia, serif",
+            }}
+          >
             {p.letter}
           </div>
-          <div style={{ fontSize: 20, marginTop: 8, fontFamily: 'monospace', opacity: 0.95 }}>{p.ipa}</div>
+          <div style={{ fontSize: 20, marginTop: 8, fontFamily: 'monospace', opacity: 0.95 }}>
+            {p.ipa}
+          </div>
           <div style={{ fontSize: 13, marginTop: 4, opacity: 0.85 }}>{p.type}</div>
           <div style={{ fontSize: 13, marginTop: 2, opacity: 0.85, fontWeight: 700 }}>{p.name}</div>
         </div>
 
         {/* Tongue position guidance */}
-        <div style={{
-          background: 'rgba(14,116,144,0.06)', borderLeft: '3px solid var(--info)',
-          borderRadius: 12, padding: '12px 16px', marginBottom: 16,
-        }}>
+        <div
+          style={{
+            background: 'rgba(14,116,144,0.06)',
+            borderLeft: '3px solid var(--info)',
+            borderRadius: 12,
+            padding: '12px 16px',
+            marginBottom: 16,
+          }}
+        >
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--info)', marginBottom: 4 }}>
             👅 TONGUE POSITION
           </div>
@@ -253,10 +312,15 @@ export default function PhonemePracticeScreen({ goBack, award }) {
         </div>
 
         {/* Example words */}
-        <div style={{
-          background: 'var(--card)', border: '1px solid var(--card-b)',
-          borderRadius: 14, padding: '16px 18px', marginBottom: 16,
-        }}>
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--card-b)',
+            borderRadius: 14,
+            padding: '16px 18px',
+            marginBottom: 16,
+          }}
+        >
           <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 12 }}>
             🔊 Hear the Sound
           </div>
@@ -266,21 +330,31 @@ export default function PhonemePracticeScreen({ goBack, award }) {
                 key={i}
                 onClick={() => speak(w.hr)}
                 style={{
-                  background: 'var(--card)', border: `1px solid var(--card-b)`,
-                  borderRadius: 10, padding: '10px 12px', cursor: 'pointer',
-                  textAlign: 'left', transition: 'border-color .15s',
+                  background: 'var(--card)',
+                  border: `1px solid var(--card-b)`,
+                  borderRadius: 10,
+                  padding: '10px 12px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'border-color .15s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = p.color}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--card-b)'}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = p.color)}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--card-b)')}
               >
-                <div style={{
-                  fontSize: 18, fontWeight: 800, color: 'var(--heading)',
-                  fontFamily: "'Playfair Display', serif",
-                }}>
+                <div
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 800,
+                    color: 'var(--heading)',
+                    fontFamily: "'Playfair Display', serif",
+                  }}
+                >
                   {w.hr}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2 }}>{w.en}</div>
-                <div style={{ fontSize: 10, color: p.color, marginTop: 4, fontWeight: 700 }}>▶ tap to hear</div>
+                <div style={{ fontSize: 10, color: p.color, marginTop: 4, fontWeight: 700 }}>
+                  ▶ tap to hear
+                </div>
               </button>
             ))}
           </div>
@@ -288,92 +362,157 @@ export default function PhonemePracticeScreen({ goBack, award }) {
 
         {/* Minimal pair */}
         {p.minimalPair && (
-          <div style={{
-            background: 'var(--card)', border: '1px solid var(--card-b)',
-            borderRadius: 14, padding: '16px 18px', marginBottom: 16,
-          }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 12 }}>
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1px solid var(--card-b)',
+              borderRadius: 14,
+              padding: '16px 18px',
+              marginBottom: 16,
+            }}
+          >
+            <div
+              style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 12 }}
+            >
               👂 Minimal Pair — Hear the Difference
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => speak(p.minimalPair.a)}
                 style={{
-                  flex: 1, background: `${p.color}12`,
+                  flex: 1,
+                  background: `${p.color}12`,
                   border: `2px solid ${p.color}`,
-                  borderRadius: 12, padding: '12px 14px', cursor: 'pointer', textAlign: 'center',
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
                 }}
               >
-                <div style={{
-                  fontSize: 22, fontWeight: 900, color: p.color,
-                  fontFamily: "'Playfair Display', serif",
-                }}>
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 900,
+                    color: p.color,
+                    fontFamily: "'Playfair Display', serif",
+                  }}
+                >
                   {p.minimalPair.a}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 4 }}>{p.minimalPair.aEn}</div>
-                <div style={{ fontSize: 10, color: p.color, marginTop: 4, fontWeight: 700 }}>▶ play</div>
+                <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 4 }}>
+                  {p.minimalPair.aEn}
+                </div>
+                <div style={{ fontSize: 10, color: p.color, marginTop: 4, fontWeight: 700 }}>
+                  ▶ play
+                </div>
               </button>
-              <div style={{
-                display: 'flex', alignItems: 'center',
-                fontSize: 18, color: 'var(--subtext)', fontWeight: 700,
-              }}>VS</div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: 18,
+                  color: 'var(--subtext)',
+                  fontWeight: 700,
+                }}
+              >
+                VS
+              </div>
               <button
                 onClick={() => speak(p.minimalPair.b)}
                 style={{
-                  flex: 1, background: 'rgba(100,100,100,0.06)',
+                  flex: 1,
+                  background: 'rgba(100,100,100,0.06)',
                   border: '2px solid var(--card-b)',
-                  borderRadius: 12, padding: '12px 14px', cursor: 'pointer', textAlign: 'center',
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
                 }}
               >
-                <div style={{
-                  fontSize: 22, fontWeight: 900, color: 'var(--heading)',
-                  fontFamily: "'Playfair Display', serif",
-                }}>
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 900,
+                    color: 'var(--heading)',
+                    fontFamily: "'Playfair Display', serif",
+                  }}
+                >
                   {p.minimalPair.b}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 4 }}>{p.minimalPair.bEn}</div>
-                <div style={{ fontSize: 10, color: 'var(--subtext)', marginTop: 4, fontWeight: 700 }}>▶ play</div>
+                <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 4 }}>
+                  {p.minimalPair.bEn}
+                </div>
+                <div
+                  style={{ fontSize: 10, color: 'var(--subtext)', marginTop: 4, fontWeight: 700 }}
+                >
+                  ▶ play
+                </div>
               </button>
             </div>
           </div>
         )}
 
         {/* Practice sentence */}
-        <div style={{
-          background: 'var(--card)', border: '1px solid var(--card-b)',
-          borderRadius: 14, padding: '16px 18px', marginBottom: 20,
-        }}>
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--card-b)',
+            borderRadius: 14,
+            padding: '16px 18px',
+            marginBottom: 20,
+          }}
+        >
           <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 10 }}>
             🗣️ Practice Sentence
           </div>
           <button
             onClick={() => speak(p.sentence.hr)}
             style={{
-              width: '100%', background: `${p.color}10`,
+              width: '100%',
+              background: `${p.color}10`,
               border: `1px solid ${p.color}44`,
-              borderRadius: 12, padding: '14px 16px', cursor: 'pointer', textAlign: 'left',
+              borderRadius: 12,
+              padding: '14px 16px',
+              cursor: 'pointer',
+              textAlign: 'left',
             }}
           >
-            <div style={{
-              fontSize: 17, fontWeight: 800, color: 'var(--heading)',
-              fontFamily: "'Playfair Display', serif", lineHeight: 1.4,
-            }}>
+            <div
+              style={{
+                fontSize: 17,
+                fontWeight: 800,
+                color: 'var(--heading)',
+                fontFamily: "'Playfair Display', serif",
+                lineHeight: 1.4,
+              }}
+            >
               {p.sentence.hr}
             </div>
-            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 4, fontStyle: 'italic' }}>
+            <div
+              style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 4, fontStyle: 'italic' }}
+            >
               {p.sentence.en}
             </div>
-            <div style={{ fontSize: 11, color: p.color, marginTop: 6, fontWeight: 700 }}>▶ tap to hear full sentence</div>
+            <div style={{ fontSize: 11, color: p.color, marginTop: 6, fontWeight: 700 }}>
+              ▶ tap to hear full sentence
+            </div>
           </button>
         </div>
 
         {/* CTA */}
         {isMastered ? (
-          <div style={{
-            background: 'rgba(22,163,74,0.1)', border: '2px solid #16a34a',
-            borderRadius: 14, padding: '16px 18px', textAlign: 'center',
-            color: '#15803d', fontWeight: 800, fontSize: 15,
-          }}>
+          <div
+            style={{
+              background: 'rgba(22,163,74,0.1)',
+              border: '2px solid #16a34a',
+              borderRadius: 14,
+              padding: '16px 18px',
+              textAlign: 'center',
+              color: '#15803d',
+              fontWeight: 800,
+              fontSize: 15,
+            }}
+          >
             ✅ You've mastered {p.letter}!
           </div>
         ) : (
@@ -397,10 +536,15 @@ export default function PhonemePracticeScreen({ goBack, award }) {
       </button>
 
       {/* Hero */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0e7490dd, #0e7490)',
-        borderRadius: 18, padding: '20px 20px', marginBottom: 20, color: 'white',
-      }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #0e7490dd, #0e7490)',
+          borderRadius: 18,
+          padding: '20px 20px',
+          marginBottom: 20,
+          color: 'white',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ fontSize: 44 }}>🔤</div>
           <div>
@@ -413,11 +557,18 @@ export default function PhonemePracticeScreen({ goBack, award }) {
       </div>
 
       {/* Progress indicator */}
-      <div style={{
-        background: 'var(--card)', border: '1px solid var(--card-b)',
-        borderRadius: 12, padding: '12px 16px', marginBottom: 20,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
+      <div
+        style={{
+          background: 'var(--card)',
+          border: '1px solid var(--card-b)',
+          borderRadius: 12,
+          padding: '12px 16px',
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--subtext)', marginBottom: 2 }}>
             PROGRESS
@@ -426,17 +577,31 @@ export default function PhonemePracticeScreen({ goBack, award }) {
             {masteredCount} / {PHONEMES.length} mastered
           </div>
         </div>
-        <div style={{
-          width: 52, height: 52, borderRadius: '50%',
-          background: `conic-gradient(var(--info) ${(masteredCount / PHONEMES.length) * 360}deg, var(--card-b) 0deg)`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: '50%',
-            background: 'var(--card)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 900, color: 'var(--info)',
-          }}>
+        <div
+          style={{
+            width: 52,
+            height: 52,
+            borderRadius: '50%',
+            background: `conic-gradient(var(--info) ${(masteredCount / PHONEMES.length) * 360}deg, var(--card-b) 0deg)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: '50%',
+              background: 'var(--card)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 13,
+              fontWeight: 900,
+              color: 'var(--info)',
+            }}
+          >
             {Math.round((masteredCount / PHONEMES.length) * 100)}%
           </div>
         </div>
@@ -453,43 +618,72 @@ export default function PhonemePracticeScreen({ goBack, award }) {
               style={{
                 background: 'var(--card)',
                 border: `2px solid ${isMastered ? p.color : 'var(--card-b)'}`,
-                borderRadius: 16, padding: '18px 14px', cursor: 'pointer',
-                textAlign: 'center', position: 'relative',
+                borderRadius: 16,
+                padding: '18px 14px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                position: 'relative',
                 transition: 'border-color .2s, transform .1s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
               {isMastered && (
-                <div style={{
-                  position: 'absolute', top: 8, right: 8,
-                  width: 20, height: 20, borderRadius: '50%',
-                  background: '#16a34a', color: 'white',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 11, fontWeight: 900,
-                }}>✓</div>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: '#16a34a',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 11,
+                    fontWeight: 900,
+                  }}
+                >
+                  ✓
+                </div>
               )}
-              <div style={{
-                fontSize: 44, fontWeight: 900, color: p.color,
-                fontFamily: "'Playfair Display', Georgia, serif",
-                lineHeight: 1, marginBottom: 6,
-              }}>
+              <div
+                style={{
+                  fontSize: 44,
+                  fontWeight: 900,
+                  color: p.color,
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  lineHeight: 1,
+                  marginBottom: 6,
+                }}
+              >
                 {p.letter}
               </div>
-              <div style={{
-                fontSize: 11, color: 'var(--subtext)',
-                fontFamily: 'monospace', marginBottom: 4,
-              }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: 'var(--subtext)',
+                  fontFamily: 'monospace',
+                  marginBottom: 4,
+                }}
+              >
                 {p.ipa}
               </div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)' }}>
-                {p.name}
-              </div>
-              <div style={{
-                fontSize: 10, marginTop: 6,
-                color: isMastered ? '#16a34a' : 'var(--info)',
-                fontWeight: 700,
-              }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)' }}>{p.name}</div>
+              <div
+                style={{
+                  fontSize: 10,
+                  marginTop: 6,
+                  color: isMastered ? '#16a34a' : 'var(--info)',
+                  fontWeight: 700,
+                }}
+              >
                 {isMastered ? '✓ Mastered' : 'Tap to practice →'}
               </div>
             </button>
@@ -498,11 +692,17 @@ export default function PhonemePracticeScreen({ goBack, award }) {
       </div>
 
       {masteredCount > 0 && masteredCount < PHONEMES.length && (
-        <div style={{
-          background: 'rgba(14,116,144,0.06)', border: '1px solid rgba(14,116,144,0.15)',
-          borderRadius: 12, padding: '12px 16px',
-          fontSize: 13, color: 'var(--info)', lineHeight: 1.6,
-        }}>
+        <div
+          style={{
+            background: 'rgba(14,116,144,0.06)',
+            border: '1px solid rgba(14,116,144,0.15)',
+            borderRadius: 12,
+            padding: '12px 16px',
+            fontSize: 13,
+            color: 'var(--info)',
+            lineHeight: 1.6,
+          }}
+        >
           <strong>Keep going!</strong> {PHONEMES.length - masteredCount} more phoneme
           {PHONEMES.length - masteredCount !== 1 ? 's' : ''} to unlock the Phoneme Master badge.
         </div>

@@ -5,12 +5,26 @@ export default function MemoryChips({ knownFacts }) {
   if (!entries.length) return null;
 
   const iconMap = {
-    city: '📍', location: '📍', hometown: '📍', lives: '📍',
-    hobby: '❤️', hobbies: '❤️', interest: '❤️', loves: '❤️', food: '🍽️',
-    family: '👨‍👩‍👧', children: '👶', spouse: '💑', partner: '💑',
-    work: '💼', job: '💼', profession: '💼',
-    sport: '⚽', team: '🏆',
-    language: '🗣️', name: '👤',
+    city: '📍',
+    location: '📍',
+    hometown: '📍',
+    lives: '📍',
+    hobby: '❤️',
+    hobbies: '❤️',
+    interest: '❤️',
+    loves: '❤️',
+    food: '🍽️',
+    family: '👨‍👩‍👧',
+    children: '👶',
+    spouse: '💑',
+    partner: '💑',
+    work: '💼',
+    job: '💼',
+    profession: '💼',
+    sport: '⚽',
+    team: '🏆',
+    language: '🗣️',
+    name: '👤',
   };
 
   function getIcon(key) {

@@ -2,7 +2,10 @@ import React from 'react';
 
 export default function HeartsBar({ hearts = 5, max = 5 }) {
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:4 }} aria-label={`${hearts} of ${max} hearts remaining`}>
+    <div
+      style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+      aria-label={`${hearts} of ${max} hearts remaining`}
+    >
       {Array.from({ length: max }).map((_, i) => (
         <span
           key={i}

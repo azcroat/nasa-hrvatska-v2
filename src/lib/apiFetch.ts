@@ -17,14 +17,16 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
       const token = await user.getIdToken();
       options.headers = {
         ...options.headers,
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       };
     }
   } catch (tokenErr: unknown) {
     const err = tokenErr as Error | undefined;
     console.error('[apiFetch] Failed to get auth token:', err?.message);
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('nh:auth-token-error', { detail: { url, error: err?.message } }));
+      window.dispatchEvent(
+        new CustomEvent('nh:auth-token-error', { detail: { url, error: err?.message } }),
+      );
     }
   }
 
@@ -47,7 +49,7 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
       const isNetworkError = err instanceof TypeError;
       const isAbort = (err as Error)?.name === 'AbortError';
       if (isAbort || !isNetworkError || attempt === MAX_RETRIES) throw err;
-      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
+      await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 500));
     }
   }
   // Should never reach here — loop either returns or throws

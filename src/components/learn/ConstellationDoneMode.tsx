@@ -32,17 +32,24 @@ export default function ConstellationDoneMode({ finalScore, onReviewCases, goBac
           ))}
         </div>
 
-        <div style={{ color: '#f1f5f9', fontSize: 48, fontWeight: 900, lineHeight: 1, marginBottom: 8 }}>
-          {finalScore}<span style={{ fontSize: 24, color: '#64748b', fontWeight: 400 }}>/7</span>
+        <div
+          style={{
+            color: '#f1f5f9',
+            fontSize: 48,
+            fontWeight: 900,
+            lineHeight: 1,
+            marginBottom: 8,
+          }}
+        >
+          {finalScore}
+          <span style={{ fontSize: 24, color: '#64748b', fontWeight: 400 }}>/7</span>
         </div>
 
         <div style={{ color: '#cbd5e1', fontSize: 18, fontWeight: 600, marginBottom: 6 }}>
           {getDoneMessage(finalScore)}
         </div>
 
-        <div style={{ color: '#64748b', fontSize: 13 }}>
-          +{finalScore * 10} points earned
-        </div>
+        <div style={{ color: '#64748b', fontSize: 13 }}>+{finalScore * 10} points earned</div>
       </div>
 
       {/* Case summary — quick reminder */}
@@ -55,10 +62,19 @@ export default function ConstellationDoneMode({ finalScore, onReviewCases, goBac
           marginBottom: 20,
         }}
       >
-        <div style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, marginBottom: 10, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+        <div
+          style={{
+            color: '#94a3b8',
+            fontSize: 12,
+            fontWeight: 600,
+            marginBottom: 10,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+          }}
+        >
           Quick Reference
         </div>
-        {CASES.map(c => (
+        {CASES.map((c) => (
           <div
             key={c.id}
             style={{
@@ -84,7 +100,9 @@ export default function ConstellationDoneMode({ finalScore, onReviewCases, goBac
               {c.abbr}
             </span>
             <span style={{ color: '#cbd5e1', fontSize: 13, flex: 1 }}>{c.name}</span>
-            <span style={{ color: '#475569', fontSize: 11 }}>{c.question.split('(')[0].trim()}</span>
+            <span style={{ color: '#475569', fontSize: 11 }}>
+              {c.question.split('(')[0].trim()}
+            </span>
           </div>
         ))}
       </div>

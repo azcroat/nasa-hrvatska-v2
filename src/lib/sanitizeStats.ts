@@ -11,7 +11,19 @@ export function sanitizeStats(raw: unknown): Partial<Stats> {
   const r = raw as Record<string, unknown>;
   const s: Partial<Stats> = {};
   // Non-negative integers — reject NaN, Infinity, negatives, non-numbers
-  for (const k of ['xp', 'lc', 'gc', 'sp', 'de', 'rc', 'pf', 'mv', 'hi', 'str', 'authLoading'] as const) {
+  for (const k of [
+    'xp',
+    'lc',
+    'gc',
+    'sp',
+    'de',
+    'rc',
+    'pf',
+    'mv',
+    'hi',
+    'str',
+    'authLoading',
+  ] as const) {
     const v = r[k];
     if (typeof v === 'number' && isFinite(v) && v >= 0) {
       s[k] = Math.floor(v);

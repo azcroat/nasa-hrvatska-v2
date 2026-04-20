@@ -27,7 +27,7 @@ export function initPostHog(): void {
         person_profiles: 'identified_only',
         capture_pageview: true,
         capture_pageleave: true,
-        autocapture: false,       // manual events only — no accidental PII
+        autocapture: false, // manual events only — no accidental PII
         disable_session_recording: true,
         persistence: 'localStorage+cookie',
       });
@@ -52,7 +52,9 @@ function safeLog(eventName: string, params?: Record<string, unknown>): void {
 
 function phCapture(eventName: string, props?: Record<string, unknown>): void {
   try {
-    const ph = (window as unknown as Record<string, unknown>).__posthog as { capture?: (name: string, props?: unknown) => void } | undefined;
+    const ph = (window as unknown as Record<string, unknown>).__posthog as
+      | { capture?: (name: string, props?: unknown) => void }
+      | undefined;
     if (ph && typeof ph.capture === 'function') {
       ph.capture(eventName, props || {});
     }
@@ -65,7 +67,9 @@ function getInstallDate(): string {
   let d = localStorage.getItem(INSTALL_KEY);
   if (!d) {
     d = localDateStr();
-    try { localStorage.setItem(INSTALL_KEY, d); } catch {}
+    try {
+      localStorage.setItem(INSTALL_KEY, d);
+    } catch {}
   }
   return d;
 }
@@ -75,7 +79,9 @@ export function getDaysSinceInstall(): number {
     const install = new Date(getInstallDate());
     const now = new Date();
     return Math.floor((now.getTime() - install.getTime()) / 86400000);
-  } catch { return 0; }
+  } catch {
+    return 0;
+  }
 }
 
 function retentionBucket(days: number): string {
@@ -106,7 +112,12 @@ export function trackAppOpen(isSignedIn: boolean): void {
   });
 }
 
-export function trackLessonComplete({ xpEarned, streak, lessonType = 'vocab', lessonId = '' }: {
+export function trackLessonComplete({
+  xpEarned,
+  streak,
+  lessonType = 'vocab',
+  lessonId = '',
+}: {
   xpEarned: number;
   streak: number;
   lessonType?: string;
@@ -127,7 +138,13 @@ export function trackLessonComplete({ xpEarned, streak, lessonType = 'vocab', le
   });
 }
 
-export function trackExerciseComplete({ exerciseType, xpEarned }: { exerciseType: string; xpEarned: number }): void {
+export function trackExerciseComplete({
+  exerciseType,
+  xpEarned,
+}: {
+  exerciseType: string;
+  xpEarned: number;
+}): void {
   safeLog('exercise_complete', {
     exercise_type: exerciseType,
     xp_earned: xpEarned,
@@ -177,7 +194,13 @@ export function trackOnboardingComplete(): void {
   phCapture('onboarding_complete', { days_since_install: getDaysSinceInstall() });
 }
 
-export function trackDailyChallengeComplete({ score, total }: { score: number; total: number }): void {
+export function trackDailyChallengeComplete({
+  score,
+  total,
+}: {
+  score: number;
+  total: number;
+}): void {
   safeLog('daily_challenge_complete', {
     score,
     total,

@@ -29,7 +29,7 @@ describe('apiFetch — authenticated fetch wrapper', () => {
 
   beforeEach(() => {
     globalThis.fetch = vi.fn(() =>
-      Promise.resolve(new Response(JSON.stringify({ ok: true }), { status: 200 }))
+      Promise.resolve(new Response(JSON.stringify({ ok: true }), { status: 200 })),
     );
     vi.clearAllMocks();
   });
@@ -125,7 +125,9 @@ describe('apiFetch — authenticated fetch wrapper', () => {
   // ── getAuth failure ───────────────────────────────────────────────────────
 
   it('still calls fetch when getAuth itself throws', async () => {
-    getAuth.mockImplementation(() => { throw new Error('firebase not init'); });
+    getAuth.mockImplementation(() => {
+      throw new Error('firebase not init');
+    });
     await apiFetch('/api/test');
     expect(globalThis.fetch).toHaveBeenCalledOnce();
   });

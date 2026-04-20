@@ -47,7 +47,7 @@ function WordToken({ word, accentColor, onTap, isPunctuation }) {
           padding: isPunctuation ? '0' : '1px 3px',
           borderRadius: 4,
           backgroundColor: isActive ? 'rgba(254,240,138,0.85)' : 'transparent',
-          borderBottom: (!isPunctuation && !isActive) ? `1px dotted ${accentColor}44` : 'none',
+          borderBottom: !isPunctuation && !isActive ? `1px dotted ${accentColor}44` : 'none',
           transition: 'background-color 0.15s ease',
           fontSize: 17,
           lineHeight: 1.9,
@@ -58,35 +58,43 @@ function WordToken({ word, accentColor, onTap, isPunctuation }) {
         {word}
       </span>
       {isActive && (
-        <span style={{
-          position: 'absolute',
-          top: 'calc(100% + 4px)',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: '#1c1917',
-          color: '#fafaf9',
-          fontSize: 12,
-          fontWeight: 500,
-          padding: '4px 8px',
-          borderRadius: 6,
-          whiteSpace: 'nowrap',
-          zIndex: 100,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-          pointerEvents: 'none',
-        }}>
+        <span
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 4px)',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#1c1917',
+            color: '#fafaf9',
+            fontSize: 12,
+            fontWeight: 500,
+            padding: '4px 8px',
+            borderRadius: 6,
+            whiteSpace: 'nowrap',
+            zIndex: 100,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+            pointerEvents: 'none',
+          }}
+        >
           {state === 'loading' ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{
-                width: 8, height: 8, borderRadius: '50%',
-                border: '1.5px solid #fafaf9',
-                borderTopColor: 'transparent',
-                display: 'inline-block',
-                animation: 'spin 0.6s linear infinite',
-              }} />
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  border: '1.5px solid #fafaf9',
+                  borderTopColor: 'transparent',
+                  display: 'inline-block',
+                  animation: 'spin 0.6s linear infinite',
+                }}
+              />
               translating…
             </span>
           ) : (
-            <>{word} → {translation}</>
+            <>
+              {word} → {translation}
+            </>
           )}
         </span>
       )}
@@ -143,25 +151,40 @@ export default function StoryViewPanel({
       <style>{VIEW_CSS + `.vocab-row:hover { background: ${accentColor}0d; }`}</style>
 
       {/* City photo header */}
-      <div style={{
-        position: 'relative',
-        height: 200,
-        borderRadius: 16,
-        overflow: 'hidden',
-        marginBottom: 24,
-      }}>
+      <div
+        style={{
+          position: 'relative',
+          height: 200,
+          borderRadius: 16,
+          overflow: 'hidden',
+          marginBottom: 24,
+        }}
+      >
         <img
           src={photoSrc}
           alt={selectedCity.name}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={e => { /** @type {HTMLImageElement} */ (e.target).src = CITY_PHOTOS.default; }}
+          onError={(e) => {
+            /** @type {HTMLImageElement} */ e.target.src = CITY_PHOTOS.default;
+          }}
         />
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)',
-        }} />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)',
+          }}
+        />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 20px' }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 800,
+              color: '#fff',
+              textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+            }}
+          >
             {selectedCity.icon} {selectedCity.name}
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.82)', marginTop: 2 }}>
@@ -172,7 +195,15 @@ export default function StoryViewPanel({
 
       {/* Story title */}
       <div className="story-section" style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.3, marginBottom: 4 }}>
+        <h1
+          style={{
+            fontSize: 24,
+            fontWeight: 800,
+            color: 'var(--heading)',
+            lineHeight: 1.3,
+            marginBottom: 4,
+          }}
+        >
           {storyData.title}
         </h1>
         {storyData.title_en && (
@@ -184,11 +215,20 @@ export default function StoryViewPanel({
 
       {/* Story text — word-tap */}
       <div className="c story-section" style={{ marginBottom: 20, padding: '20px 20px' }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: accentColor, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 600,
+            color: accentColor,
+            marginBottom: 12,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}
+        >
           Tap any word to translate ✨
         </div>
         <div style={{ fontSize: 17, lineHeight: 1.9, color: 'var(--heading)' }}>
-          {tokens.map(tok => {
+          {tokens.map((tok) => {
             if (tok.type === 'space') return <span key={tok.key}>{tok.value}</span>;
             const clean = tok.value.replace(/[.,!?;:"""''()—–\-]+$/g, '');
             const suffix = tok.value.slice(clean.length);
@@ -196,7 +236,9 @@ export default function StoryViewPanel({
             return (
               <React.Fragment key={tok.key}>
                 {isPunctOnly ? (
-                  <span style={{ fontSize: 17, lineHeight: 1.9, color: 'var(--heading)' }}>{tok.value}</span>
+                  <span style={{ fontSize: 17, lineHeight: 1.9, color: 'var(--heading)' }}>
+                    {tok.value}
+                  </span>
                 ) : (
                   <>
                     <WordToken
@@ -213,7 +255,16 @@ export default function StoryViewPanel({
           })}
         </div>
         {tappedWords > 0 && (
-          <div style={{ marginTop: 16, fontSize: 12, color: 'var(--subtext)', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div
+            style={{
+              marginTop: 16,
+              fontSize: 12,
+              color: 'var(--subtext)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
             <span style={{ color: accentColor }}>●</span>
             {tappedWords} word{tappedWords !== 1 ? 's' : ''} looked up
             {tappedWords >= 5 && ' · Keep reading to unlock XP!'}
@@ -243,30 +294,39 @@ export default function StoryViewPanel({
       >
         {ttsPlaying ? (
           <>
-            <span style={{
-              width: 12, height: 12,
-              border: '2px solid currentColor',
-              borderTopColor: 'transparent',
-              borderRadius: '50%',
-              display: 'inline-block',
-              animation: 'spin 0.7s linear infinite',
-            }} />
+            <span
+              style={{
+                width: 12,
+                height: 12,
+                border: '2px solid currentColor',
+                borderTopColor: 'transparent',
+                borderRadius: '50%',
+                display: 'inline-block',
+                animation: 'spin 0.7s linear infinite',
+              }}
+            />
             Stop Audio
           </>
         ) : (
-          <><span aria-hidden="true">🔊</span>{' Read Story Aloud'}</>
+          <>
+            <span aria-hidden="true">🔊</span>
+            {' Read Story Aloud'}
+          </>
         )}
       </button>
 
       {/* Cultural note */}
       {storyData.cultural_note && (
-        <div className="story-section" style={{
-          padding: '16px 18px',
-          borderRadius: 12,
-          backgroundColor: `${accentColor}10`,
-          border: `1.5px solid ${accentColor}33`,
-          marginBottom: 12,
-        }}>
+        <div
+          className="story-section"
+          style={{
+            padding: '16px 18px',
+            borderRadius: 12,
+            backgroundColor: `${accentColor}10`,
+            border: `1.5px solid ${accentColor}33`,
+            marginBottom: 12,
+          }}
+        >
           <div style={{ fontSize: 13, fontWeight: 700, color: accentColor, marginBottom: 6 }}>
             📝 Cultural Note
           </div>
@@ -280,7 +340,7 @@ export default function StoryViewPanel({
       {storyData.vocabulary && storyData.vocabulary.length > 0 && (
         <div className="c story-section" style={{ marginBottom: 12 }}>
           <button
-            onClick={() => setVocabOpen(v => !v)}
+            onClick={() => setVocabOpen((v) => !v)}
             style={{
               width: '100%',
               display: 'flex',
@@ -295,7 +355,16 @@ export default function StoryViewPanel({
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)' }}>
               📚 Vocabulary ({storyData.vocabulary.length} words)
             </div>
-            <span style={{ fontSize: 18, color: 'var(--subtext)', transform: vocabOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>⌄</span>
+            <span
+              style={{
+                fontSize: 18,
+                color: 'var(--subtext)',
+                transform: vocabOpen ? 'rotate(180deg)' : 'rotate(0)',
+                transition: 'transform 0.2s',
+              }}
+            >
+              ⌄
+            </span>
           </button>
           {vocabOpen && (
             <div style={{ marginTop: 12 }}>
@@ -312,8 +381,12 @@ export default function StoryViewPanel({
                     transition: 'background 0.15s',
                   }}
                 >
-                  <span style={{ fontWeight: 700, color: accentColor, fontSize: 15 }}>{v.hr || v.croatian || v.word}</span>
-                  <span style={{ fontSize: 14, color: 'var(--subtext)' }}>{v.en || v.english || v.translation}</span>
+                  <span style={{ fontWeight: 700, color: accentColor, fontSize: 15 }}>
+                    {v.hr || v.croatian || v.word}
+                  </span>
+                  <span style={{ fontSize: 14, color: 'var(--subtext)' }}>
+                    {v.en || v.english || v.translation}
+                  </span>
                 </div>
               ))}
             </div>
@@ -325,7 +398,7 @@ export default function StoryViewPanel({
       {storyData.comprehension_questions && storyData.comprehension_questions.length > 0 && (
         <div className="c story-section" style={{ marginBottom: 12 }}>
           <button
-            onClick={() => setDiscussOpen(d => !d)}
+            onClick={() => setDiscussOpen((d) => !d)}
             style={{
               width: '100%',
               display: 'flex',
@@ -340,22 +413,35 @@ export default function StoryViewPanel({
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)' }}>
               💬 Comprehension Questions
             </div>
-            <span style={{ fontSize: 18, color: 'var(--subtext)', transform: discussOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>⌄</span>
+            <span
+              style={{
+                fontSize: 18,
+                color: 'var(--subtext)',
+                transform: discussOpen ? 'rotate(180deg)' : 'rotate(0)',
+                transition: 'transform 0.2s',
+              }}
+            >
+              ⌄
+            </span>
           </button>
           {discussOpen && (
             <div style={{ marginTop: 12 }}>
               {storyData.comprehension_questions.map((q, i) => (
-                <div key={i} style={{
-                  padding: '10px 12px',
-                  marginBottom: 8,
-                  borderRadius: 8,
-                  backgroundColor: 'var(--app-bg)',
-                  borderLeft: `3px solid ${accentColor}`,
-                  fontSize: 14,
-                  color: 'var(--heading)',
-                  lineHeight: 1.6,
-                }}>
-                  <span style={{ fontWeight: 700, color: accentColor }}>{i + 1}. </span>{q}
+                <div
+                  key={i}
+                  style={{
+                    padding: '10px 12px',
+                    marginBottom: 8,
+                    borderRadius: 8,
+                    backgroundColor: 'var(--app-bg)',
+                    borderLeft: `3px solid ${accentColor}`,
+                    fontSize: 14,
+                    color: 'var(--heading)',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  <span style={{ fontWeight: 700, color: accentColor }}>{i + 1}. </span>
+                  {q}
                 </div>
               ))}
             </div>
@@ -368,14 +454,32 @@ export default function StoryViewPanel({
         <button
           className="b"
           onClick={onNewStory}
-          style={{ flex: 1, padding: '14px', borderRadius: 12, backgroundColor: accentColor, color: '#fff', border: 'none', fontWeight: 700, fontSize: 15 }}
+          style={{
+            flex: 1,
+            padding: '14px',
+            borderRadius: 12,
+            backgroundColor: accentColor,
+            color: '#fff',
+            border: 'none',
+            fontWeight: 700,
+            fontSize: 15,
+          }}
         >
           🔄 New Story
         </button>
         <button
           className="b"
           onClick={onBack}
-          style={{ flex: 1, padding: '14px', borderRadius: 12, backgroundColor: 'transparent', border: '1.5px solid var(--card-b)', color: 'var(--subtext)', fontWeight: 600, fontSize: 15 }}
+          style={{
+            flex: 1,
+            padding: '14px',
+            borderRadius: 12,
+            backgroundColor: 'transparent',
+            border: '1.5px solid var(--card-b)',
+            color: 'var(--subtext)',
+            fontWeight: 600,
+            fontSize: 15,
+          }}
         >
           ← Back
         </button>

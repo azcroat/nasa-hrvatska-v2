@@ -154,7 +154,7 @@ describe('detectAndLogCroatianErrors', () => {
     detectAndLogCroatianErrors('kuca', 'kuća', 'exercise');
     const byCategory = getErrorsByCategory();
     expect(byCategory['pronunciation'].length).toBeGreaterThan(0);
-    const patterns = byCategory['pronunciation'].map(e => e.pattern);
+    const patterns = byCategory['pronunciation'].map((e) => e.pattern);
     expect(patterns).toContain('diacritics_dropped');
   });
 
@@ -168,7 +168,7 @@ describe('detectAndLogCroatianErrors', () => {
     detectAndLogCroatianErrors('Zovem Ivan', 'Zovem se Ivan', 'exercise');
     // reflexive_missing should be logged
     const errors = getTopErrors();
-    const patterns = errors.map(e => e.pattern);
+    const patterns = errors.map((e) => e.pattern);
     expect(patterns).toContain('reflexive_missing');
   });
 
@@ -176,7 +176,7 @@ describe('detectAndLogCroatianErrors', () => {
     // user uses č where ć is correct → c_vs_c_confusion
     detectAndLogCroatianErrors('noč', 'noć', 'exercise');
     const byCategory = getErrorsByCategory();
-    const patterns = byCategory['pronunciation'].map(e => e.pattern);
+    const patterns = byCategory['pronunciation'].map((e) => e.pattern);
     expect(patterns).toContain('c_vs_c_confusion');
   });
 });

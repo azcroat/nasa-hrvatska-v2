@@ -55,7 +55,9 @@ function teardownAudioContextMock() {
   mockAudioCtxInstance.state = 'running';
 }
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 describe('soundSettings — preferences persistence', () => {
   beforeEach(clearLS);
@@ -271,14 +273,22 @@ describe('soundSettings — haptic', () => {
   it('calls navigator.vibrate when haptic is enabled', () => {
     setHapticEnabled(true);
     const vibrateSpy = vi.fn();
-    Object.defineProperty(navigator, 'vibrate', { value: vibrateSpy, configurable: true, writable: true });
+    Object.defineProperty(navigator, 'vibrate', {
+      value: vibrateSpy,
+      configurable: true,
+      writable: true,
+    });
     haptic([100, 50, 100]);
     expect(vibrateSpy).toHaveBeenCalledWith([100, 50, 100]);
   });
 
   it('does not throw when navigator.vibrate is not available', () => {
     setHapticEnabled(true);
-    Object.defineProperty(navigator, 'vibrate', { value: undefined, configurable: true, writable: true });
+    Object.defineProperty(navigator, 'vibrate', {
+      value: undefined,
+      configurable: true,
+      writable: true,
+    });
     expect(() => haptic(100)).not.toThrow();
   });
 });

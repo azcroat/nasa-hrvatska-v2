@@ -9,7 +9,7 @@
  */
 import { createContext, useContext } from 'react';
 
-const AppContext = createContext(/** @type {any} */ (null));
+const AppContext = createContext(/** @type {any} */ null);
 
 /**
  * useApp() — access shared app state anywhere below AppContext.Provider.
