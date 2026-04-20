@@ -27,18 +27,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -67,7 +83,13 @@ import MistakesScreen from '../components/practice/MistakesScreen';
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
 /** count=1 → 88% ready, category=verb, has q */
-const MISTAKE_A = { hr: 'pisati', en: 'to write', q: 'How do you say "write"?', category: 'verb', count: 1 };
+const MISTAKE_A = {
+  hr: 'pisati',
+  en: 'to write',
+  q: 'How do you say "write"?',
+  category: 'verb',
+  count: 1,
+};
 
 /** count=5 → 40% ready, no q */
 const MISTAKE_B = { hr: 'jesti', en: 'to eat', category: 'verb', count: 5 };
@@ -84,7 +106,9 @@ function renderScreen(overrides: Record<string, unknown> = {}) {
 }
 
 function clickStartReview() {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Start Flashcard Review'));
+  const btn = screen
+    .getAllByRole('button')
+    .find((b) => b.textContent?.includes('Start Flashcard Review'));
   if (!btn) throw new Error('Start Flashcard Review button not found');
   fireEvent.click(btn);
 }
@@ -92,8 +116,12 @@ function clickStartReview() {
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
 describe('MistakesScreen — empty state', () => {
-  beforeEach(() => { mockGetMistakes.mockReturnValue([]); });
-  afterEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    mockGetMistakes.mockReturnValue([]);
+  });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "No Mistakes!" heading', () => {
     renderScreen();
@@ -102,20 +130,24 @@ describe('MistakesScreen — empty state', () => {
 
   it('does not show "Start Flashcard Review" button', () => {
     renderScreen();
-    const btn = screen.queryAllByRole('button').find(b => b.textContent?.includes('Start Flashcard Review'));
+    const btn = screen
+      .queryAllByRole('button')
+      .find((b) => b.textContent?.includes('Start Flashcard Review'));
     expect(btn).toBeFalsy();
   });
 
   it('shows back button', () => {
     renderScreen();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Back'))).toBeTruthy();
+    expect(screen.getAllByRole('button').find((b) => b.textContent?.includes('Back'))).toBeTruthy();
   });
 });
 
 // ─── List mode ────────────────────────────────────────────────────────────────
 
 describe('MistakesScreen — list mode', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "1 Word to Review" for a single mistake', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
@@ -144,20 +176,26 @@ describe('MistakesScreen — list mode', () => {
   it('shows "🃏 Start Flashcard Review" button', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
     renderScreen();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Start Flashcard Review'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Start Flashcard Review')),
+    ).toBeTruthy();
   });
 
   it('shows "Clear All" button', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
     renderScreen();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Clear All'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Clear All')),
+    ).toBeTruthy();
   });
 });
 
 // ─── Confidence badge ─────────────────────────────────────────────────────────
 
 describe('MistakesScreen — confidence badge', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('count=1 → "88% ready" badge', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
@@ -181,14 +219,16 @@ describe('MistakesScreen — confidence badge', () => {
 // ─── Audio in list mode ───────────────────────────────────────────────────────
 
 describe('MistakesScreen — audio', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking 🔊 in list calls speak with mistake.hr', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
     renderScreen();
-    const audioBtn = screen.getAllByRole('button').find(
-      b => b.getAttribute('aria-label')?.includes('pisati'),
-    );
+    const audioBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.getAttribute('aria-label')?.includes('pisati'));
     if (!audioBtn) throw new Error('audio button not found');
     fireEvent.click(audioBtn);
     expect(mockSpeak).toHaveBeenCalledWith('pisati');
@@ -198,12 +238,14 @@ describe('MistakesScreen — audio', () => {
 // ─── Clear actions ────────────────────────────────────────────────────────────
 
 describe('MistakesScreen — clear one (×)', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
-  it('clicking × calls clearMistake with the word\'s hr', () => {
+  it("clicking × calls clearMistake with the word's hr", () => {
     mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A])  // useState init
-      .mockReturnValue([]);              // after clearMistake re-fetch
+      .mockReturnValueOnce([MISTAKE_A]) // useState init
+      .mockReturnValue([]); // after clearMistake re-fetch
     renderScreen();
     const removeBtn = screen.getByRole('button', { name: /Remove pisati/ });
     fireEvent.click(removeBtn);
@@ -212,13 +254,18 @@ describe('MistakesScreen — clear one (×)', () => {
 });
 
 describe('MistakesScreen — Clear All', () => {
-  afterEach(() => { vi.clearAllMocks(); vi.restoreAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
+  });
 
   it('confirm=false → clearAllMistakes NOT called', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
     vi.spyOn(window, 'confirm').mockReturnValue(false);
     renderScreen();
-    fireEvent.click(screen.getAllByRole('button').find(b => b.textContent?.includes('Clear All'))!);
+    fireEvent.click(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Clear All'))!,
+    );
     expect(mockClearAllMistakes).not.toHaveBeenCalled();
   });
 
@@ -226,7 +273,9 @@ describe('MistakesScreen — Clear All', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     renderScreen();
-    fireEvent.click(screen.getAllByRole('button').find(b => b.textContent?.includes('Clear All'))!);
+    fireEvent.click(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Clear All'))!,
+    );
     expect(mockClearAllMistakes).toHaveBeenCalled();
   });
 
@@ -234,7 +283,9 @@ describe('MistakesScreen — Clear All', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     renderScreen();
-    fireEvent.click(screen.getAllByRole('button').find(b => b.textContent?.includes('Clear All'))!);
+    fireEvent.click(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Clear All'))!,
+    );
     expect(screen.getByText('No Mistakes!')).toBeTruthy();
   });
 });
@@ -242,7 +293,9 @@ describe('MistakesScreen — Clear All', () => {
 // ─── Review mode — entering ───────────────────────────────────────────────────
 
 describe('MistakesScreen — review mode rendering', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('entering review shows "Review Mistakes" heading', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
@@ -284,19 +337,21 @@ describe('MistakesScreen — review mode rendering', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
     renderScreen();
     clickStartReview();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Back to List'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Back to List')),
+    ).toBeTruthy();
   });
 });
 
 // ─── Review mode — Got It! ────────────────────────────────────────────────────
 
 describe('MistakesScreen — "✅ Got It!" behavior', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('"✅ Got It!" calls clearMistake(hr)', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A])
-      .mockReturnValue([]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A]).mockReturnValue([]);
     renderScreen();
     clickStartReview();
     fireEvent.click(screen.getByText(/✅ Got It!/));
@@ -304,9 +359,7 @@ describe('MistakesScreen — "✅ Got It!" behavior', () => {
   });
 
   it('"✅ Got It!" on last card calls award(5, false) (1 mastered, 1<3)', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A])
-      .mockReturnValue([]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A]).mockReturnValue([]);
     const award = vi.fn();
     renderScreen({ award });
     clickStartReview();
@@ -316,9 +369,7 @@ describe('MistakesScreen — "✅ Got It!" behavior', () => {
 
   it('"✅ Got It!" on last of 3 cards calls award(15, true) (3 mastered, 3>=3)', () => {
     const THREE = [MISTAKE_A, MISTAKE_B, MISTAKE_C];
-    mockGetMistakes
-      .mockReturnValueOnce(THREE)
-      .mockReturnValue([]);
+    mockGetMistakes.mockReturnValueOnce(THREE).mockReturnValue([]);
     const award = vi.fn();
     renderScreen({ award });
     clickStartReview();
@@ -330,9 +381,7 @@ describe('MistakesScreen — "✅ Got It!" behavior', () => {
   });
 
   it('"✅ Got It!" on last card calls markQuest("master")', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A])
-      .mockReturnValue([]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A]).mockReturnValue([]);
     renderScreen();
     clickStartReview();
     fireEvent.click(screen.getByText(/✅ Got It!/));
@@ -340,9 +389,7 @@ describe('MistakesScreen — "✅ Got It!" behavior', () => {
   });
 
   it('"✅ Got It!" on last card transitions to done mode', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A])
-      .mockReturnValue([]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A]).mockReturnValue([]);
     renderScreen();
     clickStartReview();
     fireEvent.click(screen.getByText(/✅ Got It!/));
@@ -350,9 +397,7 @@ describe('MistakesScreen — "✅ Got It!" behavior', () => {
   });
 
   it('"✅ Got It!" on non-last card advances counter', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A, MISTAKE_B])
-      .mockReturnValue([MISTAKE_B]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A, MISTAKE_B]).mockReturnValue([MISTAKE_B]);
     renderScreen();
     clickStartReview();
     fireEvent.click(screen.getAllByText(/✅ Got It!/)[0]);
@@ -363,7 +408,9 @@ describe('MistakesScreen — "✅ Got It!" behavior', () => {
 // ─── Review mode — Study Again ────────────────────────────────────────────────
 
 describe('MistakesScreen — "📚 Study Again" behavior', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('"📚 Study Again" on last card transitions to done mode', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
@@ -374,9 +421,7 @@ describe('MistakesScreen — "📚 Study Again" behavior', () => {
   });
 
   it('"📚 Study Again" on non-last card advances counter', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A, MISTAKE_B])
-      .mockReturnValue([MISTAKE_B]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A, MISTAKE_B]).mockReturnValue([MISTAKE_B]);
     renderScreen();
     clickStartReview();
     fireEvent.click(screen.getAllByText(/📚 Study Again/)[0]);
@@ -397,27 +442,33 @@ describe('MistakesScreen — "📚 Study Again" behavior', () => {
 // ─── Review mode — back to list ───────────────────────────────────────────────
 
 describe('MistakesScreen — back to list from review', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('"← Back to List" returns to list mode', () => {
     mockGetMistakes.mockReturnValue([MISTAKE_A]);
     renderScreen();
     clickStartReview();
-    fireEvent.click(screen.getAllByRole('button').find(b => b.textContent?.includes('Back to List'))!);
+    fireEvent.click(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Back to List'))!,
+    );
     // Back in list mode — "Start Flashcard Review" visible again
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Start Flashcard Review'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Start Flashcard Review')),
+    ).toBeTruthy();
   });
 });
 
 // ─── Done mode ────────────────────────────────────────────────────────────────
 
 describe('MistakesScreen — done mode', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "Session Complete!" heading', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A])
-      .mockReturnValue([]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A]).mockReturnValue([]);
     renderScreen();
     clickStartReview();
     fireEvent.click(screen.getByText(/✅ Got It!/));
@@ -425,9 +476,7 @@ describe('MistakesScreen — done mode', () => {
   });
 
   it('shows "+5 XP" for 1 mastered word', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A])
-      .mockReturnValue([]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A]).mockReturnValue([]);
     renderScreen();
     clickStartReview();
     fireEvent.click(screen.getByText(/✅ Got It!/));
@@ -435,9 +484,7 @@ describe('MistakesScreen — done mode', () => {
   });
 
   it('shows "You mastered 1 word" message', () => {
-    mockGetMistakes
-      .mockReturnValueOnce([MISTAKE_A])
-      .mockReturnValue([]);
+    mockGetMistakes.mockReturnValueOnce([MISTAKE_A]).mockReturnValue([]);
     renderScreen();
     clickStartReview();
     fireEvent.click(screen.getByText(/✅ Got It!/));

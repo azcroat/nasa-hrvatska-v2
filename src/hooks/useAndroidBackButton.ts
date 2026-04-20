@@ -18,12 +18,12 @@ export function useAndroidBackButton(canGoBack: () => boolean, goBack: () => voi
   // Previously the empty dep-array caused a stale closure: canGoBack/goBack captured
   // the initial render values and never saw subsequent navigation state changes.
   const canGoBackRef = useRef<() => boolean>(canGoBack);
-  const goBackRef    = useRef<() => void>(goBack);
+  const goBackRef = useRef<() => void>(goBack);
 
   // Keep refs current on every render — no re-registration needed.
   useEffect(() => {
     canGoBackRef.current = canGoBack;
-    goBackRef.current    = goBack;
+    goBackRef.current = goBack;
   });
 
   useEffect(() => {
@@ -34,14 +34,17 @@ export function useAndroidBackButton(canGoBack: () => boolean, goBack: () => voi
     async function register(): Promise<void> {
       try {
         const { App } = await import('@capacitor/app');
-        const handle = await App.addListener('backButton', ({ canGoBack: nativeCanGoBack }: { canGoBack: boolean }) => {
-          if (canGoBackRef.current()) {
-            goBackRef.current();
-          } else if (!nativeCanGoBack) {
-            // No more history — minimise the app (standard Android behaviour)
-            App.minimizeApp();
-          }
-        });
+        const handle = await App.addListener(
+          'backButton',
+          ({ canGoBack: nativeCanGoBack }: { canGoBack: boolean }) => {
+            if (canGoBackRef.current()) {
+              goBackRef.current();
+            } else if (!nativeCanGoBack) {
+              // No more history — minimise the app (standard Android behaviour)
+              App.minimizeApp();
+            }
+          },
+        );
         removeListener = () => handle.remove();
       } catch (_) {
         // Plugin not available in this environment — safe to ignore
@@ -49,6 +52,8 @@ export function useAndroidBackButton(canGoBack: () => boolean, goBack: () => voi
     }
 
     register();
-    return () => { if (removeListener) removeListener(); };
+    return () => {
+      if (removeListener) removeListener();
+    };
   }, []); // Listener registered once — refs stay current via the effect above
 }

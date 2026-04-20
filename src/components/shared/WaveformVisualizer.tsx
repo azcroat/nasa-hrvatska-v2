@@ -10,18 +10,27 @@ import React, { useRef, useEffect } from 'react';
 //   color   - CSS color for the waveform stroke (default: #0e7490)
 //   height  - canvas height in px (default: 44)
 export default function WaveformVisualizer({ active, color = '#0e7490', height = 44 }) {
-  const canvasRef  = useRef(null);
-  const animRef    = useRef(null);
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
   const analyserRef = useRef(null);
-  const streamRef  = useRef(null);
-  const ctxRef     = useRef(null);
+  const streamRef = useRef(null);
+  const ctxRef = useRef(null);
 
   useEffect(() => {
     if (!active) {
       // Tear down
-      if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
-      if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
-      if (ctxRef.current) { ctxRef.current.close().catch(() => {}); ctxRef.current = null; }
+      if (animRef.current) {
+        cancelAnimationFrame(animRef.current);
+        animRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (ctxRef.current) {
+        ctxRef.current.close().catch(() => {});
+        ctxRef.current = null;
+      }
       analyserRef.current = null;
       // Draw flat idle line
       const cv = canvasRef.current;
@@ -43,7 +52,10 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
     async function start() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        if (!mounted) { stream.getTracks().forEach(t => t.stop()); return; }
+        if (!mounted) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
         streamRef.current = stream;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -76,7 +88,8 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
       analyser.getByteTimeDomainData(data);
 
       const ctx = cv.getContext('2d');
-      const W = cv.width, H = cv.height;
+      const W = cv.width,
+        H = cv.height;
       ctx.clearRect(0, 0, W, H);
 
       // Gradient stroke
@@ -92,7 +105,7 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
       ctx.beginPath();
       const step = W / (bufLen - 1);
       for (let i = 0; i < bufLen; i++) {
-        const v = (data[i] / 128.0);
+        const v = data[i] / 128.0;
         const y = (v * H) / 2;
         if (i === 0) ctx.moveTo(0, y);
         else ctx.lineTo(i * step, y);
@@ -108,13 +121,16 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
         if (!mounted || !cv) return;
         animRef.current = requestAnimationFrame(tick);
         const ctx = cv.getContext('2d');
-        const W = cv.width, H = cv.height;
+        const W = cv.width,
+          H = cv.height;
         ctx.clearRect(0, 0, W, H);
         const bars = 24;
         const bw = W / bars - 2;
         for (let i = 0; i < bars; i++) {
           const h = (Math.sin((i / bars) * Math.PI * 2 + t) * 0.5 + 0.5) * H * 0.75 + 4;
-          const x = i * (bw + 2), y = (H - h) / 2, r = Math.min(3, bw / 2, h / 2);
+          const x = i * (bw + 2),
+            y = (H - h) / 2,
+            r = Math.min(3, bw / 2, h / 2);
           ctx.fillStyle = color + Math.floor(140 + i * 3).toString(16);
           ctx.beginPath();
           // Portable rounded-rect — ctx.roundRect() not supported in Safari <16
@@ -139,9 +155,18 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
 
     return () => {
       mounted = false;
-      if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
-      if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
-      if (ctxRef.current) { ctxRef.current.close().catch(() => {}); ctxRef.current = null; }
+      if (animRef.current) {
+        cancelAnimationFrame(animRef.current);
+        animRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (ctxRef.current) {
+        ctxRef.current.close().catch(() => {});
+        ctxRef.current = null;
+      }
       analyserRef.current = null;
     };
   }, [active, color]);
@@ -150,7 +175,7 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
     <canvas
       ref={canvasRef}
       width={560}
-      height={height * 2}   // 2x for retina
+      height={height * 2} // 2x for retina
       aria-hidden="true"
       role="presentation"
       style={{

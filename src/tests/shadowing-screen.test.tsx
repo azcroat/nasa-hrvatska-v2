@@ -30,18 +30,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── PronunciationScorer mock — uses Web Speech API unavailable in jsdom ───────
@@ -78,19 +94,19 @@ function renderScreen(overrides: Record<string, unknown> = {}) {
 }
 
 function clickISaidIt() {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('I Said It'));
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('I Said It'));
   if (!btn) throw new Error('I Said It! button not found');
   fireEvent.click(btn);
 }
 
 function clickNext() {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Next'));
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Next'));
   if (!btn) throw new Error('Next button not found');
   fireEvent.click(btn);
 }
 
 function clickFinish() {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Finish');
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'Finish');
   if (!btn) throw new Error('Finish button not found');
   fireEvent.click(btn);
 }
@@ -98,7 +114,9 @@ function clickFinish() {
 // ─── Rendering ────────────────────────────────────────────────────────────────
 
 describe('ShadowingScreen — initial rendering', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "Shadowing Practice" heading', () => {
     renderScreen();
@@ -122,23 +140,31 @@ describe('ShadowingScreen — initial rendering', () => {
 
   it('shows "🎤 I Said It!" fallback button initially', () => {
     renderScreen();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('I Said It'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('I Said It')),
+    ).toBeTruthy();
   });
 
   it('does NOT show "Next →" before saying the phrase', () => {
     renderScreen();
-    expect(screen.queryAllByRole('button').find(b => b.textContent?.includes('Next'))).toBeFalsy();
+    expect(
+      screen.queryAllByRole('button').find((b) => b.textContent?.includes('Next')),
+    ).toBeFalsy();
   });
 });
 
 // ─── Audio ────────────────────────────────────────────────────────────────────
 
 describe('ShadowingScreen — audio', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('"🐢 Listen Slow" calls speakSlow with item.hr', () => {
     renderScreen();
-    const slowBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Listen Slow'));
+    const slowBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Listen Slow'));
     if (!slowBtn) throw new Error('Listen Slow button not found');
     fireEvent.click(slowBtn);
     expect(mockSpeakSlow).toHaveBeenCalledWith('Dobar dan.');
@@ -146,14 +172,18 @@ describe('ShadowingScreen — audio', () => {
 
   it('"🐢 Listen Slow" shows plays counter after click', () => {
     renderScreen();
-    const slowBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Listen Slow'))!;
+    const slowBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Listen Slow'))!;
     fireEvent.click(slowBtn);
     expect(screen.getByText(/Listened 1 time/)).toBeTruthy();
   });
 
   it('"🐢 Listen Slow" twice shows "2 times"', () => {
     renderScreen();
-    const slowBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Listen Slow'))!;
+    const slowBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Listen Slow'))!;
     fireEvent.click(slowBtn);
     fireEvent.click(slowBtn);
     expect(screen.getByText(/Listened 2 times/)).toBeTruthy();
@@ -163,7 +193,9 @@ describe('ShadowingScreen — audio', () => {
 // ─── I Said It! flow ──────────────────────────────────────────────────────────
 
 describe('ShadowingScreen — "🎤 I Said It!" flow', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking "I Said It!" shows keep-going message', () => {
     renderScreen();
@@ -174,27 +206,35 @@ describe('ShadowingScreen — "🎤 I Said It!" flow', () => {
   it('clicking "I Said It!" shows "Next →" button for non-last item', () => {
     renderScreen();
     clickISaidIt();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Next'))).toBeTruthy();
+    expect(screen.getAllByRole('button').find((b) => b.textContent?.includes('Next'))).toBeTruthy();
   });
 
   it('clicking "I Said It!" shows "🔁 Say Again" button', () => {
     renderScreen();
     clickISaidIt();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Say Again'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Say Again')),
+    ).toBeTruthy();
   });
 
   it('"🔁 Say Again" resets to initial state (shows "I Said It!" again)', () => {
     renderScreen();
     clickISaidIt();
-    const sayAgainBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Say Again'))!;
+    const sayAgainBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Say Again'))!;
     fireEvent.click(sayAgainBtn);
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('I Said It'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('I Said It')),
+    ).toBeTruthy();
   });
 
   it('"🔁 Say Again" hides keep-going message', () => {
     renderScreen();
     clickISaidIt();
-    const sayAgainBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Say Again'))!;
+    const sayAgainBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Say Again'))!;
     fireEvent.click(sayAgainBtn);
     expect(screen.queryByText(/Keep going/)).toBeNull();
   });
@@ -203,7 +243,9 @@ describe('ShadowingScreen — "🎤 I Said It!" flow', () => {
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
 describe('ShadowingScreen — navigation', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('"Next →" shows second item Croatian text', () => {
     renderScreen();
@@ -223,7 +265,9 @@ describe('ShadowingScreen — navigation', () => {
     renderScreen();
     clickISaidIt();
     clickNext();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('I Said It'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('I Said It')),
+    ).toBeTruthy();
   });
 
   it('on last item, "I Said It!" shows "Finish" instead of "Next →"', () => {
@@ -233,8 +277,12 @@ describe('ShadowingScreen — navigation', () => {
     clickNext();
     // Now on item 2 (last)
     clickISaidIt();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Finish')).toBeTruthy();
-    expect(screen.queryAllByRole('button').find(b => b.textContent?.includes('Next'))).toBeFalsy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'Finish'),
+    ).toBeTruthy();
+    expect(
+      screen.queryAllByRole('button').find((b) => b.textContent?.includes('Next')),
+    ).toBeFalsy();
   });
 
   it('"Next →" calls recordTopicResult("speaking", true)', () => {
@@ -248,14 +296,16 @@ describe('ShadowingScreen — navigation', () => {
 // ─── Done mode ────────────────────────────────────────────────────────────────
 
 describe('ShadowingScreen — done mode', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   function goToDone() {
     renderScreen();
     clickISaidIt();
-    clickNext();        // item 2 now shown
+    clickNext(); // item 2 now shown
     clickISaidIt();
-    clickFinish();      // "Finish" button in said state
+    clickFinish(); // "Finish" button in said state
   }
 
   it('done mode shows "Session Complete!"', () => {
@@ -265,7 +315,9 @@ describe('ShadowingScreen — done mode', () => {
 
   it('done mode shows number of sentences shadowed', () => {
     goToDone();
-    expect(screen.getByText(new RegExp(`${MOCK_SHADOWING.length} Croatian sentences`))).toBeTruthy();
+    expect(
+      screen.getByText(new RegExp(`${MOCK_SHADOWING.length} Croatian sentences`)),
+    ).toBeTruthy();
   });
 
   it('"Finish" button in done mode calls award(items.length * 3 + 5)', () => {
@@ -276,7 +328,9 @@ describe('ShadowingScreen — done mode', () => {
     clickISaidIt();
     clickFinish();
     // items.length=2: 2*3+5=11
-    const finishBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Finish')!;
+    const finishBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'Finish')!;
     fireEvent.click(finishBtn);
     expect(award).toHaveBeenCalledWith(2 * 3 + 5);
   });
@@ -288,7 +342,9 @@ describe('ShadowingScreen — done mode', () => {
     clickNext();
     clickISaidIt();
     clickFinish();
-    const finishBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Finish')!;
+    const finishBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'Finish')!;
     fireEvent.click(finishBtn);
     expect(mockMarkQuest).toHaveBeenCalledWith('speak');
   });
@@ -300,7 +356,9 @@ describe('ShadowingScreen — done mode', () => {
     clickNext();
     clickISaidIt();
     clickFinish();
-    const finishBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Finish')!;
+    const finishBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'Finish')!;
     fireEvent.click(finishBtn);
     fireEvent.click(finishBtn);
     expect(award).toHaveBeenCalledTimes(1);
@@ -308,8 +366,12 @@ describe('ShadowingScreen — done mode', () => {
 
   it('done mode shows "Retry" button', () => {
     goToDone();
-    const finishBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Finish')!;
+    const finishBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'Finish')!;
     fireEvent.click(finishBtn);
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Retry'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Retry')),
+    ).toBeTruthy();
   });
 });

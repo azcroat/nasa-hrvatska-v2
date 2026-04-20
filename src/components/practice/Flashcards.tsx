@@ -19,7 +19,9 @@ function evictCache(cacheRef) {
   const keys = Object.keys(cacheRef.current);
   if (keys.length > MAX_CACHE_ENTRIES) {
     // Drop oldest half when limit exceeded
-    keys.slice(0, Math.floor(MAX_CACHE_ENTRIES / 2)).forEach(k => { delete cacheRef.current[k]; });
+    keys.slice(0, Math.floor(MAX_CACHE_ENTRIES / 2)).forEach((k) => {
+      delete cacheRef.current[k];
+    });
   }
 }
 
@@ -29,7 +31,10 @@ async function fetchCardImage(word, meaning, cacheRef, signal) {
   if (cacheRef.current[key]) return cacheRef.current[key];
   try {
     const stored = sessionStorage.getItem(`nh_fc_img_${word}`);
-    if (stored) { cacheRef.current[key] = stored; return stored; }
+    if (stored) {
+      cacheRef.current[key] = stored;
+      return stored;
+    }
   } catch {}
   try {
     const r = await apiFetch('/api/flux-generate', {
@@ -43,10 +48,14 @@ async function fetchCardImage(word, meaning, cacheRef, signal) {
     if (imageUrl) {
       evictCache(cacheRef);
       cacheRef.current[key] = imageUrl;
-      try { sessionStorage.setItem(`nh_fc_img_${word}`, imageUrl); } catch {}
+      try {
+        sessionStorage.setItem(`nh_fc_img_${word}`, imageUrl);
+      } catch {}
     }
     return imageUrl || null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 const STILL_LEARNING_MSG_DURATION = 2000;
@@ -60,12 +69,18 @@ export default function Flashcards({ pool, goBack, award }) {
   const [idx, setIdx] = useState(() => {
     try {
       const saved = JSON.parse(sessionStorage.getItem(FLASH_RESUME_KEY) || 'null');
-      if (saved && pool && pool[0]
-          && saved.firstWord === pool[0][0]
-          && saved.poolLength === pool.length) {
+      if (
+        saved &&
+        pool &&
+        pool[0] &&
+        saved.firstWord === pool[0][0] &&
+        saved.poolLength === pool.length
+      ) {
         return Math.min(saved.idx, pool.length - 1);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     return 0;
   });
   const [flipped, setFlipped] = useState(false);
@@ -76,7 +91,7 @@ export default function Flashcards({ pool, goBack, award }) {
   const [wrongAnim, setWrongAnim] = useState(false);
   const [showStillLearning, setShowStillLearning] = useState(false);
   const [sparkPos, setSparkPos] = useState(null);
-  const [exiting, setExiting] = /** @type {[false|string, Function]} */ (useState(false));
+  const [exiting, setExiting] = /** @type {[false|string, Function]} */ useState(false);
   const [entering, setEntering] = useState(false);
   const cardRef = useRef(null);
   const knowBtnRef = useRef(null);
@@ -85,21 +100,31 @@ export default function Flashcards({ pool, goBack, award }) {
   const mountedRef = useRef(true);
   const lastSpokenRef = useRef(null);
   const consecCorrectRef = useRef(0); // consecutive correct answers (for onfire flash)
-  const consecWrongRef   = useRef(0); // consecutive wrong answers (for struggling flash)
-  const advancingRef     = useRef(false); // guard against double-tap during card transition
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  const consecWrongRef = useRef(0); // consecutive wrong answers (for struggling flash)
+  const advancingRef = useRef(false); // guard against double-tap during card transition
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    [],
+  );
 
   // Persist current card index so the user can resume mid-session
   useEffect(() => {
     if (!activePool || !activePool[0]) return;
     try {
-      sessionStorage.setItem(FLASH_RESUME_KEY, JSON.stringify({
-        idx,
-        firstWord: activePool[0][0],
-        poolLength: activePool.length,
-        ts: Date.now(),
-      }));
-    } catch { /* ignore */ }
+      sessionStorage.setItem(
+        FLASH_RESUME_KEY,
+        JSON.stringify({
+          idx,
+          firstWord: activePool[0][0],
+          poolLength: activePool.length,
+          ts: Date.now(),
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
   }, [idx, activePool]);
 
   const [aiSentence, setAiSentence] = useState(null);
@@ -126,19 +151,29 @@ export default function Flashcards({ pool, goBack, award }) {
     const word = card[0];
     const meaning = card[1];
     const key = `img:${word}`;
-    if (imgCacheRef.current[key]) { setCardImg(imgCacheRef.current[key]); return undefined; }
+    if (imgCacheRef.current[key]) {
+      setCardImg(imgCacheRef.current[key]);
+      return undefined;
+    }
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     setCardImg(null);
     setCardImgLoading(true);
-    fetchCardImage(word, meaning, imgCacheRef, controller.signal).then(url => {
+    fetchCardImage(word, meaning, imgCacheRef, controller.signal)
+      .then((url) => {
+        clearTimeout(timeoutId);
+        if (!mountedRef.current) return;
+        setCardImg(url || null);
+        setCardImgLoading(false);
+      })
+      .catch(() => {
+        clearTimeout(timeoutId);
+        if (mountedRef.current) setCardImgLoading(false);
+      });
+    return () => {
+      controller.abort();
       clearTimeout(timeoutId);
-      if (!mountedRef.current) return;
-      setCardImg(url || null);
-      setCardImgLoading(false);
-    }).catch(() => { clearTimeout(timeoutId); if (mountedRef.current) setCardImgLoading(false); });
-    return () => { controller.abort(); clearTimeout(timeoutId); };
-   
+    };
   }, [idx, done]);
 
   // Fetch AI example sentence when card is flipped and no static example exists
@@ -165,8 +200,8 @@ export default function Flashcards({ pool, goBack, award }) {
       body: JSON.stringify({ word, meaning, level }),
       signal: controller.signal,
     })
-      .then(r => r.ok ? r.json() : Promise.reject(r.status))
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((data) => {
         clearTimeout(timeoutId);
         if (!mountedRef.current) return;
         const sentence = { hr: data.hr, en: data.en, note: data.note || null };
@@ -181,8 +216,10 @@ export default function Flashcards({ pool, goBack, award }) {
         setAiLoading(false);
         setAiError(true);
       });
-    return () => { controller.abort(); clearTimeout(timeoutId); };
-   
+    return () => {
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
   }, [flipped, idx, done]);
 
   // When buttons appear (card flipped), focus "I Know It" so keyboard users can act
@@ -229,38 +266,53 @@ export default function Flashcards({ pool, goBack, award }) {
       if (mountedRef.current) speak(word);
     }, 300);
     return () => clearTimeout(t);
-   
   }, [flipped, idx]);
 
   function finish(finalKnown) {
     if (finishFired.current) return;
     finishFired.current = true;
-    try { sessionStorage.removeItem(FLASH_RESUME_KEY); } catch { /* ignore */ }
+    try {
+      sessionStorage.removeItem(FLASH_RESUME_KEY);
+    } catch {
+      /* ignore */
+    }
     if (typeof award === 'function') award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS);
     markQuest('vocab');
     knightSpeak(
-      finalKnown === activePool.length ? 'victory' : finalKnown >= activePool.length * 0.7 ? 'celebrating' : 'encouraged',
+      finalKnown === activePool.length
+        ? 'victory'
+        : finalKnown >= activePool.length * 0.7
+          ? 'celebrating'
+          : 'encouraged',
       finalKnown === activePool.length
         ? `${finalKnown} words — all known! Your memory is working. 🧠`
         : `${finalKnown}/${activePool.length} words mastered this session. Spaced repetition is building your foundation. 📚`,
-      500
+      500,
     );
     setDone(true);
     if (finalKnown === activePool.length) {
-      setTimeout(() => confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { x: 0.5, y: 0.4 },
-        colors: ['#f59e0b', '#16a34a', '#0e7490', '#b61800', '#ffffff'],
-        ticks: 150,
-      }), 300);
+      setTimeout(
+        () =>
+          confetti({
+            particleCount: 60,
+            spread: 70,
+            origin: { x: 0.5, y: 0.4 },
+            colors: ['#f59e0b', '#16a34a', '#0e7490', '#b61800', '#ffffff'],
+            ticks: 150,
+          }),
+        300,
+      );
     }
   }
 
   function studyMissedAgain(missedCards) {
     finishFired.current = false;
     lastSpokenRef.current = null;
-    try { sessionStorage.removeItem(FLASH_RESUME_KEY); } catch { /* ignore */ }
+    try {
+      sessionStorage.removeItem(FLASH_RESUME_KEY);
+    } catch {
+      /* ignore */
+    }
     setActivePool(missedCards);
     setIdx(0);
     setFlipped(false);
@@ -287,12 +339,18 @@ export default function Flashcards({ pool, goBack, award }) {
     advancingRef.current = true;
     setExiting(direction);
     setTimeout(() => {
-      if (!mountedRef.current) { advancingRef.current = false; return; }
+      if (!mountedRef.current) {
+        advancingRef.current = false;
+        return;
+      }
       setExiting(false);
       callback();
       setEntering(true);
       setTimeout(() => {
-        if (!mountedRef.current) { advancingRef.current = false; return; }
+        if (!mountedRef.current) {
+          advancingRef.current = false;
+          return;
+        }
         setEntering(false);
         advancingRef.current = false;
       }, 220);
@@ -301,29 +359,43 @@ export default function Flashcards({ pool, goBack, award }) {
 
   function handleStillLearning() {
     srMark(activePool[idx][0], false); // "Still Learning" = wrong for SRS scheduling
-    playWrong(); haptic([30, 20, 30]);
+    playWrong();
+    haptic([30, 20, 30]);
     consecCorrectRef.current = 0;
     consecWrongRef.current += 1;
-    knightFlash(consecWrongRef.current >= 3 ? 'struggling' : 'oops', consecWrongRef.current >= 3 ? 2000 : 1500);
+    knightFlash(
+      consecWrongRef.current >= 3 ? 'struggling' : 'oops',
+      consecWrongRef.current >= 3 ? 2000 : 1500,
+    );
     setWrongAnim(true);
-    setTimeout(() => { if (mountedRef.current) setWrongAnim(false); }, 400);
+    setTimeout(() => {
+      if (mountedRef.current) setWrongAnim(false);
+    }, 400);
     setShowStillLearning(true);
-    setTimeout(() => { if (mountedRef.current) setShowStillLearning(false); }, STILL_LEARNING_MSG_DURATION);
+    setTimeout(() => {
+      if (mountedRef.current) setShowStillLearning(false);
+    }, STILL_LEARNING_MSG_DURATION);
     const currentIdx = idx;
     const currentKnown = known;
     const currentCard = activePool[idx];
     advanceCard('left', () => {
-      setMissed(m => [...m, currentCard]);
+      setMissed((m) => [...m, currentCard]);
       setFlipped(false);
-      if (currentIdx < activePool.length - 1) { setIdx(currentIdx + 1); }
-      else { finish(currentKnown); }
+      if (currentIdx < activePool.length - 1) {
+        setIdx(currentIdx + 1);
+      } else {
+        finish(currentKnown);
+      }
     });
   }
 
   function handleKnown() {
-    playCorrect(); haptic(40);
+    playCorrect();
+    haptic(40);
     setSparkPos({ x: 50, y: 50 });
-    setTimeout(() => { if (mountedRef.current) setSparkPos(null); }, 700);
+    setTimeout(() => {
+      if (mountedRef.current) setSparkPos(null);
+    }, 700);
     srMark(activePool[idx][0], true); // "Know It" = correct for SRS scheduling
     consecWrongRef.current = 0;
     consecCorrectRef.current += 1;
@@ -333,14 +405,19 @@ export default function Flashcards({ pool, goBack, award }) {
       knightFlash('winking', 1500);
     }
     setCorrectAnim(true);
-    setTimeout(() => { if (mountedRef.current) setCorrectAnim(false); }, 500);
+    setTimeout(() => {
+      if (mountedRef.current) setCorrectAnim(false);
+    }, 500);
     const newKnown = known + 1;
     const currentIdx = idx;
     advanceCard('right', () => {
       setKnown(newKnown);
       setFlipped(false);
-      if (currentIdx < activePool.length - 1) { setIdx(currentIdx + 1); }
-      else { finish(newKnown); }
+      if (currentIdx < activePool.length - 1) {
+        setIdx(currentIdx + 1);
+      } else {
+        finish(newKnown);
+      }
     });
   }
 
@@ -363,8 +440,11 @@ export default function Flashcards({ pool, goBack, award }) {
       return;
     }
     if (absDx > absDy && flipped) {
-      if (dx > 60) { handleKnown(); }
-      else if (dx < -60) { handleStillLearning(); }
+      if (dx > 60) {
+        handleKnown();
+      } else if (dx < -60) {
+        handleStillLearning();
+      }
     }
   };
 
@@ -376,22 +456,39 @@ export default function Flashcards({ pool, goBack, award }) {
   const card = activePool[idx];
 
   return (
-    <div className={flipped ? 'scr-wrap has-cta' : 'scr-wrap'} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      <ScreenHeader title="🃏 Flashcards" goBack={goBack} pill={`${idx + 1}/${activePool.length}`} />
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
-        <span key={idx} className="anim-fade-up" style={{fontSize:14,fontWeight:700}}>{idx+1} / {activePool.length}</span>
-        <div style={{fontSize:14,fontWeight:700,color:"var(--success)"}}>✅ Know: {known}</div>
+    <div
+      className={flipped ? 'scr-wrap has-cta' : 'scr-wrap'}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <ScreenHeader
+        title="🃏 Flashcards"
+        goBack={goBack}
+        pill={`${idx + 1}/${activePool.length}`}
+      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span key={idx} className="anim-fade-up" style={{ fontSize: 14, fontWeight: 700 }}>
+          {idx + 1} / {activePool.length}
+        </span>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--success)' }}>
+          ✅ Know: {known}
+        </div>
       </div>
-      <Bar v={idx+1} mx={activePool.length} h={6} color="#f59e0b" />
+      <Bar v={idx + 1} mx={activePool.length} h={6} color="#f59e0b" />
       <div
         className={`fc-scene${correctAnim ? ' anim-bounce-in' : ''}${wrongAnim ? ' anim-wrong' : ''}${exiting === 'right' ? ' slide-out-left' : ''}${exiting === 'left' ? ' slide-out-right' : ''}${entering ? ' slide-in-right' : ''}`}
         style={{ position: 'relative' }}
       >
         <div
           ref={cardRef}
-          className={`fc-card${flipped?" flipped":""}`}
-          onClick={()=>setFlipped(f=>!f)}
-          onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setFlipped(f=>!f);}}}
+          className={`fc-card${flipped ? ' flipped' : ''}`}
+          onClick={() => setFlipped((f) => !f)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setFlipped((f) => !f);
+            }
+          }}
           role="button"
           tabIndex={0}
           aria-label={flipped ? `${card[1]} — tap to flip back` : `${card[0]} — tap to see English`}
@@ -407,84 +504,125 @@ export default function Flashcards({ pool, goBack, award }) {
           </div>
         </div>
         {sparkPos && (
-          <div style={{ position:'absolute', top:'50%', left:'50%', pointerEvents:'none', zIndex:10 }}>
-            {['⭐','✨','🌟','💫','⚡','✨'].map((em, i) => (
-              <span key={i} style={{
-                position:'absolute',
-                fontSize: 14 + (i % 3) * 4,
-                animation: `xpFloat 0.6s ease forwards`,
-                animationDelay: `${i * 0.08}s`,
-                top: `${Math.sin(i * 60 * Math.PI/180) * 40}px`,
-                left: `${Math.cos(i * 60 * Math.PI/180) * 40}px`,
-                opacity: 1,
-              }}>{em}</span>
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              pointerEvents: 'none',
+              zIndex: 10,
+            }}
+          >
+            {['⭐', '✨', '🌟', '💫', '⚡', '✨'].map((em, i) => (
+              <span
+                key={i}
+                style={{
+                  position: 'absolute',
+                  fontSize: 14 + (i % 3) * 4,
+                  animation: `xpFloat 0.6s ease forwards`,
+                  animationDelay: `${i * 0.08}s`,
+                  top: `${Math.sin((i * 60 * Math.PI) / 180) * 40}px`,
+                  left: `${Math.cos((i * 60 * Math.PI) / 180) * 40}px`,
+                  opacity: 1,
+                }}
+              >
+                {em}
+              </span>
             ))}
           </div>
         )}
       </div>
       {showStillLearning && (
-        <div style={{
-          fontSize:11, color:'var(--error)', fontWeight:600,
-          textAlign:'center', marginTop:6, animation:'rise .3s'
-        }}>
+        <div
+          style={{
+            fontSize: 11,
+            color: 'var(--error)',
+            fontWeight: 600,
+            textAlign: 'center',
+            marginTop: 6,
+            animation: 'rise .3s',
+          }}
+        >
           🌱 Keep going — practice makes permanent
         </div>
       )}
       {flipped && (
-        <div style={{
-          fontSize: 11,
-          color: 'var(--subtext)',
-          textAlign: 'center',
-          marginTop: 2,
-          opacity: 0.65,
-        }}>
-          ← swipe left · swipe right → &nbsp;·&nbsp; S / → Still learning &nbsp;·&nbsp; K / → Know it
+        <div
+          style={{
+            fontSize: 11,
+            color: 'var(--subtext)',
+            textAlign: 'center',
+            marginTop: 2,
+            opacity: 0.65,
+          }}
+        >
+          ← swipe left · swipe right → &nbsp;·&nbsp; S / → Still learning &nbsp;·&nbsp; K / → Know
+          it
         </div>
       )}
       {/* CTA rendered as sticky bar when card is flipped */}
       {flipped && (
-        <div className="cta-bar" style={{ flexDirection: 'column', gap: 6, paddingTop: 8 }} role="group" aria-label="How well did you know it?">
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', textAlign: 'center' }}>How well did you know it?</span>
+        <div
+          className="cta-bar"
+          style={{ flexDirection: 'column', gap: 6, paddingTop: 8 }}
+          role="group"
+          aria-label="How well did you know it?"
+        >
+          <span
+            style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', textAlign: 'center' }}
+          >
+            How well did you know it?
+          </span>
           <div style={{ display: 'flex', gap: 10, width: '100%' }}>
-          <motion.button
-            onClick={handleStillLearning}
-            aria-label="Still learning — review again soon"
-            whileTap={{ scale: 0.94 }}
-            transition={{ type:'spring', stiffness:400, damping:17 }}
-            style={{
-              flex:1, height:52, borderRadius:14,
-              border:'2px solid #d97706',
-              background:'rgba(217,119,6,0.08)',
-              color:'#d97706',
-              fontFamily:"'Outfit',sans-serif",
-              fontSize:14, fontWeight:900,
-              display:'flex', flexDirection:'column',
-              alignItems:'center', justifyContent:'center',
-              cursor:'pointer',
-            }}
-          >
-            🔄 Still Learning
-          </motion.button>
-          <motion.button
-            ref={knowBtnRef}
-            onClick={handleKnown}
-            aria-label="I know it — move to next interval"
-            whileTap={{ scale: 0.94 }}
-            transition={{ type:'spring', stiffness:400, damping:17 }}
-            style={{
-              flex:1, height:52, borderRadius:14,
-              border:'2px solid var(--success-b)',
-              background:'var(--success-bg)',
-              color:'var(--success)',
-              fontFamily:"'Outfit',sans-serif",
-              fontSize:14, fontWeight:900,
-              display:'flex', flexDirection:'column',
-              alignItems:'center', justifyContent:'center',
-              cursor:'pointer',
-            }}
-          >
-            Perfect ✓
-          </motion.button>
+            <motion.button
+              onClick={handleStillLearning}
+              aria-label="Still learning — review again soon"
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              style={{
+                flex: 1,
+                height: 52,
+                borderRadius: 14,
+                border: '2px solid #d97706',
+                background: 'rgba(217,119,6,0.08)',
+                color: '#d97706',
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: 14,
+                fontWeight: 900,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              🔄 Still Learning
+            </motion.button>
+            <motion.button
+              ref={knowBtnRef}
+              onClick={handleKnown}
+              aria-label="I know it — move to next interval"
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              style={{
+                flex: 1,
+                height: 52,
+                borderRadius: 14,
+                border: '2px solid var(--success-b)',
+                background: 'var(--success-bg)',
+                color: 'var(--success)',
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: 14,
+                fontWeight: 900,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              Perfect ✓
+            </motion.button>
           </div>
         </div>
       )}

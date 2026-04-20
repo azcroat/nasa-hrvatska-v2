@@ -19,14 +19,28 @@ export default function NumTime({ goBack, award }) {
   if (!ntQ[ntI]) {
     return (
       <div className="scr-wrap">
-        
-        {H("🔢 Numbers & Time","Practice numbers, time, and currency in Croatian", goBack)}
-        <div style={{textAlign:"center"}}>
-          <div style={{fontSize:64}}>{ntS >= total * 0.7 ? "🏆" : "👍"}</div>
-          <h2 style={{fontFamily:"'Playfair Display',serif",color:"#164e63"}}>Numbers Complete!</h2>
-          <div style={{fontSize:32,fontWeight:800,color:"#0e7490"}}>{ntS} / {total}</div>
-          <div style={{fontSize:24,fontWeight:900,color:"#d97706",margin:"8px 0 16px"}}>+{ntS * 3 + 10} XP</div>
-          <button className="b bp" style={{marginTop:0}} onClick={() => { if(finishFired.current)return; finishFired.current=true; if (typeof award === 'function') award(ntS * 3 + 10); goBack(); }}>
+        {H('🔢 Numbers & Time', 'Practice numbers, time, and currency in Croatian', goBack)}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 64 }}>{ntS >= total * 0.7 ? '🏆' : '👍'}</div>
+          <h2 style={{ fontFamily: "'Playfair Display',serif", color: '#164e63' }}>
+            Numbers Complete!
+          </h2>
+          <div style={{ fontSize: 32, fontWeight: 800, color: '#0e7490' }}>
+            {ntS} / {total}
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 900, color: '#d97706', margin: '8px 0 16px' }}>
+            +{ntS * 3 + 10} XP
+          </div>
+          <button
+            className="b bp"
+            style={{ marginTop: 0 }}
+            onClick={() => {
+              if (finishFired.current) return;
+              finishFired.current = true;
+              if (typeof award === 'function') award(ntS * 3 + 10);
+              goBack();
+            }}
+          >
             Finish!
           </button>
         </div>
@@ -39,19 +53,25 @@ export default function NumTime({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      
-      {H("🔢 Numbers & Time","Practice numbers, time, and currency in Croatian", goBack)}
+      {H('🔢 Numbers & Time', 'Practice numbers, time, and currency in Croatian', goBack)}
       <React.Fragment>
         <Bar v={ntI + 1} mx={total} h={6} />
-        <div className="c" style={{marginTop:16}}>
-          <p style={{fontSize:18,fontWeight:700}}>{q.q}</p>
+        <div className="c" style={{ marginTop: 16 }}>
+          <p style={{ fontSize: 18, fontWeight: 700 }}>{q.q}</p>
         </div>
-        <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:16}}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
           {ntO.map((o, oi) => (
             <button
               key={oi}
-              className={"ob " + (ntA ? (oi === ci ? "ok" : ntSl === oi ? "no" : "") : "")}
-              onClick={() => { if (!ntA) { sNtSl(oi); sNtA(true); if (oi === ci) sNtS(s => s + 1); } }}>
+              className={'ob ' + (ntA ? (oi === ci ? 'ok' : ntSl === oi ? 'no' : '') : '')}
+              onClick={() => {
+                if (!ntA) {
+                  sNtSl(oi);
+                  sNtA(true);
+                  if (oi === ci) sNtS((s) => s + 1);
+                }
+              }}
+            >
               {o}
             </button>
           ))}
@@ -59,19 +79,20 @@ export default function NumTime({ goBack, award }) {
         {ntA && (
           <button
             className="b bp"
-            style={{width:"100%",marginTop:16}}
+            style={{ width: '100%', marginTop: 16 }}
             onClick={() => {
               if (ntI < total - 1) {
                 const n = ntQ[ntI + 1];
                 sNtO(sh([n.a].concat(n.al)));
-                sNtI(i => i + 1);
+                sNtI((i) => i + 1);
                 sNtA(false);
                 sNtSl(-1);
               } else {
                 sNtI(total);
               }
-            }}>
-            {ntI < total - 1 ? "Next →" : "See Results"}
+            }}
+          >
+            {ntI < total - 1 ? 'Next →' : 'See Results'}
           </button>
         )}
       </React.Fragment>

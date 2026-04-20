@@ -7,8 +7,8 @@ import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
 
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-6';
 
 // ── Security helpers ──────────────────────────────────────────────────────────
 
@@ -27,32 +27,40 @@ function isAllowedOrigin(origin, isDev) {
   if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
-    if (isDev && hostname === "localhost") return true;
-    return hostname === "nasahrvatska.com"
-      || hostname.endsWith(".nasahrvatska.com")
-      || hostname === "nasa-hrvatska-v2.pages.dev"
-      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
-  } catch { return false; }
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
   return {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Cache-Control": "no-cache",
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Cache-Control': 'no-cache',
   };
 }
 
-function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
-function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
+function ok(body, origin) {
+  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+}
+function err(status, msg, origin) {
+  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+}
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
-const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 function sanitizeLevel(level) {
-  return VALID_LEVELS.includes(level) ? level : "B1";
+  return VALID_LEVELS.includes(level) ? level : 'B1';
 }
 
 // ── PREFLIGHT ──────────────────────────────────────────────────────────────────
@@ -65,14 +73,17 @@ export async function onRequestOptions({ request }) {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestPost({ request, env }) {
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
 
-  const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+  const isDev = env.ENVIRONMENT !== 'production';
+  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
   const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+      status: 429,
+      headers: corsHeaders(origin),
+    });
   }
 
   // Auth — optional (guests use IP-based quota; authenticated users get named quota)
@@ -83,33 +94,40 @@ export async function onRequestPost({ request, env }) {
   const quota = await checkAIQuota(request, env, uid, 1);
   if (!quota.allowed) {
     return new Response(
-      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
-      { status: 429, headers: corsHeaders(origin) }
+      JSON.stringify({
+        error: 'daily_quota_exceeded',
+        message: 'Daily AI limit reached. Resets at midnight UTC.',
+        resetAt: quota.resetAt,
+      }),
+      { status: 429, headers: corsHeaders(origin) },
     );
   }
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
+  if (!ANTHROPIC_KEY) return err(500, 'Service not configured', origin);
 
-  const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);
 
   let body;
-  try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body", origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON in request body', origin);
+  }
 
   const { word, translation, level } = body;
 
-  if (!word || typeof word !== "string") return err(400, "word is required", origin);
+  if (!word || typeof word !== 'string') return err(400, 'word is required', origin);
 
   // Max word length guard
   const trimmedWord = word.trim();
-  if (trimmedWord.length > 50) return err(400, "word too long", origin);
-  if (trimmedWord.length === 0) return err(400, "word is required", origin);
+  if (trimmedWord.length > 50) return err(400, 'word too long', origin);
+  if (trimmedWord.length === 0) return err(400, 'word is required', origin);
 
   const safeWord = sanitizeParam(trimmedWord, 50);
-  const safeTranslation = sanitizeParam(typeof translation === "string" ? translation : "", 100);
-  const safeLevel = sanitizeLevel(typeof level === "string" ? level.trim() : "");
+  const safeTranslation = sanitizeParam(typeof translation === 'string' ? translation : '', 100);
+  const safeLevel = sanitizeLevel(typeof level === 'string' ? level.trim() : '');
 
   // ── KV cache check ─────────────────────────────────────────────────────────
   const cacheKey = `vocab:${safeWord.toLowerCase()}:${safeLevel}`;
@@ -122,7 +140,7 @@ export async function onRequestPost({ request, env }) {
         return ok({ ...parsed, cached: true }, origin);
       }
     } catch (kvErr) {
-      console.warn("vocab-expand.js: KV read error:", kvErr.message);
+      console.warn('vocab-expand.js: KV read error:', kvErr.message);
     }
   }
 
@@ -145,22 +163,22 @@ export async function onRequestPost({ request, env }) {
   let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_KEY,
-        "anthropic-version": "2023-06-01",
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
       },
       signal: AbortSignal.timeout(15000),
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 600,
         system: systemPrompt,
-        messages: [{ role: "user", content: userMessage }],
+        messages: [{ role: 'user', content: userMessage }],
       }),
     });
   } catch (fetchErr) {
-    console.error("vocab-expand.js: network error calling Anthropic:", fetchErr.message);
+    console.error('vocab-expand.js: network error calling Anthropic:', fetchErr.message);
     return ok({ examples: [], cached: false }, origin);
   }
 
@@ -169,15 +187,19 @@ export async function onRequestPost({ request, env }) {
   try {
     rawBody = await res.text();
   } catch (bodyErr) {
-    console.error("vocab-expand.js: failed to read response body:", bodyErr.message);
+    console.error('vocab-expand.js: failed to read response body:', bodyErr.message);
     return ok({ examples: [], cached: false }, origin);
   }
 
   // Block 3: check res.ok
   if (!res.ok) {
     let errMsg;
-    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
-    console.error("vocab-expand.js: Anthropic API error", res.status, errMsg);
+    try {
+      errMsg = JSON.parse(rawBody)?.error?.message;
+    } catch {
+      /* not JSON */
+    }
+    console.error('vocab-expand.js: Anthropic API error', res.status, errMsg);
     return ok({ examples: [], cached: false }, origin);
   }
 
@@ -186,32 +208,38 @@ export async function onRequestPost({ request, env }) {
   try {
     data = JSON.parse(rawBody);
   } catch {
-    console.error("vocab-expand.js: JSON parse failed:", rawBody.slice(0, 200));
+    console.error('vocab-expand.js: JSON parse failed:', rawBody.slice(0, 200));
     return ok({ examples: [], cached: false }, origin);
   }
 
-  const raw = data?.content?.[0]?.text?.trim() || "";
+  const raw = data?.content?.[0]?.text?.trim() || '';
   if (!raw) {
-    console.error("vocab-expand.js: Anthropic returned empty response");
+    console.error('vocab-expand.js: Anthropic returned empty response');
     return ok({ examples: [], cached: false }, origin);
   }
 
   // ── Parse and validate response ────────────────────────────────────────────
   let parsed;
   try {
-    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const cleaned = raw
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/, '')
+      .trim();
     parsed = JSON.parse(cleaned);
   } catch {
-    console.error("vocab-expand.js: JSON parse failed. Raw:", raw.slice(0, 200));
+    console.error('vocab-expand.js: JSON parse failed. Raw:', raw.slice(0, 200));
     return ok({ examples: [], cached: false }, origin);
   }
 
   const examples = Array.isArray(parsed.examples)
-    ? parsed.examples.slice(0, 3).map(e => ({
-        hr: sanitizeParam(String(e.hr || ""), 300),
-        en: sanitizeParam(String(e.en || ""), 300),
-        note: e.note ? sanitizeParam(String(e.note), 200) : undefined,
-      })).filter(e => e.hr && e.en)
+    ? parsed.examples
+        .slice(0, 3)
+        .map((e) => ({
+          hr: sanitizeParam(String(e.hr || ''), 300),
+          en: sanitizeParam(String(e.en || ''), 300),
+          note: e.note ? sanitizeParam(String(e.note), 200) : undefined,
+        }))
+        .filter((e) => e.hr && e.en)
     : [];
 
   const result = { examples, cached: false };
@@ -221,7 +249,7 @@ export async function onRequestPost({ request, env }) {
     try {
       await env.KV.put(cacheKey, JSON.stringify(result), { expirationTtl: 604800 });
     } catch (kvErr) {
-      console.warn("vocab-expand.js: KV write error:", kvErr.message);
+      console.warn('vocab-expand.js: KV write error:', kvErr.message);
     }
   }
 

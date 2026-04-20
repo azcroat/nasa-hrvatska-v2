@@ -3,7 +3,13 @@ import React from 'react';
 import CroatianGrb from '../shared/CroatianGrb';
 
 export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg }) {
-  const cfg = personaCfg || { orbColor: '#D4002D', thinkingColor: '#F59E0B', speakingColor: '#D4002D', listenColor: '#0e7490', accentColor: '#D4002D' };
+  const cfg = personaCfg || {
+    orbColor: '#D4002D',
+    thinkingColor: '#F59E0B',
+    speakingColor: '#D4002D',
+    listenColor: '#0e7490',
+    accentColor: '#D4002D',
+  };
   /** @type {import('react').CSSProperties} */
   const containerStyle = {
     display: 'flex',
@@ -33,7 +39,8 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
               width: 120,
               height: 120,
               borderRadius: '50%',
-              background: 'linear-gradient(180deg, #D4002D 0%, #D4002D 33.3%, #ffffff 33.3%, #ffffff 66.6%, #003DA5 66.6%, #003DA5 100%)',
+              background:
+                'linear-gradient(180deg, #D4002D 0%, #D4002D 33.3%, #ffffff 33.3%, #ffffff 66.6%, #003DA5 66.6%, #003DA5 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -93,10 +100,14 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
   // ── maja-speaking ─────────────────────────
   if (phase === 'maja-speaking') {
     const speakColor = cfg.speakingColor;
-    const speakColorRgb = speakColor === '#D4002D' ? '212,0,45'
-      : speakColor === '#0284c7' ? '2,132,199'
-      : speakColor === '#7c3aed' ? '124,58,237'
-      : '180,83,9';
+    const speakColorRgb =
+      speakColor === '#D4002D'
+        ? '212,0,45'
+        : speakColor === '#0284c7'
+          ? '2,132,199'
+          : speakColor === '#7c3aed'
+            ? '124,58,237'
+            : '180,83,9';
     /** @type {import('react').CSSProperties} */
     const pulseBase = {
       position: 'absolute',
@@ -147,10 +158,14 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
   // ── listening ─────────────────────────────
   if (phase === 'listening') {
     const listenColor = cfg.listenColor;
-    const listenColorRgb = listenColor === '#0e7490' ? '14,116,144'
-      : listenColor === '#0ea5e9' ? '14,165,233'
-      : listenColor === '#8b5cf6' ? '139,92,246'
-      : '217,119,6';
+    const listenColorRgb =
+      listenColor === '#0e7490'
+        ? '14,116,144'
+        : listenColor === '#0ea5e9'
+          ? '14,165,233'
+          : listenColor === '#8b5cf6'
+            ? '139,92,246'
+            : '217,119,6';
     return (
       <div style={containerStyle}>
         <div style={orbWrapStyle}>

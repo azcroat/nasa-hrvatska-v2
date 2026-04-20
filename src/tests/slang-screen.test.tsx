@@ -30,18 +30,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -73,7 +89,7 @@ vi.mock('../data', async (importOriginal) => {
   return {
     ...actual,
     speak: mockSpeak,
-    sh: (arr: unknown[]) => arr,   // identity — deterministic question order
+    sh: (arr: unknown[]) => arr, // identity — deterministic question order
   };
 });
 
@@ -97,7 +113,7 @@ function bypassAgeGate() {
 
 /** Click "🎯 Quiz" button to start the quiz. */
 function clickQuiz() {
-  const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Quiz'));
+  const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Quiz'));
   if (!btn) throw new Error('"🎯 Quiz" button not found');
   fireEvent.click(btn);
 }
@@ -105,8 +121,13 @@ function clickQuiz() {
 // ─── Age gate ─────────────────────────────────────────────────────────────────
 
 describe('SlangScreen — age gate', () => {
-  beforeEach(() => { localStorage.clear(); });
-  afterEach(() => { vi.clearAllMocks(); localStorage.clear(); });
+  beforeEach(() => {
+    localStorage.clear();
+  });
+  afterEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+  });
 
   it('shows "Age Confirmation Required" when not confirmed', () => {
     renderScreen();
@@ -115,7 +136,9 @@ describe('SlangScreen — age gate', () => {
 
   it('shows "Yes, continue" button', () => {
     renderScreen();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Yes, continue'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Yes, continue')),
+    ).toBeTruthy();
   });
 
   it('"Yes, continue" calls award(15)', () => {
@@ -162,7 +185,10 @@ describe('SlangScreen — main content (after unlock)', () => {
     localStorage.clear();
     bypassAgeGate();
   });
-  afterEach(() => { vi.clearAllMocks(); localStorage.clear(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+  });
 
   it('shows "Slang & Psovanje" heading', () => {
     renderScreen();
@@ -172,24 +198,32 @@ describe('SlangScreen — main content (after unlock)', () => {
   it('shows section tab buttons', () => {
     renderScreen();
     // At least the first section (Classics) tab should be visible
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Classics') || b.textContent?.includes('classics'))).toBeTruthy();
+    expect(
+      screen
+        .getAllByRole('button')
+        .find((b) => b.textContent?.includes('Classics') || b.textContent?.includes('classics')),
+    ).toBeTruthy();
   });
 
   it('shows "← Back to Practice" button', () => {
     renderScreen();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Back to Practice'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Back to Practice')),
+    ).toBeTruthy();
   });
 
   it('"← Back to Practice" button calls goBack()', () => {
     const { props } = renderScreen();
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Back to Practice'))!;
+    const btn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Back to Practice'))!;
     fireEvent.click(btn);
     expect(props.goBack).toHaveBeenCalled();
   });
 
   it('shows "🎯 Quiz" button in section header', () => {
     renderScreen();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Quiz'))).toBeTruthy();
+    expect(screen.getAllByRole('button').find((b) => b.textContent?.includes('Quiz'))).toBeTruthy();
   });
 
   it('shows "Your Progress" tracker', () => {
@@ -205,18 +239,26 @@ describe('SlangScreen — section switching', () => {
     localStorage.clear();
     bypassAgeGate();
   });
-  afterEach(() => { vi.clearAllMocks(); localStorage.clear(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+  });
 
   it('switching to a new section calls award(5)', () => {
     const award = vi.fn();
     render(<SlangScreen goBack={vi.fn()} award={award} />);
     // Find section tabs — look for one that is NOT the default 'classics'
-    const tabs = screen.getAllByRole('button').filter(b =>
-      b.textContent && !b.textContent.includes('Back to Practice') &&
-      !b.textContent.includes('Quiz') && !b.textContent.includes('Cultural'),
-    );
+    const tabs = screen
+      .getAllByRole('button')
+      .filter(
+        (b) =>
+          b.textContent &&
+          !b.textContent.includes('Back to Practice') &&
+          !b.textContent.includes('Quiz') &&
+          !b.textContent.includes('Cultural'),
+      );
     // Click a tab that is not the initially active one (second tab)
-    const secondTab = tabs.find(b => !b.textContent?.toLowerCase().includes('classic'));
+    const secondTab = tabs.find((b) => !b.textContent?.toLowerCase().includes('classic'));
     if (!secondTab) throw new Error('Could not find a non-classics section tab');
     fireEvent.click(secondTab);
     expect(award).toHaveBeenCalledWith(5);
@@ -225,11 +267,16 @@ describe('SlangScreen — section switching', () => {
   it('switching to the same section twice does NOT call award twice', () => {
     const award = vi.fn();
     render(<SlangScreen goBack={vi.fn()} award={award} />);
-    const tabs = screen.getAllByRole('button').filter(b =>
-      b.textContent && !b.textContent.includes('Back to Practice') &&
-      !b.textContent.includes('Quiz') && !b.textContent.includes('Cultural'),
-    );
-    const secondTab = tabs.find(b => !b.textContent?.toLowerCase().includes('classic'));
+    const tabs = screen
+      .getAllByRole('button')
+      .filter(
+        (b) =>
+          b.textContent &&
+          !b.textContent.includes('Back to Practice') &&
+          !b.textContent.includes('Quiz') &&
+          !b.textContent.includes('Cultural'),
+      );
+    const secondTab = tabs.find((b) => !b.textContent?.toLowerCase().includes('classic'));
     if (!secondTab) throw new Error('Could not find a non-classics section tab');
     fireEvent.click(secondTab); // First visit → award(5)
     award.mockClear();
@@ -260,13 +307,17 @@ describe('SlangScreen — quiz', () => {
   it('"✕ Exit Quiz" button appears after starting quiz', () => {
     renderScreen();
     clickQuiz();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Exit Quiz'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Exit Quiz')),
+    ).toBeTruthy();
   });
 
   it('clicking "✕ Exit Quiz" hides the quiz panel', () => {
     renderScreen();
     clickQuiz();
-    const exitBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('Exit Quiz'))!;
+    const exitBtn = screen
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Exit Quiz'))!;
     fireEvent.click(exitBtn);
     expect(screen.queryByTestId('quiz-panel')).toBeNull();
   });
@@ -275,7 +326,7 @@ describe('SlangScreen — quiz', () => {
     renderScreen();
     clickQuiz();
     // The mock always renders "Done" when quizMode=true — no need to answer questions
-    const doneBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Done')!;
+    const doneBtn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'Done')!;
     fireEvent.click(doneBtn);
     expect(mockMarkQuest).toHaveBeenCalledWith('speak');
   });
@@ -284,7 +335,7 @@ describe('SlangScreen — quiz', () => {
     const award = vi.fn();
     render(<SlangScreen goBack={vi.fn()} award={award} />);
     clickQuiz();
-    const doneBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Done')!;
+    const doneBtn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'Done')!;
     fireEvent.click(doneBtn);
     // quizScore=0 → xp = 0*3 = 0 → not > 0 → award NOT called
     expect(award).not.toHaveBeenCalled();
@@ -293,7 +344,7 @@ describe('SlangScreen — quiz', () => {
   it('quiz "Done" hides the quiz panel', () => {
     renderScreen();
     clickQuiz();
-    const doneBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Done')!;
+    const doneBtn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'Done')!;
     fireEvent.click(doneBtn);
     expect(screen.queryByTestId('quiz-panel')).toBeNull();
   });

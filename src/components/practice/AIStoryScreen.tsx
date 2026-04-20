@@ -11,8 +11,8 @@ function getWeakWords() {
     if (!raw) return [];
     const sr = JSON.parse(raw);
     return Object.entries(sr)
-      .filter(([, v]) => v.w > v.r && (v.r + v.w) >= 2)
-      .sort((a, b) => (b[1].w - b[1].r) - (a[1].w - a[1].r))
+      .filter(([, v]) => v.w > v.r && v.r + v.w >= 2)
+      .sort((a, b) => b[1].w - b[1].r - (a[1].w - a[1].r))
       .slice(0, 8)
       .map(([word]) => word);
   } catch {
@@ -59,13 +59,30 @@ export default function AIStoryScreen({ goBack, award }) {
       });
       if (!res.ok) {
         let errBody = {};
-        try { errBody = await res.json(); } catch { /* ignore */ }
-        if (res.status === 401) throw new Error('Sign in to generate AI stories. Tap the Profile tab to create a free account.');
-        if (res.status === 429) {
-          const t = errBody.resetAt ? new Date(errBody.resetAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'midnight UTC';
-          throw new Error(`Daily AI story limit reached. Quota resets at ${t} — come back tomorrow!`);
+        try {
+          errBody = await res.json();
+        } catch {
+          /* ignore */
         }
-        if (res.status >= 500) throw new Error('AI story service is temporarily unavailable. Please try again in a moment.');
+        if (res.status === 401)
+          throw new Error(
+            'Sign in to generate AI stories. Tap the Profile tab to create a free account.',
+          );
+        if (res.status === 429) {
+          const t = errBody.resetAt
+            ? new Date(errBody.resetAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : 'midnight UTC';
+          throw new Error(
+            `Daily AI story limit reached. Quota resets at ${t} — come back tomorrow!`,
+          );
+        }
+        if (res.status >= 500)
+          throw new Error(
+            'AI story service is temporarily unavailable. Please try again in a moment.',
+          );
         throw new Error(errBody.error || `Request failed (${res.status})`);
       }
       const data = await res.json();
@@ -80,7 +97,11 @@ export default function AIStoryScreen({ goBack, award }) {
         // Try to find JSON block inside the text
         const match = replyText.match(/\{[\s\S]*"story"[\s\S]*\}/);
         if (match) {
-          try { parsed = JSON.parse(match[0]); } catch { /* fall through */ }
+          try {
+            parsed = JSON.parse(match[0]);
+          } catch {
+            /* fall through */
+          }
         }
       }
 
@@ -96,9 +117,11 @@ export default function AIStoryScreen({ goBack, award }) {
     } finally {
       setLoading(false);
     }
-  }, [weakWords, loading]);  
+  }, [weakWords, loading]);
 
-  useEffect(() => { generateStory(); }, []);  
+  useEffect(() => {
+    generateStory();
+  }, []);
 
   function handleDone() {
     if (typeof award === 'function') award(15);
@@ -109,12 +132,15 @@ export default function AIStoryScreen({ goBack, award }) {
   // Highlight weak words in the story text
   function renderHighlightedStory(text, words) {
     if (!words || words.length === 0) return <span>{text}</span>;
-    const safeWords = words.filter(w => w != null && typeof w === 'string');
+    const safeWords = words.filter((w) => w != null && typeof w === 'string');
     if (safeWords.length === 0) return <span>{text}</span>;
-    const pattern = new RegExp(`(${safeWords.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+    const pattern = new RegExp(
+      `(${safeWords.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
+      'gi',
+    );
     const parts = text.split(pattern);
     return parts.map((part, i) => {
-      const isWord = safeWords.some(w => w.toLowerCase() === part.toLowerCase());
+      const isWord = safeWords.some((w) => w.toLowerCase() === part.toLowerCase());
       if (isWord) {
         return (
           <strong
@@ -142,23 +168,48 @@ export default function AIStoryScreen({ goBack, award }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
         <button
           onClick={goBack}
-          style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: 'var(--subtext)', padding: 4 }}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: 22,
+            cursor: 'pointer',
+            color: 'var(--subtext)',
+            padding: 4,
+          }}
           aria-label="Go back"
-        >←</button>
+        >
+          ←
+        </button>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--heading)' }}>📖 Your Personalized Story</div>
-          <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>Built from your weak words</div>
+          <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--heading)' }}>
+            📖 Your Personalized Story
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
+            Built from your weak words
+          </div>
         </div>
       </div>
 
       {!isOnline && (
-        <div style={{
-          background:'#fef3c7', border:'1px solid #f59e0b', borderRadius:10,
-          padding:'12px 16px', marginBottom:16, fontSize:13, fontWeight:600,
-          color:'#92400e', display:'flex', alignItems:'center', gap:8
-        }}>
+        <div
+          style={{
+            background: '#fef3c7',
+            border: '1px solid #f59e0b',
+            borderRadius: 10,
+            padding: '12px 16px',
+            marginBottom: 16,
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#92400e',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
           <span>📡</span>
-          <span>You're offline. AI features need an internet connection. Your progress is saved locally.</span>
+          <span>
+            You're offline. AI features need an internet connection. Your progress is saved locally.
+          </span>
         </div>
       )}
 
@@ -174,12 +225,18 @@ export default function AIStoryScreen({ goBack, award }) {
             Maja is writing your story...
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 12 }}>
-            {[0, 1, 2].map(i => (
-              <div key={i} style={{
-                width: 8, height: 8, borderRadius: '50%',
-                background: 'var(--info)', opacity: 0.5,
-                animation: `dot-bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
-              }} />
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: 'var(--info)',
+                  opacity: 0.5,
+                  animation: `dot-bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+                }}
+              />
             ))}
           </div>
         </div>
@@ -187,10 +244,16 @@ export default function AIStoryScreen({ goBack, award }) {
 
       {/* Error state */}
       {error && !loading && (
-        <div style={{
-          background: 'rgba(220,38,38,.08)', border: '1px solid rgba(220,38,38,.25)',
-          borderRadius: 14, padding: '16px 20px', marginBottom: 16, textAlign: 'center',
-        }}>
+        <div
+          style={{
+            background: 'rgba(220,38,38,.08)',
+            border: '1px solid rgba(220,38,38,.25)',
+            borderRadius: 14,
+            padding: '16px 20px',
+            marginBottom: 16,
+            textAlign: 'center',
+          }}
+        >
           <div style={{ fontSize: 14, color: 'var(--error)', fontWeight: 700, marginBottom: 8 }}>
             {!isOnline ? 'No connection — reconnect to generate a story.' : error}
           </div>
@@ -202,11 +265,18 @@ export default function AIStoryScreen({ goBack, award }) {
 
       {/* Raw reply (non-JSON fallback) */}
       {rawReply && !loading && (
-        <div style={{
-          background: 'var(--card)', borderRadius: 16, padding: '20px',
-          border: '1px solid var(--border)', marginBottom: 16,
-        }}>
-          <div style={{ fontSize: 15, color: 'var(--body)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+        <div
+          style={{
+            background: 'var(--card)',
+            borderRadius: 16,
+            padding: '20px',
+            border: '1px solid var(--border)',
+            marginBottom: 16,
+          }}
+        >
+          <div
+            style={{ fontSize: 15, color: 'var(--body)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
+          >
             {rawReply}
           </div>
         </div>
@@ -215,18 +285,34 @@ export default function AIStoryScreen({ goBack, award }) {
       {/* Story card */}
       {story && !loading && (
         <>
-          <div style={{
-            background: 'var(--card)', borderRadius: 20, padding: '20px 20px 24px',
-            border: '1px solid var(--border)', marginBottom: 16,
-            boxShadow: '0 4px 20px rgba(0,0,0,.06)',
-          }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--info)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12 }}>
+          <div
+            style={{
+              background: 'var(--card)',
+              borderRadius: 20,
+              padding: '20px 20px 24px',
+              border: '1px solid var(--border)',
+              marginBottom: 16,
+              boxShadow: '0 4px 20px rgba(0,0,0,.06)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: 'var(--info)',
+                letterSpacing: '.08em',
+                textTransform: 'uppercase',
+                marginBottom: 12,
+              }}
+            >
               Croatian Story
             </div>
             <p style={{ fontSize: 16, lineHeight: 1.9, color: 'var(--body)', margin: 0 }}>
               {renderHighlightedStory(story, wordsUsed)}
             </p>
-            <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 12, fontStyle: 'italic' }}>
+            <div
+              style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 12, fontStyle: 'italic' }}
+            >
               Tap highlighted words to hear pronunciation
             </div>
           </div>
@@ -235,23 +321,52 @@ export default function AIStoryScreen({ goBack, award }) {
           {translation && (
             <div style={{ marginBottom: 16 }}>
               <button
-                onClick={() => setShowTranslation(v => !v)}
+                onClick={() => setShowTranslation((v) => !v)}
                 style={{
-                  width: '100%', background: 'var(--bar-bg)', border: '1px solid var(--border)',
-                  borderRadius: 12, padding: '12px 16px', cursor: 'pointer',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  fontSize: 13, fontWeight: 700, color: 'var(--subtext)',
+                  width: '100%',
+                  background: 'var(--bar-bg)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 12,
+                  padding: '12px 16px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: 'var(--subtext)',
                 }}
               >
                 <span>English Translation</span>
-                <span style={{ fontSize: 16, transition: 'transform .2s', transform: showTranslation ? 'rotate(180deg)' : 'none' }}>▾</span>
+                <span
+                  style={{
+                    fontSize: 16,
+                    transition: 'transform .2s',
+                    transform: showTranslation ? 'rotate(180deg)' : 'none',
+                  }}
+                >
+                  ▾
+                </span>
               </button>
               {showTranslation && (
-                <div style={{
-                  background: 'var(--bar-bg)', borderRadius: '0 0 12px 12px',
-                  padding: '14px 16px', border: '1px solid var(--border)', borderTop: 'none',
-                }}>
-                  <p style={{ fontSize: 14, lineHeight: 1.8, color: 'var(--body)', margin: 0, fontStyle: 'italic' }}>
+                <div
+                  style={{
+                    background: 'var(--bar-bg)',
+                    borderRadius: '0 0 12px 12px',
+                    padding: '14px 16px',
+                    border: '1px solid var(--border)',
+                    borderTop: 'none',
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 1.8,
+                      color: 'var(--body)',
+                      margin: 0,
+                      fontStyle: 'italic',
+                    }}
+                  >
                     {translation}
                   </p>
                 </div>
@@ -262,18 +377,32 @@ export default function AIStoryScreen({ goBack, award }) {
           {/* Words practiced chips */}
           {wordsUsed.length > 0 && (
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--subtext)', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 8 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: 'var(--subtext)',
+                  letterSpacing: '.06em',
+                  textTransform: 'uppercase',
+                  marginBottom: 8,
+                }}
+              >
                 Words Practiced
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {wordsUsed.map(word => (
+                {wordsUsed.map((word) => (
                   <button
                     key={word}
                     onClick={() => speak(word)}
                     style={{
-                      background: 'rgba(14,116,144,.1)', border: '1px solid rgba(14,116,144,.25)',
-                      borderRadius: 20, padding: '4px 12px',
-                      fontSize: 13, fontWeight: 700, color: 'var(--info)', cursor: 'pointer',
+                      background: 'rgba(14,116,144,.1)',
+                      border: '1px solid rgba(14,116,144,.25)',
+                      borderRadius: 20,
+                      padding: '4px 12px',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: 'var(--info)',
+                      cursor: 'pointer',
                     }}
                     title={`Hear "${word}"`}
                   >
@@ -290,9 +419,15 @@ export default function AIStoryScreen({ goBack, award }) {
               className="b"
               onClick={generateStory}
               style={{
-                flex: 1, borderRadius: 14, padding: '14px 0',
-                background: 'var(--bar-bg)', border: '1px solid var(--border)',
-                fontSize: 14, fontWeight: 800, color: 'var(--subtext)', cursor: 'pointer',
+                flex: 1,
+                borderRadius: 14,
+                padding: '14px 0',
+                background: 'var(--bar-bg)',
+                border: '1px solid var(--border)',
+                fontSize: 14,
+                fontWeight: 800,
+                color: 'var(--subtext)',
+                cursor: 'pointer',
               }}
             >
               🔄 New Story
@@ -300,7 +435,13 @@ export default function AIStoryScreen({ goBack, award }) {
             <button
               className="b bp"
               onClick={handleDone}
-              style={{ flex: 2, borderRadius: 14, padding: '14px 0', fontSize: 14, fontWeight: 900 }}
+              style={{
+                flex: 2,
+                borderRadius: 14,
+                padding: '14px 0',
+                fontSize: 14,
+                fontWeight: 900,
+              }}
             >
               Done — +15 XP ✓
             </button>
@@ -310,7 +451,9 @@ export default function AIStoryScreen({ goBack, award }) {
 
       {/* Empty weak words notice */}
       {!loading && !error && !story && !rawReply && weakWords.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--subtext)', fontSize: 14 }}>
+        <div
+          style={{ textAlign: 'center', padding: '20px 0', color: 'var(--subtext)', fontSize: 14 }}
+        >
           Practice more words to get personalized stories!
         </div>
       )}

@@ -5,13 +5,13 @@ import { BrowserRouter } from 'react-router-dom';
 
 // Polyfill Array.prototype.at() for Android WebView < Chrome 92
 if (!Array.prototype.at) {
-  Array.prototype.at = function(index) {
+  Array.prototype.at = function (index) {
     const i = index < 0 ? this.length + index : index;
     return this[i];
   };
 }
 if (!String.prototype.at) {
-  String.prototype.at = function(index) {
+  String.prototype.at = function (index) {
     const i = index < 0 ? this.length + index : index;
     return this[i];
   };
@@ -90,7 +90,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
       dsn: import.meta.env.VITE_SENTRY_DSN,
       environment: import.meta.env.MODE,
       // eslint-disable-next-line no-undef
-      release: typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : import.meta.env.VITE_APP_VERSION,
+      release:
+        typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : import.meta.env.VITE_APP_VERSION,
       // Only send errors in production; silence in dev
       enabled: import.meta.env.PROD,
       tracesSampleRate: 0.1,
@@ -107,9 +108,9 @@ if (import.meta.env.VITE_SENTRY_DSN) {
           event.contexts = event.contexts.trace ? { trace: event.contexts.trace } : {};
         }
         if (Array.isArray(event.breadcrumbs?.values)) {
-          const bc = /** @type {any} */ (event.breadcrumbs);
+          const bc = /** @type {any} */ event.breadcrumbs;
           bc.values = bc.values
-            .filter(b => b.category === 'web-vitals' || b.category === 'navigation')
+            .filter((b) => b.category === 'web-vitals' || b.category === 'navigation')
             .map(({ category, level, timestamp }) => ({ category, level, timestamp }));
         }
         return event;
@@ -133,7 +134,10 @@ function reportWebVitals(metric) {
   _sentry.addBreadcrumb({
     category: 'web-vitals',
     message: metric.name,
-    data: { value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value), rating: metric.rating },
+    data: {
+      value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+      rating: metric.rating,
+    },
     level: metric.rating === 'poor' ? 'warning' : 'info',
   });
 }
@@ -161,14 +165,48 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div role="alert" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#fef3c7,#fff7ed)', padding: 24, textAlign: 'center' }}>
+        <div
+          role="alert"
+          style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg,#fef3c7,#fff7ed)',
+            padding: 24,
+            textAlign: 'center',
+          }}
+        >
           <div style={{ maxWidth: 400, width: '100%' }}>
-            <div style={{ fontSize: 64, marginBottom: 16 }} aria-hidden="true">⚠️</div>
-            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 24, color: '#164e63', marginBottom: 8 }}>Something went wrong</h2>
-            <p style={{ color: '#78716c', marginBottom: 12, fontSize: 14 }}>The app hit an unexpected error. Your progress is saved.</p>
+            <div style={{ fontSize: 64, marginBottom: 16 }} aria-hidden="true">
+              ⚠️
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Playfair Display',serif",
+                fontSize: 24,
+                color: '#164e63',
+                marginBottom: 8,
+              }}
+            >
+              Something went wrong
+            </h2>
+            <p style={{ color: '#78716c', marginBottom: 12, fontSize: 14 }}>
+              The app hit an unexpected error. Your progress is saved.
+            </p>
             <button
               onClick={() => window.location.reload()}
-              style={{ padding: '12px 32px', background: 'linear-gradient(135deg,#0e7490,#164e63)', color: 'white', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+              style={{
+                padding: '12px 32px',
+                background: 'linear-gradient(135deg,#0e7490,#164e63)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 14,
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
               Reload App
             </button>
           </div>
@@ -198,15 +236,22 @@ function _reloadWithCachePurge(storageKey) {
     if (n >= 2) return false; // stop after 2 attempts — don't loop forever
     sessionStorage.setItem(storageKey, String(n + 1));
     if ('caches' in window) {
-      caches.keys()
-        .then(names => names.forEach(name => { if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name); }))
+      caches
+        .keys()
+        .then((names) =>
+          names.forEach((name) => {
+            if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name);
+          }),
+        )
         .catch(() => {})
         .finally(() => window.location.reload());
     } else {
       window.location.reload();
     }
     return true;
-  } catch (_) { return false; }
+  } catch (_) {
+    return false;
+  }
 }
 
 window.onerror = function (message, _source, _lineno, _colno, error) {
@@ -235,8 +280,8 @@ const _VER_KEY = 'nh_app_ver';
 function _checkVersion(isPolling) {
   try {
     fetch('/version.json', { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
         if (!data?.v) return;
         const next = String(data.v);
         const stored = sessionStorage.getItem(_VER_KEY);
@@ -268,7 +313,12 @@ if (!isNative() && 'serviceWorker' in navigator) {
 
   // Single reload guard — resets to false on every fresh page load.
   let refreshing = false;
-  const doReload = () => { if (!refreshing) { refreshing = true; window.location.reload(); } };
+  const doReload = () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  };
 
   // Path 1 — SW sends SW_UPDATED after activate+claim (handles updates that happen
   // while the tab is open OR while it was backgrounded).
@@ -276,7 +326,7 @@ if (!isNative() && 'serviceWorker' in navigator) {
   // took over an existing session (genuine update). First installs have no prior
   // controller and need no reload.
   const hadControllerAtLoad = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.addEventListener('message', event => {
+  navigator.serviceWorker.addEventListener('message', (event) => {
     if (event.data?.type === 'SW_UPDATED' && hadControllerAtLoad) doReload();
   });
 
@@ -290,7 +340,7 @@ if (!isNative() && 'serviceWorker' in navigator) {
   // Path 3 — on every page load, proactively fetch and activate any new SW.
   // Handles the case where a new SW was waiting before this page loaded:
   // reg.waiting exists → send SKIP_WAITING → controllerchange fires → reload.
-  navigator.serviceWorker.ready.then(reg => {
+  navigator.serviceWorker.ready.then((reg) => {
     reg.update().catch(() => {});
     if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
     reg.addEventListener('updatefound', () => {
@@ -310,5 +360,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <App />
       </BrowserRouter>
     </ErrorBoundary>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

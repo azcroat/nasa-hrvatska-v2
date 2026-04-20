@@ -28,9 +28,14 @@ vi.mock('firebase/auth', () => ({
 }));
 vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(() => ({})),
-  doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(),
-  query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 // Mock data.jsx so useSearch's dynamic import resolves with a minimal search index
 vi.mock('../data', () => ({
@@ -47,11 +52,14 @@ import { useJournal } from '../hooks/useJournal';
 import { useDaily } from '../hooks/useDaily';
 import { useTranslator } from '../hooks/useTranslator';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 // ── usePreferences ────────────────────────────────────────────────────────────
 describe('usePreferences', () => {
-  beforeEach(clearLS); afterEach(clearLS);
+  beforeEach(clearLS);
+  afterEach(clearLS);
 
   it('initialises darkMode from localStorage', () => {
     localStorage.setItem('darkMode', 'true');
@@ -64,19 +72,27 @@ describe('usePreferences', () => {
   });
   it('toggleFav adds an item to favs', () => {
     const { result } = renderHook(() => usePreferences());
-    act(() => { result.current.toggleFav({ hr: 'kuća', en: 'house' }); });
+    act(() => {
+      result.current.toggleFav({ hr: 'kuća', en: 'house' });
+    });
     expect(result.current.favs).toHaveLength(1);
     expect(result.current.favs[0].hr).toBe('kuća');
   });
   it('toggleFav removes an already-favourited item', () => {
     const { result } = renderHook(() => usePreferences());
-    act(() => { result.current.toggleFav({ hr: 'kuća', en: 'house' }); });
-    act(() => { result.current.toggleFav({ hr: 'kuća', en: 'house' }); });
+    act(() => {
+      result.current.toggleFav({ hr: 'kuća', en: 'house' });
+    });
+    act(() => {
+      result.current.toggleFav({ hr: 'kuća', en: 'house' });
+    });
     expect(result.current.favs).toHaveLength(0);
   });
   it('isFav returns true for favourited word', () => {
     const { result } = renderHook(() => usePreferences());
-    act(() => { result.current.toggleFav({ hr: 'pas', en: 'dog' }); });
+    act(() => {
+      result.current.toggleFav({ hr: 'pas', en: 'dog' });
+    });
     expect(result.current.isFav('pas')).toBe(true);
   });
   it('isFav returns false for non-favourited word', () => {
@@ -85,13 +101,17 @@ describe('usePreferences', () => {
   });
   it('persists favs to localStorage', () => {
     const { result } = renderHook(() => usePreferences());
-    act(() => { result.current.toggleFav({ hr: 'voda', en: 'water' }); });
+    act(() => {
+      result.current.toggleFav({ hr: 'voda', en: 'water' });
+    });
     const stored = JSON.parse(localStorage.getItem('uFavs') || '[]');
-    expect(stored.some(f => f.hr === 'voda')).toBe(true);
+    expect(stored.some((f) => f.hr === 'voda')).toBe(true);
   });
   it('setDarkMode persists to localStorage', () => {
     const { result } = renderHook(() => usePreferences());
-    act(() => { result.current.setDarkMode(true); });
+    act(() => {
+      result.current.setDarkMode(true);
+    });
     // Note: usePreferences doesn't write darkMode to LS (that's done via darkMode handler in App)
     // — this test confirms the state is toggled
     expect(result.current.darkMode).toBe(true);
@@ -100,8 +120,12 @@ describe('usePreferences', () => {
 
 // ── useSearch ─────────────────────────────────────────────────────────────────
 describe('useSearch', () => {
-  beforeEach(() => { vi.useFakeTimers(); });
-  afterEach(() => { vi.useRealTimers(); });
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it('initialises with empty query and results', () => {
     const { result } = renderHook(() => useSearch());
@@ -111,7 +135,10 @@ describe('useSearch', () => {
   });
   it('doSearch with empty string clears results', () => {
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.doSearch(''); vi.runAllTimers(); });
+    act(() => {
+      result.current.doSearch('');
+      vi.runAllTimers();
+    });
     expect(result.current.srchR).toHaveLength(0);
   });
   it('doSearch with known Croatian word returns results', async () => {
@@ -122,25 +149,37 @@ describe('useSearch', () => {
     // old test gave only 300ms total).
     vi.useRealTimers();
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.doSearch('kuća'); });
-    await vi.waitFor(() => {
-      expect(result.current.srchR.length).toBeGreaterThan(0);
-    }, { timeout: 8000 });
+    act(() => {
+      result.current.doSearch('kuća');
+    });
+    await vi.waitFor(
+      () => {
+        expect(result.current.srchR.length).toBeGreaterThan(0);
+      },
+      { timeout: 8000 },
+    );
     vi.useFakeTimers(); // restore for remaining tests in describe block
   });
   it('doSearch results capped at 15', async () => {
     vi.useRealTimers();
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.doSearch('a'); }); // very common letter
-    await vi.waitFor(() => {
-      // Once results appear, check the cap — may be 0 if mock index has no 'a' matches
-      expect(result.current.srchR.length).toBeLessThanOrEqual(15);
-    }, { timeout: 8000 });
+    act(() => {
+      result.current.doSearch('a');
+    }); // very common letter
+    await vi.waitFor(
+      () => {
+        // Once results appear, check the cap — may be 0 if mock index has no 'a' matches
+        expect(result.current.srchR.length).toBeLessThanOrEqual(15);
+      },
+      { timeout: 8000 },
+    );
     vi.useFakeTimers();
   });
   it('setSrchOpen controls open state', () => {
     const { result } = renderHook(() => useSearch());
-    act(() => { result.current.setSrchOpen(true); });
+    act(() => {
+      result.current.setSrchOpen(true);
+    });
     expect(result.current.srchOpen).toBe(true);
   });
 });
@@ -153,7 +192,9 @@ describe('useFamily', () => {
   });
   it('setFamData updates state', () => {
     const { result } = renderHook(() => useFamily());
-    act(() => { result.current.setFamData({ code: 'ABC123', name: 'Test Family' }); });
+    act(() => {
+      result.current.setFamData({ code: 'ABC123', name: 'Test Family' });
+    });
     expect(result.current.famData.code).toBe('ABC123');
   });
   it('famMembers initialises as empty array', () => {
@@ -166,19 +207,24 @@ describe('useFamily', () => {
   });
   it('setFamTab updates tab', () => {
     const { result } = renderHook(() => useFamily());
-    act(() => { result.current.setFamTab('leaderboard'); });
+    act(() => {
+      result.current.setFamTab('leaderboard');
+    });
     expect(result.current.famTab).toBe('leaderboard');
   });
   it('setFamErr sets error message', () => {
     const { result } = renderHook(() => useFamily());
-    act(() => { result.current.setFamErr('Family not found'); });
+    act(() => {
+      result.current.setFamErr('Family not found');
+    });
     expect(result.current.famErr).toBe('Family not found');
   });
 });
 
 // ── useJournal ────────────────────────────────────────────────────────────────
 describe('useJournal', () => {
-  beforeEach(clearLS); afterEach(clearLS);
+  beforeEach(clearLS);
+  afterEach(clearLS);
 
   it('loads words from localStorage on init', () => {
     localStorage.setItem('uJournal', JSON.stringify([{ hr: 'pas', en: 'dog' }]));
@@ -197,7 +243,9 @@ describe('useJournal', () => {
   });
   it('setJWords updates state', () => {
     const { result } = renderHook(() => useJournal());
-    act(() => { result.current.setJWords([{ hr: 'mačka', en: 'cat' }]); });
+    act(() => {
+      result.current.setJWords([{ hr: 'mačka', en: 'cat' }]);
+    });
     expect(result.current.jWords[0].hr).toBe('mačka');
   });
   it('handles corrupted localStorage gracefully', () => {
@@ -209,7 +257,8 @@ describe('useJournal', () => {
 
 // ── useDaily ──────────────────────────────────────────────────────────────────
 describe('useDaily', () => {
-  beforeEach(clearLS); afterEach(clearLS);
+  beforeEach(clearLS);
+  afterEach(clearLS);
 
   it('dchlA defaults to [false,false,false]', () => {
     const { result } = renderHook(() => useDaily());
@@ -221,17 +270,23 @@ describe('useDaily', () => {
   });
   it('sDchlA correctly updates answer state', () => {
     const { result } = renderHook(() => useDaily());
-    act(() => { result.current.sDchlA([true, false, true]); });
+    act(() => {
+      result.current.sDchlA([true, false, true]);
+    });
     expect(result.current.dchlA).toEqual([true, false, true]);
   });
   it('sDchlSl correctly updates selection state', () => {
     const { result } = renderHook(() => useDaily());
-    act(() => { result.current.sDchlSl(['ans1', 'ans2', 'ans3']); });
+    act(() => {
+      result.current.sDchlSl(['ans1', 'ans2', 'ans3']);
+    });
     expect(result.current.dchlSl).toEqual(['ans1', 'ans2', 'ans3']);
   });
   it('sDchlA updates state', () => {
     const { result } = renderHook(() => useDaily());
-    act(() => { result.current.sDchlA([true, true, false]); });
+    act(() => {
+      result.current.sDchlA([true, true, false]);
+    });
     expect(result.current.dchlA).toEqual([true, true, false]);
   });
 });
@@ -253,12 +308,16 @@ describe('useTranslator', () => {
   });
   it('setTDir changes direction', () => {
     const { result } = renderHook(() => useTranslator());
-    act(() => { result.current.setTDir('hr-en'); });
+    act(() => {
+      result.current.setTDir('hr-en');
+    });
     expect(result.current.tDir).toBe('hr-en');
   });
   it('doTr does nothing when tIn is empty', async () => {
     const { result } = renderHook(() => useTranslator());
-    await act(async () => { await result.current.doTr(); });
+    await act(async () => {
+      await result.current.doTr();
+    });
     expect(result.current.tL).toBe(false);
     expect(result.current.tOut).toBe('');
   });
@@ -266,12 +325,15 @@ describe('useTranslator', () => {
 
 // ── usePreferences — additional branch coverage ───────────────────────────────
 describe('usePreferences — branch coverage', () => {
-  beforeEach(clearLS); afterEach(clearLS);
+  beforeEach(clearLS);
+  afterEach(clearLS);
 
   it('toggleFav uses item.name as key when item.hr is absent (adds to favs)', () => {
     const { result } = renderHook(() => usePreferences());
     // item.hr is absent — toggleFav uses item.name as the key to check exists
-    act(() => { result.current.toggleFav({ name: 'Lesson A', type: 'lesson', go: 'lessonA' }); });
+    act(() => {
+      result.current.toggleFav({ name: 'Lesson A', type: 'lesson', go: 'lessonA' });
+    });
     // The item is added (exists was false → adds it)
     expect(result.current.favs).toHaveLength(1);
     // Note: stored fav has hr:undefined, not name; isFav('Lesson A') won't find it
@@ -281,9 +343,13 @@ describe('usePreferences — branch coverage', () => {
   it('toggleFav removes item keyed by hr when hr is present', () => {
     const { result } = renderHook(() => usePreferences());
     // Use hr-keyed item — hr is the primary key used in stored favs
-    act(() => { result.current.toggleFav({ hr: 'kruh', en: 'bread', type: 'vocab', go: 'vocab' }); });
+    act(() => {
+      result.current.toggleFav({ hr: 'kruh', en: 'bread', type: 'vocab', go: 'vocab' });
+    });
     expect(result.current.favs).toHaveLength(1);
-    act(() => { result.current.toggleFav({ hr: 'kruh', en: 'bread', type: 'vocab', go: 'vocab' }); });
+    act(() => {
+      result.current.toggleFav({ hr: 'kruh', en: 'bread', type: 'vocab', go: 'vocab' });
+    });
     expect(result.current.favs).toHaveLength(0);
   });
 
@@ -310,7 +376,9 @@ describe('usePreferences — branch coverage', () => {
 
   it('setDarkMode sets nh_dm_explicit to "1"', () => {
     const { result } = renderHook(() => usePreferences());
-    act(() => { result.current.setDarkMode(true); });
+    act(() => {
+      result.current.setDarkMode(true);
+    });
     expect(localStorage.getItem('nh_dm_explicit')).toBe('1');
   });
 });

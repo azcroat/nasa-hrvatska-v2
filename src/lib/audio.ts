@@ -11,10 +11,7 @@ import { dbgInfo, dbgWarn, dbgError } from './debugLog';
 // Two entries guard against the custom domain not being configured in Cloudflare Pages:
 //   1. nasahrvatska.com  — production custom domain (primary)
 //   2. nasa-hrvatska-v2.pages.dev — Cloudflare Pages default (always works)
-const _NATIVE_ENDPOINTS = [
-  'https://nasahrvatska.com',
-  'https://nasa-hrvatska-v2.pages.dev',
-];
+const _NATIVE_ENDPOINTS = ['https://nasahrvatska.com', 'https://nasa-hrvatska-v2.pages.dev'];
 
 // Decode a data: URL to an ArrayBuffer without using fetch() — fetch(data:) is
 // unreliable on some Android WebView versions and may throw or return an empty body.
@@ -42,12 +39,16 @@ async function _ttsPost(
 
   if (isNative()) {
     // Try CapacitorHttp (native Android HTTP — bypasses WebView fetch() failures)
-    type _CapHttp = { post: (o: Record<string, unknown>) => Promise<{ status: number; data: unknown; headers: Record<string, string> }> };
+    type _CapHttp = {
+      post: (
+        o: Record<string, unknown>,
+      ) => Promise<{ status: number; data: unknown; headers: Record<string, string> }>;
+    };
     let capHttp: _CapHttp | null = null;
     try {
       // Dynamic import keeps @capacitor/core out of the web bundle's main chunk.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const capacitorModule = await import('@capacitor/core') as any;
+      const capacitorModule = (await import('@capacitor/core')) as any;
       capHttp = (capacitorModule.CapacitorHttp as _CapHttp) ?? null;
       if (capHttp) dbgInfo('[TTS] CapacitorHttp available — using native HTTP');
     } catch {
@@ -67,7 +68,8 @@ async function _ttsPost(
           });
           dbgInfo(`[TTS] CapacitorHttp status=${resp.status} data-type=${typeof resp.data}`);
           if (resp.status >= 200 && resp.status < 300) {
-            const backends = resp.headers['x-tts-backends'] || resp.headers['X-TTS-Backends'] || 'capacitor';
+            const backends =
+              resp.headers['x-tts-backends'] || resp.headers['X-TTS-Backends'] || 'capacitor';
             // Native bridge returns binary blob as base64 string; convert to Blob
             let blob: Blob;
             if (resp.data instanceof Blob) {
@@ -76,7 +78,9 @@ async function _ttsPost(
               const ab = _dataUrlToArrayBuffer(`data:audio/mpeg;base64,${resp.data}`);
               blob = new Blob([ab], { type: 'audio/mpeg' });
             } else {
-              dbgWarn(`[TTS] CapacitorHttp unexpected data type "${typeof resp.data}" len=${String(resp.data).length} — trying next`);
+              dbgWarn(
+                `[TTS] CapacitorHttp unexpected data type "${typeof resp.data}" len=${String(resp.data).length} — trying next`,
+              );
               continue;
             }
             return new Response(blob, {
@@ -86,12 +90,17 @@ async function _ttsPost(
           }
           if (resp.status >= 400 && resp.status < 500) {
             // 4xx — bad request, don't retry other endpoints
-            return new Response('', { status: resp.status, headers: new Headers({ 'X-TTS-Backends': resp.headers['x-tts-backends'] || '' }) });
+            return new Response('', {
+              status: resp.status,
+              headers: new Headers({ 'X-TTS-Backends': resp.headers['x-tts-backends'] || '' }),
+            });
           }
           // 5xx: try next endpoint
         } catch (e: unknown) {
           const err = e as Error;
-          dbgWarn(`[TTS] CapacitorHttp → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 100)} — trying next`);
+          dbgWarn(
+            `[TTS] CapacitorHttp → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 100)} — trying next`,
+          );
         }
       }
       dbgWarn('[TTS] CapacitorHttp: all endpoints failed');
@@ -118,7 +127,9 @@ async function _ttsPost(
     } catch (e: unknown) {
       const err = e as Error;
       if (err?.name === 'AbortError') throw e; // propagate abort immediately
-      dbgWarn(`[TTS] fetch → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 80)} — trying next`);
+      dbgWarn(
+        `[TTS] fetch → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 80)} — trying next`,
+      );
     }
   }
   return null; // all endpoints failed
@@ -157,7 +168,11 @@ const _ttsCache = new Map<string, CacheEntry>();
 function _cacheGet(key: string): string | null {
   const e = _ttsCache.get(key);
   if (!e) return null;
-  if (Date.now() > e.expires) { URL.revokeObjectURL(e.url); _ttsCache.delete(key); return null; }
+  if (Date.now() > e.expires) {
+    URL.revokeObjectURL(e.url);
+    _ttsCache.delete(key);
+    return null;
+  }
   return e.url;
 }
 const _TTS_CACHE_MAX = 100;
@@ -175,22 +190,36 @@ function _cacheSet(key: string, url: string): void {
 
 // Shortest valid silent WAV (44 bytes) as a base64 data URL.
 // Used to unlock HTMLAudio on Android WebView during the first user gesture.
-const _SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+const _SILENT_WAV =
+  'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 
-const _iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const _iOS =
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-dbgInfo(`[Audio] module loaded | isNative=${isNative()} | iOS=${_iOS} | UA="${navigator.userAgent.slice(0, 80)}"`);
+dbgInfo(
+  `[Audio] module loaded | isNative=${isNative()} | iOS=${_iOS} | UA="${navigator.userAgent.slice(0, 80)}"`,
+);
 
 function uA(): void {
-  if (_au) { dbgInfo('[Audio] uA() called — already unlocked, skip'); return; }
+  if (_au) {
+    dbgInfo('[Audio] uA() called — already unlocked, skip');
+    return;
+  }
   _au = true; // optimistically set; reset below if silent play fails
   dbgInfo('[Audio] uA() — unlocking audio pipeline');
   // Unlock Web AudioContext (desktop / iOS primary path)
   try {
-    _ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    _ctx = new (
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    )();
     const b = _ctx.createBuffer(1, 1, 22050);
     const s = _ctx.createBufferSource();
-    s.buffer = b; s.connect(_ctx.destination); s.start(0); _ctx.resume();
+    s.buffer = b;
+    s.connect(_ctx.destination);
+    s.start(0);
+    _ctx.resume();
     dbgInfo(`[Audio] AudioContext created — state="${_ctx.state}"`);
   } catch (e) {
     dbgError('[Audio] AudioContext creation FAILED:', e);
@@ -206,7 +235,8 @@ function uA(): void {
   try {
     _htmlAudio = new Audio(_SILENT_WAV);
     _htmlAudio.volume = 1.0;
-    _htmlAudio.play()
+    _htmlAudio
+      .play()
       .then(() => {
         dbgInfo('[Audio] HTMLAudio persistent element unlocked — sticky activation established');
         _htmlAudio!.pause();
@@ -223,41 +253,69 @@ function uA(): void {
     _htmlAudio = null;
   }
 }
-['touchstart', 'click'].forEach(e => {
-  document.addEventListener(e, function h() {
-    dbgInfo(`[Audio] first user gesture (${e}) — calling uA()`);
-    uA();
-    document.removeEventListener(e, h);
-  }, { passive: true, once: true });
+['touchstart', 'click'].forEach((e) => {
+  document.addEventListener(
+    e,
+    function h() {
+      dbgInfo(`[Audio] first user gesture (${e}) — calling uA()`);
+      uA();
+      document.removeEventListener(e, h);
+    },
+    { passive: true, once: true },
+  );
 });
 
 export function loadVoices(): void {
-  if (window.speechSynthesis) { _voices = window.speechSynthesis.getVoices(); _voicesLoaded = _voices.length > 0; }
+  if (window.speechSynthesis) {
+    _voices = window.speechSynthesis.getVoices();
+    _voicesLoaded = _voices.length > 0;
+  }
 }
-if (window.speechSynthesis) { loadVoices(); window.speechSynthesis.onvoiceschanged = loadVoices; }
+if (window.speechSynthesis) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
 
 export function getBestVoice(): SpeechSynthesisVoice | null {
   if (!_voicesLoaded) loadVoices();
   const v = _voices;
-  const hr = v.filter(x => x.lang.startsWith('hr'));
-  if (hr.length > 0) return hr.find(x => !x.localService) || hr[0];
-  const bs = v.filter(x => x.lang.startsWith('bs'));
+  const hr = v.filter((x) => x.lang.startsWith('hr'));
+  if (hr.length > 0) return hr.find((x) => !x.localService) || hr[0];
+  const bs = v.filter((x) => x.lang.startsWith('bs'));
   if (bs.length > 0) return bs[0];
-  const sr = v.filter(x => x.lang.startsWith('sr'));
+  const sr = v.filter((x) => x.lang.startsWith('sr'));
   if (sr.length > 0) return sr[0];
   return null;
 }
 
 export function stopAudio(): void {
-  if (_ttsAbort) { try { _ttsAbort.abort(); } catch (e) {} _ttsAbort = null; }
-  if (_preloadAbort) { try { _preloadAbort.abort(); } catch (e) {} _preloadAbort = null; }
-  if (_currentAudio) { try { _currentAudio.pause(); _currentAudio.currentTime = 0; } catch (e) {} _currentAudio = null; }
+  if (_ttsAbort) {
+    try {
+      _ttsAbort.abort();
+    } catch (e) {}
+    _ttsAbort = null;
+  }
+  if (_preloadAbort) {
+    try {
+      _preloadAbort.abort();
+    } catch (e) {}
+    _preloadAbort = null;
+  }
+  if (_currentAudio) {
+    try {
+      _currentAudio.pause();
+      _currentAudio.currentTime = 0;
+    } catch (e) {}
+    _currentAudio = null;
+  }
   if (window.speechSynthesis) window.speechSynthesis.cancel();
 }
 
 export async function speakAzure(text: string, slow?: boolean): Promise<boolean> {
   if (!text || !text.trim()) return false;
-  dbgInfo(`[TTS] speakAzure called | text="${text.slice(0,40)}" slow=${!!slow} isNative=${isNative()}`);
+  dbgInfo(
+    `[TTS] speakAzure called | text="${text.slice(0, 40)}" slow=${!!slow} isNative=${isNative()}`,
+  );
   // Ensure audio pipeline is unlocked on THIS gesture call, not just on the first-ever touch.
   // On Android WebView, user activation survives async operations only if audio was already
   // unlocked via a prior synchronous play(). uA() is idempotent — safe to call every time.
@@ -275,18 +333,29 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       dbgInfo('[TTS] cache HIT — skipping fetch');
       url = cached;
     } else {
-      if (!_ttsAllowed()) { dbgWarn('[TTS] rate limit — request blocked'); return false; }
+      if (!_ttsAllowed()) {
+        dbgWarn('[TTS] rate limit — request blocked');
+        return false;
+      }
       const body: Record<string, unknown> = { text, slow: !!slow };
       if (voicePref !== 'auto') body.voice = voicePref;
       _ttsAbort = new AbortController();
       // Use timeout-aware abort signal when supported; fall back to plain abort signal.
-      const timeoutSignal = (AbortSignal as unknown as { timeout?: (ms: number) => AbortSignal }).timeout?.(15000);
+      const timeoutSignal = (
+        AbortSignal as unknown as { timeout?: (ms: number) => AbortSignal }
+      ).timeout?.(15000);
       const abortSignal = timeoutSignal
-        ? ((AbortSignal as unknown as { any?: (s: AbortSignal[]) => AbortSignal }).any?.([_ttsAbort.signal, timeoutSignal]) ?? _ttsAbort.signal)
+        ? ((AbortSignal as unknown as { any?: (s: AbortSignal[]) => AbortSignal }).any?.([
+            _ttsAbort.signal,
+            timeoutSignal,
+          ]) ?? _ttsAbort.signal)
         : _ttsAbort.signal;
       const r = await _ttsPost(body, abortSignal);
       _ttsAbort = null;
-      if (_speakGen !== myGen) { dbgWarn('[TTS] generation mismatch after fetch — aborting'); return false; }
+      if (_speakGen !== myGen) {
+        dbgWarn('[TTS] generation mismatch after fetch — aborting');
+        return false;
+      }
       if (!r || !r.ok) {
         const backends = r?.headers.get('x-tts-backends') || 'none';
         const rb = r ? await r.text().catch(() => '') : 'no response (all endpoints failed)';
@@ -295,13 +364,15 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       }
       const backends = r.headers.get('x-tts-backends') || 'unknown';
       freshBlob = await r.blob();
-      dbgInfo(`[TTS] blob received size=${freshBlob.size} type="${freshBlob.type}" backends=${backends}`);
+      dbgInfo(
+        `[TTS] blob received size=${freshBlob.size} type="${freshBlob.type}" backends=${backends}`,
+      );
       if (_speakGen !== myGen) return false;
       // Always use base64 data URLs — universally supported across all browsers and
       // native WebView implementations (blob: URLs fail on some Android OEM builds).
       // AudioContext path uses freshBlob.arrayBuffer() directly for the fresh case.
       const reader = new FileReader();
-      url = await new Promise<string>(resolve => {
+      url = await new Promise<string>((resolve) => {
         reader.onload = () => resolve(reader.result as string);
         reader.readAsDataURL(freshBlob!);
       });
@@ -327,19 +398,26 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
         // For cached plays: decode the data: URL ourselves using atob() — do NOT use
         // fetch(data: URL) because that API is unreliable on some Android WebView versions
         // and may return an empty body or throw a TypeError.
-        const ab = freshBlob
-          ? await freshBlob.arrayBuffer()
-          : _dataUrlToArrayBuffer(url);
+        const ab = freshBlob ? await freshBlob.arrayBuffer() : _dataUrlToArrayBuffer(url);
         if (_speakGen !== myGen) return false;
         const decoded = await _ctx.decodeAudioData(ab);
         if (_speakGen !== myGen) return false;
         const src = _ctx.createBufferSource();
         src.buffer = decoded;
         src.connect(_ctx.destination);
-        _currentAudio = { pause: () => { try { src.stop(); } catch {} }, currentTime: 0 };
+        _currentAudio = {
+          pause: () => {
+            try {
+              src.stop();
+            } catch {}
+          },
+          currentTime: 0,
+        };
         src.start(0);
         dbgInfo('[TTS] AudioContext playback started');
-        await new Promise<void>(resolve => { src.onended = () => resolve(); });
+        await new Promise<void>((resolve) => {
+          src.onended = () => resolve();
+        });
         dbgInfo('[TTS] AudioContext playback ended — success');
         return true;
       } catch (e) {
@@ -361,10 +439,13 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
     // from prior unlocks on some OEM builds — only the exact same element stays activated.
     const a: HTMLAudioElement = _htmlAudio ?? new Audio();
     if (_htmlAudio) {
-      try { _htmlAudio.pause(); } catch {}
+      try {
+        _htmlAudio.pause();
+      } catch {}
       _htmlAudio.currentTime = 0;
     }
-    a.volume = 1.0; _currentAudio = a;
+    a.volume = 1.0;
+    _currentAudio = a;
     a.src = url;
     try {
       await a.play();
@@ -373,9 +454,23 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       dbgError('[TTS] HTMLAudio play() FAILED:', playErr);
       return false;
     }
-    await new Promise<void>(resolve => {
-      a.addEventListener('ended', () => { dbgInfo('[TTS] HTMLAudio ended — success'); resolve(); }, { once: true });
-      a.addEventListener('error', (ev) => { dbgError('[TTS] HTMLAudio error event:', (ev as ErrorEvent).message || ev); resolve(); }, { once: true });
+    await new Promise<void>((resolve) => {
+      a.addEventListener(
+        'ended',
+        () => {
+          dbgInfo('[TTS] HTMLAudio ended — success');
+          resolve();
+        },
+        { once: true },
+      );
+      a.addEventListener(
+        'error',
+        (ev) => {
+          dbgError('[TTS] HTMLAudio error event:', (ev as ErrorEvent).message || ev);
+          resolve();
+        },
+        { once: true },
+      );
       a.addEventListener('pause', () => resolve(), { once: true });
       a.addEventListener('abort', () => resolve(), { once: true });
     });
@@ -389,11 +484,18 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
 export function speakSynth(text: string, rate: number): Promise<void> {
   if (!window.speechSynthesis) return Promise.resolve();
   stopAudio();
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'hr-HR'; u.rate = rate; u.pitch = 1.0; u.volume = 1.0;
-    const best = getBestVoice(); if (best) u.voice = best;
-    u.onerror = () => { window.dispatchEvent(new CustomEvent('nh:tts-failed')); resolve(); };
+    u.lang = 'hr-HR';
+    u.rate = rate;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    const best = getBestVoice();
+    if (best) u.voice = best;
+    u.onerror = () => {
+      window.dispatchEvent(new CustomEvent('nh:tts-failed'));
+      resolve();
+    };
     u.onend = () => resolve();
     window.speechSynthesis.speak(u);
   });
@@ -419,7 +521,11 @@ export async function preloadAudio(text: string): Promise<void> {
   const cacheKey = t + '|0|' + voicePref;
   if (_cacheGet(cacheKey)) return;
   if (!_ttsAllowed()) return;
-  if (_preloadAbort) { try { _preloadAbort.abort(); } catch {} }
+  if (_preloadAbort) {
+    try {
+      _preloadAbort.abort();
+    } catch {}
+  }
   const abortCtrl = new AbortController();
   _preloadAbort = abortCtrl;
   const signal = abortCtrl.signal;
@@ -430,13 +536,15 @@ export async function preloadAudio(text: string): Promise<void> {
     if (!r || !r.ok) return;
     const blob = await r.blob();
     const preloadReader = new FileReader();
-    const url = await new Promise<string>(resolve => {
+    const url = await new Promise<string>((resolve) => {
       preloadReader.onload = () => resolve(preloadReader.result as string);
       preloadReader.readAsDataURL(blob);
     });
     _cacheSet(cacheKey, url);
   } catch (e: unknown) {
-    if ((e as Error)?.name !== 'AbortError') { /* silently ignore — preload is best-effort */ }
+    if ((e as Error)?.name !== 'AbortError') {
+      /* silently ignore — preload is best-effort */
+    }
   } finally {
     if (_preloadAbort === abortCtrl) _preloadAbort = null;
   }
@@ -450,8 +558,11 @@ async function _awaitVoices(): Promise<SpeechSynthesisVoice | null> {
   const best = getBestVoice();
   if (best) return best;
   // Voices not ready yet — wait for the onvoiceschanged event (max 1.5 s)
-  return new Promise<SpeechSynthesisVoice | null>(resolve => {
-    const timer = setTimeout(() => { loadVoices(); resolve(getBestVoice()); }, 1500);
+  return new Promise<SpeechSynthesisVoice | null>((resolve) => {
+    const timer = setTimeout(() => {
+      loadVoices();
+      resolve(getBestVoice());
+    }, 1500);
     const prev = window.speechSynthesis.onvoiceschanged;
     window.speechSynthesis.onvoiceschanged = () => {
       clearTimeout(timer);
@@ -498,13 +609,16 @@ export async function speakSlow(text: string): Promise<string> {
   return 'azure';
 }
 
-export function getAudioContext(): AudioContext | null { return _ctx; }
+export function getAudioContext(): AudioContext | null {
+  return _ctx;
+}
 
 export function speakEN(text: string): void {
   if (!text || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US'; u.rate = 0.9;
+  u.lang = 'en-US';
+  u.rate = 0.9;
   window.speechSynthesis.speak(u);
 }
 

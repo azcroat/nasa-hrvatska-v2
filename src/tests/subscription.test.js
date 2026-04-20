@@ -8,7 +8,9 @@ import {
   FREE_ANNUAL_ENABLED,
 } from '../hooks/useSubscription';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 function setRawSub(obj) {
   localStorage.setItem('nh_subscription', JSON.stringify(obj));
@@ -23,7 +25,10 @@ function pastISO(days) {
 
 describe('subscription — status and lifecycle', () => {
   beforeEach(clearLS);
-  afterEach(() => { clearLS(); vi.useRealTimers(); });
+  afterEach(() => {
+    clearLS();
+    vi.useRealTimers();
+  });
 
   // ── getSubscriptionStatus defaults ───────────────────────────────────────
 
@@ -40,7 +45,12 @@ describe('subscription — status and lifecycle', () => {
   });
 
   it('returns isPremium=true for active free_annual', () => {
-    setRawSub({ plan: 'yearly', expiresAt: futureISO(100), trialUntil: null, source: 'free_annual' });
+    setRawSub({
+      plan: 'yearly',
+      expiresAt: futureISO(100),
+      trialUntil: null,
+      source: 'free_annual',
+    });
     const s = getSubscriptionStatus();
     expect(s.isPremium).toBe(true);
     expect(s.isFreeAnnual).toBe(true);
@@ -54,7 +64,12 @@ describe('subscription — status and lifecycle', () => {
   });
 
   it('returns correct daysLeft for active subscription', () => {
-    setRawSub({ plan: 'yearly', expiresAt: futureISO(30), trialUntil: null, source: 'free_annual' });
+    setRawSub({
+      plan: 'yearly',
+      expiresAt: futureISO(30),
+      trialUntil: null,
+      source: 'free_annual',
+    });
     const s = getSubscriptionStatus();
     expect(s.daysLeft).toBeGreaterThan(28);
     expect(s.daysLeft).toBeLessThanOrEqual(30);
@@ -65,7 +80,12 @@ describe('subscription — status and lifecycle', () => {
   });
 
   it('exposes source field correctly', () => {
-    setRawSub({ plan: 'yearly', expiresAt: futureISO(100), trialUntil: null, source: 'free_annual' });
+    setRawSub({
+      plan: 'yearly',
+      expiresAt: futureISO(100),
+      trialUntil: null,
+      source: 'free_annual',
+    });
     expect(getSubscriptionStatus().source).toBe('free_annual');
   });
 
@@ -111,7 +131,12 @@ describe('subscription — status and lifecycle', () => {
   });
 
   it('does not override active revenuecat subscription', () => {
-    setRawSub({ plan: 'monthly', expiresAt: futureISO(30), trialUntil: null, source: 'revenuecat' });
+    setRawSub({
+      plan: 'monthly',
+      expiresAt: futureISO(30),
+      trialUntil: null,
+      source: 'revenuecat',
+    });
     grantFreeAnnual('user123');
     expect(getSubscriptionStatus().source).toBe('revenuecat');
   });
@@ -125,7 +150,12 @@ describe('subscription — status and lifecycle', () => {
   });
 
   it('renews when free_annual has ≤30 days left', () => {
-    setRawSub({ plan: 'yearly', expiresAt: futureISO(20), trialUntil: null, source: 'free_annual' });
+    setRawSub({
+      plan: 'yearly',
+      expiresAt: futureISO(20),
+      trialUntil: null,
+      source: 'free_annual',
+    });
     grantFreeAnnual('user123');
     const s = getSubscriptionStatus();
     expect(s.daysLeft).toBeGreaterThan(363); // renewed to ~365 days

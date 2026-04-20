@@ -14,13 +14,13 @@ const MODEL = 'claude-haiku-4-5-20251001';
 
 // Seven Croatian cities/regions rotated by day-of-week
 const LOCATIONS = [
-  { city: 'Dubrovnik',       region: 'Dalmatia',    emoji: '🏰' },
-  { city: 'Split',           region: 'Dalmatia',    emoji: '🏛️' },
-  { city: 'Zagreb',          region: 'Slavonia',    emoji: '🏙️' },
-  { city: 'Hvar',            region: 'Dalmatia',    emoji: '🌿' },
-  { city: 'Plitvice Lakes',  region: 'Lika',        emoji: '🌊' },
-  { city: 'Rovinj',          region: 'Istria',      emoji: '🎨' },
-  { city: 'Šibenik',         region: 'Dalmatia',    emoji: '⛵' },
+  { city: 'Dubrovnik', region: 'Dalmatia', emoji: '🏰' },
+  { city: 'Split', region: 'Dalmatia', emoji: '🏛️' },
+  { city: 'Zagreb', region: 'Slavonia', emoji: '🏙️' },
+  { city: 'Hvar', region: 'Dalmatia', emoji: '🌿' },
+  { city: 'Plitvice Lakes', region: 'Lika', emoji: '🌊' },
+  { city: 'Rovinj', region: 'Istria', emoji: '🎨' },
+  { city: 'Šibenik', region: 'Dalmatia', emoji: '⛵' },
 ];
 
 export async function onRequestOptions({ request }) {
@@ -97,7 +97,11 @@ The phrase should be practical and conversational. The cultural fact should be s
   // Block 3: check ok status
   if (!res.ok) {
     let errMsg;
-    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* body not JSON */ }
+    try {
+      errMsg = JSON.parse(rawBody)?.error?.message;
+    } catch {
+      /* body not JSON */
+    }
     console.error(`[daily-culture] Anthropic ${res.status}`, errMsg);
     return err(502, 'AI unavailable', origin);
   }
@@ -107,14 +111,20 @@ The phrase should be practical and conversational. The cultural fact should be s
   try {
     data = JSON.parse(rawBody);
   } catch {
-    console.error('[daily-culture] JSON parse failed on Anthropic response:', rawBody.slice(0, 200));
+    console.error(
+      '[daily-culture] JSON parse failed on Anthropic response:',
+      rawBody.slice(0, 200),
+    );
     return err(502, 'AI unavailable', origin);
   }
 
   const raw = data.content?.[0]?.text || '';
 
   // Parse JSON — strip any accidental markdown fences
-  const jsonStr = raw.replace(/^```(?:json)?\s*/m, '').replace(/```\s*$/m, '').trim();
+  const jsonStr = raw
+    .replace(/^```(?:json)?\s*/m, '')
+    .replace(/```\s*$/m, '')
+    .trim();
   let parsed;
   try {
     parsed = JSON.parse(jsonStr);

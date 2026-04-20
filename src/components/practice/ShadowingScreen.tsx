@@ -8,11 +8,11 @@ import { markQuest } from '../../lib/quests.js';
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function textToWaveform(text) {
-  return text.split(/\s+/).flatMap(word => {
+  return text.split(/\s+/).flatMap((word) => {
     const len = word.replace(/[^a-zA-ZčćšžđČĆŠŽĐ]/g, '').length;
     const barCount = Math.max(2, Math.floor(len * 0.8));
     const heights = Array.from({ length: barCount }, (_, i) =>
-      Math.round(20 + Math.sin(i * 1.3) * 15 + len * 3)
+      Math.round(20 + Math.sin(i * 1.3) * 15 + len * 3),
     );
     return [...heights, 5]; // gap between words
   });
@@ -20,9 +20,7 @@ function textToWaveform(text) {
 
 function userWaveform(nativeBars) {
   // Simulate a slightly varied recording waveform
-  return nativeBars.map(h =>
-    h <= 5 ? 5 : Math.round(h * (0.75 + Math.random() * 0.45))
-  );
+  return nativeBars.map((h) => (h <= 5 ? 5 : Math.round(h * (0.75 + Math.random() * 0.45))));
 }
 
 function WaveformSVG({ bars, color, label, width = 260, height = 70 }) {
@@ -33,7 +31,9 @@ function WaveformSVG({ bars, color, label, width = 260, height = 70 }) {
   const visible = bars.slice(0, maxBars);
   return (
     <div style={{ textAlign: 'center' }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>
+        {label}
+      </div>
       <svg width={width} height={height} style={{ display: 'block', margin: '0 auto' }}>
         {visible.map((h, i) => {
           const clampedH = Math.min(h, height - 4);
@@ -74,7 +74,7 @@ function useRecorder() {
   useEffect(() => {
     return () => {
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
       }
       if (audioUrlRef.current) {
@@ -83,14 +83,16 @@ function useRecorder() {
       }
       if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
       if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-        try { recorderRef.current.stop(); } catch (_) {}
+        try {
+          recorderRef.current.stop();
+        } catch (_) {}
       }
     };
   }, []);
 
   const reset = useCallback(() => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
     if (audioUrlRef.current) {
@@ -99,7 +101,9 @@ function useRecorder() {
     }
     if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
     if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-      try { recorderRef.current.stop(); } catch (_) {}
+      try {
+        recorderRef.current.stop();
+      } catch (_) {}
     }
     setRecordingState('idle');
     setCountdown(0);
@@ -134,31 +138,34 @@ function useRecorder() {
     } catch (_) {
       setMicAvailable(false);
     }
-  }, []);  
+  }, []);
 
   function beginCapture(stream) {
     chunksRef.current = [];
     const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
       ? 'audio/webm;codecs=opus'
       : MediaRecorder.isTypeSupported('audio/webm')
-      ? 'audio/webm'
-      : MediaRecorder.isTypeSupported('audio/mp4')
-      ? 'audio/mp4'
-      : '';
+        ? 'audio/webm'
+        : MediaRecorder.isTypeSupported('audio/mp4')
+          ? 'audio/mp4'
+          : '';
     const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
     recorderRef.current = recorder;
 
-    recorder.ondataavailable = e => {
+    recorder.ondataavailable = (e) => {
       if (e.data.size > 0) chunksRef.current.push(e.data);
     };
     recorder.onstop = () => {
-      stream.getTracks().forEach(t => t.stop());
+      stream.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
       const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
       setAudioBlob(blob);
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
       const reader = new FileReader();
-      reader.onload = () => { audioUrlRef.current = reader.result; setRecordingState('done'); };
+      reader.onload = () => {
+        audioUrlRef.current = reader.result;
+        setRecordingState('done');
+      };
       reader.readAsDataURL(blob);
     };
 
@@ -198,8 +205,24 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }) {
     : null;
 
   return (
-    <div style={{ marginTop: 20, background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: '16px 12px' }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#475569', marginBottom: 14, textAlign: 'center' }}>
+    <div
+      style={{
+        marginTop: 20,
+        background: '#f8fafc',
+        border: '1.5px solid #e2e8f0',
+        borderRadius: 14,
+        padding: '16px 12px',
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: '#475569',
+          marginBottom: 14,
+          textAlign: 'center',
+        }}
+      >
         Waveform Comparison
       </div>
       <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -208,8 +231,22 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }) {
           <WaveformSVG bars={userBars} color="var(--success, #16a34a)" label="Your attempt" />
         ) : (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>Your attempt</div>
-            <div style={{ width: 260, height: 70, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9', borderRadius: 8, color: '#94a3b8', fontSize: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>
+              Your attempt
+            </div>
+            <div
+              style={{
+                width: 260,
+                height: 70,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#f1f5f9',
+                borderRadius: 8,
+                color: '#94a3b8',
+                fontSize: 12,
+              }}
+            >
               No recording
             </div>
           </div>
@@ -217,19 +254,57 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }) {
       </div>
       {matchScore !== null && (
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: '#475569' }}>
-          Match score: <span style={{ fontWeight: 800, color: matchScore >= 70 ? 'var(--success,#16a34a)' : '#d97706' }}>{matchScore}%</span>
+          Match score:{' '}
+          <span
+            style={{
+              fontWeight: 800,
+              color: matchScore >= 70 ? 'var(--success,#16a34a)' : '#d97706',
+            }}
+          >
+            {matchScore}%
+          </span>
           <div style={{ fontSize: '0.75rem', color: 'var(--subtext, #94a3b8)', marginTop: 3 }}>
             (Approximate score — not acoustic analysis)
           </div>
         </div>
       )}
-      <div style={{ marginTop: 14, background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: 10, padding: '10px 14px', textAlign: 'center', fontSize: 13, color: '#166534', fontWeight: 600 }}>
+      <div
+        style={{
+          marginTop: 14,
+          background: '#f0fdf4',
+          border: '1.5px solid #bbf7d0',
+          borderRadius: 10,
+          padding: '10px 14px',
+          textAlign: 'center',
+          fontSize: 13,
+          color: '#166534',
+          fontWeight: 600,
+        }}
+      >
         Great attempt! Shadowing improves with repetition. Try 3 more times.
       </div>
-      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 12, flexWrap: 'wrap' }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 10,
+          justifyContent: 'center',
+          marginTop: 12,
+          flexWrap: 'wrap',
+        }}
+      >
         <button
-          style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontSize: 13, color: '#475569', fontWeight: 600 }}
-          onClick={onTryAgain}>
+          style={{
+            background: '#f8fafc',
+            border: '1.5px solid #e2e8f0',
+            borderRadius: 10,
+            padding: '8px 16px',
+            cursor: 'pointer',
+            fontSize: 13,
+            color: '#475569',
+            fontWeight: 600,
+          }}
+          onClick={onTryAgain}
+        >
           🔄 Try Again
         </button>
         <button className="b bp" onClick={onNailedIt}>
@@ -242,10 +317,30 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }) {
 
 // ── recording UI ──────────────────────────────────────────────────────────────
 
-function RecordingPanel({ micAvailable, recordingState, countdown, audioBlob, onStart, onPlayBack, onReset, onNailedIt }) {
+function RecordingPanel({
+  micAvailable,
+  recordingState,
+  countdown,
+  audioBlob,
+  onStart,
+  onPlayBack,
+  onReset,
+  onNailedIt,
+}) {
   if (micAvailable === false) {
     return (
-      <div style={{ marginTop: 12, fontSize: 13, color: '#78716c', background: '#fef9c3', border: '1.5px solid #fde68a', borderRadius: 10, padding: '10px 14px', textAlign: 'center' }}>
+      <div
+        style={{
+          marginTop: 12,
+          fontSize: 13,
+          color: '#78716c',
+          background: '#fef9c3',
+          border: '1.5px solid #fde68a',
+          borderRadius: 10,
+          padding: '10px 14px',
+          textAlign: 'center',
+        }}
+      >
         🎤 Microphone not available — try the self-assessment below
       </div>
     );
@@ -253,10 +348,7 @@ function RecordingPanel({ micAvailable, recordingState, countdown, audioBlob, on
 
   if (recordingState === 'idle') {
     return (
-      <button
-        className="b bs"
-        style={{ marginTop: 12 }}
-        onClick={onStart}>
+      <button className="b bs" style={{ marginTop: 12 }} onClick={onStart}>
         🎤 Record My Attempt
       </button>
     );
@@ -264,7 +356,15 @@ function RecordingPanel({ micAvailable, recordingState, countdown, audioBlob, on
 
   if (recordingState === 'countdown') {
     return (
-      <div style={{ marginTop: 12, textAlign: 'center', fontSize: 15, fontWeight: 700, color: '#0891b2' }}>
+      <div
+        style={{
+          marginTop: 12,
+          textAlign: 'center',
+          fontSize: 15,
+          fontWeight: 700,
+          color: '#0891b2',
+        }}
+      >
         Get ready… {countdown}s
       </div>
     );
@@ -273,8 +373,29 @@ function RecordingPanel({ micAvailable, recordingState, countdown, audioBlob, on
   if (recordingState === 'recording') {
     return (
       <div style={{ marginTop: 12, textAlign: 'center' }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fee2e2', border: '1.5px solid #fca5a5', borderRadius: 10, padding: '8px 16px', fontSize: 14, fontWeight: 700, color: '#dc2626' }}>
-          <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#dc2626', animation: 'pulse 1s infinite' }} />
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: '#fee2e2',
+            border: '1.5px solid #fca5a5',
+            borderRadius: 10,
+            padding: '8px 16px',
+            fontSize: 14,
+            fontWeight: 700,
+            color: '#dc2626',
+          }}
+        >
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              background: '#dc2626',
+              animation: 'pulse 1s infinite',
+            }}
+          />
           Recording…
         </span>
       </div>
@@ -283,12 +404,30 @@ function RecordingPanel({ micAvailable, recordingState, countdown, audioBlob, on
 
   if (recordingState === 'done') {
     return (
-      <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+      <div
+        style={{
+          marginTop: 12,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
         <div style={{ fontSize: 13, fontWeight: 700, color: '#16a34a' }}>Recorded ✓</div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            style={{ background: '#f0f9ff', border: '1.5px solid #bae6fd', borderRadius: 10, padding: '7px 14px', cursor: 'pointer', fontSize: 13, color: '#0891b2', fontWeight: 600 }}
-            onClick={onPlayBack}>
+            style={{
+              background: '#f0f9ff',
+              border: '1.5px solid #bae6fd',
+              borderRadius: 10,
+              padding: '7px 14px',
+              cursor: 'pointer',
+              fontSize: 13,
+              color: '#0891b2',
+              fontWeight: 600,
+            }}
+            onClick={onPlayBack}
+          >
             ▶ Play Back
           </button>
         </div>
@@ -310,7 +449,15 @@ export default function ShadowingScreen({ goBack, award }) {
   const [reps, setReps] = useState(0);
   const [showWaveform, setShowWaveform] = useState(false);
 
-  const { micAvailable, recordingState, countdown, audioBlob, startRecording, playBack, reset: resetRecorder } = useRecorder();
+  const {
+    micAvailable,
+    recordingState,
+    countdown,
+    audioBlob,
+    startRecording,
+    playBack,
+    reset: resetRecorder,
+  } = useRecorder();
 
   // When a recording completes, show waveform — must be before early return
   const prevRecordingState = useRef(recordingState);
@@ -335,24 +482,72 @@ export default function ShadowingScreen({ goBack, award }) {
   if (done) {
     return (
       <div className="scr-wrap">
-        {H("🗣️ Shadowing", "Listen and repeat", goBack)}
+        {H('🗣️ Shadowing', 'Listen and repeat', goBack)}
         <div style={{ textAlign: 'center', paddingTop: 32 }}>
           <div style={{ fontSize: 64 }}>🎤</div>
-          <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, color: '#164e63', marginTop: 8 }}>Session Complete!</h2>
-          <p style={{ color: '#78716c', marginTop: 8 }}>You shadowed {items.length} Croatian sentences</p>
+          <h2
+            style={{
+              fontFamily: "'Playfair Display',serif",
+              fontSize: 28,
+              color: '#164e63',
+              marginTop: 8,
+            }}
+          >
+            Session Complete!
+          </h2>
+          <p style={{ color: '#78716c', marginTop: 8 }}>
+            You shadowed {items.length} Croatian sentences
+          </p>
           <p style={{ color: '#78716c', fontSize: 14, marginTop: 4 }}>Total repetitions: {reps}</p>
-          <div style={{ marginTop: 24, background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: 14, padding: '16px 20px', textAlign: 'left' }}>
-            <p style={{ fontWeight: 700, fontSize: 13, color: '#166534', marginBottom: 6 }}>💡 Shadowing Tips:</p>
+          <div
+            style={{
+              marginTop: 24,
+              background: '#f0fdf4',
+              border: '1.5px solid #bbf7d0',
+              borderRadius: 14,
+              padding: '16px 20px',
+              textAlign: 'left',
+            }}
+          >
+            <p style={{ fontWeight: 700, fontSize: 13, color: '#166534', marginBottom: 6 }}>
+              💡 Shadowing Tips:
+            </p>
             <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
-              • Listen first, then speak simultaneously with the audio<br />
-              • Focus on rhythm and melody, not perfect pronunciation<br />
-              • Repeat each sentence 3-5 times for best results<br />
-              • Record yourself to hear your progress
+              • Listen first, then speak simultaneously with the audio
+              <br />
+              • Focus on rhythm and melody, not perfect pronunciation
+              <br />
+              • Repeat each sentence 3-5 times for best results
+              <br />• Record yourself to hear your progress
             </p>
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
-            <button className="b bg" onClick={() => { setIdx(0); setSaid(false); setPlays(0); setDone(false); setReps(0); resetRecorder(); setShowWaveform(false); }}>Retry</button>
-            <button className="b bp" onClick={() => { if (finishFired.current) return; finishFired.current = true; if (typeof award === 'function') award(items.length * 3 + 5); markQuest('speak'); goBack(); }}>Finish</button>
+            <button
+              className="b bg"
+              onClick={() => {
+                setIdx(0);
+                setSaid(false);
+                setPlays(0);
+                setDone(false);
+                setReps(0);
+                resetRecorder();
+                setShowWaveform(false);
+              }}
+            >
+              Retry
+            </button>
+            <button
+              className="b bp"
+              onClick={() => {
+                if (finishFired.current) return;
+                finishFired.current = true;
+                if (typeof award === 'function') award(items.length * 3 + 5);
+                markQuest('speak');
+                goBack();
+              }}
+            >
+              Finish
+            </button>
           </div>
         </div>
       </div>
@@ -363,26 +558,70 @@ export default function ShadowingScreen({ goBack, award }) {
 
   function handleNailedIt() {
     setSaid(true);
-    setReps(r => r + 1);
+    setReps((r) => r + 1);
   }
 
   return (
     <div className="scr-wrap">
-      {H("🗣️ Shadowing Practice", "Listen and repeat", goBack)}
+      {H('🗣️ Shadowing Practice', 'Listen and repeat', goBack)}
       <Bar v={idx + 1} mx={items.length} color="#0891b2" h={6} />
       <div className="c" style={{ textAlign: 'center', marginTop: 16, padding: '24px 20px' }}>
-        <div style={{ background: '#f0f9ff', border: '1.5px solid #bae6fd', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 12, color: '#0369a1', fontWeight: 600 }}>
+        <div
+          style={{
+            background: '#f0f9ff',
+            border: '1.5px solid #bae6fd',
+            borderRadius: 12,
+            padding: '12px 16px',
+            marginBottom: 16,
+            fontSize: 12,
+            color: '#0369a1',
+            fontWeight: 600,
+          }}
+        >
           🎯 {item.tip}
         </div>
-        <p style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Playfair Display',serif", lineHeight: 1.4, marginBottom: 8 }}>{item.hr}</p>
-        <p style={{ fontSize: 15, color: '#78716c', marginBottom: 20, fontStyle: 'italic' }}>{item.en}</p>
+        <p
+          style={{
+            fontSize: 28,
+            fontWeight: 800,
+            fontFamily: "'Playfair Display',serif",
+            lineHeight: 1.4,
+            marginBottom: 8,
+          }}
+        >
+          {item.hr}
+        </p>
+        <p style={{ fontSize: 15, color: '#78716c', marginBottom: 20, fontStyle: 'italic' }}>
+          {item.en}
+        </p>
 
         {/* Listen buttons */}
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 10,
+            justifyContent: 'center',
+            marginBottom: 20,
+            flexWrap: 'wrap',
+          }}
+        >
           <Spk text={item.hr} label="Listen Normal" />
           <button
-            onClick={() => { speakSlow(item.hr); setPlays(p => p + 1); }}
-            style={{ background: 'rgba(8,145,178,.1)', border: '1px solid rgba(8,145,178,.3)', borderRadius: 10, padding: '7px 14px', cursor: 'pointer', fontSize: 12, color: '#0891b2', fontWeight: 700 }}>
+            onClick={() => {
+              speakSlow(item.hr);
+              setPlays((p) => p + 1);
+            }}
+            style={{
+              background: 'rgba(8,145,178,.1)',
+              border: '1px solid rgba(8,145,178,.3)',
+              borderRadius: 10,
+              padding: '7px 14px',
+              cursor: 'pointer',
+              fontSize: 12,
+              color: '#0891b2',
+              fontWeight: 700,
+            }}
+          >
             🐢 Listen Slow
           </button>
         </div>
@@ -413,7 +652,10 @@ export default function ShadowingScreen({ goBack, award }) {
           <WaveformPanel
             text={item.hr}
             audioBlob={audioBlob}
-            onTryAgain={() => { resetRecorder(); setShowWaveform(false); }}
+            onTryAgain={() => {
+              resetRecorder();
+              setShowWaveform(false);
+            }}
             onNailedIt={handleNailedIt}
           />
         )}
@@ -423,7 +665,8 @@ export default function ShadowingScreen({ goBack, award }) {
           <button
             className="b bs"
             style={{ marginBottom: 12, marginTop: 12 }}
-            onClick={handleNailedIt}>
+            onClick={handleNailedIt}
+          >
             🎤 I Said It!
           </button>
         )}
@@ -436,15 +679,35 @@ export default function ShadowingScreen({ goBack, award }) {
         {said && (
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
-              style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontSize: 13, color: '#475569', fontWeight: 600 }}
-              onClick={() => { setSaid(false); setPlays(0); resetRecorder(); setShowWaveform(false); }}>
+              style={{
+                background: '#f8fafc',
+                border: '1.5px solid #e2e8f0',
+                borderRadius: 10,
+                padding: '8px 16px',
+                cursor: 'pointer',
+                fontSize: 13,
+                color: '#475569',
+                fontWeight: 600,
+              }}
+              onClick={() => {
+                setSaid(false);
+                setPlays(0);
+                resetRecorder();
+                setShowWaveform(false);
+              }}
+            >
               🔁 Say Again
             </button>
-            <button className="b bp" onClick={() => {
-              recordTopicResult('speaking', true);
-              if (idx < items.length - 1) { setIdx(i => i + 1); advanceItem(); }
-              else setDone(true);
-            }}>
+            <button
+              className="b bp"
+              onClick={() => {
+                recordTopicResult('speaking', true);
+                if (idx < items.length - 1) {
+                  setIdx((i) => i + 1);
+                  advanceItem();
+                } else setDone(true);
+              }}
+            >
               {idx < items.length - 1 ? 'Next →' : 'Finish'}
             </button>
           </div>

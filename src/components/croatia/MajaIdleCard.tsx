@@ -71,7 +71,7 @@ export default function MajaIdleCard({
           loading="lazy"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
-            const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);
+            const sib = /** @type {HTMLElement} */ e.currentTarget.nextSibling;
             if (sib) sib.style.display = 'flex';
           }}
         />
@@ -120,9 +120,7 @@ export default function MajaIdleCard({
       >
         {personaCfg.name}
       </span>
-      <span style={{ fontSize: 12, color: 'var(--subtext)' }}>
-        {personaCfg.title}
-      </span>
+      <span style={{ fontSize: 12, color: 'var(--subtext)' }}>{personaCfg.title}</span>
       {memory.sessionCount > 0 && (
         <span
           style={{
@@ -142,165 +140,165 @@ export default function MajaIdleCard({
       <MemoryChips knownFacts={memory.knownFacts} />
 
       {/* Welcome / returning card — only shown when session is not active */}
-      {showWelcome && (isFirstTime ? (
-        <div
-          style={{
-            background: 'var(--card)',
-            border: '1px solid var(--card-b)',
-            borderRadius: 14,
-            padding: '20px 18px',
-            marginBottom: 20,
-            width: '100%',
-          }}
-        >
-          <h2
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              color: 'var(--heading)',
-              margin: '0 0 14px',
-              textAlign: 'center',
-            }}
-          >
-            Upoznaj {personaCfg.name.split(' ')[0]}
-          </h2>
+      {showWelcome &&
+        (isFirstTime ? (
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginBottom: 14,
+              background: 'var(--card)',
+              border: '1px solid var(--card-b)',
+              borderRadius: 14,
+              padding: '20px 18px',
+              marginBottom: 20,
+              width: '100%',
             }}
           >
-            <img
-              src={personaCfg.avatar}
-              alt={personaCfg.name}
+            <h2
               style={{
-                width: 100,
-                height: 100,
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: `3px solid ${personaCfg.accentColor}`,
-              }}
-              loading="lazy"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);
-                if (sib) sib.style.display = 'flex';
-              }}
-            />
-            <div
-              style={{
-                display: 'none',
-                width: 100,
-                height: 100,
-                borderRadius: '50%',
-                border: `3px solid ${personaCfg.accentColor}`,
-                background: personaCfg.accentColor + '22',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 48,
+                fontSize: 18,
+                fontWeight: 700,
+                color: 'var(--heading)',
+                margin: '0 0 14px',
+                textAlign: 'center',
               }}
             >
-              {personaCfg.fallbackEmoji}
-            </div>
-          </div>
-          <ul
-            style={{
-              listStyle: 'none',
-              margin: '0 0 12px',
-              padding: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 8,
-            }}
-          >
-            {(PERSONA_FACTS[personaKey] || []).map((item) => (
-              <li
-                key={item}
+              Upoznaj {personaCfg.name.split(' ')[0]}
+            </h2>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginBottom: 14,
+              }}
+            >
+              <img
+                src={personaCfg.avatar}
+                alt={personaCfg.name}
                 style={{
-                  fontSize: 14,
-                  color: 'var(--heading)',
-                  lineHeight: 1.5,
+                  width: 100,
+                  height: 100,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: `3px solid ${personaCfg.accentColor}`,
+                }}
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const sib = /** @type {HTMLElement} */ e.currentTarget.nextSibling;
+                  if (sib) sib.style.display = 'flex';
+                }}
+              />
+              <div
+                style={{
+                  display: 'none',
+                  width: 100,
+                  height: 100,
+                  borderRadius: '50%',
+                  border: `3px solid ${personaCfg.accentColor}`,
+                  background: personaCfg.accentColor + '22',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 48,
                 }}
               >
-                {item}
-              </li>
-            ))}
-          </ul>
-          <p
-            style={{
-              fontSize: 12,
-              fontStyle: 'italic',
-              color: 'var(--subtext)',
-              margin: 0,
-              lineHeight: 1.6,
-              textAlign: 'center',
-            }}
-          >
-            {PERSONA_TAGLINES[personaKey] || ''}
-          </p>
-        </div>
-      ) : (
-        <div
-          style={{
-            background: 'var(--card)',
-            border: '1px solid var(--card-b)',
-            borderRadius: 14,
-            padding: '16px 18px',
-            marginBottom: 20,
-            width: '100%',
-          }}
-        >
-          <p
-            style={{
-              fontSize: 16,
-              fontWeight: 700,
-              color: 'var(--heading)',
-              margin: '0 0 4px',
-            }}
-          >
-            Dobrodošli natrag, {name || 'Student'}! 👋
-          </p>
-          <p
-            style={{
-              fontSize: 13,
-              color: 'var(--subtext)',
-              margin: '0 0 8px',
-            }}
-          >
-            Dosad {memory.sessionCount}{' '}
-            {memory.sessionCount === 1 ? 'razgovor' : 'razgovora'} ·{' '}
-            {memory.totalMinutes} minuta
-          </p>
-          {memory.recentVocab?.length > 0 && (
-            <p style={{ fontSize: 12, color: 'var(--subtext)', margin: '0 0 6px' }}>
-              Nedavno ste naučili:{' '}
-              <strong>
-                {memory.recentVocab
-                  .slice(0, 3)
-                  .map((v) => v.hr)
-                  .join(', ')}
-              </strong>
-            </p>
-          )}
-          {memory.nextTopicSuggestion && (
+                {personaCfg.fallbackEmoji}
+              </div>
+            </div>
+            <ul
+              style={{
+                listStyle: 'none',
+                margin: '0 0 12px',
+                padding: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+              }}
+            >
+              {(PERSONA_FACTS[personaKey] || []).map((item) => (
+                <li
+                  key={item}
+                  style={{
+                    fontSize: 14,
+                    color: 'var(--heading)',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
             <p
               style={{
                 fontSize: 12,
-                color: 'var(--info)',
-                background: 'var(--info-bg)',
-                border: '1px solid var(--info-b)',
-                borderRadius: 8,
-                padding: '6px 10px',
+                fontStyle: 'italic',
+                color: 'var(--subtext)',
                 margin: 0,
-                lineHeight: 1.5,
+                lineHeight: 1.6,
+                textAlign: 'center',
               }}
             >
-              💬 {memory.nextTopicSuggestion}
+              {PERSONA_TAGLINES[personaKey] || ''}
             </p>
-          )}
-        </div>
-      ))}
+          </div>
+        ) : (
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1px solid var(--card-b)',
+              borderRadius: 14,
+              padding: '16px 18px',
+              marginBottom: 20,
+              width: '100%',
+            }}
+          >
+            <p
+              style={{
+                fontSize: 16,
+                fontWeight: 700,
+                color: 'var(--heading)',
+                margin: '0 0 4px',
+              }}
+            >
+              Dobrodošli natrag, {name || 'Student'}! 👋
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                color: 'var(--subtext)',
+                margin: '0 0 8px',
+              }}
+            >
+              Dosad {memory.sessionCount} {memory.sessionCount === 1 ? 'razgovor' : 'razgovora'} ·{' '}
+              {memory.totalMinutes} minuta
+            </p>
+            {memory.recentVocab?.length > 0 && (
+              <p style={{ fontSize: 12, color: 'var(--subtext)', margin: '0 0 6px' }}>
+                Nedavno ste naučili:{' '}
+                <strong>
+                  {memory.recentVocab
+                    .slice(0, 3)
+                    .map((v) => v.hr)
+                    .join(', ')}
+                </strong>
+              </p>
+            )}
+            {memory.nextTopicSuggestion && (
+              <p
+                style={{
+                  fontSize: 12,
+                  color: 'var(--info)',
+                  background: 'var(--info-bg)',
+                  border: '1px solid var(--info-b)',
+                  borderRadius: 8,
+                  padding: '6px 10px',
+                  margin: 0,
+                  lineHeight: 1.5,
+                }}
+              >
+                💬 {memory.nextTopicSuggestion}
+              </p>
+            )}
+          </div>
+        ))}
     </div>
   );
 }

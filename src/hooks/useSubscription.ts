@@ -58,12 +58,19 @@ function _makeFreeSub(): Subscription {
 }
 
 function _load(): Subscription {
-  try { return (JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') as Subscription) || _makeFreeSub(); }
-  catch { return _makeFreeSub(); }
+  try {
+    return (
+      (JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') as Subscription) || _makeFreeSub()
+    );
+  } catch {
+    return _makeFreeSub();
+  }
 }
 
 function _save(sub: Subscription): void {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(sub)); } catch {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sub));
+  } catch {}
 }
 
 function _isInTrial(sub: Subscription): boolean {
@@ -128,11 +135,15 @@ export function grantFreeAnnual(userId: string): void {
  * Activate a subscription after successful payment or RevenueCat entitlement.
  * Always takes precedence over free_annual.
  */
-export function activateSubscription(plan: SubscriptionPlan, source: SubscriptionSource = 'stripe'): void {
+export function activateSubscription(
+  plan: SubscriptionPlan,
+  source: SubscriptionSource = 'stripe',
+): void {
   const now = new Date();
-  const expiresAt = plan === 'yearly'
-    ? new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString()
-    : new Date(now.getTime() + 32 * 24 * 60 * 60 * 1000).toISOString(); // 32-day buffer
+  const expiresAt =
+    plan === 'yearly'
+      ? new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString()
+      : new Date(now.getTime() + 32 * 24 * 60 * 60 * 1000).toISOString(); // 32-day buffer
   _save({ plan, expiresAt, trialUntil: null, source });
   window.dispatchEvent(new CustomEvent('nh:subscription-changed'));
 }
@@ -143,9 +154,9 @@ export function activateSubscription(plan: SubscriptionPlan, source: Subscriptio
  */
 export function redeemPromoCode(code: string): { ok: boolean; message: string } {
   const PROMO_CODES: Record<string, { days: number; plan: SubscriptionPlan }> = {
-    'HRVATSKA2026': { days: 30,  plan: 'monthly' },
-    'DIASPORA':     { days: 90,  plan: 'yearly'  },
-    'TEACHER':      { days: 365, plan: 'yearly'  },
+    HRVATSKA2026: { days: 30, plan: 'monthly' },
+    DIASPORA: { days: 90, plan: 'yearly' },
+    TEACHER: { days: 365, plan: 'yearly' },
   };
   const promo = PROMO_CODES[code?.toUpperCase?.()];
   if (!promo) return { ok: false, message: 'Invalid promo code.' };
@@ -173,10 +184,10 @@ export function cancelFreeAnnual(userId: string): void {
 
 export function getSubscriptionStatus(): SubscriptionStatus {
   const sub = _load();
-  const inTrial    = _isInTrial(sub);
-  const isPaid     = _isActivePaid(sub) && _isPaidSource(sub.source);
+  const inTrial = _isInTrial(sub);
+  const isPaid = _isActivePaid(sub) && _isPaidSource(sub.source);
   const isFreeAnnual = sub.source === 'free_annual' && _isActivePaid(sub);
-  const isPremium  = inTrial || isPaid || isFreeAnnual || _isActivePaid(sub);
+  const isPremium = inTrial || isPaid || isFreeAnnual || _isActivePaid(sub);
 
   let daysLeft: number | null = null;
   if (sub.expiresAt && _isActivePaid(sub)) {
@@ -221,7 +232,9 @@ export function useSubscription(): SubscriptionStatus & { refresh: () => void } 
 
 // ── Legacy alias (kept for backwards compat) ─────────────────────────────────
 /** @deprecated Use grantFreeAnnual instead */
-export function startTrial(userId: string): void { grantFreeAnnual(userId); }
+export function startTrial(userId: string): void {
+  grantFreeAnnual(userId);
+}
 
 /*
  * ── RevenueCat integration (uncomment when ready) ──────────────────────────

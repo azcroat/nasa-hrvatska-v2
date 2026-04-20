@@ -64,7 +64,7 @@ describe('lvl — level from XP', () => {
   });
 
   it('just below a threshold stays at lower level', () => {
-    expect(lvl(49)).toBe(1);  // 50 is threshold for level 2
+    expect(lvl(49)).toBe(1); // 50 is threshold for level 2
     expect(lvl(149)).toBe(2); // 150 is threshold for level 3
   });
 });
@@ -387,8 +387,11 @@ describe('getStreakEarnBack', () => {
 
   it('returns the data when date is today', () => {
     const today = new Date();
-    const todayStr = today.getFullYear() + '-' +
-      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+    const todayStr =
+      today.getFullYear() +
+      '-' +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(today.getDate()).padStart(2, '0');
     localStorage.setItem('nh_earn_back', JSON.stringify({ prev: 5, date: todayStr, lc: 2 }));
     const result = getStreakEarnBack();
@@ -404,8 +407,11 @@ describe('applyStreakEarnBack', () => {
 
   it('returns 0 when earn_back lc < 2', () => {
     const today = new Date();
-    const todayStr = today.getFullYear() + '-' +
-      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+    const todayStr =
+      today.getFullYear() +
+      '-' +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(today.getDate()).padStart(2, '0');
     localStorage.setItem('nh_earn_back', JSON.stringify({ prev: 10, date: todayStr, lc: 1 }));
     expect(applyStreakEarnBack()).toBe(0);
@@ -413,8 +419,11 @@ describe('applyStreakEarnBack', () => {
 
   it('applies the streak and returns the previous count', () => {
     const today = new Date();
-    const todayStr = today.getFullYear() + '-' +
-      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+    const todayStr =
+      today.getFullYear() +
+      '-' +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(today.getDate()).padStart(2, '0');
     localStorage.setItem('nh_earn_back', JSON.stringify({ prev: 15, date: todayStr, lc: 3 }));
     const result = applyStreakEarnBack();

@@ -26,12 +26,19 @@ export default function UnitCompleteBanner({ completedLevel, onClose, award }) {
   return (
     <div
       style={{
-        position: 'fixed', inset: 0, zIndex: 3000,
-        background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'fixed',
+        inset: 0,
+        zIndex: 3000,
+        background: 'rgba(0,0,0,0.72)',
+        backdropFilter: 'blur(6px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         padding: 20,
       }}
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <style>{`
         @keyframes ucb-in {
@@ -44,47 +51,88 @@ export default function UnitCompleteBanner({ completedLevel, onClose, award }) {
         }
       `}</style>
 
-      <div style={{
-        width: '100%', maxWidth: 360,
-        borderRadius: 28, overflow: 'hidden',
-        boxShadow: '0 28px 80px rgba(0,0,0,0.55)',
-        animation: 'ucb-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both',
-      }}>
-
-        {/* ── Gradient header ── */}
-        <div style={{
-          background: pal.grad,
-          padding: '36px 28px 28px',
-          textAlign: 'center',
-          position: 'relative',
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 360,
+          borderRadius: 28,
           overflow: 'hidden',
-        }}>
-          <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.07)', pointerEvents:'none' }} />
-          <div style={{ position:'absolute', bottom:-40, left:-40, width:130, height:130, borderRadius:'50%', background:'rgba(0,0,0,.10)', pointerEvents:'none' }} />
+          boxShadow: '0 28px 80px rgba(0,0,0,0.55)',
+          animation: 'ucb-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both',
+        }}
+      >
+        {/* ── Gradient header ── */}
+        <div
+          style={{
+            background: pal.grad,
+            padding: '36px 28px 28px',
+            textAlign: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: -50,
+              right: -50,
+              width: 180,
+              height: 180,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,.07)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: -40,
+              left: -40,
+              width: 130,
+              height: 130,
+              borderRadius: '50%',
+              background: 'rgba(0,0,0,.10)',
+              pointerEvents: 'none',
+            }}
+          />
 
-          <div style={{
-            fontSize: 68, marginBottom: 14, lineHeight: 1,
-            filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.4))',
-            animation: 'ucb-star 2.4s ease-in-out infinite',
-            display: 'inline-block',
-          }}>
+          <div
+            style={{
+              fontSize: 68,
+              marginBottom: 14,
+              lineHeight: 1,
+              filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.4))',
+              animation: 'ucb-star 2.4s ease-in-out infinite',
+              display: 'inline-block',
+            }}
+          >
             {emoji}
           </div>
 
-          <div style={{
-            fontSize: 11, fontWeight: 900,
-            color: pal.accent, letterSpacing: '.18em',
-            textTransform: 'uppercase', marginBottom: 8,
-          }}>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 900,
+              color: pal.accent,
+              letterSpacing: '.18em',
+              textTransform: 'uppercase',
+              marginBottom: 8,
+            }}
+          >
             UNIT {completedLevel.level} COMPLETE
           </div>
-          <div style={{
-            fontSize: 30, fontWeight: 900, color: '#fff',
-            fontFamily: "'Playfair Display', serif",
-            lineHeight: 1.1, marginBottom: 6,
-            textShadow: '0 2px 14px rgba(0,0,0,0.35)',
-            position: 'relative',
-          }}>
+          <div
+            style={{
+              fontSize: 30,
+              fontWeight: 900,
+              color: '#fff',
+              fontFamily: "'Playfair Display', serif",
+              lineHeight: 1.1,
+              marginBottom: 6,
+              textShadow: '0 2px 14px rgba(0,0,0,0.35)',
+              position: 'relative',
+            }}
+          >
             {completedLevel.title}
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>
@@ -94,17 +142,31 @@ export default function UnitCompleteBanner({ completedLevel, onClose, award }) {
 
         {/* ── Card body ── */}
         <div style={{ background: 'var(--card)', padding: '24px 24px 22px' }}>
-
           {/* XP bonus row */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14,
-            background: 'linear-gradient(135deg,rgba(251,191,36,.14),rgba(245,158,11,.09))',
-            border: '1.5px solid rgba(251,191,36,.32)',
-            borderRadius: 16, padding: '14px 20px', marginBottom: 18,
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 14,
+              background: 'linear-gradient(135deg,rgba(251,191,36,.14),rgba(245,158,11,.09))',
+              border: '1.5px solid rgba(251,191,36,.32)',
+              borderRadius: 16,
+              padding: '14px 20px',
+              marginBottom: 18,
+            }}
+          >
             <span style={{ fontSize: 28 }}>⭐</span>
             <div>
-              <div style={{ fontSize: 26, fontWeight: 900, color: '#b45309', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+              <div
+                style={{
+                  fontSize: 26,
+                  fontWeight: 900,
+                  color: '#b45309',
+                  fontVariantNumeric: 'tabular-nums',
+                  lineHeight: 1,
+                }}
+              >
                 +{UNIT_BONUS_XP} XP
               </div>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', marginTop: 3 }}>
@@ -114,13 +176,23 @@ export default function UnitCompleteBanner({ completedLevel, onClose, award }) {
           </div>
 
           {/* Flavour line */}
-          <p style={{
-            fontSize: 13, color: 'var(--subtext)', textAlign: 'center',
-            lineHeight: 1.55, margin: '0 0 20px',
-          }}>
+          <p
+            style={{
+              fontSize: 13,
+              color: 'var(--subtext)',
+              textAlign: 'center',
+              lineHeight: 1.55,
+              margin: '0 0 20px',
+            }}
+          >
             You've mastered the{' '}
-            <strong style={{ color: 'var(--heading)', fontWeight: 800 }}>{completedLevel.title}</strong>{' '}
-            stage.{completedLevel.level < 7 ? ` Unit ${completedLevel.level + 1} unlocked!` : ' The journey continues.'}
+            <strong style={{ color: 'var(--heading)', fontWeight: 800 }}>
+              {completedLevel.title}
+            </strong>{' '}
+            stage.
+            {completedLevel.level < 7
+              ? ` Unit ${completedLevel.level + 1} unlocked!`
+              : ' The journey continues.'}
           </p>
 
           <button
@@ -136,9 +208,15 @@ export default function UnitCompleteBanner({ completedLevel, onClose, award }) {
           <button
             onClick={onClose}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--subtext)', fontSize: 12, marginTop: 12,
-              display: 'block', width: '100%', textAlign: 'center',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--subtext)',
+              fontSize: 12,
+              marginTop: 12,
+              display: 'block',
+              width: '100%',
+              textAlign: 'center',
               fontFamily: "'Outfit', sans-serif",
             }}
           >

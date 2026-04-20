@@ -24,18 +24,18 @@ import { stopAudio } from '../lib/audio.ts';
 import { isNative } from '../lib/platform.js';
 
 // ── VAD tuning constants ──────────────────────────────────────────────────────
-const SPEECH_THRESHOLD    = 0.015;  // RMS above this triggers speech detection
-const SILENCE_THRESHOLD   = 0.008;  // RMS below this starts the silence timer
-const MIN_SPEECH_MS       = 250;    // Ignore bursts shorter than this (noise guard)
-const SILENCE_DURATION_MS = 1800;   // Silence this long → end recording, send to Whisper
-const POLL_INTERVAL_MS    = 80;     // How often to sample the AnalyserNode
-const FFT_SIZE            = 2048;
+const SPEECH_THRESHOLD = 0.015; // RMS above this triggers speech detection
+const SILENCE_THRESHOLD = 0.008; // RMS below this starts the silence timer
+const MIN_SPEECH_MS = 250; // Ignore bursts shorter than this (noise guard)
+const SILENCE_DURATION_MS = 1800; // Silence this long → end recording, send to Whisper
+const POLL_INTERVAL_MS = 80; // How often to sample the AnalyserNode
+const FFT_SIZE = 2048;
 
 // Feature-detect once at module load — no point re-checking on every render
 const SUPPORTS_VAD =
   typeof window !== 'undefined' &&
   typeof MediaRecorder !== 'undefined' &&
-  typeof AudioContext  !== 'undefined' &&
+  typeof AudioContext !== 'undefined' &&
   !!navigator.mediaDevices?.getUserMedia;
 
 function getSupportedMimeType() {
@@ -63,61 +63,80 @@ function computeRms(analyser, buf) {
 }
 
 export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaking }) {
-  const [isListening,  setIsListening]  = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [vadLevel,     setVadLevel]     = useState(0); // 0–1 for UI visualisation
+  const [vadLevel, setVadLevel] = useState(0); // 0–1 for UI visualisation
 
   // Whether Whisper is available: null=untested, true=confirmed, false=503→use Web Speech
   const whisperAvailRef = useRef(null);
 
   // Web Audio / MediaRecorder infrastructure
-  const streamRef    = useRef(null);
-  const audioCtxRef  = useRef(null);
-  const analyserRef  = useRef(null);
+  const streamRef = useRef(null);
+  const audioCtxRef = useRef(null);
+  const analyserRef = useRef(null);
   const dataArrayRef = useRef(null);
-  const recorderRef  = useRef(null);
-  const chunksRef    = useRef([]);
-  const pollRef      = useRef(null);
+  const recorderRef = useRef(null);
+  const chunksRef = useRef([]);
+  const pollRef = useRef(null);
 
   // VAD state machine
-  const vadStateRef    = useRef('idle'); // 'idle'|'waiting'|'recording'|'processing'
+  const vadStateRef = useRef('idle'); // 'idle'|'waiting'|'recording'|'processing'
   const speechStartRef = useRef(null);
   const silenceStartRef = useRef(null);
 
   // Web Speech API fallback
-  const webSpeechRef  = useRef(null);
+  const webSpeechRef = useRef(null);
   const pendingVoiceRef = useRef('');
 
   // Stable refs for callbacks/state used inside intervals and async fns
-  const onResultRef    = useRef(onResult);
+  const onResultRef = useRef(onResult);
   const onInterruptRef = useRef(onInterrupt);
-  const onErrorRef     = useRef(onError);
-  const isSpeakingRef  = useRef(isSpeaking);
-  useEffect(() => { onResultRef.current    = onResult;    }, [onResult]);
-  useEffect(() => { onInterruptRef.current = onInterrupt; }, [onInterrupt]);
-  useEffect(() => { onErrorRef.current     = onError;     }, [onError]);
-  useEffect(() => { isSpeakingRef.current  = isSpeaking;  }, [isSpeaking]);
+  const onErrorRef = useRef(onError);
+  const isSpeakingRef = useRef(isSpeaking);
+  useEffect(() => {
+    onResultRef.current = onResult;
+  }, [onResult]);
+  useEffect(() => {
+    onInterruptRef.current = onInterrupt;
+  }, [onInterrupt]);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+  useEffect(() => {
+    isSpeakingRef.current = isSpeaking;
+  }, [isSpeaking]);
 
   // ── Full cleanup ────────────────────────────────────────────────────────────
   const cleanup = useCallback(() => {
-    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
     if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-      try { recorderRef.current.stop(); } catch { /* ignore */ }
+      try {
+        recorderRef.current.stop();
+      } catch {
+        /* ignore */
+      }
     }
     recorderRef.current = null;
-    chunksRef.current   = [];
+    chunksRef.current = [];
     if (audioCtxRef.current) {
-      try { audioCtxRef.current.close(); } catch { /* ignore */ }
+      try {
+        audioCtxRef.current.close();
+      } catch {
+        /* ignore */
+      }
       audioCtxRef.current = null;
     }
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
-    analyserRef.current  = null;
+    analyserRef.current = null;
     dataArrayRef.current = null;
-    vadStateRef.current  = 'idle';
-    speechStartRef.current  = null;
+    vadStateRef.current = 'idle';
+    speechStartRef.current = null;
     silenceStartRef.current = null;
     setIsListening(false);
     setIsProcessing(false);
@@ -125,62 +144,67 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
   }, []);
 
   // Cleanup on unmount
-  useEffect(() => () => {
-    cleanup();
-    webSpeechRef.current?.abort?.();
-    webSpeechRef.current = null;
-  }, [cleanup]);
+  useEffect(
+    () => () => {
+      cleanup();
+      webSpeechRef.current?.abort?.();
+      webSpeechRef.current = null;
+    },
+    [cleanup],
+  );
 
   // ── Send audio to Whisper ───────────────────────────────────────────────────
-  const sendToWhisper = useCallback(async (blob) => {
-    setIsProcessing(true);
-    vadStateRef.current = 'processing';
-    try {
-      if (!navigator.onLine) throw new Error('offline');
+  const sendToWhisper = useCallback(
+    async (blob) => {
+      setIsProcessing(true);
+      vadStateRef.current = 'processing';
+      try {
+        if (!navigator.onLine) throw new Error('offline');
 
-      const res = await apiFetch('/api/stt', {
-        method: 'POST',
-        headers: { 'Content-Type': blob.type || 'audio/webm' },
-        body: blob,
-      });
+        const res = await apiFetch('/api/stt', {
+          method: 'POST',
+          headers: { 'Content-Type': blob.type || 'audio/webm' },
+          body: blob,
+        });
 
-      if (res.status === 503) {
-        // Whisper not configured — mark unavailable and let the component fall back
-        whisperAvailRef.current = false;
-        cleanup();
-        return;
+        if (res.status === 503) {
+          // Whisper not configured — mark unavailable and let the component fall back
+          whisperAvailRef.current = false;
+          cleanup();
+          return;
+        }
+        if (!res.ok) throw new Error('STT error ' + res.status);
+
+        whisperAvailRef.current = true;
+        const data = await res.json();
+        const text = (data.text || '').trim();
+        if (text) onResultRef.current?.(text);
+      } catch (e) {
+        // 'offline' is expected when device loses connection mid-speech; don't surface it
+        if (e.message !== 'offline') {
+          onErrorRef.current?.(e.message || 'Voice transcription failed — please try again.');
+        }
+      } finally {
+        setIsProcessing(false);
+        // Resume VAD so user can speak again without re-tapping
+        if (vadStateRef.current !== 'idle' && streamRef.current) {
+          vadStateRef.current = 'waiting';
+          speechStartRef.current = null;
+          silenceStartRef.current = null;
+        }
       }
-      if (!res.ok) throw new Error('STT error ' + res.status);
-
-      whisperAvailRef.current = true;
-      const data = await res.json();
-      const text = (data.text || '').trim();
-      if (text) onResultRef.current?.(text);
-
-    } catch (e) {
-      // 'offline' is expected when device loses connection mid-speech; don't surface it
-      if (e.message !== 'offline') {
-        onErrorRef.current?.(e.message || 'Voice transcription failed — please try again.');
-      }
-    } finally {
-      setIsProcessing(false);
-      // Resume VAD so user can speak again without re-tapping
-      if (vadStateRef.current !== 'idle' && streamRef.current) {
-        vadStateRef.current  = 'waiting';
-        speechStartRef.current  = null;
-        silenceStartRef.current = null;
-      }
-    }
-  }, [cleanup]);
+    },
+    [cleanup],
+  );
 
   // ── VAD polling tick (runs every POLL_INTERVAL_MS) ─────────────────────────
   const vadTick = useCallback(() => {
     const analyser = analyserRef.current;
-    const buf      = dataArrayRef.current;
+    const buf = dataArrayRef.current;
     if (!analyser || !buf) return;
 
-    const rms  = computeRms(analyser, buf);
-    const now  = Date.now();
+    const rms = computeRms(analyser, buf);
+    const now = Date.now();
     setVadLevel(Math.min(rms * 8, 1)); // scale to 0–1 for waveform UI
 
     const state = vadStateRef.current;
@@ -197,15 +221,12 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
             onInterruptRef.current?.();
           }
 
-          vadStateRef.current     = 'recording';
+          vadStateRef.current = 'recording';
           silenceStartRef.current = null;
-          chunksRef.current       = [];
+          chunksRef.current = [];
 
           const mimeType = getSupportedMimeType();
-          const recorder = new MediaRecorder(
-            streamRef.current,
-            mimeType ? { mimeType } : {}
-          );
+          const recorder = new MediaRecorder(streamRef.current, mimeType ? { mimeType } : {});
           recorder.ondataavailable = (e) => {
             if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
           };
@@ -216,7 +237,7 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
               sendToWhisper(audioBlob);
             } else {
               // Too short to be speech — back to waiting
-              vadStateRef.current  = 'waiting';
+              vadStateRef.current = 'waiting';
               speechStartRef.current = null;
             }
           };
@@ -229,7 +250,6 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
           speechStartRef.current = null;
         }
       }
-
     } else if (state === 'recording') {
       if (rms < SILENCE_THRESHOLD) {
         if (!silenceStartRef.current) {
@@ -260,9 +280,10 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
     r.lang = 'hr-HR';
     r.continuous = true;
     r.interimResults = true;
-    r.onstart  = () => setIsListening(true);
+    r.onstart = () => setIsListening(true);
     r.onresult = (e) => {
-      let finalChunk = '', interimChunk = '';
+      let finalChunk = '',
+        interimChunk = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const t = e.results[i][0].transcript;
         if (e.results[i].isFinal) finalChunk += t;
@@ -334,7 +355,7 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
-          sampleRate: 16000,       // hint: lower SR → smaller audio files
+          sampleRate: 16000, // hint: lower SR → smaller audio files
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
@@ -347,28 +368,28 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       audioCtxRef.current = ctx;
       if (ctx.state === 'suspended') await ctx.resume();
 
-      const source   = ctx.createMediaStreamSource(stream);
+      const source = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
       analyser.fftSize = FFT_SIZE;
       analyser.smoothingTimeConstant = 0.4;
       source.connect(analyser);
-      analyserRef.current  = analyser;
+      analyserRef.current = analyser;
       dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
 
-      vadStateRef.current     = 'waiting';
-      speechStartRef.current  = null;
+      vadStateRef.current = 'waiting';
+      speechStartRef.current = null;
       silenceStartRef.current = null;
       setIsListening(true);
       setVadLevel(0);
 
       // Poll the analyser at POLL_INTERVAL_MS — drives the entire VAD state machine
       pollRef.current = setInterval(vadTick, POLL_INTERVAL_MS);
-
     } catch (e) {
       if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-        onErrorRef.current?.(isNative()
-          ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
-          : 'Microphone access was denied. Please allow microphone access in your browser settings and try again.'
+        onErrorRef.current?.(
+          isNative()
+            ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
+            : 'Microphone access was denied. Please allow microphone access in your browser settings and try again.',
         );
       } else {
         // MediaDevices not available (e.g. older iOS) — fall through to Web Speech

@@ -102,7 +102,7 @@ Kada dođeš, naučit ćemo te napraviti burek. Tijesto traži strpljenje, ali n
 Puno pozdrava od cijele obitelji,
 Baka 💙`,
     words: [
-      { hr: 'imendan', en: 'name day (saint\'s day celebration)' },
+      { hr: 'imendan', en: "name day (saint's day celebration)" },
       { hr: 'svetac', en: 'saint' },
       { hr: 'burek', en: 'flaky pastry with meat or cheese' },
       { hr: 'tijesto', en: 'dough / pastry' },
@@ -303,7 +303,7 @@ Tvoj Djed Ivan 🇭🇷`,
       { hr: 'ugljenokop', en: 'coal mine' },
       { hr: 'častan', en: 'honourable / dignified' },
       { hr: 'hrabrost', en: 'courage / bravery' },
-      { hr: 'glagoljica', en: 'Glagolitic script (Croatia\'s medieval alphabet)' },
+      { hr: 'glagoljica', en: "Glagolitic script (Croatia's medieval alphabet)" },
       { hr: 'slobodan', en: 'free / independent' },
       { hr: 'ponos', en: 'pride' },
     ],
@@ -339,7 +339,7 @@ Luka 👊`,
       { hr: 'roćko', en: 'buddy / bro (casual Slavonian address)' },
       { hr: 'razbiti', en: 'to crush / to thrash (in sport)' },
       { hr: 'cura svega', en: 'the best part / the highlight (idiom)' },
-      { hr: 'Vatreni', en: 'The Blazers — nickname of Croatia\'s national football team' },
+      { hr: 'Vatreni', en: "The Blazers — nickname of Croatia's national football team" },
       { hr: 'kutak', en: 'corner / nook / spot' },
       { hr: 'unaprijed', en: 'in advance / ahead of time' },
     ],
@@ -389,7 +389,8 @@ Tvoja Baka 💙`,
     from: 'Cijela obitelj',
     date: 'Subota, 4. listopada',
     subject: 'Sretan imendan od svih nas!',
-    preview: 'Sva obitelj se skupila za večerom i pišemo zajedno. Djed drži pero — Baka ga natjerala...',
+    preview:
+      'Sva obitelj se skupila za večerom i pišemo zajedno. Djed drži pero — Baka ga natjerala...',
     icon: '🎂',
     iconBg: 'linear-gradient(135deg,#4c1d95,#6d28d9)',
     iconBorder: '#c4b5fd',
@@ -426,27 +427,58 @@ Tvoja familia 💙🇭🇷`,
 
 function WordTile({ w, award }) {
   const [saved, setSaved] = useState(() => {
-    try { const j = JSON.parse(localStorage.getItem('uJournal') || '[]'); return j.some(x => x.hr === w.hr); } catch { return false; }
+    try {
+      const j = JSON.parse(localStorage.getItem('uJournal') || '[]');
+      return j.some((x) => x.hr === w.hr);
+    } catch {
+      return false;
+    }
   });
   return (
-    <div style={{ background: 'var(--bar-bg)', borderRadius: 8, padding: '8px 10px', position: 'relative' }}>
+    <div
+      style={{
+        background: 'var(--bar-bg)',
+        borderRadius: 8,
+        padding: '8px 10px',
+        position: 'relative',
+      }}
+    >
       <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: '#0e7490' }}>{w.hr}</div>
-      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2, marginBottom: 4 }}>{w.en}</div>
+      <div
+        style={{
+          fontSize: 'var(--text-xs)',
+          color: 'var(--subtext)',
+          marginTop: 2,
+          marginBottom: 4,
+        }}
+      >
+        {w.en}
+      </div>
       <button
         onClick={() => {
           if (saved) return;
           try {
             const j = JSON.parse(localStorage.getItem('uJournal') || '[]');
-            if (!j.some(x => x.hr === w.hr)) {
+            if (!j.some((x) => x.hr === w.hr)) {
               j.push({ hr: w.hr, en: w.en });
               localStorage.setItem('uJournal', JSON.stringify(j));
             }
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
           setSaved(true);
           if (award) award(1);
           knightSpeak('happy', `"${w.hr}" saved to My Words! 📚`);
         }}
-        style={{ fontSize: 9, fontWeight: 700, color: saved ? 'var(--success,#16a34a)' : 'var(--info)', background: 'none', border: 'none', cursor: saved ? 'default' : 'pointer', padding: 0 }}
+        style={{
+          fontSize: 9,
+          fontWeight: 700,
+          color: saved ? 'var(--success,#16a34a)' : 'var(--info)',
+          background: 'none',
+          border: 'none',
+          cursor: saved ? 'default' : 'pointer',
+          padding: 0,
+        }}
       >
         {saved ? '✓ Saved' : '+ Save word'}
       </button>
@@ -458,73 +490,164 @@ export default function StoriesTab() {
   const { award } = useApp();
   const [openLetter, setOpenLetter] = useState(null);
   const [expandedCtx, setExpandedCtx] = useState({});
-  const toggleCtx = (key) => setExpandedCtx(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleCtx = (key) => setExpandedCtx((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <React.Fragment>
       {/* ── LETTERS FROM BAKA ── */}
       <div className="section-block">
         <div className="section-hdr">
-          <div className="section-hdr-icon" style={{background:'rgba(200,152,10,.14)'}}>💌</div>
+          <div className="section-hdr-icon" style={{ background: 'rgba(200,152,10,.14)' }}>
+            💌
+          </div>
           <div className="section-hdr-text">
             <div className="section-hdr-title">Letters from Baka</div>
             <div className="section-hdr-sub">Read Croatian the way family really writes it</div>
           </div>
           <CroatianKnight size={40} mood="thinking" style={{ flexShrink: 0 }} />
         </div>
-        <div style={{fontSize:12, color:'var(--subtext)', marginBottom:12, lineHeight:1.5}}>
-          Personal letters written in authentic Croatian — perfect for understanding how family members actually speak, including regional expressions and emotional vocabulary.
+        <div style={{ fontSize: 12, color: 'var(--subtext)', marginBottom: 12, lineHeight: 1.5 }}>
+          Personal letters written in authentic Croatian — perfect for understanding how family
+          members actually speak, including regional expressions and emotional vocabulary.
         </div>
         <div
-          onClick={() => { if (!expandedCtx['baka']) incrementCulture('regionCnt'); toggleCtx('baka'); }}
+          onClick={() => {
+            if (!expandedCtx['baka']) incrementCulture('regionCnt');
+            toggleCtx('baka');
+          }}
           style={{
-            fontSize:12, color:'var(--info)', cursor:'pointer',
+            fontSize: 12,
+            color: 'var(--info)',
+            cursor: 'pointer',
             marginBottom: expandedCtx['baka'] ? 0 : 12,
-            display:'flex', alignItems:'center', gap:4, fontWeight:600
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            fontWeight: 600,
           }}
         >
           {expandedCtx['baka'] ? '▲' : '▼'} Why this matters for your Croatian
         </div>
         {expandedCtx['baka'] && (
-          <div style={{
-            fontSize:12, color:'var(--subtext)', lineHeight:1.6,
-            padding:'10px 14px', background:'var(--info-bg)',
-            borderRadius:10, marginBottom:12, border:'1px solid var(--info-b)'
-          }}>
-            💌 <strong>Baka's letters</strong> capture authentic Croatian as it's actually written between family members — warm, informal, full of dialect and emotion. This is the Croatian you won't find in textbooks, but will hear and read with your family.
+          <div
+            style={{
+              fontSize: 12,
+              color: 'var(--subtext)',
+              lineHeight: 1.6,
+              padding: '10px 14px',
+              background: 'var(--info-bg)',
+              borderRadius: 10,
+              marginBottom: 12,
+              border: '1px solid var(--info-b)',
+            }}
+          >
+            💌 <strong>Baka's letters</strong> capture authentic Croatian as it's actually written
+            between family members — warm, informal, full of dialect and emotion. This is the
+            Croatian you won't find in textbooks, but will hear and read with your family.
           </div>
         )}
-        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {BAKA_LETTERS.map(letter => (
-            <div key={letter.id} style={{ background:'var(--card)', border:'1.5px solid var(--card-b)', borderRadius:14, overflow:'hidden' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {BAKA_LETTERS.map((letter) => (
+            <div
+              key={letter.id}
+              style={{
+                background: 'var(--card)',
+                border: '1.5px solid var(--card-b)',
+                borderRadius: 14,
+                overflow: 'hidden',
+              }}
+            >
               <button
-                onClick={() => { const opening = openLetter !== letter.id; setOpenLetter(opening ? letter.id : null); if (opening) { incrementCulture('bakaCnt'); if (award) award(5); } }}
-                style={{ width:'100%', padding:'14px 16px', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:"'Outfit',sans-serif" }}>
-                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                  <div style={{ width:40, height:40, borderRadius:10, background: letter.iconBg || 'linear-gradient(135deg,#fef3c7,#fde68a)', border:`1px solid ${letter.iconBorder || '#fde68a'}`,
-                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>{letter.icon || '💌'}</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:'var(--text-sm)', fontWeight:800, color:'var(--heading)' }}>{letter.from}</div>
-                    <div style={{ fontSize:'var(--text-xs)', color:'var(--subtext)', marginTop:1 }}>{letter.subject} · {letter.date}</div>
+                onClick={() => {
+                  const opening = openLetter !== letter.id;
+                  setOpenLetter(opening ? letter.id : null);
+                  if (opening) {
+                    incrementCulture('bakaCnt');
+                    if (award) award(5);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontFamily: "'Outfit',sans-serif",
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 10,
+                      background: letter.iconBg || 'linear-gradient(135deg,#fef3c7,#fde68a)',
+                      border: `1px solid ${letter.iconBorder || '#fde68a'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 20,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {letter.icon || '💌'}
                   </div>
-                  <span style={{ fontSize:'var(--text-base)', color:'var(--subtext)', opacity:.5 }}>{openLetter === letter.id ? '▲' : '▼'}</span>
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 800,
+                        color: 'var(--heading)',
+                      }}
+                    >
+                      {letter.from}
+                    </div>
+                    <div
+                      style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 1 }}
+                    >
+                      {letter.subject} · {letter.date}
+                    </div>
+                  </div>
+                  <span
+                    style={{ fontSize: 'var(--text-base)', color: 'var(--subtext)', opacity: 0.5 }}
+                  >
+                    {openLetter === letter.id ? '▲' : '▼'}
+                  </span>
                 </div>
               </button>
               {openLetter === letter.id && (
-                <div style={{ borderTop:'1px solid var(--card-b)', padding:'16px' }}>
-                  <div style={{
-                    background: letter.letterBg || '#fffbeb', border:`1px solid ${letter.letterBorder || '#fde68a'}`,
-                    borderRadius:10, padding:'14px 16px', marginBottom:14,
-                    fontFamily:"Georgia, serif", fontSize:'var(--text-sm)', lineHeight:1.8, color: letter.letterColor || '#451a03',
-                    whiteSpace:'pre-line',
-                  }}>
+                <div style={{ borderTop: '1px solid var(--card-b)', padding: '16px' }}>
+                  <div
+                    style={{
+                      background: letter.letterBg || '#fffbeb',
+                      border: `1px solid ${letter.letterBorder || '#fde68a'}`,
+                      borderRadius: 10,
+                      padding: '14px 16px',
+                      marginBottom: 14,
+                      fontFamily: 'Georgia, serif',
+                      fontSize: 'var(--text-sm)',
+                      lineHeight: 1.8,
+                      color: letter.letterColor || '#451a03',
+                      whiteSpace: 'pre-line',
+                    }}
+                  >
                     {letter.full}
                   </div>
-                  <div style={{ fontSize:'var(--text-xs)', fontWeight:800, color:'var(--subtext)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:8 }}>
+                  <div
+                    style={{
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 800,
+                      color: 'var(--subtext)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '.08em',
+                      marginBottom: 8,
+                    }}
+                  >
                     📚 Words from this letter
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                    {letter.words.map(w => (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {letter.words.map((w) => (
                       <WordTile key={w.hr} w={w} award={award} />
                     ))}
                   </div>

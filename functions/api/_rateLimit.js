@@ -18,7 +18,9 @@ function _cleanFallback() {
   }
   // Prevent unbounded growth
   if (_fallbackCounters.size > 500) {
-    const oldest = [..._fallbackCounters.entries()].sort((a, b) => a[1].windowStart - b[1].windowStart);
+    const oldest = [..._fallbackCounters.entries()].sort(
+      (a, b) => a[1].windowStart - b[1].windowStart,
+    );
     oldest.slice(0, 100).forEach(([k]) => _fallbackCounters.delete(k));
   }
 }
@@ -73,7 +75,7 @@ export async function checkRateLimit(request, limitPerMinute = 20) {
       cacheKey,
       new Response(String(count + 1), {
         headers: { 'Cache-Control': 'max-age=61' },
-      })
+      }),
     );
     return true;
   } catch (e) {

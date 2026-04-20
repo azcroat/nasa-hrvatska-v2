@@ -2,7 +2,9 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { markQuest, cleanupStaleQuestKeys } from '../lib/quests.js';
 import { localDateStr } from '../lib/dateUtils.js';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 function todayKey() {
   return localDateStr();
@@ -10,7 +12,10 @@ function todayKey() {
 
 describe('quests — daily quest tracking', () => {
   beforeEach(clearLS);
-  afterEach(() => { clearLS(); vi.useRealTimers(); });
+  afterEach(() => {
+    clearLS();
+    vi.useRealTimers();
+  });
 
   // ── markQuest basics ──────────────────────────────────────────────────────
 
@@ -82,7 +87,9 @@ describe('quests — daily quest tracking', () => {
     for (let i = 0; i < localStorage.length; i++) {
       keys.push(localStorage.key(i));
     }
-    const questKeys = keys.filter(k => k && k.startsWith('nh_quest_speak_') && !k.includes('count'));
+    const questKeys = keys.filter(
+      (k) => k && k.startsWith('nh_quest_speak_') && !k.includes('count'),
+    );
     expect(questKeys).toHaveLength(1);
     expect(questKeys[0]).toMatch(/nh_quest_speak_\d{4}-\d{2}-\d{2}$/);
   });
@@ -148,14 +155,20 @@ describe('quests — daily quest tracking', () => {
 
 describe('cleanupStaleQuestKeys', () => {
   beforeEach(() => localStorage.clear());
-  afterEach(() => { localStorage.clear(); vi.useRealTimers(); });
+  afterEach(() => {
+    localStorage.clear();
+    vi.useRealTimers();
+  });
 
   it('does not remove keys for today or yesterday', () => {
     const today = localDateStr();
     const yd = new Date();
     yd.setDate(yd.getDate() - 1);
-    const yesterday = yd.getFullYear() + '-' +
-      String(yd.getMonth() + 1).padStart(2, '0') + '-' +
+    const yesterday =
+      yd.getFullYear() +
+      '-' +
+      String(yd.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(yd.getDate()).padStart(2, '0');
 
     localStorage.setItem('nh_quest_speak_' + today, '1');

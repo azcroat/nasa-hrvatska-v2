@@ -4,19 +4,26 @@
  * Firebase's public JWKS endpoint, with 1-hour edge cache to avoid per-request fetches.
  */
 
-const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
+const JWKS_URL =
+  'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 
 /** Fetch Firebase's public JWK set, cached for 1 hour via Cloudflare Cache API. */
 async function getJWKS() {
   let cache = null;
-  try { cache = caches.default; } catch { /* cache unavailable — continue without caching */ }
+  try {
+    cache = caches.default;
+  } catch {
+    /* cache unavailable — continue without caching */
+  }
 
   const cacheReq = new Request(JWKS_URL, { method: 'GET' });
   if (cache) {
     try {
       const hit = await cache.match(cacheReq);
       if (hit) return await hit.json();
-    } catch { /* cache miss or stale — fall through to network */ }
+    } catch {
+      /* cache miss or stale — fall through to network */
+    }
   }
 
   const res = await fetch(JWKS_URL, { signal: AbortSignal.timeout(5000) });
@@ -24,12 +31,14 @@ async function getJWKS() {
   const jwks = await res.json();
 
   if (cache) {
-    cache.put(
-      cacheReq,
-      new Response(JSON.stringify(jwks), {
-        headers: { 'Cache-Control': 'public, max-age=3600' },
-      })
-    ).catch(() => {});
+    cache
+      .put(
+        cacheReq,
+        new Response(JSON.stringify(jwks), {
+          headers: { 'Cache-Control': 'public, max-age=3600' },
+        }),
+      )
+      .catch(() => {});
   }
 
   return jwks;
@@ -40,34 +49,43 @@ async function verifyRS256Signature(headerB64u, payloadB64u, signatureB64u, jwks
   let header;
   try {
     header = JSON.parse(atob(headerB64u.replace(/-/g, '+').replace(/_/g, '/')));
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 
   if (header.alg !== 'RS256') return false;
 
-  const key = (jwks.keys || []).find(k => k.kid === header.kid && k.use === 'sig');
+  const key = (jwks.keys || []).find((k) => k.kid === header.kid && k.use === 'sig');
   if (!key) return false;
 
   let publicKey;
   try {
     publicKey = await crypto.subtle.importKey(
-      'jwk', key,
+      'jwk',
+      key,
       { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-      false, ['verify']
+      false,
+      ['verify'],
     );
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 
   const signedInput = new TextEncoder().encode(`${headerB64u}.${payloadB64u}`);
-  const sigBytes = Uint8Array.from(
-    atob(signatureB64u.replace(/-/g, '+').replace(/_/g, '/')),
-    c => c.charCodeAt(0)
+  const sigBytes = Uint8Array.from(atob(signatureB64u.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
+    c.charCodeAt(0),
   );
 
   try {
     return await crypto.subtle.verify(
       { name: 'RSASSA-PKCS1-v1_5' },
-      publicKey, sigBytes, signedInput
+      publicKey,
+      sigBytes,
+      signedInput,
     );
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 export async function getFirebaseUid(request, projectId) {
@@ -83,7 +101,9 @@ export async function getFirebaseUid(request, projectId) {
     let payload;
     try {
       payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-    } catch { return null; }
+    } catch {
+      return null;
+    }
 
     // Validate Firebase-specific claims (fast path before crypto)
     const now = Math.floor(Date.now() / 1000);

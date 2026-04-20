@@ -6,8 +6,8 @@ import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
 
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-6';
 
 // ── Security helpers ──────────────────────────────────────────────────────────
 
@@ -23,8 +23,8 @@ function sanitizeParam(value, maxLen = 200) {
 
 function sanitizeHistory(value, maxLen = 300) {
   return String(value || '')
-    .replace(/[\r\n]/g, ' ')           // no newlines
-    .replace(/[`\\]/g, '')             // no backticks/backslash
+    .replace(/[\r\n]/g, ' ') // no newlines
+    .replace(/[`\\]/g, '') // no backticks/backslash
     .replace(/\b(ignore|disregard|override|forget|system|instruction|prompt)\b/gi, '[…]') // mask injection keywords
     .trim()
     .slice(0, maxLen);
@@ -35,32 +35,40 @@ function isAllowedOrigin(origin, isDev) {
   if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
-    if (isDev && hostname === "localhost") return true;
-    return hostname === "nasahrvatska.com"
-      || hostname.endsWith(".nasahrvatska.com")
-      || hostname === "nasa-hrvatska-v2.pages.dev"
-      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
-  } catch { return false; }
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
   return {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Cache-Control": "no-cache",
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Cache-Control': 'no-cache',
   };
 }
 
-function ok(body, origin)         { return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) }); }
-function err(status, msg, origin) { return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) }); }
+function ok(body, origin) {
+  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+}
+function err(status, msg, origin) {
+  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+}
 
 // ── Input validation ──────────────────────────────────────────────────────────
 
-const VALID_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 function sanitizeLevel(level) {
-  return VALID_LEVELS.includes(level) ? level : "B1";
+  return VALID_LEVELS.includes(level) ? level : 'B1';
 }
 
 function sanitizeSessionCount(count) {
@@ -72,13 +80,16 @@ function sanitizeSessionCount(count) {
 // ── Fallback debrief ──────────────────────────────────────────────────────────
 
 function debriefFallback(userName) {
-  const name = userName ? ` ${userName}` : "";
+  const name = userName ? ` ${userName}` : '';
   return {
     majaNotes: `Drago mi je što smo razgovarali${name}! Svaki razgovor je korak naprijed — vidimo se sljedeći put!`,
-    didWell: "You kept the conversation going and made a genuine effort to communicate in Croatian.",
-    focusNext: "Continue practising verb conjugation in the past tense (perfekt) — this will make your speech flow much more naturally.",
+    didWell:
+      'You kept the conversation going and made a genuine effort to communicate in Croatian.',
+    focusNext:
+      'Continue practising verb conjugation in the past tense (perfekt) — this will make your speech flow much more naturally.',
     newVocab: [],
-    nextTopicSuggestion: "Maja wants to tell you about the Advent markets in Zagreb and what makes them different from any Christmas market you have seen.",
+    nextTopicSuggestion:
+      'Maja wants to tell you about the Advent markets in Zagreb and what makes them different from any Christmas market you have seen.',
     updatedFacts: {},
     mistakePatternsUpdate: [],
     xpEarned: 30,
@@ -91,10 +102,11 @@ function debriefFallback(userName) {
 // ── System prompt builder ─────────────────────────────────────────────────────
 
 function buildDebriefSystemPrompt(params) {
-  const { userName, userLevel, knownFacts, mistakePatterns, durationSeconds, messageCount } = params;
+  const { userName, userLevel, knownFacts, mistakePatterns, durationSeconds, messageCount } =
+    params;
 
-  const name    = sanitizeParam(userName || "", 50);
-  const level   = sanitizeLevel(userLevel);
+  const name = sanitizeParam(userName || '', 50);
+  const level = sanitizeLevel(userLevel);
   const isShort = messageCount < 4;
 
   // Sanitize knownFacts
@@ -104,8 +116,11 @@ function buildDebriefSystemPrompt(params) {
     const safeKey = sanitizeParam(k, 40);
     if (!safeKey) continue;
     if (Array.isArray(v)) {
-      const safeArr = v.slice(0, 10).map(x => sanitizeParam(String(x), 60)).filter(Boolean);
-      if (safeArr.length) factsLines.push(`- ${safeKey}: ${safeArr.join(", ")}`);
+      const safeArr = v
+        .slice(0, 10)
+        .map((x) => sanitizeParam(String(x), 60))
+        .filter(Boolean);
+      if (safeArr.length) factsLines.push(`- ${safeKey}: ${safeArr.join(', ')}`);
     } else if (v !== null && v !== undefined) {
       const safeVal = sanitizeParam(String(v), 100);
       if (safeVal) factsLines.push(`- ${safeKey}: ${safeVal}`);
@@ -114,29 +129,32 @@ function buildDebriefSystemPrompt(params) {
 
   // Sanitize mistake patterns
   const rawPatterns = Array.isArray(mistakePatterns) ? mistakePatterns : [];
-  const patternLines = rawPatterns.slice(0, 10).map(p => {
-    const pattern = sanitizeParam(String(p?.pattern || ""), 60);
-    const pCount  = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
-    return pattern ? `- ${pattern} (seen ${pCount} times)` : null;
-  }).filter(Boolean);
+  const patternLines = rawPatterns
+    .slice(0, 10)
+    .map((p) => {
+      const pattern = sanitizeParam(String(p?.pattern || ''), 60);
+      const pCount = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
+      return pattern ? `- ${pattern} (seen ${pCount} times)` : null;
+    })
+    .filter(Boolean);
 
   const durationMin = durationSeconds ? Math.round(durationSeconds / 60) : null;
 
   return `You are Maja Kovačević — a 34-year-old Croatian language teacher from Zadar who lives in Zagreb. You are warm, witty, deeply proud of Croatian culture, and genuinely invested in your students' progress. You teach at Gimnazija Lucijana Vranjanina. You love Dalmatian food, you support Hajduk Split, and you hike Medvednica on weekends.
 
-You have just finished a conversation session with your student${name ? ` ${name}` : ""}. Your job is to write a personalised end-of-session debrief that will motivate them to come back.
+You have just finished a conversation session with your student${name ? ` ${name}` : ''}. Your job is to write a personalised end-of-session debrief that will motivate them to come back.
 
 STUDENT PROFILE:
-${name ? `Name: ${name}` : "Name: unknown"}
+${name ? `Name: ${name}` : 'Name: unknown'}
 Level: ${level}
-Session duration: ${durationMin !== null ? `approximately ${durationMin} minute${durationMin === 1 ? "" : "s"}` : "unknown"}
+Session duration: ${durationMin !== null ? `approximately ${durationMin} minute${durationMin === 1 ? '' : 's'}` : 'unknown'}
 Message count: ${messageCount}
-${factsLines.length ? `Known facts:\n${factsLines.join("\n")}` : "Known facts: none yet"}
-${patternLines.length ? `Recurring mistake patterns:\n${patternLines.join("\n")}` : "Recurring mistake patterns: none recorded"}
+${factsLines.length ? `Known facts:\n${factsLines.join('\n')}` : 'Known facts: none yet'}
+${patternLines.length ? `Recurring mistake patterns:\n${patternLines.join('\n')}` : 'Recurring mistake patterns: none recorded'}
 
 DEBRIEF INSTRUCTIONS:
 
-1. MAJA NOTES ("majaNotes"): Write exactly 2 sentences in ENGLISH, personally from Maja to the student. Reference something SPECIFIC from the conversation history — a topic you actually discussed, a word they used well, a joke that landed, a question they asked. Do NOT be generic. This is the note they read at the top of their debrief, so it must feel personal. ${isShort ? "The session was very short (fewer than 4 messages) — gently encourage them to stay longer next time, in a warm and non-judgmental way." : ""}
+1. MAJA NOTES ("majaNotes"): Write exactly 2 sentences in ENGLISH, personally from Maja to the student. Reference something SPECIFIC from the conversation history — a topic you actually discussed, a word they used well, a joke that landed, a question they asked. Do NOT be generic. This is the note they read at the top of their debrief, so it must feel personal. ${isShort ? 'The session was very short (fewer than 4 messages) — gently encourage them to stay longer next time, in a warm and non-judgmental way.' : ''}
 
 2. DID WELL ("didWell"): One sentence in English identifying something genuinely specific the student did well. Reference actual content — not "good effort" but something like "You used the locative correctly when talking about where you live" or "You asked follow-up questions which kept the conversation feeling natural." Look at the actual conversation to find this.
 
@@ -180,7 +198,7 @@ Return ONLY a valid JSON object. No markdown. No code blocks. No explanation bef
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get("origin") || "";
+  const origin = request.headers.get('origin') || '';
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
@@ -189,79 +207,96 @@ export async function onRequestPost(context) {
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
   // CORS check
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-  const isDev = env.ENVIRONMENT !== "production";
-  if (!isAllowedOrigin(origin, isDev)) return err(403, "Forbidden", origin);
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
+  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
   const allowed = await checkRateLimit(request, 20);
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), { status: 429, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
+      status: 429,
+      headers: corsHeaders(origin),
+    });
   }
 
   // Require valid Firebase auth token for AI endpoints
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
+      headers: corsHeaders(origin),
+    });
   }
 
   // Daily AI quota check (cost 2 — Sonnet model; debrief is end-of-session so always allowed if quota remains)
   const quota = await checkAIQuota(request, env, uid, 2);
   if (!quota.allowed) {
     return new Response(
-      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
-      { status: 429, headers: corsHeaders(origin) }
+      JSON.stringify({
+        error: 'daily_quota_exceeded',
+        message: 'Daily AI limit reached. Resets at midnight UTC.',
+        resetAt: quota.resetAt,
+      }),
+      { status: 429, headers: corsHeaders(origin) },
     );
   }
 
   // API key check
-  if (!ANTHROPIC_KEY) return err(500, "Service not configured", origin);
+  if (!ANTHROPIC_KEY) return err(500, 'Service not configured', origin);
 
   // Content-type check
-  const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return err(400, "Invalid content type", origin);
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);
 
   // Parse body
   let body;
-  try { body = await request.json(); }
-  catch { return err(400, "Invalid JSON in request body", origin); }
+  try {
+    body = await request.json();
+  } catch {
+    return err(400, 'Invalid JSON in request body', origin);
+  }
 
   const { history, session, durationSeconds } = body;
 
   // ── Validate history ──
-  if (!Array.isArray(history)) return err(400, "history must be an array", origin);
-  if (history.length > 200) return err(400, "history too long (max 200 turns)", origin);
-  if (history.length === 0) return err(400, "history is empty", origin);
+  if (!Array.isArray(history)) return err(400, 'history must be an array', origin);
+  if (history.length > 200) return err(400, 'history too long (max 200 turns)', origin);
+  if (history.length === 0) return err(400, 'history is empty', origin);
 
   // ── Validate session ──
-  if (!session || typeof session !== "object") return err(400, "session object is required", origin);
+  if (!session || typeof session !== 'object')
+    return err(400, 'session object is required', origin);
 
-  const userName   = sanitizeParam(session.userName || "", 50);
-  const userLevel  = sanitizeLevel(session.userLevel);
-  const safeCount  = sanitizeSessionCount(session.count);
-  const knownFacts = (session.knownFacts && typeof session.knownFacts === "object") ? session.knownFacts : {};
+  const userName = sanitizeParam(session.userName || '', 50);
+  const userLevel = sanitizeLevel(session.userLevel);
+  const safeCount = sanitizeSessionCount(session.count);
+  const knownFacts =
+    session.knownFacts && typeof session.knownFacts === 'object' ? session.knownFacts : {};
   const mistakePatterns = Array.isArray(session.mistakePatterns) ? session.mistakePatterns : [];
 
   // ── Validate durationSeconds ──
-  const safeDuration = (typeof durationSeconds === "number" && durationSeconds >= 0)
-    ? Math.min(Math.floor(durationSeconds), 86400)
-    : null;
+  const safeDuration =
+    typeof durationSeconds === 'number' && durationSeconds >= 0
+      ? Math.min(Math.floor(durationSeconds), 86400)
+      : null;
 
   // ── Build conversation transcript for Claude ──
   // Sanitize and format history into a readable transcript
   const transcriptLines = [];
   let userMessageCount = 0;
   for (const turn of history.slice(0, 150)) {
-    if (typeof turn !== "object" || !turn) continue;
-    const role    = turn.role === "maja" ? "Maja" : turn.role === "user" ? (userName || "Student") : null;
+    if (typeof turn !== 'object' || !turn) continue;
+    const role =
+      turn.role === 'maja' ? 'Maja' : turn.role === 'user' ? userName || 'Student' : null;
     if (!role) continue;
-    const content = sanitizeHistory(String(turn.content || ""), 300);
+    const content = sanitizeHistory(String(turn.content || ''), 300);
     if (!content) continue;
     transcriptLines.push(`${role}: ${content}`);
-    if (turn.role === "user") userMessageCount++;
+    if (turn.role === 'user') userMessageCount++;
   }
 
-  if (transcriptLines.length === 0) return err(400, "No valid messages in history", origin);
+  if (transcriptLines.length === 0) return err(400, 'No valid messages in history', origin);
 
   // Cap total transcript to prevent prompt stuffing
   const transcript = transcriptLines.join('\n').slice(0, 8000);
@@ -283,11 +318,11 @@ export async function onRequestPost(context) {
   let res;
   try {
     res = await fetch(ANTHROPIC_URL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_KEY,
-        "anthropic-version": "2023-06-01",
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
       },
       signal: AbortSignal.timeout(25000),
       body: JSON.stringify({
@@ -296,15 +331,15 @@ export async function onRequestPost(context) {
         system: systemPrompt,
         messages: [
           {
-            role: "user",
+            role: 'user',
             content: `Here is the full conversation transcript to analyse:\n\n${transcript}\n\nPlease generate the end-of-session debrief now.`,
           },
         ],
       }),
     });
   } catch (fetchErr) {
-    console.error("maja-debrief.js: network error calling Anthropic:", fetchErr.message);
-    return err(502, "Service temporarily unavailable", origin);
+    console.error('maja-debrief.js: network error calling Anthropic:', fetchErr.message);
+    return err(502, 'Service temporarily unavailable', origin);
   }
 
   // Block 2: read body — catches body-read failures
@@ -312,16 +347,24 @@ export async function onRequestPost(context) {
   try {
     rawBody = await res.text();
   } catch (bodyErr) {
-    console.error("maja-debrief.js: failed to read response body:", bodyErr.message);
-    return err(502, "Service temporarily unavailable", origin);
+    console.error('maja-debrief.js: failed to read response body:', bodyErr.message);
+    return err(502, 'Service temporarily unavailable', origin);
   }
 
   // Block 3: check res.ok — map errors to client-safe responses
   if (!res.ok) {
     let errMsg;
-    try { errMsg = JSON.parse(rawBody)?.error?.message; } catch { /* not JSON */ }
-    console.error("maja-debrief.js: Anthropic API error", res.status, errMsg);
-    return err(res.status >= 500 ? 502 : res.status, isDev ? (errMsg || "API error: HTTP " + res.status) : "AI service error", origin);
+    try {
+      errMsg = JSON.parse(rawBody)?.error?.message;
+    } catch {
+      /* not JSON */
+    }
+    console.error('maja-debrief.js: Anthropic API error', res.status, errMsg);
+    return err(
+      res.status >= 500 ? 502 : res.status,
+      isDev ? errMsg || 'API error: HTTP ' + res.status : 'AI service error',
+      origin,
+    );
   }
 
   // Block 4: parse JSON — catches malformed responses
@@ -329,71 +372,87 @@ export async function onRequestPost(context) {
   try {
     data = JSON.parse(rawBody);
   } catch {
-    console.error("maja-debrief.js: JSON parse failed:", rawBody.slice(0, 200));
-    return err(502, "Invalid response from AI", origin);
+    console.error('maja-debrief.js: JSON parse failed:', rawBody.slice(0, 200));
+    return err(502, 'Invalid response from AI', origin);
   }
 
-  const raw = data?.content?.[0]?.text?.trim() || "";
+  const raw = data?.content?.[0]?.text?.trim() || '';
   if (!raw) {
-    console.error("maja-debrief.js: Anthropic returned empty response");
+    console.error('maja-debrief.js: Anthropic returned empty response');
     return ok(debriefFallback(userName), origin);
   }
 
   // ── Parse Claude's JSON response ──
   let parsed;
   try {
-    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const cleaned = raw
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/, '')
+      .trim();
     parsed = JSON.parse(cleaned);
   } catch {
-    console.error("maja-debrief.js: JSON parse failed, using fallback. Raw:", raw.slice(0, 200));
+    console.error('maja-debrief.js: JSON parse failed, using fallback. Raw:', raw.slice(0, 200));
     return ok(debriefFallback(userName), origin);
   }
 
   // ── Validate and sanitize the parsed response ──
-  const majaNotes = typeof parsed.majaNotes === "string" && parsed.majaNotes.trim()
-    ? parsed.majaNotes.trim().slice(0, 600)
-    : debriefFallback(userName).majaNotes;
+  const majaNotes =
+    typeof parsed.majaNotes === 'string' && parsed.majaNotes.trim()
+      ? parsed.majaNotes.trim().slice(0, 600)
+      : debriefFallback(userName).majaNotes;
 
-  const didWell = typeof parsed.didWell === "string" && parsed.didWell.trim()
-    ? parsed.didWell.trim().slice(0, 400)
-    : debriefFallback(userName).didWell;
+  const didWell =
+    typeof parsed.didWell === 'string' && parsed.didWell.trim()
+      ? parsed.didWell.trim().slice(0, 400)
+      : debriefFallback(userName).didWell;
 
-  const focusNext = typeof parsed.focusNext === "string" && parsed.focusNext.trim()
-    ? parsed.focusNext.trim().slice(0, 400)
-    : debriefFallback(userName).focusNext;
+  const focusNext =
+    typeof parsed.focusNext === 'string' && parsed.focusNext.trim()
+      ? parsed.focusNext.trim().slice(0, 400)
+      : debriefFallback(userName).focusNext;
 
   // Validate newVocab array
   const newVocab = Array.isArray(parsed.newVocab)
     ? parsed.newVocab.slice(0, 10).reduce((acc, item) => {
         if (
-          typeof item === "object" && item
-          && typeof item.hr === "string" && item.hr.trim()
-          && typeof item.en === "string" && item.en.trim()
+          typeof item === 'object' &&
+          item &&
+          typeof item.hr === 'string' &&
+          item.hr.trim() &&
+          typeof item.en === 'string' &&
+          item.en.trim()
         ) {
           acc.push({
-            hr:      item.hr.trim().slice(0, 100),
-            en:      item.en.trim().slice(0, 100),
-            used_in: typeof item.used_in === "string" ? item.used_in.trim().slice(0, 300) : "",
+            hr: item.hr.trim().slice(0, 100),
+            en: item.en.trim().slice(0, 100),
+            used_in: typeof item.used_in === 'string' ? item.used_in.trim().slice(0, 300) : '',
           });
         }
         return acc;
       }, [])
     : [];
 
-  const nextTopicSuggestion = typeof parsed.nextTopicSuggestion === "string" && parsed.nextTopicSuggestion.trim()
-    ? parsed.nextTopicSuggestion.trim().slice(0, 400)
-    : debriefFallback(userName).nextTopicSuggestion;
+  const nextTopicSuggestion =
+    typeof parsed.nextTopicSuggestion === 'string' && parsed.nextTopicSuggestion.trim()
+      ? parsed.nextTopicSuggestion.trim().slice(0, 400)
+      : debriefFallback(userName).nextTopicSuggestion;
 
-  const updatedFacts = (
-    parsed.updatedFacts
-    && typeof parsed.updatedFacts === "object"
-    && !Array.isArray(parsed.updatedFacts)
-  ) ? parsed.updatedFacts : {};
+  const updatedFacts =
+    parsed.updatedFacts &&
+    typeof parsed.updatedFacts === 'object' &&
+    !Array.isArray(parsed.updatedFacts)
+      ? parsed.updatedFacts
+      : {};
 
   // Validate mistakePatternsUpdate
   const mistakePatternsUpdate = Array.isArray(parsed.mistakePatternsUpdate)
     ? parsed.mistakePatternsUpdate.slice(0, 15).reduce((acc, item) => {
-        if (typeof item === "object" && item && typeof item.pattern === "string" && item.pattern.trim()) {
+        if (
+          typeof item === 'object' &&
+          item &&
+          typeof item.pattern === 'string' &&
+          item.pattern.trim()
+        ) {
           const pCount = Math.min(Math.max(Number(item.count) || 0, 0), 999);
           acc.push({ pattern: item.pattern.trim().slice(0, 80), count: pCount });
         }
@@ -401,14 +460,17 @@ export async function onRequestPost(context) {
       }, [])
     : [];
 
-  return ok({
-    majaNotes,
-    didWell,
-    focusNext,
-    newVocab,
-    nextTopicSuggestion,
-    updatedFacts,
-    mistakePatternsUpdate,
-    xpEarned: 30,
-  }, origin);
+  return ok(
+    {
+      majaNotes,
+      didWell,
+      focusNext,
+      newVocab,
+      nextTopicSuggestion,
+      updatedFacts,
+      mistakePatternsUpdate,
+      xpEarned: 30,
+    },
+    origin,
+  );
 }

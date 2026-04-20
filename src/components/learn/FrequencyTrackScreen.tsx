@@ -9,20 +9,32 @@ import {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const POS_LABELS = {
-  all:    'All',
-  verb:   'Verbs',
-  noun:   'Nouns',
-  adj:    'Adjectives',
-  adv:    'Adverbs',
-  pron:   'Pronouns',
-  conj:   'Conjunctions',
-  prep:   'Prepositions',
-  num:    'Numbers',
-  part:   'Particles',
-  det:    'Determiners',
+  all: 'All',
+  verb: 'Verbs',
+  noun: 'Nouns',
+  adj: 'Adjectives',
+  adv: 'Adverbs',
+  pron: 'Pronouns',
+  conj: 'Conjunctions',
+  prep: 'Prepositions',
+  num: 'Numbers',
+  part: 'Particles',
+  det: 'Determiners',
   interj: 'Interjections',
 };
-const POS_FILTER_ORDER = ['all', 'verb', 'noun', 'adj', 'adv', 'pron', 'conj', 'prep', 'num', 'part', 'interj'];
+const POS_FILTER_ORDER = [
+  'all',
+  'verb',
+  'noun',
+  'adj',
+  'adv',
+  'pron',
+  'conj',
+  'prep',
+  'num',
+  'part',
+  'interj',
+];
 const QUIZ_SIZE = 5;
 const DISTRACTORS_PER_Q = 3;
 const TEAL_GRAD = 'linear-gradient(135deg,#0e7490,#164e63)';
@@ -39,11 +51,11 @@ function pickRandom(arr, n) {
 }
 
 function buildQuizQuestions(learnedSet) {
-  const unlearned = FREQUENCY_500.filter(w => !learnedSet.has(w.rank));
+  const unlearned = FREQUENCY_500.filter((w) => !learnedSet.has(w.rank));
   const pool = pickRandom(unlearned.length >= QUIZ_SIZE ? unlearned : FREQUENCY_500, QUIZ_SIZE);
-  return pool.map(word => {
-    const others = FREQUENCY_500.filter(w => w.rank !== word.rank);
-    const distractors = pickRandom(others, DISTRACTORS_PER_Q).map(w => w.en);
+  return pool.map((word) => {
+    const others = FREQUENCY_500.filter((w) => w.rank !== word.rank);
+    const distractors = pickRandom(others, DISTRACTORS_PER_Q).map((w) => w.en);
     const choices = [word.en, ...distractors].sort(() => Math.random() - 0.5);
     return { word, choices, answer: word.en };
   });
@@ -69,18 +81,37 @@ function computeStreak(learnedRanks) {
 
 function StatTile({ value, label }) {
   return (
-    <div className="stat-tile" style={{
-      flex: 1,
-      background: 'var(--card)',
-      borderRadius: 14,
-      padding: '12px 8px',
-      textAlign: 'center',
-      boxShadow: '0 1px 4px rgba(0,0,0,.08)',
-    }}>
-      <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--info)', lineHeight: 1.1, fontFamily: "'Outfit', sans-serif" }}>
+    <div
+      className="stat-tile"
+      style={{
+        flex: 1,
+        background: 'var(--card)',
+        borderRadius: 14,
+        padding: '12px 8px',
+        textAlign: 'center',
+        boxShadow: '0 1px 4px rgba(0,0,0,.08)',
+      }}
+    >
+      <div
+        style={{
+          fontSize: 22,
+          fontWeight: 900,
+          color: 'var(--info)',
+          lineHeight: 1.1,
+          fontFamily: "'Outfit', sans-serif",
+        }}
+      >
         {value}
       </div>
-      <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 4, fontWeight: 600, fontFamily: "'Outfit', sans-serif" }}>
+      <div
+        style={{
+          fontSize: 11,
+          color: 'var(--subtext)',
+          marginTop: 4,
+          fontWeight: 600,
+          fontFamily: "'Outfit', sans-serif",
+        }}
+      >
         {label}
       </div>
     </div>
@@ -106,30 +137,51 @@ function WordTile({ word, learned, onTap }) {
       }}
       aria-label={`${word.hr} — ${word.en}${learned ? ' (learned)' : ''}`}
     >
-      <div style={{
-        position: 'absolute', top: 4, left: 5,
-        fontSize: 8, fontWeight: 700,
-        color: learned ? 'rgba(255,255,255,.5)' : 'var(--subtext)',
-        lineHeight: 1,
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 4,
+          left: 5,
+          fontSize: 8,
+          fontWeight: 700,
+          color: learned ? 'rgba(255,255,255,.5)' : 'var(--subtext)',
+          lineHeight: 1,
+        }}
+      >
         {word.rank}
       </div>
       {learned && (
-        <div style={{
-          position: 'absolute', top: 3, right: 4,
-          fontSize: 9, color: 'rgba(255,255,255,.8)',
-        }}>✓</div>
+        <div
+          style={{
+            position: 'absolute',
+            top: 3,
+            right: 4,
+            fontSize: 9,
+            color: 'rgba(255,255,255,.8)',
+          }}
+        >
+          ✓
+        </div>
       )}
-      <div style={{
-        fontSize: 13, fontWeight: 800, lineHeight: 1.2, marginTop: 6,
-        color: learned ? 'white' : 'var(--text)',
-      }}>
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 800,
+          lineHeight: 1.2,
+          marginTop: 6,
+          color: learned ? 'white' : 'var(--text)',
+        }}
+      >
         {word.hr}
       </div>
-      <div style={{
-        fontSize: 10, marginTop: 2, lineHeight: 1.3,
-        color: learned ? 'rgba(255,255,255,.7)' : 'var(--subtext)',
-      }}>
+      <div
+        style={{
+          fontSize: 10,
+          marginTop: 2,
+          lineHeight: 1.3,
+          color: learned ? 'rgba(255,255,255,.7)' : 'var(--subtext)',
+        }}
+      >
         {word.en.length > 14 ? word.en.slice(0, 13) + '…' : word.en}
       </div>
     </button>
@@ -150,7 +202,7 @@ function QuizOverlay({ questions, onClose, onMarkLearned }) {
     setSelected(choice);
     const correct = choice === q.answer;
     if (correct) {
-      setScore(s => s + 1);
+      setScore((s) => s + 1);
       onMarkLearned(q.word.rank);
     }
     setTimeout(() => {
@@ -164,41 +216,71 @@ function QuizOverlay({ questions, onClose, onMarkLearned }) {
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0,
-      background: 'rgba(0,0,0,.65)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 9999, padding: 20,
-      fontFamily: "'Outfit', sans-serif",
-    }}>
-      <div className="c" style={{
-        background: 'var(--card)',
-        borderRadius: 22, padding: 24,
-        width: '100%', maxWidth: 420,
-        boxShadow: '0 8px 32px rgba(0,0,0,.25)',
-      }}>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,.65)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        padding: 20,
+        fontFamily: "'Outfit', sans-serif",
+      }}
+    >
+      <div
+        className="c"
+        style={{
+          background: 'var(--card)',
+          borderRadius: 22,
+          padding: 24,
+          width: '100%',
+          maxWidth: 420,
+          boxShadow: '0 8px 32px rgba(0,0,0,.25)',
+        }}
+      >
         {done ? (
           <>
             <div style={{ fontSize: 40, textAlign: 'center', marginBottom: 8 }}>
               {score >= QUIZ_SIZE ? '🏆' : score >= Math.ceil(QUIZ_SIZE / 2) ? '⭐' : '📚'}
             </div>
-            <div style={{ textAlign: 'center', fontSize: 22, fontWeight: 900, color: 'var(--text)', marginBottom: 6 }}>
+            <div
+              style={{
+                textAlign: 'center',
+                fontSize: 22,
+                fontWeight: 900,
+                color: 'var(--text)',
+                marginBottom: 6,
+              }}
+            >
               {score}/{questions.length} correct
             </div>
-            <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--subtext)', marginBottom: 20 }}>
+            <div
+              style={{
+                textAlign: 'center',
+                fontSize: 13,
+                color: 'var(--subtext)',
+                marginBottom: 20,
+              }}
+            >
               {score >= QUIZ_SIZE
                 ? 'Perfect! All words marked as learned.'
                 : score > 0
-                ? 'Correct answers marked as learned.'
-                : 'Keep practising — you\'ve got this!'}
+                  ? 'Correct answers marked as learned.'
+                  : "Keep practising — you've got this!"}
             </div>
             <button
               onClick={onClose}
               style={{
-                width: '100%', padding: '13px 0',
+                width: '100%',
+                padding: '13px 0',
                 background: TEAL_GRAD,
-                border: 'none', borderRadius: 14,
-                color: 'white', fontWeight: 800, fontSize: 15,
+                border: 'none',
+                borderRadius: 14,
+                color: 'white',
+                fontWeight: 800,
+                fontSize: 15,
                 cursor: 'pointer',
                 fontFamily: "'Outfit', sans-serif",
               }}
@@ -209,24 +291,59 @@ function QuizOverlay({ questions, onClose, onMarkLearned }) {
         ) : (
           <>
             {/* Progress */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 14,
+              }}
+            >
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--subtext)' }}>
                 Question {qi + 1} of {questions.length}
               </div>
               <button
                 onClick={onClose}
-                style={{ background: 'var(--bar-bg)', border: 'none', borderRadius: 8, padding: '4px 10px', color: 'var(--subtext)', cursor: 'pointer', fontSize: 12, fontFamily: "'Outfit', sans-serif" }}
+                style={{
+                  background: 'var(--bar-bg)',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '4px 10px',
+                  color: 'var(--subtext)',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontFamily: "'Outfit', sans-serif",
+                }}
               >
                 ✕ Exit
               </button>
             </div>
-            <div style={{ height: 4, background: 'var(--bar-bg)', borderRadius: 2, marginBottom: 20 }}>
-              <div style={{ width: `${(qi / questions.length) * 100}%`, height: '100%', background: '#0e7490', borderRadius: 2, transition: 'width .3s' }} />
+            <div
+              style={{ height: 4, background: 'var(--bar-bg)', borderRadius: 2, marginBottom: 20 }}
+            >
+              <div
+                style={{
+                  width: `${(qi / questions.length) * 100}%`,
+                  height: '100%',
+                  background: '#0e7490',
+                  borderRadius: 2,
+                  transition: 'width .3s',
+                }}
+              />
             </div>
 
             {/* Question */}
             <div style={{ textAlign: 'center', marginBottom: 6 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: 'var(--subtext)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.1em',
+                  marginBottom: 4,
+                }}
+              >
                 #{q.word.rank} · {POS_LABELS[q.word.pos] || q.word.pos}
               </div>
               <div style={{ fontSize: 34, fontWeight: 900, color: 'var(--text)', marginBottom: 4 }}>
@@ -237,22 +354,33 @@ function QuizOverlay({ questions, onClose, onMarkLearned }) {
 
             {/* Choices */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18 }}>
-              {q.choices.map(choice => {
+              {q.choices.map((choice) => {
                 let bg = 'var(--bar-bg)';
                 let col = 'var(--text)';
                 if (selected !== null) {
-                  if (choice === q.answer) { bg = '#dcfce7'; col = '#166534'; }
-                  else if (choice === selected) { bg = '#fee2e2'; col = '#991b1b'; }
+                  if (choice === q.answer) {
+                    bg = '#dcfce7';
+                    col = '#166534';
+                  } else if (choice === selected) {
+                    bg = '#fee2e2';
+                    col = '#991b1b';
+                  }
                 }
                 return (
                   <button
                     key={choice}
                     onClick={() => choose(choice)}
                     style={{
-                      padding: '12px 16px', borderRadius: 12, border: 'none',
-                      background: bg, color: col,
-                      fontWeight: 700, fontSize: 14, cursor: 'pointer',
-                      textAlign: 'left', transition: 'background .2s',
+                      padding: '12px 16px',
+                      borderRadius: 12,
+                      border: 'none',
+                      background: bg,
+                      color: col,
+                      fontWeight: 700,
+                      fontSize: 14,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'background .2s',
                       fontFamily: "'Outfit', sans-serif",
                     }}
                   >
@@ -280,16 +408,18 @@ export default function FrequencyTrackScreen({ goBack, award }) {
   const streak = computeStreak(learnedArr);
   const pct = Math.round((learnedCount / FREQUENCY_500.length) * 100);
 
-  const filtered = posFilter === 'all'
-    ? FREQUENCY_500
-    : FREQUENCY_500.filter(w => w.pos === posFilter);
+  const filtered =
+    posFilter === 'all' ? FREQUENCY_500 : FREQUENCY_500.filter((w) => w.pos === posFilter);
 
-  const handleTap = useCallback((rank) => {
-    if (learnedSet.has(rank)) return;
-    markFrequencyWordLearned(rank);
-    setLearnedArr(getLearnedFrequencyWords());
-    if (typeof award === 'function') award(5);
-  }, [learnedSet, award]);
+  const handleTap = useCallback(
+    (rank) => {
+      if (learnedSet.has(rank)) return;
+      markFrequencyWordLearned(rank);
+      setLearnedArr(getLearnedFrequencyWords());
+      if (typeof award === 'function') award(5);
+    },
+    [learnedSet, award],
+  );
 
   function handleStartQuiz() {
     const questions = buildQuizQuestions(learnedSet);
@@ -311,7 +441,11 @@ export default function FrequencyTrackScreen({ goBack, award }) {
   return (
     <div className="scr-wrap" style={{ paddingBottom: 100, fontFamily: "'Outfit', sans-serif" }}>
       {/* ── HEADER ── */}
-      {H('Top 500 Croatian Words', 'Master the words that make up 80% of everyday Croatian speech', goBack)}
+      {H(
+        'Top 500 Croatian Words',
+        'Master the words that make up 80% of everyday Croatian speech',
+        goBack,
+      )}
 
       {/* ── STATS ROW ── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
@@ -321,26 +455,41 @@ export default function FrequencyTrackScreen({ goBack, award }) {
       </div>
 
       {/* ── PROGRESS BAR ── */}
-      <div className="prog-track" style={{
-        width: '100%', height: 10,
-        background: 'var(--bar-bg)',
-        borderRadius: 5, marginBottom: 18, overflow: 'hidden',
-      }}>
-        <div className="prog-fill" style={{
-          width: `${pct}%`, height: '100%',
-          background: 'linear-gradient(90deg,#0e7490,#06b6d4)',
+      <div
+        className="prog-track"
+        style={{
+          width: '100%',
+          height: 10,
+          background: 'var(--bar-bg)',
           borderRadius: 5,
-          transition: 'width .4s ease',
-        }} />
+          marginBottom: 18,
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          className="prog-fill"
+          style={{
+            width: `${pct}%`,
+            height: '100%',
+            background: 'linear-gradient(90deg,#0e7490,#06b6d4)',
+            borderRadius: 5,
+            transition: 'width .4s ease',
+          }}
+        />
       </div>
 
       {/* ── POS FILTER PILLS ── */}
-      <div style={{
-        display: 'flex', gap: 6, overflowX: 'auto',
-        scrollbarWidth: 'none', marginBottom: 16,
-        padding: '2px 0',
-      }}>
-        {POS_FILTER_ORDER.map(pos => {
+      <div
+        style={{
+          display: 'flex',
+          gap: 6,
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          marginBottom: 16,
+          padding: '2px 0',
+        }}
+      >
+        {POS_FILTER_ORDER.map((pos) => {
           const isActive = posFilter === pos;
           return (
             <button
@@ -349,10 +498,13 @@ export default function FrequencyTrackScreen({ goBack, award }) {
               style={{
                 flexShrink: 0,
                 padding: '7px 14px',
-                borderRadius: 20, border: 'none',
+                borderRadius: 20,
+                border: 'none',
                 background: isActive ? 'linear-gradient(135deg,#0e7490,#164e63)' : 'var(--bar-bg)',
                 color: isActive ? 'white' : 'var(--subtext)',
-                fontWeight: 700, fontSize: 12, cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: 'pointer',
                 transition: 'background .2s',
                 fontFamily: "'Outfit', sans-serif",
               }}
@@ -364,13 +516,15 @@ export default function FrequencyTrackScreen({ goBack, award }) {
       </div>
 
       {/* ── WORD GRID ── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gap: 6,
-        marginBottom: 24,
-      }}>
-        {filtered.map(word => (
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(5, 1fr)',
+          gap: 6,
+          marginBottom: 24,
+        }}
+      >
+        {filtered.map((word) => (
           <WordTile
             key={word.rank}
             word={word}
@@ -381,20 +535,28 @@ export default function FrequencyTrackScreen({ goBack, award }) {
       </div>
 
       {/* ── BOTTOM CTA ── */}
-      <div style={{
-        position: 'sticky', bottom: 16,
-        padding: '0 0 4px',
-      }}>
+      <div
+        style={{
+          position: 'sticky',
+          bottom: 16,
+          padding: '0 0 4px',
+        }}
+      >
         <button
           onClick={handleStartQuiz}
           disabled={learnedCount >= FREQUENCY_500.length}
           style={{
-            width: '100%', padding: '15px 0',
+            width: '100%',
+            padding: '15px 0',
             background: learnedCount >= FREQUENCY_500.length ? 'var(--bar-bg)' : TEAL_GRAD,
-            border: 'none', borderRadius: 16,
+            border: 'none',
+            borderRadius: 16,
             color: learnedCount >= FREQUENCY_500.length ? 'var(--subtext)' : 'white',
-            fontWeight: 800, fontSize: 16, cursor: 'pointer',
-            boxShadow: learnedCount >= FREQUENCY_500.length ? 'none' : '0 4px 18px rgba(14,116,144,.45)',
+            fontWeight: 800,
+            fontSize: 16,
+            cursor: 'pointer',
+            boxShadow:
+              learnedCount >= FREQUENCY_500.length ? 'none' : '0 4px 18px rgba(14,116,144,.45)',
             transition: 'opacity .2s',
             fontFamily: "'Outfit', sans-serif",
           }}

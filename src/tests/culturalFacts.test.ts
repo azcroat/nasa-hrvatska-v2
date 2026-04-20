@@ -24,7 +24,7 @@ describe('culturalFacts', () => {
 
   it('getDailyFact returns a value that is in CULTURAL_FACTS', () => {
     const result = getDailyFact();
-    const found = CULTURAL_FACTS.find(f => f.fact === result.fact);
+    const found = CULTURAL_FACTS.find((f) => f.fact === result.fact);
     expect(found).toBeDefined();
   });
 

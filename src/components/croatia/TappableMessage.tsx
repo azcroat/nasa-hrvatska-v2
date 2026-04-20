@@ -9,15 +9,22 @@ export default function TappableMessage({ text, onWordClick }) {
     <>
       {tokens.map((token, i) => {
         if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
-        const stripped = token.replace(/[.,!?;:…«»"'""''()\[\]]/g, "").trim();
+        const stripped = token.replace(/[.,!?;:…«»"'""''()\[\]]/g, '').trim();
         if (stripped.length < 2) return <span key={i}>{token}</span>;
         return (
           <span
             key={i}
             data-word="1"
-            onClick={e => { e.stopPropagation(); onWordClick(token); }}
-            style={{ cursor: "pointer", borderBottom: "1px dotted rgba(14,116,144,.4)",
-              borderRadius: 2, transition: "background .1s" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onWordClick(token);
+            }}
+            style={{
+              cursor: 'pointer',
+              borderBottom: '1px dotted rgba(14,116,144,.4)',
+              borderRadius: 2,
+              transition: 'background .1s',
+            }}
             title="Tap to translate"
           >
             {token}

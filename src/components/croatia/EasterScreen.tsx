@@ -14,8 +14,8 @@ function _shuffleOpts(opts) {
 
 const KVIZ_DONE_KEY = 'nh_uskrs_kviz_done';
 // Campaign quest keys — written on completion so the banner shows them as done
-const CQ_VOCAB_KEY  = 'nh_cq_easter_uskrs_q1'; // "Learn 5 Easter words"
-const CQ_KVIZ_KEY   = 'nh_cq_easter_uskrs_q3'; // "Easter challenge"
+const CQ_VOCAB_KEY = 'nh_cq_easter_uskrs_q1'; // "Learn 5 Easter words"
+const CQ_KVIZ_KEY = 'nh_cq_easter_uskrs_q3'; // "Easter challenge"
 
 const TRADITIONS = [
   {
@@ -46,7 +46,7 @@ const TRADITIONS = [
   {
     emoji: '❤️',
     title: 'Licitarsko srce',
-    body: 'Gingerbread heart — the red licitarsko srce is Croatia\'s most recognized folk symbol. At Easter markets, families buy them as gifts. The tradition is UNESCO-protected. Zagreb\'s Dolac market fills with them every spring.',
+    body: "Gingerbread heart — the red licitarsko srce is Croatia's most recognized folk symbol. At Easter markets, families buy them as gifts. The tradition is UNESCO-protected. Zagreb's Dolac market fills with them every spring.",
   },
 ];
 
@@ -66,7 +66,7 @@ const RECIPES = [
     title: 'Janje s ražnja',
     subtitle: 'Spit-Roasted Lamb',
     emoji: '🔥',
-    body: 'A whole lamb roasted slowly over an open fire (ražanj) for 4–6 hours, basted with salt water. The skin should crack when tapped. Villages gather around the fire from early morning. The smell carries for kilometres. If you\'re invited to a Croatian Easter in Dalmatia, you have been truly accepted.',
+    body: "A whole lamb roasted slowly over an open fire (ražanj) for 4–6 hours, basted with salt water. The skin should crack when tapped. Villages gather around the fire from early morning. The smell carries for kilometres. If you're invited to a Croatian Easter in Dalmatia, you have been truly accepted.",
     keywords: [
       { hr: 'janje', en: 'lamb' },
       { hr: 'ražanj', en: 'spit roast' },
@@ -110,12 +110,22 @@ const QUIZ_QUESTIONS = [
   {
     q: 'What is the Za Križen procession famous for?',
     correct: '500 years of unbroken tradition',
-    opts: ['500 years of unbroken tradition', 'Only women participate', 'Held in Zagreb', 'Involves swimming in the sea'],
+    opts: [
+      '500 years of unbroken tradition',
+      'Only women participate',
+      'Held in Zagreb',
+      'Involves swimming in the sea',
+    ],
   },
   {
     q: 'What is an uskrsna košarica?',
     correct: 'An Easter basket taken to church for blessing',
-    opts: ['An Easter basket taken to church for blessing', 'A basket of Easter eggs sold at market', 'A wicker Easter decoration', 'A basket of spring flowers'],
+    opts: [
+      'An Easter basket taken to church for blessing',
+      'A basket of Easter eggs sold at market',
+      'A wicker Easter decoration',
+      'A basket of spring flowers',
+    ],
   },
   {
     q: 'What food is described as "the Easter centerpiece" in Croatian tradition?',
@@ -135,7 +145,12 @@ const QUIZ_QUESTIONS = [
   {
     q: 'What is "Veliki tjedan"?',
     correct: 'Holy Week (the week before Easter)',
-    opts: ['Holy Week (the week before Easter)', 'Easter Sunday itself', 'The week after Easter', 'Christmas week'],
+    opts: [
+      'Holy Week (the week before Easter)',
+      'Easter Sunday itself',
+      'The week after Easter',
+      'Christmas week',
+    ],
   },
   {
     q: 'What does "Veliki petak" mean?',
@@ -155,10 +170,15 @@ const QUIZ_QUESTIONS = [
   {
     q: 'The word "Uskrs" (Easter) in Croatian comes from which verb?',
     correct: 'uskrsnuti (to rise/resurrect)',
-    opts: ['uskrsnuti (to rise/resurrect)', 'uskratiti (to deny)', 'uskočiti (to jump in)', 'ustati (to stand up)'],
+    opts: [
+      'uskrsnuti (to rise/resurrect)',
+      'uskratiti (to deny)',
+      'uskočiti (to jump in)',
+      'ustati (to stand up)',
+    ],
   },
   {
-    q: 'Where is Zagreb\'s famous Easter market held, known for licitarsko srce?',
+    q: "Where is Zagreb's famous Easter market held, known for licitarsko srce?",
     correct: 'Dolac market',
     opts: ['Dolac market', 'Ban Jelačić Square', 'Jarun lake', 'Maksimir park'],
   },
@@ -178,7 +198,11 @@ const TABS = [
 export default function EasterScreen({ onBack, award }) {
   // Persist completion across sessions — once done, quiz is locked
   const [kvizPermanentlyDone] = useState(() => {
-    try { return localStorage.getItem(KVIZ_DONE_KEY) === '1'; } catch { return false; }
+    try {
+      return localStorage.getItem(KVIZ_DONE_KEY) === '1';
+    } catch {
+      return false;
+    }
   });
 
   const [tab, setTab] = useState('tradicije');
@@ -194,9 +218,9 @@ export default function EasterScreen({ onBack, award }) {
 
   // Shuffle opts once per quiz session so correct answer isn't always first
   const shuffledQuestions = useMemo(
-    () => QUIZ_QUESTIONS.map(q => ({ ...q, opts: _shuffleOpts(q.opts) })),
-     
-    []
+    () => QUIZ_QUESTIONS.map((q) => ({ ...q, opts: _shuffleOpts(q.opts) })),
+
+    [],
   );
 
   // Mark "Learn 5 Easter words" campaign quest when user browses vocab tab
@@ -245,18 +269,31 @@ export default function EasterScreen({ onBack, award }) {
   return (
     <div>
       {/* Header */}
-      <div style={{
-        background: `linear-gradient(135deg, ${ACCENT}, #15803d)`,
-        borderRadius: 16, padding: '18px 20px', marginBottom: 20,
-        position: 'relative',
-      }}>
+      <div
+        style={{
+          background: `linear-gradient(135deg, ${ACCENT}, #15803d)`,
+          borderRadius: 16,
+          padding: '18px 20px',
+          marginBottom: 20,
+          position: 'relative',
+        }}
+      >
         <button
           onClick={onBack}
           style={{
-            display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,.18)',
-            border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13,
-            fontWeight: 700, color: '#fff', padding: '5px 10px',
-            fontFamily: "'Outfit',sans-serif", marginBottom: 12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            background: 'rgba(255,255,255,.18)',
+            border: 'none',
+            borderRadius: 8,
+            cursor: 'pointer',
+            fontSize: 13,
+            fontWeight: 700,
+            color: '#fff',
+            padding: '5px 10px',
+            fontFamily: "'Outfit',sans-serif",
+            marginBottom: 12,
           }}
         >
           ‹ Back
@@ -264,10 +301,25 @@ export default function EasterScreen({ onBack, award }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 36 }}>🥚</span>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', fontFamily: "'Playfair Display',serif", lineHeight: 1.2 }}>
+            <div
+              style={{
+                fontSize: 20,
+                fontWeight: 900,
+                color: '#fff',
+                fontFamily: "'Playfair Display',serif",
+                lineHeight: 1.2,
+              }}
+            >
               Uskrs u Hrvatskoj
             </div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,.85)', marginTop: 3, fontWeight: 500 }}>
+            <div
+              style={{
+                fontSize: 12,
+                color: 'rgba(255,255,255,.85)',
+                marginTop: 3,
+                fontWeight: 500,
+              }}
+            >
               Discover Croatian Easter traditions
             </div>
           </div>
@@ -275,19 +327,30 @@ export default function EasterScreen({ onBack, award }) {
       </div>
 
       {/* Tab bar */}
-      <div style={{
-        display: 'flex', gap: 4, marginBottom: 20,
-        background: 'var(--bar-bg)', borderRadius: 12, padding: 4,
-      }}>
-        {TABS.map(t => (
+      <div
+        style={{
+          display: 'flex',
+          gap: 4,
+          marginBottom: 20,
+          background: 'var(--bar-bg)',
+          borderRadius: 12,
+          padding: 4,
+        }}
+      >
+        {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             style={{
-              flex: 1, padding: '9px 4px', borderRadius: 9, border: 'none',
+              flex: 1,
+              padding: '9px 4px',
+              borderRadius: 9,
+              border: 'none',
               cursor: 'pointer',
               background: tab === t.id ? 'var(--card)' : 'transparent',
-              fontFamily: "'Outfit',sans-serif", fontSize: 11, fontWeight: 700,
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: 11,
+              fontWeight: 700,
               color: tab === t.id ? ACCENT : 'var(--subtext)',
               boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,.1)' : 'none',
               transition: 'all .2s',
@@ -302,14 +365,27 @@ export default function EasterScreen({ onBack, award }) {
       {tab === 'tradicije' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {TRADITIONS.map((tr, i) => (
-            <div key={i} style={{
-              background: 'var(--card)', border: '1px solid var(--card-b)',
-              borderRadius: 14, padding: '14px 16px',
-            }}>
+            <div
+              key={i}
+              style={{
+                background: 'var(--card)',
+                border: '1px solid var(--card-b)',
+                borderRadius: 14,
+                padding: '14px 16px',
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <span style={{ fontSize: 26, flexShrink: 0, marginTop: 1 }}>{tr.emoji}</span>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--heading)', marginBottom: 5, fontFamily: "'Playfair Display',serif" }}>
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 800,
+                      color: 'var(--heading)',
+                      marginBottom: 5,
+                      fontFamily: "'Playfair Display',serif",
+                    }}
+                  >
                     {tr.title}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.65 }}>
@@ -325,11 +401,18 @@ export default function EasterScreen({ onBack, award }) {
       {/* POZDRAVITE SE TAB */}
       {tab === 'pozdravite' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{
-            background: ACCENT_LIGHT, border: `1.5px solid ${ACCENT_BORDER}`,
-            borderRadius: 12, padding: '12px 14px', marginBottom: 8,
-            fontSize: 12, color: 'var(--subtext)', lineHeight: 1.6,
-          }}>
+          <div
+            style={{
+              background: ACCENT_LIGHT,
+              border: `1.5px solid ${ACCENT_BORDER}`,
+              borderRadius: 12,
+              padding: '12px 14px',
+              marginBottom: 8,
+              fontSize: 12,
+              color: 'var(--subtext)',
+              lineHeight: 1.6,
+            }}
+          >
             Tap any word to hear it spoken in Croatian.
           </div>
           {easterVocab.map((item, i) => {
@@ -342,25 +425,52 @@ export default function EasterScreen({ onBack, award }) {
                 aria-label={`Play audio for ${hr}`}
                 onClick={() => speak(hr)}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
                   padding: '12px 14px',
-                  background: 'var(--card)', border: '1px solid var(--card-b)',
-                  borderRadius: 12, cursor: 'pointer', textAlign: 'left',
-                  fontFamily: "'Outfit',sans-serif", width: '100%',
+                  background: 'var(--card)',
+                  border: '1px solid var(--card-b)',
+                  borderRadius: 12,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontFamily: "'Outfit',sans-serif",
+                  width: '100%',
                 }}
               >
-                <span aria-hidden="true" style={{
-                  fontSize: 16, flexShrink: 0, color: ACCENT,
-                }}>🔊</span>
+                <span
+                  aria-hidden="true"
+                  style={{
+                    fontSize: 16,
+                    flexShrink: 0,
+                    color: ACCENT,
+                  }}
+                >
+                  🔊
+                </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 800,
+                      color: 'var(--heading)',
+                      fontFamily: "'Playfair Display',serif",
+                    }}
+                  >
                     {hr}
                   </div>
                   <div style={{ fontSize: 12, color: ACCENT, fontWeight: 600, marginTop: 1 }}>
                     {en}
                   </div>
                   {ph && (
-                    <div style={{ fontSize: 10, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: 'var(--subtext)',
+                        fontStyle: 'italic',
+                        marginTop: 1,
+                      }}
+                    >
                       /{ph}/
                     </div>
                   )}
@@ -375,26 +485,49 @@ export default function EasterScreen({ onBack, award }) {
       {tab === 'recepti' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {RECIPES.map((r, i) => (
-            <div key={i} style={{
-              background: 'var(--card)', border: '1px solid var(--card-b)',
-              borderRadius: 16, overflow: 'hidden',
-            }}>
-              <div style={{
-                background: ACCENT_LIGHT, borderBottom: `1px solid ${ACCENT_BORDER}`,
-                padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
-              }}>
+            <div
+              key={i}
+              style={{
+                background: 'var(--card)',
+                border: '1px solid var(--card-b)',
+                borderRadius: 16,
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  background: ACCENT_LIGHT,
+                  borderBottom: `1px solid ${ACCENT_BORDER}`,
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
+              >
                 <span style={{ fontSize: 24 }}>{r.emoji}</span>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif" }}>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 900,
+                      color: 'var(--heading)',
+                      fontFamily: "'Playfair Display',serif",
+                    }}
+                  >
                     {r.title}
                   </div>
-                  <div style={{ fontSize: 11, color: ACCENT, fontWeight: 700 }}>
-                    {r.subtitle}
-                  </div>
+                  <div style={{ fontSize: 11, color: ACCENT, fontWeight: 700 }}>{r.subtitle}</div>
                 </div>
               </div>
               <div style={{ padding: '12px 16px' }}>
-                <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.65, marginBottom: 12 }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: 'var(--subtext)',
+                    lineHeight: 1.65,
+                    marginBottom: 12,
+                  }}
+                >
                   {r.body}
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -404,15 +537,24 @@ export default function EasterScreen({ onBack, award }) {
                       aria-label={`Play audio for ${kw.hr}`}
                       onClick={() => speak(kw.hr)}
                       style={{
-                        background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}`,
-                        borderRadius: 20, padding: '4px 10px', cursor: 'pointer',
+                        background: ACCENT_LIGHT,
+                        border: `1px solid ${ACCENT_BORDER}`,
+                        borderRadius: 20,
+                        padding: '4px 10px',
+                        cursor: 'pointer',
                         fontFamily: "'Outfit',sans-serif",
-                        display: 'inline-flex', alignItems: 'center', gap: 5,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
                       }}
                     >
-                      <span aria-hidden="true" style={{ fontSize: 10 }}>🔊</span>
+                      <span aria-hidden="true" style={{ fontSize: 10 }}>
+                        🔊
+                      </span>
                       <span style={{ fontSize: 12, fontWeight: 700, color: ACCENT }}>{kw.hr}</span>
-                      <span style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>{kw.en}</span>
+                      <span style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
+                        {kw.en}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -427,30 +569,56 @@ export default function EasterScreen({ onBack, award }) {
         <div>
           {!quizDone ? (
             <div>
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: 16,
-              }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 16,
+                }}
+              >
                 <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 700 }}>
                   Question {qIdx + 1} of {shuffledQuestions.length}
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
                   {shuffledQuestions.map((_, qi) => (
-                    <div key={qi} style={{
-                      width: 8, height: 8, borderRadius: '50%',
-                      background: qi < qIdx
-                        ? (answers[qi] ? ACCENT : '#ef4444')
-                        : qi === qIdx ? ACCENT : 'var(--card-b)',
-                    }} />
+                    <div
+                      key={qi}
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background:
+                          qi < qIdx
+                            ? answers[qi]
+                              ? ACCENT
+                              : '#ef4444'
+                            : qi === qIdx
+                              ? ACCENT
+                              : 'var(--card-b)',
+                      }}
+                    />
                   ))}
                 </div>
               </div>
 
-              <div style={{
-                background: ACCENT_LIGHT, border: `1.5px solid ${ACCENT_BORDER}`,
-                borderRadius: 14, padding: '16px 18px', marginBottom: 20,
-              }}>
-                <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.4 }}>
+              <div
+                style={{
+                  background: ACCENT_LIGHT,
+                  border: `1.5px solid ${ACCENT_BORDER}`,
+                  borderRadius: 14,
+                  padding: '16px 18px',
+                  marginBottom: 20,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 800,
+                    color: 'var(--heading)',
+                    lineHeight: 1.4,
+                  }}
+                >
                   {shuffledQuestions[qIdx].q}
                 </div>
               </div>
@@ -462,9 +630,13 @@ export default function EasterScreen({ onBack, award }) {
                   let color = 'var(--heading)';
                   if (selected !== null) {
                     if (opt === shuffledQuestions[qIdx].correct) {
-                      bg = 'rgba(22,163,74,.12)'; border = `1.5px solid ${ACCENT}`; color = ACCENT;
+                      bg = 'rgba(22,163,74,.12)';
+                      border = `1.5px solid ${ACCENT}`;
+                      color = ACCENT;
                     } else if (opt === selected && opt !== shuffledQuestions[qIdx].correct) {
-                      bg = 'rgba(239,68,68,.1)'; border = '1.5px solid #ef4444'; color = '#ef4444';
+                      bg = 'rgba(239,68,68,.1)';
+                      border = '1.5px solid #ef4444';
+                      color = '#ef4444';
                     }
                   }
                   return (
@@ -473,10 +645,16 @@ export default function EasterScreen({ onBack, award }) {
                       onClick={() => handleAnswer(opt)}
                       disabled={selected !== null}
                       style={{
-                        padding: '13px 16px', background: bg, border,
-                        borderRadius: 12, cursor: selected !== null ? 'default' : 'pointer',
-                        textAlign: 'left', fontFamily: "'Outfit',sans-serif",
-                        fontSize: 13, fontWeight: 700, color,
+                        padding: '13px 16px',
+                        background: bg,
+                        border,
+                        borderRadius: 12,
+                        cursor: selected !== null ? 'default' : 'pointer',
+                        textAlign: 'left',
+                        fontFamily: "'Outfit',sans-serif",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color,
                         transition: 'all .2s',
                       }}
                     >
@@ -489,21 +667,44 @@ export default function EasterScreen({ onBack, award }) {
           ) : (
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>
-                {kvizPermanentlyDone && answers.length === 0 ? '🏆' : answers.filter(Boolean).length === shuffledQuestions.length ? '🎉' : '🥚'}
+                {kvizPermanentlyDone && answers.length === 0
+                  ? '🏆'
+                  : answers.filter(Boolean).length === shuffledQuestions.length
+                    ? '🎉'
+                    : '🥚'}
               </div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', fontFamily: "'Playfair Display',serif", marginBottom: 6 }}>
-                {kvizPermanentlyDone && answers.length === 0 ? 'Kviz završen!' : answers.filter(Boolean).length === shuffledQuestions.length ? 'Savršeno!' : 'Kviz završen!'}
+              <div
+                style={{
+                  fontSize: 22,
+                  fontWeight: 900,
+                  color: 'var(--heading)',
+                  fontFamily: "'Playfair Display',serif",
+                  marginBottom: 6,
+                }}
+              >
+                {kvizPermanentlyDone && answers.length === 0
+                  ? 'Kviz završen!'
+                  : answers.filter(Boolean).length === shuffledQuestions.length
+                    ? 'Savršeno!'
+                    : 'Kviz završen!'}
               </div>
               {answers.length > 0 && (
                 <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 20 }}>
                   {answers.filter(Boolean).length} / {shuffledQuestions.length} correct
                 </div>
               )}
-              <div style={{
-                background: ACCENT_LIGHT, border: `1.5px solid ${ACCENT_BORDER}`,
-                borderRadius: 14, padding: '14px 18px', marginBottom: 20,
-                fontSize: 13, fontWeight: 700, color: ACCENT,
-              }}>
+              <div
+                style={{
+                  background: ACCENT_LIGHT,
+                  border: `1.5px solid ${ACCENT_BORDER}`,
+                  borderRadius: 14,
+                  padding: '14px 18px',
+                  marginBottom: 20,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: ACCENT,
+                }}
+              >
                 {answers.length > 0
                   ? `+${answers.filter(Boolean).length * 10} XP earned`
                   : 'Kviz je već završen — XP je dodijeljen.'}
@@ -512,18 +713,37 @@ export default function EasterScreen({ onBack, award }) {
               {answers.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
                   {shuffledQuestions.map((qq, qi) => (
-                    <div key={qi} style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '10px 14px', borderRadius: 10,
-                      background: answers[qi] ? 'rgba(22,163,74,.08)' : 'rgba(239,68,68,.07)',
-                      border: `1px solid ${answers[qi] ? ACCENT_BORDER : 'rgba(239,68,68,.2)'}`,
-                      textAlign: 'left',
-                    }}>
-                      <span style={{ fontSize: 16, flexShrink: 0 }}>{answers[qi] ? '✅' : '❌'}</span>
+                    <div
+                      key={qi}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        background: answers[qi] ? 'rgba(22,163,74,.08)' : 'rgba(239,68,68,.07)',
+                        border: `1px solid ${answers[qi] ? ACCENT_BORDER : 'rgba(239,68,68,.2)'}`,
+                        textAlign: 'left',
+                      }}
+                    >
+                      <span style={{ fontSize: 16, flexShrink: 0 }}>
+                        {answers[qi] ? '✅' : '❌'}
+                      </span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 12, color: 'var(--subtext)', fontWeight: 600, lineHeight: 1.3 }}>{qq.q}</div>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: 'var(--subtext)',
+                            fontWeight: 600,
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {qq.q}
+                        </div>
                         {!answers[qi] && (
-                          <div style={{ fontSize: 11, color: ACCENT, fontWeight: 700, marginTop: 2 }}>
+                          <div
+                            style={{ fontSize: 11, color: ACCENT, fontWeight: 700, marginTop: 2 }}
+                          >
                             {qq.correct}
                           </div>
                         )}
@@ -534,11 +754,17 @@ export default function EasterScreen({ onBack, award }) {
               )}
 
               {/* No Try Again — quiz is one-time only */}
-              <div style={{
-                fontSize: 12, color: 'var(--subtext)', fontStyle: 'italic',
-                padding: '10px 16px', background: 'var(--bar-bg)',
-                borderRadius: 10, marginTop: 8,
-              }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: 'var(--subtext)',
+                  fontStyle: 'italic',
+                  padding: '10px 16px',
+                  background: 'var(--bar-bg)',
+                  borderRadius: 10,
+                  marginTop: 8,
+                }}
+              >
                 Ovaj kviz može se riješiti samo jednom. / This quiz can only be completed once.
               </div>
             </div>

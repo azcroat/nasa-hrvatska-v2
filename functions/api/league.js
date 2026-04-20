@@ -23,11 +23,15 @@ function isAllowedOrigin(origin, isDev) {
   try {
     const hostname = new URL(origin).hostname;
     if (isDev && hostname === 'localhost') return true;
-    return hostname === 'nasahrvatska.com'
-      || hostname.endsWith('.nasahrvatska.com')
-      || hostname === 'nasa-hrvatska-v2.pages.dev'
-      || hostname.endsWith('.nasa-hrvatska-v2.pages.dev');
-  } catch { return false; }
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
@@ -54,16 +58,16 @@ function getTier(xp) {
   if (xp >= 600) return 'diamond';
   if (xp >= 300) return 'platinum';
   if (xp >= 100) return 'gold';
-  if (xp >= 50)  return 'silver';
+  if (xp >= 50) return 'silver';
   return 'bronze';
 }
 
 const TIER_META = {
-  diamond:  { name: 'Diamond',  icon: '💎', color: '#0e7490', order: 4 },
+  diamond: { name: 'Diamond', icon: '💎', color: '#0e7490', order: 4 },
   platinum: { name: 'Platinum', icon: '🏆', color: '#7c3aed', order: 3 },
-  gold:     { name: 'Gold',     icon: '🥇', color: '#d97706', order: 2 },
-  silver:   { name: 'Silver',   icon: '🥈', color: '#6b7280', order: 1 },
-  bronze:   { name: 'Bronze',   icon: '🥉', color: '#b45309', order: 0 },
+  gold: { name: 'Gold', icon: '🥇', color: '#d97706', order: 2 },
+  silver: { name: 'Silver', icon: '🥈', color: '#6b7280', order: 1 },
+  bronze: { name: 'Bronze', icon: '🥉', color: '#b45309', order: 0 },
 };
 
 /** Sort members by XP descending and add rank. */
@@ -107,7 +111,7 @@ async function assignGroup(kv, weekKey, uid, name, xp) {
     await kv.put(
       `league_group:${weekKey}:${targetGroupId}`,
       JSON.stringify({ members: [{ uid, name, xp }] }),
-      { expirationTtl: 60 * 60 * 24 * 14 }
+      { expirationTtl: 60 * 60 * 24 * 14 },
     );
   } else {
     // Add user to existing group
@@ -125,9 +129,9 @@ async function assignGroup(kv, weekKey, uid, name, xp) {
       await kv.put(
         `league_group:${weekKey}:${targetGroupId}`,
         JSON.stringify({ members: [{ uid, name, xp }] }),
-        { expirationTtl: 60 * 60 * 24 * 14 }
+        { expirationTtl: 60 * 60 * 24 * 14 },
       );
-    } else if (!members.find(m => m.uid === uid)) {
+    } else if (!members.find((m) => m.uid === uid)) {
       members.push({ uid, name, xp });
       await kv.put(groupKey, JSON.stringify({ members }), { expirationTtl: 60 * 60 * 24 * 14 });
     }
@@ -147,10 +151,10 @@ async function updateAndGetStandings(kv, weekKey, groupId, uid, name, xp) {
   const group = await kv.get(groupKey, 'json');
   const members = group?.members || [];
 
-  const idx = members.findIndex(m => m.uid === uid);
+  const idx = members.findIndex((m) => m.uid === uid);
   if (idx !== -1) {
-    members[idx].xp = xp;  
-    if (name) members[idx].name = name;  
+    members[idx].xp = xp;
+    if (name) members[idx].name = name;
   } else {
     members.push({ uid, name, xp });
   }
@@ -158,18 +162,18 @@ async function updateAndGetStandings(kv, weekKey, groupId, uid, name, xp) {
   await kv.put(groupKey, JSON.stringify({ members }), { expirationTtl: 60 * 60 * 24 * 14 });
 
   const ranked = rankMembers(members);
-  const myEntry = ranked.find(m => m.uid === uid);
+  const myEntry = ranked.find((m) => m.uid === uid);
   return { ranked, myRank: myEntry?.rank ?? ranked.length };
 }
 
 /** Build the response payload. */
 function buildResponse(uid, groupId, ranked, weekKey, xp) {
   const tierId = getTier(xp);
-  const tier = TIER_META[tierId];  
+  const tier = TIER_META[tierId];
 
   // Top 10 for display (Duolingo-style)
   const top10 = ranked.slice(0, 10);
-  const myEntry = ranked.find(m => m.uid === uid);
+  const myEntry = ranked.find((m) => m.uid === uid);
   const myRank = myEntry?.rank ?? ranked.length;
   const total = ranked.length;
 
@@ -249,7 +253,7 @@ export async function onRequest(context) {
     const group = await kv.get(groupKey, 'json');
     const members = group?.members || [];
     const ranked = rankMembers(members);
-    const myEntry = ranked.find(m => m.uid === uid);
+    const myEntry = ranked.find((m) => m.uid === uid);
     const xp = myEntry?.xp ?? 0;
 
     return json(buildResponse(uid, groupId, ranked, weekKey, xp), 200, origin);
@@ -273,7 +277,11 @@ export async function onRequest(context) {
     if (typeof weekKey !== 'string' || !/^\d{4}-W\d{2}$/.test(weekKey)) {
       return err('Invalid weekKey format. Expected e.g. "2026-W13".', 400, origin);
     }
-    const safeName = String(name).slice(0, 40).replace(/[^\p{L}\p{N} '-]/gu, '').trim() || 'Learner';
+    const safeName =
+      String(name)
+        .slice(0, 40)
+        .replace(/[^\p{L}\p{N} '-]/gu, '')
+        .trim() || 'Learner';
 
     // Assign group (idempotent — returns existing group if already assigned)
     const groupId = await assignGroup(kv, weekKey, uid, safeName, xp);

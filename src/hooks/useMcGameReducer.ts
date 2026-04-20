@@ -37,7 +37,7 @@ export interface McGameState {
   practiceMode: boolean;
   // Answer state (reset on each ADVANCE)
   answered: boolean;
-  selected: number;          // option index selected, -1 = none
+  selected: number; // option index selected, -1 = none
   revealCorrect: boolean;
   grammarTip: string | null;
   qTransition: boolean;
@@ -51,9 +51,9 @@ export interface McGameState {
   streakPulse: boolean;
   showOnARoll: boolean;
   // Animation signals (cleared by timer-dispatched actions)
-  burst: number;             // option index showing burst glow, -1 = none
+  burst: number; // option index showing burst glow, -1 = none
   shaking: boolean;
-  glowIndex: number;         // option index showing hint glow, -1 = none
+  glowIndex: number; // option index showing hint glow, -1 = none
   // UI
   confirmQuit: boolean;
   // Mistake log for post-game review
@@ -91,8 +91,8 @@ export type McGameAction =
 // ── Reducer ──────────────────────────────────────────────────────────────────
 
 function comboMessage(streak: number): string {
-  if (streak === 3)  return '🔥 3 in a row!';
-  if (streak === 5)  return '⚡ On fire! 5 streak!';
+  if (streak === 3) return '🔥 3 in a row!';
+  if (streak === 5) return '⚡ On fire! 5 streak!';
   if (streak === 10) return '💥 Unstoppable! 10 streak!';
   if (streak === 15) return '🌟 Legendary!';
   return '';
@@ -100,33 +100,33 @@ function comboMessage(streak: number): string {
 
 function mcGameReducer(state: McGameState, action: McGameAction): McGameState {
   switch (action.type) {
-
     case 'ANSWER': {
-      const { isCorrect, optionIndex, question, grammarTip, persistentHeartsAfter, isHeartsMode } = action.payload;
+      const { isCorrect, optionIndex, question, grammarTip, persistentHeartsAfter, isHeartsMode } =
+        action.payload;
 
       if (isCorrect) {
-        const newStreak      = state.streak + 1;
-        const newBest        = Math.max(state.bestStreak, newStreak);
-        const newCorrect     = state.correctStreak + 1;
-        const msg            = comboMessage(newStreak);
-        const hasCombo       = msg.length > 0;
-        const showOnARoll    = newCorrect === 5;
+        const newStreak = state.streak + 1;
+        const newBest = Math.max(state.bestStreak, newStreak);
+        const newCorrect = state.correctStreak + 1;
+        const msg = comboMessage(newStreak);
+        const hasCombo = msg.length > 0;
+        const showOnARoll = newCorrect === 5;
 
         return {
           ...state,
-          answered:      true,
-          selected:      optionIndex,
-          burst:         optionIndex,
-          score:         state.score + 1,
-          streak:        newStreak,
-          bestStreak:    newBest,
-          wrongStreak:   0,
+          answered: true,
+          selected: optionIndex,
+          burst: optionIndex,
+          score: state.score + 1,
+          streak: newStreak,
+          bestStreak: newBest,
+          wrongStreak: 0,
           correctStreak: newCorrect,
-          comboMsg:      msg,
-          showCombo:     hasCombo,
-          streakPulse:   hasCombo,
-          showOnARoll:   showOnARoll || state.showOnARoll,
-          grammarTip:    null,
+          comboMsg: msg,
+          showCombo: hasCombo,
+          streakPulse: hasCombo,
+          showOnARoll: showOnARoll || state.showOnARoll,
+          grammarTip: null,
           revealCorrect: false,
         };
       }
@@ -147,26 +147,26 @@ function mcGameReducer(state: McGameState, action: McGameAction): McGameState {
 
       const newMistakes = (() => {
         const key = question.hr || question.q || question.correct;
-        if (state.mistakes.some(m => (m.hr || m.q || m.correct) === key)) return state.mistakes;
+        if (state.mistakes.some((m) => (m.hr || m.q || m.correct) === key)) return state.mistakes;
         return [...state.mistakes, question];
       })();
 
       return {
         ...state,
-        answered:      true,
-        selected:      optionIndex,
+        answered: true,
+        selected: optionIndex,
         revealCorrect: true,
         grammarTip,
-        shaking:       true,
-        streak:        0,
+        shaking: true,
+        streak: 0,
         correctStreak: 0,
-        wrongStreak:   newWrongStreak,
-        glowIndex:     correctIdx,
-        showCombo:     false,
-        comboMsg:      '',
-        streakPulse:   false,
-        hearts:        newHearts,
-        mistakes:      newMistakes,
+        wrongStreak: newWrongStreak,
+        glowIndex: correctIdx,
+        showCombo: false,
+        comboMsg: '',
+        streakPulse: false,
+        hearts: newHearts,
+        mistakes: newMistakes,
       };
     }
 
@@ -175,13 +175,13 @@ function mcGameReducer(state: McGameState, action: McGameAction): McGameState {
       // The caller checks queue.length === 1 to fire onComplete before dispatching.
       return {
         ...state,
-        queue:        state.queue.slice(1),
+        queue: state.queue.slice(1),
         clearedCount: state.clearedCount + 1,
-        answered:     false,
-        selected:     -1,
+        answered: false,
+        selected: -1,
         revealCorrect: false,
-        grammarTip:   null,
-        qTransition:  true,
+        grammarTip: null,
+        qTransition: true,
       };
     }
 
@@ -190,12 +190,12 @@ function mcGameReducer(state: McGameState, action: McGameAction): McGameState {
       const [current, ...rest] = state.queue;
       return {
         ...state,
-        queue:         [...rest, { ...current, _isRetry: true }],
-        answered:      false,
-        selected:      -1,
+        queue: [...rest, { ...current, _isRetry: true }],
+        answered: false,
+        selected: -1,
         revealCorrect: false,
-        grammarTip:    null,
-        qTransition:   true,
+        grammarTip: null,
+        qTransition: true,
       };
     }
 
@@ -243,31 +243,31 @@ function mcGameReducer(state: McGameState, action: McGameAction): McGameState {
 
 export function buildInitialState(questions: McQuestion[], hearts: number): McGameState {
   return {
-    queue:         questions.map((q, i) => ({ ...q, _qIdx: i, _isRetry: false })),
-    clearedCount:  0,
-    score:         0,
+    queue: questions.map((q, i) => ({ ...q, _qIdx: i, _isRetry: false })),
+    clearedCount: 0,
+    score: 0,
     hearts,
-    gameOver:      false,
+    gameOver: false,
     continueAnyway: false,
-    practiceMode:  false,
-    answered:      false,
-    selected:      -1,
+    practiceMode: false,
+    answered: false,
+    selected: -1,
     revealCorrect: false,
-    grammarTip:    null,
-    qTransition:   false,
-    streak:        0,
-    bestStreak:    0,
-    wrongStreak:   0,
+    grammarTip: null,
+    qTransition: false,
+    streak: 0,
+    bestStreak: 0,
+    wrongStreak: 0,
     correctStreak: 0,
-    comboMsg:      '',
-    showCombo:     false,
-    streakPulse:   false,
-    showOnARoll:   false,
-    burst:         -1,
-    shaking:       false,
-    glowIndex:     -1,
-    confirmQuit:   false,
-    mistakes:      [],
+    comboMsg: '',
+    showCombo: false,
+    streakPulse: false,
+    showOnARoll: false,
+    burst: -1,
+    shaking: false,
+    glowIndex: -1,
+    confirmQuit: false,
+    mistakes: [],
   };
 }
 
@@ -275,6 +275,6 @@ export function buildInitialState(questions: McQuestion[], hearts: number): McGa
 
 export function useMcGameReducer(initialQuestions: McQuestion[], initialHearts: number) {
   return useReducer(mcGameReducer, undefined, () =>
-    buildInitialState(initialQuestions, initialHearts)
+    buildInitialState(initialQuestions, initialHearts),
   );
 }

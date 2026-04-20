@@ -6,7 +6,14 @@ function fmtDuration(secs) {
   return `${m} min ${s} sec`;
 }
 
-export default function DebriefScreen({ debrief, conversation, durationSecs, onContinue, onBack, award }) {
+export default function DebriefScreen({
+  debrief,
+  conversation,
+  durationSecs,
+  onContinue,
+  onBack,
+  award,
+}) {
   const cardStyle = (borderColor) => ({
     background: 'var(--card)',
     border: `1px solid var(--card-b)`,
@@ -86,7 +93,9 @@ export default function DebriefScreen({ debrief, conversation, durationSecs, onC
             flexShrink: 0,
             border: '2px solid #D4002D',
           }}
-          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
         />
         <p
           style={{
@@ -165,7 +174,8 @@ export default function DebriefScreen({ debrief, conversation, durationSecs, onC
                 key={i}
                 style={{
                   padding: '10px 14px',
-                  borderBottom: i < debrief.newVocab.length - 1 ? '1px solid var(--card-b)' : 'none',
+                  borderBottom:
+                    i < debrief.newVocab.length - 1 ? '1px solid var(--card-b)' : 'none',
                   fontSize: 14,
                   lineHeight: 1.5,
                 }}
@@ -175,7 +185,8 @@ export default function DebriefScreen({ debrief, conversation, durationSecs, onC
                 <span style={{ color: 'var(--heading)' }}>{v.en}</span>
                 {v.used_in && (
                   <span style={{ color: 'var(--subtext)', fontStyle: 'italic', fontSize: 12 }}>
-                    {' '}· {v.used_in}
+                    {' '}
+                    · {v.used_in}
                   </span>
                 )}
               </div>
@@ -201,7 +212,15 @@ export default function DebriefScreen({ debrief, conversation, durationSecs, onC
             Ready to Level Up to {debrief.suggestLevelUpTo}?
           </div>
           {debrief.levelUpMessage && (
-            <div style={{ fontSize: 13, color: '#7c3aed', opacity: 0.85, fontStyle: 'italic', marginBottom: 10 }}>
+            <div
+              style={{
+                fontSize: 13,
+                color: '#7c3aed',
+                opacity: 0.85,
+                fontStyle: 'italic',
+                marginBottom: 10,
+              }}
+            >
               "{debrief.levelUpMessage}"
             </div>
           )}

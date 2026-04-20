@@ -17,7 +17,9 @@ function getState(): HeartsState | null {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
     return JSON.parse(raw) as HeartsState;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 function saveState(s: HeartsState): void {
@@ -50,7 +52,7 @@ export function getHearts(): number {
 export function loseHeart(): number {
   const s = getState();
   const today = todayKey();
-  const current = (s && s.date === today) ? s.hearts : 5;
+  const current = s && s.date === today ? s.hearts : 5;
   const newHearts = Math.max(0, current - 1);
   saveState({ date: today, hearts: newHearts, lastRegen: s?.lastRegen || Date.now() });
   return newHearts;

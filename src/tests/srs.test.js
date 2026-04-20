@@ -11,7 +11,9 @@ import {
   getPrioritizedReviewQueue,
 } from '../lib/srs.js';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 // ── getSR / saveSR basics ─────────────────────────────────────────────────────
 describe('getSR / saveSR', () => {
@@ -25,7 +27,12 @@ describe('getSR / saveSR', () => {
   it('saveSR persists data, getSR reads it back', () => {
     const data = {
       jabuka: {
-        s: 3.5, d: 5, r: 2, w: 0, l: 0, b: 2,
+        s: 3.5,
+        d: 5,
+        r: 2,
+        w: 0,
+        l: 0,
+        b: 2,
         due: Date.now() + 86400000,
         nextDue: Date.now() + 86400000,
       },
@@ -113,9 +120,23 @@ describe('getSR / saveSR', () => {
   });
 
   it('does NOT migrate uSR when nh_sr already has data', () => {
-    const fresh = { jabuka: { s: 2, d: 5, r: 1, w: 0, l: 0, b: 1, due: Date.now() + 86400000, nextDue: Date.now() + 86400000 } };
+    const fresh = {
+      jabuka: {
+        s: 2,
+        d: 5,
+        r: 1,
+        w: 0,
+        l: 0,
+        b: 1,
+        due: Date.now() + 86400000,
+        nextDue: Date.now() + 86400000,
+      },
+    };
     localStorage.setItem('nh_sr', JSON.stringify(fresh));
-    localStorage.setItem('uSR', JSON.stringify({ uSR_word: { ease: 2.5, interval: 1, r: 1, w: 0 } }));
+    localStorage.setItem(
+      'uSR',
+      JSON.stringify({ uSR_word: { ease: 2.5, interval: 1, r: 1, w: 0 } }),
+    );
     const sr = getSR();
     // uSR_word should NOT appear because nh_sr already has content
     expect(sr.uSR_word).toBeUndefined();
@@ -166,13 +187,13 @@ describe('getSRScore — new card creation', () => {
 
   it('new card has all required FSRS fields', () => {
     const card = getSRScore('voda', true, 2000);
-    expect(typeof card.s).toBe('number');      // stability
-    expect(typeof card.d).toBe('number');      // difficulty
-    expect(typeof card.r).toBe('number');      // right count
-    expect(typeof card.w).toBe('number');      // wrong count
-    expect(typeof card.l).toBe('number');      // lapse count
-    expect(typeof card.b).toBe('number');      // box
-    expect(typeof card.due).toBe('number');    // due timestamp
+    expect(typeof card.s).toBe('number'); // stability
+    expect(typeof card.d).toBe('number'); // difficulty
+    expect(typeof card.r).toBe('number'); // right count
+    expect(typeof card.w).toBe('number'); // wrong count
+    expect(typeof card.l).toBe('number'); // lapse count
+    expect(typeof card.b).toBe('number'); // box
+    expect(typeof card.due).toBe('number'); // due timestamp
     expect(typeof card.nextDue).toBe('number');
   });
 
@@ -225,7 +246,7 @@ describe('getSRScore — new card creation', () => {
   it('grade 4 (correct fast) has higher initial stability than grade 3 (correct slow)', () => {
     const g3 = getSRScore('grade3_card', true, 10000); // > 8000 ms
     clearLS();
-    const g4 = getSRScore('grade4_card', true, 1000);  // <= 8000 ms
+    const g4 = getSRScore('grade4_card', true, 1000); // <= 8000 ms
     // W[3] > W[2] in FSRS weights (15.4722 > 3.1262)
     expect(g4.s).toBeGreaterThan(g3.s);
   });
@@ -340,7 +361,7 @@ describe('getSRScore — existing card updates', () => {
     getSRScore('low_s', true, 1000);
 
     const highCard = getSR().high_s;
-    const lowCard  = getSR().low_s;
+    const lowCard = getSR().low_s;
     expect(highCard.s).toBeGreaterThan(lowCard.s);
     expect(highCard.due).toBeGreaterThan(lowCard.due);
   });
@@ -377,21 +398,48 @@ describe('getDueReviews', () => {
 
   it('returns empty array when no reviews are due', () => {
     saveSR({
-      jabuka: { s: 3, d: 5, r: 1, w: 0, l: 0, b: 1, due: Date.now() + 86400000, nextDue: Date.now() + 86400000 },
+      jabuka: {
+        s: 3,
+        d: 5,
+        r: 1,
+        w: 0,
+        l: 0,
+        b: 1,
+        due: Date.now() + 86400000,
+        nextDue: Date.now() + 86400000,
+      },
     });
     expect(getDueReviews()).toEqual([]);
   });
 
   it('returns word due in the past', () => {
     saveSR({
-      jabuka: { s: 3, d: 5, r: 1, w: 0, l: 0, b: 1, due: Date.now() - 86400000, nextDue: Date.now() - 86400000 },
+      jabuka: {
+        s: 3,
+        d: 5,
+        r: 1,
+        w: 0,
+        l: 0,
+        b: 1,
+        due: Date.now() - 86400000,
+        nextDue: Date.now() - 86400000,
+      },
     });
     expect(getDueReviews()).toContain('jabuka');
   });
 
   it('does NOT return word due in the future', () => {
     saveSR({
-      jabuka: { s: 3, d: 5, r: 1, w: 0, l: 0, b: 1, due: Date.now() + 86400000, nextDue: Date.now() + 86400000 },
+      jabuka: {
+        s: 3,
+        d: 5,
+        r: 1,
+        w: 0,
+        l: 0,
+        b: 1,
+        due: Date.now() + 86400000,
+        nextDue: Date.now() + 86400000,
+      },
     });
     expect(getDueReviews()).not.toContain('jabuka');
   });
@@ -399,9 +447,9 @@ describe('getDueReviews', () => {
   it('returns multiple due words and excludes future words', () => {
     const now = Date.now();
     saveSR({
-      jabuka: { s: 3, d: 5, r: 1, w: 0, l: 0, b: 1, due: now - 1000,      nextDue: now - 1000 },
-      kruh:   { s: 2, d: 6, r: 1, w: 0, l: 0, b: 1, due: now - 2000,      nextDue: now - 2000 },
-      voda:   { s: 5, d: 4, r: 2, w: 0, l: 0, b: 2, due: now + 86400000,  nextDue: now + 86400000 },
+      jabuka: { s: 3, d: 5, r: 1, w: 0, l: 0, b: 1, due: now - 1000, nextDue: now - 1000 },
+      kruh: { s: 2, d: 6, r: 1, w: 0, l: 0, b: 1, due: now - 2000, nextDue: now - 2000 },
+      voda: { s: 5, d: 4, r: 2, w: 0, l: 0, b: 2, due: now + 86400000, nextDue: now + 86400000 },
     });
     const due = getDueReviews();
     expect(due).toContain('jabuka');
@@ -465,8 +513,8 @@ describe('getSRStats', () => {
   it('counts due cards correctly (due timestamp <= now)', () => {
     const now = Date.now();
     const srMap = {
-      due1:   { s: 1, due: now - 1000 },
-      due2:   { s: 2, due: now - 5000 },
+      due1: { s: 1, due: now - 1000 },
+      due2: { s: 2, due: now - 5000 },
       future: { s: 3, due: now + 86400000 },
     };
     expect(getSRStats(srMap).due).toBe(2);
@@ -477,7 +525,7 @@ describe('getSRStats', () => {
     const srMap = {
       mastered1: { s: 25, due: now + 86400000 * 30 },
       mastered2: { s: 21, due: now + 86400000 * 20 },
-      learning:  { s: 10, due: now + 86400000 * 7 },
+      learning: { s: 10, due: now + 86400000 * 7 },
     };
     const stats = getSRStats(srMap);
     expect(stats.mastered).toBe(2);
@@ -533,9 +581,7 @@ describe('getDueCards', () => {
   });
 
   it('returns new cards up to maxNew when srMap is empty', () => {
-    const allCards = [
-      { id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' },
-    ];
+    const allCards = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' }];
     const result = getDueCards({}, allCards, 3, 20);
     expect(result).toHaveLength(3);
   });
@@ -579,7 +625,7 @@ describe('getDueCards', () => {
     const srMap = { known: { due: now - 1000 } };
     const allCards = [{ id: 'known' }, { id: 'fresh' }];
     const result = getDueCards(srMap, allCards, 1, 5);
-    const ids = result.map(c => c.id);
+    const ids = result.map((c) => c.id);
     expect(ids).toContain('known');
     expect(ids).toContain('fresh');
   });
@@ -617,7 +663,7 @@ describe('srQualityFromResult (SM-2 compat)', () => {
   });
 
   it('correct values are always >= 3, wrong values are always < 3', () => {
-    [1000, 3000, 6000, 12000].forEach(t => {
+    [1000, 3000, 6000, 12000].forEach((t) => {
       expect(srQualityFromResult(true, t)).toBeGreaterThanOrEqual(3);
       expect(srQualityFromResult(false, t)).toBeLessThan(3);
     });
@@ -665,7 +711,7 @@ describe('getSRScore edge cases', () => {
     getSRScore('unique_key', true, 1000);
     getSRScore('unique_key', false, 2000);
     const sr = getSR();
-    const keys = Object.keys(sr).filter(k => k === 'unique_key');
+    const keys = Object.keys(sr).filter((k) => k === 'unique_key');
     expect(keys).toHaveLength(1);
   });
 
@@ -688,7 +734,7 @@ describe('getSRScore edge cases', () => {
 
   it('card returned by getSRScore matches what getSR reads back', () => {
     const returned = getSRScore('sync_check', true, 2000);
-    const stored   = getSR().sync_check;
+    const stored = getSR().sync_check;
     expect(returned.s).toBe(stored.s);
     expect(returned.d).toBe(stored.d);
     expect(returned.due).toBe(stored.due);
@@ -749,7 +795,7 @@ describe('addWordToSRS', () => {
     addWordToSRS('vjetar');
     addWordToSRS('vjetar');
     const sr = getSR();
-    const keys = Object.keys(sr).filter(k => k === 'vjetar');
+    const keys = Object.keys(sr).filter((k) => k === 'vjetar');
     expect(keys).toHaveLength(1);
   });
 
@@ -813,7 +859,10 @@ describe('getPrioritizedReviewQueue', () => {
   });
 
   it('returns an array', () => {
-    const pool = [['jabuka', 'apple', 'ya-boo-ka'], ['kruh', 'bread', 'krooh']];
+    const pool = [
+      ['jabuka', 'apple', 'ya-boo-ka'],
+      ['kruh', 'bread', 'krooh'],
+    ];
     const result = getPrioritizedReviewQueue(pool);
     expect(Array.isArray(result)).toBe(true);
   });
@@ -832,9 +881,12 @@ describe('getPrioritizedReviewQueue', () => {
   });
 
   it('result entries are arrays (same structure as pool items)', () => {
-    const pool = [['jabuka', 'apple', 'ya-boo-ka'], ['kruh', 'bread', 'krooh']];
+    const pool = [
+      ['jabuka', 'apple', 'ya-boo-ka'],
+      ['kruh', 'bread', 'krooh'],
+    ];
     const result = getPrioritizedReviewQueue(pool);
-    result.forEach(entry => {
+    result.forEach((entry) => {
       expect(Array.isArray(entry)).toBe(true);
     });
   });
@@ -842,11 +894,20 @@ describe('getPrioritizedReviewQueue', () => {
   it('does not include words not in the pool', () => {
     // Add SRS data for a word not in pool
     saveSR({
-      notinpool: { s: 1, d: 5, r: 2, w: 0, l: 0, b: 1, due: Date.now() - 1000, nextDue: Date.now() - 1000 },
+      notinpool: {
+        s: 1,
+        d: 5,
+        r: 2,
+        w: 0,
+        l: 0,
+        b: 1,
+        due: Date.now() - 1000,
+        nextDue: Date.now() - 1000,
+      },
     });
     const pool = [['jabuka', 'apple', 'ya-boo-ka']];
     const result = getPrioritizedReviewQueue(pool);
-    const resultWords = result.map(e => e[0]);
+    const resultWords = result.map((e) => e[0]);
     expect(resultWords).not.toContain('notinpool');
   });
 
@@ -855,9 +916,12 @@ describe('getPrioritizedReviewQueue', () => {
     saveSR({
       jabuka: { s: 1, d: 5, r: 3, w: 0, l: 0, b: 2, due: past, nextDue: past },
     });
-    const pool = [['jabuka', 'apple', 'ya-boo-ka'], ['kruh', 'bread', 'krooh']];
+    const pool = [
+      ['jabuka', 'apple', 'ya-boo-ka'],
+      ['kruh', 'bread', 'krooh'],
+    ];
     const result = getPrioritizedReviewQueue(pool);
-    const resultWords = result.map(e => e[0]);
+    const resultWords = result.map((e) => e[0]);
     expect(resultWords).toContain('jabuka');
   });
 
@@ -897,9 +961,9 @@ describe('FSRS scheduling math invariants', () => {
   });
 
   it('initial difficulty for grade 4 (easy) is lower than for grade 1 (hard)', () => {
-    const easy = getSRScore('easy_word', true, 1000);   // grade 4
+    const easy = getSRScore('easy_word', true, 1000); // grade 4
     clearLS();
-    const hard = getSRScore('hard_word', false, 1000);  // grade 1
+    const hard = getSRScore('hard_word', false, 1000); // grade 1
     expect(easy.d).toBeLessThan(hard.d);
   });
 
@@ -926,14 +990,17 @@ describe('FSRS scheduling math invariants', () => {
     // Invariants that DO hold: difficulty increases, lapse counter increments, stability > 0.
     for (let i = 0; i < 3; i++) {
       const sr = getSR();
-      if (sr.lapse_test) { sr.lapse_test.due = Date.now() - 1; saveSR(sr); }
+      if (sr.lapse_test) {
+        sr.lapse_test.due = Date.now() - 1;
+        saveSR(sr);
+      }
       getSRScore('lapse_test', true, 1000);
     }
     const beforeCard = getSR().lapse_test;
     getSRScore('lapse_test', false, 500); // force lapse
     const afterCard = getSR().lapse_test;
-    expect(afterCard.s).toBeGreaterThan(0);                   // valid stability
-    expect(afterCard.d).toBeGreaterThan(beforeCard.d);        // difficulty increases
-    expect(afterCard.l).toBeGreaterThan(beforeCard.l ?? 0);   // lapse counter increments
+    expect(afterCard.s).toBeGreaterThan(0); // valid stability
+    expect(afterCard.d).toBeGreaterThan(beforeCard.d); // difficulty increases
+    expect(afterCard.l).toBeGreaterThan(beforeCard.l ?? 0); // lapse counter increments
   });
 });

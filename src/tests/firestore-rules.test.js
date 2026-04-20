@@ -75,7 +75,7 @@ describe('/users/{userId}', () => {
   const docId = uid;
 
   it('owner can read their own document', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '' });
     });
     const db = authed(uid, email).firestore();
@@ -83,7 +83,7 @@ describe('/users/{userId}', () => {
   });
 
   it('non-owner cannot read another user document', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '' });
     });
     const db = authed('other_user', 'bob@test.com').firestore();
@@ -101,7 +101,7 @@ describe('/users/{userId}', () => {
   });
 
   it('owner can update with monotonically increasing XP', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '' });
     });
     const db = authed(uid, email).firestore();
@@ -109,7 +109,7 @@ describe('/users/{userId}', () => {
   });
 
   it('owner cannot decrease XP (anti-cheat)', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 500, progress: '' });
     });
     const db = authed(uid, email).firestore();
@@ -117,7 +117,7 @@ describe('/users/{userId}', () => {
   });
 
   it('owner can reset XP to 0', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 500, progress: '' });
     });
     const db = authed(uid, email).firestore();
@@ -125,7 +125,7 @@ describe('/users/{userId}', () => {
   });
 
   it('XP above 100,000 is rejected', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 99000, progress: '' });
     });
     const db = authed(uid, email).firestore();
@@ -133,7 +133,7 @@ describe('/users/{userId}', () => {
   });
 
   it('progress blob above 200 KB is rejected', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '' });
     });
     const db = authed(uid, email).firestore();
@@ -142,7 +142,7 @@ describe('/users/{userId}', () => {
   });
 
   it('progress blob at exactly 200 KB is allowed', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '' });
     });
     const db = authed(uid, email).firestore();
@@ -151,17 +151,15 @@ describe('/users/{userId}', () => {
   });
 
   it('any authed user can update only friendUids on another user doc', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '', friendUids: [] });
     });
     const db = authed('other_user', 'bob@test.com').firestore();
-    await assertSucceeds(
-      db.doc(`users/${docId}`).update({ friendUids: ['other_user'] })
-    );
+    await assertSucceeds(db.doc(`users/${docId}`).update({ friendUids: ['other_user'] }));
   });
 
   it('delete is always denied', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 0, progress: '' });
     });
     const db = authed(uid, email).firestore();
@@ -175,12 +173,16 @@ describe('/profiles/{userId}', () => {
   const uid = 'profuser';
   const email = 'prof@test.com';
   const validProfile = {
-    name: 'Test User', xp: 100, lc: 5, streak: 3,
-    level: 2, lastActive: Date.now(),
+    name: 'Test User',
+    xp: 100,
+    lc: 5,
+    streak: 3,
+    level: 2,
+    lastActive: Date.now(),
   };
 
   beforeEach(async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`profiles/${uid}`).set(validProfile);
     });
   });
@@ -197,44 +199,36 @@ describe('/profiles/{userId}', () => {
 
   it('owner can update profile with valid integer level (1–6)', async () => {
     const db = authed(uid, email).firestore();
-    await assertSucceeds(
-      db.doc(`profiles/${uid}`).update({ ...validProfile, level: 3, xp: 200 })
-    );
+    await assertSucceeds(db.doc(`profiles/${uid}`).update({ ...validProfile, level: 3, xp: 200 }));
   });
 
   it('owner can update profile with valid CEFR string level', async () => {
     const db = authed(uid, email).firestore();
     await assertSucceeds(
-      db.doc(`profiles/${uid}`).update({ ...validProfile, level: 'B2', xp: 200 })
+      db.doc(`profiles/${uid}`).update({ ...validProfile, level: 'B2', xp: 200 }),
     );
   });
 
   it('invalid level value is rejected', async () => {
     const db = authed(uid, email).firestore();
     await assertFails(
-      db.doc(`profiles/${uid}`).update({ ...validProfile, level: 'invalid', xp: 200 })
+      db.doc(`profiles/${uid}`).update({ ...validProfile, level: 'invalid', xp: 200 }),
     );
   });
 
   it('level 7 (out of range) is rejected', async () => {
     const db = authed(uid, email).firestore();
-    await assertFails(
-      db.doc(`profiles/${uid}`).update({ ...validProfile, level: 7, xp: 200 })
-    );
+    await assertFails(db.doc(`profiles/${uid}`).update({ ...validProfile, level: 7, xp: 200 }));
   });
 
   it('XP above 100,000 is rejected', async () => {
     const db = authed(uid, email).firestore();
-    await assertFails(
-      db.doc(`profiles/${uid}`).update({ ...validProfile, xp: 100001 })
-    );
+    await assertFails(db.doc(`profiles/${uid}`).update({ ...validProfile, xp: 100001 }));
   });
 
   it('non-owner cannot update', async () => {
     const db = authed('intruder', 'intruder@test.com').firestore();
-    await assertFails(
-      db.doc(`profiles/${uid}`).update({ ...validProfile, xp: 200 })
-    );
+    await assertFails(db.doc(`profiles/${uid}`).update({ ...validProfile, xp: 200 }));
   });
 
   it('owner can create profile with all required fields', async () => {
@@ -260,8 +254,11 @@ describe('/friendCodes/{code}', () => {
   const code = 'ABC123';
 
   it('any authenticated user can read a friend code', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`friendCodes/${code}`).set({ uid, name: 'Test', updated: Date.now() });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx
+        .firestore()
+        .doc(`friendCodes/${code}`)
+        .set({ uid, name: 'Test', updated: Date.now() });
     });
     const db = authed('reader', 'reader@test.com').firestore();
     await assertSucceeds(db.doc(`friendCodes/${code}`).get());
@@ -270,14 +267,14 @@ describe('/friendCodes/{code}', () => {
   it('user can create a code that maps to their own UID', async () => {
     const db = authed(uid, email).firestore();
     await assertSucceeds(
-      db.doc(`friendCodes/${code}`).set({ uid, name: 'Test', updated: Date.now() })
+      db.doc(`friendCodes/${code}`).set({ uid, name: 'Test', updated: Date.now() }),
     );
   });
 
   it('user cannot create a code mapping to a different UID', async () => {
     const db = authed(uid, email).firestore();
     await assertFails(
-      db.doc(`friendCodes/${code}`).set({ uid: 'someone_else', name: 'Test', updated: Date.now() })
+      db.doc(`friendCodes/${code}`).set({ uid: 'someone_else', name: 'Test', updated: Date.now() }),
     );
   });
 
@@ -296,8 +293,11 @@ describe('/leaderboard/{userId}', () => {
   const validEntry = { name: 'LB User', xp: 500, lc: 10, updated: 1700000000000 };
 
   it('any authenticated user can read leaderboard', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`leaderboard/${uid}`).set({ name: 'LB User', xp: 100, lc: 5, updated: 1700000000000 });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx
+        .firestore()
+        .doc(`leaderboard/${uid}`)
+        .set({ name: 'LB User', xp: 100, lc: 5, updated: 1700000000000 });
     });
     const db = authed('reader', 'reader@test.com').firestore();
     await assertSucceeds(db.doc(`leaderboard/${uid}`).get());
@@ -314,24 +314,42 @@ describe('/leaderboard/{userId}', () => {
   });
 
   it('owner can increase XP (with full schema)', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`leaderboard/${uid}`).set({ name: 'LB User', xp: 100, lc: 5, updated: 1700000000000 });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx
+        .firestore()
+        .doc(`leaderboard/${uid}`)
+        .set({ name: 'LB User', xp: 100, lc: 5, updated: 1700000000000 });
     });
     const db = authed(uid, email).firestore();
-    await assertSucceeds(db.doc(`leaderboard/${uid}`).update({ name: 'LB User', xp: 500, lc: 5, updated: 1700000001000 }));
+    await assertSucceeds(
+      db
+        .doc(`leaderboard/${uid}`)
+        .update({ name: 'LB User', xp: 500, lc: 5, updated: 1700000001000 }),
+    );
   });
 
   it('owner cannot decrease XP', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`leaderboard/${uid}`).set({ name: 'LB User', xp: 500, lc: 5, updated: 1700000000000 });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx
+        .firestore()
+        .doc(`leaderboard/${uid}`)
+        .set({ name: 'LB User', xp: 500, lc: 5, updated: 1700000000000 });
     });
     const db = authed(uid, email).firestore();
-    await assertFails(db.doc(`leaderboard/${uid}`).update({ name: 'LB User', xp: 100, lc: 5, updated: 1700000001000 }));
+    await assertFails(
+      db
+        .doc(`leaderboard/${uid}`)
+        .update({ name: 'LB User', xp: 100, lc: 5, updated: 1700000001000 }),
+    );
   });
 
   it('XP above 100,000 is rejected on create', async () => {
     const db = authed(uid, email).firestore();
-    await assertFails(db.doc(`leaderboard/${uid}`).set({ name: 'LB User', xp: 100001, lc: 0, updated: 1700000000000 }));
+    await assertFails(
+      db
+        .doc(`leaderboard/${uid}`)
+        .set({ name: 'LB User', xp: 100001, lc: 0, updated: 1700000000000 }),
+    );
   });
 
   it('non-owner cannot write to leaderboard', async () => {
@@ -350,7 +368,7 @@ describe('/leaderboard/{weekKey}/entries/{userId}', () => {
   const validWeeklyEntry = { uid, displayName: 'Weekly User', xp: 300, updatedAt: 1700000000000 };
 
   it('any authenticated user can read weekly leaderboard', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`leaderboard/${weekKey}/entries/${uid}`).set(validWeeklyEntry);
     });
     const db = authed('reader', 'reader@test.com').firestore();
@@ -370,22 +388,32 @@ describe('/leaderboard/{weekKey}/entries/{userId}', () => {
 
   it('create fails when required fields are missing (no displayName)', async () => {
     const db = authed(uid, email).firestore();
-    await assertFails(db.doc(`leaderboard/${weekKey}/entries/${uid}`).set({ uid, xp: 300, updatedAt: 1700000000000 }));
+    await assertFails(
+      db
+        .doc(`leaderboard/${weekKey}/entries/${uid}`)
+        .set({ uid, xp: 300, updatedAt: 1700000000000 }),
+    );
   });
 
   it('owner can increase weekly XP', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`leaderboard/${weekKey}/entries/${uid}`).set(validWeeklyEntry);
     });
     const db = authed(uid, email).firestore();
     await assertSucceeds(
-      db.doc(`leaderboard/${weekKey}/entries/${uid}`).update({ uid, displayName: 'Weekly User', xp: 600, updatedAt: 1700000001000 }),
+      db
+        .doc(`leaderboard/${weekKey}/entries/${uid}`)
+        .update({ uid, displayName: 'Weekly User', xp: 600, updatedAt: 1700000001000 }),
     );
   });
 
   it('weekly XP above 100,000 is rejected', async () => {
     const db = authed(uid, email).firestore();
-    await assertFails(db.doc(`leaderboard/${weekKey}/entries/${uid}`).set({ uid, displayName: 'Weekly User', xp: 100001, updatedAt: 1700000000000 }));
+    await assertFails(
+      db
+        .doc(`leaderboard/${weekKey}/entries/${uid}`)
+        .set({ uid, displayName: 'Weekly User', xp: 100001, updatedAt: 1700000000000 }),
+    );
   });
 
   it('non-owner cannot write weekly entry', async () => {
@@ -400,10 +428,13 @@ describe('/srs/{userId}', () => {
   const uid = 'srs_user';
   const email = 'srs@test.com';
   // Schema: { cards(map), updated(timestamp) } — written by fbSaveSRS with merge:false
-  const validSrs = { cards: { 'pisati|to write': { d: 1700000000000, e: 2.5, i: 1 } }, updated: new Date() };
+  const validSrs = {
+    cards: { 'pisati|to write': { d: 1700000000000, e: 2.5, i: 1 } },
+    updated: new Date(),
+  };
 
   it('owner can read their SRS data', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`srs/${uid}`).set(validSrs);
     });
     const db = authed(uid, email).firestore();
@@ -411,7 +442,7 @@ describe('/srs/{userId}', () => {
   });
 
   it('non-owner cannot read SRS data', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`srs/${uid}`).set(validSrs);
     });
     const db = authed('intruder', 'i@test.com').firestore();
@@ -434,7 +465,7 @@ describe('/srs/{userId}', () => {
   });
 
   it('owner can delete their SRS data (for account deletion)', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`srs/${uid}`).set(validSrs);
     });
     const db = authed(uid, email).firestore();
@@ -442,7 +473,7 @@ describe('/srs/{userId}', () => {
   });
 
   it('non-owner cannot delete SRS data', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`srs/${uid}`).set(validSrs);
     });
     const db = authed('intruder', 'i@test.com').firestore();
@@ -453,9 +484,9 @@ describe('/srs/{userId}', () => {
 // ── /families/{familyCode} ────────────────────────────────────────────────────
 
 describe('/families/{familyCode}', () => {
-  const ownerUid   = 'fam_owner';
+  const ownerUid = 'fam_owner';
   const ownerEmail = 'owner@family.com';
-  const memberUid  = 'fam_member';
+  const memberUid = 'fam_member';
   const memberEmail = 'member@family.com';
   const code = 'FAM001';
 
@@ -468,7 +499,7 @@ describe('/families/{familyCode}', () => {
   };
 
   it('any authenticated user can get a specific family document', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`families/${code}`).set(baseFamily);
     });
     const db = authed('random_user', 'rand@test.com').firestore();
@@ -492,7 +523,7 @@ describe('/families/{familyCode}', () => {
   });
 
   it('existing member can update the family', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`families/${code}`).set(baseFamily);
     });
     const db = authed(ownerUid, ownerEmail).firestore();
@@ -500,12 +531,12 @@ describe('/families/{familyCode}', () => {
       db.doc(`families/${code}`).update({
         ...baseFamily,
         name: 'Updated Family Name',
-      })
+      }),
     );
   });
 
   it('new user can join by adding their email to memberEmails', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`families/${code}`).set(baseFamily);
     });
     const db = authed(memberUid, memberEmail).firestore();
@@ -514,47 +545,46 @@ describe('/families/{familyCode}', () => {
         ...baseFamily,
         members: [...baseFamily.members, { uid: memberUid, email: memberEmail }],
         memberEmails: [...baseFamily.memberEmails, memberEmail],
-      })
+      }),
     );
   });
 
   it('outsider cannot update family without being in memberEmails or joining', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`families/${code}`).set(baseFamily);
     });
     const db = authed('outsider', 'outsider@test.com').firestore();
-    await assertFails(
-      db.doc(`families/${code}`).update({ ...baseFamily, name: 'Hacked' })
-    );
+    await assertFails(db.doc(`families/${code}`).update({ ...baseFamily, name: 'Hacked' }));
   });
 
   it('immutable code field: update must preserve code', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`families/${code}`).set(baseFamily);
     });
     const db = authed(ownerUid, ownerEmail).firestore();
-    await assertFails(
-      db.doc(`families/${code}`).update({ ...baseFamily, code: 'CHANGED' })
-    );
+    await assertFails(db.doc(`families/${code}`).update({ ...baseFamily, code: 'CHANGED' }));
   });
 
   it('family with > 50 members is rejected', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`families/${code}`).set(baseFamily);
     });
     const db = authed(ownerUid, ownerEmail).firestore();
-    const tooManyMembers = Array.from({ length: 51 }, (_, i) => ({ uid: `u${i}`, email: `u${i}@test.com` }));
+    const tooManyMembers = Array.from({ length: 51 }, (_, i) => ({
+      uid: `u${i}`,
+      email: `u${i}@test.com`,
+    }));
     await assertFails(
       db.doc(`families/${code}`).update({
         ...baseFamily,
         members: tooManyMembers,
-        memberEmails: tooManyMembers.map(m => m.email),
-      })
+        memberEmails: tooManyMembers.map((m) => m.email),
+      }),
     );
   });
 
   it('delete is denied', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`families/${code}`).set(baseFamily);
     });
     const db = authed(ownerUid, ownerEmail).firestore();
@@ -565,25 +595,31 @@ describe('/families/{familyCode}', () => {
 // ── /families/{code}/reactions/{reactionId} ───────────────────────────────────
 
 describe('/families/{code}/reactions/{reactionId}', () => {
-  const ownerUid   = 'rxn_owner';
+  const ownerUid = 'rxn_owner';
   const ownerEmail = 'rxn@test.com';
-  const code       = 'RXN001';
+  const code = 'RXN001';
 
   beforeEach(async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`families/${code}`).set({
-        name: 'Test',
-        code,
-        created: 1000,
-        members: [{ uid: ownerUid, email: ownerEmail }],
-        memberEmails: [ownerEmail],
-      });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx
+        .firestore()
+        .doc(`families/${code}`)
+        .set({
+          name: 'Test',
+          code,
+          created: 1000,
+          members: [{ uid: ownerUid, email: ownerEmail }],
+          memberEmails: [ownerEmail],
+        });
     });
   });
 
   it('family member can read reactions', async () => {
-    await testEnv.withSecurityRulesDisabled(async ctx => {
-      await ctx.firestore().doc(`families/${code}/reactions/rxn1`).set({ type: 'star', from: ownerEmail });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx
+        .firestore()
+        .doc(`families/${code}/reactions/rxn1`)
+        .set({ type: 'star', from: ownerEmail });
     });
     const db = authed(ownerUid, ownerEmail).firestore();
     await assertSucceeds(db.doc(`families/${code}/reactions/rxn1`).get());
@@ -597,14 +633,14 @@ describe('/families/{code}/reactions/{reactionId}', () => {
   it('family member can create a reaction', async () => {
     const db = authed(ownerUid, ownerEmail).firestore();
     await assertSucceeds(
-      db.doc(`families/${code}/reactions/rxn1`).set({ type: 'star', from: ownerEmail })
+      db.doc(`families/${code}/reactions/rxn1`).set({ type: 'star', from: ownerEmail }),
     );
   });
 
   it('non-member cannot create a reaction', async () => {
     const db = authed('outsider', 'out@test.com').firestore();
     await assertFails(
-      db.doc(`families/${code}/reactions/rxn1`).set({ type: 'star', from: 'out@test.com' })
+      db.doc(`families/${code}/reactions/rxn1`).set({ type: 'star', from: 'out@test.com' }),
     );
   });
 });

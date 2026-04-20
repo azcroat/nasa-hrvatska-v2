@@ -33,11 +33,17 @@ if (typeof document !== 'undefined' && !document.getElementById(SLIDE_ANIM_ID)) 
 
 // ── Helpers ──────────────────────────────────────────────────
 function LS_GET(key, fallback) {
-  try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); }
-  catch { return fallback; }
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : JSON.parse(v);
+  } catch {
+    return fallback;
+  }
 }
 function LS_SET(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {}
 }
 
 // ── Main Component ─────────────────────────────────────────────
@@ -72,7 +78,6 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
       return () => clearTimeout(timer);
     }
     return undefined;
-
   }, [slide]);
 
   // Award XP when summary slide reached
@@ -85,11 +90,10 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
         markQuest('grammar');
       }
     }
-
   }, [slide]);
 
   function handleToggleTTS() {
-    setAutoTTS(prev => {
+    setAutoTTS((prev) => {
       const next = !prev;
       LS_SET('nh_autotts', next);
       return next;
@@ -97,7 +101,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   }
 
   function handleAnswer(slideIndex, optionIndex) {
-    setQuizAnswers(prev => ({ ...prev, [slideIndex]: optionIndex }));
+    setQuizAnswers((prev) => ({ ...prev, [slideIndex]: optionIndex }));
   }
 
   function handleCheck(slideIndex) {
@@ -105,13 +109,13 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
     const chosen = quizAnswers[slideIndex];
     if (chosen === undefined) return;
     const correct = chosen === s.correct;
-    setQuizResults(prev => ({ ...prev, [slideIndex]: correct }));
-    if (correct) setScore(sc => sc + 1);
+    setQuizResults((prev) => ({ ...prev, [slideIndex]: correct }));
+    if (correct) setScore((sc) => sc + 1);
   }
 
   function goNext() {
     if (slide < totalSlides - 1) {
-      setSlide(s => s + 1);
+      setSlide((s) => s + 1);
     } else {
       setDone(true);
       goBack();
@@ -119,7 +123,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   }
 
   function goPrev() {
-    if (slide > 0) setSlide(s => s - 1);
+    if (slide > 0) setSlide((s) => s - 1);
   }
 
   // Guard: if lesson or slides are missing (e.g. state cleared before screen unmounted), bail gracefully
@@ -187,25 +191,39 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   }
 
   return (
-    <div style={{
-      fontFamily: "'Outfit', sans-serif",
-      maxWidth: 600, margin: '0 auto',
-      padding: '0 0 calc(160px + env(safe-area-inset-bottom, 0px))',
-    }}>
+    <div
+      style={{
+        fontFamily: "'Outfit', sans-serif",
+        maxWidth: 600,
+        margin: '0 auto',
+        padding: '0 0 calc(160px + env(safe-area-inset-bottom, 0px))',
+      }}
+    >
       {/* ── Header ── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        marginBottom: 12, padding: '0 2px',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          marginBottom: 12,
+          padding: '0 2px',
+        }}
+      >
         {/* Back button */}
         <button
           onClick={goBack}
           aria-label="Back to lesson list"
           style={{
-            background: 'none', border: '1px solid var(--card-b)',
-            borderRadius: 10, padding: '6px 10px', cursor: 'pointer',
-            fontSize: 16, color: 'var(--subtext)', flexShrink: 0,
-            fontFamily: 'inherit', transition: 'background .15s',
+            background: 'none',
+            border: '1px solid var(--card-b)',
+            borderRadius: 10,
+            padding: '6px 10px',
+            cursor: 'pointer',
+            fontSize: 16,
+            color: 'var(--subtext)',
+            flexShrink: 0,
+            fontFamily: 'inherit',
+            transition: 'background .15s',
           }}
         >
           ←
@@ -213,14 +231,27 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
 
         {/* Title */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontSize: 'var(--text-sm)', fontWeight: 900,
-            color: 'var(--heading)', overflow: 'hidden',
-            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>{lesson.title}</div>
-          <div style={{
-            fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontWeight: 600,
-          }}>{lesson.level} · {lesson.duration}</div>
+          <div
+            style={{
+              fontSize: 'var(--text-sm)',
+              fontWeight: 900,
+              color: 'var(--heading)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {lesson.title}
+          </div>
+          <div
+            style={{
+              fontSize: 'var(--text-xs)',
+              color: 'var(--subtext)',
+              fontWeight: 600,
+            }}
+          >
+            {lesson.level} · {lesson.duration}
+          </div>
         </div>
 
         {/* TTS toggle */}
@@ -232,10 +263,17 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
             style={{
               background: autoTTS ? lesson.bg : 'var(--bar-bg)',
               border: '1px solid ' + (autoTTS ? lesson.color + '55' : 'var(--card-b)'),
-              borderRadius: 10, padding: '6px 10px', cursor: 'pointer',
-              fontSize: 15, color: autoTTS ? lesson.color : 'var(--subtext)',
-              fontFamily: 'inherit', display: 'flex', alignItems: 'center',
-              gap: 4, flexShrink: 0, transition: 'all .15s',
+              borderRadius: 10,
+              padding: '6px 10px',
+              cursor: 'pointer',
+              fontSize: 15,
+              color: autoTTS ? lesson.color : 'var(--subtext)',
+              fontFamily: 'inherit',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              flexShrink: 0,
+              transition: 'all .15s',
             }}
           >
             <span aria-hidden="true">🔊</span>
@@ -250,34 +288,40 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
       <ProgressBar current={slide + 1} total={totalSlides} color={lesson.color} />
 
       {/* ── Slide Content (animated) ── */}
-      <div
-        key={slide}
-        style={{ animation: 'slideIn 0.3s ease forwards' }}
-      >
+      <div key={slide} style={{ animation: 'slideIn 0.3s ease forwards' }}>
         {renderSlide()}
       </div>
 
       {/* ── Navigation — fixed above the app nav bar so it's always visible ── */}
       {/* Lesson nav: position:fixed above app nav (≈60px) — never requires scrolling to reach */}
-      <div style={{
-        position: 'fixed',
-        bottom: 'calc(60px + env(safe-area-inset-bottom, 0px))',
-        left: 0, right: 0,
-        background: 'var(--app-bg)',
-        borderTop: '1px solid var(--card-b)',
-        padding: '10px 16px 8px',
-        zIndex: 10,
-      }}>
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 'calc(60px + env(safe-area-inset-bottom, 0px))',
+          left: 0,
+          right: 0,
+          background: 'var(--app-bg)',
+          borderTop: '1px solid var(--card-b)',
+          padding: '10px 16px 8px',
+          zIndex: 10,
+        }}
+      >
         <div style={{ maxWidth: 600, margin: '0 auto' }}>
           {/* Quiz check reminder — inside fixed nav so it's always visible */}
           {isQuiz && !quizRevealed && quizAnswers[slide] !== undefined && (
-            <div style={{
-              marginBottom: 8, padding: '7px 12px',
-              background: lesson.bg, borderRadius: 10,
-              border: '1px solid ' + lesson.color + '33',
-              fontSize: 'var(--text-xs)', color: lesson.color,
-              fontWeight: 700, textAlign: 'center',
-            }}>
+            <div
+              style={{
+                marginBottom: 8,
+                padding: '7px 12px',
+                background: lesson.bg,
+                borderRadius: 10,
+                border: '1px solid ' + lesson.color + '33',
+                fontSize: 'var(--text-xs)',
+                color: lesson.color,
+                fontWeight: 700,
+                textAlign: 'center',
+              }}
+            >
               Tap "Check Answer" before continuing
             </div>
           )}
@@ -288,13 +332,17 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
               disabled={slide === 0}
               aria-label="Previous slide"
               style={{
-                flex: 1, padding: '13px 16px',
-                borderRadius: 12, border: '1px solid var(--card-b)',
+                flex: 1,
+                padding: '13px 16px',
+                borderRadius: 12,
+                border: '1px solid var(--card-b)',
                 background: slide === 0 ? 'var(--bar-bg)' : 'var(--card)',
                 color: slide === 0 ? 'var(--subtext)' : 'var(--heading)',
                 cursor: slide === 0 ? 'not-allowed' : 'pointer',
-                fontFamily: 'inherit', fontSize: 'var(--text-base)',
-                fontWeight: 700, opacity: slide === 0 ? 0.4 : 1,
+                fontFamily: 'inherit',
+                fontSize: 'var(--text-base)',
+                fontWeight: 700,
+                opacity: slide === 0 ? 0.4 : 1,
                 transition: 'all .15s',
               }}
             >
@@ -308,8 +356,14 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
                   key={i}
                   style={{
                     width: i === slide ? 16 : 6,
-                    height: 6, borderRadius: 99,
-                    background: i === slide ? lesson.color : (i < slide ? lesson.color + '66' : 'var(--bar-bg)'),
+                    height: 6,
+                    borderRadius: 99,
+                    background:
+                      i === slide
+                        ? lesson.color
+                        : i < slide
+                          ? lesson.color + '66'
+                          : 'var(--bar-bg)',
                     transition: 'all .25s ease',
                   }}
                 />
@@ -322,13 +376,17 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
               disabled={!canGoNext}
               aria-label={isLastSlide ? 'Finish lesson' : 'Next slide'}
               style={{
-                flex: 1, padding: '13px 16px',
-                borderRadius: 12, border: 'none',
+                flex: 1,
+                padding: '13px 16px',
+                borderRadius: 12,
+                border: 'none',
                 background: canGoNext ? lesson.color : 'var(--bar-bg)',
                 color: canGoNext ? '#fff' : 'var(--subtext)',
                 cursor: canGoNext ? 'pointer' : 'not-allowed',
-                fontFamily: 'inherit', fontSize: 'var(--text-base)',
-                fontWeight: 800, transition: 'all .15s',
+                fontFamily: 'inherit',
+                fontSize: 'var(--text-base)',
+                fontWeight: 800,
+                transition: 'all .15s',
                 opacity: canGoNext ? 1 : 0.5,
               }}
             >

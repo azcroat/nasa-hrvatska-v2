@@ -3,7 +3,12 @@ import React from 'react';
 
 export default function ConversationBubble({ msg, personaCfg }) {
   const isUser = msg.role === 'user';
-  const cfg = personaCfg || { name: 'Maja Kovačević', avatar: '/images/portraits/tutor-hero.webp', fallbackEmoji: '👩‍🏫', accentColor: '#D4002D' };
+  const cfg = personaCfg || {
+    name: 'Maja Kovačević',
+    avatar: '/images/portraits/tutor-hero.webp',
+    fallbackEmoji: '👩‍🏫',
+    accentColor: '#D4002D',
+  };
 
   /** @type {import('react').CSSProperties} */
   const bubbleStyle = isUser
@@ -39,7 +44,14 @@ export default function ConversationBubble({ msg, personaCfg }) {
         marginBottom: 12,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, flexDirection: isUser ? 'row-reverse' : 'row' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 8,
+          flexDirection: isUser ? 'row-reverse' : 'row',
+        }}
+      >
         {!isUser && (
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <img
@@ -57,7 +69,7 @@ export default function ConversationBubble({ msg, personaCfg }) {
               loading="lazy"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
-                const sib = /** @type {HTMLElement} */ (e.currentTarget.nextSibling);
+                const sib = /** @type {HTMLElement} */ e.currentTarget.nextSibling;
                 if (sib) sib.style.display = 'flex';
               }}
             />
@@ -113,12 +125,14 @@ export default function ConversationBubble({ msg, personaCfg }) {
             flexWrap: 'wrap',
           }}
         >
-          <span>❌ <em>{msg.correction.original}</em></span>
+          <span>
+            ❌ <em>{msg.correction.original}</em>
+          </span>
           <span>→</span>
-          <span>✅ <strong>{msg.correction.corrected}</strong></span>
-          {msg.correction.echo && (
-            <span style={{ opacity: 0.7 }}>({msg.correction.echo})</span>
-          )}
+          <span>
+            ✅ <strong>{msg.correction.corrected}</strong>
+          </span>
+          {msg.correction.echo && <span style={{ opacity: 0.7 }}>({msg.correction.echo})</span>}
         </div>
       )}
     </div>

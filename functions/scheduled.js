@@ -44,7 +44,10 @@ export default {
 
     const PAGES_URL = (env.PAGES_URL || 'https://nasahrvatska.com').replace(/\/$/, '');
     const today = new Date().toISOString().slice(0, 10);
-    let sent = 0, skipped = 0, failed = 0, expired = 0;
+    let sent = 0,
+      skipped = 0,
+      failed = 0,
+      expired = 0;
 
     let cursor;
     do {
@@ -64,10 +67,16 @@ export default {
           const { subscription, streak, name, lastPracticed, lastNotified } = raw;
 
           // Skip if practiced today
-          if (lastPracticed === today) { skipped++; continue; }
+          if (lastPracticed === today) {
+            skipped++;
+            continue;
+          }
 
           // Skip if already notified today
-          if (lastNotified === today) { skipped++; continue; }
+          if (lastNotified === today) {
+            skipped++;
+            continue;
+          }
 
           // Calculate how many days since last practice session (for win-back messaging)
           const daysSince = lastPracticed
@@ -75,15 +84,15 @@ export default {
             : 0;
 
           const res = await fetch(`${PAGES_URL}/api/streak-push`, {
-            method:  'POST',
+            method: 'POST',
             headers: {
-              'Content-Type':   'application/json',
-              'x-cron-secret':  env.CRON_SECRET,
+              'Content-Type': 'application/json',
+              'x-cron-secret': env.CRON_SECRET,
             },
             body: JSON.stringify({
               subscription,
-              streak:    streak || 0,
-              name:      name || '',
+              streak: streak || 0,
+              name: name || '',
               daysSince: daysSince || 0,
             }),
             signal: AbortSignal.timeout(15000),
@@ -95,10 +104,13 @@ export default {
             await env.PUSH_SUBSCRIPTIONS.delete(key.name).catch(() => {});
             expired++;
           } else if (res.ok && data.ok) {
-            await env.PUSH_SUBSCRIPTIONS.put(key.name, JSON.stringify({
-              ...raw,
-              lastNotified: today,
-            })).catch(() => {});
+            await env.PUSH_SUBSCRIPTIONS.put(
+              key.name,
+              JSON.stringify({
+                ...raw,
+                lastNotified: today,
+              }),
+            ).catch(() => {});
             sent++;
           } else {
             failed++;
@@ -113,6 +125,8 @@ export default {
       cursor = listResult.cursor;
     } while (cursor);
 
-    console.warn(`[Scheduled] Complete — sent: ${sent}, skipped: ${skipped}, failed: ${failed}, expired: ${expired}`);
+    console.warn(
+      `[Scheduled] Complete — sent: ${sent}, skipped: ${skipped}, failed: ${failed}, expired: ${expired}`,
+    );
   },
 };

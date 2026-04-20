@@ -33,7 +33,7 @@ export default function VideoBackground({ videoSrc, imageSrc, overlay, style = {
   const videoRef = useRef(null);
 
   const useVideo = !videoFailed && !!videoSrc;
-  const kbAnim  = pickKenBurns(imageSrc || '');
+  const kbAnim = pickKenBurns(imageSrc || '');
 
   return (
     <div
@@ -101,9 +101,7 @@ export default function VideoBackground({ videoSrc, imageSrc, overlay, style = {
       )}
 
       {/* ── Content (z-index 3) ── */}
-      <div style={{ position: 'relative', zIndex: 3 }}>
-        {children}
-      </div>
+      <div style={{ position: 'relative', zIndex: 3 }}>{children}</div>
     </div>
   );
 }

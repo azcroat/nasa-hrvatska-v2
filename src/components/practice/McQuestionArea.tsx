@@ -8,20 +8,30 @@ const LABELS = ['A', 'B', 'C', 'D', 'E'];
 // Returns a specific grammar explanation based on the question's Croatian word
 // or category, rather than the generic "take note of this word" fallback.
 const CATEGORY_HINTS = {
-  greetings:  'Croatian greetings change based on time of day: "Dobro jutro" (morning), "Dobar dan" (afternoon), "Dobra večer" (evening).',
-  farewells:  '"Doviđenja" is formal; "Bok" and "Poka" are casual. Match the formality to your context.',
-  food:       'Food nouns: feminine nouns end in -a (kava, pizza), neuter nouns end in -o or -e (meso, vino).',
-  verbs:      'Croatian infinitives end in -ti or -ći. The present tense drops that ending and adds personal endings (-m, -š, -ø, -mo, -te, -ju/-e).',
-  numbers:    'Numbers 1–4 take special case agreement with nouns. From 5 onward, nouns take the genitive plural.',
-  colours:    'Colours in Croatian are adjectives — they agree with the noun\'s gender: crveni (m), crvena (f), crveno (n).',
-  family:     'Croatian family terms distinguish gender strictly: "brat" (brother), "sestra" (sister). There\'s no gender-neutral equivalent.',
-  body:       'Body parts are mostly feminine (-a ending: ruka, noga) or masculine (nos, prst). Gender determines adjective endings.',
-  nature:     'Nature vocabulary often reflects gender by ending: more (n), rijeka (f), brijeg (m).',
-  travel:     'Travel phrases often use the locative case for locations: "u gradu" (in the city), "na plaži" (at the beach).',
-  time:       '"Sada" (now), "jučer" (yesterday), "sutra" (tomorrow). Croatian doesn\'t use articles — no "the" or "a".',
-  emotions:   'Emotion words often use the verb "biti" (to be) with an adjective: "Sretan sam" (I am happy). Adjective agrees with subject gender.',
-  phrases:    'Common phrases often use the dative case for indirect objects: "Daj mi" (give me), "Reci mi" (tell me).',
-  grammar:    'Remember: in Croatian every letter is pronounced exactly as written — one letter, one sound, always.',
+  greetings:
+    'Croatian greetings change based on time of day: "Dobro jutro" (morning), "Dobar dan" (afternoon), "Dobra večer" (evening).',
+  farewells:
+    '"Doviđenja" is formal; "Bok" and "Poka" are casual. Match the formality to your context.',
+  food: 'Food nouns: feminine nouns end in -a (kava, pizza), neuter nouns end in -o or -e (meso, vino).',
+  verbs:
+    'Croatian infinitives end in -ti or -ći. The present tense drops that ending and adds personal endings (-m, -š, -ø, -mo, -te, -ju/-e).',
+  numbers:
+    'Numbers 1–4 take special case agreement with nouns. From 5 onward, nouns take the genitive plural.',
+  colours:
+    "Colours in Croatian are adjectives — they agree with the noun's gender: crveni (m), crvena (f), crveno (n).",
+  family:
+    'Croatian family terms distinguish gender strictly: "brat" (brother), "sestra" (sister). There\'s no gender-neutral equivalent.',
+  body: 'Body parts are mostly feminine (-a ending: ruka, noga) or masculine (nos, prst). Gender determines adjective endings.',
+  nature: 'Nature vocabulary often reflects gender by ending: more (n), rijeka (f), brijeg (m).',
+  travel:
+    'Travel phrases often use the locative case for locations: "u gradu" (in the city), "na plaži" (at the beach).',
+  time: '"Sada" (now), "jučer" (yesterday), "sutra" (tomorrow). Croatian doesn\'t use articles — no "the" or "a".',
+  emotions:
+    'Emotion words often use the verb "biti" (to be) with an adjective: "Sretan sam" (I am happy). Adjective agrees with subject gender.',
+  phrases:
+    'Common phrases often use the dative case for indirect objects: "Daj mi" (give me), "Reci mi" (tell me).',
+  grammar:
+    'Remember: in Croatian every letter is pronounced exactly as written — one letter, one sound, always.',
 };
 
 // Pattern-based hints derived from the Croatian word itself
@@ -74,24 +84,40 @@ function getGrammarHint(q) {
 }
 
 // ── Particle burst on correct answer ─────────────────────────────────────────
-const PARTICLES = ['⭐','✨','🌟','💫','⚡','✨','⭐','🌟','💥','✨'];
+const PARTICLES = ['⭐', '✨', '🌟', '💫', '⚡', '✨', '⭐', '🌟', '💥', '✨'];
 const PARTICLE_POSITIONS = [
-  [-30, -20], [-40, 0], [-30, 20], [0, 30], [0, -30],
-  [-20, 40], [20, 40], [30, 0], [20, -40], [-20, -40],
+  [-30, -20],
+  [-40, 0],
+  [-30, 20],
+  [0, 30],
+  [0, -30],
+  [-20, 40],
+  [20, 40],
+  [30, 0],
+  [20, -40],
+  [-20, -40],
 ];
 
 function ParticleBurst({ active }) {
   if (!active) return null;
   return (
-    <div style={{ position: 'absolute', top: '50%', left: '50%', pointerEvents: 'none', zIndex: 10 }}>
+    <div
+      style={{ position: 'absolute', top: '50%', left: '50%', pointerEvents: 'none', zIndex: 10 }}
+    >
       {PARTICLES.map((e, i) => {
         const [topOff, leftOff] = PARTICLE_POSITIONS[i];
         return (
-          <div key={i} style={{
-            position: 'absolute', fontSize: 14 + (i % 3) * 4,
-            animation: `xpFloat .8s ${i * 0.05}s ease forwards`,
-            top: topOff, left: leftOff, opacity: 0,
-          }}>
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              fontSize: 14 + (i % 3) * 4,
+              animation: `xpFloat .8s ${i * 0.05}s ease forwards`,
+              top: topOff,
+              left: leftOff,
+              opacity: 0,
+            }}
+          >
             {e}
           </div>
         );
@@ -131,10 +157,16 @@ export default function McQuestionArea({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
           {q.hr && <Spk text={q.hr} label="" />}
-          <p style={{
-            fontSize: 26, fontWeight: 900, fontFamily: "'Playfair Display',serif",
-            color: 'var(--heading)', lineHeight: 1.2, flex: 1,
-          }}>
+          <p
+            style={{
+              fontSize: 26,
+              fontWeight: 900,
+              fontFamily: "'Playfair Display',serif",
+              color: 'var(--heading)',
+              lineHeight: 1.2,
+              flex: 1,
+            }}
+          >
             {q.hr}
           </p>
         </div>
@@ -152,11 +184,14 @@ export default function McQuestionArea({
       </div>
 
       {/* Options */}
-      <div style={{
-        position: 'relative', opacity: qTransition ? 0 : 1,
-        transform: qTransition ? 'translateY(8px)' : 'translateY(0)',
-        transition: 'opacity 0.2s ease, transform 0.2s ease',
-      }}>
+      <div
+        style={{
+          position: 'relative',
+          opacity: qTransition ? 0 : 1,
+          transform: qTransition ? 'translateY(8px)' : 'translateY(0)',
+          transition: 'opacity 0.2s ease, transform 0.2s ease',
+        }}
+      >
         {q.opts.map((o, i) => {
           const isCorrect = answered && o === q.correct;
           const isWrong = answered && selected === i && o !== q.correct;
@@ -169,26 +204,55 @@ export default function McQuestionArea({
                 className={'ob' + (isCorrect ? ' ok' : isWrong ? ' no' : '')}
                 aria-pressed={answered && selected === i}
                 aria-label={`Option ${i + 1}: ${o}`}
-                onKeyDown={e => onKey(e, i)}
+                onKeyDown={(e) => onKey(e, i)}
                 onClick={() => onAnswer(o, i)}
                 whileTap={!answered ? { scale: 0.97 } : {}}
                 transition={{ type: 'spring', stiffness: 600, damping: 20 }}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '14px 18px', borderRadius: 14, fontSize: 15,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  padding: '14px 18px',
+                  borderRadius: 14,
+                  fontSize: 15,
                   transition: 'background .2s ease, border-color .2s ease, transform .12s ease',
-                  ...(isRevealedCorrect ? { background: 'var(--success-bg)', borderColor: 'var(--success-b)', color: 'var(--success)' } : {}),
-                  ...(isGlowing ? { animation: 'correctGlow 0.5s ease infinite', borderColor: 'var(--success-b)' } : {}),
+                  ...(isRevealedCorrect
+                    ? {
+                        background: 'var(--success-bg)',
+                        borderColor: 'var(--success-b)',
+                        color: 'var(--success)',
+                      }
+                    : {}),
+                  ...(isGlowing
+                    ? {
+                        animation: 'correctGlow 0.5s ease infinite',
+                        borderColor: 'var(--success-b)',
+                      }
+                    : {}),
                 }}
               >
-                <span style={{
-                  width: 30, height: 30, borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 13, fontWeight: 800, flexShrink: 0,
-                  background: isCorrect ? 'var(--success)' : isWrong ? 'var(--error)' : isRevealedCorrect ? 'var(--success)' : 'var(--bar-bg)',
-                  color: isCorrect || isWrong || isRevealedCorrect ? '#fff' : 'var(--subtext)',
-                  transition: 'all .2s',
-                }}>
+                <span
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 13,
+                    fontWeight: 800,
+                    flexShrink: 0,
+                    background: isCorrect
+                      ? 'var(--success)'
+                      : isWrong
+                        ? 'var(--error)'
+                        : isRevealedCorrect
+                          ? 'var(--success)'
+                          : 'var(--bar-bg)',
+                    color: isCorrect || isWrong || isRevealedCorrect ? '#fff' : 'var(--subtext)',
+                    transition: 'all .2s',
+                  }}
+                >
                   {isCorrect ? '✓' : isWrong ? '✕' : isRevealedCorrect ? '✓' : LABELS[i]}
                 </span>
                 <span style={{ flex: 1, textAlign: 'left' }}>{o}</span>
@@ -202,23 +266,39 @@ export default function McQuestionArea({
       </div>
 
       {/* Keyboard hint — desktop only via CSS .kb-hints */}
-      <div className="kb-hints" aria-hidden="true" style={{ marginTop: 8, justifyContent: 'center' }}>
+      <div
+        className="kb-hints"
+        aria-hidden="true"
+        style={{ marginTop: 8, justifyContent: 'center' }}
+      >
         <span>Select:</span>
         {(q?.opts || []).map((_, i) => (
-          <span key={i}><span className="kb-key" data-key={i + 1} /></span>
+          <span key={i}>
+            <span className="kb-key" data-key={i + 1} />
+          </span>
         ))}
-        <span style={{ marginLeft: 4 }}>Confirm: <span className="kb-key">↵</span></span>
+        <span style={{ marginLeft: 4 }}>
+          Confirm: <span className="kb-key">↵</span>
+        </span>
       </div>
-      <span className="sr-only" aria-live="polite">Tip: press 1–4 to choose an answer</span>
+      <span className="sr-only" aria-live="polite">
+        Tip: press 1–4 to choose an answer
+      </span>
 
       {/* Grammar hint on wrong answer */}
       {answered && q.opts[selected] !== q.correct && (
-        <div style={{
-          marginTop: 8, padding: '10px 14px',
-          background: 'var(--info-bg)',
-          border: '1px solid var(--info-b, rgba(14,116,144,0.2))',
-          borderRadius: 10, fontSize: 12, color: 'var(--subtext)', lineHeight: 1.5,
-        }}>
+        <div
+          style={{
+            marginTop: 8,
+            padding: '10px 14px',
+            background: 'var(--info-bg)',
+            border: '1px solid var(--info-b, rgba(14,116,144,0.2))',
+            borderRadius: 10,
+            fontSize: 12,
+            color: 'var(--subtext)',
+            lineHeight: 1.5,
+          }}
+        >
           💡 {getGrammarHint(q)}
         </div>
       )}

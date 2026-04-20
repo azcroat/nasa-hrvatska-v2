@@ -14,7 +14,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-export type ErrorType = 'case_error' | 'aspect_error' | 'vocab_miss' | 'gender_error' | 'pronunciation';
+export type ErrorType =
+  | 'case_error'
+  | 'aspect_error'
+  | 'vocab_miss'
+  | 'gender_error'
+  | 'pronunciation';
 
 export interface ErrorEntry {
   type: string;
@@ -127,12 +132,15 @@ export function useErrorTracking(uid: string): {
   const [tick, setTick] = useState(0);
 
   // Re-render when an error is recorded
-  const handleErrorRecorded = useCallback((e: Event): void => {
-    const ce = e as CustomEvent<{ uid?: string }>;
-    if (!ce.detail || ce.detail.uid === uid) {
-      setTick(t => t + 1);
-    }
-  }, [uid]);
+  const handleErrorRecorded = useCallback(
+    (e: Event): void => {
+      const ce = e as CustomEvent<{ uid?: string }>;
+      if (!ce.detail || ce.detail.uid === uid) {
+        setTick((t) => t + 1);
+      }
+    },
+    [uid],
+  );
 
   useEffect(() => {
     window.addEventListener('nh:error-recorded', handleErrorRecorded);
@@ -143,18 +151,23 @@ export function useErrorTracking(uid: string): {
 
   const errorCount = useMemo(() => {
     if (!uid) return 0;
-    try { return _load(uid).length; } catch { return 0; }
-
+    try {
+      return _load(uid).length;
+    } catch {
+      return 0;
+    }
   }, [uid, tick]);
 
   const weakAreas = useMemo(() => {
     return getWeakAreas(uid);
-
   }, [uid, tick]);
 
-  const boundRecordError = useCallback((type: string, context: string = ''): void => {
-    recordError(uid, type, context);
-  }, [uid]);
+  const boundRecordError = useCallback(
+    (type: string, context: string = ''): void => {
+      recordError(uid, type, context);
+    },
+    [uid],
+  );
 
   return { errorCount, weakAreas, recordError: boundRecordError };
 }

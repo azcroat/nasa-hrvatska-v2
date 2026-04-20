@@ -44,18 +44,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -114,17 +130,30 @@ function renderAspectDrill(overrides = {}) {
 
 /** Returns option buttons — filtering out navigation, control, and feedback buttons. */
 function _getOptionButtons() {
-  return screen.queryAllByRole('button').filter(btn => {
+  return screen.queryAllByRole('button').filter((btn) => {
     const t = btn.textContent ?? '';
-    return !['Back', '← Back to Drill', '6 Rules', 'Mistakes only', 'Retry', 'Finish', 'Drill Mistakes'].some(k => t.includes(k))
-      && !t.startsWith('Next') && !t.startsWith('▸') && !t.startsWith('▾')
-      && !t.includes('See results') && !t.includes('Show full rule');
+    return (
+      ![
+        'Back',
+        '← Back to Drill',
+        '6 Rules',
+        'Mistakes only',
+        'Retry',
+        'Finish',
+        'Drill Mistakes',
+      ].some((k) => t.includes(k)) &&
+      !t.startsWith('Next') &&
+      !t.startsWith('▸') &&
+      !t.startsWith('▾') &&
+      !t.includes('See results') &&
+      !t.includes('Show full rule')
+    );
   });
 }
 
 /** Click the option button whose text matches the predicate. */
 function clickOptionByText(text: string | RegExp) {
-  const btn = screen.getAllByRole('button').find(b => {
+  const btn = screen.getAllByRole('button').find((b) => {
     const t = b.textContent?.trim() ?? '';
     return typeof text === 'string' ? t === text : text.test(t);
   });
@@ -145,9 +174,9 @@ function completeAllPhases(award = vi.fn(), goBack = vi.fn()) {
   fireEvent.click(screen.getByText(/Next phase/));
 
   // Phase 2 (why): opts[0] = habitual rule label button
-  const habitualBtn = screen.queryAllByRole('button').find(
-    btn => (btn.textContent ?? '').includes('Repeated or habitual')
-  );
+  const habitualBtn = screen
+    .queryAllByRole('button')
+    .find((btn) => (btn.textContent ?? '').includes('Repeated or habitual'));
   if (habitualBtn) fireEvent.click(habitualBtn);
   fireEvent.click(screen.getByText(/Next phase/));
 
@@ -159,7 +188,11 @@ function completeAllPhases(award = vi.fn(), goBack = vi.fn()) {
 // ── Rendering ─────────────────────────────────────────────────────────────────
 
 describe('AspectDrillScreen — rendering', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); mockSetStats.mockClear(); mockWriteDelta.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+    mockSetStats.mockClear();
+    mockWriteDelta.mockClear();
+  });
 
   it('renders without crashing', () => {
     renderAspectDrill();
@@ -190,15 +223,17 @@ describe('AspectDrillScreen — rendering', () => {
     renderAspectDrill();
     // Both verb forms appear as clickable buttons (not just static pair-header text)
     const btns = screen.getAllByRole('button');
-    const hasImpf = btns.some(b => b.textContent?.trim() === 'pisati');
-    const hasPf   = btns.some(b => b.textContent?.trim() === 'napisati');
+    const hasImpf = btns.some((b) => b.textContent?.trim() === 'pisati');
+    const hasPf = btns.some((b) => b.textContent?.trim() === 'napisati');
     expect(hasImpf).toBe(true);
     expect(hasPf).toBe(true);
   });
 
   it('shows the "📖 6 Rules" control button', () => {
     renderAspectDrill();
-    const btn = screen.queryAllByRole('button').find(b => (b.textContent ?? '').includes('6 Rules'));
+    const btn = screen
+      .queryAllByRole('button')
+      .find((b) => (b.textContent ?? '').includes('6 Rules'));
     expect(btn).toBeTruthy();
   });
 
@@ -211,7 +246,9 @@ describe('AspectDrillScreen — rendering', () => {
 // ── Answer mechanics ──────────────────────────────────────────────────────────
 
 describe('AspectDrillScreen — answer mechanics', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+  });
 
   it('shows "✓ Correct!" when correct answer selected (Phase 0)', () => {
     renderAspectDrill();
@@ -283,9 +320,9 @@ describe('AspectDrillScreen — answer mechanics', () => {
     fireEvent.click(screen.getByText(/Next phase/));
     clickOptionByText('napisati');
     fireEvent.click(screen.getByText(/Next phase/));
-    const habitualBtn = screen.queryAllByRole('button').find(
-      btn => (btn.textContent ?? '').includes('Repeated or habitual')
-    );
+    const habitualBtn = screen
+      .queryAllByRole('button')
+      .find((btn) => (btn.textContent ?? '').includes('Repeated or habitual'));
     if (habitualBtn) fireEvent.click(habitualBtn);
     expect(screen.getByText(/Next phase.*Compare/)).toBeTruthy();
   });
@@ -296,9 +333,9 @@ describe('AspectDrillScreen — answer mechanics', () => {
     fireEvent.click(screen.getByText(/Next phase/));
     clickOptionByText('napisati');
     fireEvent.click(screen.getByText(/Next phase/));
-    const habitualBtn = screen.queryAllByRole('button').find(
-      btn => (btn.textContent ?? '').includes('Repeated or habitual')
-    );
+    const habitualBtn = screen
+      .queryAllByRole('button')
+      .find((btn) => (btn.textContent ?? '').includes('Repeated or habitual'));
     if (habitualBtn) fireEvent.click(habitualBtn);
     fireEvent.click(screen.getByText(/Next phase/));
     expect(screen.getByText(/Which sentence describes a COMPLETED/)).toBeTruthy();
@@ -310,9 +347,9 @@ describe('AspectDrillScreen — answer mechanics', () => {
     fireEvent.click(screen.getByText(/Next phase/));
     clickOptionByText('napisati');
     fireEvent.click(screen.getByText(/Next phase/));
-    const habitualBtn = screen.queryAllByRole('button').find(
-      btn => (btn.textContent ?? '').includes('Repeated or habitual')
-    );
+    const habitualBtn = screen
+      .queryAllByRole('button')
+      .find((btn) => (btn.textContent ?? '').includes('Repeated or habitual'));
     if (habitualBtn) fireEvent.click(habitualBtn);
     fireEvent.click(screen.getByText(/Next phase/));
     // pfSentence = "Napisao sam pismo majci." — click it as a button
@@ -324,18 +361,24 @@ describe('AspectDrillScreen — answer mechanics', () => {
 // ── Reference mode ────────────────────────────────────────────────────────────
 
 describe('AspectDrillScreen — reference mode', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+  });
 
   it('"6 Rules" button switches to reference mode', () => {
     renderAspectDrill();
-    const rulesBtn = screen.queryAllByRole('button').find(b => (b.textContent ?? '').includes('6 Rules'));
+    const rulesBtn = screen
+      .queryAllByRole('button')
+      .find((b) => (b.textContent ?? '').includes('6 Rules'));
     if (rulesBtn) fireEvent.click(rulesBtn);
     expect(screen.getByText(/Aspect Rules/)).toBeTruthy();
   });
 
   it('reference mode shows all 6 rule labels', () => {
     renderAspectDrill();
-    const rulesBtn = screen.queryAllByRole('button').find(b => (b.textContent ?? '').includes('6 Rules'));
+    const rulesBtn = screen
+      .queryAllByRole('button')
+      .find((b) => (b.textContent ?? '').includes('6 Rules'));
     if (rulesBtn) fireEvent.click(rulesBtn);
     // Each ASPECT_RULE has a label — check a few key ones
     expect(screen.getByText(/Habitual \/ Repeated/)).toBeTruthy();
@@ -347,7 +390,9 @@ describe('AspectDrillScreen — reference mode', () => {
 
   it('"← Back to Drill" button returns to drill mode', () => {
     renderAspectDrill();
-    const rulesBtn = screen.queryAllByRole('button').find(b => (b.textContent ?? '').includes('6 Rules'));
+    const rulesBtn = screen
+      .queryAllByRole('button')
+      .find((b) => (b.textContent ?? '').includes('6 Rules'));
     if (rulesBtn) fireEvent.click(rulesBtn);
     // Should be in reference mode
     expect(screen.getByText(/Aspect Rules/)).toBeTruthy();
@@ -363,7 +408,11 @@ describe('AspectDrillScreen — reference mode', () => {
 // ── Completion ────────────────────────────────────────────────────────────────
 
 describe('AspectDrillScreen — completion + award', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); mockSetStats.mockClear(); mockWriteDelta.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+    mockSetStats.mockClear();
+    mockWriteDelta.mockClear();
+  });
 
   it('done screen shows score after completing all 4 phases', () => {
     completeAllPhases();

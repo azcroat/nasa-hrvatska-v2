@@ -36,10 +36,11 @@ export default function AdvancedVocabScreen({ goBack, award }) {
     const list = data[safeCat] || [];
     if (!search.trim()) return list;
     const q = search.toLowerCase();
-    return list.filter(([hr, en, ex]) =>
-      hr.toLowerCase().includes(q) ||
-      en.toLowerCase().includes(q) ||
-      ex.toLowerCase().includes(q)
+    return list.filter(
+      ([hr, en, ex]) =>
+        hr.toLowerCase().includes(q) ||
+        en.toLowerCase().includes(q) ||
+        ex.toLowerCase().includes(q),
     );
   }, [data, safeCat, search]);
 
@@ -54,7 +55,7 @@ export default function AdvancedVocabScreen({ goBack, award }) {
   }
 
   function toggleLearned(word) {
-    setLearned(prev => {
+    setLearned((prev) => {
       const next = new Set(prev);
       if (next.has(word)) next.delete(word);
       else {
@@ -76,7 +77,13 @@ export default function AdvancedVocabScreen({ goBack, award }) {
           <button
             onClick={goBack}
             className="bg sh"
-            style={{ border: 'none', borderRadius: 10, padding: '6px 12px', cursor: 'pointer', fontSize: 18 }}
+            style={{
+              border: 'none',
+              borderRadius: 10,
+              padding: '6px 12px',
+              cursor: 'pointer',
+              fontSize: 18,
+            }}
             aria-label="Go back"
           >
             ‹
@@ -93,7 +100,7 @@ export default function AdvancedVocabScreen({ goBack, award }) {
 
         {/* ── LEVEL TOGGLE ── */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, marginTop: 12 }}>
-          {['B2', 'C1'].map(l => (
+          {['B2', 'C1'].map((l) => (
             <button
               key={l}
               onClick={() => toggleLevel(l)}
@@ -102,9 +109,8 @@ export default function AdvancedVocabScreen({ goBack, award }) {
                 padding: '10px 0',
                 borderRadius: 12,
                 border: level === l ? 'none' : '1.5px solid var(--card-b)',
-                background: level === l
-                  ? 'linear-gradient(135deg, #7c3aed, #5b21b6)'
-                  : 'var(--card)',
+                background:
+                  level === l ? 'linear-gradient(135deg, #7c3aed, #5b21b6)' : 'var(--card)',
                 color: level === l ? '#fff' : 'var(--text)',
                 fontWeight: 800,
                 fontSize: 'var(--text-base)',
@@ -123,7 +129,7 @@ export default function AdvancedVocabScreen({ goBack, award }) {
         <input
           type="text"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search words or meanings…"
           style={{
             width: '100%',
@@ -141,19 +147,29 @@ export default function AdvancedVocabScreen({ goBack, award }) {
         />
 
         {/* ── CATEGORY PILLS ── */}
-        <div style={{ overflowX: 'auto', display: 'flex', gap: 8, paddingBottom: 6, scrollbarWidth: 'none' }}>
-          {categories.map(cat => (
+        <div
+          style={{
+            overflowX: 'auto',
+            display: 'flex',
+            gap: 8,
+            paddingBottom: 6,
+            scrollbarWidth: 'none',
+          }}
+        >
+          {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => { setActiveCat(cat); setSearch(''); }}
+              onClick={() => {
+                setActiveCat(cat);
+                setSearch('');
+              }}
               style={{
                 whiteSpace: 'nowrap',
                 padding: '7px 14px',
                 borderRadius: 20,
                 border: safeCat === cat ? 'none' : '1.5px solid var(--card-b)',
-                background: safeCat === cat
-                  ? 'linear-gradient(135deg, #7c3aed, #5b21b6)'
-                  : 'var(--card)',
+                background:
+                  safeCat === cat ? 'linear-gradient(135deg, #7c3aed, #5b21b6)' : 'var(--card)',
                 color: safeCat === cat ? '#fff' : 'var(--subtext)',
                 fontWeight: safeCat === cat ? 800 : 600,
                 fontSize: 'var(--text-xs)',
@@ -172,21 +188,34 @@ export default function AdvancedVocabScreen({ goBack, award }) {
         {!search.trim() && (
           <div style={{ marginTop: 12, marginBottom: 4 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontWeight: 600 }}>
+              <span
+                style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontWeight: 600 }}
+              >
                 {safeCat}
               </span>
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontWeight: 700 }}>
+              <span
+                style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', fontWeight: 700 }}
+              >
                 {learnedInCat}/{totalInCat} learned
               </span>
             </div>
-            <div style={{ height: 6, background: 'var(--card-b)', borderRadius: 99, overflow: 'hidden' }}>
-              <div style={{
-                height: '100%',
-                width: `${pct}%`,
-                background: 'linear-gradient(90deg, #7c3aed, #5b21b6)',
+            <div
+              style={{
+                height: 6,
+                background: 'var(--card-b)',
                 borderRadius: 99,
-                transition: 'width .3s ease',
-              }} />
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  width: `${pct}%`,
+                  background: 'linear-gradient(90deg, #7c3aed, #5b21b6)',
+                  borderRadius: 99,
+                  transition: 'width .3s ease',
+                }}
+              />
             </div>
           </div>
         )}
@@ -217,30 +246,44 @@ export default function AdvancedVocabScreen({ goBack, award }) {
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                 {/* Text block */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 2 }}>
-                    <span style={{
-                      fontWeight: 900,
-                      fontSize: 'var(--text-base)',
-                      color: 'var(--text)',
-                      fontFamily: "'Outfit', sans-serif",
-                    }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      flexWrap: 'wrap',
+                      marginBottom: 2,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontWeight: 900,
+                        fontSize: 'var(--text-base)',
+                        color: 'var(--text)',
+                        fontFamily: "'Outfit', sans-serif",
+                      }}
+                    >
                       {H(hr)}
                     </span>
-                    <span style={{
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--subtext)',
-                      fontWeight: 500,
-                    }}>
+                    <span
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--subtext)',
+                        fontWeight: 500,
+                      }}
+                    >
                       {en}
                     </span>
                   </div>
-                  <div style={{
-                    fontSize: 'var(--text-xs)',
-                    color: 'var(--subtext)',
-                    fontStyle: 'italic',
-                    lineHeight: 1.45,
-                    marginTop: 4,
-                  }}>
+                  <div
+                    style={{
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--subtext)',
+                      fontStyle: 'italic',
+                      lineHeight: 1.45,
+                      marginTop: 4,
+                    }}
+                  >
                     {H(ex)}
                   </div>
                 </div>

@@ -24,13 +24,17 @@ function HighlightedSentence({ text, highlight }) {
 // Inline spinner used during fetch
 function Spinner() {
   return (
-    <div style={{
-      width: 36, height: 36, borderRadius: '50%',
-      border: '3.5px solid rgba(14,116,144,.18)',
-      borderTopColor: '#0e7490',
-      animation: 'spin 0.75s linear infinite',
-      flexShrink: 0,
-    }} />
+    <div
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: '50%',
+        border: '3.5px solid rgba(14,116,144,.18)',
+        borderTopColor: '#0e7490',
+        animation: 'spin 0.75s linear infinite',
+        flexShrink: 0,
+      }}
+    />
   );
 }
 
@@ -38,15 +42,24 @@ function Spinner() {
 function MicroBar({ v, mx }) {
   const pct = mx > 0 ? Math.round((v / mx) * 100) : 0;
   return (
-    <div style={{
-      height: 6, borderRadius: 99, overflow: 'hidden',
-      background: 'rgba(14,116,144,.12)', marginBottom: 20,
-    }}>
-      <div style={{
-        height: '100%', width: `${pct}%`, borderRadius: 99,
-        background: 'linear-gradient(90deg,#0e7490,#0891b2)',
-        transition: 'width .35s ease',
-      }} />
+    <div
+      style={{
+        height: 6,
+        borderRadius: 99,
+        overflow: 'hidden',
+        background: 'rgba(14,116,144,.12)',
+        marginBottom: 20,
+      }}
+    >
+      <div
+        style={{
+          height: '100%',
+          width: `${pct}%`,
+          borderRadius: 99,
+          background: 'linear-gradient(90deg,#0e7490,#0891b2)',
+          transition: 'width .35s ease',
+        }}
+      />
     </div>
   );
 }
@@ -97,10 +110,10 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
     // Build weak words from the enriched mistakes store (has English meanings)
     const mistakes = getMistakes();
     const sorted = [...mistakes]
-      .filter(m => (m.count || 0) >= 2 && m.hr && m.en)
+      .filter((m) => (m.count || 0) >= 2 && m.hr && m.en)
       .sort((a, b) => (b.count || 0) - (a.count || 0))
       .slice(0, 5)
-      .map(m => ({ hr: m.hr, en: m.en, missCount: m.count || 0 }));
+      .map((m) => ({ hr: m.hr, en: m.en, missCount: m.count || 0 }));
 
     if (sorted.length < 2) {
       setNoWords(true);
@@ -110,7 +123,13 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
 
     setWeakWords(sorted);
 
-    const goal = (() => { try { return localStorage.getItem('nh_goal') || 'fluent'; } catch { return 'fluent'; } })();
+    const goal = (() => {
+      try {
+        return localStorage.getItem('nh_goal') || 'fluent';
+      } catch {
+        return 'fluent';
+      }
+    })();
     const userLevel = level || 'A2';
 
     try {
@@ -133,16 +152,20 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
     }
   }, [level]);
 
-  useEffect(() => { fetchLesson(); }, [fetchLesson]);
+  useEffect(() => {
+    fetchLesson();
+  }, [fetchLesson]);
 
   // ── Preview words visible during loading ─────────────────────────────────────
   const loadingPreview = (() => {
     try {
       return getMistakes()
-        .filter(m => (m.count || 0) >= 2 && m.hr)
+        .filter((m) => (m.count || 0) >= 2 && m.hr)
         .sort((a, b) => (b.count || 0) - (a.count || 0))
         .slice(0, 5);
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   })();
 
   // ── PHASE: loading ───────────────────────────────────────────────────────────
@@ -151,41 +174,69 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
       <div className="scr-wrap">
         {H('🎯 Personalized Lesson', 'Analyzing your weak spots...', goBack)}
 
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          gap: 20, padding: '32px 0 24px',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 20,
+            padding: '32px 0 24px',
+          }}
+        >
           <Spinner />
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)', textAlign: 'center' }}>
+          <div
+            style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)', textAlign: 'center' }}
+          >
             Building a lesson just for you...
           </div>
         </div>
 
         {loadingPreview.length > 0 && (
-          <div style={{
-            background: 'var(--card)', border: '1.5px solid var(--card-b)',
-            borderRadius: 16, padding: '16px 18px',
-          }}>
-            <div style={{
-              fontSize: 11, fontWeight: 800, color: 'var(--subtext)',
-              textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 12,
-            }}>
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1.5px solid var(--card-b)',
+              borderRadius: 16,
+              padding: '16px 18px',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: 'var(--subtext)',
+                textTransform: 'uppercase',
+                letterSpacing: '.1em',
+                marginBottom: 12,
+              }}
+            >
               Words being analyzed
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {loadingPreview.map((m, i) => (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'center',
-                  justifyContent: 'space-between', gap: 10,
-                }}>
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                  }}
+                >
                   <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--heading)' }}>
                     {m.hr}
                   </span>
-                  <span style={{
-                    fontSize: 11, fontWeight: 800, color: '#dc2626',
-                    background: '#fef2f2', border: '1px solid #fecaca',
-                    borderRadius: 99, padding: '2px 9px',
-                  }}>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 800,
+                      color: '#dc2626',
+                      background: '#fef2f2',
+                      border: '1px solid #fecaca',
+                      borderRadius: 99,
+                      padding: '2px 9px',
+                    }}
+                  >
                     ✗ {m.count}×
                   </span>
                 </div>
@@ -202,13 +253,16 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
     return (
       <div className="scr-wrap">
         {H('🎯 Personalized Lesson', '', goBack)}
-        <div style={{
-          background: 'var(--card)', border: '1.5px solid var(--card-b)',
-          borderRadius: 16, padding: '28px 20px', textAlign: 'center',
-        }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>
-            {noWords ? '📚' : '⚠️'}
-          </div>
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1.5px solid var(--card-b)',
+            borderRadius: 16,
+            padding: '28px 20px',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: 48, marginBottom: 12 }}>{noWords ? '📚' : '⚠️'}</div>
           <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--heading)', marginBottom: 10 }}>
             {noWords ? 'Keep Practicing!' : 'Something went wrong'}
           </div>
@@ -219,27 +273,69 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
           </div>
           {noWords ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ fontSize: 13, color: 'var(--subtext)', background: 'var(--app-bg)', borderRadius: 10, padding: '10px 14px', lineHeight: 1.6 }}>
-                💡 <strong>Tip:</strong> Complete a few flashcard reviews, answer some wrong, then come back — your micro-lesson will be ready.
+              <div
+                style={{
+                  fontSize: 13,
+                  color: 'var(--subtext)',
+                  background: 'var(--app-bg)',
+                  borderRadius: 10,
+                  padding: '10px 14px',
+                  lineHeight: 1.6,
+                }}
+              >
+                💡 <strong>Tip:</strong> Complete a few flashcard reviews, answer some wrong, then
+                come back — your micro-lesson will be ready.
               </div>
-              <button className="b bp" style={{ width: '100%', padding: 14 }} onClick={() => { if (goFlashcards) goFlashcards(); else goBack(); }}>
+              <button
+                className="b bp"
+                style={{ width: '100%', padding: 14 }}
+                onClick={() => {
+                  if (goFlashcards) goFlashcards();
+                  else goBack();
+                }}
+              >
                 📚 Go to Flashcards
               </button>
-              <button onClick={goBack} style={{ width: '100%', padding: 12, background: 'none', border: '1.5px solid var(--card-b)', borderRadius: 12, cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'var(--subtext)' }}>
+              <button
+                onClick={goBack}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'none',
+                  border: '1.5px solid var(--card-b)',
+                  borderRadius: 12,
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: 'var(--subtext)',
+                }}
+              >
                 ← Back
               </button>
             </div>
           ) : (
             <>
-              <button className="b bp" style={{ width: '100%', padding: 14, marginBottom: 10 }} onClick={fetchLesson}>
+              <button
+                className="b bp"
+                style={{ width: '100%', padding: 14, marginBottom: 10 }}
+                onClick={fetchLesson}
+              >
                 Try Again
               </button>
-              <button onClick={goBack} style={{
-                width: '100%', padding: 12,
-                background: 'none', border: '1.5px solid var(--card-b)',
-                borderRadius: 12, cursor: 'pointer', fontSize: 14, fontWeight: 700,
-                color: 'var(--subtext)',
-              }}>
+              <button
+                onClick={goBack}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'none',
+                  border: '1.5px solid var(--card-b)',
+                  borderRadius: 12,
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: 'var(--subtext)',
+                }}
+              >
                 ← Back
               </button>
             </>
@@ -256,9 +352,16 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
         <button
           onClick={goBack}
           style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--subtext)', fontSize: 14, fontWeight: 700,
-            padding: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 6,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--subtext)',
+            fontSize: 14,
+            fontWeight: 700,
+            padding: '0 0 16px 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
           }}
         >
           ← Back
@@ -266,84 +369,146 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
 
         {/* Title block */}
         <div style={{ marginBottom: 20 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 7,
-            background: 'rgba(14,116,144,.1)', border: '1px solid rgba(14,116,144,.2)',
-            borderRadius: 99, padding: '4px 12px', marginBottom: 10,
-          }}>
-            <span style={{
-              fontSize: 11, fontWeight: 800, color: '#0e7490',
-              letterSpacing: '.08em', textTransform: 'uppercase',
-            }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              background: 'rgba(14,116,144,.1)',
+              border: '1px solid rgba(14,116,144,.2)',
+              borderRadius: 99,
+              padding: '4px 12px',
+              marginBottom: 10,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: '#0e7490',
+                letterSpacing: '.08em',
+                textTransform: 'uppercase',
+              }}
+            >
               {lesson.focus}
             </span>
           </div>
-          <div style={{
-            fontSize: 26, fontWeight: 900, color: 'var(--heading)',
-            fontFamily: "'Playfair Display',serif", lineHeight: 1.2, marginBottom: 12,
-          }}>
+          <div
+            style={{
+              fontSize: 26,
+              fontWeight: 900,
+              color: 'var(--heading)',
+              fontFamily: "'Playfair Display',serif",
+              lineHeight: 1.2,
+              marginBottom: 12,
+            }}
+          >
             {lesson.title}
           </div>
-          <div style={{
-            fontSize: 14, color: 'var(--subtext)', lineHeight: 1.65,
-            padding: '14px 16px',
-            background: 'var(--card)', border: '1.5px solid var(--card-b)',
-            borderRadius: 14,
-          }}>
+          <div
+            style={{
+              fontSize: 14,
+              color: 'var(--subtext)',
+              lineHeight: 1.65,
+              padding: '14px 16px',
+              background: 'var(--card)',
+              border: '1.5px solid var(--card-b)',
+              borderRadius: 14,
+            }}
+          >
             {lesson.intro}
           </div>
         </div>
 
         {/* Examples */}
         <div style={{ marginBottom: 6 }}>
-          <div style={{
-            fontSize: 11, fontWeight: 800, color: 'var(--subtext)',
-            textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 12,
-          }}>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 800,
+              color: 'var(--subtext)',
+              textTransform: 'uppercase',
+              letterSpacing: '.1em',
+              marginBottom: 12,
+            }}
+          >
             Examples
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {(lesson.examples || []).map((ex, i) => (
-              <div key={i} style={{
-                background: 'var(--card)', border: '1.5px solid var(--card-b)',
-                borderRadius: 14, padding: '14px 16px',
-                borderLeft: '4px solid #0e7490',
-                animation: `fade-up .35s ease ${i * 0.07}s both`,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 6 }}>
+              <div
+                key={i}
+                style={{
+                  background: 'var(--card)',
+                  border: '1.5px solid var(--card-b)',
+                  borderRadius: 14,
+                  padding: '14px 16px',
+                  borderLeft: '4px solid #0e7490',
+                  animation: `fade-up .35s ease ${i * 0.07}s both`,
+                }}
+              >
+                <div
+                  style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 6 }}
+                >
                   <button
                     onClick={() => speak(ex.hr)}
                     aria-label="Hear Croatian pronunciation"
                     style={{
-                      flexShrink: 0, width: 32, height: 32, borderRadius: 10,
-                      background: 'rgba(14,116,144,.1)', border: '1px solid rgba(14,116,144,.2)',
-                      cursor: 'pointer', fontSize: 15,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: '#0e7490', marginTop: 1,
+                      flexShrink: 0,
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      background: 'rgba(14,116,144,.1)',
+                      border: '1px solid rgba(14,116,144,.2)',
+                      cursor: 'pointer',
+                      fontSize: 15,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#0e7490',
+                      marginTop: 1,
                     }}
                   >
                     <span aria-hidden="true">🔊</span>
                   </button>
                   <div style={{ flex: 1 }}>
-                    <div style={{
-                      fontSize: 17, fontWeight: 700, color: 'var(--heading)',
-                      lineHeight: 1.4, marginBottom: 4,
-                      fontFamily: "'Playfair Display',serif",
-                    }}>
+                    <div
+                      style={{
+                        fontSize: 17,
+                        fontWeight: 700,
+                        color: 'var(--heading)',
+                        lineHeight: 1.4,
+                        marginBottom: 4,
+                        fontFamily: "'Playfair Display',serif",
+                      }}
+                    >
                       <HighlightedSentence text={ex.hr} highlight={ex.highlight} />
                     </div>
-                    <div style={{ fontSize: 13, color: 'var(--subtext)', fontStyle: 'italic', marginBottom: ex.note ? 6 : 0 }}>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: 'var(--subtext)',
+                        fontStyle: 'italic',
+                        marginBottom: ex.note ? 6 : 0,
+                      }}
+                    >
                       {ex.en}
                     </div>
                   </div>
                 </div>
                 {ex.note && (
-                  <div style={{
-                    display: 'inline-block', fontSize: 11, fontWeight: 700,
-                    color: '#b45309', background: '#fffbeb',
-                    border: '1px solid #fde68a', borderRadius: 99,
-                    padding: '3px 10px',
-                  }}>
+                  <div
+                    style={{
+                      display: 'inline-block',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: '#b45309',
+                      background: '#fffbeb',
+                      border: '1px solid #fde68a',
+                      borderRadius: 99,
+                      padding: '3px 10px',
+                    }}
+                  >
                     {ex.note}
                   </div>
                 )}
@@ -355,7 +520,12 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
         <button
           className="b bp"
           style={{ width: '100%', padding: 14, marginTop: 20 }}
-          onClick={() => { setQIdx(0); setSelected(null); setAnswered(false); setPhase('quiz'); }}
+          onClick={() => {
+            setQIdx(0);
+            setSelected(null);
+            setAnswered(false);
+            setPhase('quiz');
+          }}
         >
           Start Quiz →
         </button>
@@ -377,14 +547,14 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
       if (answered) return;
       setSelected(i);
       setAnswered(true);
-      if (i === q.answer) setCorrectCount(c => c + 1);
+      if (i === q.answer) setCorrectCount((c) => c + 1);
     }
 
     function handleNext() {
       if (isLast) {
         setPhase('results');
       } else {
-        setQIdx(i => i + 1);
+        setQIdx((i) => i + 1);
         setSelected(null);
         setAnswered(false);
       }
@@ -393,19 +563,32 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
     return (
       <div className="scr-wrap">
         {/* Header row */}
-        <div style={{
-          display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', marginBottom: 6,
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 6,
+          }}
+        >
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--subtext)' }}>
             Question {qIdx + 1} of {questions.length}
           </span>
-          <div style={{
-            fontSize: 12, fontWeight: 800, color: '#0e7490',
-            background: 'rgba(14,116,144,.1)', border: '1px solid rgba(14,116,144,.2)',
-            borderRadius: 99, padding: '3px 12px', maxWidth: 160,
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          }}>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 800,
+              color: '#0e7490',
+              background: 'rgba(14,116,144,.1)',
+              border: '1px solid rgba(14,116,144,.2)',
+              borderRadius: 99,
+              padding: '3px 12px',
+              maxWidth: 160,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {lesson.focus}
           </div>
         </div>
@@ -413,20 +596,36 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
         <MicroBar v={qIdx + (answered ? 1 : 0)} mx={questions.length} />
 
         {/* Question card */}
-        <div style={{
-          background: 'var(--card)', border: '1.5px solid var(--card-b)',
-          borderRadius: 16, padding: '20px', marginBottom: 16,
-        }}>
-          <div style={{
-            fontSize: 11, fontWeight: 800, color: 'var(--subtext)',
-            textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 10,
-          }}>
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1.5px solid var(--card-b)',
+            borderRadius: 16,
+            padding: '20px',
+            marginBottom: 16,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 800,
+              color: 'var(--subtext)',
+              textTransform: 'uppercase',
+              letterSpacing: '.1em',
+              marginBottom: 10,
+            }}
+          >
             Fill in the blank
           </div>
-          <div style={{
-            fontSize: 22, fontWeight: 800, color: 'var(--heading)',
-            fontFamily: "'Playfair Display',serif", lineHeight: 1.4,
-          }}>
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 800,
+              color: 'var(--heading)',
+              fontFamily: "'Playfair Display',serif",
+              lineHeight: 1.4,
+            }}
+          >
             {q.question}
           </div>
         </div>
@@ -441,10 +640,14 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
 
             if (answered) {
               if (i === q.answer) {
-                bg = '#f0fdf4'; borderColor = '#86efac'; textColor = '#166534';
+                bg = '#f0fdf4';
+                borderColor = '#86efac';
+                textColor = '#166534';
                 icon = '✓';
               } else if (i === selected && i !== q.answer) {
-                bg = '#fef2f2'; borderColor = '#fca5a5'; textColor = '#dc2626';
+                bg = '#fef2f2';
+                borderColor = '#fca5a5';
+                textColor = '#dc2626';
                 icon = '✗';
               }
             }
@@ -454,32 +657,58 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
                 key={i}
                 onClick={() => handleSelect(i)}
                 style={{
-                  width: '100%', textAlign: 'left', padding: '14px 16px',
-                  background: bg, border: `1.5px solid ${borderColor}`,
-                  borderRadius: 14, cursor: answered ? 'default' : 'pointer',
-                  fontSize: 16, fontWeight: 700, color: textColor,
-                  display: 'flex', alignItems: 'center', gap: 10,
+                  width: '100%',
+                  textAlign: 'left',
+                  padding: '14px 16px',
+                  background: bg,
+                  border: `1.5px solid ${borderColor}`,
+                  borderRadius: 14,
+                  cursor: answered ? 'default' : 'pointer',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: textColor,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
                   transition: 'background .15s, border-color .15s',
                   fontFamily: "'Playfair Display',serif",
                   animation: answered && i === q.answer ? 'spring-in .3s ease' : undefined,
                 }}
               >
                 {icon ? (
-                  <span style={{
-                    width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                    background: i === q.answer ? '#16a34a' : '#dc2626',
-                    color: 'white', fontSize: 13, fontWeight: 900,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
+                  <span
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      flexShrink: 0,
+                      background: i === q.answer ? '#16a34a' : '#dc2626',
+                      color: 'white',
+                      fontSize: 13,
+                      fontWeight: 900,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
                     {icon}
                   </span>
                 ) : (
-                  <span style={{
-                    width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                    border: '2px solid var(--card-b)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 11, fontWeight: 800, color: 'var(--subtext)',
-                  }}>
+                  <span
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      flexShrink: 0,
+                      border: '2px solid var(--card-b)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 11,
+                      fontWeight: 800,
+                      color: 'var(--subtext)',
+                    }}
+                  >
                     {String.fromCharCode(65 + i)}
                   </span>
                 )}
@@ -491,20 +720,30 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
 
         {/* Explanation banner */}
         {answered && (
-          <div style={{
-            borderRadius: 14, padding: '14px 16px', marginBottom: 14,
-            background: isCorrect ? '#f0fdf4' : '#fef2f2',
-            border: `1.5px solid ${isCorrect ? '#86efac' : '#fca5a5'}`,
-            animation: 'spring-in .3s ease',
-          }}>
-            <div style={{
-              fontSize: 15, fontWeight: 900, marginBottom: 4,
-              color: isCorrect ? '#16a34a' : '#dc2626',
-            }}>
+          <div
+            style={{
+              borderRadius: 14,
+              padding: '14px 16px',
+              marginBottom: 14,
+              background: isCorrect ? '#f0fdf4' : '#fef2f2',
+              border: `1.5px solid ${isCorrect ? '#86efac' : '#fca5a5'}`,
+              animation: 'spring-in .3s ease',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 900,
+                marginBottom: 4,
+                color: isCorrect ? '#16a34a' : '#dc2626',
+              }}
+            >
               {isCorrect ? 'Točno! · Correct!' : 'Netočno · Incorrect'}
             </div>
             {q.explanation && (
-              <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6, fontWeight: 600 }}>
+              <div
+                style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6, fontWeight: 600 }}
+              >
                 {q.explanation}
               </div>
             )}
@@ -531,58 +770,97 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
     return (
       <div className="scr-wrap">
         {/* Score hero */}
-        <div style={{
-          background: 'linear-gradient(135deg,#0e7490,#0c4a6e)',
-          borderRadius: 20, padding: '28px 20px', textAlign: 'center',
-          marginBottom: 16, color: 'white',
-        }}>
+        <div
+          style={{
+            background: 'linear-gradient(135deg,#0e7490,#0c4a6e)',
+            borderRadius: 20,
+            padding: '28px 20px',
+            textAlign: 'center',
+            marginBottom: 16,
+            color: 'white',
+          }}
+        >
           <div style={{ fontSize: 52, marginBottom: 8, animation: 'bounce-in .5s ease' }}>
             {pct === 1 ? '⭐' : pct >= 0.67 ? '🎉' : '💪'}
           </div>
-          <div style={{
-            fontSize: 32, fontWeight: 900, fontFamily: "'Playfair Display',serif",
-            animation: 'fade-up .4s ease .1s both',
-          }}>
+          <div
+            style={{
+              fontSize: 32,
+              fontWeight: 900,
+              fontFamily: "'Playfair Display',serif",
+              animation: 'fade-up .4s ease .1s both',
+            }}
+          >
             {headingText}
           </div>
-          <div style={{
-            fontSize: 14, opacity: 0.75, fontWeight: 600,
-            marginTop: 4, marginBottom: 20,
-            animation: 'fade-up .4s ease .18s both',
-          }}>
+          <div
+            style={{
+              fontSize: 14,
+              opacity: 0.75,
+              fontWeight: 600,
+              marginTop: 4,
+              marginBottom: 20,
+              animation: 'fade-up .4s ease .18s both',
+            }}
+          >
             {subText}
           </div>
 
           {/* Score dots */}
-          <div style={{
-            display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20,
-            animation: 'fade-up .4s ease .24s both',
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              justifyContent: 'center',
+              marginBottom: 20,
+              animation: 'fade-up .4s ease .24s both',
+            }}
+          >
             {Array.from({ length: total }).map((_, i) => (
-              <div key={i} style={{
-                width: 14, height: 14, borderRadius: '50%',
-                background: i < correctCount ? '#4ade80' : 'rgba(255,255,255,.22)',
-                boxShadow: i < correctCount ? '0 0 8px rgba(74,222,128,.6)' : 'none',
-              }} />
+              <div
+                key={i}
+                style={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  background: i < correctCount ? '#4ade80' : 'rgba(255,255,255,.22)',
+                  boxShadow: i < correctCount ? '0 0 8px rgba(74,222,128,.6)' : 'none',
+                }}
+              />
             ))}
           </div>
 
           {/* XP card */}
-          <div style={{
-            display: 'inline-block', background: 'rgba(255,255,255,.12)',
-            border: '1px solid rgba(255,255,255,.2)', borderRadius: 14,
-            padding: '10px 28px', animation: 'fade-up .4s ease .3s both',
-          }}>
-            <div style={{
-              fontSize: 11, fontWeight: 800, opacity: 0.6,
-              textTransform: 'uppercase', letterSpacing: '.1em',
-            }}>
+          <div
+            style={{
+              display: 'inline-block',
+              background: 'rgba(255,255,255,.12)',
+              border: '1px solid rgba(255,255,255,.2)',
+              borderRadius: 14,
+              padding: '10px 28px',
+              animation: 'fade-up .4s ease .3s both',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                opacity: 0.6,
+                textTransform: 'uppercase',
+                letterSpacing: '.1em',
+              }}
+            >
               XP Earned
             </div>
-            <div style={{
-              fontSize: 40, fontWeight: 900, color: '#fbbf24',
-              fontFamily: "'Outfit',sans-serif", lineHeight: 1.1,
-            }}>
+            <div
+              style={{
+                fontSize: 40,
+                fontWeight: 900,
+                color: '#fbbf24',
+                fontFamily: "'Outfit',sans-serif",
+                lineHeight: 1.1,
+              }}
+            >
               +{xpEarned}
             </div>
             <div style={{ fontSize: 13, opacity: 0.65, fontWeight: 600 }}>
@@ -593,18 +871,31 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
 
         {/* Mnemonic tip */}
         {lesson.tip && (
-          <div style={{
-            background: 'var(--card)', border: '1.5px solid var(--card-b)',
-            borderRadius: 16, padding: '16px 18px', marginBottom: 14,
-            borderLeft: '4px solid #b45309',
-          }}>
-            <div style={{
-              fontSize: 11, fontWeight: 800, color: '#b45309',
-              textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 6,
-            }}>
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1.5px solid var(--card-b)',
+              borderRadius: 16,
+              padding: '16px 18px',
+              marginBottom: 14,
+              borderLeft: '4px solid #b45309',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: '#b45309',
+                textTransform: 'uppercase',
+                letterSpacing: '.1em',
+                marginBottom: 6,
+              }}
+            >
               💡 Memory Tip
             </div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--heading)', lineHeight: 1.55 }}>
+            <div
+              style={{ fontSize: 15, fontWeight: 600, color: 'var(--heading)', lineHeight: 1.55 }}
+            >
               {lesson.tip}
             </div>
           </div>
@@ -612,29 +903,53 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
 
         {/* Weak words reviewed */}
         {weakWords.length > 0 && (
-          <div style={{
-            background: 'var(--card)', border: '1.5px solid var(--card-b)',
-            borderRadius: 16, padding: '14px 18px', marginBottom: 20,
-          }}>
-            <div style={{
-              fontSize: 11, fontWeight: 800, color: 'var(--subtext)',
-              textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 10,
-            }}>
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1.5px solid var(--card-b)',
+              borderRadius: 16,
+              padding: '14px 18px',
+              marginBottom: 20,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: 'var(--subtext)',
+                textTransform: 'uppercase',
+                letterSpacing: '.1em',
+                marginBottom: 10,
+              }}
+            >
               Words Reviewed
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {weakWords.map((w, i) => (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  background: 'rgba(14,116,144,.07)', border: '1px solid rgba(14,116,144,.15)',
-                  borderRadius: 99, padding: '5px 12px',
-                }}>
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    background: 'rgba(14,116,144,.07)',
+                    border: '1px solid rgba(14,116,144,.15)',
+                    borderRadius: 99,
+                    padding: '5px 12px',
+                  }}
+                >
                   <span style={{ fontSize: 14, fontWeight: 800, color: '#0e7490' }}>{w.hr}</span>
-                  <span style={{
-                    fontSize: 10, fontWeight: 800, color: '#dc2626',
-                    background: '#fef2f2', border: '1px solid #fecaca',
-                    borderRadius: 99, padding: '1px 6px',
-                  }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 800,
+                      color: '#dc2626',
+                      background: '#fef2f2',
+                      border: '1px solid #fecaca',
+                      borderRadius: 99,
+                      padding: '1px 6px',
+                    }}
+                  >
                     ✗{w.missCount}
                   </span>
                 </div>
@@ -654,9 +969,14 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
         <button
           onClick={goBack}
           style={{
-            width: '100%', padding: 12,
-            background: 'none', border: '1.5px solid var(--card-b)',
-            borderRadius: 12, cursor: 'pointer', fontSize: 14, fontWeight: 700,
+            width: '100%',
+            padding: 12,
+            background: 'none',
+            border: '1.5px solid var(--card-b)',
+            borderRadius: 12,
+            cursor: 'pointer',
+            fontSize: 14,
+            fontWeight: 700,
             color: 'var(--subtext)',
           }}
         >

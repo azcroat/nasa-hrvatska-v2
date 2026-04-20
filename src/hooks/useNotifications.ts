@@ -7,18 +7,51 @@ import { rnd } from '../lib/random.js';
 
 // Croatian name days (imendan) — month-day → [names]
 const NAME_DAYS: Record<string, string[]> = {
-  '01-01':['Ana','Ivan'],'01-07':['Stjepan'],'01-17':['Anton'],'01-20':['Sebastijan'],
-  '02-03':['Blaž'],'02-05':['Agata'],'02-14':['Valentin'],'02-22':['Petar'],
-  '03-08':['Ivana'],'03-17':['Patricija'],'03-19':['Josip'],'03-25':['Marija'],
-  '04-04':['Isidor'],'04-23':['Juraj'],'04-24':['Fide'],'04-29':['Katarina'],
-  '05-03':['Filip','Jakov'],'05-12':['Pankracij'],'05-15':['Sofija'],'05-25':['Grgur'],
-  '06-13':['Antun'],'06-24':['Ivan'],'06-29':['Petar','Pavao'],
-  '07-04':['Elizabeta'],'07-12':['Ivan'],'07-25':['Jakov'],'07-26':['Ana','Joakim'],
-  '08-10':['Lovro'],'08-15':['Marija'],'08-24':['Bartol'],'08-28':['Augustin'],
-  '09-08':['Marija'],'09-21':['Matej'],'09-29':['Mihael','Rafael','Gabrijel'],
-  '10-04':['Franjo'],'10-15':['Terezija'],'10-28':['Šimun','Juda'],
-  '11-01':['Svi sveti'],'11-03':['Hubert'],'11-11':['Martin'],'11-25':['Katarina'],
-  '12-06':['Nikola'],'12-13':['Lucija'],'12-25':['Božić — Isus'],'12-26':['Stjepan'],
+  '01-01': ['Ana', 'Ivan'],
+  '01-07': ['Stjepan'],
+  '01-17': ['Anton'],
+  '01-20': ['Sebastijan'],
+  '02-03': ['Blaž'],
+  '02-05': ['Agata'],
+  '02-14': ['Valentin'],
+  '02-22': ['Petar'],
+  '03-08': ['Ivana'],
+  '03-17': ['Patricija'],
+  '03-19': ['Josip'],
+  '03-25': ['Marija'],
+  '04-04': ['Isidor'],
+  '04-23': ['Juraj'],
+  '04-24': ['Fide'],
+  '04-29': ['Katarina'],
+  '05-03': ['Filip', 'Jakov'],
+  '05-12': ['Pankracij'],
+  '05-15': ['Sofija'],
+  '05-25': ['Grgur'],
+  '06-13': ['Antun'],
+  '06-24': ['Ivan'],
+  '06-29': ['Petar', 'Pavao'],
+  '07-04': ['Elizabeta'],
+  '07-12': ['Ivan'],
+  '07-25': ['Jakov'],
+  '07-26': ['Ana', 'Joakim'],
+  '08-10': ['Lovro'],
+  '08-15': ['Marija'],
+  '08-24': ['Bartol'],
+  '08-28': ['Augustin'],
+  '09-08': ['Marija'],
+  '09-21': ['Matej'],
+  '09-29': ['Mihael', 'Rafael', 'Gabrijel'],
+  '10-04': ['Franjo'],
+  '10-15': ['Terezija'],
+  '10-28': ['Šimun', 'Juda'],
+  '11-01': ['Svi sveti'],
+  '11-03': ['Hubert'],
+  '11-11': ['Martin'],
+  '11-25': ['Katarina'],
+  '12-06': ['Nikola'],
+  '12-13': ['Lucija'],
+  '12-25': ['Božić — Isus'],
+  '12-26': ['Stjepan'],
 };
 
 const LAST_PRACTICE_KEY = 'nh_last_practice';
@@ -32,17 +65,19 @@ export function markPracticed(): void {
 export function checkNameDay(userName: string): void {
   if (!userName || !('Notification' in window) || Notification.permission !== 'granted') return;
   const today = new Date();
-  const key = String(today.getMonth() + 1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  const key =
+    String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
   const names = NAME_DAYS[key] || [];
   const firstName = userName.split(' ')[0];
-  if (!names.some(n => n.toLowerCase() === firstName.toLowerCase())) return;
+  if (!names.some((n) => n.toLowerCase() === firstName.toLowerCase())) return;
   const dismissed = localStorage.getItem('nh_nameday_dismissed');
   if (dismissed === today.toDateString()) return;
   localStorage.setItem('nh_nameday_dismissed', today.toDateString());
   try {
     new Notification(`Sretan imendan, ${firstName}! 🎉`, {
       body: `Danas je tvoj imendan (${names.join('/')}). Čestitamo! Today is your Croatian name day!`,
-      icon: '/icon-192.png', tag: 'name-day',
+      icon: '/icon-192.png',
+      tag: 'name-day',
     });
   } catch (_) {}
 }
@@ -70,7 +105,9 @@ export function useNotifications({ userId = '' }: { userId?: string } = {}): voi
       import('../lib/pushNotifications.js').then(({ subscribeToPush, registerPushWithServer }) => {
         // subscribeToPush handles permission + PushManager subscription + server registration
         // in one call. Fall back to the legacy registerPushWithServer if something fails.
-        (subscribeToPush as unknown as (uid: string) => Promise<void>)(userId).catch(() => (registerPushWithServer as unknown as () => Promise<void>)().catch(() => {}));
+        (subscribeToPush as unknown as (uid: string) => Promise<void>)(userId).catch(() =>
+          (registerPushWithServer as unknown as () => Promise<void>)().catch(() => {}),
+        );
       });
       return undefined;
     } else if (Notification.permission === 'default') {
@@ -78,7 +115,6 @@ export function useNotifications({ userId = '' }: { userId?: string } = {}): voi
       // User enables push notifications explicitly via Settings.
     }
     return undefined;
-
   }, [userId]);
 }
 
@@ -89,14 +125,19 @@ let _streakReminderTimer: ReturnType<typeof setTimeout> | null = null;
 export function scheduleStreakReminder(streakDays: number): void {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   // Clear any previously scheduled reminder
-  if (_streakReminderTimer !== null) { clearTimeout(_streakReminderTimer); _streakReminderTimer = null; }
+  if (_streakReminderTimer !== null) {
+    clearTimeout(_streakReminderTimer);
+    _streakReminderTimer = null;
+  }
   // Read user's preferred reminder time (default 8pm). Format: "HH:MM"
   let reminderHour = 20;
   try {
     const pref = localStorage.getItem('nh_reminder_time') || '20:00';
     reminderHour = parseInt(pref.split(':')[0], 10);
     if (!Number.isFinite(reminderHour) || reminderHour < 0 || reminderHour > 23) reminderHour = 20;
-  } catch (_) { reminderHour = 20; }
+  } catch (_) {
+    reminderHour = 20;
+  }
   const now = new Date();
   const target = new Date(now);
   target.setHours(reminderHour, 0, 0, 0);
@@ -112,7 +153,10 @@ export function scheduleStreakReminder(streakDays: number): void {
     // Pull user name for personalization
     let firstName = '';
     try {
-      const profile = JSON.parse(localStorage.getItem('nh_profile') || '{}') as { name?: string; displayName?: string };
+      const profile = JSON.parse(localStorage.getItem('nh_profile') || '{}') as {
+        name?: string;
+        displayName?: string;
+      };
       firstName = (profile.name || profile.displayName || '').split(' ')[0].trim();
     } catch (_) {}
     const nameTag = firstName ? `, ${firstName}` : '';
@@ -133,14 +177,14 @@ export function scheduleStreakReminder(streakDays: number): void {
       `Quick session? ~5 minutes. Streak stays alive 🔥`,
     ];
     try {
-      new Notification(pickVariant(titleVariants, 'nh_8pm_title_idx'), ({
-        body:   pickVariant(bodyVariants, 'nh_8pm_body_idx'),
-        icon:   '/icons/icon-192x192.png',
-        badge:  '/icons/badge-72.png',
-        tag:    'streak-reminder',
+      new Notification(pickVariant(titleVariants, 'nh_8pm_title_idx'), {
+        body: pickVariant(bodyVariants, 'nh_8pm_body_idx'),
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/badge-72.png',
+        tag: 'streak-reminder',
         renotify: true,
-        data:   { url: '/', action: 'open_lesson' },
-      }) as unknown as NotificationOptions);
+        data: { url: '/', action: 'open_lesson' },
+      } as unknown as NotificationOptions);
     } catch (_) {}
   }, delay);
 }
@@ -150,11 +194,15 @@ export function scheduleStreakReminder(streakDays: number): void {
 function pickVariant<T>(arr: T[], storageKey: string): T {
   if (arr.length === 1) return arr[0];
   let last = -1;
-  try { last = parseInt(localStorage.getItem(storageKey) || '-1', 10); } catch (_) {}
+  try {
+    last = parseInt(localStorage.getItem(storageKey) || '-1', 10);
+  } catch (_) {}
   let next = Math.floor(rnd() * arr.length);
   // If we land on the same one, shift forward one slot
   if (next === last) next = (next + 1) % arr.length;
-  try { localStorage.setItem(storageKey, String(next)); } catch (_) {}
+  try {
+    localStorage.setItem(storageKey, String(next));
+  } catch (_) {}
   return arr[next];
 }
 
@@ -176,7 +224,10 @@ function buildPersonalizedMessage(): NotificationMessage {
     // Pull user name
     let userName = '';
     try {
-      const profile = JSON.parse(localStorage.getItem('nh_profile') || '{}') as { name?: string; displayName?: string };
+      const profile = JSON.parse(localStorage.getItem('nh_profile') || '{}') as {
+        name?: string;
+        displayName?: string;
+      };
       userName = (profile.name || profile.displayName || '').split(' ')[0].trim();
     } catch (_) {}
     const nameTag = userName ? `, ${userName}` : '';
@@ -190,7 +241,10 @@ function buildPersonalizedMessage(): NotificationMessage {
       .sort((a, b) => ((b[1].ts || 0) as number) - ((a[1].ts || 0) as number))[0];
 
     // Pull streak
-    const streakData = JSON.parse(localStorage.getItem('nh_streak') || '{}') as { count?: number; days?: number };
+    const streakData = JSON.parse(localStorage.getItem('nh_streak') || '{}') as {
+      count?: number;
+      days?: number;
+    };
     const streakCount = streakData.count || streakData.days || 0;
 
     // Pull SRS due count
@@ -200,11 +254,14 @@ function buildPersonalizedMessage(): NotificationMessage {
     }).length;
 
     // Pull lesson count for context
-    const progressKeys = Object.keys(localStorage).filter(k => k.startsWith('uP_'));
+    const progressKeys = Object.keys(localStorage).filter((k) => k.startsWith('uP_'));
     let lessonsCompleted = 0;
     if (progressKeys.length) {
       try {
-        const p = JSON.parse(localStorage.getItem(progressKeys[0]) || '{}') as { stats?: { lc?: number }; st?: { lc?: number } };
+        const p = JSON.parse(localStorage.getItem(progressKeys[0]) || '{}') as {
+          stats?: { lc?: number };
+          st?: { lc?: number };
+        };
         lessonsCompleted = (p.stats || p.st || {}).lc || 0;
       } catch (_) {}
     }
@@ -236,7 +293,7 @@ function buildPersonalizedMessage(): NotificationMessage {
       ];
       return {
         title: pickVariant(titleVariants, 'nh_notif_title_idx'),
-        body:  pickVariant(bodyVariants,  'nh_notif_body_idx'),
+        body: pickVariant(bodyVariants, 'nh_notif_body_idx'),
       };
     }
 
@@ -244,9 +301,18 @@ function buildPersonalizedMessage(): NotificationMessage {
     if (recentWord) {
       const [word] = recentWord;
       const wordVariants: NotificationMessage[] = [
-        { title: `🇭🇷 Vježbaj danas${nameTag}!`,       body: `Remember "${word}"? Use it in a sentence today to lock it in. ✨` },
-        { title: `Naša Hrvatska${nameTag}`,              body: `"${word}" — can you use it today? One sentence keeps it sharp.` },
-        { title: `📚 Time to reinforce${nameTag}`,       body: `You learned "${word}" recently. Review now before it fades!` },
+        {
+          title: `🇭🇷 Vježbaj danas${nameTag}!`,
+          body: `Remember "${word}"? Use it in a sentence today to lock it in. ✨`,
+        },
+        {
+          title: `Naša Hrvatska${nameTag}`,
+          body: `"${word}" — can you use it today? One sentence keeps it sharp.`,
+        },
+        {
+          title: `📚 Time to reinforce${nameTag}`,
+          body: `You learned "${word}" recently. Review now before it fades!`,
+        },
       ];
       return pickVariant(wordVariants, 'nh_notif_word_idx');
     }
@@ -254,11 +320,26 @@ function buildPersonalizedMessage(): NotificationMessage {
     // ── Streak-aware messages (no words due) ─────────────────────────────────
     if (streakCount >= 3) {
       const streakVariants: NotificationMessage[] = [
-        { title: `🔥 ${streakCount}-day streak${nameTag}!`,    body: `Keep the momentum going — just 5 minutes of Croatian today.` },
-        { title: `⭐ ${namePrefix}${streakCount} days strong!`, body: `Even 5 minutes of Croatian today keeps your brain sharp.` },
-        { title: `🇭🇷 ${streakCount} days and counting${nameTag}`, body: `Dobar dan! Time for today's Croatian lesson.` },
-        { title: `🔥 Keep it going${nameTag}!`,                body: `Your Croatian skills are growing — ${streakCount} days running!` },
-        { title: `Naša Hrvatska${nameTag}`,                    body: `Your Croatian skills are waiting. New words added this week.` },
+        {
+          title: `🔥 ${streakCount}-day streak${nameTag}!`,
+          body: `Keep the momentum going — just 5 minutes of Croatian today.`,
+        },
+        {
+          title: `⭐ ${namePrefix}${streakCount} days strong!`,
+          body: `Even 5 minutes of Croatian today keeps your brain sharp.`,
+        },
+        {
+          title: `🇭🇷 ${streakCount} days and counting${nameTag}`,
+          body: `Dobar dan! Time for today's Croatian lesson.`,
+        },
+        {
+          title: `🔥 Keep it going${nameTag}!`,
+          body: `Your Croatian skills are growing — ${streakCount} days running!`,
+        },
+        {
+          title: `Naša Hrvatska${nameTag}`,
+          body: `Your Croatian skills are waiting. New words added this week.`,
+        },
       ];
       return pickVariant(streakVariants, 'nh_notif_streak_idx');
     }
@@ -267,23 +348,47 @@ function buildPersonalizedMessage(): NotificationMessage {
     if (lessonsCompleted > 0) {
       return {
         title: `Naša Hrvatska${nameTag}`,
-        body:  `${lessonsCompleted} lessons in — you're making real progress. Practice today? 🇭🇷`,
+        body: `${lessonsCompleted} lessons in — you're making real progress. Practice today? 🇭🇷`,
       };
     }
   } catch (_) {}
 
   // ── Fallback generic messages (10 variants, rotated) ────────────────────────
   const fallbacks: NotificationMessage[] = [
-    { title: 'Naša Hrvatska',       body: "Your Croatian is waiting. 5 minutes keeps the momentum alive. 🇭🇷" },
-    { title: 'Vježbaj danas!',       body: "A little Croatian every day adds up fast. Continue your journey! ✨" },
-    { title: 'Naša Hrvatska',        body: "Your review queue has words waiting. Come back and keep learning! 📚" },
-    { title: '🇭🇷 Croatian time!',  body: "Dobar dan! Time for today's Croatian lesson." },
-    { title: '📚 Keep learning!',    body: "Even 5 minutes of Croatian today keeps your brain sharp." },
-    { title: 'Naša Hrvatska',        body: "Your Croatian skills are waiting. New words added this week." },
-    { title: '⚡ Just 5 minutes!',   body: "Quick quiz? ~5 minutes. Your future self will thank you." },
-    { title: 'Vježbaj danas! 🇭🇷',  body: "Language builds one day at a time — today's your day." },
-    { title: 'Naša Hrvatska',        body: "Open the app and see how much you remember. You might surprise yourself!" },
-    { title: '🧠 Memory check!',     body: "Croatian words fade without practice — a quick review locks them in." },
+    {
+      title: 'Naša Hrvatska',
+      body: 'Your Croatian is waiting. 5 minutes keeps the momentum alive. 🇭🇷',
+    },
+    {
+      title: 'Vježbaj danas!',
+      body: 'A little Croatian every day adds up fast. Continue your journey! ✨',
+    },
+    {
+      title: 'Naša Hrvatska',
+      body: 'Your review queue has words waiting. Come back and keep learning! 📚',
+    },
+    { title: '🇭🇷 Croatian time!', body: "Dobar dan! Time for today's Croatian lesson." },
+    {
+      title: '📚 Keep learning!',
+      body: 'Even 5 minutes of Croatian today keeps your brain sharp.',
+    },
+    {
+      title: 'Naša Hrvatska',
+      body: 'Your Croatian skills are waiting. New words added this week.',
+    },
+    {
+      title: '⚡ Just 5 minutes!',
+      body: 'Quick quiz? ~5 minutes. Your future self will thank you.',
+    },
+    { title: 'Vježbaj danas! 🇭🇷', body: "Language builds one day at a time — today's your day." },
+    {
+      title: 'Naša Hrvatska',
+      body: 'Open the app and see how much you remember. You might surprise yourself!',
+    },
+    {
+      title: '🧠 Memory check!',
+      body: 'Croatian words fade without practice — a quick review locks them in.',
+    },
   ];
   return pickVariant(fallbacks, 'nh_notif_fallback_idx');
 }

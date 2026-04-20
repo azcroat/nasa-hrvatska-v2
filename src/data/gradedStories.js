@@ -5,7 +5,6 @@
  */
 
 export const GRADED_STORIES = [
-
   // ═══════════════════════════════════════════════════════
   // A1 — Survival level, present tense, basic vocabulary
   // ═══════════════════════════════════════════════════════
@@ -20,7 +19,8 @@ export const GRADED_STORIES = [
     titleEn: 'At the Market',
     duration: 4,
     focus: 'Present tense • Numbers & prices • Accusative (direct objects)',
-    intro: 'Ana goes to the market every Saturday. Practice everyday shopping vocabulary and polite Croatian conversation.',
+    intro:
+      'Ana goes to the market every Saturday. Practice everyday shopping vocabulary and polite Croatian conversation.',
     paragraphs: [
       {
         hr: 'Ana ide na tržnicu svake subote. Ona kupuje svježe voće i povrće za cijeli tjedan. Tržnica se nalazi u centru grada.',
@@ -67,7 +67,12 @@ export const GRADED_STORIES = [
       {
         q: 'Zašto Ana voli tržnicu?',
         qEn: 'Why does Ana love the market?',
-        opts: ['Jer je blizu kuće', 'Jer je besplatno', 'Jer je sve svježe i nije skupo', 'Jer je prodavač simpatičan'],
+        opts: [
+          'Jer je blizu kuće',
+          'Jer je besplatno',
+          'Jer je sve svježe i nije skupo',
+          'Jer je prodavač simpatičan',
+        ],
         correct: 2,
       },
     ],
@@ -91,7 +96,7 @@ export const GRADED_STORIES = [
       },
       {
         hr: 'Moja mama se zove Vesna. Ona ima pedeset dvije godine i ona je učiteljica u osnovnoj školi. Moj tata se zove Zvonko. On je vozač i ima pedeset pet godina. Oni su zajedno trideset godina.',
-        en: 'My mother\'s name is Vesna. She is fifty-two years old and she is a primary school teacher. My father\'s name is Zvonko. He is a driver and he is fifty-five. They have been together for thirty years.',
+        en: "My mother's name is Vesna. She is fifty-two years old and she is a primary school teacher. My father's name is Zvonko. He is a driver and he is fifty-five. They have been together for thirty years.",
       },
       {
         hr: 'Imam jednu sestru. Ona se zove Petra i ima dvadeset godina. Petra studira medicinu na Sveučilištu u Osijeku. Ona je pametna i marljiva. Imam i jednog brata — on se zove Luka i ima deset godina. Luka voli igrati nogomet.',
@@ -117,7 +122,7 @@ export const GRADED_STORIES = [
     quiz: [
       {
         q: 'Što radi Markova mama?',
-        qEn: 'What does Marko\'s mother do?',
+        qEn: "What does Marko's mother do?",
         opts: ['Ona je doktorica', 'Ona je učiteljica', 'Ona je vozačica', 'Ona je kuharica'],
         correct: 1,
       },
@@ -129,7 +134,7 @@ export const GRADED_STORIES = [
       },
       {
         q: 'Kako se zove Markov pas?',
-        qEn: 'What is Marko\'s dog called?',
+        qEn: "What is Marko's dog called?",
         opts: ['Luka', 'Zvonko', 'Vesna', 'Rex'],
         correct: 3,
       },
@@ -146,11 +151,12 @@ export const GRADED_STORIES = [
     titleEn: 'Morning Routine',
     duration: 4,
     focus: 'Present tense • Reflexive verbs (se) • Time expressions',
-    intro: 'Follow Ivan\'s morning routine. Croatian uses many reflexive verbs (ending in "se") for daily activities.',
+    intro:
+      'Follow Ivan\'s morning routine. Croatian uses many reflexive verbs (ending in "se") for daily activities.',
     paragraphs: [
       {
         hr: 'Ivan se budi svako jutro u sedam sati. Kad se probudi, odmah ide u kupaonicu. Tamo se umiva hladnom vodom, pere zube i tuširа se.',
-        en: 'Ivan wakes up every morning at seven o\'clock. When he wakes up, he immediately goes to the bathroom. There he washes his face with cold water, brushes his teeth and showers.',
+        en: "Ivan wakes up every morning at seven o'clock. When he wakes up, he immediately goes to the bathroom. There he washes his face with cold water, brushes his teeth and showers.",
       },
       {
         hr: 'Nakon tuširanja, Ivan se oblači. Odabere traperice i bijelu majicu. Onda ide u kuhinju i pripremi doručak — kuha kavu i namaže kruh maslacem i džemom. Ponekad pojede i jedno jaje.',
@@ -213,7 +219,8 @@ export const GRADED_STORIES = [
     titleEn: 'Weekend in Split',
     duration: 5,
     focus: 'Past tense (bio/bila + infinitive) • Accusative with motion verbs • Tourism vocabulary',
-    intro: 'A trip to Split! Practice the Croatian past tense and vocabulary for travel and sightseeing.',
+    intro:
+      'A trip to Split! Practice the Croatian past tense and vocabulary for travel and sightseeing.',
     paragraphs: [
       {
         hr: 'Prošli vikend sam otišao u Split s prijateljicom Anom. Putovali smo autom — vožnja iz Zagreba traje oko dva i pol sata. Bilo je lijepo i sunčano.',
@@ -221,11 +228,11 @@ export const GRADED_STORIES = [
       },
       {
         hr: 'U Splitu smo posjetili Dioklecijanovu palaču. Hodali smo kroz uske ulice Starog grada i divili se staroj rimskoj arhitekturi. Ana je fotografirala sve što je vidjela. Za ručak smo sjeli u restoran na Rivi. Ja sam naručio prstace na buzaru, a Ana je uzela pečenu ribu s blitvom.',
-        en: 'In Split we visited Diocletian\'s Palace. We walked through the narrow streets of the Old Town and admired the old Roman architecture. Ana photographed everything she saw. For lunch we sat at a restaurant on the Riva promenade. I ordered date mussels in garlic-wine sauce, and Ana had grilled fish with Swiss chard.',
+        en: "In Split we visited Diocletian's Palace. We walked through the narrow streets of the Old Town and admired the old Roman architecture. Ana photographed everything she saw. For lunch we sat at a restaurant on the Riva promenade. I ordered date mussels in garlic-wine sauce, and Ana had grilled fish with Swiss chard.",
       },
       {
         hr: 'Poslijepodne smo otišli na plaţu Bačvice. Kupali smo se u moru i gledali mladeţ kako igraju picigin — to je stara splitska igra s malenom lopticom. Sunce je jako peklo, ali bila je prekrasna atmosfera.',
-        en: 'In the afternoon we went to Bačvice beach. We swam in the sea and watched young people playing picigin — that\'s an old Split game with a small ball. The sun was beating down hard, but the atmosphere was wonderful.',
+        en: "In the afternoon we went to Bačvice beach. We swam in the sea and watched young people playing picigin — that's an old Split game with a small ball. The sun was beating down hard, but the atmosphere was wonderful.",
       },
       {
         hr: 'Navečer smo šetali po Rivi i pili kavu uz more. Vratio sam se doma sretan i odmoran. Split je prelijep grad — sigurno ću ga opet posjetiti uskoro!',
@@ -273,14 +280,15 @@ export const GRADED_STORIES = [
     levelBg: '#dbeafe',
     icon: '🏥',
     title: 'Kod doktora',
-    titleEn: 'At the Doctor\'s',
+    titleEn: "At the Doctor's",
     duration: 5,
     focus: 'Genitive with "boli me" • Dative case • Imperative mood',
-    intro: 'Marija isn\'t feeling well. Learn Croatian medical vocabulary and how to describe symptoms.',
+    intro:
+      "Marija isn't feeling well. Learn Croatian medical vocabulary and how to describe symptoms.",
     paragraphs: [
       {
         hr: 'Marija se nije osjećala dobro od jučer. Boljela ju je glava i grlo. Imala je i visoku temperaturu — trideset i osam stupnjeva. Jutros je nazvala svog liječnika i dobila termin za deset sati.',
-        en: 'Marija hadn\'t been feeling well since yesterday. She had a headache and a sore throat. She also had a high temperature — thirty-eight degrees. This morning she called her doctor and got an appointment for ten o\'clock.',
+        en: "Marija hadn't been feeling well since yesterday. She had a headache and a sore throat. She also had a high temperature — thirty-eight degrees. This morning she called her doctor and got an appointment for ten o'clock.",
       },
       {
         hr: 'U čekaonici je sjedila pola sata i listala stari časopis. Napokon je medicinska sestra pozvala njezino ime. Ušla je u ordinaciju. "Dobar dan, Marija. Što vas boli?" upitao je doktor Kovač. "Boli me grlo i imam temperaturu," odgovorila je ona. "I glava me boli već dva dana."',
@@ -301,7 +309,7 @@ export const GRADED_STORIES = [
       { hr: 'grlo', en: 'throat', ex: 'Boli me grlo.' },
       { hr: 'temperatura', en: 'temperature / fever', ex: 'Imam temperaturu.' },
       { hr: 'čekaonica', en: 'waiting room', ex: 'Čekam u čekaonici.' },
-      { hr: 'ordinacija', en: 'doctor\'s surgery / office', ex: 'Ušla je u ordinaciju.' },
+      { hr: 'ordinacija', en: "doctor's surgery / office", ex: 'Ušla je u ordinaciju.' },
       { hr: 'angina', en: 'tonsillitis / strep throat', ex: 'Imam anginu.' },
       { hr: 'antibiotici', en: 'antibiotics', ex: 'Uzimam antibiotike.' },
       { hr: 'tableta', en: 'tablet / pill', ex: 'Jedna tableta dnevno.' },
@@ -310,8 +318,13 @@ export const GRADED_STORIES = [
     quiz: [
       {
         q: 'Zašto Marija ide liječniku?',
-        qEn: 'Why does Marija go to the doctor\'s?',
-        opts: ['Boli je noga', 'Boli je glava i grlo i ima temperaturu', 'Ne može hodati', 'Ima alergiju'],
+        qEn: "Why does Marija go to the doctor's?",
+        opts: [
+          'Boli je noga',
+          'Boli je glava i grlo i ima temperaturu',
+          'Ne može hodati',
+          'Ima alergiju',
+        ],
         correct: 1,
       },
       {
@@ -339,7 +352,8 @@ export const GRADED_STORIES = [
     titleEn: 'The New Neighbour',
     duration: 5,
     focus: 'Future tense (će + inf.) • Introducing yourself • Dative of address',
-    intro: 'Juraj moves to Zagreb for the first time. Learn how Croatians introduce themselves and get to know neighbours.',
+    intro:
+      'Juraj moves to Zagreb for the first time. Learn how Croatians introduce themselves and get to know neighbours.',
     paragraphs: [
       {
         hr: 'Juraj se uselio u stan na drugom katu prošle subote. Dolazi iz Rijeke i prvi put živi sam u Zagrebu. Sve mu je novo i malo strašno — ali i uzbudljivo.',
@@ -364,7 +378,7 @@ export const GRADED_STORIES = [
       { hr: 'susjed/susjeda', en: 'neighbour (m./f.)', ex: 'Moja susjeda je ljubazna.' },
       { hr: 'pokucati', en: 'to knock (pf.)', ex: 'Netko je pokucao na vrata.' },
       { hr: 'slobodno pitajte', en: 'feel free to ask', ex: 'Slobodno pitajte ako trebate.' },
-      { hr: 'skupština stanara', en: 'tenants\' meeting', ex: 'Skupština je u petak.' },
+      { hr: 'skupština stanara', en: "tenants' meeting", ex: 'Skupština je u petak.' },
       { hr: 'prizemlje', en: 'ground floor', ex: 'Pošta je u prizemlju.' },
       { hr: 'srdačan', en: 'warm / cordial', ex: 'Svi su bili srdačni.' },
       { hr: 'obećati', en: 'to promise (pf.)', ex: 'Obećao je da će doći.' },
@@ -379,14 +393,24 @@ export const GRADED_STORIES = [
       },
       {
         q: 'Kada je skupština stanara?',
-        qEn: 'When is the tenants\' meeting?',
-        opts: ['U ponedjeljak navečer', 'U srijedu ujutro', 'U petak u sedam navečer', 'U subotu poslijepodne'],
+        qEn: "When is the tenants' meeting?",
+        opts: [
+          'U ponedjeljak navečer',
+          'U srijedu ujutro',
+          'U petak u sedam navečer',
+          'U subotu poslijepodne',
+        ],
         correct: 2,
       },
       {
         q: 'Što su susjedi radili nakon skupštine?',
         qEn: 'What did the neighbours do after the meeting?',
-        opts: ['Otišli su kući', 'Zajedno su popili kavu', 'Gledali su televiziju', 'Šetali su po gradu'],
+        opts: [
+          'Otišli su kući',
+          'Zajedno su popili kavu',
+          'Gledali su televiziju',
+          'Šetali su po gradu',
+        ],
         correct: 1,
       },
     ],
@@ -406,7 +430,8 @@ export const GRADED_STORIES = [
     titleEn: 'Moving to Zagreb',
     duration: 7,
     focus: 'Perfective vs. imperfective aspect • Instrumental case (s + instr.) • Complex clauses',
-    intro: 'Moving to a new city is an adventure. Notice how Croatian uses IMPERFECTIVE verbs for ongoing/repeated actions and PERFECTIVE verbs for completed single actions.',
+    intro:
+      'Moving to a new city is an adventure. Notice how Croatian uses IMPERFECTIVE verbs for ongoing/repeated actions and PERFECTIVE verbs for completed single actions.',
     paragraphs: [
       {
         hr: 'Kad sam se preselio iz Varaždina u Zagreb, nisam poznavao gotovo nikoga u gradu. Seoba je bila naporna — tjedan dana sam pakirao stvari, a na kraju sam sve uspio strpati u mali kombi koji sam unajmio.',
@@ -414,7 +439,7 @@ export const GRADED_STORIES = [
       },
       {
         hr: 'Moj novi stan se nalazi u Dubravi, na rubu grada. Nije luksuzno, ali ima sve što treba: dvije sobe, kuhinju, kupaonicu i mali balkon s pogledom na park. Prvoga dana kad sam ušao, osjetio sam čudan mješavinu uzbuđenja i tuge — nisam više bio u svom rodnom gradu.',
-        en: 'My new flat is in Dubrava, on the outskirts of the city. It\'s not luxurious, but it has everything you need: two rooms, a kitchen, a bathroom and a small balcony overlooking a park. On the first day when I walked in, I felt a strange mixture of excitement and sadness — I was no longer in my home town.',
+        en: "My new flat is in Dubrava, on the outskirts of the city. It's not luxurious, but it has everything you need: two rooms, a kitchen, a bathroom and a small balcony overlooking a park. On the first day when I walked in, I felt a strange mixture of excitement and sadness — I was no longer in my home town.",
       },
       {
         hr: 'Kolega s posla, Tomislav, pomogao mi je prenijeti teže komade namještaja. Bez njega bih se mučio sam sa strojem za pranje rublja i kavčem. Kad smo konačno završili, sjeli smo u kuhinji i popili hladno pivo. "Dobrodošao u Zagreb," rekao je Tomislav, "sad si pravi Zagrepčan!"',
@@ -432,10 +457,18 @@ export const GRADED_STORIES = [
       { hr: 'kombi', en: 'van / minivan', ex: 'Unajmio sam kombi.' },
       { hr: 'rub grada', en: 'outskirts (of the city)', ex: 'Živim na rubu grada.' },
       { hr: 'uzbuđenje', en: 'excitement', ex: 'Osjećao sam uzbuđenje.' },
-      { hr: 'prenijeti (pf.)', en: 'to carry / move (furniture)', ex: 'Pomogao mi je prenijeti stvari.' },
+      {
+        hr: 'prenijeti (pf.)',
+        en: 'to carry / move (furniture)',
+        ex: 'Pomogao mi je prenijeti stvari.',
+      },
       { hr: 'mučiti se', en: 'to struggle / toil', ex: 'Mučio bih se sam.' },
       { hr: 'postupno', en: 'gradually', ex: 'Postupno sam naučio grad.' },
-      { hr: 'zamisliti (pf.)', en: 'to imagine (completed act)', ex: 'Ne mogu si zamisliti život drugdje.' },
+      {
+        hr: 'zamisliti (pf.)',
+        en: 'to imagine (completed act)',
+        ex: 'Ne mogu si zamisliti život drugdje.',
+      },
     ],
     quiz: [
       {
@@ -453,7 +486,12 @@ export const GRADED_STORIES = [
       {
         q: 'Kako se pripovjedač osjeća prema Zagrebu četiri godine kasnije?',
         qEn: 'How does the narrator feel about Zagreb four years later?',
-        opts: ['Želi se preseliti natrag', 'Ne može zamisliti da živi negdje drugdje', 'Smatra grad preskupim', 'Nema prijatelja tamo'],
+        opts: [
+          'Želi se preseliti natrag',
+          'Ne može zamisliti da živi negdje drugdje',
+          'Smatra grad preskupim',
+          'Nema prijatelja tamo',
+        ],
         correct: 1,
       },
     ],
@@ -468,8 +506,10 @@ export const GRADED_STORIES = [
     title: 'Baka dolazi za Božić',
     titleEn: 'Grandma Comes for Christmas',
     duration: 7,
-    focus: 'Habitual imperfective (svake godine = every year) • Relative clauses (koji/koja) • Cultural vocabulary',
-    intro: 'Christmas traditions in Croatia are rich and family-centred. Notice how imperfective verbs describe habitual yearly customs.',
+    focus:
+      'Habitual imperfective (svake godine = every year) • Relative clauses (koji/koja) • Cultural vocabulary',
+    intro:
+      'Christmas traditions in Croatia are rich and family-centred. Notice how imperfective verbs describe habitual yearly customs.',
     paragraphs: [
       {
         hr: 'Svake godine, za Božić, naša baka Ružica dolazi autobusom iz Karlovca. Onoga dana kad stigne, cijela kuća odmah zamiriše na njezine kolače — orahnjaču i makovnjaču, koje je pekla noću u svom stanu.',
@@ -489,7 +529,11 @@ export const GRADED_STORIES = [
       },
     ],
     vocabulary: [
-      { hr: 'orahnjača', en: 'walnut roll (Croatian Christmas pastry)', ex: 'Baka peče orahnjaču.' },
+      {
+        hr: 'orahnjača',
+        en: 'walnut roll (Croatian Christmas pastry)',
+        ex: 'Baka peče orahnjaču.',
+      },
       { hr: 'makovnjača', en: 'poppy seed roll', ex: 'Volim makovnjaču.' },
       { hr: 'jelka', en: 'Christmas tree', ex: 'Ukrašavamo jelku.' },
       { hr: 'Badnjak', en: 'Christmas Eve', ex: 'Na Badnjak jedemo ribu.' },
@@ -497,7 +541,11 @@ export const GRADED_STORIES = [
       { hr: 'blitva', en: 'Swiss chard', ex: 'Blitva i krumpir uz ribu.' },
       { hr: 'ponoćka', en: 'midnight mass (Christmas)', ex: 'Idemo na ponoćku.' },
       { hr: 'napamet', en: 'by heart', ex: 'Znaju pjesme napamet.' },
-      { hr: 'mlinec (pl. mlinci)', en: 'baked flatbread (traditional side dish)', ex: 'Pečenka s mlincima.' },
+      {
+        hr: 'mlinec (pl. mlinci)',
+        en: 'baked flatbread (traditional side dish)',
+        ex: 'Pečenka s mlincima.',
+      },
       { hr: 'naslonjač', en: 'armchair', ex: 'Sjedi u naslonjaču.' },
     ],
     quiz: [
@@ -510,7 +558,12 @@ export const GRADED_STORIES = [
       {
         q: 'Zašto se na Badnjak jede riba?',
         qEn: 'Why is fish eaten on Christmas Eve?',
-        opts: ['Jer je najjeftinija', 'Jer djeca vole ribu', 'Jer je Badnjak dan posta', 'Jer nema mesa u trgovini'],
+        opts: [
+          'Jer je najjeftinija',
+          'Jer djeca vole ribu',
+          'Jer je Badnjak dan posta',
+          'Jer nema mesa u trgovini',
+        ],
         correct: 2,
       },
       {
@@ -532,7 +585,8 @@ export const GRADED_STORIES = [
     titleEn: 'At the Job Interview',
     duration: 8,
     focus: 'Conditional mood (bih/bi) • Formal register • Complex vocabulary',
-    intro: 'Ksenija interviews for a marketing job in Zadar. Listen for the conditional mood and formal Croatian used in professional contexts.',
+    intro:
+      'Ksenija interviews for a marketing job in Zadar. Listen for the conditional mood and formal Croatian used in professional contexts.',
     paragraphs: [
       {
         hr: 'Ksenija je aplicirala za posao marketinškog koordinatora u jednoj zadarskoj agenciji. Tjedan dana nakon što je poslala prijavu, dobila je poziv. Bila je i uzbuđena i nervozna — to bi bio njezin prvi pravi posao nakon završetka fakulteta.',
@@ -573,13 +627,23 @@ export const GRADED_STORIES = [
       {
         q: 'Kako je Ksenija odgovorila na pitanje o njezinoj slabosti?',
         qEn: 'How did Ksenija answer the question about her weakness?',
-        opts: ['Rekla je da nema slabosti', 'Rekla je da je previše orijentirana na detalje', 'Promijenila je temu', 'Nije odgovorila'],
+        opts: [
+          'Rekla je da nema slabosti',
+          'Rekla je da je previše orijentirana na detalje',
+          'Promijenila je temu',
+          'Nije odgovorila',
+        ],
         correct: 1,
       },
       {
         q: 'Što je Ksenija napravila odmah nakon što je dobila e-mail o poslu?',
         qEn: 'What did Ksenija do immediately after receiving the job email?',
-        opts: ['Otišla je slaviti s prijatelicama', 'Nazvala je mamu', 'Odgovorila je na e-mail', 'Plakala je'],
+        opts: [
+          'Otišla je slaviti s prijatelicama',
+          'Nazvala je mamu',
+          'Odgovorila je na e-mail',
+          'Plakala je',
+        ],
         correct: 1,
       },
     ],
@@ -599,7 +663,8 @@ export const GRADED_STORIES = [
     titleEn: 'At the Café',
     duration: 3,
     focus: 'Ordering drinks • Polite phrases • Numbers',
-    intro: 'Ivan orders coffee with a friend in a Zagreb café. Practice polite café conversation and drink vocabulary.',
+    intro:
+      'Ivan orders coffee with a friend in a Zagreb café. Practice polite café conversation and drink vocabulary.',
     paragraphs: [
       {
         hr: 'Ivan i Maja sjede u malom kafiću u centru Zagreba. Kafić se zove "Stari grad". Vani je sunčano i toplo.',
@@ -657,7 +722,8 @@ export const GRADED_STORIES = [
     titleEn: 'At the Bus Station',
     duration: 3,
     focus: 'Transport vocabulary • Asking for information • Time',
-    intro: 'Ante needs to get to Rijeka. Practice buying bus tickets and asking for travel information.',
+    intro:
+      'Ante needs to get to Rijeka. Practice buying bus tickets and asking for travel information.',
     paragraphs: [
       {
         hr: 'Ante stoji na autobusnoj stanici u Zagrebu. On treba ići u Rijeku. Putuje autobusom jer nema auto.',
@@ -715,7 +781,8 @@ export const GRADED_STORIES = [
     titleEn: 'At the Beach',
     duration: 3,
     focus: 'Weather vocabulary • Body parts • Simple descriptions',
-    intro: 'Ana and her sister spend a summer day on a Croatian beach. Practice describing weather and beach activities.',
+    intro:
+      'Ana and her sister spend a summer day on a Croatian beach. Practice describing weather and beach activities.',
     paragraphs: [
       {
         hr: 'Ana i njena sestra Ivana su na plaži u Zadru. More je plavo i mirno. Sunce sjaji i nije vjetrovito. Savršen je dan za plažu!',
@@ -727,7 +794,7 @@ export const GRADED_STORIES = [
       },
       {
         hr: 'Poslije plivanja, Ana i Ivana jedu sladoled. Sladoled je od čokolade i vanilije. Ukusan je! Ostaju na plaži do šest sati navečer.',
-        en: 'After swimming, Ana and Ivana eat ice cream. The ice cream is chocolate and vanilla flavour. It is delicious! They stay at the beach until six o\'clock in the evening.',
+        en: "After swimming, Ana and Ivana eat ice cream. The ice cream is chocolate and vanilla flavour. It is delicious! They stay at the beach until six o'clock in the evening.",
       },
     ],
     vocabulary: [
@@ -777,7 +844,8 @@ export const GRADED_STORIES = [
     titleEn: 'Dinner at the Restaurant',
     duration: 3,
     focus: 'Past tense (jesam + participle) • Food vocabulary • Expressing opinions',
-    intro: 'Marko took his girlfriend Petra to a restaurant in Dubrovnik for her birthday. Practice restaurant language and past tense.',
+    intro:
+      'Marko took his girlfriend Petra to a restaurant in Dubrovnik for her birthday. Practice restaurant language and past tense.',
     paragraphs: [
       {
         hr: 'Juče navečer, Marko je odveo svoju djevojku Petru u restoran u Dubrovniku. Bio je njezin rođendan. Restoran se zove "Konoba Dalmatia" i nalazi se blizu Stare gradske jezgre.',
@@ -793,7 +861,11 @@ export const GRADED_STORIES = [
       },
     ],
     vocabulary: [
-      { hr: 'konoba', en: 'traditional Croatian restaurant / tavern', ex: 'Volim večerati u konobi.' },
+      {
+        hr: 'konoba',
+        en: 'traditional Croatian restaurant / tavern',
+        ex: 'Volim večerati u konobi.',
+      },
       { hr: 'prstaci', en: 'date mussels (shellfish)', ex: 'Prstaci su dalmatinski specijalitet.' },
       { hr: 'brancin', en: 'sea bass', ex: 'Brancin na žaru je ukusan.' },
       { hr: 'blitva', en: 'Swiss chard', ex: 'Blitva s krumpirom je prilog.' },
@@ -807,7 +879,12 @@ export const GRADED_STORIES = [
       {
         q: 'Zašto su Marko i Petra otišli u restoran?',
         qEn: 'Why did Marko and Petra go to the restaurant?',
-        opts: ['Jer su bili gladni', 'Jer je bio Petrin rođendan', 'Jer je bio Markov rođendan', 'Jer su slavili posao'],
+        opts: [
+          'Jer su bili gladni',
+          'Jer je bio Petrin rođendan',
+          'Jer je bio Markov rođendan',
+          'Jer su slavili posao',
+        ],
         correct: 1,
       },
       {
@@ -819,7 +896,12 @@ export const GRADED_STORIES = [
       {
         q: 'Što je Petra rekla o fritulama?',
         qEn: 'What did Petra say about the fritule?',
-        opts: ['Da su bile preskupe', 'Da su bile premale', 'Da su bile najbolji desert koji je ikada jela', 'Da su bile premasne'],
+        opts: [
+          'Da su bile preskupe',
+          'Da su bile premale',
+          'Da su bile najbolji desert koji je ikada jela',
+          'Da su bile premasne',
+        ],
         correct: 2,
       },
     ],
@@ -835,7 +917,8 @@ export const GRADED_STORIES = [
     titleEn: 'A Dinamo Match',
     duration: 3,
     focus: 'Past tense • Sports vocabulary • Expressing excitement',
-    intro: 'Josip went to see his favourite football club, Dinamo Zagreb, play at Maksimir stadium. Practice sports language and narrating past events.',
+    intro:
+      'Josip went to see his favourite football club, Dinamo Zagreb, play at Maksimir stadium. Practice sports language and narrating past events.',
     paragraphs: [
       {
         hr: 'Prošle subote, Josip je otišao na stadion Maksimir gledati utakmicu Dinama. Dinamo je igrao protiv Hajduka iz Splita — to je najveći derbi u hrvatskom nogometu. Josip je kupio kartu tjedan dana ranije jer su karte brzo rasprodane.',
@@ -877,7 +960,12 @@ export const GRADED_STORIES = [
       {
         q: 'Kada je Dinamo zabio pobjednički gol?',
         qEn: 'When did Dinamo score the winning goal?',
-        opts: ['U dvadeset i petoj minuti', 'Na poluvremenu', 'U devedeset i drugoj minuti', 'Na početku utakmice'],
+        opts: [
+          'U dvadeset i petoj minuti',
+          'Na poluvremenu',
+          'U devedeset i drugoj minuti',
+          'Na početku utakmice',
+        ],
         correct: 2,
       },
     ],
@@ -893,7 +981,8 @@ export const GRADED_STORIES = [
     titleEn: 'Klapa on the Promenade',
     duration: 3,
     focus: 'Past + present tense • Music vocabulary • Cultural descriptions',
-    intro: 'Katarina heard a klapa group singing on the Šibenik waterfront. Practice describing cultural experiences and using mixed tenses.',
+    intro:
+      'Katarina heard a klapa group singing on the Šibenik waterfront. Practice describing cultural experiences and using mixed tenses.',
     paragraphs: [
       {
         hr: 'Katarina je šetala rivom u Šibeniku jedne ljetne večeri. Bila je topla noć i grad je bio pun turista i mještana. Odjednom je čula pjevanje — grupu muškaraca koji su pjevali bez instrumenta.',
@@ -910,7 +999,11 @@ export const GRADED_STORIES = [
     ],
     vocabulary: [
       { hr: 'riva', en: 'waterfront promenade', ex: 'Šetamo po rivi.' },
-      { hr: 'klapa', en: 'klapa (traditional Dalmatian a cappella singing group)', ex: 'Klapa pjeva na rivi.' },
+      {
+        hr: 'klapa',
+        en: 'klapa (traditional Dalmatian a cappella singing group)',
+        ex: 'Klapa pjeva na rivi.',
+      },
       { hr: 'harmonija', en: 'harmony', ex: 'Glasovi pjevaju u harmoniji.' },
       { hr: 'zavičaj', en: 'homeland / native region', ex: 'Pjesme su o zavičaju.' },
       { hr: 'nastup', en: 'performance', ex: 'Nastup klape bio je predivan.' },
@@ -923,13 +1016,23 @@ export const GRADED_STORIES = [
       {
         q: 'Gdje je Katarina čula klapu?',
         qEn: 'Where did Katarina hear the klapa?',
-        opts: ['Na plaži u Splitu', 'Na rivi u Šibeniku', 'U kafiću u Zadru', 'Na stadionu u Zagrebu'],
+        opts: [
+          'Na plaži u Splitu',
+          'Na rivi u Šibeniku',
+          'U kafiću u Zadru',
+          'Na stadionu u Zagrebu',
+        ],
         correct: 1,
       },
       {
         q: 'Što je klapa?',
         qEn: 'What is a klapa?',
-        opts: ['Vrsta dalmatinske hrane', 'Tradicionalni ples', 'Tradicijski oblik a cappella pjevanja', 'Glazbeni instrument'],
+        opts: [
+          'Vrsta dalmatinske hrane',
+          'Tradicionalni ples',
+          'Tradicijski oblik a cappella pjevanja',
+          'Glazbeni instrument',
+        ],
         correct: 2,
       },
       {
@@ -955,7 +1058,8 @@ export const GRADED_STORIES = [
     titleEn: 'Peka — Ancient Tradition',
     duration: 4,
     focus: 'Passive constructions • Cultural vocabulary • Instrumental case',
-    intro: 'Learn about peka, one of Croatia\'s most beloved cooking traditions, while practising passive voice and cultural description.',
+    intro:
+      "Learn about peka, one of Croatia's most beloved cooking traditions, while practising passive voice and cultural description.",
     paragraphs: [
       {
         hr: 'Peka je jedan od najstarijih načina kuhanja u Dalmaciji i Istri. Radi se o metalnom poklopcu, koji se naziva peka ili čripnja, koji se stavlja iznad hrane dok se ona polako peče ispod žara od drvenog ugljena. Ovaj način kuhanja koristi se stoljećima i danas je simbolom dalmatinske kuhinje.',
@@ -971,7 +1075,11 @@ export const GRADED_STORIES = [
       },
     ],
     vocabulary: [
-      { hr: 'peka', en: 'peka (traditional Croatian domed cooking lid)', ex: 'Janjetina pod pekon je ukusna.' },
+      {
+        hr: 'peka',
+        en: 'peka (traditional Croatian domed cooking lid)',
+        ex: 'Janjetina pod pekon je ukusna.',
+      },
       { hr: 'žar', en: 'embers / hot coals', ex: 'Jelo se peče ispod žara.' },
       { hr: 'janjetina', en: 'lamb meat', ex: 'Janjetina pod pekon je specijalitet.' },
       { hr: 'marinirati', en: 'to marinate', ex: 'Mariniram meso u maslinovom ulju.' },
@@ -979,7 +1087,11 @@ export const GRADED_STORIES = [
       { hr: 'ružmarin', en: 'rosemary', ex: 'Ružmarin daje poseban okus mesu.' },
       { hr: 'ritual', en: 'ritual', ex: 'Peka je obiteljski ritual.' },
       { hr: 'zalogaj', en: 'bite / mouthful', ex: 'Svaki zalogaj je ukusan.' },
-      { hr: 'dozrijevati', en: 'to mature / to slowly cook through', ex: 'Jelo dozrijeva ispod žara.' },
+      {
+        hr: 'dozrijevati',
+        en: 'to mature / to slowly cook through',
+        ex: 'Jelo dozrijeva ispod žara.',
+      },
     ],
     quiz: [
       {
@@ -1013,11 +1125,12 @@ export const GRADED_STORIES = [
     titleEn: 'Dubrovnik: the City and its Walls',
     duration: 4,
     focus: 'Historical present • Genitive of possession • Describing places',
-    intro: 'Explore the history and architecture of Dubrovnik\'s famous Old Town. Practice describing places, using the genitive case, and narrating historical facts.',
+    intro:
+      "Explore the history and architecture of Dubrovnik's famous Old Town. Practice describing places, using the genitive case, and narrating historical facts.",
     paragraphs: [
       {
         hr: 'Dubrovnik je jedan od najočuvanijih primjera gotičko-renesansne arhitekture na Mediteranu. Stari grad okružen je moćnim kamenim zidinama dugim gotovo dva kilometra, koje su građene i pojačavane od 13. do 17. stoljeća. Dubrovnik je 1979. uvršten na UNESCO-ov popis mjesta Svjetske baštine.',
-        en: 'Dubrovnik is one of the best-preserved examples of Gothic-Renaissance architecture in the Mediterranean. The Old Town is surrounded by mighty stone walls almost two kilometres long, which were built and reinforced from the 13th to the 17th century. In 1979 Dubrovnik was placed on UNESCO\'s World Heritage list.',
+        en: "Dubrovnik is one of the best-preserved examples of Gothic-Renaissance architecture in the Mediterranean. The Old Town is surrounded by mighty stone walls almost two kilometres long, which were built and reinforced from the 13th to the 17th century. In 1979 Dubrovnik was placed on UNESCO's World Heritage list.",
       },
       {
         hr: 'Šetnja po zidinama traje otprilike sat i pol i nudi nevjerojatne poglede na Jadransko more i crvene krovove staroga grada. Duž zidina smješteno je nekoliko tvrđava: Lovrijenac, Minčeta i Revelin. Lovrijenac, koji stoji na 37 metara visokoj stijeni izvan zidina, posebno je impresivan. Na njemu piše natpis: "Non bene pro toto libertas venditur auro" — "Sloboda se ne prodaje ni za sve zlato na svijetu."',
@@ -1049,7 +1162,12 @@ export const GRADED_STORIES = [
       {
         q: 'Što znači natpis na tvrđavi Lovrijenac?',
         qEn: 'What does the inscription on fortress Lovrijenac mean?',
-        opts: ['Dobrodošli u Dubrovnik', 'Sloboda se ne prodaje ni za sve zlato na svijetu', 'Bog i Hrvati', 'Mir i ljubav'],
+        opts: [
+          'Dobrodošli u Dubrovnik',
+          'Sloboda se ne prodaje ni za sve zlato na svijetu',
+          'Bog i Hrvati',
+          'Mir i ljubav',
+        ],
         correct: 1,
       },
       {
@@ -1071,7 +1189,8 @@ export const GRADED_STORIES = [
     titleEn: 'Istria: Wine, Truffles and Olives',
     duration: 4,
     focus: 'Relative clauses • Impersonal constructions • Agricultural vocabulary',
-    intro: 'Discover Istria\'s famous gastronomic landscape. Practice relative clauses, impersonal constructions, and vocabulary related to food and agriculture.',
+    intro:
+      "Discover Istria's famous gastronomic landscape. Practice relative clauses, impersonal constructions, and vocabulary related to food and agriculture.",
     paragraphs: [
       {
         hr: 'Istra je poluotok koji se smatra kulinarskom prijestolnicom Hrvatske. Tlo Istre bogato je crvenom "terra rossa" zemljom, koja je idealna za uzgoj masline, vinove loze i mnogih aromatičnih biljaka. Upravo zbog tog jedinstvenog tla, istarsko vino i maslinovo ulje poznati su diljem Europe.',
@@ -1101,7 +1220,12 @@ export const GRADED_STORIES = [
       {
         q: 'Zašto je istarsko tlo posebno?',
         qEn: 'Why is Istrian soil special?',
-        opts: ['Jer je plavo', 'Jer je bogata crvena "terra rossa" zemlja idealna za uzgoj', 'Jer je uvijek mokro', 'Jer nema minerala'],
+        opts: [
+          'Jer je plavo',
+          'Jer je bogata crvena "terra rossa" zemlja idealna za uzgoj',
+          'Jer je uvijek mokro',
+          'Jer nema minerala',
+        ],
         correct: 1,
       },
       {
@@ -1113,7 +1237,12 @@ export const GRADED_STORIES = [
       {
         q: 'Kako tartufari pronalaze tartufe?',
         qEn: 'How do tartufari find truffles?',
-        opts: ['Uz pomoć posebno obučenih pasa', 'Metal detektorom', 'Kopanjem na slijepo', 'Uz pomoć satelita'],
+        opts: [
+          'Uz pomoć posebno obučenih pasa',
+          'Metal detektorom',
+          'Kopanjem na slijepo',
+          'Uz pomoć satelita',
+        ],
         correct: 0,
       },
     ],
@@ -1133,7 +1262,8 @@ export const GRADED_STORIES = [
     titleEn: 'Miroslav Krleža and Croatian Literature',
     duration: 5,
     focus: 'Literary register • Subordinate clauses • Imperfect & pluperfect',
-    intro: 'Explore the life and legacy of Croatia\'s greatest 20th-century writer, Miroslav Krleža. Practice formal literary register and complex sentence structures.',
+    intro:
+      "Explore the life and legacy of Croatia's greatest 20th-century writer, Miroslav Krleža. Practice formal literary register and complex sentence structures.",
     paragraphs: [
       {
         hr: 'Miroslav Krleža — književnik, dramatičar, esejist i enciklopedist — najznačajnija je figura moderne hrvatske književnosti. Rođen je 1893. u Zagrebu, u doba kada je Hrvatska još uvijek bila dio Austro-Ugarske Monarhije, a umro je 1981. kao državno priznat velikan socijalističke Jugoslavije. Paradoks njegova položaja — neprilagodljivi buntovnik koji je istovremeno bio blizak vlastima — obilježava svu složenost njegova opusa i njegova vremena.',
@@ -1154,10 +1284,18 @@ export const GRADED_STORIES = [
       { hr: 'buntovnik', en: 'rebel', ex: 'Bio je neprilagodljivi buntovnik.' },
       { hr: 'opus', en: 'body of work / oeuvre', ex: 'Krležin opus je golem.' },
       { hr: 'razotkrivati', en: 'to expose / reveal', ex: 'Drama razotkriva moralnu trulost.' },
-      { hr: 'propitivati', en: 'to interrogate / question', ex: 'Roman propituje ulogu intelektualca.' },
+      {
+        hr: 'propitivati',
+        en: 'to interrogate / question',
+        ex: 'Roman propituje ulogu intelektualca.',
+      },
       { hr: 'leksikografija', en: 'lexicography', ex: 'Bio je veliki doprinos leksikografiji.' },
       { hr: 'osporavati', en: 'to contest / dispute', ex: 'Krleža je i danas osporavan.' },
-      { hr: 'aktualnost', en: 'relevance / topicality', ex: 'Njegova dijela imaju trajnu aktualnost.' },
+      {
+        hr: 'aktualnost',
+        en: 'relevance / topicality',
+        ex: 'Njegova dijela imaju trajnu aktualnost.',
+      },
     ],
     quiz: [
       {
@@ -1169,13 +1307,23 @@ export const GRADED_STORIES = [
       {
         q: 'Što je Krleža potpisao 1967. godine?',
         qEn: 'What did Krleža sign in 1967?',
-        opts: ['Ustav Jugoslavije', 'Deklaraciju o nazivu i položaju hrvatskog književnog jezika', 'Sporazum o miru', 'Statut Dinama'],
+        opts: [
+          'Ustav Jugoslavije',
+          'Deklaraciju o nazivu i položaju hrvatskog književnog jezika',
+          'Sporazum o miru',
+          'Statut Dinama',
+        ],
         correct: 1,
       },
       {
         q: 'Čemu svjedoče Krležina dijela koja se i danas čitaju i igraju?',
-        qEn: 'What do Krleža\'s works being read and performed today testify to?',
-        opts: ['Nedostatku novih pisaca', 'Njihovoj trajnoj aktualnosti', 'Lošem ukusu publike', 'Državnoj cenzuri'],
+        qEn: "What do Krleža's works being read and performed today testify to?",
+        opts: [
+          'Nedostatku novih pisaca',
+          'Njihovoj trajnoj aktualnosti',
+          'Lošem ukusu publike',
+          'Državnoj cenzuri',
+        ],
         correct: 1,
       },
     ],
@@ -1191,15 +1339,16 @@ export const GRADED_STORIES = [
     titleEn: 'The Homeland War and Memory',
     duration: 5,
     focus: 'Complex past constructions • Abstract nouns • Sensitive historical register',
-    intro: 'A thoughtful exploration of how Croatia commemorates the 1990s Homeland War. Practise advanced past tense constructions, abstract vocabulary, and handling sensitive historical topics.',
+    intro:
+      'A thoughtful exploration of how Croatia commemorates the 1990s Homeland War. Practise advanced past tense constructions, abstract vocabulary, and handling sensitive historical topics.',
     paragraphs: [
       {
         hr: 'Domovinski rat — koji je trajao od 1991. do 1995. — temeljni je događaj suvremene hrvatske identifikacije. Hrvatska je 25. lipnja 1991. proglasila neovisnost, no agresija Jugoslavenske narodne armije i srpskih paravojnih postrojbi uskoro je eskalirala u oružani sukob koji je obilježio čitavo desetljeće. Gradovi kao Vukovar, Dubrovnik i Šibenik postali su simboli otpora i patnje.',
-        en: 'The Homeland War — which lasted from 1991 to 1995 — is the foundational event of contemporary Croatian identity. Croatia declared independence on 25 June 1991, but the aggression of the Yugoslav People\'s Army and Serbian paramilitary formations soon escalated into an armed conflict that marked an entire decade. Cities such as Vukovar, Dubrovnik and Šibenik became symbols of resistance and suffering.',
+        en: "The Homeland War — which lasted from 1991 to 1995 — is the foundational event of contemporary Croatian identity. Croatia declared independence on 25 June 1991, but the aggression of the Yugoslav People's Army and Serbian paramilitary formations soon escalated into an armed conflict that marked an entire decade. Cities such as Vukovar, Dubrovnik and Šibenik became symbols of resistance and suffering.",
       },
       {
         hr: 'Vukovar je posebno mjesto u kolektivnoj memoriji. Opsada Vukovara trajala je od kolovoza do studenog 1991. Branitelji grada — vojnici i civili ramena uz rame — odolijevali su znatno nadmoćnijem neprijatelju 87 dana. Grad je na kraju pao 18. studenog 1991. Slika voduške vodotornja, izbucanog ali uspravnog usred razrušenoga grada, postala je jedan od najprepoznatljivijih simbola rata i otpora.',
-        en: 'Vukovar holds a special place in collective memory. The siege of Vukovar lasted from August to November 1991. The city\'s defenders — soldiers and civilians side by side — held out against a vastly superior enemy for 87 days. The city finally fell on 18 November 1991. The image of the Vukovar water tower, riddled with bullets yet standing upright amid the ruined city, became one of the most recognisable symbols of the war and of resistance.',
+        en: "Vukovar holds a special place in collective memory. The siege of Vukovar lasted from August to November 1991. The city's defenders — soldiers and civilians side by side — held out against a vastly superior enemy for 87 days. The city finally fell on 18 November 1991. The image of the Vukovar water tower, riddled with bullets yet standing upright amid the ruined city, became one of the most recognisable symbols of the war and of resistance.",
       },
       {
         hr: 'Pitanje sjećanja na Domovinski rat ostaje složeno i politički osjetljivo. Hrvatska društvo suočava se s izazovom koji je zajednički mnogim poslijeratnim društvima: kako kolektivno sjećanje učiniti mjestom pomirenja, a ne trajnog sukoba. Vukovar danas živi sporo gospodarsko oporavak, a demografski se nije vratio na predratnu razinu. Ipak, svake godine na Obljetnici pada Vukovara, 18. studenog, tisuće hodočasnika hodaju ulicama grada u tišini, noseći cvijeće i upaljene lampione. Taj šutljivi mimohod — kolona sjećanja — najmoćniji je odgovor na sve pokušaje brisanja prošlosti.',
@@ -1233,7 +1382,12 @@ export const GRADED_STORIES = [
       {
         q: 'Što se svake godine događa 18. studenog u Vukovaru?',
         qEn: 'What happens every year on 18 November in Vukovar?',
-        opts: ['Sportski maraton', 'Glazbeni festival', 'Šutljivi mimohod tisuća hodočasnika', 'Vojska parade'],
+        opts: [
+          'Sportski maraton',
+          'Glazbeni festival',
+          'Šutljivi mimohod tisuća hodočasnika',
+          'Vojska parade',
+        ],
         correct: 2,
       },
     ],
@@ -1249,11 +1403,12 @@ export const GRADED_STORIES = [
     titleEn: 'Zagreb between Tradition and Modernity',
     duration: 5,
     focus: 'Contrast structures • Urban sociology vocabulary • Gerunds and verbal nouns',
-    intro: 'Explore the tensions and harmonies between Zagreb\'s historic character and its contemporary urban life. Practise contrast structures, complex subordination, and urban vocabulary.',
+    intro:
+      "Explore the tensions and harmonies between Zagreb's historic character and its contemporary urban life. Practise contrast structures, complex subordination, and urban vocabulary.",
     paragraphs: [
       {
         hr: 'Zagreb je grad koji živi u produktivnoj napetosti između starog i novog. Gornji grad — s Kaptolom, katedralom i labirintom uskih kamenih ulica — svjedok je tisućljetne prošlosti, dok se samo petnaest minuta hoda dalje, na Savici i Novom Zagrebu, rasprostire sasvim drukčiji urbani pejzaž: betonski blokovi nastali u doba socijalizma, danas sve češće okruženi niklim kavarnama, coworking prostorima i kreativnim industrijama.',
-        en: 'Zagreb is a city that lives in productive tension between the old and the new. The Upper Town — with Kaptol, the cathedral and a labyrinth of narrow stone streets — is a witness to a millennia-long past, while just fifteen minutes\' walk away, in Savica and New Zagreb, an entirely different urban landscape spreads out: concrete blocks built in the socialist era, today increasingly surrounded by new cafés, coworking spaces and creative industries.',
+        en: "Zagreb is a city that lives in productive tension between the old and the new. The Upper Town — with Kaptol, the cathedral and a labyrinth of narrow stone streets — is a witness to a millennia-long past, while just fifteen minutes' walk away, in Savica and New Zagreb, an entirely different urban landscape spreads out: concrete blocks built in the socialist era, today increasingly surrounded by new cafés, coworking spaces and creative industries.",
       },
       {
         hr: 'Potres koji je pogodio Zagreb u ožujku 2020. — jačine 5,5 po Richteru — razgolitio je dublje strukturne probleme: tisuće zgrada u gradskoj jezgri bile su oštećene, a u nekim dijelovima Gornjeg i Donjeg grada sanacija još uvijek nije završena. Potres je međutim potaknuo i širu javnu raspravu o urbanom planiranju, zaštiti kulturne baštine i položaju stanara u sve skupljim privatnim najmovima. Mnogi mladi Zagrepčani, suočeni s nemogućnošću kupnje stana u centru, sele se u prigradska naselja ili odlaze u inozemstvo.',
@@ -1267,13 +1422,25 @@ export const GRADED_STORIES = [
     vocabulary: [
       { hr: 'napetost', en: 'tension', ex: 'Zagreb živi u napetosti između starog i novog.' },
       { hr: 'pejzaž', en: 'landscape / cityscape', ex: 'Urbani pejzaž Novog Zagreba je drukčiji.' },
-      { hr: 'sanacija', en: 'reconstruction / remediation', ex: 'Sanacija zgrada još nije završena.' },
+      {
+        hr: 'sanacija',
+        en: 'reconstruction / remediation',
+        ex: 'Sanacija zgrada još nije završena.',
+      },
       { hr: 'najam', en: 'rent / rental', ex: 'Privatni najam je sve skuplji.' },
       { hr: 'prigradski', en: 'suburban', ex: 'Mladi sele u prigradska naselja.' },
       { hr: 'kazalište', en: 'theatre', ex: 'Volim ići u kazalište.' },
       { hr: 'nostalgia', en: 'nostalgia', ex: 'Grad živi između nostalgije i inovacije.' },
-      { hr: 'razgolititi', en: 'to lay bare / expose', ex: 'Potres je razgolitio strukturne probleme.' },
-      { hr: 'nametnuti se', en: 'to assert itself / impose itself', ex: 'Zagreb se nameće kao kulturno središte.' },
+      {
+        hr: 'razgolititi',
+        en: 'to lay bare / expose',
+        ex: 'Potres je razgolitio strukturne probleme.',
+      },
+      {
+        hr: 'nametnuti se',
+        en: 'to assert itself / impose itself',
+        ex: 'Zagreb se nameće kao kulturno središte.',
+      },
     ],
     quiz: [
       {
@@ -1285,13 +1452,23 @@ export const GRADED_STORIES = [
       {
         q: 'Čime se Muzej prekinutih veza posebno ističe?',
         qEn: 'What is the Museum of Broken Relationships particularly noted for?',
-        opts: ['Svojom veličinom', 'Međunarodnom slavom', 'Izložbom o ratu', 'Interaktivnim eksponatima'],
+        opts: [
+          'Svojom veličinom',
+          'Međunarodnom slavom',
+          'Izložbom o ratu',
+          'Interaktivnim eksponatima',
+        ],
         correct: 1,
       },
       {
         q: 'Što mnogi mladi Zagrepčani rade zbog visokih cijena stanova u centru?',
         qEn: 'What do many young Zagrebians do because of high flat prices in the centre?',
-        opts: ['Kupuju stanove na kredit', 'Ostaju s roditeljima', 'Sele se u prigradska naselja ili odlaze u inozemstvo', 'Renoviraju stare zgrade'],
+        opts: [
+          'Kupuju stanove na kredit',
+          'Ostaju s roditeljima',
+          'Sele se u prigradska naselja ili odlaze u inozemstvo',
+          'Renoviraju stare zgrade',
+        ],
         correct: 2,
       },
     ],
@@ -1306,8 +1483,10 @@ export const GRADED_STORIES = [
     title: 'Hrvatska dijaspora i identitet',
     titleEn: 'The Croatian Diaspora and Identity',
     duration: 5,
-    focus: 'Conditional and subjunctive-like constructions • Identity vocabulary • Complex argumentation',
-    intro: 'An analytical text on Croatian identity, emigration, and the diaspora\'s relationship with the homeland. Practise advanced vocabulary, argumentation structures, and conditional constructions.',
+    focus:
+      'Conditional and subjunctive-like constructions • Identity vocabulary • Complex argumentation',
+    intro:
+      "An analytical text on Croatian identity, emigration, and the diaspora's relationship with the homeland. Practise advanced vocabulary, argumentation structures, and conditional constructions.",
     paragraphs: [
       {
         hr: 'Procjenjuje se da između tri i četiri milijuna Hrvata i osoba hrvatskog porijekla živi izvan granica Republike Hrvatske — broj koji je gotovo usporediv s ukupnim brojem stanovnika same države. Hrvatska dijaspora koncentrirana je ponajprije u Njemačkoj, Australiji, Kanadi, Sjedinjenim Državama i u susjednim državama, ali i u Južnoj Americi, gdje postoje snažne zajednice u Argentini i Čileu, potomci emigrantskih valova s kraja 19. i početka 20. stoljeća.',
@@ -1319,7 +1498,7 @@ export const GRADED_STORIES = [
       },
       {
         hr: 'Suvremena emigracija iz Hrvatske — koja se posebno ubrzala ulaskom u Europsku uniju 2013. godine — donosi nova pitanja. Mladi, obrazovani Hrvati odlaze zbog boljih ekonomskih mogućnosti, niže birokratske opterećenosti i veće kvalitete javnih usluga u zapadnoj Europi. Demografska erozija, koja je jedna od najozbiljnijih prijetnji dugoročnoj stabilnosti Hrvatske, teško se može zaustaviti bez sustavnih strukturnih reformi. Hrvatska vlada pokušava privući povratnike posebnim poreznim olakšicama, ali uspjeh tih mjera ostaje skroman. Pitanje dijaspore nije samo sentimentalno — ono je usko vezano uz budućnost cijele nacije.',
-        en: 'Contemporary emigration from Croatia — which accelerated particularly after EU accession in 2013 — raises new questions. Young, educated Croatians leave for better economic opportunities, lower bureaucratic burden and higher quality of public services in Western Europe. Demographic erosion, which is one of the most serious threats to Croatia\'s long-term stability, cannot easily be stopped without systematic structural reforms. The Croatian government attempts to attract returnees with special tax incentives, but the success of these measures remains modest. The diaspora question is not merely sentimental — it is closely tied to the future of the entire nation.',
+        en: "Contemporary emigration from Croatia — which accelerated particularly after EU accession in 2013 — raises new questions. Young, educated Croatians leave for better economic opportunities, lower bureaucratic burden and higher quality of public services in Western Europe. Demographic erosion, which is one of the most serious threats to Croatia's long-term stability, cannot easily be stopped without systematic structural reforms. The Croatian government attempts to attract returnees with special tax incentives, but the success of these measures remains modest. The diaspora question is not merely sentimental — it is closely tied to the future of the entire nation.",
       },
     ],
     vocabulary: [
@@ -1328,8 +1507,16 @@ export const GRADED_STORIES = [
       { hr: 'emigrant', en: 'emigrant', ex: 'Prve generacije emigranata čuvale su jezik.' },
       { hr: 'raskid', en: 'rupture / break', ex: 'Odlazak je bio traumatičan raskid.' },
       { hr: 'lobirati', en: 'to lobby', ex: 'Lobirali su za neovisnost.' },
-      { hr: 'demografski', en: 'demographic (adj.)', ex: 'Demografska erozija je ozbiljan problem.' },
-      { hr: 'porezna olakšica', en: 'tax incentive / relief', ex: 'Vlada nudi porezne olakšice povratnicima.' },
+      {
+        hr: 'demografski',
+        en: 'demographic (adj.)',
+        ex: 'Demografska erozija je ozbiljan problem.',
+      },
+      {
+        hr: 'porezna olakšica',
+        en: 'tax incentive / relief',
+        ex: 'Vlada nudi porezne olakšice povratnicima.',
+      },
       { hr: 'povratnik', en: 'returnee', ex: 'Mnogi povratnici donose nova znanja.' },
       { hr: 'erozija', en: 'erosion', ex: 'Demografska erozija ugrožava budućnost.' },
     ],
@@ -1337,22 +1524,36 @@ export const GRADED_STORIES = [
       {
         q: 'Koliko se Hrvata i osoba hrvatskog porijekla procjenjuje da živi izvan Hrvatske?',
         qEn: 'How many Croatians and persons of Croatian origin are estimated to live outside Croatia?',
-        opts: ['Oko milijun', 'Između tri i četiri milijuna', 'Oko pet milijuna', 'Manje od pola milijuna'],
+        opts: [
+          'Oko milijun',
+          'Između tri i četiri milijuna',
+          'Oko pet milijuna',
+          'Manje od pola milijuna',
+        ],
         correct: 1,
       },
       {
         q: 'Kakvu su ulogu imali Hrvati iz dijaspore 1991. i 1992. godine?',
         qEn: 'What role did Croatians from the diaspora play in 1991 and 1992?',
-        opts: ['Slali su humanitarnu pomoć', 'Lobiranje za međunarodno priznavanje neovisnosti', 'Osnivali su nove političke stranke', 'Vraćali su se u Hrvatsku masovno'],
+        opts: [
+          'Slali su humanitarnu pomoć',
+          'Lobiranje za međunarodno priznavanje neovisnosti',
+          'Osnivali su nove političke stranke',
+          'Vraćali su se u Hrvatsku masovno',
+        ],
         correct: 1,
       },
       {
         q: 'Što hrvatska vlada čini kako bi privukla povratnike?',
         qEn: 'What does the Croatian government do to attract returnees?',
-        opts: ['Gradi nove stanove', 'Nudi posebne porezne olakšice', 'Plaća putne troškove', 'Daje besplatne tečajeve'],
+        opts: [
+          'Gradi nove stanove',
+          'Nudi posebne porezne olakšice',
+          'Plaća putne troškove',
+          'Daje besplatne tečajeve',
+        ],
         correct: 1,
       },
     ],
   },
-
 ];

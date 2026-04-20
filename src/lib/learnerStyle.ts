@@ -7,18 +7,18 @@ const MAX_EVENTS = 500;
 const WINDOW_DAYS = 60;
 
 export const ACTIVITY_TYPES: Record<string, string> = {
-  flashcards:   'visual',
-  quiz:         'active_recall',
-  grammar:      'analytical',
-  cloze:        'analytical',
-  listening:    'auditory',
-  speaking:     'production',
+  flashcards: 'visual',
+  quiz: 'active_recall',
+  grammar: 'analytical',
+  cloze: 'analytical',
+  listening: 'auditory',
+  speaking: 'production',
   conversation: 'production',
-  reading:      'receptive',
-  srs_review:   'active_recall',
-  writing:      'production',
-  shadowing:    'auditory',
-  matching:     'visual',
+  reading: 'receptive',
+  srs_review: 'active_recall',
+  writing: 'production',
+  shadowing: 'auditory',
+  matching: 'visual',
 };
 
 interface StyleEvent {
@@ -29,18 +29,22 @@ interface StyleEvent {
 }
 
 function _load(): StyleEvent[] {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-  catch { return []; }
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch {
+    return [];
+  }
 }
 
 function _save(events: StyleEvent[]): void {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(events)); }
-  catch {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+  } catch {}
 }
 
 function _prune(events: StyleEvent[]): StyleEvent[] {
   const cutoff = Date.now() - WINDOW_DAYS * 86400000;
-  return events.filter(e => e.ts > cutoff).slice(-MAX_EVENTS);
+  return events.filter((e) => e.ts > cutoff).slice(-MAX_EVENTS);
 }
 
 export function trackStart(activityType: string): void {
@@ -86,13 +90,18 @@ export function getStylePreferences(): StylePreferences | null {
   const events = _prune(_load());
   if (events.length < 5) return null;
 
-  const stats: Record<string, { starts: number; completes: number; abandons: number; totalDur: number }> = {};
+  const stats: Record<
+    string,
+    { starts: number; completes: number; abandons: number; totalDur: number }
+  > = {};
   for (const e of events) {
     if (!stats[e.type]) stats[e.type] = { starts: 0, completes: 0, abandons: 0, totalDur: 0 };
     const s = stats[e.type];
     if (e.action === 'start') s.starts++;
-    else if (e.action === 'complete') { s.completes++; s.totalDur += (e.dur || 0); }
-    else if (e.action === 'abandon') s.abandons++;
+    else if (e.action === 'complete') {
+      s.completes++;
+      s.totalDur += e.dur || 0;
+    } else if (e.action === 'abandon') s.abandons++;
   }
 
   const scored: StyleScore[] = Object.entries(stats)
@@ -107,16 +116,23 @@ export function getStylePreferences(): StylePreferences | null {
     .sort((a, b) => b.engagementScore - a.engagementScore);
 
   return {
-    preferredTypes: scored.slice(0, 3).map(s => s.type),
-    avoidedTypes: scored.filter(s => s.completionRate < 0.4).map(s => s.type),
-    completionRates: Object.fromEntries(scored.map(s => [s.type, Math.round(s.completionRate * 100)])),
+    preferredTypes: scored.slice(0, 3).map((s) => s.type),
+    avoidedTypes: scored.filter((s) => s.completionRate < 0.4).map((s) => s.type),
+    completionRates: Object.fromEntries(
+      scored.map((s) => [s.type, Math.round(s.completionRate * 100)]),
+    ),
     topType: scored[0]?.type || null,
     dataPoints: events.length,
     scored,
   };
 }
 
-export function getStyleContextForAPI(): { preferredTypes: string[]; avoidedTypes: string[]; completionRates: Record<string, number>; dataPoints: number } | null {
+export function getStyleContextForAPI(): {
+  preferredTypes: string[];
+  avoidedTypes: string[];
+  completionRates: Record<string, number>;
+  dataPoints: number;
+} | null {
   const prefs = getStylePreferences();
   if (!prefs) return null;
   return {
@@ -131,11 +147,16 @@ export function getStyleLabel(): string | null {
   const prefs = getStylePreferences();
   if (!prefs || !prefs.topType) return null;
   const labels: Record<string, string> = {
-    flashcards: 'Visual Learner', quiz: 'Active Recall Learner',
-    grammar: 'Analytical Learner', listening: 'Auditory Learner',
-    speaking: 'Speaking-First Learner', conversation: 'Conversational Learner',
-    reading: 'Reading Learner', srs_review: 'Systematic Learner',
-    writing: 'Writing Learner', shadowing: 'Immersive Learner',
+    flashcards: 'Visual Learner',
+    quiz: 'Active Recall Learner',
+    grammar: 'Analytical Learner',
+    listening: 'Auditory Learner',
+    speaking: 'Speaking-First Learner',
+    conversation: 'Conversational Learner',
+    reading: 'Reading Learner',
+    srs_review: 'Systematic Learner',
+    writing: 'Writing Learner',
+    shadowing: 'Immersive Learner',
   };
   return labels[prefs.topType] || null;
 }

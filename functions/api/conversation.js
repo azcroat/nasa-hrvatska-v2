@@ -1,4 +1,3 @@
- 
 // Cloudflare Pages Function — Live Croatian Conversation Partner (Streaming)
 // Endpoint: POST /api/conversation
 //
@@ -21,8 +20,8 @@ import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
 
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-6';
 
 // ── Per-session limits ─────────────────────────────────────────────────────────
 // Conversation turns are expensive (streaming + TTS per turn).
@@ -36,15 +35,20 @@ const SESSION_RATE_LIMIT_PER_MINUTE = 4; // ~3 sessions/hour = 1 every 20 min, 4
 
 function sanitizeParam(value, maxLen = 200) {
   if (value === null || value === undefined) return '';
-  return String(value)
-    .replace(/[\x00-\x1F\x7F]/g, ' ')  // eslint-disable-line no-control-regex -- strip control characters
-    .replace(/[`\\]/g, '')
-    // Broad injection phrase patterns — catch variants with spacing, punctuation, unicode tricks
-    .replace(/ign[o0]re\b.{0,80}(instruct|prompt|system|above|previous|prior)/gi, '')
-    .replace(/\b(system prompt|jailbreak|disregard|forget (all|your|previous)|new (role|persona|instruction))/gi, '')
-    .replace(/\bact as\b.{0,40}\b(ai|gpt|claude|llm|model|assistant)\b/gi, '')
-    .trim()
-    .slice(0, maxLen);
+  return (
+    String(value)
+      .replace(/[\x00-\x1F\x7F]/g, ' ') // eslint-disable-line no-control-regex -- strip control characters
+      .replace(/[`\\]/g, '')
+      // Broad injection phrase patterns — catch variants with spacing, punctuation, unicode tricks
+      .replace(/ign[o0]re\b.{0,80}(instruct|prompt|system|above|previous|prior)/gi, '')
+      .replace(
+        /\b(system prompt|jailbreak|disregard|forget (all|your|previous)|new (role|persona|instruction))/gi,
+        '',
+      )
+      .replace(/\bact as\b.{0,40}\b(ai|gpt|claude|llm|model|assistant)\b/gi, '')
+      .trim()
+      .slice(0, maxLen)
+  );
 }
 
 function isAllowedOrigin(origin, isDev) {
@@ -52,45 +56,49 @@ function isAllowedOrigin(origin, isDev) {
   if (!origin) return true;
   try {
     const hostname = new URL(origin).hostname;
-    if (isDev && hostname === "localhost") return true;
-    return hostname === "nasahrvatska.com"
-      || hostname.endsWith(".nasahrvatska.com")
-      || hostname === "nasa-hrvatska-v2.pages.dev"
-      || hostname.endsWith(".nasa-hrvatska-v2.pages.dev");
-  } catch { return false; }
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
   return {
-    "Access-Control-Allow-Origin": origin || "https://nasahrvatska.com",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 }
 
-const VALID_LEVELS = ["A1", "A2", "B1", "B2"];
+const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2'];
 const VALID_TOPICS = [
-  "free",
-  "introductions",
-  "daily_life",
-  "food",
-  "family",
-  "travel",
-  "sport",
-  "culture",
-  "at_the_market",
-  "at_the_cafe",
-  "directions",
-  "work",
-  "weather",
+  'free',
+  'introductions',
+  'daily_life',
+  'food',
+  'family',
+  'travel',
+  'sport',
+  'culture',
+  'at_the_market',
+  'at_the_cafe',
+  'directions',
+  'work',
+  'weather',
 ];
 
 function sanitizeLevel(level) {
-  return VALID_LEVELS.includes(level) ? level : "A2";
+  return VALID_LEVELS.includes(level) ? level : 'A2';
 }
 
 function sanitizeTopic(topic) {
-  return VALID_TOPICS.includes(topic) ? topic : "free";
+  return VALID_TOPICS.includes(topic) ? topic : 'free';
 }
 
 function sanitizeTurnCount(n) {
@@ -106,16 +114,21 @@ function sanitizeTurnCount(n) {
 
 function estimateAbility(messages) {
   if (!messages || messages.length < 2) return null;
-  const userMessages = messages.filter(m => m.role === 'user' && m.content?.length > 3);
+  const userMessages = messages.filter((m) => m.role === 'user' && m.content?.length > 3);
   if (userMessages.length < 2) return null;
 
   const signals = {
     avgLength: userMessages.reduce((s, m) => s + m.content.length, 0) / userMessages.length,
-    hasSubclauses: userMessages.some(m => /jer|koji|koja|koje|kada|ako|iako/i.test(m.content)),
-    hasPastTense: userMessages.some(m => /sam bio|sam bila|jesam|bio je|bila je/i.test(m.content)),
-    hasFutureTense: userMessages.some(m => /ću|ćeš|će|ćemo|ćete/i.test(m.content)),
-    errorRate: userMessages.filter(m => /\[correction\]/i.test(m.content || '')).length / userMessages.length,
-    codeSwitch: userMessages.filter(m => /\b(the|is|are|and|but|I|you|we)\b/.test(m.content)).length,
+    hasSubclauses: userMessages.some((m) => /jer|koji|koja|koje|kada|ako|iako/i.test(m.content)),
+    hasPastTense: userMessages.some((m) =>
+      /sam bio|sam bila|jesam|bio je|bila je/i.test(m.content),
+    ),
+    hasFutureTense: userMessages.some((m) => /ću|ćeš|će|ćemo|ćete/i.test(m.content)),
+    errorRate:
+      userMessages.filter((m) => /\[correction\]/i.test(m.content || '')).length /
+      userMessages.length,
+    codeSwitch: userMessages.filter((m) => /\b(the|is|are|and|but|I|you|we)\b/.test(m.content))
+      .length,
   };
 
   // Estimate level shift: 'lower', 'same', or 'higher'
@@ -127,19 +140,30 @@ function estimateAbility(messages) {
 
 // ── System prompt builder ──────────────────────────────────────────────────────
 
-function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, userName, mistakePatterns, abilityShift, learnerErrors, isHeritage, memoryContext }) {
-
+function buildConversationSystemPrompt({
+  level,
+  topic,
+  turnCount,
+  maxTurns,
+  userName,
+  mistakePatterns,
+  abilityShift,
+  learnerErrors,
+  isHeritage,
+  memoryContext,
+}) {
   const safeLevel = sanitizeLevel(level);
   const sessionMax = maxTurns || MAX_TURNS_BY_LEVEL[safeLevel] || MAX_TURNS_PER_SESSION;
   const safeTopic = sanitizeTopic(topic);
-  const name = sanitizeParam(userName || "", 50);
+  const name = sanitizeParam(userName || '', 50);
 
   // ── Adaptive difficulty note (from real-time ability estimate) ──
-  const adaptiveNote = abilityShift === 'lower'
-    ? '\n\nADAPTIVE: Learner is struggling — simplify vocabulary, use shorter sentences, increase scaffolding.'
-    : abilityShift === 'higher'
-    ? '\n\nADAPTIVE: Learner is performing above stated level — introduce slightly more complex structures naturally.'
-    : '';
+  const adaptiveNote =
+    abilityShift === 'lower'
+      ? '\n\nADAPTIVE: Learner is struggling — simplify vocabulary, use shorter sentences, increase scaffolding.'
+      : abilityShift === 'higher'
+        ? '\n\nADAPTIVE: Learner is performing above stated level — introduce slightly more complex structures naturally.'
+        : '';
 
   // ── Heritage speaker context ──
   const heritageNote = isHeritage
@@ -148,17 +172,20 @@ function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, user
 
   // ── Known weak areas injected from frontend error ledger ──
   const safeErrors = Array.isArray(learnerErrors) ? learnerErrors : [];
-  const errorContext = safeErrors.length > 0
-    ? `\n\nLEARNER'S KNOWN WEAK AREAS: ${safeErrors.slice(0, 5).map(e => sanitizeParam(String(e?.pattern || ''), 60)).filter(Boolean).join(', ')}. Naturally work in practice of these patterns.`
-    : '';
+  const errorContext =
+    safeErrors.length > 0
+      ? `\n\nLEARNER'S KNOWN WEAK AREAS: ${safeErrors
+          .slice(0, 5)
+          .map((e) => sanitizeParam(String(e?.pattern || ''), 60))
+          .filter(Boolean)
+          .join(', ')}. Naturally work in practice of these patterns.`
+      : '';
 
   // ── Persistent memory from past sessions ──
   // memoryContext is pre-formatted by the client (useConversationMemory hook) and
   // sanitized server-side before reaching here.  Inject it as a named block so the
   // model can reference it without treating it as user-controlled conversation content.
-  const memoryNote = memoryContext
-    ? `\n\n${memoryContext}`
-    : '';
+  const memoryNote = memoryContext ? `\n\n${memoryContext}` : '';
 
   // ── CEFR-calibrated language rules ──
   const languageRules = {
@@ -197,19 +224,26 @@ function buildConversationSystemPrompt({ level, topic, turnCount, maxTurns, user
 
   // ── Topic scenario injection ──
   const topicScenarios = {
-    free:          "This is open conversation. Follow wherever the learner leads.",
-    introductions: "You are meeting this person for the first time. Exchange names, where you're from, why they're learning Croatian.",
-    daily_life:    "Talk about daily routines: waking up, meals, commuting, evening plans.",
-    food:          "Discuss Croatian food: your love of prstaci, brudet, fritule, which konoba you recommend, what the learner likes to cook.",
-    family:        "Talk about family: siblings, parents, do they have children, family traditions.",
-    travel:        "Discuss travel in Croatia: which islands, cities, national parks the learner wants to visit or has visited.",
-    sport:         "Talk about sport: football (you support Hajduk Split), swimming in the Adriatic, hiking Medvednica.",
-    culture:       "Discuss Croatian culture: music, film, Krleža, Dubrovnik festival, local customs.",
-    at_the_market: "ROLEPLAY: You are a vendor at Dolac market in Zagreb. The learner is shopping. Be helpful but stay in Croatian. Discuss prices, produce, recipes.",
-    at_the_cafe:   "ROLEPLAY: You are both at a café in Zagreb. The learner is ordering. Discuss coffee, what to eat, the view.",
-    directions:    "ROLEPLAY: The learner is lost and asking for directions. Help them navigate to a landmark in Zagreb (Ban Jelačić square, Dolac, Gornji grad).",
-    work:          "Talk about work: what you both do, working in Croatia, office culture, dream jobs.",
-    weather:       "Discuss Croatian weather: Bura wind in Dalmatia, Zagreb winters, summer heat on the islands.",
+    free: 'This is open conversation. Follow wherever the learner leads.',
+    introductions:
+      "You are meeting this person for the first time. Exchange names, where you're from, why they're learning Croatian.",
+    daily_life: 'Talk about daily routines: waking up, meals, commuting, evening plans.',
+    food: 'Discuss Croatian food: your love of prstaci, brudet, fritule, which konoba you recommend, what the learner likes to cook.',
+    family: 'Talk about family: siblings, parents, do they have children, family traditions.',
+    travel:
+      'Discuss travel in Croatia: which islands, cities, national parks the learner wants to visit or has visited.',
+    sport:
+      'Talk about sport: football (you support Hajduk Split), swimming in the Adriatic, hiking Medvednica.',
+    culture: 'Discuss Croatian culture: music, film, Krleža, Dubrovnik festival, local customs.',
+    at_the_market:
+      'ROLEPLAY: You are a vendor at Dolac market in Zagreb. The learner is shopping. Be helpful but stay in Croatian. Discuss prices, produce, recipes.',
+    at_the_cafe:
+      'ROLEPLAY: You are both at a café in Zagreb. The learner is ordering. Discuss coffee, what to eat, the view.',
+    directions:
+      'ROLEPLAY: The learner is lost and asking for directions. Help them navigate to a landmark in Zagreb (Ban Jelačić square, Dolac, Gornji grad).',
+    work: 'Talk about work: what you both do, working in Croatia, office culture, dream jobs.',
+    weather:
+      'Discuss Croatian weather: Bura wind in Dalmatia, Zagreb winters, summer heat on the islands.',
   };
 
   // ── Scaffolding rules (used to set scaffolding_level in output) ──
@@ -236,11 +270,14 @@ WHEN TO DE-ESCALATE:
 
   // ── Correction strategy ──
   const rawPatterns = Array.isArray(mistakePatterns) ? mistakePatterns : [];
-  const mistakeLines = rawPatterns.slice(0, 8).map(p => {
-    const pattern = sanitizeParam(String(p?.pattern || ""), 60);
-    const pCount  = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
-    return pattern ? `- ${pattern} (seen ${pCount}x)` : null;
-  }).filter(Boolean);
+  const mistakeLines = rawPatterns
+    .slice(0, 8)
+    .map((p) => {
+      const pattern = sanitizeParam(String(p?.pattern || ''), 60);
+      const pCount = Math.min(Math.max(Number(p?.count) || 0, 0), 999);
+      return pattern ? `- ${pattern} (seen ${pCount}x)` : null;
+    })
+    .filter(Boolean);
 
   const correctionRules = `
 CORRECTION STRATEGY:
@@ -261,10 +298,10 @@ When you DO correct explicitly:
 Never say "that's wrong" or "you made a mistake". Weave corrections as positive restatements.
 
 KNOWN RECURRING PATTERNS FOR THIS LEARNER:
-${mistakeLines.length ? mistakeLines.join("\n") : "None recorded yet — first session or clean slate."}`;
+${mistakeLines.length ? mistakeLines.join('\n') : 'None recorded yet — first session or clean slate.'}`;
 
   // ── Session arc guidance ──
-  let sessionArcGuidance = "";
+  let sessionArcGuidance = '';
   if (turnCount === 0) {
     sessionArcGuidance = `OPENING TURN (turn 0):
 This is the very first message of this conversation session.
@@ -292,13 +329,13 @@ YOUR SPEECH PATTERNS:
 "Joj!" when surprised. "Pa vidi..." when explaining. "Baš tako!" when someone gets it right. "Znači..." to think aloud. You are warm, genuinely funny, occasionally sardonic with students you know. You are proud of Croatia.
 
 YOUR STUDENT:
-${name ? `Name: ${name}` : "Name not yet known — find out in the first turn."}
+${name ? `Name: ${name}` : 'Name not yet known — find out in the first turn.'}
 CEFR Level: ${safeLevel}
 Conversation topic/scenario: ${topicScenarios[safeTopic]}
 Turn number: ${turnCount}
 
 LANGUAGE RULES FOR THIS STUDENT'S LEVEL:
-${languageRules[safeLevel] || languageRules["A2"]}
+${languageRules[safeLevel] || languageRules['A2']}
 
 ${sessionArcGuidance}
 
@@ -351,7 +388,7 @@ FIELD RULES:
 // ── CORS ───────────────────────────────────────────────────────────────────────
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get("origin") || "";
+  const origin = request.headers.get('origin') || '';
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 
@@ -362,10 +399,10 @@ export async function onRequestPost(context) {
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
   // CORS
-  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-  const isDev = env.ENVIRONMENT !== "production";
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response("Forbidden", { status: 403, headers: corsHeaders(origin) });
+    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
   }
 
   // Stricter rate limit for conversation (expensive endpoint)
@@ -373,11 +410,11 @@ export async function onRequestPost(context) {
   if (!allowed) {
     return new Response(
       JSON.stringify({
-        error: "rate_limit_exceeded",
-        message: "Too many requests. Please wait a moment before sending another message.",
+        error: 'rate_limit_exceeded',
+        message: 'Too many requests. Please wait a moment before sending another message.',
         resetAt: new Date(Date.now() + 60000).toISOString(),
       }),
-      { status: 429, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
+      { status: 429, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } },
     );
   }
 
@@ -385,15 +422,19 @@ export async function onRequestPost(context) {
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response("Unauthorized", { status: 401, headers: corsHeaders(origin) });
+    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
   }
 
   // Daily AI quota check (cost 2 — streaming conversation is heavier)
   const quota = await checkAIQuota(request, env, uid, 2);
   if (!quota.allowed) {
     return new Response(
-      JSON.stringify({ error: 'daily_quota_exceeded', message: 'Daily AI limit reached. Resets at midnight UTC.', resetAt: quota.resetAt }),
-      { status: 429, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
+      JSON.stringify({
+        error: 'daily_quota_exceeded',
+        message: 'Daily AI limit reached. Resets at midnight UTC.',
+        resetAt: quota.resetAt,
+      }),
+      { status: 429, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } },
     );
   }
 
@@ -404,44 +445,46 @@ export async function onRequestPost(context) {
     // special handling and showed a generic toast.
     return new Response(
       JSON.stringify({
-        error: "AI_KEY_MISSING",
-        message: "ANTHROPIC_API_KEY is not set. Add it in Cloudflare Pages → Settings → Environment Variables.",
+        error: 'AI_KEY_MISSING',
+        message:
+          'ANTHROPIC_API_KEY is not set. Add it in Cloudflare Pages → Settings → Environment Variables.',
       }),
-      { status: 503, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
+      { status: 503, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } },
     );
   }
 
-  const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) {
-    return new Response(
-      JSON.stringify({ error: "Invalid content type" }),
-      { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
-    );
+  const ct = request.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) {
+    return new Response(JSON.stringify({ error: 'Invalid content type' }), {
+      status: 400,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   let body;
-  try { body = await request.json(); }
-  catch {
-    return new Response(
-      JSON.stringify({ error: "Invalid JSON" }),
-      { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
-    );
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+      status: 400,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   const {
-    messages,        // Array<{ role: 'user'|'assistant', content: string }>
-    level,           // 'A1' | 'A2' | 'B1' | 'B2'
-    topic,           // string from VALID_TOPICS
-    turnCount,       // integer, how many turns have happened in this session
-    userName,        // optional string
+    messages, // Array<{ role: 'user'|'assistant', content: string }>
+    level, // 'A1' | 'A2' | 'B1' | 'B2'
+    topic, // string from VALID_TOPICS
+    turnCount, // integer, how many turns have happened in this session
+    userName, // optional string
     mistakePatterns, // optional Array<{ pattern: string, count: number }>
-    learnerErrors,   // optional Array<{ pattern: string }> — unified error ledger from frontend
-    isHeritage,      // optional boolean — diaspora/heritage Croatian speaker
-    memoryContext,   // optional string — formatted past-session summary from useConversationMemory
+    learnerErrors, // optional Array<{ pattern: string }> — unified error ledger from frontend
+    isHeritage, // optional boolean — diaspora/heritage Croatian speaker
+    memoryContext, // optional string — formatted past-session summary from useConversationMemory
   } = body;
 
   // Validate turn count — hard cap enforced server-side, level-adjusted
-  const safeLevel = ['A1','A2','B1','B2','C1','C2'].includes(level) ? level : null;
+  const safeLevel = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(level) ? level : null;
   const maxTurns = (safeLevel && MAX_TURNS_BY_LEVEL[safeLevel]) || MAX_TURNS_PER_SESSION;
   const safeTurnCount = sanitizeTurnCount(turnCount);
   if (safeTurnCount >= maxTurns) {
@@ -450,64 +493,64 @@ export async function onRequestPost(context) {
     // this endpoint as SSE — it only processes `data: {...}` lines and would throw
     // "The AI returned an empty response" when receiving a JSON body directly.
     const closingResult = {
-      croatian: "Hvala za razgovor! Sjajno si napredovao. Do sljedećeg puta!",
-      english_gloss: "Thanks for the conversation! You made great progress. Until next time!",
+      croatian: 'Hvala za razgovor! Sjajno si napredovao. Do sljedećeg puta!',
+      english_gloss: 'Thanks for the conversation! You made great progress. Until next time!',
       correction: null,
       scaffolding_level: 0,
-      emotion: "happy",
+      emotion: 'happy',
       is_session_end: true,
       errorPatterns: [],
     };
-    const ssePayload = `data: ${JSON.stringify({ type: "done", result: closingResult })}\n\n`;
+    const ssePayload = `data: ${JSON.stringify({ type: 'done', result: closingResult })}\n\n`;
     return new Response(ssePayload, {
       status: 200,
       headers: {
         ...corsHeaders(origin),
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
       },
     });
   }
 
   // Validate messages
   if (!Array.isArray(messages) || messages.length === 0) {
-    return new Response(
-      JSON.stringify({ error: "messages array required" }),
-      { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: 'messages array required' }), {
+      status: 400,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   // Sanitize and validate messages — only 'user' and 'assistant' roles, string content
   const anthropicMessages = [];
-  for (const msg of messages.slice(-20)) { // cap context at 20 turns
-    const role = msg.role === "assistant" ? "assistant" : "user";
-    const content = sanitizeParam(String(msg.content || ""), 1000);
+  for (const msg of messages.slice(-20)) {
+    // cap context at 20 turns
+    const role = msg.role === 'assistant' ? 'assistant' : 'user';
+    const content = sanitizeParam(String(msg.content || ''), 1000);
     if (!content) continue;
     anthropicMessages.push({ role, content });
   }
 
   // Must end with a user message with meaningful content
   const lastMsg = anthropicMessages[anthropicMessages.length - 1];
-  if (anthropicMessages.length === 0 || lastMsg?.role !== "user") {
-    return new Response(
-      JSON.stringify({ error: "Last message must be from user" }),
-      { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
-    );
+  if (anthropicMessages.length === 0 || lastMsg?.role !== 'user') {
+    return new Response(JSON.stringify({ error: 'Last message must be from user' }), {
+      status: 400,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
   if (!lastMsg.content || lastMsg.content.trim().length < 1) {
-    return new Response(
-      JSON.stringify({ error: "Message cannot be empty" }),
-      { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: 'Message cannot be empty' }), {
+      status: 400,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   // Estimate learner ability from sanitized message history
   const abilityShift = estimateAbility(anthropicMessages);
 
   // Sanitize the client-provided memory context (max 1500 chars)
-  const safeMemoryContext = memoryContext && typeof memoryContext === 'string'
-    ? sanitizeParam(memoryContext, 1500)
-    : null;
+  const safeMemoryContext =
+    memoryContext && typeof memoryContext === 'string' ? sanitizeParam(memoryContext, 1500) : null;
 
   // Build system prompt
   const systemPrompt = buildConversationSystemPrompt({
@@ -541,11 +584,11 @@ export async function onRequestPost(context) {
   let anthropicStream;
   try {
     const anthropicRes = await fetch(ANTHROPIC_URL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "x-api-key": ANTHROPIC_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
       },
       body: JSON.stringify({
         model: MODEL,
@@ -560,8 +603,11 @@ export async function onRequestPost(context) {
     if (!anthropicRes.ok) {
       const errText = await anthropicRes.text();
       return new Response(
-        JSON.stringify({ error: "AI service error", ...(isDev ? { detail: errText.slice(0, 200) } : {}) }),
-        { status: 502, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
+        JSON.stringify({
+          error: 'AI service error',
+          ...(isDev ? { detail: errText.slice(0, 200) } : {}),
+        }),
+        { status: 502, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } },
       );
     }
 
@@ -569,8 +615,8 @@ export async function onRequestPost(context) {
   } catch (fetchErr) {
     const isTimeout = fetchErr?.name === 'TimeoutError' || fetchErr?.name === 'AbortError';
     return new Response(
-      JSON.stringify({ error: isTimeout ? "AI service timed out" : "Failed to reach AI service" }),
-      { status: 503, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } }
+      JSON.stringify({ error: isTimeout ? 'AI service timed out' : 'Failed to reach AI service' }),
+      { status: 503, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } },
     );
   }
 
@@ -586,39 +632,43 @@ export async function onRequestPost(context) {
 
   // Process the stream asynchronously (do NOT await — we return the readable immediately)
   (async () => {
-    let fullText = "";
+    let fullText = '';
     let doneSent = false; // guard: emit fallback done event if message_stop never arrives
     const reader = anthropicStream.getReader();
-    let buffer = "";
+    let buffer = '';
 
     const write = (chunk) => writer.write(encoder.encode(chunk));
 
     // ── Helper: process one decoded line from the Anthropic SSE stream ────────
     async function processLine(line) {
-      if (!line.startsWith("data: ")) return;
+      if (!line.startsWith('data: ')) return;
       const data = line.slice(6).trim();
-      if (data === "[DONE]") return;
+      if (data === '[DONE]') return;
 
       let parsed;
-      try { parsed = JSON.parse(data); } catch { return; }
+      try {
+        parsed = JSON.parse(data);
+      } catch {
+        return;
+      }
 
       // Anthropic SSE event types we care about
-      if (parsed.type === "content_block_delta" && parsed.delta?.type === "text_delta") {
-        const text = parsed.delta.text || "";
+      if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
+        const text = parsed.delta.text || '';
         fullText += text;
         // Forward delta to client for fast perceived response
-        await write(`data: ${JSON.stringify({ type: "delta", text })}\n\n`);
+        await write(`data: ${JSON.stringify({ type: 'delta', text })}\n\n`);
       }
 
       // message_stop = end of generation
-      if (parsed.type === "message_stop") {
+      if (parsed.type === 'message_stop') {
         // Parse the full accumulated JSON response from Maja
         let result = null;
         try {
           // Strip any markdown code fences if model adds them despite instructions
           const cleaned = fullText
-            .replace(/^```json\s*/i, "")
-            .replace(/```\s*$/, "")
+            .replace(/^```json\s*/i, '')
+            .replace(/```\s*$/, '')
             .trim();
           result = JSON.parse(cleaned);
         } catch {
@@ -631,7 +681,7 @@ export async function onRequestPost(context) {
           result.is_session_end = true;
         }
 
-        await write(`data: ${JSON.stringify({ type: "done", result })}\n\n`);
+        await write(`data: ${JSON.stringify({ type: 'done', result })}\n\n`);
         doneSent = true;
       }
     }
@@ -642,8 +692,8 @@ export async function onRequestPost(context) {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || ""; // keep incomplete line in buffer
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // keep incomplete line in buffer
 
         for (const line of lines) {
           await processLine(line);
@@ -653,7 +703,7 @@ export async function onRequestPost(context) {
       // Flush any remaining buffered data that didn't end with a newline.
       // This guards against truncated final SSE events on slow or abruptly-closed streams.
       if (buffer.trim()) {
-        for (const line of buffer.split("\n")) {
+        for (const line of buffer.split('\n')) {
           await processLine(line);
         }
       }
@@ -661,9 +711,9 @@ export async function onRequestPost(context) {
       // Stream read error — send error event; surface timeout specifically
       const isTimeout = streamErr?.name === 'TimeoutError' || streamErr?.name === 'AbortError';
       if (isTimeout) {
-        await write(`data: ${JSON.stringify({ error: "timeout", done: true })}\n\n`);
+        await write(`data: ${JSON.stringify({ error: 'timeout', done: true })}\n\n`);
       } else {
-        await write(`event: error\ndata: ${JSON.stringify({ error: "Stream interrupted" })}\n\n`);
+        await write(`event: error\ndata: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`);
       }
       doneSent = true;
     } finally {
@@ -676,14 +726,25 @@ export async function onRequestPost(context) {
           let fallbackResult = fallbackResponse(safeTurnCount, maxTurns);
           if (fullText) {
             try {
-              const cleaned = fullText.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+              const cleaned = fullText
+                .replace(/^```json\s*/i, '')
+                .replace(/```\s*$/, '')
+                .trim();
               fallbackResult = JSON.parse(cleaned);
-            } catch { /* use fallback as-is */ }
+            } catch {
+              /* use fallback as-is */
+            }
           }
-          await write(`data: ${JSON.stringify({ type: "done", result: fallbackResult })}\n\n`);
-        } catch { /* writer already closed */ }
+          await write(`data: ${JSON.stringify({ type: 'done', result: fallbackResult })}\n\n`);
+        } catch {
+          /* writer already closed */
+        }
       }
-      try { await writer.close(); } catch { /* ignore */ }
+      try {
+        await writer.close();
+      } catch {
+        /* ignore */
+      }
     }
   })();
 
@@ -691,9 +752,9 @@ export async function onRequestPost(context) {
     status: 200,
     headers: {
       ...corsHeaders(origin),
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "X-Accel-Buffering": "no", // Disable nginx buffering if any proxy is in path
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'X-Accel-Buffering': 'no', // Disable nginx buffering if any proxy is in path
     },
   });
 }
@@ -702,19 +763,19 @@ export async function onRequestPost(context) {
 
 function fallbackResponse(turnCount, maxTurns) {
   const phrases = [
-    "Joj, nisam te dobro razumjela! Možeš li ponoviti?",
-    "Pa vidi... reci mi još jednom, molim te.",
-    "Znači... nisam sigurna jesam li razumjela. Ponovi!",
-    "Baš tako — ali ajde ponovi, da budem sigurna.",
+    'Joj, nisam te dobro razumjela! Možeš li ponoviti?',
+    'Pa vidi... reci mi još jednom, molim te.',
+    'Znači... nisam sigurna jesam li razumjela. Ponovi!',
+    'Baš tako — ali ajde ponovi, da budem sigurna.',
   ];
   return {
     croatian: phrases[Math.floor(Math.random() * phrases.length)],
     english_gloss: "Sorry, I didn't quite catch that — can you repeat?",
     correction: null,
     scaffolding_level: 1,
-    emotion: "warm",
-    topic_detected: "other",
-    level_demonstrated: "A2",
+    emotion: 'warm',
+    topic_detected: 'other',
+    level_demonstrated: 'A2',
     is_session_end: turnCount >= maxTurns - 1,
     recast_word: null,
   };

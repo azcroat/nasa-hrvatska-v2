@@ -21,7 +21,7 @@
  */
 function write(level, endpoint, message, extras = {}) {
   const entry = {
-    ts:       new Date().toISOString(),
+    ts: new Date().toISOString(),
     level,
     endpoint,
     message,
@@ -36,8 +36,12 @@ function write(level, endpoint, message, extras = {}) {
   }
 }
 
-export function log(endpoint, message, extras)      { write('info',  endpoint, message, extras); }
-export function logWarn(endpoint, message, extras)  { write('warn',  endpoint, message, extras); }
+export function log(endpoint, message, extras) {
+  write('info', endpoint, message, extras);
+}
+export function logWarn(endpoint, message, extras) {
+  write('warn', endpoint, message, extras);
+}
 export function logError(endpoint, message, error, extras = {}) {
   write('error', endpoint, message, {
     error: error?.message || String(error),
@@ -54,7 +58,7 @@ export function logError(endpoint, message, error, extras = {}) {
  * @param {function} handler  - async ({ request, env, ...rest }) => Response
  */
 export function withLogging(endpoint, handler) {
-  return async function(...args) {
+  return async function (...args) {
     const start = Date.now();
     try {
       const result = await handler(...args);

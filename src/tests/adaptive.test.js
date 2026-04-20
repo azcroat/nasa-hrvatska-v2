@@ -9,7 +9,9 @@ import {
   getPersonalizedPath,
 } from '../lib/adaptive.js';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 describe('adaptive — per-topic accuracy tracking', () => {
   beforeEach(clearLS);
@@ -108,7 +110,7 @@ describe('adaptive — per-topic accuracy tracking', () => {
     recordTopicResult('cases', false);
     recordTopicResult('cases', false);
     const weak = getWeakTopics(60);
-    expect(weak.some(t => t.id === 'cases')).toBe(true);
+    expect(weak.some((t) => t.id === 'cases')).toBe(true);
   });
 
   it('excludes topics above the threshold', () => {
@@ -125,7 +127,7 @@ describe('adaptive — per-topic accuracy tracking', () => {
     recordTopicResult('aspect', true);
     recordTopicResult('aspect', false);
     const weak = getWeakTopics(80);
-    expect(weak.some(t => t.id === 'aspect')).toBe(true);
+    expect(weak.some((t) => t.id === 'aspect')).toBe(true);
   });
 
   it('sorts weak topics by accuracy ascending (worst first)', () => {
@@ -136,7 +138,7 @@ describe('adaptive — per-topic accuracy tracking', () => {
     recordTopicResult('topicB', false);
     recordTopicResult('topicB', false);
     const weak = getWeakTopics(60);
-    const ids = weak.map(t => t.id);
+    const ids = weak.map((t) => t.id);
     expect(ids.indexOf('topicA')).toBeLessThan(ids.indexOf('topicB'));
   });
 
@@ -154,7 +156,7 @@ describe('adaptive — per-topic accuracy tracking', () => {
     for (let i = 0; i < 2; i++) recordTopicResult('borderline', false);
     // accuracy = 60% — not strictly less than threshold
     const weak = getWeakTopics(60);
-    expect(weak.some(t => t.id === 'borderline')).toBe(false);
+    expect(weak.some((t) => t.id === 'borderline')).toBe(false);
   });
 });
 
@@ -206,7 +208,7 @@ describe('adaptive — getDifficultyRecommendation', () => {
 
   it('returns beginner when average accuracy is below 58%', () => {
     // all 5 topics at 0%
-    ['a','b','c','d','e'].forEach(t => {
+    ['a', 'b', 'c', 'd', 'e'].forEach((t) => {
       recordTopicResult(t, false);
       recordTopicResult(t, false);
       recordTopicResult(t, false);
@@ -216,7 +218,7 @@ describe('adaptive — getDifficultyRecommendation', () => {
 
   it('returns intermediate when average is 58-77%', () => {
     // 5 topics, 2 correct / 3 attempts each = 67%
-    ['a','b','c','d','e'].forEach(t => {
+    ['a', 'b', 'c', 'd', 'e'].forEach((t) => {
       recordTopicResult(t, true);
       recordTopicResult(t, true);
       recordTopicResult(t, false);
@@ -226,7 +228,7 @@ describe('adaptive — getDifficultyRecommendation', () => {
 
   it('returns advanced when average accuracy is 78% or above', () => {
     // 5 topics, all correct
-    ['a','b','c','d','e'].forEach(t => {
+    ['a', 'b', 'c', 'd', 'e'].forEach((t) => {
       recordTopicResult(t, true);
       recordTopicResult(t, true);
       recordTopicResult(t, true);
@@ -291,14 +293,14 @@ describe('adaptive — getPersonalizedPath', () => {
 
   it('returns default B1 path as fallback for unknown level', () => {
     const path = getPersonalizedPath('Z9', {});
-    expect(path.some(p => p.id === 'future-tense' || p.id === 'aspect')).toBe(true);
+    expect(path.some((p) => p.id === 'future-tense' || p.id === 'aspect')).toBe(true);
   });
 
   it('puts critical items (accuracy < 50%) first and marks them urgent', () => {
     // Create a topic with <50% accuracy and ≥3 attempts
     for (let i = 0; i < 3; i++) recordTopicResult('grammar', false);
     const path = getPersonalizedPath('B1', {});
-    const critical = path.find(p => p.id === 'grammar');
+    const critical = path.find((p) => p.id === 'grammar');
     expect(critical).toBeDefined();
     expect(critical.urgent).toBe(true);
   });
@@ -312,14 +314,14 @@ describe('adaptive — getPersonalizedPath', () => {
     for (let i = 0; i < 3; i++) recordTopicResult('tenses', true);
     for (let i = 0; i < 2; i++) recordTopicResult('tenses', false);
     const path = getPersonalizedPath('B1', {});
-    const weak = path.find(p => p.id === 'tenses');
+    const weak = path.find((p) => p.id === 'tenses');
     expect(weak).toBeDefined();
     expect(weak.urgent).toBe(false);
   });
 
   it('each path item has id, label, reason, urgent fields', () => {
     const path = getPersonalizedPath('A2', {});
-    path.forEach(item => {
+    path.forEach((item) => {
       expect(typeof item.id).toBe('string');
       expect(typeof item.label).toBe('string');
       expect(typeof item.reason).toBe('string');

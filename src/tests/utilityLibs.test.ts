@@ -8,13 +8,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // ── debugLog ──────────────────────────────────────────────────────────────────
 // Import after patching window.dispatchEvent so the module-level addEventListener
 // calls don't cause errors.
-import {
-  dbgInfo,
-  dbgWarn,
-  dbgError,
-  getEntries,
-  clearEntries,
-} from '../lib/debugLog';
+import { dbgInfo, dbgWarn, dbgError, getEntries, clearEntries } from '../lib/debugLog';
 
 describe('debugLog — entry management', () => {
   beforeEach(() => clearEntries());
@@ -49,7 +43,8 @@ describe('debugLog — entry management', () => {
   });
 
   it('clearEntries resets to empty', () => {
-    dbgInfo('a'); dbgInfo('b');
+    dbgInfo('a');
+    dbgInfo('b');
     clearEntries();
     expect(getEntries()).toHaveLength(0);
   });

@@ -12,11 +12,15 @@ function isAllowedOrigin(origin, isDev) {
   try {
     const h = new URL(origin).hostname;
     if (isDev && h === 'localhost') return true;
-    return h === 'nasahrvatska.com'
-      || h.endsWith('.nasahrvatska.com')
-      || h === 'nasa-hrvatska-v2.pages.dev'
-      || h.endsWith('.nasa-hrvatska-v2.pages.dev');
-  } catch { return false; }
+    return (
+      h === 'nasahrvatska.com' ||
+      h.endsWith('.nasahrvatska.com') ||
+      h === 'nasa-hrvatska-v2.pages.dev' ||
+      h.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
@@ -30,10 +34,13 @@ function corsHeaders(origin) {
 
 export async function onRequestPost({ request, env }) {
   const origin = request.headers.get('origin') || '';
-  const isDev  = env.ENVIRONMENT !== 'production';
+  const isDev = env.ENVIRONMENT !== 'production';
 
   if (!isAllowedOrigin(origin, isDev)) {
-    return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'forbidden' }), {
+      status: 403,
+      headers: corsHeaders(origin),
+    });
   }
 
   const allowed = await checkRateLimit(request, 10); // 10/min — subscribe is rare
@@ -48,7 +55,10 @@ export async function onRequestPost({ request, env }) {
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
+      headers: corsHeaders(origin),
+    });
   }
 
   if (!env.PUSH_SUBSCRIPTIONS) {
@@ -61,12 +71,21 @@ export async function onRequestPost({ request, env }) {
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) {
-    return new Response(JSON.stringify({ error: 'invalid_content_type' }), { status: 400, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'invalid_content_type' }), {
+      status: 400,
+      headers: corsHeaders(origin),
+    });
   }
 
   let body;
-  try { body = await request.json(); }
-  catch { return new Response(JSON.stringify({ error: 'invalid_json' }), { status: 400, headers: corsHeaders(origin) }); }
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'invalid_json' }), {
+      status: 400,
+      headers: corsHeaders(origin),
+    });
+  }
 
   const { subscription, streak = 0, name = '' } = body;
   if (!subscription?.endpoint) {
@@ -77,8 +96,14 @@ export async function onRequestPost({ request, env }) {
   }
 
   // Sanitize subscription endpoint
-  try { new URL(subscription.endpoint); }
-  catch { return new Response(JSON.stringify({ error: 'Invalid endpoint URL' }), { status: 400, headers: corsHeaders(origin) }); }
+  try {
+    new URL(subscription.endpoint);
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid endpoint URL' }), {
+      status: 400,
+      headers: corsHeaders(origin),
+    });
+  }
 
   const kvKey = (uid || 'anon').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64);
   const today = new Date().toISOString().slice(0, 10);
@@ -88,18 +113,24 @@ export async function onRequestPost({ request, env }) {
       kvKey,
       JSON.stringify({
         subscription,
-        streak:        Math.max(0, Math.floor(Number(streak) || 0)),
-        name:          String(name || '').slice(0, 50),
+        streak: Math.max(0, Math.floor(Number(streak) || 0)),
+        name: String(name || '').slice(0, 50),
         lastPracticed: today, // don't notify on subscribe day
-        lastNotified:  null,
-        updatedAt:     Date.now(),
+        lastNotified: null,
+        updatedAt: Date.now(),
       }),
-      { expirationTtl: 60 * 60 * 24 * 90 } // auto-expire after 90 days
+      { expirationTtl: 60 * 60 * 24 * 90 }, // auto-expire after 90 days
     );
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: corsHeaders(origin),
+    });
   } catch (e) {
     console.error('[push-subscribe] KV write error:', e.message);
-    return new Response(JSON.stringify({ error: 'Storage error' }), { status: 500, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'Storage error' }), {
+      status: 500,
+      headers: corsHeaders(origin),
+    });
   }
 }
 

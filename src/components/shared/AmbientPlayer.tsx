@@ -2,9 +2,33 @@
 import React, { useState, useRef, useCallback } from 'react';
 
 const SCENES = [
-  { id: 'kafic',   label: 'Kafić',   icon: '☕', gain: 0.03, filterType: 'lowpass',  filterFreq: 200, lfoFreq: null },
-  { id: 'jadran',  label: 'Jadran',  icon: '🌊', gain: 0.04, filterType: 'lowpass',  filterFreq: 400, lfoFreq: 0.12 },
-  { id: 'trznica', label: 'Tržnica', icon: '🏪', gain: 0.04, filterType: 'bandpass', filterFreq: 600, lfoFreq: 0.3 },
+  {
+    id: 'kafic',
+    label: 'Kafić',
+    icon: '☕',
+    gain: 0.03,
+    filterType: 'lowpass',
+    filterFreq: 200,
+    lfoFreq: null,
+  },
+  {
+    id: 'jadran',
+    label: 'Jadran',
+    icon: '🌊',
+    gain: 0.04,
+    filterType: 'lowpass',
+    filterFreq: 400,
+    lfoFreq: 0.12,
+  },
+  {
+    id: 'trznica',
+    label: 'Tržnica',
+    icon: '🏪',
+    gain: 0.04,
+    filterType: 'bandpass',
+    filterFreq: 600,
+    lfoFreq: 0.3,
+  },
 ];
 
 function createNoise(ctx, gain, filterFreq, filterType = 'lowpass') {
@@ -35,44 +59,57 @@ export default function AmbientPlayer() {
 
   const stopAll = useCallback(() => {
     if (nodesRef.current) {
-      try { nodesRef.current.source.stop(); } catch {}
-      try { nodesRef.current.gainNode.disconnect(); } catch {}
+      try {
+        nodesRef.current.source.stop();
+      } catch {}
+      try {
+        nodesRef.current.gainNode.disconnect();
+      } catch {}
       nodesRef.current = null;
     }
     if (lfoRef.current) {
-      try { lfoRef.current.lfo.stop(); } catch {}
+      try {
+        lfoRef.current.lfo.stop();
+      } catch {}
       lfoRef.current = null;
     }
     if (ctxRef.current) {
-      try { ctxRef.current.close(); } catch {}
+      try {
+        ctxRef.current.close();
+      } catch {}
       ctxRef.current = null;
     }
   }, []);
 
-  const startScene = useCallback((sceneId) => {
-    stopAll();
-    const cfg = SCENES.find(s => s.id === sceneId);
-    if (!cfg) return;
+  const startScene = useCallback(
+    (sceneId) => {
+      stopAll();
+      const cfg = SCENES.find((s) => s.id === sceneId);
+      if (!cfg) return;
 
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      ctxRef.current = ctx;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        ctxRef.current = ctx;
 
-      const nodes = createNoise(ctx, cfg.gain, cfg.filterFreq, cfg.filterType);
-      nodesRef.current = nodes;
+        const nodes = createNoise(ctx, cfg.gain, cfg.filterFreq, cfg.filterType);
+        nodesRef.current = nodes;
 
-      if (cfg.lfoFreq) {
-        const lfo = ctx.createOscillator();
-        const lfoGain = ctx.createGain();
-        lfo.frequency.value = cfg.lfoFreq;
-        lfoGain.gain.value = cfg.gain * 0.7;
-        lfo.connect(lfoGain);
-        lfoGain.connect(nodes.gainNode.gain);
-        lfo.start();
-        lfoRef.current = { lfo, lfoGain };
+        if (cfg.lfoFreq) {
+          const lfo = ctx.createOscillator();
+          const lfoGain = ctx.createGain();
+          lfo.frequency.value = cfg.lfoFreq;
+          lfoGain.gain.value = cfg.gain * 0.7;
+          lfo.connect(lfoGain);
+          lfoGain.connect(nodes.gainNode.gain);
+          lfo.start();
+          lfoRef.current = { lfo, lfoGain };
+        }
+      } catch {
+        /* AudioContext not available */
       }
-    } catch { /* AudioContext not available */ }
-  }, [stopAll]);
+    },
+    [stopAll],
+  );
 
   function handleSceneClick(sceneId) {
     if (scene === sceneId) {
@@ -106,21 +143,31 @@ export default function AmbientPlayer() {
       }}
     >
       {/* Ambient sound widget — icon-only buttons with label */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2,
-        background: 'var(--card)',
-        borderRadius: 30,
-        padding: '5px 10px',
-        border: '1px solid var(--border)',
-        boxShadow: '0 2px 12px rgba(0,0,0,.12)',
-        pointerEvents: 'auto',
-      }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--subtext)', marginRight: 4, letterSpacing: '.02em' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          background: 'var(--card)',
+          borderRadius: 30,
+          padding: '5px 10px',
+          border: '1px solid var(--border)',
+          boxShadow: '0 2px 12px rgba(0,0,0,.12)',
+          pointerEvents: 'auto',
+        }}
+      >
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            color: 'var(--subtext)',
+            marginRight: 4,
+            letterSpacing: '.02em',
+          }}
+        >
           🔊
         </span>
-        {SCENES.map(s => (
+        {SCENES.map((s) => (
           <button
             key={s.id}
             onClick={() => handleSceneClick(s.id)}
@@ -148,11 +195,19 @@ export default function AmbientPlayer() {
             title="Stop ambient sound"
             aria-label="Stop ambient sound"
             style={{
-              background: 'transparent', border: 'none', borderRadius: 20,
-              padding: '2px 4px', fontSize: 11, cursor: 'pointer',
-              color: 'var(--subtext)', fontWeight: 900, opacity: 0.7,
+              background: 'transparent',
+              border: 'none',
+              borderRadius: 20,
+              padding: '2px 4px',
+              fontSize: 11,
+              cursor: 'pointer',
+              color: 'var(--subtext)',
+              fontWeight: 900,
+              opacity: 0.7,
             }}
-          >✕</button>
+          >
+            ✕
+          </button>
         )}
       </div>
     </div>

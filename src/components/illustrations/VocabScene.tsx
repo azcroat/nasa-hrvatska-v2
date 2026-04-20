@@ -12,9 +12,9 @@ export { default as GreetingScene } from './GreetingScene';
 
 // ─── Scene map & default export ──────────────────────────────────────────────
 const SCENES = {
-  food:      FoodScene,
-  family:    FamilyScene,
-  travel:    TravelScene,
+  food: FoodScene,
+  family: FamilyScene,
+  travel: TravelScene,
   greetings: GreetingScene,
 };
 

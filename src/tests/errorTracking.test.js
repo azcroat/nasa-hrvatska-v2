@@ -1,12 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import {
-  recordError,
-  getErrorLog,
-  getWeakAreas,
-  clearErrorLog,
-} from '../hooks/useErrorTracking';
+import { recordError, getErrorLog, getWeakAreas, clearErrorLog } from '../hooks/useErrorTracking';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 const KEY = (uid) => `nh_errors_${uid}`;
 
 describe('useErrorTracking — pure utility functions', () => {
@@ -122,8 +119,8 @@ describe('useErrorTracking — pure utility functions', () => {
     recordError('u1', 'case_error');
     recordError('u1', 'vocab_miss');
     const areas = getWeakAreas('u1');
-    const caseArea = areas.find(a => a.type === 'case_error');
-    const vocabArea = areas.find(a => a.type === 'vocab_miss');
+    const caseArea = areas.find((a) => a.type === 'case_error');
+    const vocabArea = areas.find((a) => a.type === 'vocab_miss');
     expect(caseArea.count).toBe(2);
     expect(vocabArea.count).toBe(1);
   });
@@ -198,13 +195,17 @@ describe('useErrorTracking — React hook', () => {
 
   it('errorCount updates when recordError is called via hook', () => {
     const { result } = renderHook(() => useErrorTracking('user1'));
-    act(() => { result.current.recordError('case_error', 'kruh'); });
+    act(() => {
+      result.current.recordError('case_error', 'kruh');
+    });
     expect(result.current.errorCount).toBe(1);
   });
 
   it('weakAreas updates after recording an error', () => {
     const { result } = renderHook(() => useErrorTracking('user1'));
-    act(() => { result.current.recordError('aspect_error', 'piti'); });
+    act(() => {
+      result.current.recordError('aspect_error', 'piti');
+    });
     expect(result.current.weakAreas).toHaveLength(1);
     expect(result.current.weakAreas[0].type).toBe('aspect_error');
   });
@@ -217,7 +218,9 @@ describe('useErrorTracking — React hook', () => {
   it('hook re-renders when error is recorded externally (event-driven)', () => {
     const { result } = renderHook(() => useErrorTracking('user2'));
     // Record from outside the hook (simulates another component recording)
-    act(() => { recordError('user2', 'vocab_miss', 'jabuka'); });
+    act(() => {
+      recordError('user2', 'vocab_miss', 'jabuka');
+    });
     expect(result.current.errorCount).toBe(1);
   });
 });

@@ -8,12 +8,15 @@
  * streak utilities in streak.ts and data.jsx use.
  */
 
-const FREEZE_KEY  = 'nh_streak_freezes';
+const FREEZE_KEY = 'nh_streak_freezes';
 const FREEZE_COST = 50; // XP cost to purchase one freeze
 
 export function getFreezesStored(): number {
-  try { return Math.min(2, parseInt(localStorage.getItem(FREEZE_KEY) || '0', 10)); }
-  catch { return 0; }
+  try {
+    return Math.min(2, parseInt(localStorage.getItem(FREEZE_KEY) || '0', 10));
+  } catch {
+    return 0;
+  }
 }
 
 interface PurchaseResult {
@@ -24,14 +27,15 @@ interface PurchaseResult {
 
 export function purchaseFreeze(
   currentXP: number,
-  setStats: (fn: (prev: Record<string, number>) => Record<string, number>) => void
+  setStats: (fn: (prev: Record<string, number>) => Record<string, number>) => void,
 ): PurchaseResult {
   const stored = getFreezesStored();
   if (stored >= 2) return { ok: false, reason: 'Already have maximum 2 freezes stored' };
-  if (currentXP < FREEZE_COST) return { ok: false, reason: `Need ${FREEZE_COST} XP — you have ${currentXP}` };
+  if (currentXP < FREEZE_COST)
+    return { ok: false, reason: `Need ${FREEZE_COST} XP — you have ${currentXP}` };
 
   // Deduct XP via React state setter
-  setStats(prev => ({ ...prev, xp: Math.max(0, (prev.xp || 0) - FREEZE_COST) }));
+  setStats((prev) => ({ ...prev, xp: Math.max(0, (prev.xp || 0) - FREEZE_COST) }));
   localStorage.setItem(FREEZE_KEY, String(stored + 1));
   return { ok: true, stored: stored + 1 };
 }
@@ -59,13 +63,17 @@ export function applyFreezeIfNeeded(streakData: StreakData): FreezeResult {
   function _dateStr(offsetDays: number): string {
     const d = new Date();
     if (offsetDays) d.setDate(d.getDate() + offsetDays);
-    return d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
-      String(d.getDate()).padStart(2, '0');
+    return (
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(d.getDate()).padStart(2, '0')
+    );
   }
 
-  const today             = _dateStr(0);
-  const yesterday         = _dateStr(-1);
+  const today = _dateStr(0);
+  const yesterday = _dateStr(-1);
   const dayBeforeYesterday = _dateStr(-2);
 
   // Streak is active — no freeze needed

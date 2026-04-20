@@ -13,16 +13,21 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
   const voice = 'hr-HR-GabrijelaNeural';
   const safeText = text.replace(
     /[<>&"']/g,
-    (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[c])
+    (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c],
   );
 
   const ssml = slow
     ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="-25%">${safeText}</prosody></voice></speak>`
     : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="-8%">${safeText}</prosody></voice></speak>`;
 
-  const regions = [primaryRegion, 'eastus', 'eastus2', 'westeurope', 'northeurope', 'westus2'].filter(
-    (r, i, a) => r && a.indexOf(r) === i
-  );
+  const regions = [
+    primaryRegion,
+    'eastus',
+    'eastus2',
+    'westeurope',
+    'northeurope',
+    'westus2',
+  ].filter((r, i, a) => r && a.indexOf(r) === i);
 
   for (const region of regions) {
     try {
@@ -34,7 +39,7 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
           method: 'POST',
           headers: { 'Ocp-Apim-Subscription-Key': azureKey, 'Content-Length': '0' },
           signal: AbortSignal.timeout(5000),
-        }
+        },
       );
       if (!tokenRes.ok) continue;
       const token = await tokenRes.text();
@@ -51,7 +56,7 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
           },
           body: ssml,
           signal: AbortSignal.timeout(8000),
-        }
+        },
       );
 
       if (response.ok) return response.arrayBuffer();
@@ -78,9 +83,10 @@ async function tryGoogleTranslateTTS(text, slow) {
   try {
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 11; Tablet Build/RQ3A.210805.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36',
-        'Referer': 'https://translate.google.com/',
-        'Accept': 'audio/mpeg, audio/mp3, audio/*, */*',
+        'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Tablet Build/RQ3A.210805.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36',
+        Referer: 'https://translate.google.com/',
+        Accept: 'audio/mpeg, audio/mp3, audio/*, */*',
       },
       signal: controller.signal,
     });
@@ -105,7 +111,7 @@ async function tryEdgeTTS(text, slow, edgeTtsToken) {
   const rate = slow ? '-25%' : '-8%';
   const safeText = text.replace(
     /[<>&"']/g,
-    (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[c])
+    (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c],
   );
   const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='hr-HR'><voice name='${voice}'><prosody rate='${rate}'>${safeText}</prosody></voice></speak>`;
   const connId = crypto.randomUUID().replace(/-/g, '').toUpperCase();
@@ -114,10 +120,18 @@ async function tryEdgeTTS(text, slow, edgeTtsToken) {
   return new Promise((resolve, reject) => {
     let ws;
     const chunks = [];
-    try { ws = new WebSocket(wsUrl); } catch (e) { return reject(e); }
+    try {
+      ws = new WebSocket(wsUrl);
+    } catch (e) {
+      return reject(e);
+    }
 
     const timeout = setTimeout(() => {
-      try { ws.close(); } catch (closeErr) { void closeErr; }
+      try {
+        ws.close();
+      } catch (closeErr) {
+        void closeErr;
+      }
       reject(new Error('edge-tts timeout'));
     }, 12000);
 
@@ -126,10 +140,10 @@ async function tryEdgeTTS(text, slow, edgeTtsToken) {
       const reqId = crypto.randomUUID().replace(/-/g, '').toUpperCase();
       ws.send(
         `X-Timestamp:${now}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n` +
-        `{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"true"},"outputFormat":"audio-24khz-48kbitrate-mono-mp3"}}}}`
+          `{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"true"},"outputFormat":"audio-24khz-48kbitrate-mono-mp3"}}}}`,
       );
       ws.send(
-        `X-RequestId:${reqId}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${now}\r\nPath:ssml\r\n\r\n${ssml}`
+        `X-RequestId:${reqId}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${now}\r\nPath:ssml\r\n\r\n${ssml}`,
       );
     });
 
@@ -138,11 +152,17 @@ async function tryEdgeTTS(text, slow, edgeTtsToken) {
         if (event.data.includes('Path:turn.end')) {
           clearTimeout(timeout);
           ws.close();
-          if (chunks.length === 0) { reject(new Error('edge-tts no audio')); return; }
+          if (chunks.length === 0) {
+            reject(new Error('edge-tts no audio'));
+            return;
+          }
           const totalLen = chunks.reduce((s, c) => s + c.byteLength, 0);
           const merged = new Uint8Array(totalLen);
           let offset = 0;
-          for (const chunk of chunks) { merged.set(new Uint8Array(chunk), offset); offset += chunk.byteLength; }
+          for (const chunk of chunks) {
+            merged.set(new Uint8Array(chunk), offset);
+            offset += chunk.byteLength;
+          }
           resolve(merged.buffer);
         }
       } else {
@@ -153,12 +173,15 @@ async function tryEdgeTTS(text, slow, edgeTtsToken) {
           ab = event.data;
         } else if (event.data && typeof event.data.arrayBuffer === 'function') {
           // Fallback for Blob-like objects (shouldn't occur in Workers but guard anyway)
-          event.data.arrayBuffer().then(buf => {
-            const view = new DataView(buf);
-            const headerLen = view.getUint16(0);
-            const audioStart = 2 + headerLen;
-            if (buf.byteLength > audioStart) chunks.push(buf.slice(audioStart));
-          }).catch(() => {});
+          event.data
+            .arrayBuffer()
+            .then((buf) => {
+              const view = new DataView(buf);
+              const headerLen = view.getUint16(0);
+              const audioStart = 2 + headerLen;
+              if (buf.byteLength > audioStart) chunks.push(buf.slice(audioStart));
+            })
+            .catch(() => {});
           return;
         }
         if (!ab) return;
@@ -169,8 +192,13 @@ async function tryEdgeTTS(text, slow, edgeTtsToken) {
       }
     });
 
-    ws.addEventListener('error', (e) => { clearTimeout(timeout); reject(e); });
-    ws.addEventListener('close', () => { clearTimeout(timeout); });
+    ws.addEventListener('error', (e) => {
+      clearTimeout(timeout);
+      reject(e);
+    });
+    ws.addEventListener('close', () => {
+      clearTimeout(timeout);
+    });
   });
 }
 
@@ -191,18 +219,20 @@ async function _getGoogleAccessToken(serviceAccountJson) {
     keyBuffer,
     { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
     false,
-    ['sign']
+    ['sign'],
   );
   const now = Math.floor(Date.now() / 1000);
   const b64url = (s) => btoa(s).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  const header  = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
-  const payload = b64url(JSON.stringify({
-    iss: sa.client_email,
-    scope: 'https://www.googleapis.com/auth/cloud-platform',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: now + 3600,
-    iat: now,
-  }));
+  const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const payload = b64url(
+    JSON.stringify({
+      iss: sa.client_email,
+      scope: 'https://www.googleapis.com/auth/cloud-platform',
+      aud: 'https://oauth2.googleapis.com/token',
+      exp: now + 3600,
+      iat: now,
+    }),
+  );
   const sigInput = new TextEncoder().encode(`${header}.${payload}`);
   const sigBuffer = await crypto.subtle.sign({ name: 'RSASSA-PKCS1-v1_5' }, privateKey, sigInput);
   const sig = b64url(String.fromCharCode(...new Uint8Array(sigBuffer)));
@@ -228,26 +258,23 @@ async function tryGoogle(text, slow, serviceAccountJson) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   try {
-    const res = await fetch(
-      'https://texttospeech.googleapis.com/v1/text:synthesize',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+    const res = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        input: { text },
+        voice: { languageCode: 'hr-HR', name: 'hr-HR-Wavenet-B', ssmlGender: 'FEMALE' },
+        audioConfig: {
+          audioEncoding: 'MP3',
+          speakingRate: slow ? 0.7 : 0.9,
+          pitch: 0,
         },
-        body: JSON.stringify({
-          input: { text },
-          voice: { languageCode: 'hr-HR', name: 'hr-HR-Wavenet-B', ssmlGender: 'FEMALE' },
-          audioConfig: {
-            audioEncoding: 'MP3',
-            speakingRate: slow ? 0.70 : 0.90,
-            pitch: 0,
-          },
-        }),
-        signal: controller.signal,
-      }
-    );
+      }),
+      signal: controller.signal,
+    });
     if (!res.ok) return null;
     const data = await res.json();
     if (!data.audioContent) return null;
@@ -279,7 +306,9 @@ function isAllowedOrigin(origin, isDev) {
       hostname === 'nasa-hrvatska-v2.pages.dev' ||
       hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
     );
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
@@ -291,7 +320,7 @@ function corsHeaders(origin) {
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Expose-Headers': 'X-TTS-Backends',
-    'Vary': 'Origin',
+    Vary: 'Origin',
   };
 }
 
@@ -320,14 +349,17 @@ export async function onRequestPost(context) {
     });
   }
 
-  const AZURE_KEY   = env.AZURE_TTS_KEY;
+  const AZURE_KEY = env.AZURE_TTS_KEY;
   const PRIMARY_REGION = env.AZURE_TTS_REGION || 'westeurope';
   // Google TTS uses the Firebase service account already in Cloudflare — no separate key required.
   const GOOGLE_SA_JSON = env.FIREBASE_SERVICE_ACCOUNT_JSON || env.GOOGLE_TTS_KEY || null;
 
   // Diagnostic header — tells the client exactly which backends are available.
   // Visible in the debug overlay via the [TTS] log entries.
-  const diagBackends = [AZURE_KEY ? 'azure' : null, 'gtranslate', 'edge', GOOGLE_SA_JSON ? 'google' : null].filter(Boolean).join(',') || 'none';
+  const diagBackends =
+    [AZURE_KEY ? 'azure' : null, 'gtranslate', 'edge', GOOGLE_SA_JSON ? 'google' : null]
+      .filter(Boolean)
+      .join(',') || 'none';
 
   try {
     const ct = request.headers.get('content-type') || '';
@@ -345,7 +377,7 @@ export async function onRequestPost(context) {
     // ── Edge cache (POST responses aren't auto-cached by Cloudflare) ──────────
     const cacheKey = new Request(
       `https://tts-cache.internal/v2/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}`,
-      { method: 'GET' }
+      { method: 'GET' },
     );
     let edgeCache;
     try {
@@ -360,22 +392,38 @@ export async function onRequestPost(context) {
 
     // ── 1. Azure hr-HR-GabrijelaNeural (primary) ──────────────────────────────
     if (AZURE_KEY) {
-      try { buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION); } catch { /* fall through */ }
+      try {
+        buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
+      } catch {
+        /* fall through */
+      }
     }
 
     // ── 2. Google Translate TTS hr (free, HTTP, no key required) ─────────────
     if (!buffer) {
-      try { buffer = await tryGoogleTranslateTTS(text, slow); } catch { /* fall through */ }
+      try {
+        buffer = await tryGoogleTranslateTTS(text, slow);
+      } catch {
+        /* fall through */
+      }
     }
 
     // ── 3. Microsoft Edge hr-HR-GabrijelaNeural (WebSocket backup) ───────────
     if (!buffer) {
-      try { buffer = await tryEdgeTTS(text, slow, env.EDGE_TTS_TOKEN || null); } catch { /* fall through */ }
+      try {
+        buffer = await tryEdgeTTS(text, slow, env.EDGE_TTS_TOKEN || null);
+      } catch {
+        /* fall through */
+      }
     }
 
     // ── 4. Google hr-HR-Wavenet-B (backup if service account configured) ─────
     if (!buffer && GOOGLE_SA_JSON) {
-      try { buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON); } catch { /* fall through */ }
+      try {
+        buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON);
+      } catch {
+        /* fall through */
+      }
     }
 
     // ── 503 → client falls back to Web Speech API ────────────────────────────
@@ -403,7 +451,11 @@ export async function onRequestPost(context) {
 
     // Store in Cloudflare edge cache asynchronously (non-blocking)
     if (edgeCache) {
-      try { edgeCache.put(cacheKey, ttsResponse.clone()); } catch { /* ignore */ }
+      try {
+        edgeCache.put(cacheKey, ttsResponse.clone());
+      } catch {
+        /* ignore */
+      }
     }
 
     return ttsResponse;

@@ -93,8 +93,14 @@ describe('V (vocabulary categories)', () => {
   it('every entry in every category is an array with at least 2 elements', () => {
     for (const [cat, entries] of Object.entries(V)) {
       for (const entry of entries) {
-        expect(Array.isArray(entry), `entry in ${cat} should be array: ${JSON.stringify(entry)}`).toBe(true);
-        expect(entry.length, `entry in ${cat} needs hr+en: ${JSON.stringify(entry)}`).toBeGreaterThanOrEqual(2);
+        expect(
+          Array.isArray(entry),
+          `entry in ${cat} should be array: ${JSON.stringify(entry)}`,
+        ).toBe(true);
+        expect(
+          entry.length,
+          `entry in ${cat} needs hr+en: ${JSON.stringify(entry)}`,
+        ).toBeGreaterThanOrEqual(2);
       }
     }
   });
@@ -103,7 +109,10 @@ describe('V (vocabulary categories)', () => {
     for (const [cat, entries] of Object.entries(V)) {
       for (const entry of entries) {
         expect(typeof entry[0], `hr in ${cat} should be string`).toBe('string');
-        expect(entry[0].trim().length, `hr in ${cat} is empty: ${JSON.stringify(entry)}`).toBeGreaterThan(0);
+        expect(
+          entry[0].trim().length,
+          `hr in ${cat} is empty: ${JSON.stringify(entry)}`,
+        ).toBeGreaterThan(0);
       }
     }
   });
@@ -112,19 +121,22 @@ describe('V (vocabulary categories)', () => {
     for (const [cat, entries] of Object.entries(V)) {
       for (const entry of entries) {
         expect(typeof entry[1], `en in ${cat} should be string`).toBe('string');
-        expect(entry[1].trim().length, `en in ${cat} is empty: ${JSON.stringify(entry)}`).toBeGreaterThan(0);
+        expect(
+          entry[1].trim().length,
+          `en in ${cat} is empty: ${JSON.stringify(entry)}`,
+        ).toBeGreaterThan(0);
       }
     }
   });
 
   it('greetings category has Bog and Hvala', () => {
-    const hrWords = V.greetings.map(e => e[0]);
+    const hrWords = V.greetings.map((e) => e[0]);
     expect(hrWords).toContain('Bog');
     expect(hrWords).toContain('Hvala');
   });
 
   it('numbers category has 1–10 in Croatian', () => {
-    const hrWords = V.numbers.map(e => e[0]);
+    const hrWords = V.numbers.map((e) => e[0]);
     expect(hrWords).toContain('Jedan');
     expect(hrWords).toContain('Deset');
   });
@@ -137,9 +149,11 @@ describe('V (vocabulary categories)', () => {
 
   it('no category has duplicate Croatian words within itself', () => {
     for (const [cat, entries] of Object.entries(V)) {
-      const hrWords = entries.map(e => e[0].toLowerCase().trim());
+      const hrWords = entries.map((e) => e[0].toLowerCase().trim());
       const unique = new Set(hrWords);
-      expect(unique.size, `Duplicate Croatian words found in category "${cat}"`).toBe(hrWords.length);
+      expect(unique.size, `Duplicate Croatian words found in category "${cat}"`).toBe(
+        hrWords.length,
+      );
     }
   });
 });
@@ -309,7 +323,7 @@ describe('PADEZI (Croatian cases)', () => {
   });
 
   it('case names include Nominativ, Genitiv, Akuzativ, Dativ', () => {
-    const names = PADEZI.cases.map(c => c.name);
+    const names = PADEZI.cases.map((c) => c.name);
     expect(names).toContain('Nominativ');
     expect(names).toContain('Genitiv');
     expect(names).toContain('Akuzativ');
@@ -341,7 +355,10 @@ describe('STORIES (interactive stories)', () => {
 
   it('each story has a title string', () => {
     for (const story of STORIES) {
-      expect(typeof story.title, `title missing in story: ${JSON.stringify(story).slice(0, 80)}`).toBe('string');
+      expect(
+        typeof story.title,
+        `title missing in story: ${JSON.stringify(story).slice(0, 80)}`,
+      ).toBe('string');
       expect(story.title.trim().length).toBeGreaterThan(0);
     }
   });
@@ -382,7 +399,9 @@ describe('STORIES (interactive stories)', () => {
   it('each scene has a choices array', () => {
     for (const story of STORIES) {
       for (const scene of story.scenes) {
-        expect(Array.isArray(scene.choices), `choices missing in scene of "${story.title}"`).toBe(true);
+        expect(Array.isArray(scene.choices), `choices missing in scene of "${story.title}"`).toBe(
+          true,
+        );
       }
     }
   });
@@ -420,7 +439,7 @@ describe('PROVERBS (Croatian proverbs)', () => {
   });
 
   it('contains the classic "Tko rano rani" proverb', () => {
-    const found = PROVERBS.some(p => p.hr.includes('Tko rano rani'));
+    const found = PROVERBS.some((p) => p.hr.includes('Tko rano rani'));
     expect(found).toBe(true);
   });
 
@@ -660,43 +679,43 @@ describe('Cross-cutting integrity checks', () => {
   });
 
   it('PROVERBS hr values are all unique (no duplicate proverbs)', () => {
-    const hrTexts = PROVERBS.map(p => p.hr.trim());
+    const hrTexts = PROVERBS.map((p) => p.hr.trim());
     const unique = new Set(hrTexts);
     expect(unique.size).toBe(hrTexts.length);
   });
 
   it('ASPECT.pairs impf values are all unique', () => {
-    const impfValues = ASPECT.pairs.map(p => p.impf.trim());
+    const impfValues = ASPECT.pairs.map((p) => p.impf.trim());
     const unique = new Set(impfValues);
     expect(unique.size).toBe(impfValues.length);
   });
 
   it('ASPECT_PAIRS impf values are all unique', () => {
-    const impfValues = ASPECT_PAIRS.map(p => p.impf.trim());
+    const impfValues = ASPECT_PAIRS.map((p) => p.impf.trim());
     const unique = new Set(impfValues);
     expect(unique.size).toBe(impfValues.length);
   });
 
   it('DECL nouns nominative forms are all unique', () => {
-    const nomForms = DECL.nouns.map(n => n.nom.trim());
+    const nomForms = DECL.nouns.map((n) => n.nom.trim());
     const unique = new Set(nomForms);
     expect(unique.size).toBe(nomForms.length);
   });
 
   it('STORIES titles are all unique', () => {
-    const titles = STORIES.map(s => s.title.trim());
+    const titles = STORIES.map((s) => s.title.trim());
     const unique = new Set(titles);
     expect(unique.size).toBe(titles.length);
   });
 
   it('PADEZI case names are all unique', () => {
-    const names = PADEZI.cases.map(c => c.name.trim());
+    const names = PADEZI.cases.map((c) => c.name.trim());
     const unique = new Set(names);
     expect(unique.size).toBe(names.length);
   });
 
   it('PREPDRILL sentences are all unique', () => {
-    const sentences = PREPDRILL.map(d => d.sentence.trim());
+    const sentences = PREPDRILL.map((d) => d.sentence.trim());
     const unique = new Set(sentences);
     expect(unique.size).toBe(sentences.length);
   });
@@ -716,7 +735,7 @@ describe('TRANSLATE_DRILLS', () => {
       expect(typeof d.en).toBe('string');
       expect(typeof d.hr).toBe('string');
       expect(Array.isArray(d.opts)).toBe(true);
-      expect(['A2','B1','B2']).toContain(d.level);
+      expect(['A2', 'B1', 'B2']).toContain(d.level);
     }
   });
 
@@ -733,7 +752,7 @@ describe('TRANSLATE_DRILLS', () => {
   });
 
   it('no duplicate correct answers (hr values are unique within drills)', () => {
-    const hrs = TRANSLATE_DRILLS.map(d => d.hr);
+    const hrs = TRANSLATE_DRILLS.map((d) => d.hr);
     const unique = new Set(hrs);
     expect(unique.size).toBe(hrs.length);
   });
@@ -746,7 +765,7 @@ describe('TRANSLATE_DRILLS', () => {
   });
 
   it('has drills at each level: A2, B1, B2', () => {
-    const levels = new Set(TRANSLATE_DRILLS.map(d => d.level));
+    const levels = new Set(TRANSLATE_DRILLS.map((d) => d.level));
     expect(levels.has('A2')).toBe(true);
     expect(levels.has('B1')).toBe(true);
     expect(levels.has('B2')).toBe(true);
@@ -802,13 +821,13 @@ describe('LESSONS', () => {
   });
 
   it('lesson IDs are unique', () => {
-    const ids = LESSONS.map(l => l.id);
+    const ids = LESSONS.map((l) => l.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
 
   it('expected lessons exist: alphabet, past-tense, future-tense, vi-vs-ti', () => {
-    const ids = LESSONS.map(l => l.id);
+    const ids = LESSONS.map((l) => l.id);
     expect(ids).toContain('alphabet');
     expect(ids).toContain('past-tense');
     expect(ids).toContain('future-tense');

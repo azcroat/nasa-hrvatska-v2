@@ -32,18 +32,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -115,7 +131,9 @@ describe('AdaptiveReviewScreen — empty state', () => {
     mockGetSR.mockReturnValue({});
     mockGetMistakes.mockReturnValue([]);
   });
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "Još nema podataka!" when no SRS data and no mistakes', () => {
     renderScreen();
@@ -130,7 +148,7 @@ describe('AdaptiveReviewScreen — empty state', () => {
   it('calls goBack when back button pressed in empty state', () => {
     const { props } = renderScreen();
     // Back button in empty state header
-    const backBtn = screen.getAllByRole('button').find(b => b.textContent?.includes('←'));
+    const backBtn = screen.getAllByRole('button').find((b) => b.textContent?.includes('←'));
     if (!backBtn) throw new Error('Back button not found in empty state');
     fireEvent.click(backBtn);
     expect(props.goBack).toHaveBeenCalledTimes(1);
@@ -150,7 +168,9 @@ describe('AdaptiveReviewScreen — dashboard view', () => {
     mockGetSR.mockReturnValue({});
     mockGetMistakes.mockReturnValue([MISTAKE]);
   });
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "Smart Review" heading on dashboard', () => {
     renderScreen();
@@ -221,7 +241,9 @@ describe('AdaptiveReviewScreen — mistake card session', () => {
     mockGetSR.mockReturnValue({});
     mockGetMistakes.mockReturnValue([MISTAKE]);
   });
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking "Počni sesiju" transitions to session view', () => {
     renderScreen();
@@ -280,7 +302,12 @@ describe('AdaptiveReviewScreen — mistake card session', () => {
     fireEvent.click(screen.getByText('Otkrij značenje'));
     fireEvent.click(screen.getByText(/✗ Ne znam/));
     // Wrong mistake card: recordMistake(m.hr, m.en || '', m.q || '', 'adaptive')
-    expect(mockRecordMistake).toHaveBeenCalledWith('pisati', 'to write', 'Select the correct form', 'adaptive');
+    expect(mockRecordMistake).toHaveBeenCalledWith(
+      'pisati',
+      'to write',
+      'Select the correct form',
+      'adaptive',
+    );
   });
 
   it('"✗ Ne znam" on last item still completes session (results shown)', () => {
@@ -303,7 +330,7 @@ describe('AdaptiveReviewScreen — mistake card session', () => {
     renderScreen();
     fireEvent.click(screen.getByText(/Počni sesiju/));
     // Session view has ← button that goes back to dashboard
-    const backBtn = screen.getAllByRole('button').find(b => b.textContent?.trim() === '←');
+    const backBtn = screen.getAllByRole('button').find((b) => b.textContent?.trim() === '←');
     if (!backBtn) throw new Error('Session back button not found');
     fireEvent.click(backBtn);
     // Dashboard is shown again
@@ -379,7 +406,9 @@ describe('AdaptiveReviewScreen — results screen', () => {
     mockGetSR.mockReturnValue({});
     mockGetMistakes.mockReturnValue([MISTAKE]);
   });
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   function goToResults(correct: boolean) {
     renderScreen();

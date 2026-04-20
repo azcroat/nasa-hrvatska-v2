@@ -15,11 +15,18 @@ vi.mock('../lib/firebase.js', () => ({
   getDb: vi.fn(() => ({})),
 }));
 
-import { getLeagueForRank, getWeekKey, LEAGUES, submitWeeklyXP, getLeaderboard, getMyRank, subscribeToLeaderboard } from '../lib/leaderboard.js';
+import {
+  getLeagueForRank,
+  getWeekKey,
+  LEAGUES,
+  submitWeeklyXP,
+  getLeaderboard,
+  getMyRank,
+  subscribeToLeaderboard,
+} from '../lib/leaderboard.js';
 import { setDoc, getDocs, onSnapshot } from 'firebase/firestore';
 
 describe('leaderboard — pure functions', () => {
-
   // ── LEAGUES constant ──────────────────────────────────────────────────────
 
   it('LEAGUES has 5 tiers', () => {
@@ -27,7 +34,7 @@ describe('leaderboard — pure functions', () => {
   });
 
   it('LEAGUES includes bronze, silver, gold, platinum, diamond', () => {
-    const ids = LEAGUES.map(l => l.id);
+    const ids = LEAGUES.map((l) => l.id);
     expect(ids).toContain('bronze');
     expect(ids).toContain('silver');
     expect(ids).toContain('gold');
@@ -126,7 +133,9 @@ describe('leaderboard — pure functions', () => {
 });
 
 describe('leaderboard — Firestore functions', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   // ── submitWeeklyXP ────────────────────────────────────────────────────────
 
@@ -212,7 +221,9 @@ describe('leaderboard — Firestore functions', () => {
 });
 
 describe('subscribeToLeaderboard', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('calls onUpdate with ranked entries on snapshot', () => {
     const onUpdate = vi.fn();

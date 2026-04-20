@@ -17,11 +17,15 @@ function isAllowedOrigin(origin, isDev) {
   try {
     const hostname = new URL(origin).hostname;
     if (isDev && hostname === 'localhost') return true;
-    return hostname === 'nasahrvatska.com'
-      || hostname.endsWith('.nasahrvatska.com')
-      || hostname === 'nasa-hrvatska-v2.pages.dev'
-      || hostname.endsWith('.nasa-hrvatska-v2.pages.dev');
-  } catch { return false; }
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 function corsHeaders(origin) {
@@ -76,19 +80,23 @@ async function transcribeDeepgram(audioBuffer, mimeType, apiKey) {
 // particularly for words with đ, which Deepgram can occasionally normalise away.
 // The prompt hint seeds the decoder with common Croatian forms.
 async function transcribeWhisper(audioBuffer, mimeType, apiKey) {
-  const ext = mimeType.includes('ogg')                      ? 'ogg'
-            : mimeType.includes('mp4') || mimeType.includes('m4a') ? 'mp4'
-            : mimeType.includes('wav')                      ? 'wav'
-            : 'webm'; // Chrome/Edge default
+  const ext = mimeType.includes('ogg')
+    ? 'ogg'
+    : mimeType.includes('mp4') || mimeType.includes('m4a')
+      ? 'mp4'
+      : mimeType.includes('wav')
+        ? 'wav'
+        : 'webm'; // Chrome/Edge default
 
   const form = new FormData();
   form.append('file', new Blob([audioBuffer], { type: mimeType }), `speech.${ext}`);
   form.append('model', 'whisper-1');
   form.append('language', 'hr');
-  form.append('prompt',
+  form.append(
+    'prompt',
     'Razgovor na standardnom hrvatskom jeziku. ' +
-    'Fraze: hvala lijepa, molim, dobar dan, kako ste, gdje je, ' +
-    'koliko košta, ne razumijem, možete li ponoviti, govorim malo hrvatski.'
+      'Fraze: hvala lijepa, molim, dobar dan, kako ste, gdje je, ' +
+      'koliko košta, ne razumijem, možete li ponoviti, govorim malo hrvatski.',
   );
 
   const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
@@ -112,55 +120,56 @@ export async function onRequestPost(context) {
   const { request, env } = context;
 
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev  = env.ENVIRONMENT !== 'production';
+  const isDev = env.ENVIRONMENT !== 'production';
 
   if (!isAllowedOrigin(origin, isDev)) {
     return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
   }
 
   const DEEPGRAM_KEY = env.DEEPGRAM_API_KEY;
-  const OPENAI_KEY   = env.OPENAI_API_KEY;
+  const OPENAI_KEY = env.OPENAI_API_KEY;
 
   if (!DEEPGRAM_KEY && !OPENAI_KEY) {
     // 503 is the agreed signal for useWhisperSTT to fall back to Web Speech API silently.
     // Set DEEPGRAM_API_KEY or OPENAI_API_KEY in Cloudflare Pages → Settings → Env Vars.
-    return new Response(
-      JSON.stringify({ error: 'stt_not_configured' }),
-      { status: 503, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'stt_not_configured' }), {
+      status: 503,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   // Rate limit: 30 requests/minute (each VAD clip is ~2–5 s of audio)
   const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
-    return new Response(
-      JSON.stringify({ error: 'rate_limit_exceeded' }),
-      { status: 429, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
+      status: 429,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   // Validate audio Content-Type
   const ct = request.headers.get('content-type') || 'audio/webm';
   if (!ct.startsWith('audio/')) {
-    return new Response(
-      JSON.stringify({ error: 'Expected audio/* Content-Type' }),
-      { status: 400, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Expected audio/* Content-Type' }), {
+      status: 400,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   const audioBuffer = await request.arrayBuffer();
 
   if (!audioBuffer.byteLength) {
-    return new Response(
-      JSON.stringify({ error: 'Empty audio body' }),
-      { status: 400, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Empty audio body' }), {
+      status: 400,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
-  if (audioBuffer.byteLength > 20 * 1024 * 1024) { // 20 MB guard
-    return new Response(
-      JSON.stringify({ error: 'Audio too large (max 20 MB)' }),
-      { status: 413, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
-    );
+  if (audioBuffer.byteLength > 20 * 1024 * 1024) {
+    // 20 MB guard
+    return new Response(JSON.stringify({ error: 'Audio too large (max 20 MB)' }), {
+      status: 413,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   // ── Transcription: Deepgram primary → Whisper fallback ───────────────────
@@ -191,16 +200,18 @@ export async function onRequestPost(context) {
   if (lastError) {
     const isTimeout = lastError?.name === 'TimeoutError' || lastError?.name === 'AbortError';
     return new Response(
-      JSON.stringify({ error: isTimeout ? 'Transcription timed out — please try again' : 'Transcription failed' }),
+      JSON.stringify({
+        error: isTimeout ? 'Transcription timed out — please try again' : 'Transcription failed',
+      }),
       {
         status: isTimeout ? 504 : 502,
         headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
-      }
+      },
     );
   }
 
-  return new Response(
-    JSON.stringify({ text }),
-    { status: 200, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
-  );
+  return new Response(JSON.stringify({ text }), {
+    status: 200,
+    headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+  });
 }

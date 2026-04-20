@@ -29,18 +29,19 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
 
   return (
     <React.Fragment>
-
       {/* ── PROFILE HEADER ── */}
       <ProfileHeader />
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <div className="seg-bar">
         {[
-          { id:'stats',    label:'📊 Stats' },
-          { id:'insights', label:'💡 Insights' },
-          { id:'settings', label:'⚙️ Settings' },
-        ].map(t => (
-          <button key={t.id} onClick={() => setPTab(t.id)}
+          { id: 'stats', label: '📊 Stats' },
+          { id: 'insights', label: '💡 Insights' },
+          { id: 'settings', label: '⚙️ Settings' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setPTab(t.id)}
             className="seg-pill"
             style={{
               background: ptab === t.id ? 'var(--card)' : 'transparent',
@@ -49,39 +50,33 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
               boxShadow: ptab === t.id ? '0 2px 8px rgba(0,0,0,.1)' : 'none',
               letterSpacing: ptab === t.id ? '.01em' : 0,
             }}
-          >{t.label}</button>
+          >
+            {t.label}
+          </button>
         ))}
       </div>
 
       {/* ── STATS TAB ── */}
       {ptab === 'stats' && (
         <>
-          <StatsTab
-            onShowPrestigeModal={() => setShowPrestigeModal(true)}
-            onSyncNow={onSyncNow}
-          />
+          <StatsTab onShowPrestigeModal={() => setShowPrestigeModal(true)} onSyncNow={onSyncNow} />
           {/* ── STUDY CLAN — moved from Today tab ── */}
           {authUser && (
-            <ClanCard uid={authUser.uid} displayName={authUser.displayName || authUser.email?.split('@')[0] || 'Učenik'} />
+            <ClanCard
+              uid={authUser.uid}
+              displayName={authUser.displayName || authUser.email?.split('@')[0] || 'Učenik'}
+            />
           )}
         </>
       )}
 
       {/* ── INSIGHTS TAB ── */}
       {ptab === 'insights' && (
-        <InsightsTab
-          onOpenLeaderboard={onOpenLeaderboard}
-          onOpenFriends={onOpenFriends}
-        />
+        <InsightsTab onOpenLeaderboard={onOpenLeaderboard} onOpenFriends={onOpenFriends} />
       )}
 
       {/* ── SETTINGS TAB ── */}
-      {ptab === 'settings' && (
-        <SettingsTab
-          syncReady={syncReady}
-          onSyncNow={onSyncNow}
-        />
-      )}
+      {ptab === 'settings' && <SettingsTab syncReady={syncReady} onSyncNow={onSyncNow} />}
 
       {/* ── PRESTIGE MODAL ── */}
       {showPrestigeModal && (
@@ -96,7 +91,6 @@ export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, on
           }}
         />
       )}
-
     </React.Fragment>
   );
 }

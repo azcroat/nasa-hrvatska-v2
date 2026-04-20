@@ -15,7 +15,7 @@ export default function XPActivityCalendar({ st }) {
       });
       // Source 2: xpCooldown — { exerciseId: 'YYYY-MM-DD' } — proves activity on that date
       const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}');
-      Object.values(cd).forEach(dateStr => {
+      Object.values(cd).forEach((dateStr) => {
         if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
           if (!result[dateStr]) result[dateStr] = 1;
         }
@@ -30,16 +30,26 @@ export default function XPActivityCalendar({ st }) {
         const k = localStorage.key(i);
         if (!k) continue;
         const m = k.match(/nh_(?:quest|daily)_\w+_(\d{4}-\d{2}-\d{2})$/);
-        if (m) { if (!result[m[1]]) result[m[1]] = 1; }
+        if (m) {
+          if (!result[m[1]]) result[m[1]] = 1;
+        }
       }
-    } catch { /* ignore parse errors */ }
+    } catch {
+      /* ignore parse errors */
+    }
     return result;
-  }, [st]);  
+  }, [st]);
 
   // todayStr computed at render time (local date) so it's never stale after midnight
   const todayStr = (() => {
     const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    return (
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(d.getDate()).padStart(2, '0')
+    );
   })();
 
   // Build 12 weeks × 7 days grid (84 days ending today) — keyed by day index so it
@@ -51,7 +61,12 @@ export default function XPActivityCalendar({ st }) {
     for (let i = 83; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      const ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      const ds =
+        d.getFullYear() +
+        '-' +
+        String(d.getMonth() + 1).padStart(2, '0') +
+        '-' +
+        String(d.getDate()).padStart(2, '0');
       allDays.push(ds);
     }
     // Pad front so week 0 starts on Sunday (align with grid)
@@ -63,7 +78,7 @@ export default function XPActivityCalendar({ st }) {
       wks.push(padded.slice(w * 7, (w + 1) * 7));
     }
     return wks;
-  }, [dayIndex]);  
+  }, [dayIndex]);
 
   function cellColor(dateStr) {
     if (!dateStr) return 'transparent';
@@ -75,7 +90,20 @@ export default function XPActivityCalendar({ st }) {
   }
 
   const DOW_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MONTH_LABELS = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
 
   // Month labels: find first cell in each month
   const monthMarkers = useMemo(() => {
@@ -92,17 +120,40 @@ export default function XPActivityCalendar({ st }) {
       });
     });
     return markers;
-  }, [weeks]);  
+  }, [weeks]);
 
   const activeDayCount = useMemo(
-    () => Object.keys(activeDays).filter(d => d >= weeks[0]?.[0] && d <= todayStr).length,
-    [activeDays, weeks, todayStr]
+    () => Object.keys(activeDays).filter((d) => d >= weeks[0]?.[0] && d <= todayStr).length,
+    [activeDays, weeks, todayStr],
   );
 
   return (
-    <div style={{ background: 'var(--card)', border: '1px solid var(--card-b)', borderRadius: 16, padding: '16px', marginBottom: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '.08em' }}>
+    <div
+      style={{
+        background: 'var(--card)',
+        border: '1px solid var(--card-b)',
+        borderRadius: 16,
+        padding: '16px',
+        marginBottom: 16,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 10,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 800,
+            color: 'var(--subtext)',
+            textTransform: 'uppercase',
+            letterSpacing: '.08em',
+          }}
+        >
           📅 12-Week Activity
         </div>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--info)' }}>
@@ -113,9 +164,27 @@ export default function XPActivityCalendar({ st }) {
       {/* Day-of-week row labels on left */}
       <div style={{ display: 'flex', gap: 2 }}>
         {/* DOW labels column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginRight: 2, justifyContent: 'flex-start' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            marginRight: 2,
+            justifyContent: 'flex-start',
+          }}
+        >
           {DOW_LABELS.map((d, i) => (
-            <div key={i} style={{ height: 11, fontSize: 8, fontWeight: 700, color: 'var(--subtext)', lineHeight: '11px', width: 10 }}>
+            <div
+              key={i}
+              style={{
+                height: 11,
+                fontSize: 8,
+                fontWeight: 700,
+                color: 'var(--subtext)',
+                lineHeight: '11px',
+                width: 10,
+              }}
+            >
               {i % 2 === 1 ? d : ''}
             </div>
           ))}
@@ -125,9 +194,19 @@ export default function XPActivityCalendar({ st }) {
           {/* Month labels */}
           <div style={{ display: 'flex', gap: 2, marginBottom: 3, minWidth: weeks.length * 13 }}>
             {weeks.map((_, wi) => {
-              const marker = monthMarkers.find(m => m.wi === wi);
+              const marker = monthMarkers.find((m) => m.wi === wi);
               return (
-                <div key={wi} style={{ width: 11, fontSize: 8, fontWeight: 700, color: 'var(--subtext)', whiteSpace: 'nowrap', overflow: 'visible' }}>
+                <div
+                  key={wi}
+                  style={{
+                    width: 11,
+                    fontSize: 8,
+                    fontWeight: 700,
+                    color: 'var(--subtext)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'visible',
+                  }}
+                >
                   {marker ? marker.label : ''}
                 </div>
               );
@@ -147,12 +226,16 @@ export default function XPActivityCalendar({ st }) {
                     <div
                       key={di}
                       title={label}
-                      onMouseEnter={e => dateStr && setTooltip({ label, x: e.clientX, y: e.clientY })}
+                      onMouseEnter={(e) =>
+                        dateStr && setTooltip({ label, x: e.clientX, y: e.clientY })
+                      }
                       onMouseLeave={() => setTooltip(null)}
                       onTouchStart={() => dateStr && setTooltip({ label, x: 0, y: 0 })}
                       onTouchEnd={() => setTooltip(null)}
                       style={{
-                        width: 11, height: 11, borderRadius: 2,
+                        width: 11,
+                        height: 11,
+                        borderRadius: 2,
                         background: isFuture ? 'transparent' : cellColor(dateStr),
                         border: isToday ? '1.5px solid #0e7490' : 'none',
                         opacity: isFuture ? 0 : 1,
@@ -169,17 +252,31 @@ export default function XPActivityCalendar({ st }) {
       </div>
 
       {/* Legend */}
-      <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div
+        style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--bar-bg)', border: '1px solid var(--card-b)' }} />
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 2,
+              background: 'var(--bar-bg)',
+              border: '1px solid var(--card-b)',
+            }}
+          />
           <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>No activity</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 2, background: 'rgba(14,116,144,0.35)' }} />
+          <div
+            style={{ width: 10, height: 10, borderRadius: 2, background: 'rgba(14,116,144,0.35)' }}
+          />
           <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>Light</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 2, background: 'rgba(14,116,144,0.6)' }} />
+          <div
+            style={{ width: 10, height: 10, borderRadius: 2, background: 'rgba(14,116,144,0.6)' }}
+          />
           <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>Good</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -187,20 +284,38 @@ export default function XPActivityCalendar({ st }) {
           <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>Strong</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 2, border: '1.5px solid #0e7490', background: 'var(--bar-bg)' }} />
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 2,
+              border: '1.5px solid #0e7490',
+              background: 'var(--bar-bg)',
+            }}
+          />
           <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>Today</span>
         </div>
       </div>
 
       {/* Tooltip */}
       {tooltip && (
-        <div style={{
-          position: 'fixed', top: tooltip.y - 36, left: Math.max(8, tooltip.x - 70),
-          background: 'var(--heading)', color: 'var(--card)',
-          fontSize: 11, fontWeight: 700, borderRadius: 8,
-          padding: '4px 10px', pointerEvents: 'none', zIndex: 9999,
-          whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(0,0,0,.25)',
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: tooltip.y - 36,
+            left: Math.max(8, tooltip.x - 70),
+            background: 'var(--heading)',
+            color: 'var(--card)',
+            fontSize: 11,
+            fontWeight: 700,
+            borderRadius: 8,
+            padding: '4px 10px',
+            pointerEvents: 'none',
+            zIndex: 9999,
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(0,0,0,.25)',
+          }}
+        >
           {tooltip.label}
         </div>
       )}

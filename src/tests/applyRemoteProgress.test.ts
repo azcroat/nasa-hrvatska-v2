@@ -24,20 +24,34 @@ import { applyRemoteProgress } from '../lib/applyRemoteProgress.js';
 const mockSRSData: Record<string, unknown> = {};
 vi.mock('../lib/srs.js', () => ({
   getSR: () => ({ ...mockSRSData }),
-  saveSR: (data: unknown) => { Object.assign(mockSRSData, data); },
+  saveSR: (data: unknown) => {
+    Object.assign(mockSRSData, data);
+  },
 }));
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function todayStr() {
   const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  return (
+    d.getFullYear() +
+    '-' +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(d.getDate()).padStart(2, '0')
+  );
 }
 
 function yesterdayStr() {
   const d = new Date();
   d.setDate(d.getDate() - 1);
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  return (
+    d.getFullYear() +
+    '-' +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(d.getDate()).padStart(2, '0')
+  );
 }
 
 function makeSetters() {
@@ -111,21 +125,30 @@ describe('applyRemoteProgress — favourites merge', () => {
   afterEach(clearLS);
 
   it('merges remote favs with local favs (dedup on hr)', () => {
-    localStorage.setItem('uFavs', JSON.stringify([
-      { hr: 'pas', en: 'dog' },
-      { hr: 'mačka', en: 'cat' },
-    ]));
+    localStorage.setItem(
+      'uFavs',
+      JSON.stringify([
+        { hr: 'pas', en: 'dog' },
+        { hr: 'mačka', en: 'cat' },
+      ]),
+    );
     const setters = makeSetters();
-    applyRemoteProgress({
-      favs: [{ hr: 'pas', en: 'dog' }, { hr: 'voda', en: 'water' }]
-    }, setters);
+    applyRemoteProgress(
+      {
+        favs: [
+          { hr: 'pas', en: 'dog' },
+          { hr: 'voda', en: 'water' },
+        ],
+      },
+      setters,
+    );
     expect(setters.setFavs).toHaveBeenCalledOnce();
     const merged: { hr: string }[] = setters.setFavs.mock.calls[0][0];
-    const hrs = merged.map(f => f.hr);
+    const hrs = merged.map((f) => f.hr);
     expect(hrs).toContain('pas');
     expect(hrs).toContain('mačka');
     expect(hrs).toContain('voda');
-    expect(hrs.filter(h => h === 'pas')).toHaveLength(1); // no dup
+    expect(hrs.filter((h) => h === 'pas')).toHaveLength(1); // no dup
   });
 
   it('writes merged favs to localStorage', () => {
@@ -141,16 +164,17 @@ describe('applyRemoteProgress — journal merge', () => {
   afterEach(clearLS);
 
   it('merges journal entries dedup on word', () => {
-    localStorage.setItem('uJournal', JSON.stringify([
-      { word: 'kuća', translation: 'house' },
-    ]));
+    localStorage.setItem('uJournal', JSON.stringify([{ word: 'kuća', translation: 'house' }]));
     const setters = makeSetters();
-    applyRemoteProgress({
-      journal: [
-        { word: 'kuća', translation: 'house' }, // duplicate
-        { word: 'auto', translation: 'car' },
-      ]
-    }, setters);
+    applyRemoteProgress(
+      {
+        journal: [
+          { word: 'kuća', translation: 'house' }, // duplicate
+          { word: 'auto', translation: 'car' },
+        ],
+      },
+      setters,
+    );
     const merged: unknown[] = setters.setJWords.mock.calls[0][0];
     expect(merged).toHaveLength(2);
   });
@@ -237,8 +261,8 @@ describe('applyRemoteProgress — hearts (remote wins when newer)', () => {
   });
 
   it('keeps local hearts when they are newer', () => {
-    const newHeart  = { count: 3, lastRegen: 9999 };
-    const oldHeart  = { count: 5, lastRegen: 1000 };
+    const newHeart = { count: 3, lastRegen: 9999 };
+    const oldHeart = { count: 5, lastRegen: 1000 };
     localStorage.setItem('nh_hearts', JSON.stringify(newHeart));
     const setters = makeSetters();
     applyRemoteProgress({ nh_hearts: oldHeart }, setters);
@@ -344,26 +368,32 @@ describe('applyRemoteProgress — daily challenge', () => {
 
   it('calls sDchlA and sDchlSl when dc.day === today', () => {
     const setters = makeSetters();
-    applyRemoteProgress({
-      dc: {
-        day: todayStr(),
-        answered: [true, false, true],
-        selected: ['option1', '', 'option3'],
-      }
-    }, setters);
+    applyRemoteProgress(
+      {
+        dc: {
+          day: todayStr(),
+          answered: [true, false, true],
+          selected: ['option1', '', 'option3'],
+        },
+      },
+      setters,
+    );
     expect(setters.sDchlA).toHaveBeenCalled();
     expect(setters.sDchlSl).toHaveBeenCalled();
   });
 
   it('does NOT restore when dc.day !== today', () => {
     const setters = makeSetters();
-    applyRemoteProgress({
-      dc: {
-        day: '2020-01-01',
-        answered: [true, true, true],
-        selected: ['a', 'b', 'c'],
-      }
-    }, setters);
+    applyRemoteProgress(
+      {
+        dc: {
+          day: '2020-01-01',
+          answered: [true, true, true],
+          selected: ['a', 'b', 'c'],
+        },
+      },
+      setters,
+    );
     expect(setters.sDchlA).not.toHaveBeenCalled();
   });
 });
@@ -379,7 +409,9 @@ describe('applyRemoteProgress — weekXP merge', () => {
 
   /** Returns the UTC-based week key that useAward and progressSnapshot use. */
   function currentWeekKey(): string {
-    const d = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
+    const d = new Date(
+      Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
+    );
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
@@ -549,21 +581,30 @@ describe('applyRemoteProgress — journey milestones merge', () => {
   afterEach(clearLS);
 
   it('adds remote milestones that are not in local', () => {
-    localStorage.setItem('nh_journey', JSON.stringify([{ type: 'first_lesson', date: '2026-01-01T00:00:00.000Z' }]));
+    localStorage.setItem(
+      'nh_journey',
+      JSON.stringify([{ type: 'first_lesson', date: '2026-01-01T00:00:00.000Z' }]),
+    );
     const setters = makeSetters();
-    applyRemoteProgress({
-      nh_journey: [
-        { type: 'first_lesson', date: '2026-01-01T00:00:00.000Z' }, // duplicate
-        { type: 'level_up', date: '2026-01-15T00:00:00.000Z' },    // new
-      ]
-    }, setters);
+    applyRemoteProgress(
+      {
+        nh_journey: [
+          { type: 'first_lesson', date: '2026-01-01T00:00:00.000Z' }, // duplicate
+          { type: 'level_up', date: '2026-01-15T00:00:00.000Z' }, // new
+        ],
+      },
+      setters,
+    );
     const stored = JSON.parse(localStorage.getItem('nh_journey') || '[]');
     expect(stored).toHaveLength(2);
     expect(stored.some((m: { type: string }) => m.type === 'level_up')).toBe(true);
   });
 
   it('skips empty nh_journey array', () => {
-    localStorage.setItem('nh_journey', JSON.stringify([{ type: 'existing', date: '2026-01-01T00:00:00.000Z' }]));
+    localStorage.setItem(
+      'nh_journey',
+      JSON.stringify([{ type: 'existing', date: '2026-01-01T00:00:00.000Z' }]),
+    );
     const setters = makeSetters();
     applyRemoteProgress({ nh_journey: [] }, setters);
     const stored = JSON.parse(localStorage.getItem('nh_journey') || '[]');
@@ -582,15 +623,18 @@ describe('applyRemoteProgress — checkpoints and custom words', () => {
     const setters = makeSetters();
     applyRemoteProgress({ nh_checkpoints: { stage1: false, stage2: true } }, setters);
     const stored = JSON.parse(localStorage.getItem('nh_checkpoints') || '{}');
-    expect(stored.stage1).toBe(true);  // local wins
-    expect(stored.stage2).toBe(true);  // remote adds new
+    expect(stored.stage1).toBe(true); // local wins
+    expect(stored.stage2).toBe(true); // remote adds new
   });
 
   it('merges remote custom words with local', () => {
     const setters = makeSetters();
-    applyRemoteProgress({
-      nh_custom_words: [{ word: 'kuća', meaning: 'house' }]
-    }, setters);
+    applyRemoteProgress(
+      {
+        nh_custom_words: [{ word: 'kuća', meaning: 'house' }],
+      },
+      setters,
+    );
     const stored = JSON.parse(localStorage.getItem('nh_custom_words') || '[]');
     expect(stored).toHaveLength(1);
     expect(stored[0].word).toBe('kuća');
@@ -611,8 +655,8 @@ describe('applyRemoteProgress — checkpoints and custom words', () => {
     const setters = makeSetters();
     applyRemoteProgress({ nh_media_done: { video1: false, video2: true } }, setters);
     const stored = JSON.parse(localStorage.getItem('nh_media_done') || '{}');
-    expect(stored.video1).toBe(true);  // local wins
-    expect(stored.video2).toBe(true);  // remote adds
+    expect(stored.video1).toBe(true); // local wins
+    expect(stored.video2).toBe(true); // remote adds
   });
 
   it('sets nh_hearts_always_on when true', () => {
@@ -643,9 +687,9 @@ describe('applyRemoteProgress — XP cooldown merge', () => {
   it('merges cooldown entries that match today', () => {
     const today = todayStr();
     const setters = makeSetters();
-    applyRemoteProgress({ cooldown: { 'vocab_100': today, 'grammar_50': '2020-01-01' } }, setters);
+    applyRemoteProgress({ cooldown: { vocab_100: today, grammar_50: '2020-01-01' } }, setters);
     const stored = JSON.parse(localStorage.getItem('xpCooldown') || '{}');
-    expect(stored['vocab_100']).toBe(today);  // today → included
-    expect(stored['grammar_50']).toBeUndefined();  // old date → excluded
+    expect(stored['vocab_100']).toBe(today); // today → included
+    expect(stored['grammar_50']).toBeUndefined(); // old date → excluded
   });
 });

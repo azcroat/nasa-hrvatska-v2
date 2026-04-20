@@ -23,10 +23,13 @@ interface UsePwaInstallResult {
   setDeferredInstallPrompt: React.Dispatch<React.SetStateAction<BeforeInstallPromptEvent | null>>;
 }
 
-export function usePwaInstall({ authScreen: _authScreen }: UsePwaInstallParams): UsePwaInstallResult {
+export function usePwaInstall({
+  authScreen: _authScreen,
+}: UsePwaInstallParams): UsePwaInstallResult {
   const [showPwaInstall, setShowPwaInstall] = useState(false);
   const [showAndroidInstall, setShowAndroidInstall] = useState(false);
-  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredInstallPrompt, setDeferredInstallPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
 
   // DISABLED: suppress the browser's default mini-infobar even while prompts are off
   useEffect(() => {
@@ -39,8 +42,11 @@ export function usePwaInstall({ authScreen: _authScreen }: UsePwaInstallParams):
   }, []);
 
   return {
-    showPwaInstall, setShowPwaInstall,
-    showAndroidInstall, setShowAndroidInstall,
-    deferredInstallPrompt, setDeferredInstallPrompt,
+    showPwaInstall,
+    setShowPwaInstall,
+    showAndroidInstall,
+    setShowAndroidInstall,
+    deferredInstallPrompt,
+    setDeferredInstallPrompt,
   };
 }

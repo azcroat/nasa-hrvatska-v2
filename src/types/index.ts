@@ -39,9 +39,18 @@ export interface AuthUser {
 }
 
 export interface StatsDelta {
-  xp?: number; lc?: number; gc?: number; sp?: number; de?: number;
-  rc?: number; pf?: number; mv?: number; hi?: number;
-  ct?: string[]; vs?: string[]; badges?: string[];
+  xp?: number;
+  lc?: number;
+  gc?: number;
+  sp?: number;
+  de?: number;
+  rc?: number;
+  pf?: number;
+  mv?: number;
+  hi?: number;
+  ct?: string[];
+  vs?: string[];
+  badges?: string[];
 }
 
 export interface StatsContextValue {

@@ -57,7 +57,9 @@ import { useLocalStorage, safeGetItem, safeSetItem } from '../hooks/useLocalStor
 import { useAndroidBackButton } from '../hooks/useAndroidBackButton';
 import { useAndroidMicPermission } from '../hooks/useAndroidMicPermission';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 // ── useConversationSession ────────────────────────────────────────────────────
 
@@ -69,7 +71,9 @@ describe('useConversationSession', () => {
 
   it('setPhase changes phase', () => {
     const { result } = renderHook(() => useConversationSession('A2'));
-    act(() => { result.current.setPhase('chat'); });
+    act(() => {
+      result.current.setPhase('chat');
+    });
     expect(result.current.phase).toBe('chat');
   });
 
@@ -99,7 +103,9 @@ describe('useConversationSession', () => {
 
   it('setLoading changes loading state', () => {
     const { result } = renderHook(() => useConversationSession('B1'));
-    act(() => { result.current.setLoading(true); });
+    act(() => {
+      result.current.setLoading(true);
+    });
     expect(result.current.loading).toBe(true);
   });
 
@@ -110,7 +116,9 @@ describe('useConversationSession', () => {
 
   it('setScenario updates scenario', () => {
     const { result } = renderHook(() => useConversationSession('B1'));
-    act(() => { result.current.setScenario({ id: 'cafe' }); });
+    act(() => {
+      result.current.setScenario({ id: 'cafe' });
+    });
     expect(result.current.scenario).toEqual({ id: 'cafe' });
   });
 
@@ -165,7 +173,9 @@ describe('useWriteMode', () => {
 
   it('setWriteText updates text', () => {
     const { result } = renderHook(() => useWriteMode());
-    act(() => { result.current.setWriteText('Hello world'); });
+    act(() => {
+      result.current.setWriteText('Hello world');
+    });
     expect(result.current.writeText).toBe('Hello world');
   });
 
@@ -176,7 +186,9 @@ describe('useWriteMode', () => {
 
   it('setWritePhase changes phase to writing', () => {
     const { result } = renderHook(() => useWriteMode());
-    act(() => { result.current.setWritePhase('writing'); });
+    act(() => {
+      result.current.setWritePhase('writing');
+    });
     expect(result.current.writePhase).toBe('writing');
   });
 
@@ -211,7 +223,9 @@ describe('usePwaInstall', () => {
 
   it('setShowPwaInstall changes state', () => {
     const { result } = renderHook(() => usePwaInstall({ authScreen: 'login' }));
-    act(() => { result.current.setShowPwaInstall(true); });
+    act(() => {
+      result.current.setShowPwaInstall(true);
+    });
     expect(result.current.showPwaInstall).toBe(true);
   });
 });
@@ -241,7 +255,9 @@ describe('usePlacement', () => {
 
   it('setPlacementIdx updates index', () => {
     const { result } = renderHook(() => usePlacement());
-    act(() => { result.current.setPlacementIdx(3); });
+    act(() => {
+      result.current.setPlacementIdx(3);
+    });
     expect(result.current.placementIdx).toBe(3);
   });
 
@@ -286,8 +302,8 @@ describe('useSwipeBack', () => {
     const addSpy = vi.spyOn(document, 'addEventListener');
     renderHook(() => useSwipeBack(goBack, false));
     // Should not register touchstart/touchend when disabled=false
-    const touchCalls = addSpy.mock.calls.filter(([event]) =>
-      event === 'touchstart' || event === 'touchend'
+    const touchCalls = addSpy.mock.calls.filter(
+      ([event]) => event === 'touchstart' || event === 'touchend',
     );
     expect(touchCalls.length).toBe(0);
     addSpy.mockRestore();
@@ -344,9 +360,11 @@ describe('useSwipeBack', () => {
     const goBack = vi.fn();
     renderHook(() => useSwipeBack(goBack, true));
     // First set startX via touchstart
-    document.dispatchEvent(new TouchEvent('touchstart', {
-      touches: [{ clientX: 5, clientY: 200 } as Touch],
-    }));
+    document.dispatchEvent(
+      new TouchEvent('touchstart', {
+        touches: [{ clientX: 5, clientY: 200 } as Touch],
+      }),
+    );
     // Then touchend with empty changedTouches → !t branch
     expect(() => {
       document.dispatchEvent(new TouchEvent('touchend', { changedTouches: [] }));
@@ -374,26 +392,34 @@ describe('useLocalStorage', () => {
 
   it('setValue updates state', () => {
     const { result } = renderHook(() => useLocalStorage('test-key', 0));
-    act(() => { result.current[1](42); });
+    act(() => {
+      result.current[1](42);
+    });
     expect(result.current[0]).toBe(42);
   });
 
   it('setValue persists to localStorage', () => {
     const { result } = renderHook(() => useLocalStorage('test-key', 0));
-    act(() => { result.current[1](99); });
+    act(() => {
+      result.current[1](99);
+    });
     expect(JSON.parse(localStorage.getItem('test-key') || '0')).toBe(99);
   });
 
   it('setValue with function form uses previous value', () => {
     const { result } = renderHook(() => useLocalStorage('test-key', 10));
-    act(() => { result.current[1](prev => prev + 5); });
+    act(() => {
+      result.current[1]((prev) => prev + 5);
+    });
     expect(result.current[0]).toBe(15);
   });
 
   it('setValue with null removes key from localStorage', () => {
     localStorage.setItem('test-key', JSON.stringify('value'));
     const { result } = renderHook(() => useLocalStorage<string | null>('test-key', null));
-    act(() => { result.current[1](null); });
+    act(() => {
+      result.current[1](null);
+    });
     expect(localStorage.getItem('test-key')).toBeNull();
   });
 
@@ -457,9 +483,7 @@ describe('useAndroidBackButton', () => {
     const canGoBack = vi.fn(() => false);
     const goBack = vi.fn();
     expect(() => {
-      const { unmount } = renderHook(() =>
-        useAndroidBackButton(canGoBack, goBack)
-      );
+      const { unmount } = renderHook(() => useAndroidBackButton(canGoBack, goBack));
       unmount();
     }).not.toThrow();
   });
@@ -467,10 +491,9 @@ describe('useAndroidBackButton', () => {
   it('updates refs on each render without re-registering listener', () => {
     const canGoBack = vi.fn(() => false);
     const goBack = vi.fn();
-    const { rerender } = renderHook(
-      ({ cb, gb }) => useAndroidBackButton(cb, gb),
-      { initialProps: { cb: canGoBack, gb: goBack } }
-    );
+    const { rerender } = renderHook(({ cb, gb }) => useAndroidBackButton(cb, gb), {
+      initialProps: { cb: canGoBack, gb: goBack },
+    });
     const canGoBack2 = vi.fn(() => true);
     const goBack2 = vi.fn();
     // Should not throw on rerender
@@ -499,7 +522,9 @@ describe('useAndroidMicPermission', () => {
 
   it('dismissRationale sets needsRationale to false and persists key', () => {
     const { result } = renderHook(() => useAndroidMicPermission());
-    act(() => { result.current.dismissRationale(); });
+    act(() => {
+      result.current.dismissRationale();
+    });
     expect(result.current.needsRationale).toBe(false);
     expect(localStorage.getItem('nh_mic_rationale_shown')).toBe('1');
   });

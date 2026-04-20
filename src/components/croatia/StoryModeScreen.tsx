@@ -11,7 +11,8 @@ import StorySetupPanel from './StorySetupPanel';
 import StoryViewPanel from './StoryViewPanel';
 
 // ── TTS helper ────────────────────────────────────────────────────────────────
-const _iosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+const _iosDevice =
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 async function playTTS(text) {
@@ -35,8 +36,14 @@ async function playTTS(text) {
       src.connect(ctx.destination);
       src.start(0);
       return {
-        pause() { try { src.stop(); } catch {} },
-        addEventListener(ev, fn) { if (ev === 'ended') src.onended = fn; },
+        pause() {
+          try {
+            src.stop();
+          } catch {}
+        },
+        addEventListener(ev, fn) {
+          if (ev === 'ended') src.onended = fn;
+        },
       };
     } catch {
       throw new Error('TTS playback failed');
@@ -44,9 +51,17 @@ async function playTTS(text) {
   }
 
   // Non-iOS: use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-  const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
+  const url = await new Promise((resolve) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.readAsDataURL(blob);
+  });
   const audio = new Audio(url);
-  try { await audio.play(); } catch { throw new Error('play() blocked'); }
+  try {
+    await audio.play();
+  } catch {
+    throw new Error('play() blocked');
+  }
   return audio;
 }
 
@@ -54,13 +69,18 @@ async function playTTS(text) {
 function PulsingDots({ color }) {
   return (
     <span style={{ display: 'inline-flex', gap: 5, alignItems: 'center' }}>
-      {[0, 1, 2].map(i => (
-        <span key={i} style={{
-          width: 8, height: 8, borderRadius: '50%',
-          backgroundColor: color || '#0e7490',
-          display: 'inline-block',
-          animation: `pulse-dot 1.2s ease-in-out ${i * 0.2}s infinite`,
-        }} />
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            backgroundColor: color || '#0e7490',
+            display: 'inline-block',
+            animation: `pulse-dot 1.2s ease-in-out ${i * 0.2}s infinite`,
+          }}
+        />
       ))}
     </span>
   );
@@ -72,13 +92,19 @@ export default function StoryModeScreen({ goBack, award }) {
   const isOnline = useOnlineStatus();
 
   // Read user goal
-  const userGoal = (() => { try { return localStorage.getItem('nh_goal') || ''; } catch { return ''; } })();
+  const userGoal = (() => {
+    try {
+      return localStorage.getItem('nh_goal') || '';
+    } catch {
+      return '';
+    }
+  })();
   const goalMeta = GOAL_META[userGoal] || null;
 
   // Setup state — pre-select a goal-recommended city if available
   const [selectedCity, setSelectedCity] = useState(() => {
     if (goalMeta) {
-      const rec = STORY_CITIES.find(c => goalMeta.cities.includes(c.name));
+      const rec = STORY_CITIES.find((c) => goalMeta.cities.includes(c.name));
       if (rec) return rec;
     }
     return STORY_CITIES[0];
@@ -103,7 +129,9 @@ export default function StoryModeScreen({ goBack, award }) {
   const tappedWordsRef = useRef(0);
 
   // Keep ref in sync so scroll handler always sees current value without re-adding listener
-  useEffect(() => { tappedWordsRef.current = tappedWords; }, [tappedWords]);
+  useEffect(() => {
+    tappedWordsRef.current = tappedWords;
+  }, [tappedWords]);
 
   // Track reading completion via scroll — only re-attach when phase changes, not on every word tap
   useEffect(() => {
@@ -111,7 +139,11 @@ export default function StoryModeScreen({ goBack, award }) {
     const el = storyRef.current;
     const check = () => {
       const { scrollTop, scrollHeight, clientHeight } = el;
-      if (scrollTop + clientHeight >= scrollHeight - 80 && tappedWordsRef.current >= 5 && !awardFired.current) {
+      if (
+        scrollTop + clientHeight >= scrollHeight - 80 &&
+        tappedWordsRef.current >= 5 &&
+        !awardFired.current
+      ) {
         awardFired.current = true;
         if (typeof award === 'function') award(15);
         markQuest('reading');
@@ -122,7 +154,10 @@ export default function StoryModeScreen({ goBack, award }) {
   }, [phase, award]);
 
   const generateStory = useCallback(async () => {
-    if (!isOnline) { setError('You need an internet connection to generate stories.'); return; }
+    if (!isOnline) {
+      setError('You need an internet connection to generate stories.');
+      return;
+    }
     setPhase('loading');
     setError('');
     awardFired.current = false;
@@ -133,7 +168,12 @@ export default function StoryModeScreen({ goBack, award }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mode: 'story',
-          messages: [{ role: 'user', content: `Generate an immersive Croatian story set in ${selectedCity.name}` }],
+          messages: [
+            {
+              role: 'user',
+              content: `Generate an immersive Croatian story set in ${selectedCity.name}`,
+            },
+          ],
           params: {
             city: selectedCity.name,
             region: selectedCity.region,
@@ -161,15 +201,25 @@ export default function StoryModeScreen({ goBack, award }) {
       const audio = await playTTS(storyData.story);
       if (_unmountedRef.current) return;
       audioRef.current = audio;
-      audio.addEventListener('ended', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
-      audio.addEventListener('error', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
-      audio.addEventListener('pause', () => { if (!_unmountedRef.current) setTtsPlaying(false); });
+      audio.addEventListener('ended', () => {
+        if (!_unmountedRef.current) setTtsPlaying(false);
+      });
+      audio.addEventListener('error', () => {
+        if (!_unmountedRef.current) setTtsPlaying(false);
+      });
+      audio.addEventListener('pause', () => {
+        if (!_unmountedRef.current) setTtsPlaying(false);
+      });
     } catch {
       if (!_unmountedRef.current) setTtsPlaying(false);
     }
   }, [storyData, ttsPlaying]);
 
-  useEffect(() => { return () => { _unmountedRef.current = true; }; }, []);
+  useEffect(() => {
+    return () => {
+      _unmountedRef.current = true;
+    };
+  }, []);
 
   const stopTTS = useCallback(() => {
     if (audioRef.current) {
@@ -180,7 +230,7 @@ export default function StoryModeScreen({ goBack, award }) {
   }, []);
 
   const handleWordTap = useCallback(() => {
-    setTappedWords(n => n + 1);
+    setTappedWords((n) => n + 1);
   }, []);
 
   // ── SETUP PHASE ─────────────────────────────────────────────────────────────
@@ -216,12 +266,23 @@ export default function StoryModeScreen({ goBack, award }) {
             100% { transform: rotate(360deg) scale(1); }
           }
         `}</style>
-        <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
+        <div
+          style={{
+            minHeight: '60vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 24,
+          }}
+        >
           <div style={{ fontSize: 72, animation: 'city-spin 2s ease-in-out infinite' }}>
             {selectedCity.icon}
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--heading)', marginBottom: 8 }}>
+            <div
+              style={{ fontSize: 18, fontWeight: 700, color: 'var(--heading)', marginBottom: 8 }}
+            >
               Crafting your story in {selectedCity.name}…
             </div>
             <div style={{ fontSize: 14, color: 'var(--subtext)', marginBottom: 16 }}>
@@ -250,8 +311,15 @@ export default function StoryModeScreen({ goBack, award }) {
         storyRef={storyRef}
         onWordTap={handleWordTap}
         onTTSToggle={ttsPlaying ? stopTTS : handleTTS}
-        onNewStory={() => { stopTTS(); setPhase('setup'); setStoryData(null); }}
-        onBack={() => { stopTTS(); goBack(); }}
+        onNewStory={() => {
+          stopTTS();
+          setPhase('setup');
+          setStoryData(null);
+        }}
+        onBack={() => {
+          stopTTS();
+          goBack();
+        }}
       />
     );
   }

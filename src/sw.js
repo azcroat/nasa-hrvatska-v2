@@ -12,12 +12,7 @@
 
 import { precacheAndRoute, cleanupOutdatedCaches, matchPrecache } from 'workbox-precaching';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
-import {
-  NetworkFirst,
-  StaleWhileRevalidate,
-  CacheFirst,
-  NetworkOnly,
-} from 'workbox-strategies';
+import { NetworkFirst, StaleWhileRevalidate, CacheFirst, NetworkOnly } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { RangeRequestsPlugin } from 'workbox-range-requests';
@@ -29,7 +24,7 @@ import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw';
 // Take control immediately on install/update — no waiting for old tabs to close.
 self.addEventListener('install', () => self.skipWaiting());
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       // Snapshot existing client IDs BEFORE claim() — these are tabs running old code.
@@ -37,7 +32,7 @@ self.addEventListener('activate', event => {
       // filter by pre-claim IDs to avoid sending SW_UPDATED to first-install tabs
       // (which would trigger an unnecessary reload on a fresh page load).
       const preClaimClients = await self.clients.matchAll({ type: 'window' });
-      const preClaimIds = new Set(preClaimClients.map(c => c.id));
+      const preClaimIds = new Set(preClaimClients.map((c) => c.id));
 
       // Take control of all open tabs immediately.
       await self.clients.claim();
@@ -47,15 +42,16 @@ self.addEventListener('activate', event => {
       // not fire again for those pages, so no second SW_UPDATED message is sent.
       if (preClaimIds.size > 0) {
         const clients = await self.clients.matchAll({ type: 'window' });
-        clients.filter(c => preClaimIds.has(c.id))
-               .forEach(c => c.postMessage({ type: 'SW_UPDATED' }));
+        clients
+          .filter((c) => preClaimIds.has(c.id))
+          .forEach((c) => c.postMessage({ type: 'SW_UPDATED' }));
       }
-    })()
+    })(),
   );
 });
 
 // Allow the app to trigger activation of a waiting SW (Path 3 in main.jsx).
-self.addEventListener('message', event => {
+self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
@@ -90,7 +86,7 @@ registerRoute(
         },
       },
     ],
-  })
+  }),
 );
 
 // 2. All other JS chunks — NetworkFirst (network, then cache fallback).
@@ -118,7 +114,7 @@ registerRoute(
         },
       },
     ],
-  })
+  }),
 );
 
 // 3. Images (SVG, PNG, WebP, JPG) — CacheFirst, 1-year TTL.
@@ -130,7 +126,7 @@ registerRoute(
       new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 }),
       new CacheableResponsePlugin({ statuses: [0, 200] }),
     ],
-  })
+  }),
 );
 
 // 4. SPA navigation — three-level fallback:
@@ -159,8 +155,8 @@ registerRoute(
         },
       ],
     }),
-    { denylist: [/^\/api\//] } // never intercept API requests as page navigations
-  )
+    { denylist: [/^\/api\//] }, // never intercept API requests as page navigations
+  ),
 );
 
 // 5. Audio assets — StaleWhileRevalidate with range-request support.
@@ -173,7 +169,7 @@ registerRoute(
       new RangeRequestsPlugin(),
       new CacheableResponsePlugin({ statuses: [0, 200, 206] }),
     ],
-  })
+  }),
 );
 
 // 6. Google Fonts — CacheFirst, 1-year TTL.
@@ -185,7 +181,7 @@ registerRoute(
       new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 }),
       new CacheableResponsePlugin({ statuses: [0, 200] }),
     ],
-  })
+  }),
 );
 
 // 7. Firebase realtime / Firestore — always network, never cached.
@@ -201,12 +197,12 @@ registerRoute(/^https:\/\/firestore\.googleapis\.com\/.*/i, new NetworkOnly());
 // Pages dashboard (same VITE_FIREBASE_* vars used by src/lib/firebase.ts).
 
 const _firebaseApp = initializeApp({
-  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 });
 
 const _messaging = getMessaging(_firebaseApp);
@@ -214,15 +210,15 @@ const _messaging = getMessaging(_firebaseApp);
 onBackgroundMessage(_messaging, (payload) => {
   const { title, body, icon } = payload.notification || {};
   self.registration.showNotification(title || 'Naša Hrvatska', {
-    body:     body  || 'Time to practice your Croatian! 🇭🇷',
-    icon:     icon  || '/icons/icon-192x192.png',
-    badge:    '/icons/badge-72.png',
-    tag:      'nh-daily-reminder',
+    body: body || 'Time to practice your Croatian! 🇭🇷',
+    icon: icon || '/icons/icon-192x192.png',
+    badge: '/icons/badge-72.png',
+    tag: 'nh-daily-reminder',
     renotify: true,
-    data:     payload.data || {},
+    data: payload.data || {},
     actions: [
-      { action: 'study',   title: '📚 Study Now' },
-      { action: 'dismiss', title: 'Later'         },
+      { action: 'study', title: '📚 Study Now' },
+      { action: 'dismiss', title: 'Later' },
     ],
   });
 });
@@ -239,17 +235,17 @@ self.addEventListener('push', (event) => {
   const notifData = Object.assign({ url: '/' }, data.data || {});
   event.waitUntil(
     self.registration.showNotification(data.title, {
-      body:     data.body,
-      icon:     data.icon  || '/icons/icon-192x192.png',
-      badge:    data.badge || '/icons/badge-72.png',
-      tag:      data.tag   || 'streak-reminder',
+      body: data.body,
+      icon: data.icon || '/icons/icon-192x192.png',
+      badge: data.badge || '/icons/badge-72.png',
+      tag: data.tag || 'streak-reminder',
       renotify: true,
-      data:     notifData,
-      actions:  data.actions || [
-        { action: 'study',   title: '📚 Study Now' },
-        { action: 'dismiss', title: 'Later'         },
+      data: notifData,
+      actions: data.actions || [
+        { action: 'study', title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later' },
       ],
-    })
+    }),
   );
 });
 
@@ -258,11 +254,20 @@ self.addEventListener('push', (event) => {
 // Rotates through 5 message pairs seeded by current day-of-epoch.
 
 const _PERIODIC_MESSAGES = [
-  { title: '🇭🇷 Naša Hrvatska',         body: 'Time to practice your Croatian today!' },
-  { title: '📚 Review time!',            body: "Your Croatian words are waiting — 5 minutes keeps the momentum going." },
-  { title: '🔥 Keep your streak alive!', body: "Dobar dan! Complete today's lesson to stay on track." },
-  { title: '🧠 Memory check!',           body: 'Croatian words fade without practice — a quick review locks them in.' },
-  { title: '⚡ Just 5 minutes!',         body: 'Quick quiz? Your future self will thank you. Hajde! 🇭🇷' },
+  { title: '🇭🇷 Naša Hrvatska', body: 'Time to practice your Croatian today!' },
+  {
+    title: '📚 Review time!',
+    body: 'Your Croatian words are waiting — 5 minutes keeps the momentum going.',
+  },
+  {
+    title: '🔥 Keep your streak alive!',
+    body: "Dobar dan! Complete today's lesson to stay on track.",
+  },
+  {
+    title: '🧠 Memory check!',
+    body: 'Croatian words fade without practice — a quick review locks them in.',
+  },
+  { title: '⚡ Just 5 minutes!', body: 'Quick quiz? Your future self will thank you. Hajde! 🇭🇷' },
 ];
 
 self.addEventListener('periodicsync', (event) => {
@@ -270,17 +275,17 @@ self.addEventListener('periodicsync', (event) => {
   const msg = _PERIODIC_MESSAGES[Math.floor(Date.now() / 86400000) % _PERIODIC_MESSAGES.length];
   event.waitUntil(
     self.registration.showNotification(msg.title, {
-      body:     msg.body,
-      icon:     '/icons/icon-192x192.png',
-      badge:    '/icons/badge-72.png',
-      tag:      'nh-daily-reminder',
+      body: msg.body,
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/badge-72.png',
+      tag: 'nh-daily-reminder',
       renotify: true,
-      data:     { url: '/', action: 'open_lesson' },
+      data: { url: '/', action: 'open_lesson' },
       actions: [
-        { action: 'study',   title: '📚 Study Now' },
-        { action: 'dismiss', title: 'Later'         },
+        { action: 'study', title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later' },
       ],
-    })
+    }),
   );
 });
 
@@ -293,15 +298,13 @@ self.addEventListener('notificationclick', (event) => {
   if (event.action === 'dismiss') return;
   const url = event.notification.data?.url || '/';
   event.waitUntil(
-    self.clients
-      .matchAll({ type: 'window', includeUncontrolled: true })
-      .then((clientList) => {
-        for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
-            return client.focus();
-          }
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
         }
-        return self.clients.openWindow(url);
-      })
+      }
+      return self.clients.openWindow(url);
+    }),
   );
 });

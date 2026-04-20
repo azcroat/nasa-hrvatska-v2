@@ -11,20 +11,21 @@ import { isNative } from '../../lib/platform.js';
 export default function PronunciationScorer({ targetText, targetEnglish, level = 'B1', onScore }) {
   // ── Shared state ─────────────────────────────────────────────────────────────
   const [state, setState] = useState('idle'); // idle | listening | recording | processing | scored | unsupported
-  const [result, setResult] = useState(/** @type {{spoken:string,score:number}|null} */ (null));
+  const [result, setResult] = useState(/** @type {{spoken:string,score:number}|null} */ null);
   const [coaching, setCoaching] = useState(null); // null | 'loading' | {feedback,issue,phonetic_guide,drills}
   const [srErrorMsg, setSrErrorMsg] = useState(null);
   const [azureResult, setAzureResult] = useState(null); // null | AzureAssessmentResult
   const [mode, setMode] = useState('auto'); // 'auto' | 'webspeech' | 'azure'
 
-  const recRef = useRef(/** @type {any} */ (null));          // SpeechRecognition ref
-  const mediaRecRef = useRef(/** @type {MediaRecorder|null} */ (null));  // MediaRecorder ref
-  const chunksRef = useRef(/** @type {Blob[]} */ ([]));      // recorded audio chunks
+  const recRef = useRef(/** @type {any} */ null); // SpeechRecognition ref
+  const mediaRecRef = useRef(/** @type {MediaRecorder|null} */ null); // MediaRecorder ref
+  const chunksRef = useRef(/** @type {Blob[]} */ []); // recorded audio chunks
 
   // ── Browser capability checks ─────────────────────────────────────────────
   const webSpeechSupported = !!(
     typeof window !== 'undefined' &&
-    (/** @type {any} */ (window).SpeechRecognition || /** @type {any} */ (window).webkitSpeechRecognition)
+    /** @type {any} */ (window.SpeechRecognition ||
+      /** @type {any} */ window.webkitSpeechRecognition)
   );
   const mediaRecorderSupported = !!(
     typeof window !== 'undefined' &&
@@ -35,22 +36,32 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
 
   // ── Levenshtein / similarity ──────────────────────────────────────────────
   function levenshtein(a, b) {
-    const m = a.length, n = b.length;
+    const m = a.length,
+      n = b.length;
     const dp = Array.from({ length: m + 1 }, (_, i) =>
-      Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0)
+      Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
     );
     for (let i = 1; i <= m; i++)
       for (let j = 1; j <= n; j++)
-        dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+        dp[i][j] =
+          a[i - 1] === b[j - 1]
+            ? dp[i - 1][j - 1]
+            : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
     return dp[m][n];
   }
 
   function similarity(a, b) {
-    const norm = (/** @type {string} */ s) => s.toLowerCase()
-      .replace(/[čć]/g, 'c').replace(/[šš]/g, 's')
-      .replace(/[žž]/g, 'z').replace(/đ/g, 'd')
-      .replace(/[.,!?;:'"]/g, '').trim();
-    const na = norm(a), nb = norm(b);
+    const norm = (/** @type {string} */ s) =>
+      s
+        .toLowerCase()
+        .replace(/[čć]/g, 'c')
+        .replace(/[šš]/g, 's')
+        .replace(/[žž]/g, 'z')
+        .replace(/đ/g, 'd')
+        .replace(/[.,!?;:'"]/g, '')
+        .trim();
+    const na = norm(a),
+      nb = norm(b);
     if (na === nb) return 100;
     const maxLen = Math.max(na.length, nb.length);
     if (maxLen === 0) return 100;
@@ -59,21 +70,25 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
   }
 
   // ── Stream ref for cleanup ────────────────────────────────────────────────
-  const streamRef = useRef(/** @type {MediaStream|null} */ (null));
+  const streamRef = useRef(/** @type {MediaStream|null} */ null);
 
   // ── Unmount cleanup — stop mic, abort recognition ─────────────────────────
   useEffect(() => {
     return () => {
       if (recRef.current) {
-        try { recRef.current.abort(); } catch (_) {}
+        try {
+          recRef.current.abort();
+        } catch (_) {}
         recRef.current = null;
       }
       if (mediaRecRef.current && mediaRecRef.current.state !== 'inactive') {
-        try { mediaRecRef.current.stop(); } catch (_) {}
+        try {
+          mediaRecRef.current.stop();
+        } catch (_) {}
         mediaRecRef.current = null;
       }
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
       }
       chunksRef.current = [];
@@ -92,11 +107,16 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
 
   // ── Web Speech API mode ───────────────────────────────────────────────────
   function startWebSpeech() {
-    if (!webSpeechSupported) { setState('unsupported'); return; }
+    if (!webSpeechSupported) {
+      setState('unsupported');
+      return;
+    }
     setCoaching(null);
     setSrErrorMsg(null);
     setAzureResult(null);
-    const SR = /** @type {any} */ (window).SpeechRecognition || /** @type {any} */ (window).webkitSpeechRecognition;
+    const SR =
+      /** @type {any} */ window.SpeechRecognition ||
+      /** @type {any} */ window.webkitSpeechRecognition;
     const rec = new SR();
     rec.lang = 'hr-HR';
     rec.continuous = false;
@@ -113,7 +133,7 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       // was correct — the English ASR correctly decoded Croatian phonemes to their English meaning.
       if (targetEnglish) {
         const engNorm = targetEnglish.toLowerCase().trim();
-        const translationMatch = transcripts.some(t => {
+        const translationMatch = transcripts.some((t) => {
           const tn = t.toLowerCase().trim();
           return tn === engNorm || tn.includes(engNorm) || engNorm.includes(tn);
         });
@@ -129,10 +149,13 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
         }
       }
 
-      const best = /** @type {string[]} */ (transcripts).reduce((/** @type {{text:string,score:number}} */ best, t) => {
-        const s = similarity(t, targetText);
-        return s > best.score ? { text: t, score: s } : best;
-      }, { text: /** @type {string[]} */ (transcripts)[0], score: 0 });
+      const best = /** @type {string[]} */ transcripts.reduce(
+        (/** @type {{text:string,score:number}} */ best, t) => {
+          const s = similarity(t, targetText);
+          return s > best.score ? { text: t, score: s } : best;
+        },
+        { text: /** @type {string[]} */ transcripts[0], score: 0 },
+      );
       const r = { spoken: best.text, score: best.score };
       setResult(r);
       setState('scored');
@@ -141,24 +164,26 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
     };
     rec.onerror = (/** @type {any} */ e) => {
       const code = e?.error || '';
-      const msg = code === 'not-allowed' || code === 'permission-denied'
-        ? (isNative()
+      const msg =
+        code === 'not-allowed' || code === 'permission-denied'
+          ? isNative()
             ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
-            : 'Microphone permission denied. Please allow mic access in your browser settings.')
-        : code === 'no-speech'
-        ? 'No speech detected. Please speak louder and closer to the mic.'
-        : code === 'audio-capture'
-        ? 'No microphone found. Check that your mic is connected.'
-        : code === 'network'
-        ? 'Network error during recognition. Check your connection.'
-        : code === 'aborted'
-        ? null
-        : 'Microphone error — please try again.';
+            : 'Microphone permission denied. Please allow mic access in your browser settings.'
+          : code === 'no-speech'
+            ? 'No speech detected. Please speak louder and closer to the mic.'
+            : code === 'audio-capture'
+              ? 'No microphone found. Check that your mic is connected.'
+              : code === 'network'
+                ? 'Network error during recognition. Check your connection.'
+                : code === 'aborted'
+                  ? null
+                  : 'Microphone error — please try again.';
       if (msg) setSrErrorMsg(msg);
       setState('idle');
     };
     rec.onend = () => {
-      if (recRef.current === rec) setState(s => (s === 'listening' || s === 'processing') ? 'idle' : s);
+      if (recRef.current === rec)
+        setState((s) => (s === 'listening' || s === 'processing' ? 'idle' : s));
     };
     recRef.current = rec;
     rec.start();
@@ -180,11 +205,12 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       streamRef.current = stream;
     } catch (e) {
-      const msg = (e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError')
-        ? (isNative()
+      const msg =
+        e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError'
+          ? isNative()
             ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
-            : 'Microphone permission denied. Please allow mic access in your browser settings.')
-        : 'Could not access microphone. Please check your device settings.';
+            : 'Microphone permission denied. Please allow mic access in your browser settings.'
+          : 'Could not access microphone. Please check your device settings.';
       setSrErrorMsg(msg);
       return;
     }
@@ -194,26 +220,32 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
     // We pass the actual mimeType to the server so it can set the correct Content-Type for Azure.
     // Azure explicitly supports: audio/wav, audio/ogg;codecs=opus. WebM is sent as-is and Azure
     // handles it in practice (same Opus codec, different container).
-    const preferredMime = ['audio/ogg;codecs=opus', 'audio/wav', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg']
-      .find(t => MediaRecorder.isTypeSupported(t)) || '';
+    const preferredMime =
+      [
+        'audio/ogg;codecs=opus',
+        'audio/wav',
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg',
+      ].find((t) => MediaRecorder.isTypeSupported(t)) || '';
 
     let recorder;
     try {
       recorder = new MediaRecorder(stream, preferredMime ? { mimeType: preferredMime } : {});
     } catch (e) {
-      stream.getTracks().forEach(t => t.stop());
+      stream.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
       setSrErrorMsg('Audio recording initialization failed. Please try again.');
       return;
     }
     chunksRef.current = [];
 
-    recorder.ondataavailable = e => {
+    recorder.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
     };
 
     recorder.onerror = () => {
-      stream.getTracks().forEach(t => t.stop());
+      stream.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
       setState('idle');
       setSrErrorMsg('Recording error — please try again.');
@@ -221,7 +253,7 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
 
     recorder.onstop = async () => {
       // Stop all tracks so the mic indicator light goes off.
-      stream.getTracks().forEach(t => t.stop());
+      stream.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
 
       const mimeType = recorder.mimeType || 'audio/webm';
@@ -291,7 +323,10 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       fetchCoaching(targetText, data.overall ?? 0);
     } catch (fetchErr) {
       clearTimeout(tid);
-      console.warn('PronunciationScorer: Azure assess failed, falling back to Web Speech:', fetchErr?.message);
+      console.warn(
+        'PronunciationScorer: Azure assess failed, falling back to Web Speech:',
+        fetchErr?.message,
+      );
       // Graceful fallback: try Web Speech API. If unsupported, show error and reset.
       if (webSpeechSupported) {
         setMode('webspeech');
@@ -317,52 +352,79 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
   }
 
   // ── AI Coaching fetch ─────────────────────────────────────────────────────
-  const fetchCoaching = useCallback(async (spoken, score) => {
-    setCoaching('loading');
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 12000); // 12s max
-    try {
-      const res = await apiFetch('/api/pronunciation-coach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ word: targetText, spoken, score, level }),
-        signal: controller.signal,
-      });
-      clearTimeout(tid);
-      if (!res.ok) throw new Error('API error');
-      const data = await res.json();
-      setCoaching(data);
-    } catch {
-      clearTimeout(tid);
-      setCoaching({ feedback: 'Could not load coaching. Try again later.', issue: '', phonetic_guide: '', drills: [] });
-    }
-  }, [targetText, level]);
+  const fetchCoaching = useCallback(
+    async (spoken, score) => {
+      setCoaching('loading');
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 12000); // 12s max
+      try {
+        const res = await apiFetch('/api/pronunciation-coach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ word: targetText, spoken, score, level }),
+          signal: controller.signal,
+        });
+        clearTimeout(tid);
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+        setCoaching(data);
+      } catch {
+        clearTimeout(tid);
+        setCoaching({
+          feedback: 'Could not load coaching. Try again later.',
+          issue: '',
+          phonetic_guide: '',
+          drills: [],
+        });
+      }
+    },
+    [targetText, level],
+  );
 
   // ── Unsupported fallback ──────────────────────────────────────────────────
-  if (!webSpeechSupported && !mediaRecorderSupported) return (
-    <div style={{ fontSize: 12, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 8 }}>
-      Pronunciation scoring requires Chrome or Edge browser.
-    </div>
-  );
+  if (!webSpeechSupported && !mediaRecorderSupported)
+    return (
+      <div style={{ fontSize: 12, color: 'var(--subtext)', fontStyle: 'italic', marginTop: 8 }}>
+        Pronunciation scoring requires Chrome or Edge browser.
+      </div>
+    );
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div style={{ marginTop: 12 }}>
-
       {/* ── IDLE ── */}
       {state === 'idle' && (
         <>
-          <button onClick={start} style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: 'linear-gradient(135deg,#0e7490,#164e63)',
-            color: '#fff', border: 'none', borderRadius: 10,
-            padding: '10px 18px', cursor: 'pointer',
-            fontSize: 13, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
-          }}>
+          <button
+            onClick={start}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'linear-gradient(135deg,#0e7490,#164e63)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 10,
+              padding: '10px 18px',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 700,
+              fontFamily: "'Outfit',sans-serif",
+            }}
+          >
             🎙️ Test My Pronunciation
           </button>
           {srErrorMsg && (
-            <div style={{ marginTop: 6, fontSize: 12, color: '#dc2626', background: '#fee2e2', borderRadius: 8, padding: '6px 10px' }}>
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 12,
+                color: '#dc2626',
+                background: '#fee2e2',
+                borderRadius: 8,
+                padding: '6px 10px',
+              }}
+            >
               ⚠️ {srErrorMsg}
             </div>
           )}
@@ -371,11 +433,19 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
 
       {/* ── WEB SPEECH: listening ── */}
       {state === 'listening' && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          background: '#fef3c7', borderRadius: 10, padding: '10px 16px',
-          fontSize: 13, fontWeight: 700, color: '#92400e',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            background: '#fef3c7',
+            borderRadius: 10,
+            padding: '10px 16px',
+            fontSize: 13,
+            fontWeight: 700,
+            color: '#92400e',
+          }}
+        >
           <span style={{ fontSize: 18, animation: 'pulse 1s infinite' }}>🎙️</span>
           Listening… say: <em>{targetText}</em>
         </div>
@@ -384,22 +454,37 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       {/* ── AZURE: actively recording ── */}
       {state === 'recording' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            background: '#fef3c7', borderRadius: 10, padding: '10px 16px',
-            fontSize: 13, fontWeight: 700, color: '#92400e',
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              background: '#fef3c7',
+              borderRadius: 10,
+              padding: '10px 16px',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#92400e',
+            }}
+          >
             <span style={{ fontSize: 18, animation: 'pulse 1s infinite' }}>🎙️</span>
             Recording… say: <em>{targetText}</em>
           </div>
           <button
             onClick={stopAzureRecording}
             style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: '#dc2626', color: '#fff',
-              border: 'none', borderRadius: 10,
-              padding: '8px 16px', cursor: 'pointer',
-              fontSize: 13, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: '#dc2626',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 10,
+              padding: '8px 16px',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 700,
+              fontFamily: "'Outfit',sans-serif",
               alignSelf: 'flex-start',
             }}
           >
@@ -410,11 +495,19 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
 
       {/* ── AZURE: processing ── */}
       {state === 'processing' && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          background: '#f0f9ff', borderRadius: 10, padding: '10px 16px',
-          fontSize: 13, fontWeight: 700, color: '#0369a1',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            background: '#f0f9ff',
+            borderRadius: 10,
+            padding: '10px 16px',
+            fontSize: 13,
+            fontWeight: 700,
+            color: '#0369a1',
+          }}
+        >
           <span style={{ fontSize: 16 }}>⏳</span>
           Analyzing your pronunciation…
         </div>

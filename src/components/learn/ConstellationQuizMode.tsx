@@ -15,7 +15,7 @@ export default function ConstellationQuizMode({
   onNext,
 }) {
   const currentQ = shuffledQuiz[quizIdx];
-  const shuffledOptions = useMemo(() => sh([...currentQ.options]), [quizIdx]);  
+  const shuffledOptions = useMemo(() => sh([...currentQ.options]), [quizIdx]);
 
   return (
     <>
@@ -41,9 +41,7 @@ export default function ConstellationQuizMode({
           ←
         </button>
         <div>
-          <h1 style={{ margin: 0, color: '#f1f5f9', fontSize: 18, fontWeight: 800 }}>
-            Case Quiz
-          </h1>
+          <h1 style={{ margin: 0, color: '#f1f5f9', fontSize: 18, fontWeight: 800 }}>Case Quiz</h1>
           <div style={{ color: '#64748b', fontSize: 13 }}>
             Question {quizIdx + 1} of {quizTotal}
           </div>
@@ -63,7 +61,7 @@ export default function ConstellationQuizMode({
         <div
           style={{
             height: '100%',
-            width: `${((quizIdx) / quizTotal) * 100}%`,
+            width: `${(quizIdx / quizTotal) * 100}%`,
             background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
             borderRadius: 3,
             transition: 'width 0.3s ease',
@@ -104,7 +102,7 @@ export default function ConstellationQuizMode({
           marginBottom: 20,
         }}
       >
-        {shuffledOptions.map(opt => {
+        {shuffledOptions.map((opt) => {
           const isCorrect = opt === currentQ.answer;
           const isSelected = opt === selected;
 
@@ -128,7 +126,7 @@ export default function ConstellationQuizMode({
           }
 
           // Find the case color for the dot
-          const caseInfo = CASES.find(c => c.id === opt);
+          const caseInfo = CASES.find((c) => c.id === opt);
           const dotColor = caseInfo ? caseInfo.color : '#94a3b8';
 
           return (
@@ -180,9 +178,8 @@ export default function ConstellationQuizMode({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: selected === currentQ.answer
-              ? 'rgba(34,197,94,0.1)'
-              : 'rgba(239,68,68,0.1)',
+            background:
+              selected === currentQ.answer ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
             border: `1px solid ${selected === currentQ.answer ? '#22c55e' : '#ef4444'}`,
             borderRadius: 12,
             padding: '12px 16px',
@@ -200,7 +197,10 @@ export default function ConstellationQuizMode({
             </div>
             {selected !== currentQ.answer && (
               <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-                Answer: <span style={{ color: '#f1f5f9', fontWeight: 600, textTransform: 'capitalize' }}>{currentQ.answer}</span>
+                Answer:{' '}
+                <span style={{ color: '#f1f5f9', fontWeight: 600, textTransform: 'capitalize' }}>
+                  {currentQ.answer}
+                </span>
               </div>
             )}
           </div>

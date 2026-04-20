@@ -11,11 +11,15 @@ function isAllowedOrigin(origin, isDev) {
   try {
     const hostname = new URL(origin).hostname;
     if (isDev && hostname === 'localhost') return true;
-    return hostname === 'nasahrvatska.com'
-      || hostname.endsWith('.nasahrvatska.com')
-      || hostname === 'nasa-hrvatska-v2.pages.dev'
-      || hostname.endsWith('.nasa-hrvatska-v2.pages.dev');
-  } catch { return false; }
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
 }
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/; // eslint-disable-line no-useless-escape
@@ -51,7 +55,11 @@ export async function onRequestPost(ctx) {
   if (!RESEND_KEY) return errJson('Service not configured', 503, hdrs);
 
   let body;
-  try { body = await ctx.request.json(); } catch { return errJson('Bad request', 400, hdrs); }
+  try {
+    body = await ctx.request.json();
+  } catch {
+    return errJson('Bad request', 400, hdrs);
+  }
 
   const { email, name, xp, lessons, streakDays, wordsLearned } = body;
   if (!email || !name) return errJson('Missing required fields', 400, hdrs);
@@ -59,7 +67,14 @@ export async function onRequestPost(ctx) {
     return errJson('Invalid email address.', 400, hdrs);
   }
 
-  function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+  function esc(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
   const safeName = esc(name);
   const safeXp = parseInt(xp) || 0;
   const safeLessons = parseInt(lessons) || 0;
@@ -80,12 +95,16 @@ export async function onRequestPost(ctx) {
             ['📚', 'Lessons', safeLessons],
             ['🔥', 'Streak', `${safeStreak} days`],
             ['💬', 'Words', safeWords],
-          ].map(([icon, label, val]) => `
+          ]
+            .map(
+              ([icon, label, val]) => `
             <div style="background:#f8fafc;border-radius:12px;padding:16px;text-align:center;border:1px solid #e2e8f0">
               <div style="font-size:24px">${icon}</div>
               <div style="font-size:18px;font-weight:900;color:#0f172a;margin:4px 0">${val}</div>
               <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">${label}</div>
-            </div>`).join('')}
+            </div>`,
+            )
+            .join('')}
         </div>
         <div style="text-align:center;margin-top:24px">
           <a href="https://nasahrvatska.com" style="display:inline-block;background:linear-gradient(135deg,#0e7490,#164e63);color:#fff;text-decoration:none;border-radius:14px;padding:14px 32px;font-weight:700;font-size:15px">
@@ -104,7 +123,7 @@ export async function onRequestPost(ctx) {
   try {
     res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: 'Naša Hrvatska <hello@nasahrvatska.com>',
         to: [email],
@@ -130,7 +149,11 @@ export async function onRequestPost(ctx) {
   // Block 3: check res.ok — map errors to client-safe responses
   if (!res.ok) {
     let errMsg;
-    try { errMsg = JSON.parse(rawBody)?.message; } catch { /* not JSON */ }
+    try {
+      errMsg = JSON.parse(rawBody)?.message;
+    } catch {
+      /* not JSON */
+    }
     console.error('digest.js: Resend error', res.status, errMsg);
     return errJson(errMsg || 'Email service error', 502, hdrs);
   }

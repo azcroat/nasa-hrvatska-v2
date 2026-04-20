@@ -34,7 +34,9 @@ export function useFamily(): {
   famTab: string;
   setFamTab: React.Dispatch<React.SetStateAction<string>>;
 } {
-  const [famData, setFamData] = useState<FamilyData | null>(() => getLocalFamily() as FamilyData | null);
+  const [famData, setFamData] = useState<FamilyData | null>(
+    () => getLocalFamily() as FamilyData | null,
+  );
   const [famMembers, setFamMembers] = useState<FamilyMember[]>([]);
   const [famLoading, setFamLoading] = useState(false);
   const [famName, setFamName] = useState('');
@@ -43,12 +45,19 @@ export function useFamily(): {
   const [famTab, setFamTab] = useState('main');
 
   return {
-    famData, setFamData,
-    famMembers, setFamMembers,
-    famLoading, setFamLoading,
-    famName, setFamName,
-    famCode, setFamCode,
-    famErr, setFamErr,
-    famTab, setFamTab,
+    famData,
+    setFamData,
+    famMembers,
+    setFamMembers,
+    famLoading,
+    setFamLoading,
+    famName,
+    setFamName,
+    famCode,
+    setFamCode,
+    famErr,
+    setFamErr,
+    famTab,
+    setFamTab,
   };
 }

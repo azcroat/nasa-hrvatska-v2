@@ -21,14 +21,36 @@ export default function SprintModelPhase({
       </div>
 
       {/* Model response text */}
-      <div style={{
-        background: 'rgba(22,163,74,.07)', border: '1px solid rgba(22,163,74,.2)',
-        borderRadius: 14, padding: '20px 20px', marginBottom: 20, textAlign: 'center',
-      }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#16a34a', display: 'block', marginBottom: 8 }}>
+      <div
+        style={{
+          background: 'rgba(22,163,74,.07)',
+          border: '1px solid rgba(22,163,74,.2)',
+          borderRadius: 14,
+          padding: '20px 20px',
+          marginBottom: 20,
+          textAlign: 'center',
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#16a34a',
+            display: 'block',
+            marginBottom: 8,
+          }}
+        >
           NATIVE RESPONSE
         </span>
-        <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', margin: 0, lineHeight: 1.5 }}>
+        <p
+          style={{
+            fontSize: 17,
+            fontWeight: 600,
+            color: 'var(--text)',
+            margin: 0,
+            lineHeight: 1.5,
+          }}
+        >
           {currentPrompt.model_response}
         </p>
       </div>
@@ -43,22 +65,42 @@ export default function SprintModelPhase({
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               onClick={() => {
-                if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => {}); }
-                else { const a = new Audio(audioUrl); audioRef.current = a; a.play().catch(() => {}); }
+                if (audioRef.current) {
+                  audioRef.current.currentTime = 0;
+                  audioRef.current.play().catch(() => {});
+                } else {
+                  const a = new Audio(audioUrl);
+                  audioRef.current = a;
+                  a.play().catch(() => {});
+                }
               }}
               style={{
-                padding: '10px 22px', borderRadius: 10, border: '1px solid rgba(22,163,74,.3)',
-                background: 'rgba(22,163,74,.1)', color: '#16a34a', fontSize: 14,
-                fontWeight: 700, cursor: 'pointer',
+                padding: '10px 22px',
+                borderRadius: 10,
+                border: '1px solid rgba(22,163,74,.3)',
+                background: 'rgba(22,163,74,.1)',
+                color: '#16a34a',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
               }}
             >
               ▶ Play again
             </button>
             <button
-              onClick={() => { if (audioRef.current) { audioRef.current.pause(); } }}
+              onClick={() => {
+                if (audioRef.current) {
+                  audioRef.current.pause();
+                }
+              }}
               style={{
-                padding: '10px 18px', borderRadius: 10, border: '1px solid var(--border)',
-                background: 'var(--card-bg)', color: 'var(--subtext)', fontSize: 14, cursor: 'pointer',
+                padding: '10px 18px',
+                borderRadius: 10,
+                border: '1px solid var(--border)',
+                background: 'var(--card-bg)',
+                color: 'var(--subtext)',
+                fontSize: 14,
+                cursor: 'pointer',
               }}
             >
               ⏸ Pause
@@ -69,11 +111,24 @@ export default function SprintModelPhase({
 
       {/* User's response */}
       {userTranscript && (
-        <div style={{
-          background: 'rgba(14,116,144,.07)', border: '1px solid rgba(14,116,144,.2)',
-          borderRadius: 14, padding: '16px 20px', marginBottom: 20,
-        }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#0e7490', display: 'block', marginBottom: 6 }}>
+        <div
+          style={{
+            background: 'rgba(14,116,144,.07)',
+            border: '1px solid rgba(14,116,144,.2)',
+            borderRadius: 14,
+            padding: '16px 20px',
+            marginBottom: 20,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: '#0e7490',
+              display: 'block',
+              marginBottom: 6,
+            }}
+          >
             YOU SAID:
           </span>
           <p style={{ fontSize: 15, margin: 0, color: 'var(--text)', fontStyle: 'italic' }}>
@@ -89,10 +144,16 @@ export default function SprintModelPhase({
       <button
         onClick={onGetFeedback}
         style={{
-          display: 'block', width: '100%', padding: '14px 0',
+          display: 'block',
+          width: '100%',
+          padding: '14px 0',
           background: 'linear-gradient(135deg, #d4002d, #e63946)',
-          color: '#fff', border: 'none', borderRadius: 12,
-          fontSize: 16, fontWeight: 700, cursor: 'pointer',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 12,
+          fontSize: 16,
+          fontWeight: 700,
+          cursor: 'pointer',
         }}
       >
         Get AI Feedback →

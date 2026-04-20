@@ -16,10 +16,14 @@ import React from 'react';
 // ── Firebase mock (required by data.jsx import chain) ─────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
   updateProfile: vi.fn(),
   initializeAuth: vi.fn(() => ({})),
   indexedDBLocalPersistence: {},
@@ -31,8 +35,15 @@ vi.mock('firebase/auth', () => ({
   deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 vi.mock('../data', async (importOriginal) => {
@@ -66,9 +77,7 @@ function renderGame(overrides = {}) {
 // Answer the current question (correct or wrong)
 function answerCurrent(correct = true, questionIndex = 0) {
   const questions = makeQuestions(3);
-  const target = correct
-    ? questions[questionIndex].correct
-    : questions[questionIndex].opts[1]; // first wrong option
+  const target = correct ? questions[questionIndex].correct : questions[questionIndex].opts[1]; // first wrong option
   fireEvent.click(screen.getByText(target));
 }
 
@@ -103,7 +112,7 @@ describe('McGame — rendering', () => {
 
   it('returns null when questions array is empty', () => {
     const { container } = render(
-      <McGame questions={[]} onComplete={vi.fn()} goBack={vi.fn()} award={vi.fn()} />
+      <McGame questions={[]} onComplete={vi.fn()} goBack={vi.fn()} award={vi.fn()} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -180,7 +189,9 @@ describe('McGame — XP double-award prevention', () => {
   it('onComplete() is called exactly once even on rapid clicks', () => {
     const questions = makeQuestions(1);
     const onComplete = vi.fn();
-    render(<McGame questions={questions} onComplete={onComplete} goBack={vi.fn()} award={vi.fn()} />);
+    render(
+      <McGame questions={questions} onComplete={onComplete} goBack={vi.fn()} award={vi.fn()} />,
+    );
 
     fireEvent.click(screen.getByText('answer0'));
     const resultsBtn = screen.getByText(/See Results/i);
@@ -192,7 +203,9 @@ describe('McGame — XP double-award prevention', () => {
   it('onComplete receives the correct final score', () => {
     const questions = makeQuestions(1);
     const onComplete = vi.fn();
-    render(<McGame questions={questions} onComplete={onComplete} goBack={vi.fn()} award={vi.fn()} />);
+    render(
+      <McGame questions={questions} onComplete={onComplete} goBack={vi.fn()} award={vi.fn()} />,
+    );
 
     fireEvent.click(screen.getByText('answer0')); // correct answer
     fireEvent.click(screen.getByText(/See Results/i));
@@ -265,7 +278,7 @@ describe('McGame — knight flash reactions', () => {
     fireEvent.click(screen.getByText('wrong0a'));
 
     await waitFor(() => {
-      expect(dispatched.some(e => e.detail?.mood === 'oops')).toBe(true);
+      expect(dispatched.some((e) => e.detail?.mood === 'oops')).toBe(true);
     });
 
     cleanup();
@@ -289,7 +302,7 @@ describe('McGame — knight flash reactions', () => {
     fireEvent.click(screen.getByText('wrong2a'));
 
     await waitFor(() => {
-      expect(dispatched.some(e => e.detail?.mood === 'struggling')).toBe(true);
+      expect(dispatched.some((e) => e.detail?.mood === 'struggling')).toBe(true);
     });
 
     cleanup();
@@ -313,7 +326,7 @@ describe('McGame — knight flash reactions', () => {
     fireEvent.click(screen.getByText('answer2'));
 
     await waitFor(() => {
-      expect(dispatched.some(e => e.detail?.mood === 'onfire')).toBe(true);
+      expect(dispatched.some((e) => e.detail?.mood === 'onfire')).toBe(true);
     });
 
     cleanup();

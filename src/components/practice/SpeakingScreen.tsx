@@ -12,10 +12,19 @@ import { apiFetch } from '../../lib/apiFetch.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
 
 const SPEAKING_TIPS = [
-  { mood: 'encouraging', text: 'Your accent doesn\'t need to be perfect — it needs to be understood. Speak boldly. 🎙️' },
-  { mood: 'happy',       text: 'Every Croatian will appreciate you trying. Speak, don\'t overthink. ⚔️' },
-  { mood: 'ready',       text: 'Croats speak with passion. Match that energy — say each phrase like you mean it. 🇭🇷' },
-  { mood: 'thinking',    text: 'Speaking tip: exhale slightly before each phrase. Relaxed breath, cleaner sound. 🌊' },
+  {
+    mood: 'encouraging',
+    text: "Your accent doesn't need to be perfect — it needs to be understood. Speak boldly. 🎙️",
+  },
+  { mood: 'happy', text: "Every Croatian will appreciate you trying. Speak, don't overthink. ⚔️" },
+  {
+    mood: 'ready',
+    text: 'Croats speak with passion. Match that energy — say each phrase like you mean it. 🇭🇷',
+  },
+  {
+    mood: 'thinking',
+    text: 'Speaking tip: exhale slightly before each phrase. Relaxed breath, cleaner sound. 🌊',
+  },
 ];
 
 // Language codes to try in order — hr-HR is most accurate but least supported
@@ -30,7 +39,7 @@ function srError(code) {
         ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
         : 'Microphone permission denied. Please allow microphone access in your browser settings and try again.';
     case 'no-speech':
-      return "No speech detected. Please speak louder and closer to the mic.";
+      return 'No speech detected. Please speak louder and closer to the mic.';
     case 'audio-capture':
       return 'No microphone found. Check that your microphone is connected and not in use by another app.';
     case 'network':
@@ -44,7 +53,20 @@ function srError(code) {
   }
 }
 
-export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSsc, goBack, award, setSt }) {
+export default function SpeakingScreen({
+  sw,
+  si,
+  sx,
+  sr,
+  ssc,
+  sSr,
+  sSx,
+  sSw,
+  sSsc,
+  goBack,
+  award,
+  setSt,
+}) {
   const { writeDelta } = useStats();
   const { needsRationale, dismissRationale } = useAndroidMicPermission();
   const [listening, setListening] = useState(false);
@@ -86,20 +108,33 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   useEffect(() => {
     const tip = SPEAKING_TIPS[Math.floor(Math.random() * SPEAKING_TIPS.length)];
     knightSpeak(tip.mood, tip.text, 1000);
-  }, []);  
+  }, []);
 
   // Cleanup on unmount — must be before early return to satisfy Rules of Hooks
-   
-  useEffect(() => { return () => {
-    clearTimeout(timeoutRef.current);
-    if (recRef.current) {
-      try { recRef.current.onresult = null; recRef.current.onerror = null; recRef.current.onend = null; recRef.current.abort(); } catch (_) {}
-      recRef.current = null;
-    }
-    stopWaveform();
-    if (recordStreamRef.current) { recordStreamRef.current.getTracks().forEach(t => t.stop()); recordStreamRef.current = null; }
-    if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); recordingURLRef.current = null; }
-  }; }, []);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(timeoutRef.current);
+      if (recRef.current) {
+        try {
+          recRef.current.onresult = null;
+          recRef.current.onerror = null;
+          recRef.current.onend = null;
+          recRef.current.abort();
+        } catch (_) {}
+        recRef.current = null;
+      }
+      stopWaveform();
+      if (recordStreamRef.current) {
+        recordStreamRef.current.getTracks().forEach((t) => t.stop());
+        recordStreamRef.current = null;
+      }
+      if (recordingURLRef.current) {
+        URL.revokeObjectURL(recordingURLRef.current);
+        recordingURLRef.current = null;
+      }
+    };
+  }, []);
 
   if (!sw || !sw[0]) return null;
 
@@ -123,8 +158,8 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       finishFired.current = true;
       if (typeof award === 'function') award(ssc * 5 + 5);
       markQuest('speak');
-      setSt(s => ({ ...s, sp: s.sp + 1 }));
-      writeDelta({sp:1});
+      setSt((s) => ({ ...s, sp: s.sp + 1 }));
+      writeDelta({ sp: 1 });
       setShowSummary(true);
     }
   }
@@ -134,23 +169,27 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // previously users had to also tap "I Said It Correctly!" as a second step.
   function handleScorerResult({ spoken, score }) {
     setCurrentWordScore({ spoken, score });
-    setWordScores(prev => {
-      const existing = prev.find(ws => ws.word === sw[0]);
+    setWordScores((prev) => {
+      const existing = prev.find((ws) => ws.word === sw[0]);
       if (existing) {
-        return prev.map(ws => ws.word === sw[0] ? { ...ws, score: Math.max(ws.score, score) } : ws);
+        return prev.map((ws) =>
+          ws.word === sw[0] ? { ...ws, score: Math.max(ws.score, score) } : ws,
+        );
       }
       return [...prev, { word: sw[0], meaning: sw[1], score }];
     });
     // Auto-advance sr state when pronunciation is good enough (≥60 = close enough)
     if (score >= 60 && sr !== 'ok') {
       sSr('ok');
-      sSsc(s => s + 1);
+      sSsc((s) => s + 1);
     }
   }
 
   function stopRecording() {
     if (mediaRecRef.current && mediaRecRef.current.state === 'recording') {
-      try { mediaRecRef.current.stop(); } catch(_) {}
+      try {
+        mediaRecRef.current.stop();
+      } catch (_) {}
     }
   }
 
@@ -171,8 +210,8 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(dataArray);
         const bars = Array.from({ length: 30 }, (_, i) => {
-          const idx = Math.floor(i * dataArray.length / 30);
-          return Math.round(dataArray[idx] / 255 * 100);
+          const idx = Math.floor((i * dataArray.length) / 30);
+          return Math.round((dataArray[idx] / 255) * 100);
         });
         setWaveform(bars);
         animFrameRef.current = requestAnimationFrame(draw);
@@ -185,8 +224,11 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
 
   function stopWaveform() {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
-    if (audioCtxRef.current) { audioCtxRef.current.close().catch(() => {}); audioCtxRef.current = null; }
+    if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop());
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
     setWaveform(new Array(30).fill(0));
   }
 
@@ -203,7 +245,10 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     };
 
     if (!navigator.onLine) {
-      setPronScore({ ...fallback, encouragement: "Offline — pronunciation analysis needs a connection." });
+      setPronScore({
+        ...fallback,
+        encouragement: 'Offline — pronunciation analysis needs a connection.',
+      });
       return;
     }
 
@@ -211,20 +256,23 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     const tid = setTimeout(() => controller.abort(), 7000); // 7s max — never block UI
 
     try {
-      const res = await apiFetch("/api/pronunciation-coach", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ word: targetWord, spoken: transcript, score: 50, level: "B1" }),
+      const res = await apiFetch('/api/pronunciation-coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word: targetWord, spoken: transcript, score: 50, level: 'B1' }),
         signal: controller.signal,
       });
       clearTimeout(tid);
-      if (!res.ok) { setPronScore(fallback); return; }
+      if (!res.ok) {
+        setPronScore(fallback);
+        return;
+      }
       const data = await res.json();
       if (data && data.feedback) {
         setPronScore({
           score: 70,
           match_quality: 'close',
-          phonetic_tips: (data.drills || []).map(d => d.tip).filter(Boolean),
+          phonetic_tips: (data.drills || []).map((d) => d.tip).filter(Boolean),
           encouragement: data.feedback,
         });
       } else {
@@ -238,7 +286,9 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
 
   function startRecognition(lIdx) {
     if (recRef.current) {
-      try { recRef.current.abort(); } catch (_) {}
+      try {
+        recRef.current.abort();
+      } catch (_) {}
       recRef.current.onresult = null;
       recRef.current.onerror = null;
       recRef.current.onend = null;
@@ -259,7 +309,9 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     // Auto-stop after 12 seconds to prevent infinite listening
     timeoutRef.current = setTimeout(() => {
       if (recRef.current) {
-        try { recRef.current.stop(); } catch (_) {}
+        try {
+          recRef.current.stop();
+        } catch (_) {}
       }
       stopRecording();
       stopWaveform();
@@ -273,7 +325,7 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       stopRecording();
       stopWaveform();
       if (!e.results || !e.results.length) return;
-      const alts = Array.from(e.results[0]).map(r => r.transcript.toLowerCase().trim());
+      const alts = Array.from(e.results[0]).map((r) => r.transcript.toLowerCase().trim());
       const target = sw[0].toLowerCase().trim();
       // Generous matching: exact, contains, or at least 60% character overlap
       const levenshteinClose = (a, b) => {
@@ -281,18 +333,19 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         const longer = a.length > b.length ? a : b;
         const shorter = a.length > b.length ? b : a;
         if (longer.length === 0) return true;
-        const shared = shorter.split('').filter(c => longer.includes(c)).length;
+        const shared = shorter.split('').filter((c) => longer.includes(c)).length;
         return shared / longer.length >= 0.6;
       };
-      const matched = alts.some(a =>
-        a === target ||
-        a.includes(target) ||
-        target.includes(a) ||
-        levenshteinClose(a, target)
+      const matched = alts.some(
+        (a) =>
+          a === target || a.includes(target) || target.includes(a) || levenshteinClose(a, target),
       );
       setRecResult(matched ? 'match' : 'nomatch');
       setListening(false);
-      if (matched) { sSr('ok'); sSsc(s => s + 1); }
+      if (matched) {
+        sSr('ok');
+        sSsc((s) => s + 1);
+      }
       // Analyze pronunciation with AI using the best transcript
       analyzePronunciation(alts[0] || '', sw[0]);
     };
@@ -303,7 +356,10 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       stopWaveform();
       const code = e.error || e.type || '';
       // If language not supported, try next fallback
-      if ((code === 'language-not-supported' || code === 'service-not-allowed') && lIdx < LANG_FALLBACKS.length - 1) {
+      if (
+        (code === 'language-not-supported' || code === 'service-not-allowed') &&
+        lIdx < LANG_FALLBACKS.length - 1
+      ) {
         setLangIdx(lIdx + 1);
         startRecognition(lIdx + 1);
         return;
@@ -347,12 +403,14 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
     let stream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(t => t.stop()); // permission check only - stop immediately
+      stream.getTracks().forEach((t) => t.stop()); // permission check only - stop immediately
     } catch (e) {
       setRecResult('error');
-      setRecMsg(isNative()
-        ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
-        : 'Microphone permission denied. Please allow microphone access in your browser settings and try again.');
+      setRecMsg(
+        isNative()
+          ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
+          : 'Microphone permission denied. Please allow microphone access in your browser settings and try again.',
+      );
       return;
     }
 
@@ -363,11 +421,14 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
       const recMimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : MediaRecorder.isTypeSupported('audio/webm')
-        ? 'audio/webm'
-        : MediaRecorder.isTypeSupported('audio/mp4')
-        ? 'audio/mp4'
-        : '';
-      const mediaRec = new MediaRecorder(recordStream, recMimeType ? { mimeType: recMimeType } : {});
+          ? 'audio/webm'
+          : MediaRecorder.isTypeSupported('audio/mp4')
+            ? 'audio/mp4'
+            : '';
+      const mediaRec = new MediaRecorder(
+        recordStream,
+        recMimeType ? { mimeType: recMimeType } : {},
+      );
       mediaRecRef.current = mediaRec;
       setIsRecording(true);
 
@@ -378,15 +439,18 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         const blob = new Blob(chunksRef.current, { type: mediaRec.mimeType || 'audio/webm' });
         setIsRecording(false);
         recordStreamRef.current = null;
-        recordStream.getTracks().forEach(t => t.stop());
+        recordStream.getTracks().forEach((t) => t.stop());
         // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
         const reader = new FileReader();
-        reader.onload = () => { recordingURLRef.current = reader.result; setRecordingURL(reader.result); };
+        reader.onload = () => {
+          recordingURLRef.current = reader.result;
+          setRecordingURL(reader.result);
+        };
         reader.readAsDataURL(blob);
       };
 
       mediaRec.start();
-    } catch(_) {
+    } catch (_) {
       // If MediaRecorder fails, continue without recording (speech recognition still works)
     }
 
@@ -396,7 +460,11 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
 
   function stopMic() {
     clearTimeout(timeoutRef.current);
-    if (recRef.current) { try { recRef.current.stop(); } catch (_) {} }
+    if (recRef.current) {
+      try {
+        recRef.current.stop();
+      } catch (_) {}
+    }
     stopRecording();
     stopWaveform();
     setListening(false);
@@ -414,13 +482,25 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
   // Only shown once — dismissRationale() marks it as seen in localStorage.
   if (needsRationale) {
     return (
-      <div className="scr-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', padding: '24px 20px', textAlign: 'center' }}>
+      <div
+        className="scr-wrap"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '70vh',
+          padding: '24px 20px',
+          textAlign: 'center',
+        }}
+      >
         <div style={{ fontSize: 56, marginBottom: 16 }}>🎤</div>
         <h2 style={{ fontSize: 22, fontWeight: 900, color: 'var(--heading)', marginBottom: 12 }}>
           Microphone Access
         </h2>
         <p style={{ fontSize: 15, color: 'var(--subtext)', lineHeight: 1.6, marginBottom: 8 }}>
-          Pronunciation Practice uses your microphone to visualise your speech and record your answers for self-comparison.
+          Pronunciation Practice uses your microphone to visualise your speech and record your
+          answers for self-comparison.
         </p>
         <p style={{ fontSize: 14, color: 'var(--subtext)', lineHeight: 1.6, marginBottom: 28 }}>
           Your audio is <strong>never uploaded or stored</strong> — everything stays on your device.
@@ -432,7 +512,16 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         >
           Got it — allow microphone
         </button>
-        <button onClick={goBack} style={{ background: 'none', border: 'none', color: 'var(--subtext)', fontSize: 14, cursor: 'pointer' }}>
+        <button
+          onClick={goBack}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--subtext)',
+            fontSize: 14,
+            cursor: 'pointer',
+          }}
+        >
           Not now
         </button>
       </div>
@@ -460,10 +549,16 @@ export default function SpeakingScreen({ sw, si, sx, sr, ssc, sSr, sSx, sSw, sSs
         recordingURL={recordingURL}
         onStartMic={startMic}
         onStopMic={stopMic}
-        onSelfAssess={() => { sSr('ok'); sSsc(s => s + 1); }}
+        onSelfAssess={() => {
+          sSr('ok');
+          sSsc((s) => s + 1);
+        }}
         onAdvanceWord={advanceWord}
         onClearRecording={() => {
-          if (recordingURLRef.current) { URL.revokeObjectURL(recordingURLRef.current); recordingURLRef.current = null; }
+          if (recordingURLRef.current) {
+            URL.revokeObjectURL(recordingURLRef.current);
+            recordingURLRef.current = null;
+          }
           setRecordingURL(null);
           setRecResult(null);
           setRecMsg('');

@@ -4,11 +4,16 @@
 
 function getStreamUrl(station) {
   switch (station) {
-    case 'hrt1': return 'https://playerservices.streamtheworld.com/api/livestream-redirect/PROGRAM1.mp3';
-    case 'hrt2': return 'https://playerservices.streamtheworld.com/api/livestream-redirect/PROGRAM2.mp3';
-    case 'hrt3': return 'https://playerservices.streamtheworld.com/api/livestream-redirect/PROGRAM3.mp3';
-    case 'cmc':  return 'https://radio.cmc.com.hr:8443/cmc_radio';
-    default:     return null;
+    case 'hrt1':
+      return 'https://playerservices.streamtheworld.com/api/livestream-redirect/PROGRAM1.mp3';
+    case 'hrt2':
+      return 'https://playerservices.streamtheworld.com/api/livestream-redirect/PROGRAM2.mp3';
+    case 'hrt3':
+      return 'https://playerservices.streamtheworld.com/api/livestream-redirect/PROGRAM3.mp3';
+    case 'cmc':
+      return 'https://radio.cmc.com.hr:8443/cmc_radio';
+    default:
+      return null;
   }
 }
 

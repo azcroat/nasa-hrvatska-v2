@@ -13,7 +13,7 @@ const PERSONAS = [
     avatar: '/images/portraits/tutor-hero.webp',
     fallbackEmoji: '👩‍🏫',
     specialty: '👩‍🏫 Učiteljica',
-    desc: "Strpljiva, prilagodljiva, pamti sve što si rekao/la.",
+    desc: 'Strpljiva, prilagodljiva, pamti sve što si rekao/la.',
     color: '#D4002D',
     level: 'Svi nivoi',
   },
@@ -75,7 +75,7 @@ function PersonaCard({ persona, selected, onSelect }) {
         padding: '16px 12px',
         cursor: 'pointer',
         textAlign: 'center',
-        fontFamily: "inherit",
+        fontFamily: 'inherit',
         transition: 'border-color 0.2s, background 0.2s',
         display: 'flex',
         flexDirection: 'column',
@@ -327,14 +327,16 @@ export default function PersonaScreen({ goBack, setScr }) {
             lineHeight: 1.5,
           }}
         >
-          <strong style={{ color: 'var(--heading)' }}>
-            Odabrano: {selectedPersona.name}
-          </strong>
+          <strong style={{ color: 'var(--heading)' }}>Odabrano: {selectedPersona.name}</strong>
           <br />
-          {selectedPersona.key === 'teacher' && 'Maja će te voditi kroz razgovor, ispravljati greške suptilno i pamtiti svaku sesiju.'}
-          {selectedPersona.key === 'fisherman' && 'Marko ne uči gramatiku — ali razgovor s njim je pravi dalmatinski doživljaj.'}
-          {selectedPersona.key === 'secretary' && 'Ana te uči formalnom hrvatskom kroz stvarnu birokratsku situaciju. Savršeno za B1+ razinu.'}
-          {selectedPersona.key === 'baka' && 'Baka Mara te dočekuje s toplinom i hranom. Idealno za početnike (A1–B2).'}
+          {selectedPersona.key === 'teacher' &&
+            'Maja će te voditi kroz razgovor, ispravljati greške suptilno i pamtiti svaku sesiju.'}
+          {selectedPersona.key === 'fisherman' &&
+            'Marko ne uči gramatiku — ali razgovor s njim je pravi dalmatinski doživljaj.'}
+          {selectedPersona.key === 'secretary' &&
+            'Ana te uči formalnom hrvatskom kroz stvarnu birokratsku situaciju. Savršeno za B1+ razinu.'}
+          {selectedPersona.key === 'baka' &&
+            'Baka Mara te dočekuje s toplinom i hranom. Idealno za početnike (A1–B2).'}
         </div>
       )}
 
@@ -357,7 +359,9 @@ export default function PersonaScreen({ goBack, setScr }) {
           transition: 'background 0.2s, box-shadow 0.2s',
         }}
       >
-        {selected ? `Počni razgovor s ${selectedPersona?.name?.split(' ')?.[0] || 'AI tutorima'} →` : 'Odaberi sugovornika'}
+        {selected
+          ? `Počni razgovor s ${selectedPersona?.name?.split(' ')?.[0] || 'AI tutorima'} →`
+          : 'Odaberi sugovornika'}
       </button>
 
       {/* ── Info note ── */}

@@ -14,7 +14,12 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  gP, lP, fbSaveProgress, fbLoadProgress, fbWatchProgress, fbGetIdToken,
+  gP,
+  lP,
+  fbSaveProgress,
+  fbLoadProgress,
+  fbWatchProgress,
+  fbGetIdToken,
 } from '../lib/firebase.js';
 import { buildProgressSnapshot } from '../lib/progressSnapshot.js';
 import { mergeStatsFromRemote } from '../lib/mergeStatsFromRemote.js';
@@ -48,8 +53,18 @@ interface SyncManagerResult {
 }
 
 export function useSyncManager({
-  authUser, authScreen, name, stats, favs, jWords, dchlA, dchlSl,
-  setStats, setName, applyRemoteProgress, ds,
+  authUser,
+  authScreen,
+  name,
+  stats,
+  favs,
+  jWords,
+  dchlA,
+  dchlSl,
+  setStats,
+  setName,
+  applyRemoteProgress,
+  ds,
   syncNowRef,
   setSyncReady,
   syncReady,
@@ -58,7 +73,7 @@ export function useSyncManager({
   const [syncError, setSyncError] = useState(false);
   const [syncErrorCode, setSyncErrorCode] = useState('');
   const _syncFailCount = useRef(0);
-  const _isSavingRef   = useRef(false); // mutex: prevents concurrent doSyncNow calls
+  const _isSavingRef = useRef(false); // mutex: prevents concurrent doSyncNow calls
   const _watcherUnsubRef = useRef<(() => void) | null>(null);
   const _idTokenRef = useRef('');
 
@@ -78,7 +93,17 @@ export function useSyncManager({
   const _dsRef = useRef<Stats>(ds);
 
   // Sync latest values into refs on every render
-  _unloadRef.current = { authUser, stats, name, authScreen, favs, jWords, dchlA, dchlSl, syncReady };
+  _unloadRef.current = {
+    authUser,
+    stats,
+    name,
+    authScreen,
+    favs,
+    jWords,
+    dchlA,
+    dchlSl,
+    syncReady,
+  };
   _setStatsRef.current = setStats;
   _setNameRef.current = setName;
   _applyRef.current = applyRemoteProgress;
@@ -98,46 +123,63 @@ export function useSyncManager({
 
     const mergedStats = {
       ...pSt,
-      xp:    Math.max((lpSt.xp as number) || 0, (pSt.xp as number) || 0),
-      lc:    Math.max((lpSt.lc as number) || 0, (pSt.lc as number) || 0),
-      gc:    Math.max((lpSt.gc as number) || 0, (pSt.gc as number) || 0),
-      sp:    Math.max((lpSt.sp as number) || 0, (pSt.sp as number) || 0),
-      de:    Math.max((lpSt.de as number) || 0, (pSt.de as number) || 0),
-      rc:    Math.max((lpSt.rc as number) || 0, (pSt.rc as number) || 0),
-      str:   Math.max((lpSt.str as number) || 0, (pSt.str as number) || 0),
-      pf:    Math.max((lpSt.pf as number) || 0, (pSt.pf as number) || 0),
-      mv:    Math.max((lpSt.mv as number) || 0, (pSt.mv as number) || 0),
-      hi:    Math.max((lpSt.hi as number) || 0, (pSt.hi as number) || 0),
-      ct:    [...new Set([...((lpSt.ct as string[]) || []), ...((pSt.ct as string[]) || [])])],
-      vs:    [...new Set([...((lpSt.vs as string[]) || []), ...((pSt.vs as string[]) || [])])],
-      badges:[...new Set([...((lpSt.badges as string[]) || []), ...((pSt.badges as string[]) || [])])],
+      xp: Math.max((lpSt.xp as number) || 0, (pSt.xp as number) || 0),
+      lc: Math.max((lpSt.lc as number) || 0, (pSt.lc as number) || 0),
+      gc: Math.max((lpSt.gc as number) || 0, (pSt.gc as number) || 0),
+      sp: Math.max((lpSt.sp as number) || 0, (pSt.sp as number) || 0),
+      de: Math.max((lpSt.de as number) || 0, (pSt.de as number) || 0),
+      rc: Math.max((lpSt.rc as number) || 0, (pSt.rc as number) || 0),
+      str: Math.max((lpSt.str as number) || 0, (pSt.str as number) || 0),
+      pf: Math.max((lpSt.pf as number) || 0, (pSt.pf as number) || 0),
+      mv: Math.max((lpSt.mv as number) || 0, (pSt.mv as number) || 0),
+      hi: Math.max((lpSt.hi as number) || 0, (pSt.hi as number) || 0),
+      ct: [...new Set([...((lpSt.ct as string[]) || []), ...((pSt.ct as string[]) || [])])],
+      vs: [...new Set([...((lpSt.vs as string[]) || []), ...((pSt.vs as string[]) || [])])],
+      badges: [
+        ...new Set([...((lpSt.badges as string[]) || []), ...((pSt.badges as string[]) || [])]),
+      ],
       // rs: ordered score history — keep the longer array (more entries = more complete history)
-      rs:    (((lpSt.rs as string[]) || []).length >= ((pSt.rs as string[]) || []).length
-               ? (lpSt.rs as string[]) || []
-               : (pSt.rs as string[]) || []),
+      rs:
+        ((lpSt.rs as string[]) || []).length >= ((pSt.rs as string[]) || []).length
+          ? (lpSt.rs as string[]) || []
+          : (pSt.rs as string[]) || [],
     };
 
     lP(uid, { ...fp, savedAt: fpTs || Date.now(), stats: mergedStats });
 
-    _setStatsRef.current(prev => mergeStatsFromRemote(prev, pSt as Partial<Stats>, _dsRef.current));
+    _setStatsRef.current((prev) =>
+      mergeStatsFromRemote(prev, pSt as Partial<Stats>, _dsRef.current),
+    );
     if (fp.name) _setNameRef.current(fp.name as string);
     _applyRef.current(fp);
   }
 
-  const enqueueSnapshot = useCallback((fp: Record<string, unknown>, fpTs: number, uid: string): void => {
-    if (!fp || !uid) return;
-    if (fpTs > 0 && fpTs === _lastMergedFbTs.current) return;
-    _mergeQueueRef.current = _mergeQueueRef.current
-      .then(() => _processSnapshot(fp, fpTs, uid))
-      .catch((err) => console.error('[sync] snapshot merge error:', err));
-  }, []);
+  const enqueueSnapshot = useCallback(
+    (fp: Record<string, unknown>, fpTs: number, uid: string): void => {
+      if (!fp || !uid) return;
+      if (fpTs > 0 && fpTs === _lastMergedFbTs.current) return;
+      _mergeQueueRef.current = _mergeQueueRef.current
+        .then(() => _processSnapshot(fp, fpTs, uid))
+        .catch((err) => console.error('[sync] snapshot merge error:', err));
+    },
+    [],
+  );
 
   // ─── doSyncNow ─────────────────────────────────────────────────────────────
   const doSyncNow = useCallback(async (): Promise<boolean> => {
     if (_isSavingRef.current) return false; // concurrent save already in flight
     _isSavingRef.current = true;
     try {
-      const { authUser: u, stats: st, name: nm, authScreen: as_, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current as {
+      const {
+        authUser: u,
+        stats: st,
+        name: nm,
+        authScreen: as_,
+        favs: fv,
+        jWords: jw,
+        dchlA: da,
+        dchlSl: dsl,
+      } = _unloadRef.current as {
         authUser: AuthUser | null;
         stats: Stats;
         name: string;
@@ -149,17 +191,27 @@ export function useSyncManager({
       };
       if (!u || as_ !== 'app') return false;
       const snap = buildProgressSnapshot({
-        uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw,
+        uid: u.u,
+        name: nm,
+        stats: st,
+        dchlA: da,
+        dchlSl: dsl,
+        favs: fv,
+        jWords: jw,
       });
       try {
         localStorage.setItem('uP_' + u.u, JSON.stringify(snap));
       } catch (e) {
         const err = e as Error & { name?: string };
         if (err?.name === 'QuotaExceededError') {
-          console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
+          console.warn(
+            '[sync] localStorage quota exceeded — some progress may not persist locally',
+          );
         }
       }
-      const result = await fbSaveProgress(u.u, snap).catch(() => ({ ok: false })) as { ok?: boolean };
+      const result = (await fbSaveProgress(u.u, snap).catch(() => ({ ok: false }))) as {
+        ok?: boolean;
+      };
       return result && result.ok !== false;
     } finally {
       _isSavingRef.current = false;
@@ -193,7 +245,9 @@ export function useSyncManager({
     let _reconnectAttempts = 0;
     const startWatcher = (): void => {
       if (_watcherUnsubRef.current) {
-        try { _watcherUnsubRef.current(); } catch (_) {}
+        try {
+          _watcherUnsubRef.current();
+        } catch (_) {}
         _watcherUnsubRef.current = null;
       }
       const unsub = fbWatchProgress(
@@ -214,7 +268,7 @@ export function useSyncManager({
             // Only push when the local savedAt timestamp post-dates the Firebase _fbUpdated
             // timestamp, which means the user accumulated real progress offline on this device.
             const localSnap = gP(uid) as { savedAt?: number } | null;
-            const localSavedAt = (localSnap?.savedAt) || 0;
+            const localSavedAt = localSnap?.savedAt || 0;
             if (localSavedAt > (fpTs || 0)) {
               // Local progress is genuinely newer — push it so offline work is not lost.
               // 800ms delay ensures applyRemoteProgress has run (microtask) before we build
@@ -247,7 +301,7 @@ export function useSyncManager({
 
     const fetchAndEnqueue = async (): Promise<void> => {
       try {
-        const fp = await fbLoadProgress(uid) as Record<string, unknown> | null;
+        const fp = (await fbLoadProgress(uid)) as Record<string, unknown> | null;
         if (!fp) return;
         const fpTs = (fp._fbUpdated as number) || 0;
         enqueueSnapshot(fp, fpTs, uid);
@@ -257,11 +311,22 @@ export function useSyncManager({
     const iosWakeUp = (): void => {
       if (document.visibilityState === 'visible') fetchAndEnqueue();
     };
-    const onPageShow = (e: PageTransitionEvent): void => { if (e.persisted) fetchAndEnqueue(); };
+    const onPageShow = (e: PageTransitionEvent): void => {
+      if (e.persisted) fetchAndEnqueue();
+    };
 
     const onOnline = (): void => {
       setTimeout(async () => {
-        const { authUser: u, stats: st, name: nm, authScreen: as_, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current as {
+        const {
+          authUser: u,
+          stats: st,
+          name: nm,
+          authScreen: as_,
+          favs: fv,
+          jWords: jw,
+          dchlA: da,
+          dchlSl: dsl,
+        } = _unloadRef.current as {
           authUser: AuthUser | null;
           stats: Stats;
           name: string;
@@ -273,7 +338,15 @@ export function useSyncManager({
         };
         if (!u || as_ !== 'app') return;
         try {
-          const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
+          const snap = buildProgressSnapshot({
+            uid: u.u,
+            name: nm,
+            stats: st,
+            dchlA: da,
+            dchlSl: dsl,
+            favs: fv,
+            jWords: jw,
+          });
           await fbSaveProgress(u.u, snap).catch(() => {});
         } catch (_) {}
         fetchAndEnqueue();
@@ -286,7 +359,9 @@ export function useSyncManager({
     return () => {
       if (_reconnectTimer) clearTimeout(_reconnectTimer);
       if (_watcherUnsubRef.current) {
-        try { _watcherUnsubRef.current(); } catch (_) {}
+        try {
+          _watcherUnsubRef.current();
+        } catch (_) {}
         _watcherUnsubRef.current = null;
       }
       document.removeEventListener('visibilitychange', iosWakeUp);
@@ -298,17 +373,34 @@ export function useSyncManager({
   // ─── Firebase ID token cache ───────────────────────────────────────────────
   useEffect(() => {
     if (!authUser || authScreen !== 'app') return undefined;
-    const refresh = async (): Promise<void> => { try { _idTokenRef.current = await fbGetIdToken(); } catch {} };
+    const refresh = async (): Promise<void> => {
+      try {
+        _idTokenRef.current = await fbGetIdToken();
+      } catch {}
+    };
     refresh();
     const iv = setInterval(refresh, 30 * 60 * 1000);
-    return () => { clearInterval(iv); _idTokenRef.current = ''; };
+    return () => {
+      clearInterval(iv);
+      _idTokenRef.current = '';
+    };
   }, [authUser, authScreen]);
 
   // ─── Periodic push every 60s ───────────────────────────────────────────────
   useEffect(() => {
     if (!authUser || authScreen !== 'app') return undefined;
     const iv = setInterval(async () => {
-      const { authUser: u, stats: st, name: nm, authScreen: as_, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl, syncReady: sr } = _unloadRef.current as {
+      const {
+        authUser: u,
+        stats: st,
+        name: nm,
+        authScreen: as_,
+        favs: fv,
+        jWords: jw,
+        dchlA: da,
+        dchlSl: dsl,
+        syncReady: sr,
+      } = _unloadRef.current as {
         authUser: AuthUser | null;
         stats: Stats;
         name: string;
@@ -321,11 +413,19 @@ export function useSyncManager({
       };
       if (!u || as_ !== 'app') return;
       if (!sr) return;
-      const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
-      const result = await fbSaveProgress(u.u, snap).catch((e: unknown) => {
+      const snap = buildProgressSnapshot({
+        uid: u.u,
+        name: nm,
+        stats: st,
+        dchlA: da,
+        dchlSl: dsl,
+        favs: fv,
+        jWords: jw,
+      });
+      const result = (await fbSaveProgress(u.u, snap).catch((e: unknown) => {
         const err = e as { code?: string; message?: string };
         return { ok: false, code: err?.code, err: err?.message };
-      }) as { ok?: boolean; code?: string; err?: string };
+      })) as { ok?: boolean; code?: string; err?: string };
       if (result && result.ok !== false) {
         _syncFailCount.current = 0;
         setSyncError(false);
@@ -345,23 +445,38 @@ export function useSyncManager({
   useEffect(() => {
     if (!authUser || authScreen !== 'app') return undefined;
     const uid = authUser.u;
-    const iv = setInterval(async () => {
-      const { authUser: u, authScreen: as_ } = _unloadRef.current as { authUser: AuthUser | null; authScreen: string };
-      if (!u || as_ !== 'app') return;
-      try {
-        const fp = await fbLoadProgress(uid) as Record<string, unknown> | null;
-        if (!fp) return;
-        const fpTs = (fp._fbUpdated as number) || 0;
-        enqueueSnapshot(fp, fpTs, uid);
-      } catch (_) {}
-    }, 3 * 60 * 1000);
+    const iv = setInterval(
+      async () => {
+        const { authUser: u, authScreen: as_ } = _unloadRef.current as {
+          authUser: AuthUser | null;
+          authScreen: string;
+        };
+        if (!u || as_ !== 'app') return;
+        try {
+          const fp = (await fbLoadProgress(uid)) as Record<string, unknown> | null;
+          if (!fp) return;
+          const fpTs = (fp._fbUpdated as number) || 0;
+          enqueueSnapshot(fp, fpTs, uid);
+        } catch (_) {}
+      },
+      3 * 60 * 1000,
+    );
     return () => clearInterval(iv);
   }, [authUser, authScreen, enqueueSnapshot]);
 
   // ─── Unload: localStorage flush + best-effort Firebase push ───────────────
   useEffect(() => {
     const saveSnapshot = (pushToFirebase: boolean): void => {
-      const { authUser: u, stats: st, name: nm, authScreen: as_, favs: fv, jWords: jw, dchlA: da, dchlSl: dsl } = _unloadRef.current as {
+      const {
+        authUser: u,
+        stats: st,
+        name: nm,
+        authScreen: as_,
+        favs: fv,
+        jWords: jw,
+        dchlA: da,
+        dchlSl: dsl,
+      } = _unloadRef.current as {
         authUser: AuthUser | null;
         stats: Stats;
         name: string;
@@ -373,14 +488,24 @@ export function useSyncManager({
       };
       if (!u || as_ !== 'app') return;
       try {
-        const snap = buildProgressSnapshot({ uid: u.u, name: nm, stats: st, dchlA: da, dchlSl: dsl, favs: fv, jWords: jw });
+        const snap = buildProgressSnapshot({
+          uid: u.u,
+          name: nm,
+          stats: st,
+          dchlA: da,
+          dchlSl: dsl,
+          favs: fv,
+          jWords: jw,
+        });
         (_unloadRef.current as Record<string, unknown>)._lastSaved = snap;
         try {
           localStorage.setItem('uP_' + u.u, JSON.stringify(snap));
         } catch (e) {
           const err = e as Error & { name?: string };
           if (err?.name === 'QuotaExceededError') {
-            console.warn('[sync] localStorage quota exceeded — some progress may not persist locally');
+            console.warn(
+              '[sync] localStorage quota exceeded — some progress may not persist locally',
+            );
           }
         }
         if (pushToFirebase) fbSaveProgress(u.u, snap).catch(() => {});
@@ -389,8 +514,13 @@ export function useSyncManager({
     const sendBeacon = (u: AuthUser | null, d: unknown): void => {
       if (!navigator.sendBeacon || !_idTokenRef.current || !u || !d) return;
       try {
-        const pl = JSON.stringify({ token: _idTokenRef.current, uid: u.u, data: JSON.stringify(d) });
-        if (pl.length < 60000) navigator.sendBeacon('/api/save-progress', new Blob([pl], { type: 'application/json' }));
+        const pl = JSON.stringify({
+          token: _idTokenRef.current,
+          uid: u.u,
+          data: JSON.stringify(d),
+        });
+        if (pl.length < 60000)
+          navigator.sendBeacon('/api/save-progress', new Blob([pl], { type: 'application/json' }));
       } catch (_) {}
     };
     // Dedup guard: both pagehide and visibilitychange(hidden) fire together on tab close.
@@ -402,7 +532,9 @@ export function useSyncManager({
       saveSnapshot(true);
       sendBeacon(u, (_unloadRef.current as Record<string, unknown>)._lastSaved);
       // Reset after 200ms so a second genuine hide (e.g. re-focus then re-hide) works.
-      setTimeout(() => { _hideFired = false; }, 200);
+      setTimeout(() => {
+        _hideFired = false;
+      }, 200);
     };
     const onUnload = (): void => saveSnapshot(false);
     const onPageHide = (e: PageTransitionEvent): void => {
@@ -426,5 +558,12 @@ export function useSyncManager({
     };
   }, []);
 
-  return { doSyncNow, showBackupBanner, setShowBackupBanner, syncError, setSyncError, syncErrorCode };
+  return {
+    doSyncNow,
+    showBackupBanner,
+    setShowBackupBanner,
+    syncError,
+    setSyncError,
+    syncErrorCode,
+  };
 }

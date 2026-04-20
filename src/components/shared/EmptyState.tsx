@@ -3,11 +3,11 @@ import React from 'react';
 import CroatianKnight from './CroatianKnight';
 
 export default function EmptyState({
-  type = 'default',  // 'no-lessons' | 'streak-broken' | 'level-up' | 'all-caught-up' | 'default'
+  type = 'default', // 'no-lessons' | 'streak-broken' | 'level-up' | 'all-caught-up' | 'default'
   title,
   subtitle,
   action,
-  onAction
+  onAction,
 }) {
   const configs = {
     'no-lessons': {
@@ -19,64 +19,66 @@ export default function EmptyState({
     'streak-broken': {
       mood: 'sad',
       defaultTitle: 'Streak lost — but not forgotten',
-      defaultSubtitle: "Today is a new day. Your Knight is ready to fight back.",
+      defaultSubtitle: 'Today is a new day. Your Knight is ready to fight back.',
       emoji: '💔',
     },
     'level-up': {
       mood: 'celebrating',
       defaultTitle: 'Level Complete!',
-      defaultSubtitle: "Your Knight grows stronger. Croatia awaits.",
+      defaultSubtitle: 'Your Knight grows stronger. Croatia awaits.',
       emoji: '⭐',
     },
     'all-caught-up': {
       mood: 'happy',
-      defaultTitle: "All caught up!",
+      defaultTitle: 'All caught up!',
       defaultSubtitle: 'Come back tomorrow for new reviews.',
       emoji: '✅',
     },
-    'default': {
+    default: {
       mood: 'neutral',
       defaultTitle: 'Nothing here yet',
       defaultSubtitle: 'Start learning to see your progress here.',
       emoji: '🎯',
-    }
+    },
   };
 
   const cfg = configs[type] || configs.default;
 
   return (
-    <div style={{
-      textAlign: 'center',
-      padding: '32px 24px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 8,
-    }}>
+    <div
+      style={{
+        textAlign: 'center',
+        padding: '32px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 8,
+      }}
+    >
       <CroatianKnight size={100} mood={cfg.mood} />
-      <div style={{
-        fontSize: 'var(--text-xl)',
-        fontWeight: 800,
-        color: 'var(--heading)',
-        fontFamily: "'Playfair Display', serif",
-        marginTop: 8,
-      }}>
+      <div
+        style={{
+          fontSize: 'var(--text-xl)',
+          fontWeight: 800,
+          color: 'var(--heading)',
+          fontFamily: "'Playfair Display', serif",
+          marginTop: 8,
+        }}
+      >
         {title || cfg.defaultTitle}
       </div>
-      <div style={{
-        fontSize: 'var(--text-sm)',
-        color: 'var(--subtext)',
-        lineHeight: 1.6,
-        maxWidth: 260,
-      }}>
+      <div
+        style={{
+          fontSize: 'var(--text-sm)',
+          color: 'var(--subtext)',
+          lineHeight: 1.6,
+          maxWidth: 260,
+        }}
+      >
         {subtitle || cfg.defaultSubtitle}
       </div>
       {onAction && (
-        <button
-          className="b bp"
-          style={{marginTop: 16, padding: '12px 28px'}}
-          onClick={onAction}
-        >
+        <button className="b bp" style={{ marginTop: 16, padding: '12px 28px' }} onClick={onAction}>
           {action || 'Get Started →'}
         </button>
       )}

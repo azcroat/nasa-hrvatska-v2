@@ -16,15 +16,17 @@ import { openUrl } from '../../lib/platform.ts';
 function YouTubeEmbed({ ytId, color }) {
   const src = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
   return (
-    <div style={{
-      position: 'relative',
-      width: '100%',
-      paddingBottom: '56.25%', // 16:9
-      borderRadius: 12,
-      overflow: 'hidden',
-      background: '#000',
-      boxShadow: `0 4px 24px ${color}40`,
-    }}>
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        paddingBottom: '56.25%', // 16:9
+        borderRadius: 12,
+        overflow: 'hidden',
+        background: '#000',
+        boxShadow: `0 4px 24px ${color}40`,
+      }}
+    >
       <iframe
         src={src}
         title="YouTube video player"
@@ -33,8 +35,10 @@ function YouTubeEmbed({ ytId, color }) {
         allowFullScreen
         style={{
           position: 'absolute',
-          top: 0, left: 0,
-          width: '100%', height: '100%',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
           border: 'none',
         }}
       />
@@ -52,16 +56,24 @@ function ExternalCard({ m, activeStream, setActiveStream }) {
   // Items with a stream but no ytId still show RadioPlayer here
   if (m.stream) {
     return (
-      <div style={{
-        background: 'var(--card)',
-        borderRadius: 14,
-        border: '1px solid var(--card-b)',
-        padding: '16px',
-      }}>
-        <div style={{
-          fontSize: 11, fontWeight: 800, color: 'var(--subtext)',
-          letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12,
-        }}>
+      <div
+        style={{
+          background: 'var(--card)',
+          borderRadius: 14,
+          border: '1px solid var(--card-b)',
+          padding: '16px',
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 800,
+            color: 'var(--subtext)',
+            letterSpacing: '.08em',
+            textTransform: 'uppercase',
+            marginBottom: 12,
+          }}
+        >
           LIVE STREAM
         </div>
         <RadioPlayer
@@ -75,10 +87,16 @@ function ExternalCard({ m, activeStream, setActiveStream }) {
           <button
             onClick={handleOpen}
             style={{
-              marginTop: 14, width: '100%', padding: '10px 0',
-              borderRadius: 10, border: `1.5px solid ${m.color}50`,
-              background: 'transparent', color: m.color,
-              fontSize: 13, fontWeight: 700, cursor: 'pointer',
+              marginTop: 14,
+              width: '100%',
+              padding: '10px 0',
+              borderRadius: 10,
+              border: `1.5px solid ${m.color}50`,
+              background: 'transparent',
+              color: m.color,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
             }}
           >
             Open website →
@@ -89,27 +107,39 @@ function ExternalCard({ m, activeStream, setActiveStream }) {
   }
 
   return (
-    <div style={{
-      background: 'var(--card)',
-      borderRadius: 14,
-      border: '1px solid var(--card-b)',
-      padding: '20px 16px',
-      textAlign: 'center',
-    }}>
+    <div
+      style={{
+        background: 'var(--card)',
+        borderRadius: 14,
+        border: '1px solid var(--card-b)',
+        padding: '20px 16px',
+        textAlign: 'center',
+      }}
+    >
       <div style={{ fontSize: 48, marginBottom: 12 }}>{m.icon}</div>
-      <div style={{
-        fontSize: 13, color: 'var(--text)', lineHeight: 1.5, marginBottom: 20,
-      }}>
+      <div
+        style={{
+          fontSize: 13,
+          color: 'var(--text)',
+          lineHeight: 1.5,
+          marginBottom: 20,
+        }}
+      >
         {m.desc}
       </div>
       {m.web ? (
         <button
           onClick={handleOpen}
           style={{
-            width: '100%', padding: '14px 0',
-            borderRadius: 12, border: 'none',
-            background: m.color, color: '#fff',
-            fontSize: 15, fontWeight: 800, cursor: 'pointer',
+            width: '100%',
+            padding: '14px 0',
+            borderRadius: 12,
+            border: 'none',
+            background: m.color,
+            color: '#fff',
+            fontSize: 15,
+            fontWeight: 800,
+            cursor: 'pointer',
             boxShadow: `0 4px 16px ${m.color}50`,
             letterSpacing: '.02em',
           }}
@@ -117,9 +147,7 @@ function ExternalCard({ m, activeStream, setActiveStream }) {
           Open in Browser
         </button>
       ) : (
-        <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
-          No external link available
-        </div>
+        <div style={{ fontSize: 12, color: 'var(--subtext)' }}>No external link available</div>
       )}
     </div>
   );
@@ -127,17 +155,14 @@ function ExternalCard({ m, activeStream, setActiveStream }) {
 
 // ── Main drawer ───────────────────────────────────────────────────────────────
 
-export default function MediaDetailDrawer({
-  item,
-  onClose,
-  activeStream,
-  setActiveStream,
-}) {
+export default function MediaDetailDrawer({ item, onClose, activeStream, setActiveStream }) {
   const overlayRef = useRef(null);
 
   // Close on Escape
   useEffect(() => {
-    function onKey(e) { if (e.key === 'Escape') onClose(); }
+    function onKey(e) {
+      if (e.key === 'Escape') onClose();
+    }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
@@ -145,7 +170,9 @@ export default function MediaDetailDrawer({
   // Prevent body scroll while drawer is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   if (!item) return null;
@@ -161,9 +188,12 @@ export default function MediaDetailDrawer({
       ref={overlayRef}
       onClick={handleOverlayClick}
       style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
         background: 'rgba(0,0,0,.55)',
-        display: 'flex', alignItems: 'flex-end',
+        display: 'flex',
+        alignItems: 'flex-end',
         animation: 'nh-fade-in .15s ease-out',
       }}
     >
@@ -184,30 +214,50 @@ export default function MediaDetailDrawer({
         </div>
 
         {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          padding: '8px 20px 16px',
-          borderBottom: '1px solid var(--card-b)',
-        }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-            background: `linear-gradient(135deg, ${item.color}cc, ${item.color})`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 22,
-          }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '8px 20px 16px',
+            borderBottom: '1px solid var(--card-b)',
+          }}
+        >
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              flexShrink: 0,
+              background: `linear-gradient(135deg, ${item.color}cc, ${item.color})`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 22,
+            }}
+          >
             {item.icon}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.2 }}>
+            <div
+              style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', lineHeight: 1.2 }}
+            >
               {item.name}
             </div>
             {item.level && (
-              <div style={{
-                display: 'inline-block', marginTop: 3,
-                fontSize: 9, fontWeight: 900, letterSpacing: '.08em',
-                color: item.color, background: `${item.color}18`,
-                padding: '2px 7px', borderRadius: 6,
-              }}>
+              <div
+                style={{
+                  display: 'inline-block',
+                  marginTop: 3,
+                  fontSize: 9,
+                  fontWeight: 900,
+                  letterSpacing: '.08em',
+                  color: item.color,
+                  background: `${item.color}18`,
+                  padding: '2px 7px',
+                  borderRadius: 6,
+                }}
+              >
                 {item.level}
               </div>
             )}
@@ -216,10 +266,17 @@ export default function MediaDetailDrawer({
             onClick={onClose}
             aria-label="Close"
             style={{
-              width: 32, height: 32, borderRadius: '50%',
-              border: 'none', background: 'var(--card)',
-              color: 'var(--subtext)', fontSize: 18, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              border: 'none',
+              background: 'var(--card)',
+              color: 'var(--subtext)',
+              fontSize: 18,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
             }}
           >
@@ -237,10 +294,16 @@ export default function MediaDetailDrawer({
                 <button
                   onClick={() => openUrl(item.web)}
                   style={{
-                    marginTop: 10, width: '100%', padding: '10px 0',
-                    borderRadius: 10, border: `1.5px solid ${item.color}50`,
-                    background: 'transparent', color: item.color,
-                    fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    marginTop: 10,
+                    width: '100%',
+                    padding: '10px 0',
+                    borderRadius: 10,
+                    border: `1.5px solid ${item.color}50`,
+                    background: 'transparent',
+                    color: item.color,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
                   }}
                 >
                   Open on YouTube →
@@ -262,21 +325,33 @@ export default function MediaDetailDrawer({
 
           {/* Learning tip */}
           {item.tip && (
-            <div style={{
-              background: `${item.color}10`,
-              border: `1px solid ${item.color}25`,
-              borderRadius: 12,
-              padding: '12px 14px',
-            }}>
-              <div style={{
-                fontSize: 10, fontWeight: 800, color: item.color,
-                letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 6,
-              }}>
+            <div
+              style={{
+                background: `${item.color}10`,
+                border: `1px solid ${item.color}25`,
+                borderRadius: 12,
+                padding: '12px 14px',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 800,
+                  color: item.color,
+                  letterSpacing: '.08em',
+                  textTransform: 'uppercase',
+                  marginBottom: 6,
+                }}
+              >
                 Learning Tip
               </div>
-              <div style={{
-                fontSize: 13, color: 'var(--text)', lineHeight: 1.55,
-              }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: 'var(--text)',
+                  lineHeight: 1.55,
+                }}
+              >
                 {item.tip}
               </div>
             </div>

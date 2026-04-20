@@ -2,11 +2,16 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { getHearts, loseHeart, hasHearts, getRegenTimeMs } from '../lib/lives.js';
 import { localDateStr } from '../lib/dateUtils.js';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 describe('lives — hearts system', () => {
   beforeEach(clearLS);
-  afterEach(() => { clearLS(); vi.useRealTimers(); });
+  afterEach(() => {
+    clearLS();
+    vi.useRealTimers();
+  });
 
   // ── getHearts ────────────────────────────────────────────────────────────────
 
@@ -16,19 +21,28 @@ describe('lives — hearts system', () => {
 
   it('returns 5 hearts after midnight (new day key)', () => {
     // Store state with a clearly stale date (not today) to simulate a new day
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: '2000-01-01', hearts: 2, lastRegen: Date.now() - 3600000 }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: '2000-01-01', hearts: 2, lastRegen: Date.now() - 3600000 }),
+    );
     expect(getHearts()).toBe(5);
   });
 
   it('returns stored hearts within same day', () => {
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen: Date.now() }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 3, lastRegen: Date.now() }),
+    );
     expect(getHearts()).toBe(3);
   });
 
   it('returns 0 hearts when stored as 0', () => {
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }),
+    );
     expect(getHearts()).toBe(0);
   });
 
@@ -39,7 +53,10 @@ describe('lives — hearts system', () => {
     const now = Date.now();
     vi.setSystemTime(now);
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 2, lastRegen: now - 4 * 3600001 }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 2, lastRegen: now - 4 * 3600001 }),
+    );
     expect(getHearts()).toBe(3);
   });
 
@@ -48,7 +65,10 @@ describe('lives — hearts system', () => {
     const now = Date.now();
     vi.setSystemTime(now);
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 2, lastRegen: now - 8 * 3600001 }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 2, lastRegen: now - 8 * 3600001 }),
+    );
     expect(getHearts()).toBe(4);
   });
 
@@ -57,7 +77,10 @@ describe('lives — hearts system', () => {
     const now = Date.now();
     vi.setSystemTime(now);
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 4, lastRegen: now - 8 * 3600001 }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 4, lastRegen: now - 8 * 3600001 }),
+    );
     expect(getHearts()).toBe(5);
   });
 
@@ -66,7 +89,10 @@ describe('lives — hearts system', () => {
     const now = Date.now();
     vi.setSystemTime(now);
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 5, lastRegen: now - 8 * 3600001 }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 5, lastRegen: now - 8 * 3600001 }),
+    );
     expect(getHearts()).toBe(5);
   });
 
@@ -75,7 +101,10 @@ describe('lives — hearts system', () => {
     const now = Date.now();
     vi.setSystemTime(now);
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen: now - 2 * 3600000 }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 3, lastRegen: now - 2 * 3600000 }),
+    );
     expect(getHearts()).toBe(3);
   });
 
@@ -83,13 +112,19 @@ describe('lives — hearts system', () => {
 
   it('loseHeart decrements hearts by 1', () => {
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 4, lastRegen: Date.now() }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 4, lastRegen: Date.now() }),
+    );
     expect(loseHeart()).toBe(3);
   });
 
   it('loseHeart floors at 0', () => {
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }),
+    );
     expect(loseHeart()).toBe(0);
   });
 
@@ -99,7 +134,10 @@ describe('lives — hearts system', () => {
 
   it('loseHeart persists to localStorage', () => {
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen: Date.now() }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 3, lastRegen: Date.now() }),
+    );
     loseHeart();
     const stored = JSON.parse(localStorage.getItem('nh_hearts'));
     expect(stored.hearts).toBe(2);
@@ -113,7 +151,10 @@ describe('lives — hearts system', () => {
 
   it('hasHearts returns false when hearts === 0', () => {
     const today = localDateStr();
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 0, lastRegen: Date.now() }),
+    );
     expect(hasHearts()).toBe(false);
   });
 
@@ -146,7 +187,10 @@ describe('lives — hearts system', () => {
     vi.setSystemTime(now);
     const today = localDateStr();
     const oneHourAgo = now - 3600000;
-    localStorage.setItem('nh_hearts', JSON.stringify({ date: today, hearts: 3, lastRegen: oneHourAgo }));
+    localStorage.setItem(
+      'nh_hearts',
+      JSON.stringify({ date: today, hearts: 3, lastRegen: oneHourAgo }),
+    );
     const ms = getRegenTimeMs();
     // Should be approx 3 hours remaining
     expect(ms).toBeGreaterThan(3600000 * 2.9);

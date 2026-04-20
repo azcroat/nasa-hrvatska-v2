@@ -91,7 +91,7 @@ describe('platform — isNative / isAndroid / isIos / isSpeechRecognitionSupport
   });
 
   it('isSpeechRecognitionSupported returns true when webkitSpeechRecognition present', async () => {
-    (window as unknown as Record<string, unknown>).webkitSpeechRecognition = function() {};
+    (window as unknown as Record<string, unknown>).webkitSpeechRecognition = function () {};
     vi.resetModules();
     const { isSpeechRecognitionSupported } = await import('../lib/platform');
     expect(isSpeechRecognitionSupported()).toBe(true);

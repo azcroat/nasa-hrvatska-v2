@@ -24,27 +24,52 @@ import type { Stats } from '../types/index.js';
 // ── Firebase + lib mocks ──────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
   initializeFirestore: vi.fn(() => ({})),
-  persistentLocalCache: vi.fn(() => ({})), persistentMultipleTabManager: vi.fn(() => ({})),
+  persistentLocalCache: vi.fn(() => ({})),
+  persistentMultipleTabManager: vi.fn(() => ({})),
   memoryLocalCache: vi.fn(() => ({})),
-  onSnapshot: vi.fn(() => () => {}), serverTimestamp: vi.fn(), increment: vi.fn(),
-  arrayUnion: vi.fn(), arrayRemove: vi.fn(), writeBatch: vi.fn(), runTransaction: vi.fn(),
-  deleteField: vi.fn(), deleteDoc: vi.fn(), updateDoc: vi.fn(),
+  onSnapshot: vi.fn(() => () => {}),
+  serverTimestamp: vi.fn(),
+  increment: vi.fn(),
+  arrayUnion: vi.fn(),
+  arrayRemove: vi.fn(),
+  writeBatch: vi.fn(),
+  runTransaction: vi.fn(),
+  deleteField: vi.fn(),
+  deleteDoc: vi.fn(),
+  updateDoc: vi.fn(),
 }));
 vi.mock('firebase/analytics', () => ({
-  getAnalytics: vi.fn(() => ({})), logEvent: vi.fn(),
+  getAnalytics: vi.fn(() => ({})),
+  logEvent: vi.fn(),
   isSupported: vi.fn(() => Promise.resolve(false)),
 }));
 vi.mock('../lib/srs.js', () => ({ getSR: vi.fn(() => ({})), saveSR: vi.fn() }));
@@ -55,9 +80,21 @@ vi.mock('../lib/appUtils.js', () => ({
 vi.mock('../lib/firebase.js', () => ({ gP: vi.fn(() => null) }));
 
 const DS: Stats = {
-  xp: 0, str: 1, diff: 'beginner', lc: 0, pf: 0,
-  gc: 0, sp: 0, de: 0, rc: 0, mv: 0, hi: 0,
-  rs: [], ct: [], vs: [], badges: [],
+  xp: 0,
+  str: 1,
+  diff: 'beginner',
+  lc: 0,
+  pf: 0,
+  gc: 0,
+  sp: 0,
+  de: 0,
+  rc: 0,
+  mv: 0,
+  hi: 0,
+  rs: [],
+  ct: [],
+  vs: [],
+  badges: [],
 };
 
 function prev(overrides: Partial<Stats> = {}): Stats {
@@ -86,14 +123,14 @@ describe('sync-integrity — weekKey() UTC consistency', () => {
 
   it('weekKey() produces same result for dates in the same ISO week', () => {
     // 2026-W15: Mon Apr 6 → Sun Apr 12
-    const mon = new Date(2026, 3, 6);   // Mon Apr 6
-    const sun = new Date(2026, 3, 12);  // Sun Apr 12
+    const mon = new Date(2026, 3, 6); // Mon Apr 6
+    const sun = new Date(2026, 3, 12); // Sun Apr 12
     expect(weekKey(mon)).toBe(weekKey(sun));
   });
 
   it('weekKey() produces different results for consecutive weeks', () => {
-    const thisMonday = new Date(2026, 3, 6);   // week 15
-    const nextMonday = new Date(2026, 3, 13);  // week 16
+    const thisMonday = new Date(2026, 3, 6); // week 15
+    const nextMonday = new Date(2026, 3, 13); // week 16
     expect(weekKey(thisMonday)).not.toBe(weekKey(nextMonday));
   });
 });
@@ -156,8 +193,12 @@ describe('sync-integrity — rs (score history) merge: longer array wins', () =>
 // ─── 3. buildProgressSnapshot — weekXPKey field ──────────────────────────────
 
 describe('sync-integrity — buildProgressSnapshot weekXPKey', () => {
-  beforeEach(() => { localStorage.clear(); });
-  afterEach(() => { localStorage.clear(); });
+  beforeEach(() => {
+    localStorage.clear();
+  });
+  afterEach(() => {
+    localStorage.clear();
+  });
 
   it('snapshot includes weekXPKey matching weekKey() format', async () => {
     const { buildProgressSnapshot } = await import('../lib/progressSnapshot.js');
@@ -245,15 +286,23 @@ describe('sync-integrity — array fields: no items lost through merge', () => {
 // This test shows they can differ, and confirms applyRemoteProgress now uses UTC.
 
 describe('sync-integrity — weekXP key alignment across all write paths', () => {
-  beforeEach(() => { localStorage.clear(); });
-  afterEach(() => { localStorage.clear(); });
+  beforeEach(() => {
+    localStorage.clear();
+  });
+  afterEach(() => {
+    localStorage.clear();
+  });
 
   it('weekKey() result matches what applyRemoteProgress reads/writes', async () => {
     const { applyRemoteProgress } = await import('../lib/applyRemoteProgress.js');
     const wk = weekKey(); // UTC-based — same as useAward and progressSnapshot
     const setters = {
-      setFavs: vi.fn(), setJWords: vi.fn(), sDchlA: vi.fn(),
-      sDchlSl: vi.fn(), setOnboarded: vi.fn(), setName: vi.fn(),
+      setFavs: vi.fn(),
+      setJWords: vi.fn(),
+      sDchlA: vi.fn(),
+      sDchlSl: vi.fn(),
+      setOnboarded: vi.fn(),
+      setName: vi.fn(),
     };
     // Simulate a snapshot written by progressSnapshot (which uses weekKey())
     applyRemoteProgress({ weekXP: 500, weekXPKey: wk }, setters);
@@ -266,8 +315,12 @@ describe('sync-integrity — weekXP key alignment across all write paths', () =>
     const { applyRemoteProgress } = await import('../lib/applyRemoteProgress.js');
     const wk = weekKey();
     const setters = {
-      setFavs: vi.fn(), setJWords: vi.fn(), sDchlA: vi.fn(),
-      sDchlSl: vi.fn(), setOnboarded: vi.fn(), setName: vi.fn(),
+      setFavs: vi.fn(),
+      setJWords: vi.fn(),
+      sDchlA: vi.fn(),
+      sDchlSl: vi.fn(),
+      setOnboarded: vi.fn(),
+      setName: vi.fn(),
     };
     // Snapshot with an old weekXPKey — stale cross-week value
     applyRemoteProgress({ weekXP: 9999, weekXPKey: '2020-W01' }, setters);

@@ -29,18 +29,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── CroatianKnight mock — avoids complex animation setup ──────────────────────
@@ -48,7 +64,9 @@ vi.mock('../components/shared/CroatianKnight', () => ({ default: () => null }));
 
 // ── useHaptic mock ────────────────────────────────────────────────────────────
 const mockHaptic = vi.hoisted(() => ({
-  correct: vi.fn(), wrong: vi.fn(), award: vi.fn(),
+  correct: vi.fn(),
+  wrong: vi.fn(),
+  award: vi.fn(),
 }));
 vi.mock('../hooks/useHaptic', () => ({ useHaptic: () => mockHaptic }));
 
@@ -72,10 +90,20 @@ vi.mock('../lib/knightSpeak.js', () => ({ knightSpeak: mockKnightSpeak }));
 vi.mock('../lib/soundSettings.js', () => ({ playFanfare: vi.fn() }));
 
 // ── apiFetch mock — returns AI explanation ────────────────────────────────────
-const mockApiFetch = vi.hoisted(() => vi.fn(() => Promise.resolve({
-  ok: true,
-  json: () => Promise.resolve({ explanation: 'Test explanation', rule: 'Verb agreement', tip: 'Watch endings', example: '' }),
-})));
+const mockApiFetch = vi.hoisted(() =>
+  vi.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          explanation: 'Test explanation',
+          rule: 'Verb agreement',
+          tip: 'Watch endings',
+          example: '',
+        }),
+    }),
+  ),
+);
 vi.mock('../lib/apiFetch.js', () => ({ apiFetch: mockApiFetch }));
 
 // ── srs mock — controls which words appear ────────────────────────────────────
@@ -98,7 +126,7 @@ vi.mock('../data', async (importOriginal) => {
     ...actual,
     srMark: mockSrMark,
     getSR: () => ({}),
-    sh: (arr: unknown[]) => arr,   // identity — correct answer always first in opts
+    sh: (arr: unknown[]) => arr, // identity — correct answer always first in opts
   };
 });
 
@@ -114,9 +142,9 @@ function renderScreen(overrides: Record<string, unknown> = {}) {
 
 /** Find the four MCQ option buttons (className contains "ob"). */
 function getOptionButtons() {
-  return screen.getAllByRole('button').filter(b =>
-    (b as HTMLButtonElement).className?.includes('ob'),
-  );
+  return screen
+    .getAllByRole('button')
+    .filter((b) => (b as HTMLButtonElement).className?.includes('ob'));
 }
 
 /** Click the correct option (opts[0] = word[1] since sh is identity). */
@@ -135,9 +163,9 @@ function clickWrongOption() {
 
 /** Click the "Next →" / "Results" button that appears after answering. */
 function clickNext() {
-  const btn = screen.getAllByRole('button').find(b =>
-    b.textContent?.includes('Next') || b.textContent?.trim() === 'Results',
-  );
+  const btn = screen
+    .getAllByRole('button')
+    .find((b) => b.textContent?.includes('Next') || b.textContent?.trim() === 'Results');
   if (!btn) throw new Error('Next/Results button not found');
   fireEvent.click(btn);
 }
@@ -147,16 +175,18 @@ function goToDone(award = vi.fn()) {
   renderScreen({ award });
   // Question 1: correct answer
   clickCorrectOption();
-  clickNext();         // → question 2 (last)
+  clickNext(); // → question 2 (last)
   // Question 2: correct answer
   clickCorrectOption();
-  clickNext();         // "Results" → done
+  clickNext(); // "Results" → done
 }
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
 describe('ReviewScreen — empty state', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows "All caught up!" when no words are due', () => {
     mockGetPrioritizedReviewQueue.mockReturnValueOnce([]);
@@ -173,13 +203,15 @@ describe('ReviewScreen — empty state', () => {
   it('shows "Go Back" button in empty state', () => {
     mockGetPrioritizedReviewQueue.mockReturnValueOnce([]);
     renderScreen();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Go Back'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Go Back')),
+    ).toBeTruthy();
   });
 
   it('"Go Back" button calls goBack', () => {
     mockGetPrioritizedReviewQueue.mockReturnValueOnce([]);
     const { props } = renderScreen();
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Go Back'))!;
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Go Back'))!;
     fireEvent.click(btn);
     expect(props.goBack).toHaveBeenCalled();
   });
@@ -188,7 +220,9 @@ describe('ReviewScreen — empty state', () => {
 // ─── Quiz rendering ───────────────────────────────────────────────────────────
 
 describe('ReviewScreen — quiz rendering', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('shows the Croatian word for the first question', () => {
     renderScreen();
@@ -213,7 +247,7 @@ describe('ReviewScreen — quiz rendering', () => {
 
   it('option buttons are not disabled before answering', () => {
     renderScreen();
-    getOptionButtons().forEach(btn => {
+    getOptionButtons().forEach((btn) => {
       expect((btn as HTMLButtonElement).disabled).toBe(false);
     });
   });
@@ -222,7 +256,9 @@ describe('ReviewScreen — quiz rendering', () => {
 // ─── Correct answer ───────────────────────────────────────────────────────────
 
 describe('ReviewScreen — correct answer', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking correct option shows "Točno! · Correct!"', () => {
     renderScreen();
@@ -233,7 +269,7 @@ describe('ReviewScreen — correct answer', () => {
   it('correct answer: "Next →" button appears (non-last question)', () => {
     renderScreen();
     clickCorrectOption();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Next'))).toBeTruthy();
+    expect(screen.getAllByRole('button').find((b) => b.textContent?.includes('Next'))).toBeTruthy();
   });
 
   it('correct answer: srMark(word, true) called', () => {
@@ -252,7 +288,9 @@ describe('ReviewScreen — correct answer', () => {
 // ─── Wrong answer ─────────────────────────────────────────────────────────────
 
 describe('ReviewScreen — wrong answer', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('clicking wrong option shows "✓ The answer was" text', () => {
     renderScreen();
@@ -296,14 +334,16 @@ describe('ReviewScreen — wrong answer', () => {
   it('wrong answer: "Next →" still appears so user can advance', () => {
     renderScreen();
     clickWrongOption();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Next'))).toBeTruthy();
+    expect(screen.getAllByRole('button').find((b) => b.textContent?.includes('Next'))).toBeTruthy();
   });
 });
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
 describe('ReviewScreen — navigation', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('"Next →" advances to the second question (shows second word)', () => {
     renderScreen();
@@ -323,22 +363,30 @@ describe('ReviewScreen — navigation', () => {
   it('last question shows "Results" instead of "Next →"', () => {
     renderScreen();
     clickCorrectOption();
-    clickNext();         // now on last question
+    clickNext(); // now on last question
     clickCorrectOption();
     // "Results" button should be visible; "Next →" should not
-    expect(screen.getAllByRole('button').find(b => b.textContent?.trim() === 'Results')).toBeTruthy();
-    expect(screen.queryAllByRole('button').find(b => b.textContent?.includes('Next →'))).toBeFalsy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.trim() === 'Results'),
+    ).toBeTruthy();
+    expect(
+      screen.queryAllByRole('button').find((b) => b.textContent?.includes('Next →')),
+    ).toBeFalsy();
   });
 });
 
 // ─── Done mode ────────────────────────────────────────────────────────────────
 
 describe('ReviewScreen — done mode', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('done mode shows "Continue →" button', () => {
     goToDone();
-    expect(screen.getAllByRole('button').find(b => b.textContent?.includes('Continue'))).toBeTruthy();
+    expect(
+      screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue')),
+    ).toBeTruthy();
   });
 
   it('done mode shows score percentage', () => {
@@ -350,7 +398,7 @@ describe('ReviewScreen — done mode', () => {
   it('"Continue →" calls award(score * 5 + 5)', () => {
     const award = vi.fn();
     goToDone(award);
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Continue'))!;
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
     // 2 correct answers: 2 * 5 + 5 = 15
     expect(award).toHaveBeenCalledWith(15);
@@ -358,14 +406,14 @@ describe('ReviewScreen — done mode', () => {
 
   it('"Continue →" calls markQuest("master")', () => {
     goToDone();
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Continue'))!;
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
     expect(mockMarkQuest).toHaveBeenCalledWith('master');
   });
 
   it('"Continue →" calls markPracticed()', () => {
     goToDone();
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Continue'))!;
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
     expect(mockMarkPracticed).toHaveBeenCalled();
   });
@@ -373,7 +421,7 @@ describe('ReviewScreen — done mode', () => {
   it('"Continue →" double-click does not double-award (finishFired ref)', () => {
     const award = vi.fn();
     goToDone(award);
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Continue'))!;
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
     fireEvent.click(btn);
     expect(award).toHaveBeenCalledTimes(1);
@@ -385,8 +433,8 @@ describe('ReviewScreen — done mode', () => {
     clickCorrectOption();
     clickNext();
     clickCorrectOption();
-    clickNext();   // Results → done
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Continue'))!;
+    clickNext(); // Results → done
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
     expect(goBack).toHaveBeenCalled();
   });
@@ -395,7 +443,9 @@ describe('ReviewScreen — done mode', () => {
 // ─── Score tracking ───────────────────────────────────────────────────────────
 
 describe('ReviewScreen — score tracking', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('0/2 correct → award(0 * 5 + 5) = 5', () => {
     const award = vi.fn();
@@ -403,10 +453,10 @@ describe('ReviewScreen — score tracking', () => {
     clickWrongOption();
     clickNext();
     clickWrongOption();
-    clickNext();   // Results → done
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Continue'))!;
+    clickNext(); // Results → done
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
-    expect(award).toHaveBeenCalledWith(5);   // score=0 → 0*5+5=5
+    expect(award).toHaveBeenCalledWith(5); // score=0 → 0*5+5=5
   });
 
   it('1/2 correct → award(1 * 5 + 5) = 10', () => {
@@ -415,9 +465,9 @@ describe('ReviewScreen — score tracking', () => {
     clickCorrectOption();
     clickNext();
     clickWrongOption();
-    clickNext();   // Results → done
-    const btn = screen.getAllByRole('button').find(b => b.textContent?.includes('Continue'))!;
+    clickNext(); // Results → done
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
-    expect(award).toHaveBeenCalledWith(10);  // score=1 → 1*5+5=10
+    expect(award).toHaveBeenCalledWith(10); // score=1 → 1*5+5=10
   });
 });

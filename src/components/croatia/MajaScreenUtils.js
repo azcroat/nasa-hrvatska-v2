@@ -101,8 +101,7 @@ export function getPersona() {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 export const SR_SUPPORTED =
-  typeof window !== 'undefined' &&
-  !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
 export const DEFAULT_MEMORY = {
   sessionCount: 0,
@@ -158,7 +157,7 @@ export function relationshipLabel(level) {
 export function computeRelationshipLevel(sessionCount) {
   if (sessionCount >= 20) return 4;
   if (sessionCount >= 10) return 3;
-  if (sessionCount >= 5)  return 2;
-  if (sessionCount >= 2)  return 1;
+  if (sessionCount >= 5) return 2;
+  if (sessionCount >= 2) return 1;
   return 0;
 }

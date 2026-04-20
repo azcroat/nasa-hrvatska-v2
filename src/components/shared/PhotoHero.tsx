@@ -69,7 +69,8 @@ export default function PhotoHero({
       <div
         className="photo-hero-overlay"
         style={{
-          background: 'linear-gradient(to top, rgba(6,14,30,0.75) 0%, rgba(6,14,30,0.3) 50%, rgba(6,14,30,0.1) 100%)',
+          background:
+            'linear-gradient(to top, rgba(6,14,30,0.75) 0%, rgba(6,14,30,0.3) 50%, rgba(6,14,30,0.1) 100%)',
           zIndex: 3,
         }}
       />

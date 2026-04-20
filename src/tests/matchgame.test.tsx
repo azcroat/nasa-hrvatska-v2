@@ -15,18 +15,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -93,9 +109,9 @@ describe('MatchGame — rendering', () => {
 
   it('cards have role="button" for accessibility', () => {
     renderMatchGame();
-    const cards = screen.getAllByRole('button').filter(b =>
-      b.textContent?.startsWith('hrWord') || b.textContent?.startsWith('enWord')
-    );
+    const cards = screen
+      .getAllByRole('button')
+      .filter((b) => b.textContent?.startsWith('hrWord') || b.textContent?.startsWith('enWord'));
     expect(cards.length).toBe(4);
   });
 });
@@ -139,12 +155,16 @@ describe('MatchGame — completion + award guard', () => {
     // Match pair 0: hrWord0 + enWord0
     fireEvent.click(screen.getByText('hrWord0'));
     fireEvent.click(screen.getByText('enWord0'));
-    await act(async () => { vi.advanceTimersByTime(600); });
+    await act(async () => {
+      vi.advanceTimersByTime(600);
+    });
 
     // Match pair 1: hrWord1 + enWord1
     fireEvent.click(screen.getByText('hrWord1'));
     fireEvent.click(screen.getByText('enWord1'));
-    await act(async () => { vi.advanceTimersByTime(600); });
+    await act(async () => {
+      vi.advanceTimersByTime(600);
+    });
   }
 
   it('shows completion screen after all pairs matched', async () => {
@@ -158,7 +178,9 @@ describe('MatchGame — completion + award guard', () => {
   it('award(20) is called exactly once on completion', async () => {
     const award = vi.fn();
     await matchAllPairs(award);
-    await act(async () => { vi.advanceTimersByTime(500); }); // completion timeout
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    }); // completion timeout
     expect(award).toHaveBeenCalledTimes(1);
     expect(award).toHaveBeenCalledWith(20);
   });
@@ -166,14 +188,18 @@ describe('MatchGame — completion + award guard', () => {
   it('markQuest("vocab") is called on completion', async () => {
     const award = vi.fn();
     await matchAllPairs(award);
-    await act(async () => { vi.advanceTimersByTime(500); });
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
     expect(mockMarkQuest).toHaveBeenCalledWith('vocab');
   });
 
   it('markQuest is called exactly once', async () => {
     const award = vi.fn();
     await matchAllPairs(award);
-    await act(async () => { vi.advanceTimersByTime(500); });
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
     expect(mockMarkQuest).toHaveBeenCalledTimes(1);
   });
 });
@@ -181,8 +207,12 @@ describe('MatchGame — completion + award guard', () => {
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 describe('MatchGame — navigation', () => {
-  beforeEach(() => { vi.useFakeTimers(); });
-  afterEach(() => { vi.useRealTimers(); });
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it('Continue button calls goBack after completion', async () => {
     const goBack = vi.fn();
@@ -191,11 +221,15 @@ describe('MatchGame — navigation', () => {
 
     fireEvent.click(screen.getByText('hrWord0'));
     fireEvent.click(screen.getByText('enWord0'));
-    await act(async () => { vi.advanceTimersByTime(600); });
+    await act(async () => {
+      vi.advanceTimersByTime(600);
+    });
     fireEvent.click(screen.getByText('hrWord1'));
     fireEvent.click(screen.getByText('enWord1'));
     // Advance past the 500ms completion timeout
-    await act(async () => { vi.advanceTimersByTime(600); });
+    await act(async () => {
+      vi.advanceTimersByTime(600);
+    });
 
     // Completion screen is now shown — check directly (waitFor + fake timers deadlocks)
     expect(screen.queryByText('All Matched!')).toBeTruthy();

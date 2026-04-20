@@ -8,16 +8,22 @@ import { markQuest } from '../../lib/quests.js';
 
 const LEVELS = ['All', 'A1', 'A2', 'B1'];
 const LEVEL_COLOR = { A1: '#166534', A2: '#1e40af', B1: '#92400e' };
-const LEVEL_BG   = { A1: '#dcfce7', A2: '#dbeafe', B1: '#fef3c7' };
+const LEVEL_BG = { A1: '#dcfce7', A2: '#dbeafe', B1: '#fef3c7' };
 
 const COMPLETED_KEY = 'nh_graded_done';
 function getDone() {
-  try { return JSON.parse(localStorage.getItem(COMPLETED_KEY) || '[]'); } catch { return []; }
+  try {
+    return JSON.parse(localStorage.getItem(COMPLETED_KEY) || '[]');
+  } catch {
+    return [];
+  }
 }
 function markDone(id) {
   const done = getDone();
   if (!done.includes(id)) {
-    try { localStorage.setItem(COMPLETED_KEY, JSON.stringify([...done, id])); } catch {}
+    try {
+      localStorage.setItem(COMPLETED_KEY, JSON.stringify([...done, id]));
+    } catch {}
   }
 }
 
@@ -30,22 +36,36 @@ const BackBtn = ({ onClick }) => (
 
 // ─── Level badge ──────────────────────────────────────────────────────────────
 const LevelBadge = ({ level }) => (
-  <span style={{
-    background: LEVEL_BG[level] || '#f5f5f4',
-    color: LEVEL_COLOR[level] || '#44403c',
-    fontSize: 10, fontWeight: 800, padding: '2px 8px',
-    borderRadius: 20, letterSpacing: '.05em',
-  }}>{level}</span>
+  <span
+    style={{
+      background: LEVEL_BG[level] || '#f5f5f4',
+      color: LEVEL_COLOR[level] || '#44403c',
+      fontSize: 10,
+      fontWeight: 800,
+      padding: '2px 8px',
+      borderRadius: 20,
+      letterSpacing: '.05em',
+    }}
+  >
+    {level}
+  </span>
 );
 
 // ─── TTS audio helper ─────────────────────────────────────────────────────────
 async function playTTS(text, audioRef) {
   // Stop any previous audio
-  if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+  if (audioRef.current) {
+    audioRef.current.pause();
+    audioRef.current = null;
+  }
 
   // Try the app's TTS API first, fall back to Web Speech
   try {
-    const res = await apiFetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: getVoicePreference() }) });
+    const res = await apiFetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice: getVoicePreference() }),
+    });
     if (res?.audioUrl) {
       const a = new Audio(res.audioUrl);
       audioRef.current = a;
@@ -61,22 +81,27 @@ function StoryList({ onSelect, goBack }) {
   const [filter, setFilter] = useState('All');
   const done = getDone();
 
-  const visible = GRADED_STORIES.filter(s => filter === 'All' || s.level === filter);
+  const visible = GRADED_STORIES.filter((s) => filter === 'All' || s.level === filter);
 
   return (
     <div className="scr-wrap">
       <BackBtn onClick={goBack} />
 
       {/* Hero */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0e7490, #0369a1)',
-        borderRadius: 18, padding: '20px 20px', marginBottom: 20, color: 'white',
-      }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #0e7490, #0369a1)',
+          borderRadius: 18,
+          padding: '20px 20px',
+          marginBottom: 20,
+          color: 'white',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ fontSize: 44 }}>📖</div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>Graded Stories</div>
-            <div style={{ fontSize: 12, opacity: .85, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 12, opacity: 0.85, lineHeight: 1.5 }}>
               Real Croatian texts at your level — read, listen, and quiz yourself
             </div>
           </div>
@@ -85,43 +110,80 @@ function StoryList({ onSelect, goBack }) {
 
       {/* Level filter */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        {LEVELS.map(l => (
-          <button key={l} onClick={() => setFilter(l)} style={{
-            padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
-            fontSize: 13, fontWeight: 700,
-            background: filter === l ? '#0e7490' : 'var(--card)',
-            color: filter === l ? 'white' : 'var(--subtext)',
-            boxShadow: filter === l ? '0 2px 8px rgba(14,116,144,.3)' : 'none',
-          }}>{l}</button>
+        {LEVELS.map((l) => (
+          <button
+            key={l}
+            onClick={() => setFilter(l)}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 20,
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 700,
+              background: filter === l ? '#0e7490' : 'var(--card)',
+              color: filter === l ? 'white' : 'var(--subtext)',
+              boxShadow: filter === l ? '0 2px 8px rgba(14,116,144,.3)' : 'none',
+            }}
+          >
+            {l}
+          </button>
         ))}
       </div>
 
       {/* Story cards */}
-      {visible.map(story => {
+      {visible.map((story) => {
         const isDone = done.includes(story.id);
         return (
-          <div key={story.id}
-            role="button" tabIndex={0}
+          <div
+            key={story.id}
+            role="button"
+            tabIndex={0}
             onClick={() => onSelect(story)}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(story); } }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelect(story);
+              }
+            }}
             style={{
-              background: 'var(--card)', borderRadius: 16, padding: '16px 18px',
-              marginBottom: 12, cursor: 'pointer', border: '1px solid var(--card-b)',
+              background: 'var(--card)',
+              borderRadius: 16,
+              padding: '16px 18px',
+              marginBottom: 12,
+              cursor: 'pointer',
+              border: '1px solid var(--card-b)',
               borderLeft: `4px solid ${LEVEL_COLOR[story.level] || '#0e7490'}`,
               boxShadow: '0 2px 8px rgba(0,0,0,.05)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               gap: 12,
-            }}>
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ fontSize: 32 }}>{story.icon}</div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   <LevelBadge level={story.level} />
-                  <span style={{ fontSize: 11, color: 'var(--subtext)' }}>{story.duration} min</span>
+                  <span style={{ fontSize: 11, color: 'var(--subtext)' }}>
+                    {story.duration} min
+                  </span>
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--heading)', marginBottom: 2 }}>{story.title}</div>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 800,
+                    color: 'var(--heading)',
+                    marginBottom: 2,
+                  }}
+                >
+                  {story.title}
+                </div>
                 <div style={{ fontSize: 12, color: 'var(--subtext)' }}>{story.titleEn}</div>
-                <div style={{ fontSize: 11, color: 'var(--info)', marginTop: 4 }}>{story.focus}</div>
+                <div style={{ fontSize: 11, color: 'var(--info)', marginTop: 4 }}>
+                  {story.focus}
+                </div>
               </div>
             </div>
             <div style={{ fontSize: 20, flexShrink: 0 }}>{isDone ? '✅' : '▶️'}</div>
@@ -162,8 +224,8 @@ function StoryReader({ story, onStartQuiz, goBack }) {
   const [showEn, setShowEn] = useState(false);
   const [showVocab, setShowVocab] = useState(false);
   const [playingIdx, setPlayingIdx] = useState(null);
-  const [recordingIdx, setRecordingIdx] = useState(null);   // paragraph index being recorded
-  const [assessResults, setAssessResults] = useState({});   // { [paraIdx]: assessResult }
+  const [recordingIdx, setRecordingIdx] = useState(null); // paragraph index being recorded
+  const [assessResults, setAssessResults] = useState({}); // { [paraIdx]: assessResult }
   const [assessError, setAssessError] = useState(null);
   const mediaRecorderRef = useRef(null);
   const audioRef = useRef(null);
@@ -179,14 +241,18 @@ function StoryReader({ story, onStartQuiz, goBack }) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const chunks = [];
-      const mr = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg' });
-      mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      const mr = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg',
+      });
+      mr.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
       mr.onstop = async () => {
-        stream.getTracks().forEach(t => t.stop());
+        stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunks, { type: mr.mimeType });
         try {
           const result = await assessPronunciation(blob, paraText);
-          setAssessResults(r => ({ ...r, [paraIdx]: result }));
+          setAssessResults((r) => ({ ...r, [paraIdx]: result }));
         } catch (e) {
           setAssessError('Assessment unavailable — check your connection and try again.');
         }
@@ -212,63 +278,113 @@ function StoryReader({ story, onStartQuiz, goBack }) {
       <BackBtn onClick={goBack} />
 
       {/* Story header */}
-      <div style={{
-        background: `linear-gradient(135deg, ${LEVEL_COLOR[story.level]}dd, ${LEVEL_COLOR[story.level]})`,
-        borderRadius: 18, padding: '20px 20px', marginBottom: 20, color: 'white',
-      }}>
+      <div
+        style={{
+          background: `linear-gradient(135deg, ${LEVEL_COLOR[story.level]}dd, ${LEVEL_COLOR[story.level]})`,
+          borderRadius: 18,
+          padding: '20px 20px',
+          marginBottom: 20,
+          color: 'white',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ fontSize: 44 }}>{story.icon}</div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>{story.title}</div>
-            <div style={{ fontSize: 13, opacity: .9, marginBottom: 6 }}>{story.titleEn}</div>
-            <div style={{ fontSize: 11, opacity: .8, lineHeight: 1.5 }}>{story.focus}</div>
+            <div style={{ fontSize: 13, opacity: 0.9, marginBottom: 6 }}>{story.titleEn}</div>
+            <div style={{ fontSize: 11, opacity: 0.8, lineHeight: 1.5 }}>{story.focus}</div>
           </div>
         </div>
       </div>
 
       {/* Intro */}
-      <div style={{
-        background: 'var(--info-bg)', border: '1px solid var(--info-b)',
-        borderRadius: 12, padding: '12px 16px', marginBottom: 20,
-        fontSize: 13, color: 'var(--info)', lineHeight: 1.6,
-      }}>
-        <strong>💡 </strong>{story.intro}
+      <div
+        style={{
+          background: 'var(--info-bg)',
+          border: '1px solid var(--info-b)',
+          borderRadius: 12,
+          padding: '12px 16px',
+          marginBottom: 20,
+          fontSize: 13,
+          color: 'var(--info)',
+          lineHeight: 1.6,
+        }}
+      >
+        <strong>💡 </strong>
+        {story.intro}
       </div>
 
       {/* Toggle controls */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        <button onClick={() => setShowEn(v => !v)} style={{
-          padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
-          fontSize: 12, fontWeight: 700,
-          background: showEn ? '#0e7490' : 'var(--card)',
-          color: showEn ? 'white' : 'var(--subtext)',
-        }}>🇬🇧 {showEn ? 'Hide' : 'Show'} English</button>
-        <button onClick={() => setShowVocab(v => !v)} style={{
-          padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
-          fontSize: 12, fontWeight: 700,
-          background: showVocab ? '#7c3aed' : 'var(--card)',
-          color: showVocab ? 'white' : 'var(--subtext)',
-        }}>📚 {showVocab ? 'Hide' : 'Show'} Vocabulary</button>
+        <button
+          onClick={() => setShowEn((v) => !v)}
+          style={{
+            padding: '6px 14px',
+            borderRadius: 20,
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 12,
+            fontWeight: 700,
+            background: showEn ? '#0e7490' : 'var(--card)',
+            color: showEn ? 'white' : 'var(--subtext)',
+          }}
+        >
+          🇬🇧 {showEn ? 'Hide' : 'Show'} English
+        </button>
+        <button
+          onClick={() => setShowVocab((v) => !v)}
+          style={{
+            padding: '6px 14px',
+            borderRadius: 20,
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 12,
+            fontWeight: 700,
+            background: showVocab ? '#7c3aed' : 'var(--card)',
+            color: showVocab ? 'white' : 'var(--subtext)',
+          }}
+        >
+          📚 {showVocab ? 'Hide' : 'Show'} Vocabulary
+        </button>
       </div>
 
       {/* Vocabulary panel */}
       {showVocab && (
-        <div style={{
-          background: 'var(--card)', border: '1px solid var(--card-b)',
-          borderRadius: 14, padding: '12px 16px', marginBottom: 20,
-        }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 12 }}>Key Vocabulary</div>
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--card-b)',
+            borderRadius: 14,
+            padding: '12px 16px',
+            marginBottom: 20,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 12 }}>
+            Key Vocabulary
+          </div>
           {story.vocabulary.map((v, i) => (
-            <div key={i}
-              role="button" tabIndex={0}
+            <div
+              key={i}
+              role="button"
+              tabIndex={0}
               onClick={() => speak(v.hr)}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(v.hr); } }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  speak(v.hr);
+                }
+              }}
               aria-label={`Hear pronunciation of ${v.hr}`}
               style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-                padding: '10px 0', borderBottom: i < story.vocabulary.length - 1 ? '1px solid var(--card-b)' : 'none',
-                cursor: 'pointer', gap: 12,
-              }}>
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                padding: '10px 0',
+                borderBottom: i < story.vocabulary.length - 1 ? '1px solid var(--card-b)' : 'none',
+                cursor: 'pointer',
+                gap: 12,
+              }}
+            >
               <div>
                 <span style={{ fontWeight: 700, color: 'var(--heading)' }}>🔊 {v.hr}</span>
                 <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 3 }}>{v.ex}</div>
@@ -281,68 +397,130 @@ function StoryReader({ story, onStartQuiz, goBack }) {
 
       {/* Assessment error */}
       {assessError && (
-        <div style={{
-          background: '#fee2e2', border: '1px solid #fca5a5',
-          borderRadius: 10, padding: '10px 14px', marginBottom: 12,
-          fontSize: 12, color: '#b91c1c',
-        }}>{assessError}</div>
+        <div
+          style={{
+            background: '#fee2e2',
+            border: '1px solid #fca5a5',
+            borderRadius: 10,
+            padding: '10px 14px',
+            marginBottom: 12,
+            fontSize: 12,
+            color: '#b91c1c',
+          }}
+        >
+          {assessError}
+        </div>
       )}
 
       {/* Paragraphs */}
       {story.paragraphs.map((para, i) => {
         const result = assessResults[i];
         return (
-          <div key={i} style={{
-            background: 'var(--card)', border: '1px solid var(--card-b)',
-            borderRadius: 14, padding: '16px 18px', marginBottom: 12,
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-              <p style={{
-                fontSize: 16, lineHeight: 1.8, color: 'var(--heading)',
-                fontFamily: "'Playfair Display', Georgia, serif",
-                margin: 0, flex: 1, whiteSpace: 'pre-line',
-              }}>{para.hr}</p>
+          <div
+            key={i}
+            style={{
+              background: 'var(--card)',
+              border: '1px solid var(--card-b)',
+              borderRadius: 14,
+              padding: '16px 18px',
+              marginBottom: 12,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                gap: 8,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 16,
+                  lineHeight: 1.8,
+                  color: 'var(--heading)',
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  margin: 0,
+                  flex: 1,
+                  whiteSpace: 'pre-line',
+                }}
+              >
+                {para.hr}
+              </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
                 <button
                   onClick={() => handlePlay(para.hr, i)}
                   aria-label="Listen to paragraph"
                   style={{
-                    width: 36, height: 36, borderRadius: 50, border: 'none',
+                    width: 36,
+                    height: 36,
+                    borderRadius: 50,
+                    border: 'none',
                     background: playingIdx === i ? '#0e7490' : 'var(--info-bg)',
                     color: playingIdx === i ? 'white' : '#0e7490',
-                    fontSize: 16, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 16,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
-                >{playingIdx === i ? '⏸' : '🔊'}</button>
+                >
+                  {playingIdx === i ? '⏸' : '🔊'}
+                </button>
                 <button
-                  onClick={() => recordingIdx === i ? stopRecording() : startRecording(i, para.hr)}
+                  onClick={() =>
+                    recordingIdx === i ? stopRecording() : startRecording(i, para.hr)
+                  }
                   aria-label={recordingIdx === i ? 'Stop recording' : 'Record your pronunciation'}
                   title={recordingIdx === i ? 'Stop recording' : 'Assess your pronunciation'}
                   style={{
-                    width: 36, height: 36, borderRadius: 50, border: 'none',
-                    background: recordingIdx === i ? '#dc2626' : result ? '#059669' : 'var(--card-b)',
+                    width: 36,
+                    height: 36,
+                    borderRadius: 50,
+                    border: 'none',
+                    background:
+                      recordingIdx === i ? '#dc2626' : result ? '#059669' : 'var(--card-b)',
                     color: recordingIdx === i ? 'white' : result ? 'white' : 'var(--subtext)',
-                    fontSize: 16, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 16,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     animation: recordingIdx === i ? 'pulse 1s infinite' : 'none',
                   }}
-                >{recordingIdx === i ? '⏹' : result ? '✓' : '🎤'}</button>
+                >
+                  {recordingIdx === i ? '⏹' : result ? '✓' : '🎤'}
+                </button>
               </div>
             </div>
 
             {showEn && (
-              <p style={{
-                fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6,
-                marginTop: 10, paddingTop: 10, borderTop: '1px dashed var(--card-b)',
-                margin: '10px 0 0', fontStyle: 'italic', whiteSpace: 'pre-line',
-              }}>{para.en}</p>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: 'var(--subtext)',
+                  lineHeight: 1.6,
+                  marginTop: 10,
+                  paddingTop: 10,
+                  borderTop: '1px dashed var(--card-b)',
+                  margin: '10px 0 0',
+                  fontStyle: 'italic',
+                  whiteSpace: 'pre-line',
+                }}
+              >
+                {para.en}
+              </p>
             )}
 
             {/* Pronunciation score card */}
             {result && (
-              <div style={{
-                marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--card-b)',
-              }}>
+              <div
+                style={{
+                  marginTop: 12,
+                  paddingTop: 12,
+                  borderTop: '1px solid var(--card-b)',
+                }}
+              >
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
                   {[
                     { label: 'Overall', score: result.overall },
@@ -350,23 +528,39 @@ function StoryReader({ story, onStartQuiz, goBack }) {
                     { label: 'Fluency', score: result.fluency },
                   ].map(({ label, score }) => (
                     <div key={label} style={{ textAlign: 'center', minWidth: 60 }}>
-                      <div style={{
-                        fontSize: 20, fontWeight: 900,
-                        color: score >= 80 ? '#059669' : score >= 55 ? '#d97706' : '#dc2626',
-                      }}>{score}</div>
-                      <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>{label}</div>
+                      <div
+                        style={{
+                          fontSize: 20,
+                          fontWeight: 900,
+                          color: score >= 80 ? '#059669' : score >= 55 ? '#d97706' : '#dc2626',
+                        }}
+                      >
+                        {score}
+                      </div>
+                      <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
+                        {label}
+                      </div>
                     </div>
                   ))}
                 </div>
                 {result.word_scores && result.word_scores.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {result.word_scores.map((w, wi) => (
-                      <span key={wi} style={{
-                        fontSize: 13, fontWeight: 700, padding: '3px 8px', borderRadius: 8,
-                        background: w.score >= 80 ? '#dcfce7' : w.score >= 55 ? '#fef3c7' : '#fee2e2',
-                        color: w.score >= 80 ? '#15803d' : w.score >= 55 ? '#92400e' : '#b91c1c',
-                        border: `1px solid ${w.score >= 80 ? '#86efac' : w.score >= 55 ? '#fde68a' : '#fca5a5'}`,
-                      }}>{w.word}</span>
+                      <span
+                        key={wi}
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: 8,
+                          background:
+                            w.score >= 80 ? '#dcfce7' : w.score >= 55 ? '#fef3c7' : '#fee2e2',
+                          color: w.score >= 80 ? '#15803d' : w.score >= 55 ? '#92400e' : '#b91c1c',
+                          border: `1px solid ${w.score >= 80 ? '#86efac' : w.score >= 55 ? '#fde68a' : '#fca5a5'}`,
+                        }}
+                      >
+                        {w.word}
+                      </span>
                     ))}
                   </div>
                 )}
@@ -400,7 +594,8 @@ function StoryQuiz({ story, onComplete, goBack }) {
   try {
     if (!Array.isArray(story.quiz) || story.quiz.length === 0) throw new Error('no quiz');
     q = story.quiz[qi];
-    if (!q || !Array.isArray(q.opts) || q.opts.length === 0 || q.correct == null) throw new Error('malformed item');
+    if (!q || !Array.isArray(q.opts) || q.opts.length === 0 || q.correct == null)
+      throw new Error('malformed item');
     isLast = qi === story.quiz.length - 1;
   } catch {
     quizDataError = true;
@@ -410,16 +605,23 @@ function StoryQuiz({ story, onComplete, goBack }) {
     return (
       <div className="scr-wrap">
         <BackBtn onClick={goBack} />
-        <div style={{
-          background: 'var(--card)', border: '1px solid var(--card-b)',
-          borderRadius: 16, padding: '32px 20px', textAlign: 'center', marginTop: 20,
-        }}>
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--card-b)',
+            borderRadius: 16,
+            padding: '32px 20px',
+            textAlign: 'center',
+            marginTop: 20,
+          }}
+        >
           <div style={{ fontSize: 40, marginBottom: 12 }}>📚</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--heading)', marginBottom: 8 }}>
             Quiz unavailable for this story
           </div>
           <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
-            The quiz content for this story couldn&#39;t be loaded. Try another story or come back later.
+            The quiz content for this story couldn&#39;t be loaded. Try another story or come back
+            later.
           </div>
           <button className="b bg" style={{ marginTop: 20 }} onClick={goBack}>
             ← Back to Story
@@ -433,7 +635,7 @@ function StoryQuiz({ story, onComplete, goBack }) {
     if (answered) return;
     setSelected(idx);
     setAnswered(true);
-    if (idx === q.correct) setScore(s => s + 1);
+    if (idx === q.correct) setScore((s) => s + 1);
   }
 
   function next() {
@@ -442,7 +644,7 @@ function StoryQuiz({ story, onComplete, goBack }) {
       resultFired.current = true;
       setDone(true);
     } else {
-      setQi(i => i + 1);
+      setQi((i) => i + 1);
       setAnswered(false);
       setSelected(-1);
     }
@@ -456,7 +658,11 @@ function StoryQuiz({ story, onComplete, goBack }) {
         <BackBtn onClick={goBack} />
         <div style={{ paddingTop: 40 }}>
           <div style={{ fontSize: 64, marginBottom: 16 }}>
-            {score === story.quiz.length ? '🌟' : score >= Math.ceil(story.quiz.length / 2) ? '📖' : '💪'}
+            {score === story.quiz.length
+              ? '🌟'
+              : score >= Math.ceil(story.quiz.length / 2)
+                ? '📖'
+                : '💪'}
           </div>
           <div style={{ fontSize: 24, fontWeight: 900, color: 'var(--heading)', marginBottom: 8 }}>
             {score}/{story.quiz.length} correct
@@ -468,14 +674,26 @@ function StoryQuiz({ story, onComplete, goBack }) {
                 ? 'Good work! Keep reading to improve.'
                 : 'Try reading the story again and focus on the vocabulary.'}
           </div>
-          <div style={{
-            background: 'var(--info-bg)', border: '1px solid var(--info-b)',
-            borderRadius: 14, padding: '14px 20px', marginBottom: 24, display: 'inline-block',
-          }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--info)' }}>+{xp} XP earned</div>
+          <div
+            style={{
+              background: 'var(--info-bg)',
+              border: '1px solid var(--info-b)',
+              borderRadius: 14,
+              padding: '14px 20px',
+              marginBottom: 24,
+              display: 'inline-block',
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--info)' }}>
+              +{xp} XP earned
+            </div>
           </div>
           <div>
-            <button className="b bp" style={{ width: '100%', marginBottom: 10 }} onClick={() => onComplete(xp)}>
+            <button
+              className="b bp"
+              style={{ width: '100%', marginBottom: 10 }}
+              onClick={() => onComplete(xp)}
+            >
               Continue →
             </button>
           </div>
@@ -489,46 +707,89 @@ function StoryQuiz({ story, onComplete, goBack }) {
       <BackBtn onClick={goBack} />
 
       {/* Progress */}
-      <div style={{
-        background: 'var(--card-b)', borderRadius: 6, height: 6, marginBottom: 20,
-      }}>
-        <div style={{
-          background: LEVEL_COLOR[story.level] || '#0e7490',
-          height: '100%', borderRadius: 6,
-          width: `${((qi + 1) / story.quiz.length) * 100}%`,
-          transition: 'width .3s',
-        }} />
+      <div
+        style={{
+          background: 'var(--card-b)',
+          borderRadius: 6,
+          height: 6,
+          marginBottom: 20,
+        }}
+      >
+        <div
+          style={{
+            background: LEVEL_COLOR[story.level] || '#0e7490',
+            height: '100%',
+            borderRadius: 6,
+            width: `${((qi + 1) / story.quiz.length) * 100}%`,
+            transition: 'width .3s',
+          }}
+        />
       </div>
 
       <div style={{ fontSize: 12, color: 'var(--subtext)', marginBottom: 16, fontWeight: 700 }}>
         Question {qi + 1} of {story.quiz.length}
       </div>
 
-      <div style={{
-        background: 'var(--card)', border: '1px solid var(--card-b)',
-        borderRadius: 16, padding: '20px 18px', marginBottom: 16,
-      }}>
-        <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--heading)', marginBottom: 4 }}>{q.q}</p>
+      <div
+        style={{
+          background: 'var(--card)',
+          border: '1px solid var(--card-b)',
+          borderRadius: 16,
+          padding: '20px 18px',
+          marginBottom: 16,
+        }}
+      >
+        <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--heading)', marginBottom: 4 }}>
+          {q.q}
+        </p>
         {q.qEn && (
-          <p style={{ fontSize: 13, color: 'var(--subtext)', fontStyle: 'italic', margin: '4px 0 16px' }}>
+          <p
+            style={{
+              fontSize: 13,
+              color: 'var(--subtext)',
+              fontStyle: 'italic',
+              margin: '4px 0 16px',
+            }}
+          >
             {q.qEn}
           </p>
         )}
         {q.opts.map((opt, i) => {
-          let bg = 'var(--card)', col = 'var(--heading)', border = '1px solid var(--card-b)';
+          let bg = 'var(--card)',
+            col = 'var(--heading)',
+            border = '1px solid var(--card-b)';
           if (answered) {
-            if (i === q.correct) { bg = '#dcfce7'; col = '#15803d'; border = '1px solid #86efac'; }
-            else if (i === selected) { bg = '#fee2e2'; col = '#b91c1c'; border = '1px solid #fca5a5'; }
+            if (i === q.correct) {
+              bg = '#dcfce7';
+              col = '#15803d';
+              border = '1px solid #86efac';
+            } else if (i === selected) {
+              bg = '#fee2e2';
+              col = '#b91c1c';
+              border = '1px solid #fca5a5';
+            }
           }
           return (
-            <button key={i} onClick={() => choose(i)} style={{
-              width: '100%', textAlign: 'left', padding: '12px 14px',
-              marginBottom: 8, borderRadius: 12, border,
-              background: bg, color: col,
-              fontSize: 14, fontWeight: answered && i === q.correct ? 700 : 500,
-              cursor: answered ? 'default' : 'pointer',
-              transition: 'background .2s, border-color .2s',
-            }}>{opt}</button>
+            <button
+              key={i}
+              onClick={() => choose(i)}
+              style={{
+                width: '100%',
+                textAlign: 'left',
+                padding: '12px 14px',
+                marginBottom: 8,
+                borderRadius: 12,
+                border,
+                background: bg,
+                color: col,
+                fontSize: 14,
+                fontWeight: answered && i === q.correct ? 700 : 500,
+                cursor: answered ? 'default' : 'pointer',
+                transition: 'background .2s, border-color .2s',
+              }}
+            >
+              {opt}
+            </button>
           );
         })}
       </div>
@@ -544,7 +805,7 @@ function StoryQuiz({ story, onComplete, goBack }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function GradedInputScreen({ goBack, award }) {
-  const [view, setView] = useState('list');   // 'list' | 'reader' | 'quiz'
+  const [view, setView] = useState('list'); // 'list' | 'reader' | 'quiz'
   const [story, setStory] = useState(null);
 
   function selectStory(s) {
@@ -564,23 +825,11 @@ export default function GradedInputScreen({ goBack, award }) {
   }
 
   if (view === 'reader' && story) {
-    return (
-      <StoryReader
-        story={story}
-        onStartQuiz={startQuiz}
-        goBack={() => setView('list')}
-      />
-    );
+    return <StoryReader story={story} onStartQuiz={startQuiz} goBack={() => setView('list')} />;
   }
 
   if (view === 'quiz' && story) {
-    return (
-      <StoryQuiz
-        story={story}
-        onComplete={complete}
-        goBack={() => setView('reader')}
-      />
-    );
+    return <StoryQuiz story={story} onComplete={complete} goBack={() => setView('reader')} />;
   }
 
   return <StoryList onSelect={selectStory} goBack={goBack} />;

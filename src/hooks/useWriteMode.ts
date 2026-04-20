@@ -41,19 +41,25 @@ export interface WriteMode {
 }
 
 export function useWriteMode(initialLevel = 'B1'): WriteMode {
-  const [writePrompt,    setWritePrompt]    = useState<WritePrompt | null>(null);
-  const [writeLevel,     setWriteLevel]     = useState<string>(initialLevel);
-  const [writeText,      setWriteText]      = useState<string>('');
-  const [writePhase,     setWritePhase]     = useState<'setup' | 'writing' | 'result'>('setup');
-  const [writeEval,      setWriteEval]      = useState<WriteEvaluation | null>(null);
+  const [writePrompt, setWritePrompt] = useState<WritePrompt | null>(null);
+  const [writeLevel, setWriteLevel] = useState<string>(initialLevel);
+  const [writeText, setWriteText] = useState<string>('');
+  const [writePhase, setWritePhase] = useState<'setup' | 'writing' | 'result'>('setup');
+  const [writeEval, setWriteEval] = useState<WriteEvaluation | null>(null);
   const [writeEvalError, setWriteEvalError] = useState<string>('');
 
   return {
-    writePrompt, setWritePrompt,
-    writeLevel, setWriteLevel,
-    writeText, setWriteText,
-    writePhase, setWritePhase,
-    writeEval, setWriteEval,
-    writeEvalError, setWriteEvalError,
+    writePrompt,
+    setWritePrompt,
+    writeLevel,
+    setWriteLevel,
+    writeText,
+    setWriteText,
+    writePhase,
+    setWritePhase,
+    writeEval,
+    setWriteEval,
+    writeEvalError,
+    setWriteEvalError,
   };
 }

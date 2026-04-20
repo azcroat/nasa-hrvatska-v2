@@ -15,18 +15,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── vi.hoisted — any refs used inside vi.mock factories must be hoisted ────────
@@ -93,9 +109,13 @@ async function reachFinalScene(award: ReturnType<typeof vi.fn>) {
     render(<StoryScreens goBack={vi.fn()} award={award} sCurEx={vi.fn()} />);
   });
   // Enter the story
-  await act(async () => { fireEvent.click(screen.getByText('Test Story')); });
+  await act(async () => {
+    fireEvent.click(screen.getByText('Test Story'));
+  });
   // Advance from scene 0 to the final scene (scene 1) via the choice button
-  await act(async () => { fireEvent.click(screen.getByText('Odaberi A')); });
+  await act(async () => {
+    fireEvent.click(screen.getByText('Odaberi A'));
+  });
   // Now scene 1 is visible — it has no choices, so '✅ Story Complete!' is shown
 }
 
@@ -103,21 +123,29 @@ async function reachFinalScene(award: ReturnType<typeof vi.fn>) {
 
 describe('StoryScreens — rendering', () => {
   it('renders without crashing', async () => {
-    await act(async () => { renderStoryScreens(); });
+    await act(async () => {
+      renderStoryScreens();
+    });
   });
 
   it('shows the Mini Stories title', async () => {
-    await act(async () => { renderStoryScreens(); });
+    await act(async () => {
+      renderStoryScreens();
+    });
     expect(screen.getByText('📖 Mini Stories')).toBeTruthy();
   });
 
   it('shows story title in the list', async () => {
-    await act(async () => { renderStoryScreens(); });
+    await act(async () => {
+      renderStoryScreens();
+    });
     expect(screen.getByText('Test Story')).toBeTruthy();
   });
 
   it('shows story English subtitle in the list', async () => {
-    await act(async () => { renderStoryScreens(); });
+    await act(async () => {
+      renderStoryScreens();
+    });
     expect(screen.getByText(/A Test Story/)).toBeTruthy();
   });
 });
@@ -126,40 +154,68 @@ describe('StoryScreens — rendering', () => {
 
 describe('StoryScreens — navigation', () => {
   it('clicking a story enters story view and shows scene text', async () => {
-    await act(async () => { renderStoryScreens(); });
-    await act(async () => { fireEvent.click(screen.getByText('Test Story')); });
+    await act(async () => {
+      renderStoryScreens();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Test Story'));
+    });
     expect(screen.getByText('Scena jedan.')).toBeTruthy();
   });
 
   it('shows scene English translation', async () => {
-    await act(async () => { renderStoryScreens(); });
-    await act(async () => { fireEvent.click(screen.getByText('Test Story')); });
+    await act(async () => {
+      renderStoryScreens();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Test Story'));
+    });
     expect(screen.getByText('Scene one.')).toBeTruthy();
   });
 
   it('shows choice buttons for a non-final scene', async () => {
-    await act(async () => { renderStoryScreens(); });
-    await act(async () => { fireEvent.click(screen.getByText('Test Story')); });
+    await act(async () => {
+      renderStoryScreens();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Test Story'));
+    });
     expect(screen.getByText('Odaberi A')).toBeTruthy();
   });
 
   it('clicking a choice advances to the next scene', async () => {
-    await act(async () => { renderStoryScreens(); });
-    await act(async () => { fireEvent.click(screen.getByText('Test Story')); });
-    await act(async () => { fireEvent.click(screen.getByText('Odaberi A')); });
+    await act(async () => {
+      renderStoryScreens();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Test Story'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Odaberi A'));
+    });
     expect(screen.getByText('Kraj priče.')).toBeTruthy();
   });
 
   it('shows "✅ Story Complete!" button on the final scene', async () => {
-    await act(async () => { renderStoryScreens(); });
-    await act(async () => { fireEvent.click(screen.getByText('Test Story')); });
-    await act(async () => { fireEvent.click(screen.getByText('Odaberi A')); });
+    await act(async () => {
+      renderStoryScreens();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Test Story'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Odaberi A'));
+    });
     expect(screen.getByText('✅ Story Complete!')).toBeTruthy();
   });
 
   it('shows progress bar while inside a story', async () => {
-    await act(async () => { renderStoryScreens(); });
-    await act(async () => { fireEvent.click(screen.getByText('Test Story')); });
+    await act(async () => {
+      renderStoryScreens();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Test Story'));
+    });
     expect(screen.getByTestId('progress-bar')).toBeTruthy();
   });
 });
@@ -167,7 +223,9 @@ describe('StoryScreens — navigation', () => {
 // ── Completion + award guard ──────────────────────────────────────────────────
 
 describe('StoryScreens — completion + award guard', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+  });
 
   it('award(15) is called exactly once on completion', async () => {
     const award = vi.fn();

@@ -25,7 +25,8 @@ const FALLBACK_ARTICLES = [
       { word: 'radovi', meaning: 'construction work' },
       { word: 'građani', meaning: 'citizens' },
     ],
-    summary_one_sentence: 'Zagreb gradi novu tramvajsku liniju. / Zagreb is building a new tram line.',
+    summary_one_sentence:
+      'Zagreb gradi novu tramvajsku liniju. / Zagreb is building a new tram line.',
     link: null,
   },
   {
@@ -43,7 +44,8 @@ const FALLBACK_ARTICLES = [
       { word: 'popunjen', meaning: 'fully booked / filled' },
       { word: 'gospodarstvo', meaning: 'economy' },
     ],
-    summary_one_sentence: 'Hrvatska očekuje rekordnu turističku sezonu. / Croatia expects a record tourist season.',
+    summary_one_sentence:
+      'Hrvatska očekuje rekordnu turističku sezonu. / Croatia expects a record tourist season.',
     link: null,
   },
   {
@@ -53,7 +55,7 @@ const FALLBACK_ARTICLES = [
     simplified_text:
       'Hrvatski klub Dinamo Zagreb je pobijedio u jučerašnjoj utakmici. Igrači su pokazali sjajnu igru pred punim stadionom. Navijači su slavili cijelu noć. Klub sada ide dalje u natjecanju.',
     simplified_text_en:
-      'Croatian club Dinamo Zagreb won yesterday\'s match. The players showed brilliant play in front of a full stadium. Fans celebrated all night. The club now advances further in the competition.',
+      "Croatian club Dinamo Zagreb won yesterday's match. The players showed brilliant play in front of a full stadium. Fans celebrated all night. The club now advances further in the competition.",
     key_vocabulary: [
       { word: 'pobijedio', meaning: 'won (past tense, m)' },
       { word: 'igrač', meaning: 'player' },
@@ -71,10 +73,15 @@ const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
 // ── Skeleton card for loading state ──────────────────────────────────────────
 function SkeletonCard() {
   return (
-    <div style={{
-      background: 'var(--card)', border: '1px solid var(--card-b)',
-      borderRadius: 16, padding: '16px 18px', marginBottom: 14,
-    }}>
+    <div
+      style={{
+        background: 'var(--card)',
+        border: '1px solid var(--card-b)',
+        borderRadius: 16,
+        padding: '16px 18px',
+        marginBottom: 14,
+      }}
+    >
       <style>{`
         @keyframes nh-pulse {
           0%, 100% { opacity: 1; }
@@ -106,7 +113,8 @@ function TappableText({ text, articleId, translating, tooltip, onWordTap, style 
         if (/^\s+$/.test(chunk)) return chunk;
         const idx = wordIdx++;
         const clean = chunk.replace(/[.,!?;:"'()[\]]/g, '');
-        const isTranslating = translating && translating.articleId === articleId && translating.wordIndex === idx;
+        const isTranslating =
+          translating && translating.articleId === articleId && translating.wordIndex === idx;
         const hasTooltip = tooltip && tooltip.articleId === articleId && tooltip.wordIndex === idx;
         return (
           <span key={i} style={{ position: 'relative', display: 'inline' }}>
@@ -122,24 +130,54 @@ function TappableText({ text, articleId, translating, tooltip, onWordTap, style 
               {chunk}
             </span>
             {isTranslating && (
-              <span style={{
-                position: 'absolute', bottom: '110%', left: '50%', transform: 'translateX(-50%)',
-                background: 'var(--card)', border: '1px solid var(--info-b)', borderRadius: 8,
-                padding: '4px 8px', fontSize: 11, color: 'var(--info)', whiteSpace: 'nowrap',
-                zIndex: 10, boxShadow: '0 2px 8px rgba(0,0,0,.15)',
-              }}>⏳</span>
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '110%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: 'var(--card)',
+                  border: '1px solid var(--info-b)',
+                  borderRadius: 8,
+                  padding: '4px 8px',
+                  fontSize: 11,
+                  color: 'var(--info)',
+                  whiteSpace: 'nowrap',
+                  zIndex: 10,
+                  boxShadow: '0 2px 8px rgba(0,0,0,.15)',
+                }}
+              >
+                ⏳
+              </span>
             )}
             {hasTooltip && (
-              <span style={{
-                position: 'absolute', bottom: '110%', left: '50%', transform: 'translateX(-50%)',
-                background: 'var(--card)', border: '1px solid var(--success-b)', borderRadius: 8,
-                padding: '5px 9px', fontSize: 11, color: 'var(--heading)', whiteSpace: 'nowrap',
-                zIndex: 10, boxShadow: '0 2px 10px rgba(0,0,0,.18)', minWidth: 80, textAlign: 'center',
-              }}>
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '110%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: 'var(--card)',
+                  border: '1px solid var(--success-b)',
+                  borderRadius: 8,
+                  padding: '5px 9px',
+                  fontSize: 11,
+                  color: 'var(--heading)',
+                  whiteSpace: 'nowrap',
+                  zIndex: 10,
+                  boxShadow: '0 2px 10px rgba(0,0,0,.18)',
+                  minWidth: 80,
+                  textAlign: 'center',
+                }}
+              >
                 <strong style={{ color: 'var(--success)' }}>{tooltip.word}</strong>
                 {' = '}
                 {tooltip.translation}
-                {tooltip.note && <div style={{ fontSize: 10, color: 'var(--subtext)', marginTop: 2 }}>{tooltip.note}</div>}
+                {tooltip.note && (
+                  <div style={{ fontSize: 10, color: 'var(--subtext)', marginTop: 2 }}>
+                    {tooltip.note}
+                  </div>
+                )}
               </span>
             )}
           </span>
@@ -162,15 +200,27 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
       const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: article.simplified_text, slow: false, voice: getVoicePreference() }),
+        body: JSON.stringify({
+          text: article.simplified_text,
+          slow: false,
+          voice: getVoicePreference(),
+        }),
       });
       if (!res.ok) throw new Error('TTS failed');
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-      const url = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
+      const url = await new Promise((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.readAsDataURL(blob);
+      });
       const audio = new Audio(url);
-      audio.onended = () => { setPlaying(false); };
-      audio.onerror = () => { setPlaying(false); };
+      audio.onended = () => {
+        setPlaying(false);
+      };
+      audio.onerror = () => {
+        setPlaying(false);
+      };
       await audio.play();
     } catch {
       setPlaying(false);
@@ -178,25 +228,45 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
   }
 
   function handleExpandTranslation() {
-    setShowTranslation(v => !v);
+    setShowTranslation((v) => !v);
     if (!awarded) onAward();
   }
 
   return (
-    <div style={{
-      background: 'var(--card)', border: '1px solid var(--card-b)',
-      borderRadius: 16, marginBottom: 14, overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        background: 'var(--card)',
+        border: '1px solid var(--card-b)',
+        borderRadius: 16,
+        marginBottom: 14,
+        overflow: 'hidden',
+      }}
+    >
       {/* Card header: source + date */}
-      <div style={{
-        padding: '10px 16px', borderBottom: '1px solid var(--card-b)',
-        display: 'flex', alignItems: 'center', gap: 10,
-        background: 'linear-gradient(135deg,rgba(14,116,144,.05),rgba(14,116,144,.02))',
-      }}>
-        <span style={{
-          fontSize: 11, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase',
-          background: '#0e7490', color: '#fff', borderRadius: 6, padding: '2px 8px',
-        }}>{article.source || 'Hrvatska vijesti'}</span>
+      <div
+        style={{
+          padding: '10px 16px',
+          borderBottom: '1px solid var(--card-b)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          background: 'linear-gradient(135deg,rgba(14,116,144,.05),rgba(14,116,144,.02))',
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 800,
+            letterSpacing: '.04em',
+            textTransform: 'uppercase',
+            background: '#0e7490',
+            color: '#fff',
+            borderRadius: 6,
+            padding: '2px 8px',
+          }}
+        >
+          {article.source || 'Hrvatska vijesti'}
+        </span>
         {article.date && (
           <span style={{ fontSize: 11, color: 'var(--subtext)' }}>{article.date}</span>
         )}
@@ -205,25 +275,41 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
       {/* Card body */}
       <div style={{ padding: '14px 16px' }}>
         {/* Simplified title */}
-        <div style={{
-          fontSize: 16, fontWeight: 800, color: 'var(--heading)',
-          fontFamily: "'Playfair Display',serif", lineHeight: 1.35, marginBottom: 4,
-        }}>
+        <div
+          style={{
+            fontSize: 16,
+            fontWeight: 800,
+            color: 'var(--heading)',
+            fontFamily: "'Playfair Display',serif",
+            lineHeight: 1.35,
+            marginBottom: 4,
+          }}
+        >
           {article.simplified_title}
         </div>
         {/* English title */}
-        <div style={{
-          fontSize: 13, color: 'var(--subtext)', fontStyle: 'italic',
-          marginBottom: 14, lineHeight: 1.4,
-        }}>
+        <div
+          style={{
+            fontSize: 13,
+            color: 'var(--subtext)',
+            fontStyle: 'italic',
+            marginBottom: 14,
+            lineHeight: 1.4,
+          }}
+        >
           {article.simplified_title_en}
         </div>
 
         {/* Article body — tappable words */}
-        <div style={{
-          fontSize: 14, color: 'var(--heading)', lineHeight: 1.8,
-          marginBottom: 14, position: 'relative',
-        }}>
+        <div
+          style={{
+            fontSize: 14,
+            color: 'var(--heading)',
+            lineHeight: 1.8,
+            marginBottom: 14,
+            position: 'relative',
+          }}
+        >
           <TappableText
             text={article.simplified_text}
             articleId={index}
@@ -234,7 +320,9 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
         </div>
 
         {/* Tap-hint */}
-        <div style={{ fontSize: 11, color: 'var(--subtext)', marginBottom: 14, fontStyle: 'italic' }}>
+        <div
+          style={{ fontSize: 11, color: 'var(--subtext)', marginBottom: 14, fontStyle: 'italic' }}
+        >
           Tap any word for an instant translation
         </div>
 
@@ -244,24 +332,48 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
             onClick={playArticle}
             disabled={playing}
             style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 14px', borderRadius: 10, border: 'none', cursor: playing ? 'default' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 10,
+              border: 'none',
+              cursor: playing ? 'default' : 'pointer',
               background: playing ? 'var(--info-bg)' : 'rgba(14,116,144,.1)',
-              color: 'var(--info)', fontSize: 12, fontWeight: 700,
-              fontFamily: "'Outfit',sans-serif", transition: 'all .2s',
+              color: 'var(--info)',
+              fontSize: 12,
+              fontWeight: 700,
+              fontFamily: "'Outfit',sans-serif",
+              transition: 'all .2s',
             }}
           >
-            {playing ? <><span aria-hidden="true">⏸</span> Playing...</> : <><span aria-hidden="true">🔊</span> Read Article</>}
+            {playing ? (
+              <>
+                <span aria-hidden="true">⏸</span> Playing...
+              </>
+            ) : (
+              <>
+                <span aria-hidden="true">🔊</span> Read Article
+              </>
+            )}
           </button>
 
           <button
             onClick={handleExpandTranslation}
             style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 14px', borderRadius: 10, border: '1px solid var(--card-b)',
-              cursor: 'pointer', background: showTranslation ? 'var(--info-bg)' : 'var(--card)',
-              color: showTranslation ? 'var(--info)' : 'var(--subtext)', fontSize: 12, fontWeight: 700,
-              fontFamily: "'Outfit',sans-serif", transition: 'all .2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 10,
+              border: '1px solid var(--card-b)',
+              cursor: 'pointer',
+              background: showTranslation ? 'var(--info-bg)' : 'var(--card)',
+              color: showTranslation ? 'var(--info)' : 'var(--subtext)',
+              fontSize: 12,
+              fontWeight: 700,
+              fontFamily: "'Outfit',sans-serif",
+              transition: 'all .2s',
             }}
           >
             📖 English Translation {showTranslation ? '▲' : '▼'}
@@ -270,11 +382,18 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
 
         {/* English translation expandable */}
         {showTranslation && (
-          <div style={{
-            background: 'var(--info-bg)', border: '1px solid var(--info-b)',
-            borderRadius: 12, padding: '12px 14px', marginBottom: 12,
-            fontSize: 13, color: 'var(--heading)', lineHeight: 1.7,
-          }}>
+          <div
+            style={{
+              background: 'var(--info-bg)',
+              border: '1px solid var(--info-b)',
+              borderRadius: 12,
+              padding: '12px 14px',
+              marginBottom: 12,
+              fontSize: 13,
+              color: 'var(--heading)',
+              lineHeight: 1.7,
+            }}
+          >
             {article.simplified_text_en}
           </div>
         )}
@@ -283,11 +402,19 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
         {article.key_vocabulary && article.key_vocabulary.length > 0 && (
           <div style={{ marginBottom: 12 }}>
             <button
-              onClick={() => setShowVocab(v => !v)}
+              onClick={() => setShowVocab((v) => !v)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 6, background: 'none',
-                border: 'none', cursor: 'pointer', padding: 0, marginBottom: showVocab ? 10 : 0,
-                fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                marginBottom: showVocab ? 10 : 0,
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: 12,
+                fontWeight: 700,
                 color: 'var(--subtext)',
               }}
             >
@@ -296,11 +423,19 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
             {showVocab && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {article.key_vocabulary.map((v, i) => (
-                  <div key={i} style={{
-                    background: 'var(--card)', border: '1px solid var(--card-b)',
-                    borderRadius: 20, padding: '4px 12px', fontSize: 12,
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                  }}>
+                  <div
+                    key={i}
+                    style={{
+                      background: 'var(--card)',
+                      border: '1px solid var(--card-b)',
+                      borderRadius: 20,
+                      padding: '4px 12px',
+                      fontSize: 12,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
                     <strong style={{ color: 'var(--heading)' }}>{v.word}</strong>
                     <span style={{ color: 'var(--subtext)' }}>→</span>
                     <span style={{ color: '#0e7490' }}>{v.meaning}</span>
@@ -314,13 +449,23 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
         {/* One sentence summary */}
         {article.summary_one_sentence && (
           <>
-            <hr style={{ border: 'none', borderTop: '1px solid var(--card-b)', margin: '10px 0' }} />
-            <div style={{
-              fontSize: 12, color: 'var(--subtext)', lineHeight: 1.6,
-              display: 'flex', gap: 6, alignItems: 'flex-start',
-            }}>
+            <hr
+              style={{ border: 'none', borderTop: '1px solid var(--card-b)', margin: '10px 0' }}
+            />
+            <div
+              style={{
+                fontSize: 12,
+                color: 'var(--subtext)',
+                lineHeight: 1.6,
+                display: 'flex',
+                gap: 6,
+                alignItems: 'flex-start',
+              }}
+            >
               <span style={{ fontSize: 14 }}>💡</span>
-              <span><em>{article.summary_one_sentence}</em></span>
+              <span>
+                <em>{article.summary_one_sentence}</em>
+              </span>
             </div>
           </>
         )}
@@ -335,7 +480,12 @@ export default function CroatianNewsScreen({ goBack, award }) {
   const isOnline = useOnlineStatus();
 
   const mountedRef = useRef(true);
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    [],
+  );
 
   const defaultLevel = LEVELS.includes(userLevel) ? userLevel : 'B1';
   const [selectedLevel, setSelectedLevel] = useState(defaultLevel);
@@ -344,15 +494,15 @@ export default function CroatianNewsScreen({ goBack, award }) {
   const [error, setError] = useState(null);
   const [usingFallback, setUsingFallback] = useState(false);
 
-  const [translating, setTranslating] = useState(null);  // { articleId, wordIndex }
-  const [tooltip, setTooltip] = useState(null);           // { articleId, wordIndex, word, translation, note }
+  const [translating, setTranslating] = useState(null); // { articleId, wordIndex }
+  const [tooltip, setTooltip] = useState(null); // { articleId, wordIndex, word, translation, note }
 
   // Track how many articles the user has engaged with for award
   const [engagedArticles, setEngagedArticles] = useState(new Set());
   const awardGiven = useRef(false);
 
   function markEngaged(articleIdx) {
-    setEngagedArticles(prev => {
+    setEngagedArticles((prev) => {
       const next = new Set(prev);
       next.add(articleIdx);
       if (next.size >= 2 && !awardGiven.current) {
@@ -413,9 +563,17 @@ export default function CroatianNewsScreen({ goBack, award }) {
       const data = await res.json();
       const parsed = JSON.parse(data.text);
       if (!mountedRef.current) return;
-      setTooltip({ articleId, wordIndex, word, translation: parsed.translation, note: parsed.note });
+      setTooltip({
+        articleId,
+        wordIndex,
+        word,
+        translation: parsed.translation,
+        note: parsed.note,
+      });
       markEngaged(articleId);
-      setTimeout(() => { if (mountedRef.current) setTooltip(null); }, 3000);
+      setTimeout(() => {
+        if (mountedRef.current) setTooltip(null);
+      }, 3000);
     } catch {
       // silently fail — just clear spinner
     } finally {
@@ -428,19 +586,29 @@ export default function CroatianNewsScreen({ goBack, award }) {
       {H('📰 Croatian News', 'Real Croatian news, simplified to your level by AI', goBack)}
 
       {/* Level selector */}
-      <div style={{
-        display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center',
-      }}>
-        {LEVELS.map(lvl => (
+      <div
+        style={{
+          display: 'flex',
+          gap: 6,
+          marginBottom: 16,
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
+        {LEVELS.map((lvl) => (
           <button
             key={lvl}
             onClick={() => setSelectedLevel(lvl)}
             style={{
-              padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
-              background: selectedLevel === lvl ? (LEVEL_COLORS[lvl] || '#0e7490') : 'var(--card)',
+              padding: '6px 14px',
+              borderRadius: 20,
+              cursor: 'pointer',
+              background: selectedLevel === lvl ? LEVEL_COLORS[lvl] || '#0e7490' : 'var(--card)',
               color: selectedLevel === lvl ? '#fff' : 'var(--subtext)',
-              fontSize: 13, fontWeight: 700, fontFamily: "'Outfit',sans-serif",
-              border: `1.5px solid ${selectedLevel === lvl ? (LEVEL_COLORS[lvl] || '#0e7490') : 'var(--card-b)'}`,
+              fontSize: 13,
+              fontWeight: 700,
+              fontFamily: "'Outfit',sans-serif",
+              border: `1.5px solid ${selectedLevel === lvl ? LEVEL_COLORS[lvl] || '#0e7490' : 'var(--card-b)'}`,
               transition: 'all .2s',
             }}
           >
@@ -451,10 +619,18 @@ export default function CroatianNewsScreen({ goBack, award }) {
           onClick={() => fetchNews(selectedLevel)}
           disabled={loading || !isOnline}
           style={{
-            marginLeft: 'auto', padding: '6px 14px', borderRadius: 20, border: '1.5px solid var(--card-b)',
-            background: 'var(--card)', color: 'var(--subtext)', fontSize: 13, fontWeight: 700,
-            fontFamily: "'Outfit',sans-serif", cursor: loading || !isOnline ? 'default' : 'pointer',
-            opacity: loading || !isOnline ? 0.5 : 1, transition: 'opacity .2s',
+            marginLeft: 'auto',
+            padding: '6px 14px',
+            borderRadius: 20,
+            border: '1.5px solid var(--card-b)',
+            background: 'var(--card)',
+            color: 'var(--subtext)',
+            fontSize: 13,
+            fontWeight: 700,
+            fontFamily: "'Outfit',sans-serif",
+            cursor: loading || !isOnline ? 'default' : 'pointer',
+            opacity: loading || !isOnline ? 0.5 : 1,
+            transition: 'opacity .2s',
           }}
         >
           🔄 Refresh
@@ -463,24 +639,42 @@ export default function CroatianNewsScreen({ goBack, award }) {
 
       {/* Offline banner */}
       {!isOnline && (
-        <div style={{
-          background: 'var(--error-bg)', border: '1px solid var(--error-b)',
-          borderRadius: 12, padding: '10px 14px', marginBottom: 14,
-          display: 'flex', alignItems: 'center', gap: 8,
-          fontSize: 13, color: 'var(--error)', fontWeight: 600,
-        }}>
+        <div
+          style={{
+            background: 'var(--error-bg)',
+            border: '1px solid var(--error-b)',
+            borderRadius: 12,
+            padding: '10px 14px',
+            marginBottom: 14,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 13,
+            color: 'var(--error)',
+            fontWeight: 600,
+          }}
+        >
           📴 You're offline — showing sample articles
         </div>
       )}
 
       {/* Fallback/error notice */}
       {error && isOnline && (
-        <div style={{
-          background: 'rgba(202,138,4,.08)', border: '1px solid rgba(202,138,4,.25)',
-          borderRadius: 12, padding: '10px 14px', marginBottom: 14,
-          display: 'flex', alignItems: 'center', gap: 8,
-          fontSize: 13, color: '#92400e', fontWeight: 600,
-        }}>
+        <div
+          style={{
+            background: 'rgba(202,138,4,.08)',
+            border: '1px solid rgba(202,138,4,.25)',
+            borderRadius: 12,
+            padding: '10px 14px',
+            marginBottom: 14,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 13,
+            color: '#92400e',
+            fontWeight: 600,
+          }}
+        >
           ⚠️ {error}
         </div>
       )}
@@ -495,26 +689,35 @@ export default function CroatianNewsScreen({ goBack, award }) {
       )}
 
       {/* Article cards */}
-      {!loading && articles.map((article, i) => (
-        <ArticleCard
-          key={i}
-          article={article}
-          index={i}
-          translating={translating}
-          tooltip={tooltip}
-          onWordTap={translateWord}
-          onAward={() => markEngaged(i)}
-          awarded={engagedArticles.has(i)}
-        />
-      ))}
+      {!loading &&
+        articles.map((article, i) => (
+          <ArticleCard
+            key={i}
+            article={article}
+            index={i}
+            translating={translating}
+            tooltip={tooltip}
+            onWordTap={translateWord}
+            onAward={() => markEngaged(i)}
+            awarded={engagedArticles.has(i)}
+          />
+        ))}
 
       {/* Footer hint */}
       {!loading && articles.length > 0 && (
-        <div style={{
-          textAlign: 'center', fontSize: 12, color: 'var(--subtext)',
-          marginTop: 4, marginBottom: 20, fontStyle: 'italic',
-        }}>
-          {usingFallback ? '📋 Sample articles — go online to load live news' : `${articles.length} articles at ${selectedLevel} level`}
+        <div
+          style={{
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'var(--subtext)',
+            marginTop: 4,
+            marginBottom: 20,
+            fontStyle: 'italic',
+          }}
+        >
+          {usingFallback
+            ? '📋 Sample articles — go online to load live news'
+            : `${articles.length} articles at ${selectedLevel} level`}
         </div>
       )}
     </div>

@@ -25,18 +25,34 @@ import React from 'react';
 // ── Firebase mock ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
-  updateProfile: vi.fn(), initializeAuth: vi.fn(() => ({})),
-  indexedDBLocalPersistence: {}, browserSessionPersistence: {}, inMemoryPersistence: {},
-  GoogleAuthProvider: vi.fn(() => ({})), signInWithPopup: vi.fn(),
-  sendEmailVerification: vi.fn(), deleteUser: vi.fn(),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── quests mock ───────────────────────────────────────────────────────────────
@@ -75,14 +91,17 @@ function renderTranslateDrills(overrides = {}) {
  */
 function completeAndGoBack(
   award: ReturnType<typeof vi.fn> = vi.fn(),
-  goBack: ReturnType<typeof vi.fn> = vi.fn()
+  goBack: ReturnType<typeof vi.fn> = vi.fn(),
 ) {
   render(<TranslateDrillsScreen award={award} goBack={goBack} />);
   for (let i = 0; i < 29; i++) {
     // opts[0] is always correct (all entries have opts[0] === hr)
-    const firstOpt = screen.queryAllByRole('button').find(
-      btn => !['← Back', 'Next →', 'See Results', 'Back to Practice'].includes(btn.textContent ?? '')
-    );
+    const firstOpt = screen
+      .queryAllByRole('button')
+      .find(
+        (btn) =>
+          !['← Back', 'Next →', 'See Results', 'Back to Practice'].includes(btn.textContent ?? ''),
+      );
     if (!firstOpt) break;
     fireEvent.click(firstOpt);
     // After answering: Next → or See Results appears
@@ -97,7 +116,9 @@ function completeAndGoBack(
 // ── Rendering ─────────────────────────────────────────────────────────────────
 
 describe('TranslateDrillsScreen — rendering', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+  });
 
   it('renders without crashing', () => {
     renderTranslateDrills();
@@ -117,7 +138,7 @@ describe('TranslateDrillsScreen — rendering', () => {
     renderTranslateDrills();
     // Buttons: ← Back, then 4 options (answer + 3 wrongs)
     const allBtns = screen.getAllByRole('button');
-    const optBtns = allBtns.filter(b => !['← Back'].includes(b.textContent ?? ''));
+    const optBtns = allBtns.filter((b) => !['← Back'].includes(b.textContent ?? ''));
     expect(optBtns.length).toBe(4);
   });
 
@@ -135,7 +156,9 @@ describe('TranslateDrillsScreen — rendering', () => {
 // ── Answer mechanics ──────────────────────────────────────────────────────────
 
 describe('TranslateDrillsScreen — answer mechanics', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+  });
 
   it('shows Next → after clicking the correct answer', () => {
     renderTranslateDrills();
@@ -186,18 +209,18 @@ describe('TranslateDrillsScreen — answer mechanics', () => {
   it('shows See Results on the last question after answering', () => {
     renderTranslateDrills();
     for (let i = 0; i < 28; i++) {
-      const firstOpt = screen.queryAllByRole('button').find(
-        btn => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? '')
-      );
+      const firstOpt = screen
+        .queryAllByRole('button')
+        .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
       if (!firstOpt) break;
       fireEvent.click(firstOpt);
       const nextBtn = screen.queryByText('Next →') || screen.queryByText('See Results');
       if (nextBtn) fireEvent.click(nextBtn);
     }
     // Now on question 29 (last) — answer without clicking Next
-    const lastOpt = screen.queryAllByRole('button').find(
-      btn => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? '')
-    );
+    const lastOpt = screen
+      .queryAllByRole('button')
+      .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
     if (lastOpt) fireEvent.click(lastOpt);
     expect(screen.getByText('See Results')).toBeTruthy();
   }, 30000);
@@ -206,7 +229,9 @@ describe('TranslateDrillsScreen — answer mechanics', () => {
 // ── Completion / XP award guard ───────────────────────────────────────────────
 
 describe('TranslateDrillsScreen — completion + award guard', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+  });
 
   /**
    * Consolidated done-screen test: verifies score display and Back button.
@@ -216,9 +241,9 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
   it('shows done screen with score 29/29 and Back to Practice button', () => {
     render(<TranslateDrillsScreen award={vi.fn()} goBack={vi.fn()} />);
     for (let i = 0; i < 29; i++) {
-      const firstOpt = screen.queryAllByRole('button').find(
-        btn => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? '')
-      );
+      const firstOpt = screen
+        .queryAllByRole('button')
+        .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
       if (!firstOpt) break;
       fireEvent.click(firstOpt);
       const nextBtn = screen.queryByText('Next →') || screen.queryByText('See Results');
@@ -236,9 +261,9 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
     const award = vi.fn();
     render(<TranslateDrillsScreen award={award} goBack={vi.fn()} />);
     for (let i = 0; i < 29; i++) {
-      const firstOpt = screen.queryAllByRole('button').find(
-        btn => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? '')
-      );
+      const firstOpt = screen
+        .queryAllByRole('button')
+        .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
       if (!firstOpt) break;
       fireEvent.click(firstOpt);
       const nextBtn = screen.queryByText('Next →') || screen.queryByText('See Results');
@@ -254,7 +279,9 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 describe('TranslateDrillsScreen — navigation', () => {
-  beforeEach(() => { mockMarkQuest.mockClear(); });
+  beforeEach(() => {
+    mockMarkQuest.mockClear();
+  });
 
   it('goBack called when Back to Practice is clicked on done screen', () => {
     const goBack = vi.fn();

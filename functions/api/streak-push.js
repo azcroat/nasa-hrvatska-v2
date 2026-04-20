@@ -11,7 +11,7 @@ function pickIdx(arr, seed) {
 
 function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
   const displayName = (name || '').split(' ')[0].trim() || 'Učenik';
-  const nameTag    = `, ${displayName}`;
+  const nameTag = `, ${displayName}`;
   const namePrefix = `${displayName}, `;
 
   // Seed varies by day so messages rotate daily
@@ -35,16 +35,16 @@ function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
         `You learned ${streak} days worth of Croatian. That knowledge is permanent. Let's build on it today! ✨`,
       ];
       return {
-        title:   pickIdx(titles, daySeed),
-        body:    pickIdx(bodies, daySeed + 1),
-        icon:    '/icons/icon-192x192.png',
-        badge:   '/icons/badge-72.png',
-        tag:     'streak-reminder',
+        title: pickIdx(titles, daySeed),
+        body: pickIdx(bodies, daySeed + 1),
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/badge-72.png',
+        tag: 'streak-reminder',
         renotify: true,
-        data:    { url: '/', action: 'open_lesson' },
+        data: { url: '/', action: 'open_lesson' },
         actions: [
-          { action: 'study',   title: '🌱 Start Fresh' },
-          { action: 'dismiss', title: 'Not Today'       },
+          { action: 'study', title: '🌱 Start Fresh' },
+          { action: 'dismiss', title: 'Not Today' },
         ],
       };
     }
@@ -63,16 +63,16 @@ function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
         `${namePrefix}FSRS says your words are overdue. Quick review before they fade? ⏰`,
       ];
       return {
-        title:   pickIdx(titles, daySeed),
-        body:    pickIdx(bodies, daySeed + 1),
-        icon:    '/icons/icon-192x192.png',
-        badge:   '/icons/badge-72.png',
-        tag:     'streak-reminder',
+        title: pickIdx(titles, daySeed),
+        body: pickIdx(bodies, daySeed + 1),
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/badge-72.png',
+        tag: 'streak-reminder',
         renotify: true,
-        data:    { url: '/', action: 'open_lesson' },
+        data: { url: '/', action: 'open_lesson' },
         actions: [
-          { action: 'study',   title: '🔄 Rebuild Streak' },
-          { action: 'dismiss', title: 'Later'              },
+          { action: 'study', title: '🔄 Rebuild Streak' },
+          { action: 'dismiss', title: 'Later' },
         ],
       };
     }
@@ -90,16 +90,16 @@ function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
       `${namePrefix}${daysSince} days off is totally fine. But let's not make it ${daysSince + 1}! 😅`,
     ];
     return {
-      title:   pickIdx(titles, daySeed),
-      body:    pickIdx(bodies, daySeed + 1),
-      icon:    '/icons/icon-192x192.png',
-      badge:   '/icons/badge-72.png',
-      tag:     'streak-reminder',
+      title: pickIdx(titles, daySeed),
+      body: pickIdx(bodies, daySeed + 1),
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/badge-72.png',
+      tag: 'streak-reminder',
       renotify: true,
-      data:    { url: '/', action: 'open_lesson' },
+      data: { url: '/', action: 'open_lesson' },
       actions: [
-        { action: 'study',   title: '📚 Study Now' },
-        { action: 'dismiss', title: 'Later'         },
+        { action: 'study', title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later' },
       ],
     };
   }
@@ -121,16 +121,16 @@ function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
       `${namePrefix}language starts with one session. Today's the day! 🇭🇷`,
     ];
     return {
-      title:   pickIdx(titles, daySeed),
-      body:    pickIdx(bodies, daySeed + 1),
-      icon:    '/icons/icon-192x192.png',
-      badge:   '/icons/badge-72.png',
-      tag:     'streak-reminder',
+      title: pickIdx(titles, daySeed),
+      body: pickIdx(bodies, daySeed + 1),
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/badge-72.png',
+      tag: 'streak-reminder',
       renotify: true,
-      data:    { url: '/', action: 'open_lesson' },
+      data: { url: '/', action: 'open_lesson' },
       actions: [
-        { action: 'study',   title: '📚 Study Now' },
-        { action: 'dismiss', title: 'Later'         },
+        { action: 'study', title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later' },
       ],
     };
   }
@@ -152,16 +152,16 @@ function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
       `Quick quiz? ~5 minutes. Streak stays alive 🔥`,
     ];
     return {
-      title:   pickIdx(titles, daySeed),
-      body:    pickIdx(bodies, daySeed + 1),
-      icon:    '/icons/icon-192x192.png',
-      badge:   '/icons/badge-72.png',
-      tag:     'streak-reminder',
+      title: pickIdx(titles, daySeed),
+      body: pickIdx(bodies, daySeed + 1),
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/badge-72.png',
+      tag: 'streak-reminder',
       renotify: true,
-      data:    { url: '/', action: 'open_lesson' },
+      data: { url: '/', action: 'open_lesson' },
       actions: [
-        { action: 'study',   title: '📚 Study Now' },
-        { action: 'dismiss', title: 'Later'         },
+        { action: 'study', title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later' },
       ],
     };
   }
@@ -183,16 +183,16 @@ function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
       `Halfway to 30 days? Almost there. Don't quit now${nameTag}! 🔥`,
     ];
     return {
-      title:   pickIdx(titles, daySeed),
-      body:    pickIdx(bodies, daySeed + 1),
-      icon:    '/icons/icon-192x192.png',
-      badge:   '/icons/badge-72.png',
-      tag:     'streak-reminder',
+      title: pickIdx(titles, daySeed),
+      body: pickIdx(bodies, daySeed + 1),
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/badge-72.png',
+      tag: 'streak-reminder',
       renotify: true,
-      data:    { url: '/', action: 'open_lesson' },
+      data: { url: '/', action: 'open_lesson' },
       actions: [
-        { action: 'study',   title: '📚 Study Now' },
-        { action: 'dismiss', title: 'Later'         },
+        { action: 'study', title: '📚 Study Now' },
+        { action: 'dismiss', title: 'Later' },
       ],
     };
   }
@@ -213,16 +213,16 @@ function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
     `At ${streak} days, you're not just learning — you're living the language. Keep going${nameTag}!`,
   ];
   return {
-    title:   pickIdx(titles, daySeed),
-    body:    pickIdx(bodies, daySeed + 1),
-    icon:    '/icons/icon-192x192.png',
-    badge:   '/icons/badge-72.png',
-    tag:     'streak-reminder',
+    title: pickIdx(titles, daySeed),
+    body: pickIdx(bodies, daySeed + 1),
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/badge-72.png',
+    tag: 'streak-reminder',
     renotify: true,
-    data:    { url: '/', action: 'open_lesson' },
+    data: { url: '/', action: 'open_lesson' },
     actions: [
-      { action: 'study',   title: '📚 Study Now' },
-      { action: 'dismiss', title: 'Later'         },
+      { action: 'study', title: '📚 Study Now' },
+      { action: 'dismiss', title: 'Later' },
     ],
   };
 }
@@ -230,62 +230,98 @@ function buildNotification(name, streak, dueSeed = 0, daysSince = 0) {
 // ── RFC 8291 payload encryption (ECDH + AES-128-GCM) ─────────────────────────
 function b64uDecode(str) {
   const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
-  const pad = b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '=');
-  return Uint8Array.from(atob(pad), c => c.charCodeAt(0));
+  const pad = b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), '=');
+  return Uint8Array.from(atob(pad), (c) => c.charCodeAt(0));
 }
 
 function concatBytes(...arrays) {
   const total = arrays.reduce((n, a) => n + a.length, 0);
   const out = new Uint8Array(total);
   let off = 0;
-  for (const a of arrays) { out.set(a, off); off += a.length; }
+  for (const a of arrays) {
+    out.set(a, off);
+    off += a.length;
+  }
   return out;
 }
 
 async function encryptPayload(plaintextBytes, subscription) {
   const uaPublicBytes = b64uDecode(subscription.keys.p256dh);
-  const authSecret    = b64uDecode(subscription.keys.auth);
+  const authSecret = b64uDecode(subscription.keys.auth);
 
-  const asKeyPair = await crypto.subtle.generateKey(
-    { name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits'],
-  );
+  const asKeyPair = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, [
+    'deriveBits',
+  ]);
   const asPublicBytes = new Uint8Array(await crypto.subtle.exportKey('raw', asKeyPair.publicKey));
 
   const uaPublicKey = await crypto.subtle.importKey(
-    'raw', uaPublicBytes, { name: 'ECDH', namedCurve: 'P-256' }, false, [],
+    'raw',
+    uaPublicBytes,
+    { name: 'ECDH', namedCurve: 'P-256' },
+    false,
+    [],
   );
 
   const ecdhBits = await crypto.subtle.deriveBits(
-    { name: 'ECDH', public: uaPublicKey }, asKeyPair.privateKey, 256,
+    { name: 'ECDH', public: uaPublicKey },
+    asKeyPair.privateKey,
+    256,
   );
   const ecdhSecret = new Uint8Array(ecdhBits);
 
   // Stage 1: derive IKM using auth secret as HKDF salt
-  const ikmMaterial = await crypto.subtle.importKey('raw', ecdhSecret, 'HKDF', false, ['deriveBits']);
+  const ikmMaterial = await crypto.subtle.importKey('raw', ecdhSecret, 'HKDF', false, [
+    'deriveBits',
+  ]);
   const keyInfo = concatBytes(
-    new TextEncoder().encode('WebPush: info\x00'), uaPublicBytes, asPublicBytes,
+    new TextEncoder().encode('WebPush: info\x00'),
+    uaPublicBytes,
+    asPublicBytes,
   );
-  const ikm = new Uint8Array(await crypto.subtle.deriveBits(
-    { name: 'HKDF', hash: 'SHA-256', salt: authSecret, info: keyInfo }, ikmMaterial, 256,
-  ));
+  const ikm = new Uint8Array(
+    await crypto.subtle.deriveBits(
+      { name: 'HKDF', hash: 'SHA-256', salt: authSecret, info: keyInfo },
+      ikmMaterial,
+      256,
+    ),
+  );
 
   // Stage 2: derive CEK + nonce from IKM using random salt
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const ikmKey = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits']);
-  const cek = new Uint8Array(await crypto.subtle.deriveBits(
-    { name: 'HKDF', hash: 'SHA-256', salt, info: new TextEncoder().encode('Content-Encoding: aes128gcm\x00\x01') },
-    ikmKey, 128,
-  ));
-  const nonce = new Uint8Array(await crypto.subtle.deriveBits(
-    { name: 'HKDF', hash: 'SHA-256', salt, info: new TextEncoder().encode('Content-Encoding: nonce\x00\x01') },
-    ikmKey, 96,
-  ));
+  const cek = new Uint8Array(
+    await crypto.subtle.deriveBits(
+      {
+        name: 'HKDF',
+        hash: 'SHA-256',
+        salt,
+        info: new TextEncoder().encode('Content-Encoding: aes128gcm\x00\x01'),
+      },
+      ikmKey,
+      128,
+    ),
+  );
+  const nonce = new Uint8Array(
+    await crypto.subtle.deriveBits(
+      {
+        name: 'HKDF',
+        hash: 'SHA-256',
+        salt,
+        info: new TextEncoder().encode('Content-Encoding: nonce\x00\x01'),
+      },
+      ikmKey,
+      96,
+    ),
+  );
 
   const aesKey = await crypto.subtle.importKey('raw', cek, { name: 'AES-GCM' }, false, ['encrypt']);
-  const ciphertext = new Uint8Array(await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv: nonce }, aesKey,
-    concatBytes(plaintextBytes, new Uint8Array([0x02])),
-  ));
+  const ciphertext = new Uint8Array(
+    await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: nonce },
+      aesKey,
+      concatBytes(plaintextBytes, new Uint8Array([0x02])),
+    ),
+  );
 
   const header = new Uint8Array(16 + 4 + 1 + 65);
   header.set(salt, 0);
@@ -297,7 +333,7 @@ async function encryptPayload(plaintextBytes, subscription) {
 
 async function sendWebPush(subscription, payload, env) {
   const VAPID_PRIVATE = env.VAPID_PRIVATE_KEY;
-  const VAPID_PUBLIC  = env.VAPID_PUBLIC_KEY;
+  const VAPID_PUBLIC = env.VAPID_PUBLIC_KEY;
   const VAPID_SUBJECT = 'mailto:support@nasahrvatska.com';
 
   if (!VAPID_PRIVATE || !VAPID_PUBLIC) {
@@ -314,35 +350,47 @@ async function sendWebPush(subscription, payload, env) {
   const now = Math.floor(Date.now() / 1000);
 
   const headerB64 = btoa(JSON.stringify({ typ: 'JWT', alg: 'ES256' }))
-    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
   const payloadB64 = btoa(JSON.stringify({ aud: audience, exp: now + 43200, sub: VAPID_SUBJECT }))
-    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
 
   const sigInput = `${headerB64}.${payloadB64}`;
 
   const keyBytes = b64uDecode(VAPID_PRIVATE);
   const cryptoKey = await crypto.subtle.importKey(
-    'pkcs8', keyBytes.buffer, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign'],
+    'pkcs8',
+    keyBytes.buffer,
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    false,
+    ['sign'],
   );
 
   const sigBytes = await crypto.subtle.sign(
-    { name: 'ECDSA', hash: 'SHA-256' }, cryptoKey, new TextEncoder().encode(sigInput),
+    { name: 'ECDSA', hash: 'SHA-256' },
+    cryptoKey,
+    new TextEncoder().encode(sigInput),
   );
   const sig = btoa(String.fromCharCode(...new Uint8Array(sigBytes)))
-    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
 
   const token = `${sigInput}.${sig}`;
 
   // ── Encrypt payload (RFC 8291) and send ───────────────────────────────────
   let body;
   const pushHeaders = {
-    'Authorization': `vapid t=${token},k=${VAPID_PUBLIC}`,
-    'TTL': '86400',
+    Authorization: `vapid t=${token},k=${VAPID_PUBLIC}`,
+    TTL: '86400',
   };
 
   if (subscription.keys?.p256dh && subscription.keys?.auth) {
     body = await encryptPayload(new TextEncoder().encode(JSON.stringify(payload)), subscription);
-    pushHeaders['Content-Type']     = 'application/octet-stream';
+    pushHeaders['Content-Type'] = 'application/octet-stream';
     pushHeaders['Content-Encoding'] = 'aes128gcm';
   } else {
     body = null;
@@ -368,7 +416,6 @@ function timingSafeEqual(a, b) {
   const len = Math.max(aBytes.length, bBytes.length);
   let diff = aBytes.length === bBytes.length ? 0 : 1;
   for (let i = 0; i < len; i++) {
-     
     diff |= (aBytes[i] || 0) ^ (bBytes[i] || 0);
   }
   return diff === 0;
@@ -378,17 +425,29 @@ export async function onRequestPost({ request, env }) {
   // Internal-only: require CRON_SECRET
   const secret = request.headers.get('x-cron-secret') || '';
   if (!env.CRON_SECRET || !timingSafeEqual(secret, env.CRON_SECRET)) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) {
-    return new Response(JSON.stringify({ error: 'invalid_content_type' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'invalid_content_type' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   let body;
-  try { body = await request.json(); }
-  catch { return new Response(JSON.stringify({ error: 'invalid_json' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'invalid_json' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 
   const { subscription, streak = 0, name = '', daysSince = 0 } = body;
   if (!subscription?.endpoint) {

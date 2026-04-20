@@ -10,7 +10,9 @@ import {
   ACTIVITY_TYPES,
 } from '../lib/learnerStyle.js';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 const STORAGE_KEY = 'nh_style_events';
 
@@ -20,7 +22,10 @@ function getEvents() {
 
 describe('learnerStyle — activity engagement tracking', () => {
   beforeEach(clearLS);
-  afterEach(() => { clearLS(); vi.useRealTimers(); });
+  afterEach(() => {
+    clearLS();
+    vi.useRealTimers();
+  });
 
   // ── ACTIVITY_TYPES constant ───────────────────────────────────────────────
 
@@ -108,16 +113,17 @@ describe('learnerStyle — activity engagement tracking', () => {
 
     // Write an old event directly
     const oldTs = now - 61 * 86400000;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([
-      { type: 'grammar', action: 'start', ts: oldTs },
-    ]));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([{ type: 'grammar', action: 'start', ts: oldTs }]),
+    );
 
     // A new trackStart will prune on _save
     trackStart('flashcards');
     const events = getEvents();
-    expect(events.every(e => e.ts > now - 60 * 86400000)).toBe(true);
+    expect(events.every((e) => e.ts > now - 60 * 86400000)).toBe(true);
     // Old event should be gone
-    expect(events.some(e => e.type === 'grammar' && e.ts === oldTs)).toBe(false);
+    expect(events.some((e) => e.type === 'grammar' && e.ts === oldTs)).toBe(false);
   });
 
   it('recent events survive pruning', () => {
@@ -125,12 +131,15 @@ describe('learnerStyle — activity engagement tracking', () => {
     const now = Date.now();
     vi.setSystemTime(now);
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([
-      { type: 'grammar', action: 'start', ts: now - 10 * 86400000 }, // 10 days ago — keep
-    ]));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        { type: 'grammar', action: 'start', ts: now - 10 * 86400000 }, // 10 days ago — keep
+      ]),
+    );
     trackStart('flashcards');
     const events = getEvents();
-    expect(events.some(e => e.type === 'grammar')).toBe(true);
+    expect(events.some((e) => e.type === 'grammar')).toBe(true);
   });
 
   // ── MAX_EVENTS cap ────────────────────────────────────────────────────────
@@ -142,7 +151,9 @@ describe('learnerStyle — activity engagement tracking', () => {
 
     // Pre-fill with 500 recent events
     const existing = Array.from({ length: 500 }, (_, i) => ({
-      type: 'grammar', action: 'start', ts: now - i * 1000,
+      type: 'grammar',
+      action: 'start',
+      ts: now - i * 1000,
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
     trackStart('flashcards'); // This is the 501st — triggers cap via _prune
@@ -180,10 +191,14 @@ describe('learnerStyle — activity engagement tracking', () => {
 
   it('preferredTypes lists up to 3 entries', () => {
     for (let i = 0; i < 3; i++) {
-      trackStart('flashcards'); trackComplete('flashcards', 200000);
-      trackStart('listening');  trackComplete('listening', 200000);
-      trackStart('grammar');    trackComplete('grammar', 200000);
-      trackStart('speaking');   trackComplete('speaking', 200000);
+      trackStart('flashcards');
+      trackComplete('flashcards', 200000);
+      trackStart('listening');
+      trackComplete('listening', 200000);
+      trackStart('grammar');
+      trackComplete('grammar', 200000);
+      trackStart('speaking');
+      trackComplete('speaking', 200000);
     }
     const prefs = getStylePreferences();
     expect(prefs.preferredTypes.length).toBeLessThanOrEqual(3);
@@ -191,7 +206,8 @@ describe('learnerStyle — activity engagement tracking', () => {
 
   it('completionRates is an object with activity type keys', () => {
     for (let i = 0; i < 3; i++) {
-      trackStart('reading'); trackComplete('reading', 100000);
+      trackStart('reading');
+      trackComplete('reading', 100000);
     }
     const prefs = getStylePreferences();
     if (prefs) {
@@ -206,7 +222,10 @@ describe('learnerStyle — activity engagement tracking', () => {
     trackAbandon('writing', 10000);
     trackAbandon('writing', 10000);
     // Add enough other events to pass the 5-event threshold
-    for (let i = 0; i < 3; i++) { trackStart('grammar'); trackComplete('grammar', 200000); }
+    for (let i = 0; i < 3; i++) {
+      trackStart('grammar');
+      trackComplete('grammar', 200000);
+    }
     const prefs = getStylePreferences();
     if (prefs && prefs.avoidedTypes) {
       // writing may appear in avoidedTypes if completion < 40%
@@ -222,10 +241,12 @@ describe('learnerStyle — activity engagement tracking', () => {
 
   it('returns compact object for API when data exists', () => {
     for (let i = 0; i < 3; i++) {
-      trackStart('flashcards'); trackComplete('flashcards', 200000);
+      trackStart('flashcards');
+      trackComplete('flashcards', 200000);
     }
     for (let i = 0; i < 3; i++) {
-      trackStart('listening'); trackComplete('listening', 200000);
+      trackStart('listening');
+      trackComplete('listening', 200000);
     }
     const ctx = getStyleContextForAPI();
     if (ctx) {
@@ -243,10 +264,12 @@ describe('learnerStyle — activity engagement tracking', () => {
 
   it('returns a string label when data exists', () => {
     for (let i = 0; i < 3; i++) {
-      trackStart('flashcards'); trackComplete('flashcards', 300000);
+      trackStart('flashcards');
+      trackComplete('flashcards', 300000);
     }
     for (let i = 0; i < 3; i++) {
-      trackStart('grammar'); trackComplete('grammar', 60000);
+      trackStart('grammar');
+      trackComplete('grammar', 60000);
     }
     const label = getStyleLabel();
     if (label !== null) {
@@ -272,10 +295,13 @@ describe('learnerStyle — activity engagement tracking', () => {
     vi.useFakeTimers();
     const now = Date.now();
     vi.setSystemTime(now);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([
-      { type: 'grammar', action: 'start', ts: now - 70 * 86400000 }, // old: pruned
-      { type: 'reading', action: 'start', ts: now - 10 * 86400000 }, // recent: kept
-    ]));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        { type: 'grammar', action: 'start', ts: now - 70 * 86400000 }, // old: pruned
+        { type: 'reading', action: 'start', ts: now - 10 * 86400000 }, // recent: kept
+      ]),
+    );
     expect(getTotalEvents()).toBe(1);
   });
 });

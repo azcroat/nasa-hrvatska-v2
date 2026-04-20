@@ -140,7 +140,12 @@ const QUIZ = [
   },
   {
     q: '"Gren doma" is Čakavian for which standard phrase?',
-    options: ['I am going to school', 'I am going home', 'I am going to the shop', 'Where are you going?'],
+    options: [
+      'I am going to school',
+      'I am going home',
+      'I am going to the shop',
+      'Where are you going?',
+    ],
     ans: 1,
   },
   {
@@ -165,7 +170,12 @@ const QUIZ = [
   },
   {
     q: 'Kajkavian has many loanwords from which languages due to Central European influence?',
-    options: ['Italian and Spanish', 'Turkish and Arabic', 'German and Hungarian', 'French and English'],
+    options: [
+      'Italian and Spanish',
+      'Turkish and Arabic',
+      'German and Hungarian',
+      'French and English',
+    ],
     ans: 2,
   },
 ];
@@ -192,11 +202,11 @@ function DialectCard({ dialect, onTap }) {
         boxShadow: '0 1px 4px rgba(0,0,0,.06)',
         transition: 'transform 0.15s, box-shadow 0.15s',
       }}
-      onMouseEnter={e => {
+      onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-1px)';
         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,.1)';
       }}
-      onMouseLeave={e => {
+      onMouseLeave={(e) => {
         e.currentTarget.style.transform = '';
         e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,.06)';
       }}
@@ -296,13 +306,37 @@ function ComparisonTable({ features }) {
           padding: '8px 12px',
         }}
       >
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'var(--subtext)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
           Feature
         </div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'var(--subtext)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
           Dialect
         </div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--subtext)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'var(--subtext)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
           Standard
         </div>
       </div>
@@ -320,7 +354,9 @@ function ComparisonTable({ features }) {
             borderTop: i === 0 ? 'none' : '1px solid var(--card-b)',
           }}
         >
-          <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.3 }}>{row.feature}</div>
+          <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.3 }}>
+            {row.feature}
+          </div>
           <div
             style={{
               fontFamily: "'Playfair Display', serif",
@@ -331,7 +367,9 @@ function ComparisonTable({ features }) {
           >
             {row.dialect}
           </div>
-          <div style={{ fontSize: 13, color: 'var(--subtext)', fontWeight: 500 }}>{row.standard}</div>
+          <div style={{ fontSize: 13, color: 'var(--subtext)', fontWeight: 500 }}>
+            {row.standard}
+          </div>
         </div>
       ))}
     </div>
@@ -609,7 +647,7 @@ function QuizView({ onBack, award }) {
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    return arr.map(q => {
+    return arr.map((q) => {
       const correctOpt = q.options[q.ans];
       const opts = [...q.options];
       for (let i = opts.length - 1; i > 0; i--) {
@@ -644,7 +682,7 @@ function QuizView({ onBack, award }) {
         if (typeof award === 'function') award(score * 10);
         markQuest('culture');
         if (!stats.vs?.includes('dialects')) {
-          setStats(prev => {
+          setStats((prev) => {
             if (prev.vs?.includes('dialects')) return prev;
             return { ...prev, lc: (prev.lc || 0) + 1, vs: [...(prev.vs || []), 'dialects'] };
           });
@@ -697,8 +735,8 @@ function QuizView({ onBack, award }) {
             {pct >= 80
               ? 'Excellent! You understand Croatian dialects.'
               : pct >= 50
-              ? 'Good effort! Review the dialect cards and try again.'
-              : 'Keep exploring — every dialect expert started here!'}
+                ? 'Good effort! Review the dialect cards and try again.'
+                : 'Keep exploring — every dialect expert started here!'}
           </div>
           {alreadyDone ? (
             <div
@@ -747,11 +785,16 @@ function QuizView({ onBack, award }) {
                 marginBottom: 8,
               }}
             >
-              <span style={{ fontSize: 16, marginTop: 1 }}>
-                {answers[i] ? '✅' : '❌'}
-              </span>
+              <span style={{ fontSize: 16, marginTop: 1 }}>{answers[i] ? '✅' : '❌'}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, color: 'var(--heading)', fontWeight: 600, marginBottom: 2 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: 'var(--heading)',
+                    fontWeight: 600,
+                    marginBottom: 2,
+                  }}
+                >
                   {question.q}
                 </div>
                 {!answers[i] && (
@@ -817,7 +860,9 @@ function QuizView({ onBack, award }) {
             marginBottom: 6,
           }}
         >
-          <span>Question {idx + 1} of {shuffledQuiz.length}</span>
+          <span>
+            Question {idx + 1} of {shuffledQuiz.length}
+          </span>
           <span>{answers.filter(Boolean).length} correct so far</span>
         </div>
         <div
@@ -831,7 +876,7 @@ function QuizView({ onBack, award }) {
           <div
             style={{
               height: '100%',
-              width: `${((idx) / shuffledQuiz.length) * 100}%`,
+              width: `${(idx / shuffledQuiz.length) * 100}%`,
               background: '#2563eb',
               borderRadius: 3,
               transition: 'width 0.4s',
@@ -841,10 +886,7 @@ function QuizView({ onBack, award }) {
       </div>
 
       {/* Question card */}
-      <div
-        className="c"
-        style={{ marginBottom: 16 }}
-      >
+      <div className="c" style={{ marginBottom: 16 }}>
         <div
           style={{
             fontFamily: "'Playfair Display', serif",
@@ -907,11 +949,12 @@ function QuizView({ onBack, award }) {
                   width: 26,
                   height: 26,
                   borderRadius: '50%',
-                  background: isAnswered && i === q.ans
-                    ? '#6ee7b7'
-                    : isAnswered && i === selected && i !== q.ans
-                    ? '#fca5a5'
-                    : 'var(--card-b)',
+                  background:
+                    isAnswered && i === q.ans
+                      ? '#6ee7b7'
+                      : isAnswered && i === selected && i !== q.ans
+                        ? '#fca5a5'
+                        : 'var(--card-b)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -921,7 +964,11 @@ function QuizView({ onBack, award }) {
                   color: isAnswered && (i === q.ans || i === selected) ? '#fff' : 'var(--subtext)',
                 }}
               >
-                {isAnswered && i === q.ans ? '✓' : isAnswered && i === selected && i !== q.ans ? '✗' : String.fromCharCode(65 + i)}
+                {isAnswered && i === q.ans
+                  ? '✓'
+                  : isAnswered && i === selected && i !== q.ans
+                    ? '✗'
+                    : String.fromCharCode(65 + i)}
               </span>
               {opt}
             </button>
@@ -997,10 +1044,7 @@ export default function DialectAwarenessScreen({ goBack, stats }) {
           {H('🗣️ Croatian Dialects', 'The three dialect groups', goBack)}
 
           {/* Intro card */}
-          <div
-            className="c"
-            style={{ marginBottom: 20 }}
-          >
+          <div className="c" style={{ marginBottom: 20 }}>
             <div
               style={{
                 fontSize: 13,
@@ -1013,8 +1057,8 @@ export default function DialectAwarenessScreen({ goBack, stats }) {
                 "what"
               </span>
               . Standard Croatian is based on{' '}
-              <span style={{ fontWeight: 700, color: '#2563eb' }}>Štokavian</span>, but the
-              other two are living dialects spoken by millions — and{' '}
+              <span style={{ fontWeight: 700, color: '#2563eb' }}>Štokavian</span>, but the other
+              two are living dialects spoken by millions — and{' '}
               <span style={{ fontWeight: 700 }}>no other Croatian app teaches this</span>.
             </div>
 
@@ -1027,7 +1071,7 @@ export default function DialectAwarenessScreen({ goBack, stats }) {
                 flexWrap: 'wrap',
               }}
             >
-              {DIALECTS.map(d => (
+              {DIALECTS.map((d) => (
                 <div
                   key={d.id}
                   style={{
@@ -1058,7 +1102,7 @@ export default function DialectAwarenessScreen({ goBack, stats }) {
           </div>
 
           {/* Dialect cards */}
-          {DIALECTS.map(d => (
+          {DIALECTS.map((d) => (
             <DialectCard key={d.id} dialect={d} onTap={openDetail} />
           ))}
 

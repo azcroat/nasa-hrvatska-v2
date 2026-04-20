@@ -13,20 +13,26 @@ import React from 'react';
 // We return a non-ok response so the card goes to its error state synchronously
 // within the act() boundary that surrounds render().
 vi.mock('../lib/apiFetch', () => ({
-  apiFetch: vi.fn(() => Promise.resolve({
-    ok: false,
-    status: 503,
-    json: () => Promise.resolve({}),
-  })),
+  apiFetch: vi.fn(() =>
+    Promise.resolve({
+      ok: false,
+      status: 503,
+      json: () => Promise.resolve({}),
+    }),
+  ),
 }));
 
 // ── Mock Firebase ─────────────────────────────────────────────────────────────
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
 vi.mock('firebase/auth', () => ({
-  getAuth: vi.fn(() => ({})), setPersistence: vi.fn(() => Promise.resolve()),
-  browserLocalPersistence: {}, signInWithEmailAndPassword: vi.fn(),
-  createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn(),
-  sendPasswordResetEmail: vi.fn(), onAuthStateChanged: vi.fn(() => () => {}),
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
   updateProfile: vi.fn(),
   initializeAuth: vi.fn(() => ({})),
   indexedDBLocalPersistence: {},
@@ -38,8 +44,15 @@ vi.mock('firebase/auth', () => ({
   deleteUser: vi.fn(),
 }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({})), doc: vi.fn(), getDoc: vi.fn(), setDoc: vi.fn(),
-  collection: vi.fn(), getDocs: vi.fn(), query: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
 }));
 
 // ── XPPopup ───────────────────────────────────────────────────────────────────
@@ -84,11 +97,15 @@ vi.mock('../data', async (importOriginal) => {
   return {
     ...actual,
     srMark: vi.fn(),
-    H: (title, sub) => React.createElement('div', null,
-      React.createElement('h2', null, title),
-      React.createElement('p', null, sub)
-    ),
-    Bar: ({ v, mx }) => React.createElement('div', { 'data-testid': 'progress-bar', 'data-v': v, 'data-mx': mx }),
+    H: (title, sub) =>
+      React.createElement(
+        'div',
+        null,
+        React.createElement('h2', null, title),
+        React.createElement('p', null, sub),
+      ),
+    Bar: ({ v, mx }) =>
+      React.createElement('div', { 'data-testid': 'progress-bar', 'data-v': v, 'data-mx': mx }),
   };
 });
 
@@ -105,56 +122,84 @@ describe('Flashcards', () => {
   const award = vi.fn();
 
   it('renders without crashing', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
   });
   it('shows the first Croatian word', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     expect(screen.getByText('kuća')).toBeTruthy();
   });
   it('shows card index counter', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     expect(screen.getByText(`1 / ${SAMPLE_POOL.length}`)).toBeTruthy();
   });
   it('flip buttons are not visible before card is flipped', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     expect(screen.queryByText(/How well did you know it/i)).toBeNull();
     expect(screen.queryByText(/Perfect/i)).toBeNull();
   });
   it('shows flip buttons after clicking the card', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     const card = screen.getByRole('button', { name: /tap to see English/i });
-    await act(async () => { fireEvent.click(card); });
+    await act(async () => {
+      fireEvent.click(card);
+    });
     expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
     expect(screen.getByText(/Perfect/i)).toBeTruthy();
   });
   it('card has role="button" and tabIndex=0 for keyboard access', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     const card = screen.getByRole('button', { name: /tap to see English/i });
     expect(card.tabIndex).toBe(0);
   });
   it('Enter key flips the card', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     const card = screen.getByRole('button', { name: /tap to see English/i });
-    await act(async () => { fireEvent.keyDown(card, { key: 'Enter' }); });
+    await act(async () => {
+      fireEvent.keyDown(card, { key: 'Enter' });
+    });
     expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
   });
   it('Space key flips the card', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     const card = screen.getByRole('button', { name: /tap to see English/i });
-    await act(async () => { fireEvent.keyDown(card, { key: ' ' }); });
+    await act(async () => {
+      fireEvent.keyDown(card, { key: ' ' });
+    });
     expect(screen.getByText(/How well did you know it/i)).toBeTruthy();
   });
   it('shows completion screen when pool is empty', async () => {
-    await act(async () => { render(<Flashcards pool={[]} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={[]} goBack={goBack} award={award} />);
+    });
     expect(screen.getByText(/All caught up/i)).toBeTruthy();
     expect(screen.getByText(/Continue/i)).toBeTruthy();
   });
   it('shows phonetic hint when provided', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     expect(screen.getByText('/KOO-cha/')).toBeTruthy();
   });
   it('progress bar is present', async () => {
-    await act(async () => { render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />); });
+    await act(async () => {
+      render(<Flashcards pool={SAMPLE_POOL} goBack={goBack} award={award} />);
+    });
     expect(screen.getByTestId('progress-bar')).toBeTruthy();
   });
 });
@@ -168,9 +213,22 @@ import PracticeTab from '../components/practice/PracticeTab';
 import ProfileTab from '../components/profile/ProfileTab';
 
 const mockSt = {
-  xp: 120, str: 3, diff: 'beginner', lc: 5, pf: 0, gc: 2,
-  sp: 0, de: 0, rc: 0, authLoading: 0, mv: 0, hi: 0,
-  rs: [], ct: [], vs: [], badges: [],
+  xp: 120,
+  str: 3,
+  diff: 'beginner',
+  lc: 5,
+  pf: 0,
+  gc: 2,
+  sp: 0,
+  de: 0,
+  rc: 0,
+  authLoading: 0,
+  mv: 0,
+  hi: 0,
+  rs: [],
+  ct: [],
+  vs: [],
+  badges: [],
 };
 
 const mockContextValue = {
@@ -218,7 +276,7 @@ describe('HomeTab smoke render', () => {
           <StatsProvider value={mockStatsValue}>
             <HomeTab
               getWeekStats={() => ({ lessons: 0, grammar: 0, streak: 0, weak: 0, strong: 0 })}
-              sh={arr => arr}
+              sh={(arr) => arr}
               allCats={[]}
               dchlA={[null, null, null]}
               sDchlA={vi.fn()}
@@ -229,7 +287,7 @@ describe('HomeTab smoke render', () => {
               launchPathItem={vi.fn()}
             />
           </StatsProvider>
-        </AppContext.Provider>
+        </AppContext.Provider>,
       );
     });
   });
@@ -240,9 +298,9 @@ describe('LearnTab smoke render', () => {
     render(
       <AppContext.Provider value={mockContextValue}>
         <StatsProvider value={mockStatsValue}>
-          <LearnTab allCats={[]} icons={{}} sh={arr => arr} />
+          <LearnTab allCats={[]} icons={{}} sh={(arr) => arr} />
         </StatsProvider>
-      </AppContext.Provider>
+      </AppContext.Provider>,
     );
   });
 });
@@ -254,7 +312,7 @@ describe('PracticeTab smoke render', () => {
         <StatsProvider value={mockStatsValue}>
           <PracticeTab
             allCats={[]}
-            sh={arr => arr}
+            sh={(arr) => arr}
             sCurEx={vi.fn()}
             onLaunchQuiz={vi.fn()}
             onLaunchFlash={vi.fn()}
@@ -263,7 +321,7 @@ describe('PracticeTab smoke render', () => {
             onLaunchSpeaking={vi.fn()}
           />
         </StatsProvider>
-      </AppContext.Provider>
+      </AppContext.Provider>,
     );
   });
 });
@@ -283,16 +341,25 @@ describe('ProfileTab smoke render', () => {
               onOpenFriends={vi.fn()}
             />
           </StatsProvider>
-        </AppContext.Provider>
+        </AppContext.Provider>,
       );
     });
   });
 });
 
 describe('CroatianKnight — new moods smoke tests', () => {
-  const newMoods = ['oops', 'struggling', 'onfire', 'tearsofjoy', 'levelup', 'winking', 'proud', 'worried'];
+  const newMoods = [
+    'oops',
+    'struggling',
+    'onfire',
+    'tearsofjoy',
+    'levelup',
+    'winking',
+    'proud',
+    'worried',
+  ];
 
-  newMoods.forEach(mood => {
+  newMoods.forEach((mood) => {
     it(`renders mood="${mood}" without crashing`, () => {
       const { container } = render(<CroatianKnight mood={mood} size={60} />);
       expect(container.querySelector('svg')).not.toBeNull();

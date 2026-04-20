@@ -14,7 +14,9 @@ vi.mock('../lib/srs.js', () => ({
 
 import { buildProgressSnapshot } from '../lib/progressSnapshot';
 
-function clearLS() { localStorage.clear(); }
+function clearLS() {
+  localStorage.clear();
+}
 
 const BASE_PARAMS = {
   uid: 'user123',
@@ -28,7 +30,10 @@ const BASE_PARAMS = {
 
 describe('buildProgressSnapshot', () => {
   beforeEach(clearLS);
-  afterEach(() => { clearLS(); vi.restoreAllMocks(); });
+  afterEach(() => {
+    clearLS();
+    vi.restoreAllMocks();
+  });
 
   it('returns an object with required top-level keys', () => {
     const snap = buildProgressSnapshot(BASE_PARAMS);
@@ -73,14 +78,20 @@ describe('buildProgressSnapshot', () => {
 
   it('dc merges with localStorage dcDay3 if date matches today', () => {
     const today = new Date();
-    const todayStr = today.getFullYear() + '-' +
-      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+    const todayStr =
+      today.getFullYear() +
+      '-' +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      '-' +
       String(today.getDate()).padStart(2, '0');
-    localStorage.setItem('dcDay3', JSON.stringify({
-      day: todayStr,
-      answered: [false, true, false],
-      selected: ['', 'b', ''],
-    }));
+    localStorage.setItem(
+      'dcDay3',
+      JSON.stringify({
+        day: todayStr,
+        answered: [false, true, false],
+        selected: ['', 'b', ''],
+      }),
+    );
     // React dchlA = [true, false, false]; merged should give [true, true, false]
     const snap = buildProgressSnapshot({
       ...BASE_PARAMS,
