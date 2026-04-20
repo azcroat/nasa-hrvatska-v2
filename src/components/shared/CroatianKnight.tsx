@@ -648,7 +648,7 @@ const CroatianKnight = React.memo(function CroatianKnight({
 
   const eyeScaleY = cfg.wink || blink ? 0.0 : cfg.eScale;
   const isWinkL = cfg.wink || blink;
-  const isWinkR = cfg.wink || (cfg as any).winkR || blink;
+  const isWinkR = cfg.wink || cfg.winkR || blink;
 
   // ─── Layout constants (viewBox 0 0 100 130) ────────────────────────────────
   // Head
