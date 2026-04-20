@@ -62,3 +62,42 @@ export interface StatsContextValue {
   /** Fire an atomic Firestore increment for this delta — conflict-free across devices. */
   writeDelta: (delta: StatsDelta) => void;
 }
+
+/** CEFR proficiency level — the six standard levels used throughout the app. */
+export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+
+/**
+ * FSRS spaced-repetition card state.
+ * Canonical type for the `nh_sr` localStorage map and Firestore `sr` field.
+ * Mirrors `SRCard` in `src/lib/srs.ts` — keep in sync if srs.ts fields change.
+ */
+export interface SRSCard {
+  s: number; // stability (days before forgetting)
+  d: number; // difficulty (0–10)
+  r: number; // repetitions count
+  w: number; // wrong-answer count
+  l: number; // last review timestamp (ms since epoch)
+  b: number; // last rating given (0–4)
+  due: number; // timestamp when card became due (ms)
+  nextDue: number; // timestamp of next scheduled review (ms)
+  // Legacy SM-2 fields — present on cards created before FSRS migration
+  ease?: number;
+  interval?: number;
+  ef?: number;
+  iv?: number;
+  rep?: number;
+  reps?: number;
+  t?: number;
+}
+
+/**
+ * A single item in the sequential A1→C1 learn path.
+ * Passed to `launchPathItem()` in `src/hooks/useScreenLauncher.ts`.
+ */
+export interface LearnPathItem {
+  id?: string;
+  go?: string;
+  topic?: string;
+  filter?: unknown;
+  lessonId?: string;
+}
