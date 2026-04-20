@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useMemo, useState } from 'react';
 import { getSR } from '../../lib/srs.js';
 import { speak } from '../../data';

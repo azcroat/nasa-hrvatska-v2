@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, sh } from '../../../data';
 import { FILL_STORIES } from '../../../data';

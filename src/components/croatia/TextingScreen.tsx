@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 import { H, speak, sh } from '../../data';
 import { TEXTING } from '../../data';

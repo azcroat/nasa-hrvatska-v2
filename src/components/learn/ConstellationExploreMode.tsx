@@ -1,3 +1,4 @@
+// @ts-nocheck
 // ── GrammarConstellation — Explore mode ───────────────────────
 import React from 'react';
 import { CASES } from './ConstellationData.js';

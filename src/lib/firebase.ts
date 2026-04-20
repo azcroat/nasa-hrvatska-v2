@@ -72,7 +72,7 @@ export function initFirebase(): boolean {
     return false;
   }
   try {
-    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+    const app = getApps().length ? getApps()[0]! : initializeApp(FIREBASE_CONFIG);
     try {
       _fbAuth = initializeAuth(app, {
         persistence: [
@@ -273,7 +273,7 @@ export async function fbSaveProgress(
   const _bestLC = Math.max((_st.lc as number) || 0, (_cachedSt.lc as number) || 0);
   const _cachedStrk =
     _cachedP && typeof (_cachedP.streak as Record<string, unknown>)?.count === 'number'
-      ? (_cachedP.streak as Record<string, number>).count
+      ? (_cachedP.streak as Record<string, number>).count!
       : (_cachedSt.str as number) || 0;
   const _bestStrk = Math.max(_strk as number, _cachedStrk);
   const _cachedLvlRaw = _cachedP && _cachedP.level;
@@ -791,7 +791,7 @@ export async function fbJoinFamily(
         resultFam = {
           name: data.name as string,
           code: code.toUpperCase(),
-          role: existing ? (existing as Record<string, string>).role : 'member',
+          role: existing ? (existing as Record<string, string>).role! : 'member',
         };
         alreadyIn = true;
         return;
@@ -1027,7 +1027,7 @@ export async function fbLoadUserFamily(email: string): Promise<FamilyData | null
     const fam: FamilyData = {
       name: data.name as string,
       code,
-      role: member ? member.role : 'member',
+      role: member ? member.role! : 'member',
     };
     saveLocalFamily(fam);
     return fam;
@@ -1340,7 +1340,7 @@ export async function fbAddFriend(
   try {
     const codeSnap = await getDoc(fsDoc(_fbDb, 'friendCodes', cleanCode));
     if (!codeSnap.exists()) return { ok: false, err: 'No user found with that code.' };
-    const theirUid = (codeSnap.data() as Record<string, string>).uid;
+    const theirUid = (codeSnap.data() as Record<string, string>).uid!;
     if (theirUid === safeMyUid) return { ok: false, err: "That's your own code!" };
     await setDoc(
       fsDoc(_fbDb, 'users', safeMyUid),

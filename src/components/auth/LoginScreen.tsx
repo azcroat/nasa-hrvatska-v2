@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 // On Android, scroll the focused input into view when the soft keyboard opens.

@@ -228,7 +228,7 @@ export function getPersonalizedPath(cefrLevel: string, stats?: { diff?: string }
         },
       ],
     };
-    return NEXT[cefrLevel] || NEXT['B1'];
+    return NEXT[cefrLevel] ?? NEXT['B1'] ?? [];
   }
 
   return path;

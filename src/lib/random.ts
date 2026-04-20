@@ -2,5 +2,5 @@
 export function rnd(): number {
   const a = new Uint32Array(1);
   crypto.getRandomValues(a);
-  return a[0] / 4294967296;
+  return a[0]! / 4294967296;
 }

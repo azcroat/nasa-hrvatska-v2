@@ -34,7 +34,7 @@ export function getDailyXP(): number {
 // ─── XP / Level ──────────────────────────────────────────────────────────────
 export function lvl(x: number): number {
   const t = [0, 50, 150, 300, 500, 800, 1200, 1800, 2500, 3500];
-  for (let i = t.length - 1; i >= 0; i--) if (x >= t[i]) return i + 1;
+  for (let i = t.length - 1; i >= 0; i--) if (x >= t[i]!) return i + 1;
   return 1;
 }
 export function lXP(l: number): number {
@@ -471,38 +471,69 @@ export function incrementCulture(key: string): number {
 }
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
+interface BadgeStats {
+  lc?: number;
+  xp?: number;
+  pf?: number;
+  gc?: number;
+  sp?: number;
+  mv?: number;
+  hi?: number;
+  sr?: number;
+  as?: number;
+  srsTotal?: number;
+  streak?: number;
+  mistakesMastered?: number;
+  readingDone?: number;
+  mediaVisits?: number;
+  footballDone?: number;
+  dialectDone?: number;
+  textingDone?: number;
+}
 interface Badge {
   id: string;
   n: string;
   i: string;
   d: string;
-  r: (s: Record<string, number>) => boolean;
+  r: (s: BadgeStats) => boolean;
 }
 
 export const BADGES: Badge[] = [
-  { id: 'first', n: 'First Steps', i: '🌱', d: 'Complete 1 lesson', r: (s) => s.lc >= 1 },
-  { id: 'x100', n: 'Rising Star', i: '⭐', d: 'Earn 100 XP', r: (s) => s.xp >= 100 },
-  { id: 'x500', n: 'Scholar', i: '📚', d: 'Earn 500 XP', r: (s) => s.xp >= 500 },
-  { id: 'x1k', n: 'Master', i: '🏆', d: 'Earn 1,000 XP', r: (s) => s.xp >= 1000 },
-  { id: 'x2k', n: 'Expert', i: '🎓', d: 'Earn 2,000 XP', r: (s) => s.xp >= 2000 },
-  { id: 'x5k', n: 'Champion', i: '🥇', d: 'Earn 5,000 XP', r: (s) => s.xp >= 5000 },
-  { id: 'x10k', n: 'Legend', i: '👑', d: 'Earn 10,000 XP', r: (s) => s.xp >= 10000 },
-  { id: 'ded', n: 'Dedicated', i: '🔥', d: 'Complete 5 lessons', r: (s) => s.lc >= 5 },
-  { id: 'lc20', n: 'Go-Getter', i: '🚀', d: 'Complete 20 lessons', r: (s) => s.lc >= 20 },
-  { id: 'lc50', n: 'Marathoner', i: '🏃', d: 'Complete 50 lessons', r: (s) => s.lc >= 50 },
-  { id: 'lc100', n: 'Centurion', i: '💯', d: 'Complete 100 lessons', r: (s) => s.lc >= 100 },
-  { id: 'perf', n: 'Perfectionist', i: '💎', d: 'Get 100% on a lesson', r: (s) => s.pf >= 1 },
-  { id: 'perf5', n: 'Flawless', i: '✨', d: 'Get 100% on 5 lessons', r: (s) => s.pf >= 5 },
-  { id: 'gram', n: 'Grammar Guru', i: '📝', d: 'Complete a grammar lesson', r: (s) => s.gc >= 1 },
+  { id: 'first', n: 'First Steps', i: '🌱', d: 'Complete 1 lesson', r: (s) => (s.lc ?? 0) >= 1 },
+  { id: 'x100', n: 'Rising Star', i: '⭐', d: 'Earn 100 XP', r: (s) => (s.xp ?? 0) >= 100 },
+  { id: 'x500', n: 'Scholar', i: '📚', d: 'Earn 500 XP', r: (s) => (s.xp ?? 0) >= 500 },
+  { id: 'x1k', n: 'Master', i: '🏆', d: 'Earn 1,000 XP', r: (s) => (s.xp ?? 0) >= 1000 },
+  { id: 'x2k', n: 'Expert', i: '🎓', d: 'Earn 2,000 XP', r: (s) => (s.xp ?? 0) >= 2000 },
+  { id: 'x5k', n: 'Champion', i: '🥇', d: 'Earn 5,000 XP', r: (s) => (s.xp ?? 0) >= 5000 },
+  { id: 'x10k', n: 'Legend', i: '👑', d: 'Earn 10,000 XP', r: (s) => (s.xp ?? 0) >= 10000 },
+  { id: 'ded', n: 'Dedicated', i: '🔥', d: 'Complete 5 lessons', r: (s) => (s.lc ?? 0) >= 5 },
+  { id: 'lc20', n: 'Go-Getter', i: '🚀', d: 'Complete 20 lessons', r: (s) => (s.lc ?? 0) >= 20 },
+  { id: 'lc50', n: 'Marathoner', i: '🏃', d: 'Complete 50 lessons', r: (s) => (s.lc ?? 0) >= 50 },
+  { id: 'lc100', n: 'Centurion', i: '💯', d: 'Complete 100 lessons', r: (s) => (s.lc ?? 0) >= 100 },
+  {
+    id: 'perf',
+    n: 'Perfectionist',
+    i: '💎',
+    d: 'Get 100% on a lesson',
+    r: (s) => (s.pf ?? 0) >= 1,
+  },
+  { id: 'perf5', n: 'Flawless', i: '✨', d: 'Get 100% on 5 lessons', r: (s) => (s.pf ?? 0) >= 5 },
+  {
+    id: 'gram',
+    n: 'Grammar Guru',
+    i: '📝',
+    d: 'Complete a grammar lesson',
+    r: (s) => (s.gc ?? 0) >= 1,
+  },
   {
     id: 'spk',
     n: 'Voice of Croatia',
     i: '🎤',
     d: 'Complete a speaking lesson',
-    r: (s) => s.sp >= 1,
+    r: (s) => (s.sp ?? 0) >= 1,
   },
-  { id: 'mod', n: 'Modal Master', i: '🔮', d: 'Complete modal verbs', r: (s) => s.mv >= 1 },
-  { id: 'hist', n: 'Historian', i: '🏛️', d: 'Read a history passage', r: (s) => s.hi >= 1 },
+  { id: 'mod', n: 'Modal Master', i: '🔮', d: 'Complete modal verbs', r: (s) => (s.mv ?? 0) >= 1 },
+  { id: 'hist', n: 'Historian', i: '🏛️', d: 'Read a history passage', r: (s) => (s.hi ?? 0) >= 1 },
   {
     id: 'srs10',
     n: 'Word Collector',
@@ -625,9 +656,15 @@ export const BADGES: Badge[] = [
     d: '100-day streak',
     r: (s) => (s.streak || 0) >= 100,
   },
-  { id: 'lc10', n: 'Ten Strong', i: '🎯', d: 'Complete 10 lessons', r: (s) => s.lc >= 10 },
-  { id: 'lc30', n: 'Committed', i: '📘', d: 'Complete 30 lessons', r: (s) => s.lc >= 30 },
-  { id: 'lc75', n: 'Dedicated Learner', i: '🎓', d: 'Complete 75 lessons', r: (s) => s.lc >= 75 },
+  { id: 'lc10', n: 'Ten Strong', i: '🎯', d: 'Complete 10 lessons', r: (s) => (s.lc ?? 0) >= 10 },
+  { id: 'lc30', n: 'Committed', i: '📘', d: 'Complete 30 lessons', r: (s) => (s.lc ?? 0) >= 30 },
+  {
+    id: 'lc75',
+    n: 'Dedicated Learner',
+    i: '🎓',
+    d: 'Complete 75 lessons',
+    r: (s) => (s.lc ?? 0) >= 75,
+  },
   {
     id: 'sharp3',
     n: 'Sharp Shooter',
@@ -794,7 +831,7 @@ export const BADGES: Badge[] = [
     r: (s) => {
       try {
         const g = localStorage.getItem('nh_goal');
-        return g === 'heritage' && s.lc >= 5;
+        return g === 'heritage' && (s.lc ?? 0) >= 5;
       } catch (_) {
         return false;
       }
@@ -808,7 +845,7 @@ export const BADGES: Badge[] = [
     r: (s) => {
       try {
         const g = localStorage.getItem('nh_goal');
-        return g === 'family' && s.lc >= 5;
+        return g === 'family' && (s.lc ?? 0) >= 5;
       } catch (_) {
         return false;
       }
@@ -822,7 +859,7 @@ export const BADGES: Badge[] = [
     r: (s) => {
       try {
         const g = localStorage.getItem('nh_goal');
-        return g === 'travel' && s.lc >= 5;
+        return g === 'travel' && (s.lc ?? 0) >= 5;
       } catch (_) {
         return false;
       }

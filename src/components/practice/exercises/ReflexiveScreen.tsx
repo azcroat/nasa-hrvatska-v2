@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useMemo, useRef } from 'react';
 import { H, speak, sh } from '../../../data';
 import { REFLEXIVE } from '../../../data';

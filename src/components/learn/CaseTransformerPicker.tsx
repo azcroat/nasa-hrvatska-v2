@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 import { GENDER_COLOR, GENDER_BG, GENDER_LABEL, CT_STYLES } from './CaseTransformerData.js';

@@ -33,7 +33,7 @@ export function getLeagueForRank(rank: number): League {
   for (const l of LEAGUES) {
     if (rank >= l.minRank) return l;
   }
-  return LEAGUES[0];
+  return LEAGUES[0]!;
 }
 
 export function getWeekKey(): string {

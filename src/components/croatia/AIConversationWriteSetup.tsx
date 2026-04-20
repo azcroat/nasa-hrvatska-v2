@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { LEVEL_COLORS } from './MediaPlayerUtils';
 

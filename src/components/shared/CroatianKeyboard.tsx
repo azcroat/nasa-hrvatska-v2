@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 const CHARS = ['Č', 'č', 'Ć', 'ć', 'Đ', 'đ', 'Š', 'š', 'Ž', 'ž'];

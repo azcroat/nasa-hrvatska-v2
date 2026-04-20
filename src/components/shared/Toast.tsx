@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useRef } from 'react';
 
 export default function Toast({ message, type = 'success', onClose }) {

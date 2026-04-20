@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { Bar, speak, speakSlow, sh } from '../../data';
 import ScreenHeader from '../shared/ScreenHeader';

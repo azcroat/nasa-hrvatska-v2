@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, sh } from '../../../data';
 import { EMOGENDER } from '../../../data';

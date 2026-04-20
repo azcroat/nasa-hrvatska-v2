@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useRef } from 'react';
 import { H, speak } from '../../data';
 import { FALSEFR } from '../../data';

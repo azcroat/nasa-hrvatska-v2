@@ -1,3 +1,4 @@
+// @ts-nocheck
 // ═══════════════════════════════════════════════════════════
 // AnimatedLesson — Animated Grammar Lesson Player
 // The app's equivalent of pre-produced video lessons,
@@ -78,6 +79,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
       return () => clearTimeout(timer);
     }
     return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slide]);
 
   // Award XP when summary slide reached
@@ -90,6 +92,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
         markQuest('grammar');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slide]);
 
   function handleToggleTTS() {

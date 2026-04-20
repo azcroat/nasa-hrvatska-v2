@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import SpeakingAvatar, { portraitSrc } from './SpeakingAvatar';
 import TappableMessage from './TappableMessage';

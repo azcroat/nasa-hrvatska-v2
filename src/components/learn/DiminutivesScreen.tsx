@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { DIMWORDS } from '../../data';

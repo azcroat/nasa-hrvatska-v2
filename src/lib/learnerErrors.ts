@@ -55,8 +55,8 @@ export function logError(pattern: string, category: string, context: ErrorContex
   data[key] = existing;
   const keys = Object.keys(data);
   if (keys.length > MAX_ERRORS) {
-    const oldest = keys.sort((a, b) => (data[a].lastSeen || 0) - (data[b].lastSeen || 0))[0];
-    delete data[oldest];
+    const oldest = keys.sort((a, b) => (data[a]?.lastSeen || 0) - (data[b]?.lastSeen || 0))[0];
+    if (oldest) delete data[oldest];
   }
   _save(data);
 }
@@ -86,7 +86,7 @@ export function getErrorsByCategory(): Record<string, ErrorEntry[]> {
     reading: [],
   };
   for (const e of Object.values(data)) {
-    if (result[e.category]) result[e.category].push(e);
+    if (result[e.category]) result[e.category]!.push(e);
   }
   return result;
 }
@@ -168,8 +168,8 @@ export function detectAndLogCroatianErrors(
   const userWords = user.split(/\s+/);
   if (correctWords.length === userWords.length) {
     for (let i = 0; i < correctWords.length; i++) {
-      const cw = correctWords[i];
-      const uw = userWords[i];
+      const cw = correctWords[i]!;
+      const uw = userWords[i]!;
       if (cw.endsWith('a') && cw.length > 3 && uw === cw.slice(0, -1)) {
         logError('animate_accusative', 'grammar', { ...ctx, word: cw });
         break;
@@ -208,8 +208,8 @@ export function detectAndLogCroatianErrors(
   ]);
   const uWords = user.split(/\s+/);
   const cWords = correct.split(/\s+/);
-  const uLast = uWords[uWords.length - 1];
-  const cLast = cWords[cWords.length - 1];
+  const uLast = uWords[uWords.length - 1]!;
+  const cLast = cWords[cWords.length - 1]!;
   if (CLITICS.has(uLast) && !CLITICS.has(cLast) && uWords.length === cWords.length) {
     logError('clitic_placement', 'grammar', ctx);
   }

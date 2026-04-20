@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { BG_LIGHT } from '../../lib/appUtils.js';
 

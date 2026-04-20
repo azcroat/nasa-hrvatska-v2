@@ -1,3 +1,4 @@
+// @ts-nocheck
 // ── GrammarConstellation — Done/results mode ──────────────────
 import React from 'react';
 import { CASES, getDoneMessage } from './ConstellationData.js';

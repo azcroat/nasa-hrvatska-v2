@@ -190,7 +190,7 @@ function mcGameReducer(state: McGameState, action: McGameAction): McGameState {
       const [current, ...rest] = state.queue;
       return {
         ...state,
-        queue: [...rest, { ...current, _isRetry: true }],
+        queue: [...rest, { ...current!, _isRetry: true }],
         answered: false,
         selected: -1,
         revealCorrect: false,

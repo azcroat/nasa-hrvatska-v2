@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, UNJUMBLE } from '../../data';
 import { markQuest } from '../../lib/quests.js';

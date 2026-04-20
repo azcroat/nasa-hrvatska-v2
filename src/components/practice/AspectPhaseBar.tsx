@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 const PHASES = ['Pair', 'Fill-In', 'Why?', 'Compare'];

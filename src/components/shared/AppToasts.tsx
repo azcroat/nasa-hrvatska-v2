@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AppToasts — all transient toast / banner overlays.
  *

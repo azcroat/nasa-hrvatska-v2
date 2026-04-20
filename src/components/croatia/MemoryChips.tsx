@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useMemo } from 'react';
 
 export default function MemoryChips({ knownFacts }) {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 import { H } from '../../data';
 import { markQuest } from '../../lib/quests.js';

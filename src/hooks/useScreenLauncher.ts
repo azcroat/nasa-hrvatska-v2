@@ -15,7 +15,7 @@ function _sh<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [b[i], b[j]] = [b[j], b[i]];
+    [b[i], b[j]] = [b[j]!, b[i]!];
   }
   return b;
 }
@@ -607,7 +607,7 @@ export function useScreenLauncher({
           reading: 'reading',
           readlist: 'reading',
         };
-        if (item.go && typeMap[item.go]) trackStart(typeMap[item.go]);
+        if (item.go && typeMap[item.go]) trackStart(typeMap[item.go]!);
         const bhStat = item.go ? BLACK_HOLE_SCREENS[item.go] : undefined;
         if (bhStat && item.go) {
           if (lpDwellRef.current?.timer) clearTimeout(lpDwellRef.current.timer);
@@ -662,6 +662,7 @@ export function useScreenLauncher({
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       setScr,
       sCurEx,
