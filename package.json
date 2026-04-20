@@ -107,8 +107,8 @@
     "basic-ftp": ">=5.2.1"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx}": "eslint --rule '{\"no-debugger\":\"error\",\"react-hooks/rules-of-hooks\":\"error\"}'",
-    "functions/**/*.js": "eslint --max-warnings=0"
+    "src/**/*.{ts,tsx,js,jsx}": ["prettier --write", "eslint --max-warnings=0"],
+    "functions/**/*.js": ["prettier --write", "eslint --max-warnings=0"]
   },
   "size-limit": [
     {
