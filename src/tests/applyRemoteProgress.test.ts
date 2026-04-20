@@ -439,3 +439,213 @@ describe('applyRemoteProgress — weekXP merge', () => {
     expect(localStorage.getItem('nh_week_xp_' + wk)).toBe('0');
   });
 });
+
+// ── Additional user settings coverage ────────────────────────────────────────
+
+describe('applyRemoteProgress — additional user settings', () => {
+  beforeEach(clearLS);
+  afterEach(clearLS);
+
+  it('CEFR level max: remote B1 wins over local A1', () => {
+    localStorage.setItem('nh_level', 'A1');
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_level: 'B1' }, setters);
+    expect(localStorage.getItem('nh_level')).toBe('B1');
+  });
+
+  it('CEFR level max: local C1 wins over remote A2', () => {
+    localStorage.setItem('nh_level', 'C1');
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_level: 'A2' }, setters);
+    expect(localStorage.getItem('nh_level')).toBe('C1');
+  });
+
+  it('restores nh_culture from remote', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_culture: '{"bakaCnt":3}' }, setters);
+    expect(localStorage.getItem('nh_culture')).toBe('{"bakaCnt":3}');
+  });
+
+  it('restores nh_placement_done from remote', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_placement_done: true }, setters);
+    expect(localStorage.getItem('nh_placement_done')).toBe('true');
+    expect(localStorage.getItem('placement_done')).toBe('true');
+  });
+
+  it('restores nh_grammar_track_done from remote', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_grammar_track_done: true }, setters);
+    expect(localStorage.getItem('nh_grammar_track_done')).toBe('true');
+  });
+
+  it('restores nh_dm_explicit from remote', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_dm_explicit: true }, setters);
+    expect(localStorage.getItem('nh_dm_explicit')).toBe('1');
+  });
+
+  it('restores nh_sound_enabled from remote', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_sound_enabled: 'false' }, setters);
+    expect(localStorage.getItem('nh_sound_enabled')).toBe('false');
+  });
+
+  it('skips nh_sound_enabled when null', () => {
+    localStorage.setItem('nh_sound_enabled', 'true');
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_sound_enabled: null }, setters);
+    expect(localStorage.getItem('nh_sound_enabled')).toBe('true');
+  });
+
+  it('restores nh_haptic_enabled from remote', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_haptic_enabled: 'false' }, setters);
+    expect(localStorage.getItem('nh_haptic_enabled')).toBe('false');
+  });
+
+  it('restores nh_font_size from remote', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_font_size: 'large' }, setters);
+    expect(localStorage.getItem('nh_font_size')).toBe('large');
+  });
+
+  it('does not write nh_font_size when null', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_font_size: null }, setters);
+    expect(localStorage.getItem('nh_font_size')).toBeNull();
+  });
+
+  it('restores nh_autotts when true', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_autotts: true }, setters);
+    expect(localStorage.getItem('nh_autotts')).toBe('true');
+  });
+
+  it('nh_autotts not written when false', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_autotts: false }, setters);
+    expect(localStorage.getItem('nh_autotts')).toBeNull();
+  });
+
+  it('restores nh_daily_goal_xp when local is 0', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_daily_goal_xp: 100 }, setters);
+    expect(localStorage.getItem('nh_daily_goal_xp')).toBe('100');
+  });
+
+  it('does not overwrite local nh_daily_goal_xp when set', () => {
+    localStorage.setItem('nh_daily_goal_xp', '50');
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_daily_goal_xp: 100 }, setters);
+    expect(localStorage.getItem('nh_daily_goal_xp')).toBe('50');
+  });
+});
+
+// ── Journey milestones merge ──────────────────────────────────────────────────
+
+describe('applyRemoteProgress — journey milestones merge', () => {
+  beforeEach(clearLS);
+  afterEach(clearLS);
+
+  it('adds remote milestones that are not in local', () => {
+    localStorage.setItem('nh_journey', JSON.stringify([{ type: 'first_lesson', date: '2026-01-01T00:00:00.000Z' }]));
+    const setters = makeSetters();
+    applyRemoteProgress({
+      nh_journey: [
+        { type: 'first_lesson', date: '2026-01-01T00:00:00.000Z' }, // duplicate
+        { type: 'level_up', date: '2026-01-15T00:00:00.000Z' },    // new
+      ]
+    }, setters);
+    const stored = JSON.parse(localStorage.getItem('nh_journey') || '[]');
+    expect(stored).toHaveLength(2);
+    expect(stored.some((m: { type: string }) => m.type === 'level_up')).toBe(true);
+  });
+
+  it('skips empty nh_journey array', () => {
+    localStorage.setItem('nh_journey', JSON.stringify([{ type: 'existing', date: '2026-01-01T00:00:00.000Z' }]));
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_journey: [] }, setters);
+    const stored = JSON.parse(localStorage.getItem('nh_journey') || '[]');
+    expect(stored).toHaveLength(1); // unchanged
+  });
+});
+
+// ── Checkpoints, custom words, saved phrases, media_done ─────────────────────
+
+describe('applyRemoteProgress — checkpoints and custom words', () => {
+  beforeEach(clearLS);
+  afterEach(clearLS);
+
+  it('merges remote checkpoints with local (local wins on conflict)', () => {
+    localStorage.setItem('nh_checkpoints', JSON.stringify({ stage1: true }));
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_checkpoints: { stage1: false, stage2: true } }, setters);
+    const stored = JSON.parse(localStorage.getItem('nh_checkpoints') || '{}');
+    expect(stored.stage1).toBe(true);  // local wins
+    expect(stored.stage2).toBe(true);  // remote adds new
+  });
+
+  it('merges remote custom words with local', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({
+      nh_custom_words: [{ word: 'kuća', meaning: 'house' }]
+    }, setters);
+    const stored = JSON.parse(localStorage.getItem('nh_custom_words') || '[]');
+    expect(stored).toHaveLength(1);
+    expect(stored[0].word).toBe('kuća');
+  });
+
+  it('merges nh_saved_phrases deduplicating', () => {
+    localStorage.setItem('nh_saved_phrases', JSON.stringify(['Dobar dan!']));
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_saved_phrases: ['Dobar dan!', 'Hvala!'] }, setters);
+    const stored = JSON.parse(localStorage.getItem('nh_saved_phrases') || '[]');
+    expect(stored).toHaveLength(2);
+    expect(stored).toContain('Hvala!');
+    expect(stored.filter((s: string) => s === 'Dobar dan!')).toHaveLength(1);
+  });
+
+  it('merges nh_media_done (local wins on conflict)', () => {
+    localStorage.setItem('nh_media_done', JSON.stringify({ video1: true }));
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_media_done: { video1: false, video2: true } }, setters);
+    const stored = JSON.parse(localStorage.getItem('nh_media_done') || '{}');
+    expect(stored.video1).toBe(true);  // local wins
+    expect(stored.video2).toBe(true);  // remote adds
+  });
+
+  it('sets nh_hearts_always_on when true', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_hearts_always_on: true }, setters);
+    expect(localStorage.getItem('nh_hearts_always_on')).toBe('true');
+  });
+
+  it('sets nh_used_free_repair when true', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_used_free_repair: true }, setters);
+    expect(localStorage.getItem('nh_used_free_repair')).toBe('1');
+  });
+
+  it('nh_uskrs_kviz_done is written when true', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ nh_uskrs_kviz_done: true }, setters);
+    expect(localStorage.getItem('nh_uskrs_kviz_done')).toBe('1');
+  });
+});
+
+// ── XP cooldown merge ─────────────────────────────────────────────────────────
+
+describe('applyRemoteProgress — XP cooldown merge', () => {
+  beforeEach(clearLS);
+  afterEach(clearLS);
+
+  it('merges cooldown entries that match today', () => {
+    const today = todayStr();
+    const setters = makeSetters();
+    applyRemoteProgress({ cooldown: { 'vocab_100': today, 'grammar_50': '2020-01-01' } }, setters);
+    const stored = JSON.parse(localStorage.getItem('xpCooldown') || '{}');
+    expect(stored['vocab_100']).toBe(today);  // today → included
+    expect(stored['grammar_50']).toBeUndefined();  // old date → excluded
+  });
+});

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { localDateStr, weekKey } from '../lib/dateUtils';
+import { localDateStr, weekKey, getServerDateStr } from '../lib/dateUtils';
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -67,5 +67,45 @@ describe('weekKey', () => {
     // 2026-01-05 (Monday of first full week) → W02; Jan 1 2026 is Thursday → W01
     const jan1 = new Date(2026, 0, 1);
     expect(weekKey(jan1)).toMatch(/^\d{4}-W\d{2}$/);
+  });
+});
+
+// ── getServerDateStr ──────────────────────────────────────────────────────────
+
+describe('getServerDateStr', () => {
+  it('falls back to local date when fetch fails', async () => {
+    // jsdom does not support fetch to /api/server-time; it will reject
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network error')));
+    const result = await getServerDateStr();
+    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    vi.unstubAllGlobals();
+  });
+
+  it('falls back to local date when fetch returns non-ok response', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) }));
+    const result = await getServerDateStr();
+    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    vi.unstubAllGlobals();
+  });
+
+  it('returns server date when fetch returns ok with ts', async () => {
+    const serverTs = new Date(2026, 3, 10).getTime(); // Apr 10 2026
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ts: serverTs }),
+    }));
+    const result = await getServerDateStr();
+    expect(result).toBe('2026-04-10');
+    vi.unstubAllGlobals();
+  });
+
+  it('falls back to local date when response json is malformed', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => { throw new Error('bad json'); },
+    }));
+    const result = await getServerDateStr();
+    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    vi.unstubAllGlobals();
   });
 });

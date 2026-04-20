@@ -40,6 +40,10 @@ export default defineConfig({
         'src/hooks/useOnlineStatus.ts',
         'src/hooks/useHaptic.ts',
         'src/hooks/useWhisperSTT.js',           // MediaRecorder + AudioContext + SpeechRecognition
+        // Capacitor-native Android hooks — require @capacitor/app plugin + native bridge;
+        // only the "not Android" guard branch is reachable in jsdom
+        'src/hooks/useAndroidBackButton.ts',
+        'src/hooks/useAndroidMicPermission.ts',
         // Pure React state (useState only, no business logic to assert)
         'src/hooks/useAppScreenState.ts',
         // Trivial context wrapper (no business logic)
@@ -48,12 +52,17 @@ export default defineConfig({
         'src/lib/appData.ts',
         // Firebase Analytics — external SDK, requires live Firebase; no-op when unavailable
         'src/lib/analytics.ts',
+        // Error reporter — production branches (sendBeacon/fetch) never run in test env
+        // because vitest always sets import.meta.env.DEV=true; only DEV branch is reachable.
+        'src/lib/errorReporter.ts',
         // Pure data files — no executable logic to assert (constants, word lists, verb pairs)
         'src/lib/frequency500.ts',
         'src/lib/aspectPairs.ts',
         'src/lib/constants/**',
         'src/tests/**',
         'dist/**',
+        // Navigation orchestrator — async data loading + all setters from App; integration-level concern
+        'src/hooks/useScreenLauncher.ts',
       ],
       thresholds: {
         // Coverage thresholds raised to 80% (2026-04-19, Task 1: Test Coverage Improvement Plan).

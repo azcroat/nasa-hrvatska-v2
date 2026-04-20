@@ -177,3 +177,47 @@ describe('useErrorTracking — pure utility functions', () => {
     expect(listener).toHaveBeenCalledOnce();
   });
 });
+
+// ── useErrorTracking hook ─────────────────────────────────────────────────────
+import { renderHook, act } from '@testing-library/react';
+import { useErrorTracking } from '../hooks/useErrorTracking';
+
+describe('useErrorTracking — React hook', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it('returns initial errorCount 0 for empty log', () => {
+    const { result } = renderHook(() => useErrorTracking('user1'));
+    expect(result.current.errorCount).toBe(0);
+  });
+
+  it('returns initial weakAreas [] when no errors', () => {
+    const { result } = renderHook(() => useErrorTracking('user1'));
+    expect(result.current.weakAreas).toEqual([]);
+  });
+
+  it('errorCount updates when recordError is called via hook', () => {
+    const { result } = renderHook(() => useErrorTracking('user1'));
+    act(() => { result.current.recordError('case_error', 'kruh'); });
+    expect(result.current.errorCount).toBe(1);
+  });
+
+  it('weakAreas updates after recording an error', () => {
+    const { result } = renderHook(() => useErrorTracking('user1'));
+    act(() => { result.current.recordError('aspect_error', 'piti'); });
+    expect(result.current.weakAreas).toHaveLength(1);
+    expect(result.current.weakAreas[0].type).toBe('aspect_error');
+  });
+
+  it('returns errorCount 0 when uid is empty', () => {
+    const { result } = renderHook(() => useErrorTracking(''));
+    expect(result.current.errorCount).toBe(0);
+  });
+
+  it('hook re-renders when error is recorded externally (event-driven)', () => {
+    const { result } = renderHook(() => useErrorTracking('user2'));
+    // Record from outside the hook (simulates another component recording)
+    act(() => { recordError('user2', 'vocab_miss', 'jabuka'); });
+    expect(result.current.errorCount).toBe(1);
+  });
+});

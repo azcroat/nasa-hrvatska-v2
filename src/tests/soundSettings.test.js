@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   getVoicePreference,
   setVoicePreference,
@@ -6,11 +6,54 @@ import {
   setSoundEnabled,
   isHapticEnabled,
   setHapticEnabled,
+  playTone,
+  playCorrect,
+  playWrong,
+  playFanfare,
+  playLevelUp,
+  playStreak,
+  haptic,
 } from '../lib/soundSettings.js';
 
-// playTone / playCorrect / playWrong / haptic use browser AudioContext + navigator.vibrate
-// — those are excluded from coverage (browser-only, not testable in jsdom without
-//   complex mocking that would couple tests to implementation details).
+// Set up AudioContext mock for all tests
+function makeMockAudioCtx() {
+  const mockOscillator = {
+    connect: vi.fn(),
+    type: 'sine',
+    frequency: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+    start: vi.fn(),
+    stop: vi.fn(),
+  };
+  const mockGain = {
+    connect: vi.fn(),
+    gain: {
+      setValueAtTime: vi.fn(),
+      linearRampToValueAtTime: vi.fn(),
+      exponentialRampToValueAtTime: vi.fn(),
+    },
+  };
+  return {
+    currentTime: 0,
+    state: 'running',
+    createOscillator: vi.fn(() => mockOscillator),
+    createGain: vi.fn(() => mockGain),
+    destination: {},
+  };
+}
+
+const mockAudioCtxInstance = makeMockAudioCtx();
+const MockAudioContext = vi.fn(() => mockAudioCtxInstance);
+
+function setupAudioContextMock() {
+  // Reset the internal _audioCtx cache by marking it closed
+  mockAudioCtxInstance.state = 'closed';
+  vi.stubGlobal('AudioContext', MockAudioContext);
+}
+function teardownAudioContextMock() {
+  vi.unstubAllGlobals();
+  vi.clearAllMocks();
+  mockAudioCtxInstance.state = 'running';
+}
 
 function clearLS() { localStorage.clear(); }
 
@@ -139,5 +182,103 @@ describe('soundSettings — preferences persistence', () => {
     expect(isSoundEnabled()).toBe(true);
     expect(isHapticEnabled()).toBe(true);
     expect(getVoicePreference()).toBe('gabrijela');
+  });
+});
+
+// ── Audio functions (smoke tests — AudioContext is not available in jsdom) ─────
+
+describe('soundSettings — audio functions (smoke tests)', () => {
+  beforeEach(() => {
+    clearLS();
+    // Provide a minimal AudioContext stub
+    setupAudioContextMock();
+  });
+  afterEach(() => {
+    clearLS();
+    teardownAudioContextMock();
+  });
+
+  it('playTone does not throw when sound is disabled', () => {
+    setSoundEnabled(false);
+    expect(() => playTone({ freq: 440 })).not.toThrow();
+  });
+
+  it('playTone does not throw when sound is enabled (AudioContext stubbed)', () => {
+    setSoundEnabled(true);
+    expect(() => playTone({ freq: 440, type: 'sine', duration: 0.3 })).not.toThrow();
+  });
+
+  it('playTone with rampTo does not throw', () => {
+    setSoundEnabled(true);
+    expect(() => playTone({ freq: 440, rampTo: 880, duration: 0.5 })).not.toThrow();
+  });
+
+  it('playCorrect does not throw', () => {
+    setSoundEnabled(true);
+    expect(() => playCorrect()).not.toThrow();
+  });
+
+  it('playWrong does not throw', () => {
+    setSoundEnabled(true);
+    expect(() => playWrong()).not.toThrow();
+  });
+
+  it('playFanfare does not throw when sound is disabled', () => {
+    setSoundEnabled(false);
+    expect(() => playFanfare()).not.toThrow();
+  });
+
+  it('playFanfare does not throw when sound is enabled', () => {
+    setSoundEnabled(true);
+    expect(() => playFanfare()).not.toThrow();
+  });
+
+  it('playLevelUp does not throw when sound is disabled', () => {
+    setSoundEnabled(false);
+    expect(() => playLevelUp()).not.toThrow();
+  });
+
+  it('playLevelUp does not throw when sound is enabled', () => {
+    setSoundEnabled(true);
+    expect(() => playLevelUp()).not.toThrow();
+  });
+
+  it('playStreak does not throw when sound is disabled', () => {
+    setSoundEnabled(false);
+    expect(() => playStreak()).not.toThrow();
+  });
+
+  it('playStreak does not throw when sound is enabled', () => {
+    setSoundEnabled(true);
+    expect(() => playStreak()).not.toThrow();
+  });
+});
+
+// ── haptic ─────────────────────────────────────────────────────────────────────
+
+describe('soundSettings — haptic', () => {
+  beforeEach(clearLS);
+  afterEach(clearLS);
+
+  it('does nothing when haptic is disabled', () => {
+    setHapticEnabled(false);
+    const vibrateSpy = vi.fn();
+    Object.defineProperty(navigator, 'vibrate', { value: vibrateSpy, configurable: true });
+    haptic(100);
+    expect(vibrateSpy).not.toHaveBeenCalled();
+  });
+
+  it('calls navigator.vibrate when haptic is enabled', () => {
+    setHapticEnabled(true);
+    const vibrateSpy = vi.fn();
+    Object.defineProperty(navigator, 'vibrate', { value: vibrateSpy, configurable: true, writable: true });
+    haptic([100, 50, 100]);
+    expect(vibrateSpy).toHaveBeenCalledWith([100, 50, 100]);
+  });
+
+  it('does not throw when navigator.vibrate is not available', () => {
+    setHapticEnabled(true);
+    Object.defineProperty(navigator, 'vibrate', { value: undefined, configurable: true, writable: true });
+    expect(() => haptic(100)).not.toThrow();
   });
 });
