@@ -9,6 +9,8 @@
  * Only the value 'accepted' enables analytics; 'essential' (or missing)
  * means the user declined analytics — no events fire.
  */
+import { fbLogEvent } from './firebase';
+import { localDateStr } from './dateUtils';
 
 /**
  * initPostHog — initialise PostHog product analytics.
@@ -34,8 +36,6 @@ export function initPostHog(): void {
     });
   }
 }
-import { fbLogEvent } from './firebase';
-import { localDateStr } from './dateUtils';
 
 function isAnalyticsConsented(): boolean {
   try {
