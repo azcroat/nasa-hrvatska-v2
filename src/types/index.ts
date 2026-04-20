@@ -76,8 +76,8 @@ export interface SRSCard {
   d: number; // difficulty (0–10)
   r: number; // repetitions count
   w: number; // wrong-answer count
-  l: number; // last review timestamp (ms since epoch)
-  b: number; // last rating given (0–4)
+  l: number; // lapses (forgot count)
+  b: number; // box/bucket 0–5 (used for badge and mastered-card logic)
   due: number; // timestamp when card became due (ms)
   nextDue: number; // timestamp of next scheduled review (ms)
   // Legacy SM-2 fields — present on cards created before FSRS migration
