@@ -4,5 +4,7 @@ public/
 android/
 ios/
 coverage/
+# 700 KB curated vocabulary/content data file — reformatting produces a massive diff with zero benefit.
+# Out of scope for this project per the enterprise quality design spec.
 src/data.jsx
 *.min.js
