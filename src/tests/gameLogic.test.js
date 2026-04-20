@@ -545,6 +545,13 @@ describe('Badge conditions — BADGES array structure', () => {
     const ids = BADGES.map((b) => b.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
+
+  it('badge predicates return false for all badges when stats fields are undefined (nullish fallback)', () => {
+    // Exercises the `?? 0` fallback branch in every badge predicate.
+    for (const b of BADGES) {
+      expect(b.r({})).toBe(false);
+    }
+  });
 });
 
 describe('Badge conditions — XP milestone badges', () => {
