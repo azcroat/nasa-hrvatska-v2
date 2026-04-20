@@ -7,6 +7,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.js'],
     globals: true,
+    // Coverage instrumentation significantly slows UI loop-tests (14–29 question cycles,
+    // word-tile builds). 30 s covers these while still catching genuine infinite loops.
+    testTimeout: 30000,
     include: ['src/**/*.test.{js,jsx,ts,tsx}'],
     exclude: [
       'e2e/**',

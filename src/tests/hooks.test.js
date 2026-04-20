@@ -125,7 +125,7 @@ describe('useSearch', () => {
     act(() => { result.current.doSearch('kuća'); });
     await vi.waitFor(() => {
       expect(result.current.srchR.length).toBeGreaterThan(0);
-    }, { timeout: 2000 });
+    }, { timeout: 8000 });
     vi.useFakeTimers(); // restore for remaining tests in describe block
   });
   it('doSearch results capped at 15', async () => {
@@ -135,7 +135,7 @@ describe('useSearch', () => {
     await vi.waitFor(() => {
       // Once results appear, check the cap — may be 0 if mock index has no 'a' matches
       expect(result.current.srchR.length).toBeLessThanOrEqual(15);
-    }, { timeout: 2000 });
+    }, { timeout: 8000 });
     vi.useFakeTimers();
   });
   it('setSrchOpen controls open state', () => {

@@ -200,7 +200,7 @@ describe('TranslateDrillsScreen — answer mechanics', () => {
     );
     if (lastOpt) fireEvent.click(lastOpt);
     expect(screen.getByText('See Results')).toBeTruthy();
-  }, 20000);
+  }, 30000);
 });
 
 // ── Completion / XP award guard ───────────────────────────────────────────────
