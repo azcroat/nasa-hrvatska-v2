@@ -40,7 +40,7 @@ export default function PronunciationScorer({
   const [mode, setMode] = useState<'auto' | 'webspeech' | 'azure'>('auto');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recRef = useRef<any>(null); // SpeechRecognition ref
+  const recRef = useRef<any>(null); // SpeechRecognition — not in lib.dom.d.ts until TS 6
   const mediaRecRef = useRef<MediaRecorder | null>(null); // MediaRecorder ref
   const chunksRef = useRef<Blob[]>([]); // recorded audio chunks
 
