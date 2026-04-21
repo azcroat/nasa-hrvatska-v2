@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck — content-only data file with no logic; strict typing deferred
 // Naša Hrvatska — Data Layer (vocabulary, exercises, content)
 // This file is the single source of truth for all app data.
 // data.jsx re-exports everything from here for backward compatibility.

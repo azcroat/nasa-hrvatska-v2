@@ -1,6 +1,16 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 
+/** Props for CroatianKnight — exported for typed JSX in non-@ts-nocheck files. */
+export interface CroatianKnightProps {
+  size?: number;
+  mood?: string;
+  variant?: string;
+  level?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // CroatianKnight — Naša Hrvatska Mascot (v4)
 //
@@ -1269,4 +1279,4 @@ const CroatianKnight = React.memo(function CroatianKnight({
   );
 });
 
-export default CroatianKnight;
+export default CroatianKnight as React.MemoExoticComponent<React.FC<CroatianKnightProps>>;

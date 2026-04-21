@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { Bar } from '../../data';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -191,7 +190,7 @@ const LEVEL_DESC = [
   "You're approaching native-like fluency — let's polish the finer points of Croatian.",
 ];
 
-function calculatePlacement(levelCorrect) {
+function calculatePlacement(levelCorrect: Record<number, boolean[]>) {
   // levelCorrect: { 1: [bool, ...], 2: [...], ... }
   // With 4 questions per level, pass threshold = 75% (3/4 correct).
   // For levels with fewer answers (early exit), use 50% (≥ half correct).
@@ -206,19 +205,24 @@ function calculatePlacement(levelCorrect) {
   return placed;
 }
 
-export default function PlacementTest({ onComplete, onCancel }) {
+interface PlacementTestProps {
+  onComplete: (level: number) => void;
+  onCancel?: () => void;
+}
+
+export default function PlacementTest({ onComplete, onCancel }: PlacementTestProps) {
   const [showIntro, setShowIntro] = useState(true);
   const [qi, setQi] = useState(0);
-  const [selected, setSelected] = useState(/** @type {number|null} */ null);
+  const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
-  const [levelCorrect, setLevelCorrect] = useState(/** @type {Record<number, boolean[]>} */ {});
+  const [levelCorrect, setLevelCorrect] = useState<Record<number, boolean[]>>({});
   const [wrongStreak, setWrongStreak] = useState(0);
   const [done, setDone] = useState(false);
   const [placedLevel, setPlacedLevel] = useState(1);
 
-  const q = PLACEMENT_QUESTIONS[qi];
+  const q = PLACEMENT_QUESTIONS[qi] ?? PLACEMENT_QUESTIONS[0]!;
 
-  function finishTest(lc) {
+  function finishTest(lc: Record<number, boolean[]>) {
     const level = calculatePlacement(lc);
     setPlacedLevel(level);
     setDone(true);
@@ -226,8 +230,9 @@ export default function PlacementTest({ onComplete, onCancel }) {
     localStorage.setItem('nh_placement_done', 'true');
   }
 
-  function handleAnswer(i) {
+  function handleAnswer(i: number) {
     if (answered) return;
+    if (!q) return;
     setSelected(i);
     setAnswered(true);
     const isCorrect = i === q.answer;
@@ -235,7 +240,7 @@ export default function PlacementTest({ onComplete, onCancel }) {
     setWrongStreak(newStreak);
     const newLc = { ...levelCorrect };
     if (!newLc[q.level]) newLc[q.level] = [];
-    newLc[q.level] = [...newLc[q.level], isCorrect];
+    newLc[q.level] = [...(newLc[q.level] ?? []), isCorrect];
     setLevelCorrect(newLc);
 
     // Stop early if 3 consecutive wrong answers

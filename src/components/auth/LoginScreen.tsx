@@ -1,17 +1,16 @@
-// @ts-nocheck
 import React from 'react';
 
 // On Android, scroll the focused input into view when the soft keyboard opens.
 // adjustResize resizes the viewport but WebView doesn't always reposition the
 // focused element — calling scrollIntoView on focus ensures the input is visible.
-function scrollIntoViewOnFocus(e) {
+function scrollIntoViewOnFocus(e: React.FocusEvent<HTMLInputElement>) {
   const el = e.target;
   setTimeout(() => {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 300); // 300ms — keyboard animation completes before we scroll
 }
 
-function pwStrength(pw) {
+function pwStrength(pw: string) {
   if (!pw) return 0;
   let s = 0;
   if (pw.length >= 8) s++;
@@ -23,6 +22,29 @@ function pwStrength(pw) {
 }
 const PW_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 const PW_COLORS = ['', 'var(--error)', 'var(--warning)', 'var(--warning)', 'var(--success)'];
+
+interface LoginScreenProps {
+  authScreen: string;
+  authError: string;
+  authLoading: boolean;
+  authEmail: string;
+  pw: string;
+  pc: string;
+  displayName: string;
+  sp: boolean;
+  setAuthScreen: (screen: string) => void;
+  setAuthError: (err: string) => void;
+  setAuthEmail: (email: string) => void;
+  setPw: (pw: string) => void;
+  setPc: (pc: string) => void;
+  setDisplayName: (name: string) => void;
+  setSp2: (sp: boolean) => void;
+  setRpEm: (em: string) => void;
+  doLog: () => void;
+  doReg: () => void;
+  doGoogleLogin: () => void;
+  doGuest?: () => void;
+}
 
 export default function LoginScreen({
   authScreen,
@@ -45,7 +67,7 @@ export default function LoginScreen({
   doReg,
   doGoogleLogin,
   doGuest,
-}) {
+}: LoginScreenProps) {
   const isR = authScreen === 'register';
   const strength = isR ? pwStrength(pw) : 0;
   // Padding-based layout (NOT flex centering). Flex align-items:center with min-height:100vh

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, {
   useState,
   useEffect,
@@ -29,6 +28,7 @@ import { fbRegisterFriendCode } from './lib/firebase.js';
 import { submitWeeklyXP } from './lib/leaderboard.js';
 import AppContext from './context/AppContext';
 import { StatsProvider } from './context/StatsContext';
+import type { Stats, AuthUser, StatsDelta } from './types/index.js';
 
 import { usePreferences } from './hooks/usePreferences.js';
 import { useSearch } from './hooks/useSearch.js';
@@ -131,8 +131,7 @@ const ALL_CATS = [
   'Meeting People',
   'Emergency',
 ];
-/** @type {import('./types/index.js').Stats} */
-const DS = {
+const DS: Stats = {
   xp: 0,
   str: 1,
   diff: 'beginner',
@@ -195,14 +194,14 @@ const ICONS = {
   holidays: '🎄',
   personality: '😊',
 };
-const TAB_PATHS = {
+const TAB_PATHS: Record<string, string> = {
   home: '/',
   learn: '/learn',
   practice: '/practice',
   croatia: '/croatia',
   profile: '/profile',
 };
-const PATH_TO_TAB = {
+const PATH_TO_TAB: Record<string, string> = {
   '/': 'home',
   '/learn': 'learn',
   '/practice': 'practice',
@@ -210,10 +209,10 @@ const PATH_TO_TAB = {
   '/profile': 'profile',
 };
 
-function getDaysSinceJoin(authUser) {
+function getDaysSinceJoin(authUser: AuthUser | null) {
   if (!authUser) return null;
   try {
-    const k = 'nh_join_date_' + (authUser.u || authUser.uid || '');
+    const k = 'nh_join_date_' + (authUser.u || '');
     if (!localStorage.getItem(k)) localStorage.setItem(k, Date.now().toString());
     return Math.floor((Date.now() - parseInt(localStorage.getItem(k) || '0', 10)) / 86400000);
   } catch {
@@ -263,7 +262,7 @@ function App() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallFeature, setPaywallFeature] = useState('AI Tutor');
   const requirePremium = useCallback(
-    function requirePremium(featureName, action) {
+    function requirePremium(featureName: string, action: () => void) {
       if (isPremium) {
         action();
         return;
@@ -296,6 +295,7 @@ function App() {
       clearTimeout(t);
       window.removeEventListener('nh:tts-failed', onTtsFailed);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Core state ──────────────────────────────────────────────────────────────
@@ -314,7 +314,7 @@ function App() {
     'badges',
     'certificate',
   ]);
-  const _TAB_FOR_SCR = {
+  const _TAB_FOR_SCR: Record<string, string> = {
     lesson: 'learn',
     grammar: 'learn',
     padezi: 'learn',
@@ -362,7 +362,7 @@ function App() {
     profile: 'profile',
   };
   const setScr = useCallback(
-    (s) => {
+    (s: string) => {
       _setCurrentScreen(s);
       if (s === 'welcome' || s === 'placement' || s === 'new-placement') return;
       // Persist restorable screens per tab so browser-back / no-history goBack() can resume them.
@@ -376,12 +376,13 @@ function App() {
       }
       navigate(s === 'dashboard' ? '/' : `/${s}`, { replace: false });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate],
   );
   const [name, setName] = useState('');
   const [stats, dispatch] = useReducer(statsReducer, DS);
   const setStats = useCallback(
-    (fnOrValue) =>
+    (fnOrValue: ((prev: Stats) => Stats) | Stats) =>
       dispatch(
         typeof fnOrValue === 'function'
           ? { type: 'APPLY', payload: fnOrValue }
@@ -525,7 +526,7 @@ function App() {
   // the spurious navigate('/') that setScr would emit (which briefly resets tab back to
   // 'home' via the location useEffect before the real tab path is committed).
   const setTab = useCallback(
-    (t) => {
+    (t: string) => {
       _setTab(t);
       _setCurrentScreen('dashboard');
       navigate(TAB_PATHS[t] || '/', { replace: false });
@@ -540,18 +541,21 @@ function App() {
     jEn: _jEn,
     setJEn: _setJEn,
   } = useJournal();
-  const _uidRef = useRef(/** @type {string | null} */ null);
+  const _uidRef = useRef<string | null>(null);
   const { darkMode, setDarkMode, favs, setFavs, toggleFav, isFav } = usePreferences(_uidRef);
   const { srchQ, setSrchQ, srchR, srchOpen, setSrchOpen, doSearch } = useSearch();
 
   // ── writeDelta — atomic Firestore increment for every user-initiated stat change ──
   // Reads authUser from a ref so it works as a stable callback regardless of render order.
   // The ref is updated synchronously after useAuth (below) on every render.
-  const _writeDeltaAuthRef = useRef(/** @type {import('./types/index.js').AuthUser | null} */ null);
-  const writeDelta = useCallback((delta) => {
+  const _writeDeltaAuthRef = useRef<AuthUser | null>(null);
+  const writeDelta = useCallback((delta: StatsDelta) => {
     const u = _writeDeltaAuthRef.current;
     if (!u) return;
-    fbApplyDelta(u.u, delta).catch((e) => console.warn('[sync] writeDelta failed:', e?.code));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fbApplyDelta(u.u, delta as any).catch((e) =>
+      console.warn('[sync] writeDelta failed:', (e as { code?: string })?.code),
+    );
   }, []); // stable — reads only from ref, never re-created
 
   // ── Award / gamification ────────────────────────────────────────────────────
@@ -586,16 +590,25 @@ function App() {
   // ── applyRemoteProgress: merge Firestore snapshot into local state ──────────
   // Delegates to the extracted lib function (src/lib/applyRemoteProgress.ts),
   // which owns all merge logic and is independently testable.
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const applyRemoteProgress = useCallback(
-    (fp) => {
-      _applyRemoteProgressLib(fp, { setFavs, setJWords, sDchlA, sDchlSl, setOnboarded, setName });
+    (fp: any) => {
+      _applyRemoteProgressLib(fp, {
+        setFavs: setFavs as any,
+        setJWords: setJWords as any,
+        sDchlA,
+        sDchlSl,
+        setOnboarded,
+        setName,
+      });
     },
+    /* eslint-enable @typescript-eslint/no-explicit-any */
     [setFavs, setJWords, sDchlA, sDchlSl, setOnboarded, setName],
   );
 
   // Ref to break the useAuth TDZ cycle for doSyncNow and applyRemoteProgress
-  const _syncNowRef = useRef(/** @type {(() => Promise<void>) | null} */ null);
-  const _applyRemoteRef = useRef(/** @type {((fp: any) => void) | null} */ null);
+  const _syncNowRef = useRef<(() => Promise<boolean>) | undefined>(undefined);
+  const _applyRemoteRef = useRef<((fp: unknown) => void) | null>(null);
   _applyRemoteRef.current = applyRemoteProgress;
 
   // ── Auth ────────────────────────────────────────────────────────────────────
@@ -628,7 +641,19 @@ function App() {
     doGoogleLogin,
     doGuest: _doGuest,
   } = useAuth({
-    onSignedIn({ user, progress, isNew, isHydrate }) {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    onSignedIn({
+      user,
+      progress,
+      isNew,
+      isHydrate,
+    }: {
+      user: AuthUser;
+      progress: any;
+      isNew?: boolean;
+      isHydrate?: boolean;
+    }) {
+      /* eslint-enable @typescript-eslint/no-explicit-any */
       if (isHydrate) {
         if (progress) {
           const st = progress.stats || progress.st || {};
@@ -668,10 +693,11 @@ function App() {
       } catch {}
     },
     onBeforeSignOut: async () => {
-      if (_syncNowRef.current) return _syncNowRef.current();
+      if (_syncNowRef.current) await _syncNowRef.current();
     },
     applyRemoteProgress: (fp) => _applyRemoteRef.current?.(fp),
-    setFamData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setFamData: setFamData as any,
     setSyncReady: _setSyncReady,
   });
 
@@ -789,6 +815,7 @@ function App() {
   useEffect(() => {
     trackAppOpen(!!authUser);
     cleanupStaleQuestKeys();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Force mobile layout in Capacitor native — the desktop sidebar layout uses
@@ -806,6 +833,7 @@ function App() {
   // Register friend code index once per session when auth is ready
   useEffect(() => {
     if (authUser?.u) fbRegisterFriendCode(authUser.u, authUser.d || name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser?.u]);
 
   // Keep _uidRef current so usePreferences.toggleFav fires fbToggleFavorite
@@ -842,7 +870,7 @@ function App() {
     }
     if (p && p !== '/' && p !== '/welcome' && p !== '/placement') {
       const scr = p.slice(1);
-      const stm = {
+      const stm: Record<string, string> = {
         lesson: 'learn',
         grammar: 'learn',
         padezi: 'learn',
@@ -1053,7 +1081,7 @@ function App() {
 
     // Track all timeout IDs so they can be cancelled if authScreen changes
     // again before the timeouts fire (e.g. rapid sign-out / sign-in).
-    const timers = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
     if (lastSeen && stats.xp > 0) {
       const diff = now - parseInt(lastSeen, 10);
@@ -1096,6 +1124,7 @@ function App() {
     return () => {
       timers.forEach((id) => clearTimeout(id));
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authScreen]);
 
   // Session expiry guard
@@ -1108,6 +1137,7 @@ function App() {
       5 * 60 * 1000,
     );
     return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authScreen]);
   // Touch session on user interaction
   useEffect(() => {
@@ -1163,6 +1193,7 @@ function App() {
     if (!authUser || authScreen !== 'app' || stats.lc === 0 || !_syncReady) return;
     doSyncNow();
     scheduleStreakReminder(getStreak().count);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.lc, stats.ct?.length, stats.gc, stats.sp, _syncReady]);
 
   // Post-sync write-back: after _syncReady fires (Firebase data loaded + merged into local state),
@@ -1172,7 +1203,7 @@ function App() {
   // Tracks the last authUser.u for which the post-sync write-back fired.
   // Using the uid (not a boolean) means this fires once per user per page load,
   // and resets correctly when the user signs out and signs back in.
-  const _postSyncUserRef = useRef(null);
+  const _postSyncUserRef = useRef<string | null>(null);
   useEffect(() => {
     if (!_syncReady || !authUser || authScreen !== 'app') return;
     if (_postSyncUserRef.current === authUser.u) return; // already fired for this user
@@ -1203,12 +1234,12 @@ function App() {
 
   // Immersion streak XP — award 5 XP when user engages with media on a new day
   useEffect(() => {
-    const onImmersionDay = (e) => {
+    const onImmersionDay = (e: Event) => {
       if (authScreen !== 'app') return;
       award(5);
-      const count = e?.detail?.count ?? 0;
+      const count = (e as CustomEvent)?.detail?.count ?? 0;
       // Knight milestone speeches for immersion streaks
-      const immersionMilestones = {
+      const immersionMilestones: Record<number, string> = {
         3: 'Tri dana uranjanja! 3 days of Croatian media — your ear is training! 🎵',
         5: 'Pet dana! 5 immersion days. Your brain is adapting to real Croatian! 📺',
         7: 'Sedam dana! A week of daily Croatian media. Nevjerojatno! 🇭🇷',
@@ -1270,15 +1301,16 @@ function App() {
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.lc === 0 || (stats.ct?.length ?? 0) > 0) return;
     import('./data').then(({ LEARN_PATH }) => {
-      const recovered = [];
+      const recovered: string[] = [];
       for (const lv of LEARN_PATH) {
         for (const it of lv.items) {
-          if (it.topic && recovered.length < stats.lc) recovered.push(it.topic);
+          if (it.topic && recovered.length < stats.lc) recovered.push(it.topic as string);
         }
       }
       if (recovered.length > 0)
         setStats((prev) => ({ ...prev, ct: [...new Set([...prev.ct, ...recovered])] }));
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authScreen, authUser, stats.lc, stats.ct]);
 
   // Show new-placement for brand-new zero-progress users.
@@ -1305,6 +1337,7 @@ function App() {
       return () => clearTimeout(t);
     }
     return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authScreen, _syncReady, stats.lc, stats.xp, currentScreen]);
 
   // Weekly digest (Sunday only)
@@ -1340,6 +1373,7 @@ function App() {
           () => {},
         );
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser?.u]);
   useEffect(() => {
     if (authUser?.u) grantFreeAnnual(authUser.u);
@@ -1359,7 +1393,7 @@ function App() {
   // curEx persistence → last exercise + journey milestones
   useEffect(() => {
     if (!curEx) return;
-    const LABELS = {
+    const LABELS: Record<string, string> = {
       mcgame: 'Quiz',
       flashcards: 'Flashcards',
       match: 'Match Pairs',
@@ -1410,13 +1444,16 @@ function App() {
     if (!authUser || authScreen !== 'app' || stats.xp === 0) return;
     const today = localDateStr();
     try {
-      const h = JSON.parse(localStorage.getItem('progress_history') || '[]');
+      const h: Array<{ date: string; xp: number; lc: number; gc: number }> = JSON.parse(
+        localStorage.getItem('progress_history') || '[]',
+      );
       const i = h.findIndex((x) => x.date === today);
       const s = { date: today, xp: stats.xp, lc: stats.lc, gc: stats.gc };
       if (i >= 0) h[i] = s;
       else h.push(s);
       localStorage.setItem('progress_history', JSON.stringify(h.slice(-90)));
     } catch (_) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.xp, authUser, authScreen]);
 
   // Immediate Firebase push whenever a lesson or grammar exercise completes.
@@ -1432,6 +1469,7 @@ function App() {
     if ((lcIncreased || gcIncreased) && authUser && authScreen === 'app') {
       doSyncNow();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.lc, stats.gc]);
 
   // Premium welcome banner
@@ -1443,6 +1481,7 @@ function App() {
       if (isFreeAnnual && stats.lc === 0) setShowPremiumWelcome(true);
     }, 2500);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authScreen, authUser?.u]);
 
   // Page title
@@ -1454,21 +1493,21 @@ function App() {
   }, [currentScreen]);
 
   // ── Derived values ──────────────────────────────────────────────────────────
-  function _goPostAuth(hasProgress) {
+  function _goPostAuth(hasProgress: boolean) {
     if (!hasProgress) {
       setScr('welcome');
       return;
     }
     const ip = _initialPath.current;
     _initialPath.current = '/';
-    const tbp = {
+    const tbp: Record<string, string> = {
       '/learn': 'learn',
       '/practice': 'practice',
       '/croatia': 'croatia',
       '/profile': 'profile',
     };
     if (tbp[ip]) {
-      _setTab(tbp[ip]);
+      _setTab(tbp[ip] as string);
       _setCurrentScreen('dashboard');
       return;
     }
@@ -1915,7 +1954,7 @@ function App() {
                 streakRestoredCount={streakRestoredCount}
                 ttsFailedToast={ttsFailedToast}
                 streakRepairAvailable={showStreakRepair}
-                onRepairStreak={(action) => {
+                onRepairStreak={(action: string) => {
                   if (action === 'dismiss') {
                     setShowStreakRepair(false);
                     return;

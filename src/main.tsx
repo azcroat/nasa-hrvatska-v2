@@ -1,22 +1,25 @@
-// @ts-nocheck
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
 // Polyfill Array.prototype.at() for Android WebView < Chrome 92
-if (!Array.prototype.at) {
-  Array.prototype.at = function (index) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+if (!(Array.prototype as any).at) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (Array.prototype as any).at = function (index: number) {
     const i = index < 0 ? this.length + index : index;
     return this[i];
   };
 }
-if (!String.prototype.at) {
-  String.prototype.at = function (index) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+if (!(String.prototype as any).at) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (String.prototype as any).at = function (index: number) {
     const i = index < 0 ? this.length + index : index;
     return this[i];
   };
 }
-import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
 import './index.css';
 import App from './App';
 import { reportError } from './lib/errorReporter.js';
@@ -62,7 +65,8 @@ if (isNative()) {
       await SplashScreen.hide({ fadeOutDuration: 300 });
 
       // Keyboard resizes only the body — prevents the entire app shifting up on iOS
-      await Keyboard.setResizeMode({ mode: 'body' });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await Keyboard.setResizeMode({ mode: 'body' as any });
     } catch (_) {
       // Plugin bootstrap errors must never crash the app
     }
@@ -82,16 +86,20 @@ if (import.meta.env.PROD) {
 // Set VITE_SENTRY_DSN in Cloudflare Pages environment variables.
 // The app works fully without it — telemetry is opt-in via env var.
 // Dynamically imported so the ~40KB Sentry bundle is never parsed when DSN is absent.
-let _sentry = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _sentry: any = null;
 if (import.meta.env.VITE_SENTRY_DSN) {
   import('@sentry/react').then((Sentry) => {
     _sentry = Sentry;
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
       environment: import.meta.env.MODE,
-      // eslint-disable-next-line no-undef
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       release:
-        typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : import.meta.env.VITE_APP_VERSION,
+        typeof (globalThis as any).__BUILD_ID__ !== 'undefined'
+          ? (globalThis as any).__BUILD_ID__
+          : import.meta.env.VITE_APP_VERSION,
+      /* eslint-enable @typescript-eslint/no-explicit-any */
       // Only send errors in production; silence in dev
       enabled: import.meta.env.PROD,
       tracesSampleRate: 0.1,
@@ -108,10 +116,25 @@ if (import.meta.env.VITE_SENTRY_DSN) {
           event.contexts = event.contexts.trace ? { trace: event.contexts.trace } : {};
         }
         if (Array.isArray(event.breadcrumbs?.values)) {
-          const bc = /** @type {any} */ event.breadcrumbs;
-          bc.values = bc.values
-            .filter((b) => b.category === 'web-vitals' || b.category === 'navigation')
-            .map(({ category, level, timestamp }) => ({ category, level, timestamp }));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const bc = event.breadcrumbs as any;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          bc.values = (bc.values as any[])
+            .filter(
+              (b: { category?: string }) =>
+                b.category === 'web-vitals' || b.category === 'navigation',
+            )
+            .map(
+              ({
+                category,
+                level,
+                timestamp,
+              }: {
+                category?: string;
+                level?: string;
+                timestamp?: number;
+              }) => ({ category, level, timestamp }),
+            );
         }
         return event;
       },
@@ -129,7 +152,7 @@ if (localStorage.getItem('cookie_consent_v1') === 'accepted') {
 // ─── Web Vitals → Sentry ───────────────────────────────────────────────────
 // Reports Core Web Vitals as Sentry performance measurements.
 // Fires once per page load; no PII is collected.
-function reportWebVitals(metric) {
+function reportWebVitals(metric: Metric) {
   if (!_sentry) return;
   _sentry.addBreadcrumb({
     category: 'web-vitals',
@@ -148,15 +171,20 @@ onLCP(reportWebVitals);
 onTTFB(reportWebVitals);
 
 // ─── Error Boundary ────────────────────────────────────────────────────────
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+interface EBState {
+  hasError: boolean;
+  errorMsg: string;
+}
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, EBState> {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false, errorMsg: '' };
   }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, errorMsg: error && error.message ? error.message : String(error) };
+  static getDerivedStateFromError(error: unknown): EBState {
+    const msg = error && (error as Error).message ? (error as Error).message : String(error);
+    return { hasError: true, errorMsg: msg };
   }
-  componentDidCatch(error, info) {
+  componentDidCatch(error: unknown, info: React.ErrorInfo) {
     console.error('App crash:', error, info);
     if (_sentry) {
       _sentry.captureException(error, { extra: info });
@@ -227,15 +255,15 @@ class ErrorBoundary extends React.Component {
 // that no longer exists in the freshly-deployed chunk (minifier renamed it).
 // In this case we purge the JS cache and reload — same recovery path as
 // lazyWithReload in AppRouter.jsx but for eagerly-loaded / static imports.
-function _isStaleBindingError(msg) {
+function _isStaleBindingError(msg: unknown) {
   return typeof msg === 'string' && msg.includes('Importing binding name');
 }
-function _reloadWithCachePurge(storageKey) {
+function _reloadWithCachePurge(storageKey: string) {
   try {
     const n = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
     if (n >= 2) return false; // stop after 2 attempts — don't loop forever
     sessionStorage.setItem(storageKey, String(n + 1));
-    if ('caches' in window) {
+    if ('caches' in globalThis) {
       caches
         .keys()
         .then((names) =>
@@ -244,9 +272,9 @@ function _reloadWithCachePurge(storageKey) {
           }),
         )
         .catch(() => {})
-        .finally(() => window.location.reload());
+        .finally(() => globalThis.location.reload());
     } else {
-      window.location.reload();
+      globalThis.location.reload();
     }
     return true;
   } catch (_) {
@@ -260,6 +288,7 @@ window.onerror = function (message, _source, _lineno, _colno, error) {
     if (_reloadWithCachePurge('nh_binding_reload')) return true; // suppress Sentry noise
   }
   reportError(error ?? new Error(String(message)), 'window.onerror');
+  return false;
 };
 window.onunhandledrejection = function (event) {
   const reason = event.reason;
@@ -277,7 +306,7 @@ window.onunhandledrejection = function (event) {
 // Check /version.json (always from network) and reload if deployed version changed.
 // Runs on load AND every 5 minutes so open tabs stay current without any user action.
 const _VER_KEY = 'nh_app_ver';
-function _checkVersion(isPolling) {
+function _checkVersion(isPolling: boolean) {
   try {
     fetch('/version.json', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
@@ -353,7 +382,7 @@ if (!isNative() && 'serviceWorker' in navigator) {
   });
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
       <BrowserRouter>

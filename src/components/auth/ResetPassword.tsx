@@ -1,8 +1,17 @@
-// @ts-nocheck
 import React from 'react';
 import { BG_LIGHT } from '../../lib/appUtils.js';
 
 const BG = BG_LIGHT;
+
+interface ResetPasswordProps {
+  authError: string;
+  authLoading: boolean;
+  rpEm: string;
+  setAuthScreen: (screen: string) => void;
+  setAuthError: (err: string) => void;
+  setRpEm: (em: string) => void;
+  doReset: () => void;
+}
 
 export default function ResetPassword({
   authError,
@@ -12,7 +21,7 @@ export default function ResetPassword({
   setAuthError,
   setRpEm,
   doReset,
-}) {
+}: ResetPasswordProps) {
   return (
     <div
       style={{
