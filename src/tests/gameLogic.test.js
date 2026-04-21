@@ -546,9 +546,12 @@ describe('Badge conditions — BADGES array structure', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('badge predicates return false for all badges when stats fields are undefined (nullish fallback)', () => {
-    // Exercises the `?? 0` fallback branch in every badge predicate.
+  it('badge predicates return false for all stats-based badges when stats fields are undefined (nullish fallback)', () => {
+    // Exercises the `?? 0` / `|| 0` fallback branch in every stats-based badge predicate.
+    // Skips zero-parameter predicates (time-of-day and getCultureStats()-based) which have
+    // their own data sources and may legitimately return true regardless of the stats argument.
     for (const b of BADGES) {
+      if (b.r.length === 0) continue;
       expect(b.r({})).toBe(false);
     }
   });
