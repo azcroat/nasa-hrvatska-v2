@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak, shMemo } from '../../data';
 import {
@@ -13,7 +12,7 @@ import {
   SVOJMOJ,
 } from '../../data';
 
-export function AspectScreen({ goBack }) {
+export function AspectScreen({ goBack }: { goBack: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🔄 Verb Aspect', 'Perfective vs Imperfective', goBack)}
@@ -64,7 +63,7 @@ export function AspectScreen({ goBack }) {
   );
 }
 
-export function FalseFriendsScreen({ goBack }) {
+export function FalseFriendsScreen({ goBack }: { goBack: () => void }) {
   return (
     <div className="scr-wrap">
       {H('⚠️ False Friends', 'Croatian words that trick English speakers', goBack)}
@@ -106,9 +105,10 @@ export function FalseFriendsScreen({ goBack }) {
   );
 }
 
-export function DeclensionScreen({ goBack }) {
+export function DeclensionScreen({ goBack }: { goBack: () => void }) {
   const [dcNoun, sDcNoun] = useState(0);
   const n = DECL.nouns[dcNoun];
+  if (!n) return null;
   return (
     <div className="scr-wrap">
       {H('📝 Noun Declension Trainer', 'All 7 cases for key nouns', goBack)}
@@ -138,13 +138,13 @@ export function DeclensionScreen({ goBack }) {
                 key={ci}
                 style={{ borderBottom: '1px solid #f3f4f6' }}
                 onClick={function () {
-                  speak(n.cases[ci]);
+                  speak(n.cases[ci] ?? '');
                 }}
                 role="button"
                 tabIndex={0}
-                aria-label={`Play audio for ${n.cases[ci]}`}
+                aria-label={`Play audio for ${n.cases[ci] ?? ''}`}
                 onKeyDown={function (e) {
-                  if (e.key === 'Enter' || e.key === ' ') speak(n.cases[ci]);
+                  if (e.key === 'Enter' || e.key === ' ') speak(n.cases[ci] ?? '');
                 }}
               >
                 <td style={{ padding: '10px', fontWeight: 700, color: '#0e7490' }}>
@@ -152,7 +152,7 @@ export function DeclensionScreen({ goBack }) {
                   {cs}
                 </td>
                 <td style={{ padding: '10px', fontWeight: 600, fontSize: 16 }}>
-                  {n.cases[ci]} <span aria-hidden="true">🔊</span>
+                  {n.cases[ci] ?? ''} <span aria-hidden="true">🔊</span>
                 </td>
               </tr>
             );
@@ -163,45 +163,47 @@ export function DeclensionScreen({ goBack }) {
   );
 }
 
-export function BrzaliceScreen({ goBack }) {
+export function BrzaliceScreen({ goBack }: { goBack: () => void }) {
   return (
     <div className="scr-wrap">
       {H('😝 Brzalice', 'Croatian Tongue Twisters', goBack)}
-      {shMemo('bz', BRZALICE).map(function (b, i) {
-        return (
-          <div key={i} className="c" style={{ marginBottom: 12 }}>
-            <button
-              aria-label={`Play audio for ${b.hr}`}
-              style={{
-                fontSize: 16,
-                fontWeight: 700,
-                color: 'var(--heading)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: "'Outfit',sans-serif",
-                padding: 0,
-                textAlign: 'left',
-              }}
-              onClick={function () {
-                speak(b.hr);
-              }}
-            >
-              {b.hr} <span aria-hidden="true">🔊</span>
-            </button>
-            <div style={{ fontSize: 13, color: '#78716c', marginTop: 4 }}>{b.en}</div>
-            <div style={{ fontSize: 12, color: '#b45309', marginTop: 2 }}>
-              {'Target: '}
-              {b.focus}
+      {(shMemo('bz', BRZALICE, undefined) as { hr: string; en: string; focus: string }[]).map(
+        function (b, i) {
+          return (
+            <div key={i} className="c" style={{ marginBottom: 12 }}>
+              <button
+                aria-label={`Play audio for ${b.hr}`}
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: 'var(--heading)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: "'Outfit',sans-serif",
+                  padding: 0,
+                  textAlign: 'left',
+                }}
+                onClick={function () {
+                  speak(b.hr);
+                }}
+              >
+                {b.hr} <span aria-hidden="true">🔊</span>
+              </button>
+              <div style={{ fontSize: 13, color: '#78716c', marginTop: 4 }}>{b.en}</div>
+              <div style={{ fontSize: 12, color: '#b45309', marginTop: 2 }}>
+                {'Target: '}
+                {b.focus}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        },
+      )}
     </div>
   );
 }
 
-export function DialectsScreen({ goBack }) {
+export function DialectsScreen({ goBack }: { goBack: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🗺️ Regional Dialects', 'Štokavski, Kajkavski, Čakavski', goBack)}
@@ -253,7 +255,7 @@ export function DialectsScreen({ goBack }) {
   );
 }
 
-export function DiminutivesScreen({ goBack }) {
+export function DiminutivesScreen({ goBack }: { goBack: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🐣 Umanjenice', 'Diminutives — making things small & cute', goBack)}
@@ -288,7 +290,7 @@ export function DiminutivesScreen({ goBack }) {
   );
 }
 
-export function WordFormScreen({ goBack }) {
+export function WordFormScreen({ goBack }: { goBack: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🧩 Word Formation', 'How prefixes build Croatian vocabulary', goBack)}
@@ -350,7 +352,7 @@ export function WordFormScreen({ goBack }) {
                       fontFamily: "'Outfit',sans-serif",
                     }}
                     onClick={function () {
-                      speak(p[0]);
+                      speak(p[0] ?? '');
                     }}
                   >
                     <span style={{ fontWeight: 700, color: '#0e7490' }}>
@@ -369,7 +371,7 @@ export function WordFormScreen({ goBack }) {
   );
 }
 
-export function ColorQuirkScreen({ goBack }) {
+export function ColorQuirkScreen({ goBack }: { goBack: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🎨 Color Quirks', 'Colors mean different things in Croatian!', goBack)}
@@ -402,10 +404,18 @@ export function ColorQuirkScreen({ goBack }) {
   );
 }
 
-export function SvojMojScreen({ goBack, award }) {
-  const [quizAnswers, setQuizAnswers] = useState({});
+export function SvojMojScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, { chosen: string; note: string }>>(
+    {},
+  );
 
-  function handleQuiz(qi, o, correct, note) {
+  function handleQuiz(qi: number, o: string, correct: string, note: string) {
     if (quizAnswers[qi] !== undefined) return;
     setQuizAnswers((prev) => ({ ...prev, [qi]: { chosen: o, note } }));
     if (o === correct && award) award(5);
@@ -654,22 +664,26 @@ export function SvojMojScreen({ goBack, award }) {
                 </button>
               );
             })}
-            {quizAnswers[qi] && (
-              <div
-                style={{
-                  fontSize: 11,
-                  lineHeight: 1.5,
-                  marginTop: 4,
-                  padding: '6px 10px',
-                  background: 'rgba(124,58,237,.05)',
-                  borderRadius: 8,
-                  color: '#4c1d95',
-                }}
-              >
-                {quizAnswers[qi].chosen === q.a ? '✓ Correct! ' : '✗ Answer: ' + q.a + ' — '}
-                {q.note}
-              </div>
-            )}
+            {quizAnswers[qi] &&
+              (() => {
+                const qa = quizAnswers[qi]!;
+                return (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      lineHeight: 1.5,
+                      marginTop: 4,
+                      padding: '6px 10px',
+                      background: 'rgba(124,58,237,.05)',
+                      borderRadius: 8,
+                      color: '#4c1d95',
+                    }}
+                  >
+                    {qa.chosen === q.a ? '✓ Correct! ' : '✗ Answer: ' + q.a + ' — '}
+                    {q.note}
+                  </div>
+                );
+              })()}
           </div>
         );
       })}

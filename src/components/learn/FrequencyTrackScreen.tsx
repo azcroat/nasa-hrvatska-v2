@@ -1,5 +1,4 @@
-// @ts-nocheck
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { H } from '../../data/content';
 import {
   FREQUENCY_500,
@@ -39,18 +38,31 @@ const QUIZ_SIZE = 5;
 const DISTRACTORS_PER_Q = 3;
 const TEAL_GRAD = 'linear-gradient(135deg,#0e7490,#164e63)';
 
+// ── Types ──────────────────────────────────────────────────────────────────────
+interface FreqWord {
+  rank: number;
+  hr: string;
+  en: string;
+  pos: string;
+}
+interface QuizQuestion {
+  word: FreqWord;
+  choices: string[];
+  answer: string;
+}
+
 // ── Utility ───────────────────────────────────────────────────────────────────
-function pickRandom(arr, n) {
+function pickRandom<T>(arr: T[], n: number): T[] {
   const copy = [...arr];
-  const out = [];
+  const out: T[] = [];
   while (out.length < n && copy.length) {
     const i = Math.floor(Math.random() * copy.length);
-    out.push(copy.splice(i, 1)[0]);
+    out.push(copy.splice(i, 1)[0] as T);
   }
   return out;
 }
 
-function buildQuizQuestions(learnedSet) {
+function buildQuizQuestions(learnedSet: Set<number>): QuizQuestion[] {
   const unlearned = FREQUENCY_500.filter((w) => !learnedSet.has(w.rank));
   const pool = pickRandom(unlearned.length >= QUIZ_SIZE ? unlearned : FREQUENCY_500, QUIZ_SIZE);
   return pool.map((word) => {
@@ -61,7 +73,7 @@ function buildQuizQuestions(learnedSet) {
   });
 }
 
-function computeStreak(learnedRanks) {
+function computeStreak(learnedRanks: number[]): number {
   if (!learnedRanks.length) return 0;
   const sorted = [...learnedRanks].sort((a, b) => a - b);
   let streak = 0;
@@ -79,7 +91,7 @@ function computeStreak(learnedRanks) {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function StatTile({ value, label }) {
+function StatTile({ value, label }: { value: string | number; label: string }) {
   return (
     <div
       className="stat-tile"
@@ -118,7 +130,15 @@ function StatTile({ value, label }) {
   );
 }
 
-function WordTile({ word, learned, onTap }) {
+function WordTile({
+  word,
+  learned,
+  onTap,
+}: {
+  word: FreqWord;
+  learned: boolean;
+  onTap: () => void;
+}) {
   return (
     <button
       onClick={onTap}
@@ -189,16 +209,25 @@ function WordTile({ word, learned, onTap }) {
 }
 
 // ── Quiz Overlay ──────────────────────────────────────────────────────────────
-function QuizOverlay({ questions, onClose, onMarkLearned }) {
+function QuizOverlay({
+  questions,
+  onClose,
+  onMarkLearned,
+}: {
+  questions: QuizQuestion[];
+  onClose: () => void;
+  onMarkLearned: (rank: number) => void;
+}) {
   const [qi, setQi] = useState(0);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
 
   const q = questions[qi];
+  if (!q) return null;
 
-  function choose(choice) {
-    if (selected !== null) return;
+  function choose(choice: string) {
+    if (selected !== null || !q) return;
     setSelected(choice);
     const correct = choice === q.answer;
     if (correct) {
@@ -344,7 +373,7 @@ function QuizOverlay({ questions, onClose, onMarkLearned }) {
                   marginBottom: 4,
                 }}
               >
-                #{q.word.rank} · {POS_LABELS[q.word.pos] || q.word.pos}
+                #{q.word.rank} · {(POS_LABELS as Record<string, string>)[q.word.pos] || q.word.pos}
               </div>
               <div style={{ fontSize: 34, fontWeight: 900, color: 'var(--text)', marginBottom: 4 }}>
                 {q.word.hr}
@@ -397,13 +426,19 @@ function QuizOverlay({ questions, onClose, onMarkLearned }) {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
-export default function FrequencyTrackScreen({ goBack, award }) {
-  const [learnedArr, setLearnedArr] = useState(() => getLearnedFrequencyWords());
+export default function FrequencyTrackScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
+  const [learnedArr, setLearnedArr] = useState<number[]>(() => getLearnedFrequencyWords());
   const [posFilter, setPosFilter] = useState('all');
   const [showQuiz, setShowQuiz] = useState(false);
-  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
 
-  const learnedSet = new Set(learnedArr);
+  const learnedSet = useMemo(() => new Set(learnedArr), [learnedArr]);
   const learnedCount = learnedArr.length;
   const streak = computeStreak(learnedArr);
   const pct = Math.round((learnedCount / FREQUENCY_500.length) * 100);
@@ -412,7 +447,7 @@ export default function FrequencyTrackScreen({ goBack, award }) {
     posFilter === 'all' ? FREQUENCY_500 : FREQUENCY_500.filter((w) => w.pos === posFilter);
 
   const handleTap = useCallback(
-    (rank) => {
+    (rank: number) => {
       if (learnedSet.has(rank)) return;
       markFrequencyWordLearned(rank);
       setLearnedArr(getLearnedFrequencyWords());
@@ -427,7 +462,7 @@ export default function FrequencyTrackScreen({ goBack, award }) {
     setShowQuiz(true);
   }
 
-  function handleQuizMarkLearned(rank) {
+  function handleQuizMarkLearned(rank: number) {
     markFrequencyWordLearned(rank);
     setLearnedArr(getLearnedFrequencyWords());
     if (typeof award === 'function') award(5);
@@ -509,7 +544,7 @@ export default function FrequencyTrackScreen({ goBack, award }) {
                 fontFamily: "'Outfit', sans-serif",
               }}
             >
-              {POS_LABELS[pos]}
+              {(POS_LABELS as Record<string, string>)[pos]}
             </button>
           );
         })}

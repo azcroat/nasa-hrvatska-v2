@@ -1,7 +1,32 @@
-// @ts-nocheck
 import React, { useState, useCallback, useRef } from 'react';
 import { H, READ } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
+
+interface TextItem {
+  id: string;
+  title: string;
+  english: string;
+  level: string;
+  levelColor: string;
+  levelBg: string;
+  text: string;
+}
+interface WordAnalysis {
+  pos?: string;
+  base_form?: string;
+  case?: string;
+  gender?: string;
+  number?: string;
+  tense?: string;
+  person?: string;
+  aspect?: string;
+  explanation?: string;
+  examples?: string[];
+}
+interface ActiveWord {
+  word: string;
+  data: WordAnalysis;
+}
 
 // ─── Level style map ──────────────────────────────────────────────────────────
 const LEVEL_STYLE = {
@@ -14,7 +39,7 @@ const LEVEL_STYLE = {
 };
 
 // ─── Map READ library to GrammarReader format ─────────────────────────────────
-function buildLibraryTexts() {
+function buildLibraryTexts(): TextItem[] | null {
   try {
     const buckets = [
       { key: 'beginner', level: 'A1' },
@@ -23,13 +48,16 @@ function buildLibraryTexts() {
       { key: 'b2', level: 'B2' },
       { key: 'c1', level: 'C1' },
     ];
-    const out = [];
+    const out: TextItem[] = [];
     buckets.forEach(({ key, level }) => {
-      const passages = READ[key];
+      const passages = (READ as Record<string, { title: string; tEn?: string; text: string }[]>)[
+        key
+      ];
       if (!Array.isArray(passages)) return;
       passages.forEach((p, i) => {
         if (!p.text || !p.title) return;
-        const style = LEVEL_STYLE[level] || LEVEL_STYLE['B1'];
+        const style =
+          (LEVEL_STYLE as Record<string, typeof LEVEL_STYLE.A1>)[level] || LEVEL_STYLE['B1'];
         out.push({
           id: `${key}_${i}`,
           title: p.title,
@@ -160,10 +188,10 @@ const CASE_ABBR = {
 };
 
 // Strip punctuation for lookup key but keep original for display
-function stripPunct(w) {
+function stripPunct(w: string): string {
   return w.replace(/[.,!?;:"""'()–-]/g, '').toLowerCase();
 }
-function _hasPunct(w) {
+function _hasPunct(w: string): boolean {
   return /[.,!?;:"""'()]$/.test(w);
 }
 
@@ -177,7 +205,17 @@ const STYLE = `
 `;
 
 // ─── Word token ───────────────────────────────────────────────────────────────
-function WordToken({ word, cache, loading, onTap }) {
+function WordToken({
+  word,
+  cache,
+  loading,
+  onTap,
+}: {
+  word: string;
+  cache: Record<string, WordAnalysis>;
+  loading: string | null;
+  onTap: (w: string) => void;
+}) {
   const key = stripPunct(word);
   const analyzed = !!cache[key];
   const isLoading = loading === key;
@@ -200,10 +238,20 @@ function WordToken({ word, cache, loading, onTap }) {
 }
 
 // ─── Analysis bottom sheet ────────────────────────────────────────────────────
-function AnalysisSheet({ word, data, onClose }) {
+function AnalysisSheet({
+  word,
+  data,
+  onClose,
+}: {
+  word: string;
+  data: WordAnalysis | null;
+  onClose: () => void;
+}) {
   if (!data) return null;
-  const posColor = POS_COLOR[data.pos] || '#6b7280';
-  const posLabel = POS_LABEL[data.pos] || data.pos;
+  const posColor = data.pos
+    ? (POS_COLOR as Record<string, string>)[data.pos] || '#6b7280'
+    : '#6b7280';
+  const posLabel = data.pos ? (POS_LABEL as Record<string, string>)[data.pos] || data.pos : '';
   return (
     <div
       onClick={onClose}
@@ -272,7 +320,11 @@ function AnalysisSheet({ word, data, onClose }) {
         {/* Grammar tags row */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
           {data.case && (
-            <Tag label={CASE_ABBR[data.case] || data.case} sub={data.case} color="#0891b2" />
+            <Tag
+              label={(CASE_ABBR as Record<string, string>)[data.case] || data.case}
+              sub={data.case}
+              color="#0891b2"
+            />
           )}
           {data.gender && (
             <Tag
@@ -336,7 +388,7 @@ function AnalysisSheet({ word, data, onClose }) {
             >
               EXAMPLES
             </div>
-            {data.examples.map((ex, i) => (
+            {(data.examples ?? []).map((ex, i) => (
               <div
                 key={i}
                 style={{
@@ -344,7 +396,8 @@ function AnalysisSheet({ word, data, onClose }) {
                   color: 'var(--heading)',
                   fontStyle: 'italic',
                   padding: '6px 0',
-                  borderBottom: i < data.examples.length - 1 ? '1px solid var(--card-b)' : 'none',
+                  borderBottom:
+                    i < (data.examples?.length ?? 0) - 1 ? '1px solid var(--card-b)' : 'none',
                 }}
               >
                 {ex}
@@ -376,7 +429,7 @@ function AnalysisSheet({ word, data, onClose }) {
   );
 }
 
-function Tag({ label, sub, color }) {
+function Tag({ label, sub, color }: { label: string; sub: string; color: string }) {
   return (
     <div
       style={{
@@ -407,6 +460,11 @@ function ReadingPane({
   loading,
   onWordTap,
   goBack,
+}: TextItem & {
+  cache: Record<string, WordAnalysis>;
+  loading: string | null;
+  onWordTap: (w: string) => void;
+  goBack: () => void;
 }) {
   const words = text.split(/(\s+)/);
   return (
@@ -522,7 +580,7 @@ function ReadingPane({
 }
 
 // ─── Text picker ──────────────────────────────────────────────────────────────
-function TextPicker({ onSelect, goBack }) {
+function TextPicker({ onSelect, goBack }: { onSelect: (t: TextItem) => void; goBack: () => void }) {
   const [filter, setFilter] = useState('All');
   // Derive available levels from the actual texts so new levels appear automatically
   const levels = ['All', ...Array.from(new Set(TEXTS.map((t) => t.level)))];
@@ -665,16 +723,16 @@ function TextPicker({ onSelect, goBack }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function GrammarReader({ goBack }) {
-  const [selectedText, setSelectedText] = useState(null);
-  const [cache, setCache] = useState({}); // { word_key: analysisObj }
-  const [loading, setLoading] = useState(null); // word key currently being fetched
-  const [activeWord, setActiveWord] = useState(null); // { word, data }
-  const [error, setError] = useState(null);
+export default function GrammarReader({ goBack }: { goBack: () => void }) {
+  const [selectedText, setSelectedText] = useState<TextItem | null>(null);
+  const [cache, setCache] = useState<Record<string, WordAnalysis>>({}); // { word_key: analysisObj }
+  const [loading, setLoading] = useState<string | null>(null); // word key currently being fetched
+  const [activeWord, setActiveWord] = useState<ActiveWord | null>(null); // { word, data }
+  const [error, setError] = useState<string | null>(null);
   const inFlightRef = useRef(false);
 
   const handleWordTap = useCallback(
-    async (word) => {
+    async (word: string) => {
       const key = stripPunct(word);
       if (!key) return;
 
