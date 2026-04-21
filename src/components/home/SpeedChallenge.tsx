@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useStats } from '../../context/StatsContext';
 import { getSR, getSRScore } from '../../lib/srs.js';
@@ -44,23 +43,37 @@ function buildQuestionPool() {
   // Weighted shuffle — reservoir sampling by weight for unbiased random ordering
   for (let i = weighted.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [weighted[i], weighted[j]] = [weighted[j], weighted[i]];
+    const tmp = weighted[i]!;
+    weighted[i] = weighted[j]!;
+    weighted[j] = tmp;
   }
   // Re-sort by weight descending after shuffle so heavier items skew toward front
   weighted.sort((a, b) => b.weight - a.weight);
   return weighted.slice(0, QUESTIONS_PER_GAME + 20); // buffer
 }
 
-function _fy(arr) {
+interface VocabWord {
+  hr: string;
+  en: string;
+  weight?: number;
+}
+interface Question {
+  target: VocabWord;
+  choices: VocabWord[];
+}
+
+function _fy<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    const tmp = a[i]!;
+    a[i] = a[j]!;
+    a[j] = tmp;
   }
   return a;
 }
 
-function buildQuestion(target, allVocab) {
+function buildQuestion(target: VocabWord, allVocab: VocabWord[]): Question {
   // 4 choices: 1 correct + 3 random wrong answers
   const wrong = _fy(allVocab.filter((w) => w.en !== target.en)).slice(0, 3);
   const choices = _fy([target, ...wrong]);
@@ -69,7 +82,7 @@ function buildQuestion(target, allVocab) {
 
 const LS_KEY_PLAYED = 'nh_speed_challenge_played';
 
-export default function SpeedChallenge({ onXP }) {
+export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }) {
   const { award } = useStats();
   const [phase, setPhase] = useState('idle'); // idle | playing | done
   const [timeLeft, setTimeLeft] = useState(DURATION);
@@ -77,21 +90,25 @@ export default function SpeedChallenge({ onXP }) {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
-  const [answered, setAnswered] = useState(null); // null | 'correct' | 'wrong'
+  const [answered, setAnswered] = useState<'correct' | 'wrong' | null>(null);
   const [totalEarned, setTotalEarned] = useState(0);
-  const timerRef = useRef(null);
-  const questionStartRef = useRef(null);
+  const timerRef = useRef<number | null>(null);
+  const questionStartRef = useRef<number | null>(null);
 
-  // Check if already played today
-  const playedToday = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    return localStorage.getItem(LS_KEY_PLAYED) === today;
-  }, [phase]);
+  // Check if already played today; recompute when phase changes (e.g. after completing a round)
+  const playedToday = useMemo(
+    () => {
+      const today = new Date().toISOString().slice(0, 10);
+      return localStorage.getItem(LS_KEY_PLAYED) === today;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [phase], // intentional: re-check after phase transition
+  );
 
   const [noVocab, setNoVocab] = useState(false);
-  const pool = useRef([]);
-  const questions = useRef([]);
-  const allVocab = useRef([]);
+  const pool = useRef<VocabWord[]>([]);
+  const questions = useRef<Question[]>([]);
+  const allVocab = useRef<VocabWord[]>([]);
 
   const start = useCallback(() => {
     pool.current = buildQuestionPool();
@@ -117,21 +134,23 @@ export default function SpeedChallenge({ onXP }) {
   // Timer
   useEffect(() => {
     if (phase !== 'playing') return;
-    timerRef.current = setInterval(() => {
+    timerRef.current = window.setInterval(() => {
       setTimeLeft((t) => {
         if (t <= 1) {
-          clearInterval(timerRef.current);
+          if (timerRef.current !== null) clearInterval(timerRef.current);
           setPhase('done');
           return 0;
         }
         return t - 1;
       });
     }, 1000);
-    return () => clearInterval(timerRef.current);
+    return () => {
+      if (timerRef.current !== null) clearInterval(timerRef.current);
+    };
   }, [phase]);
 
   const handleAnswer = useCallback(
-    (choice) => {
+    (choice: VocabWord) => {
       if (answered !== null || phase !== 'playing') return;
       const q = questions.current[qIdx];
       if (!q) return;

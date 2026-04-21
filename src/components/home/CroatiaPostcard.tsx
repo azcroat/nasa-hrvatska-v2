@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { motion } from 'framer-motion';
 import VideoBackground from '../shared/VideoBackground';
@@ -48,10 +47,34 @@ const SCENE_POOL = [
   },
 ];
 
-export default function CroatiaPostcard({ dailyCulture, dailyCultureLoading, todayPhrases }) {
+interface TodayPhrase {
+  hr: string;
+  en: string;
+  cat?: string;
+  tip?: string;
+}
+
+interface DailyCultureData {
+  phrase?: string;
+  translation?: string;
+  pronunciation?: string;
+  category?: string;
+  culturalFact?: string;
+  tip?: string;
+}
+
+export default function CroatiaPostcard({
+  dailyCulture,
+  dailyCultureLoading,
+  todayPhrases,
+}: {
+  dailyCulture?: DailyCultureData | null;
+  dailyCultureLoading?: boolean;
+  todayPhrases: TodayPhrase[];
+}) {
   const dayIdx = Math.floor(Date.now() / 86400000);
-  const scene = SCENE_POOL[dayIdx % SCENE_POOL.length];
-  const phrase = todayPhrases[0];
+  const scene = SCENE_POOL[dayIdx % SCENE_POOL.length]!;
+  const phrase = todayPhrases[0] ?? { hr: '', en: '', cat: '' };
 
   return (
     <motion.div

@@ -1,7 +1,38 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { H, getSR } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
+
+interface GrammarDrill {
+  prompt?: string;
+  q?: string;
+  options?: string[];
+  correct?: string | number;
+}
+
+interface BlindSpot {
+  rule?: string;
+  name?: string;
+  severity?: string;
+  explanation?: string;
+  examples?: string[];
+  example?:
+    | string
+    | {
+        good?: string;
+        bad?: string;
+        tip?: string;
+        wrong?: string;
+        wrong_en?: string;
+        correct?: string;
+        correct_en?: string;
+      };
+  drills?: GrammarDrill[];
+}
+
+interface GrammarDiagnosis {
+  blindSpots?: BlindSpot[];
+  summary?: string;
+}
 
 // ── Severity config ────────────────────────────────────────────────────────────
 const SEV = {
@@ -11,7 +42,7 @@ const SEV = {
 };
 
 // ── Human-readable age ─────────────────────────────────────────────────────────
-function ageLabel(ts) {
+function ageLabel(ts: number) {
   const ms = Date.now() - ts;
   const days = Math.floor(ms / 86400000);
   if (days === 0) return 'today';
@@ -33,12 +64,18 @@ function LoadingDots() {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function GrammarDiagnosisScreen({ goBack, award }) {
+export default function GrammarDiagnosisScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [phase, setPhase] = useState('idle');
-  const [diagnosis, setDiagnosis] = useState(null);
-  const [cacheAge, setCacheAge] = useState(null);
+  const [diagnosis, setDiagnosis] = useState<GrammarDiagnosis | null>(null);
+  const [cacheAge, setCacheAge] = useState<string | null>(null);
   const [activeBlindSpot, setActiveBlindSpot] = useState(0);
-  const [drillAnswers, setDrillAnswers] = useState({});
+  const [drillAnswers, setDrillAnswers] = useState<Record<string, string>>({});
   const [xpAwarded, setXpAwarded] = useState(false);
 
   // ── On mount: check cache ──────────────────────────────────────────────────
@@ -65,7 +102,9 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
     if (xpAwarded || !diagnosis) return;
     const anyCorrect = Object.entries(drillAnswers).some(([key, chosen]) => {
       // key format: bs{i}_q{j}
-      const [bsPart, qPart] = key.split('_');
+      const parts = key.split('_');
+      const bsPart = parts[0] ?? '';
+      const qPart = parts[1] ?? '';
       const bsIdx = parseInt(bsPart.replace('bs', ''), 10);
       const qIdx = parseInt(qPart.replace('q', ''), 10);
       const drill = diagnosis.blindSpots?.[bsIdx]?.drills?.[qIdx];
@@ -83,14 +122,14 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
     const level = localStorage.getItem('nh_level') || 'B1';
 
     const srData = getSR();
-    const srMistakes = {};
+    const srMistakes: Record<string, { wrong_count: number; right_count: number }> = {};
     Object.entries(srData).forEach(([word, stats]) => {
       if (stats.w > 0 || stats.r > 0) {
         srMistakes[word] = { wrong_count: stats.w, right_count: stats.r };
       }
     });
 
-    let majaMemory = {};
+    let majaMemory: { mistakePatterns?: unknown[] } = {};
     try {
       majaMemory = JSON.parse(localStorage.getItem('majaMemory') || '{}');
     } catch (_) {}
@@ -139,7 +178,7 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
   function getDataCounts() {
     const srData = getSR();
     const srCount = Object.keys(srData).length;
-    let majaMemory = {};
+    let majaMemory: { mistakePatterns?: unknown[] } = {};
     try {
       majaMemory = JSON.parse(localStorage.getItem('majaMemory') || '{}');
     } catch (_) {}
@@ -162,7 +201,7 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
 
     return (
       <div className="scr-wrap">
-        {H('🔬 Grammar Diagnosis', 'Discover your Croatian blind spots')}
+        {H('🔬 Grammar Diagnosis', 'Discover your Croatian blind spots', goBack)}
 
         {/* What it does */}
         <div className="c" style={{ marginBottom: 20, padding: '20px 18px' }}>
@@ -392,7 +431,7 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🔬 Grammar Diagnosis', diagnosis?.summary || 'Your personalized grammar report')}
+      {H('🔬 Grammar Diagnosis', diagnosis?.summary || 'Your personalized grammar report', goBack)}
 
       {/* Cache age pill */}
       {cacheAge && (
@@ -440,7 +479,7 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
       {/* Blind spots */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
         {blindSpots.map((bs, i) => {
-          const sev = SEV[bs.severity] || SEV.low;
+          const sev = (SEV as Record<string, typeof SEV.low>)[bs.severity ?? ''] || SEV.low;
           const isOpen = activeBlindSpot === i;
 
           return (
@@ -531,97 +570,110 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
                   </div>
 
                   {/* Mistake comparison */}
-                  {bs.example && (
-                    <div style={{ marginBottom: 20 }}>
-                      <div
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: 'var(--subtext)',
-                          letterSpacing: 0.5,
-                          marginBottom: 10,
-                        }}
-                      >
-                        THE MISTAKE
-                      </div>
-                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                        {/* Wrong */}
-                        <div
-                          style={{
-                            flex: 1,
-                            minWidth: 130,
-                            background: '#fff1f2',
-                            border: '1.5px solid #fecdd3',
-                            borderRadius: 12,
-                            padding: '12px 14px',
-                          }}
-                        >
+                  {bs.example &&
+                    (() => {
+                      type ExObj = {
+                        good?: string;
+                        bad?: string;
+                        tip?: string;
+                        wrong?: string;
+                        wrong_en?: string;
+                        correct?: string;
+                        correct_en?: string;
+                      };
+                      const exObj = bs.example as ExObj;
+                      return (
+                        <div style={{ marginBottom: 20 }}>
                           <div
                             style={{
                               fontSize: 11,
                               fontWeight: 700,
-                              color: '#D4002D',
-                              marginBottom: 6,
+                              color: 'var(--subtext)',
+                              letterSpacing: 0.5,
+                              marginBottom: 10,
                             }}
                           >
-                            ❌ Wrong
+                            THE MISTAKE
                           </div>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: '#9f1239' }}>
-                            {bs.example.wrong}
-                          </div>
-                          {bs.example.wrong_en && (
+                          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            {/* Wrong */}
                             <div
                               style={{
-                                fontSize: 12,
-                                color: '#be123c',
-                                marginTop: 4,
-                                fontStyle: 'italic',
+                                flex: 1,
+                                minWidth: 130,
+                                background: '#fff1f2',
+                                border: '1.5px solid #fecdd3',
+                                borderRadius: 12,
+                                padding: '12px 14px',
                               }}
                             >
-                              {bs.example.wrong_en}
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  color: '#D4002D',
+                                  marginBottom: 6,
+                                }}
+                              >
+                                ❌ Wrong
+                              </div>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: '#9f1239' }}>
+                                {exObj.wrong}
+                              </div>
+                              {exObj.wrong_en && (
+                                <div
+                                  style={{
+                                    fontSize: 12,
+                                    color: '#be123c',
+                                    marginTop: 4,
+                                    fontStyle: 'italic',
+                                  }}
+                                >
+                                  {exObj.wrong_en}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        {/* Correct */}
-                        <div
-                          style={{
-                            flex: 1,
-                            minWidth: 130,
-                            background: '#f0fdf4',
-                            border: '1.5px solid #86efac',
-                            borderRadius: 12,
-                            padding: '12px 14px',
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color: '#15803d',
-                              marginBottom: 6,
-                            }}
-                          >
-                            ✅ Correct
-                          </div>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: '#166534' }}>
-                            {bs.example.correct}
-                          </div>
-                          {bs.example.correct_en && (
+                            {/* Correct */}
                             <div
                               style={{
-                                fontSize: 12,
-                                color: '#16a34a',
-                                marginTop: 4,
-                                fontStyle: 'italic',
+                                flex: 1,
+                                minWidth: 130,
+                                background: '#f0fdf4',
+                                border: '1.5px solid #86efac',
+                                borderRadius: 12,
+                                padding: '12px 14px',
                               }}
                             >
-                              {bs.example.correct_en}
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  color: '#15803d',
+                                  marginBottom: 6,
+                                }}
+                              >
+                                ✅ Correct
+                              </div>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: '#166534' }}>
+                                {exObj.correct}
+                              </div>
+                              {exObj.correct_en && (
+                                <div
+                                  style={{
+                                    fontSize: 12,
+                                    color: '#16a34a',
+                                    marginTop: 4,
+                                    fontStyle: 'italic',
+                                  }}
+                                >
+                                  {exObj.correct_en}
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  )}
+                      );
+                    })()}
 
                   {/* Quick drills */}
                   {bs.drills && bs.drills.length > 0 && (
@@ -664,9 +716,9 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
                                 {j + 1}. {drill.q}
                               </div>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                                {drill.options.map((opt, k) => {
-                                  const isChosen = chosen === k;
-                                  const isCorrect = drill.correct === k;
+                                {(drill.options ?? []).map((opt, k) => {
+                                  const isChosen = chosen === String(k);
+                                  const isCorrect = String(drill.correct) === String(k);
                                   let bg = 'var(--card)';
                                   let border = '1.5px solid var(--card-b)';
                                   let color = 'var(--heading)';
@@ -691,7 +743,10 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
                                       key={k}
                                       disabled={answered}
                                       onClick={() =>
-                                        setDrillAnswers((prev) => ({ ...prev, [drillKey]: k }))
+                                        setDrillAnswers((prev) => ({
+                                          ...prev,
+                                          [drillKey]: String(k),
+                                        }))
                                       }
                                       style={{
                                         display: 'flex',
@@ -762,7 +817,7 @@ export default function GrammarDiagnosisScreen({ goBack, award }) {
                                 >
                                   {chosen === drill.correct
                                     ? '✓ Correct! Well done.'
-                                    : `✗ The correct answer was: ${drill.options[drill.correct]}`}
+                                    : `✗ The correct answer was: ${(drill.options ?? [])[Number(drill.correct)] ?? ''}`}
                                 </div>
                               )}
                             </div>

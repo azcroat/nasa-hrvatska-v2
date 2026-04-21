@@ -1,11 +1,10 @@
-// @ts-nocheck
 import React, { useMemo, useState } from 'react';
 import { getSR } from '../../lib/srs.js';
 import { speak } from '../../data';
 
 // Reads FSRS data and surfaces the words with the highest error rate + difficulty.
 // Gives users a real, actionable insight: "practice these 10 words today."
-export default function WeakWordsPanel({ setScr }) {
+export default function WeakWordsPanel({ setScr }: { setScr?: (screen: string) => void }) {
   const [expanded, setExpanded] = useState(false);
 
   const weakWords = useMemo(() => {

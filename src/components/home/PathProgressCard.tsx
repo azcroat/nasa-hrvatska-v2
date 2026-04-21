@@ -1,7 +1,25 @@
-// @ts-nocheck
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
+import type { LearnPathItem } from '../../types';
+
+interface Palette {
+  grad: string;
+  accent: string;
+  text: string;
+}
+
+interface PathLevel {
+  level: number;
+  title: string;
+  items: unknown[];
+}
+
+interface PathData {
+  nextItem?: (LearnPathItem & { name?: string; title?: string }) | null;
+  activeLv: PathLevel;
+  activeLvDone: number;
+}
 
 const SkeletonBar = ({ w = '100%', h = 16, r = 8, mt = 0 }) => (
   <div
@@ -28,7 +46,13 @@ const JOURNEY_CITIES = [
   { level: 7, city: 'Majstor', emoji: '🇭🇷', desc: 'Mastery' },
 ];
 
-function CityJourney({ currentLevel, activePalette }) {
+function CityJourney({
+  currentLevel,
+  activePalette,
+}: {
+  currentLevel: number;
+  activePalette: Palette;
+}) {
   return (
     <div style={{ marginBottom: 14, marginTop: 4 }}>
       {/* Journey label */}
@@ -195,6 +219,15 @@ export default function PathProgressCard({
   resumeLesson,
   lastActivity,
   sCurEx,
+}: {
+  activePalette: Palette;
+  pathData: PathData;
+  syncReady: boolean;
+  launchPathItem: (item: LearnPathItem) => void;
+  setTab: (tab: string) => void;
+  resumeLesson?: (() => void) | null;
+  lastActivity?: { label?: string; ex?: string } | null;
+  sCurEx?: (screen: string) => void;
 }) {
   const { setScr } = useApp();
   const { stats: st } = useStats();
@@ -290,8 +323,8 @@ export default function PathProgressCard({
             <button
               className="progress-hero-secondary"
               onClick={() => {
-                setScr(lastActivity.ex);
-                sCurEx(lastActivity.ex);
+                if (lastActivity?.ex) setScr(lastActivity.ex);
+                if (sCurEx && lastActivity?.ex) sCurEx(lastActivity.ex);
               }}
               style={{ marginTop: 8 }}
             >

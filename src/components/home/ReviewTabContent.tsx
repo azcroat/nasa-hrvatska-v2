@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { getSR, getDueReviews, getMistakes } from '../../data';
 import { useApp } from '../../context/AppContext';
@@ -253,7 +252,9 @@ export default function ReviewTabContent() {
       {/* ── MISTAKES REVIEW NUDGE ── */}
       {mistakes.length > 0 &&
         (() => {
-          const topMistake = mistakes.sort((a, b) => b.count - a.count)[0];
+          const topMistake = (mistakes as { count: number; hr: string }[]).sort(
+            (a, b) => b.count - a.count,
+          )[0];
           const worst = mistakes[0];
           const conf = Math.max(10, 100 - worst.count * 12);
           const chipBg =

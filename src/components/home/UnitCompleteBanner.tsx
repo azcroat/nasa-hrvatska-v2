@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef } from 'react';
 
 const LEVEL_PALETTES = [
@@ -13,10 +12,24 @@ const LEVEL_PALETTES = [
 const UNIT_EMOJIS = ['🛡️', '🏰', '🗺️', '⚔️', '🦅', '🎭', '🌟'];
 const UNIT_BONUS_XP = 100;
 
-export default function UnitCompleteBanner({ completedLevel, onClose, award }) {
+interface CompletedLevel {
+  level: number;
+  title: string;
+  desc?: string;
+}
+
+export default function UnitCompleteBanner({
+  completedLevel,
+  onClose,
+  award,
+}: {
+  completedLevel: CompletedLevel;
+  onClose: () => void;
+  award?: (xp: number, celebrate?: boolean) => void;
+}) {
   const awardFiredRef = useRef(false);
-  const pal = LEVEL_PALETTES[(completedLevel.level - 1) % LEVEL_PALETTES.length];
-  const emoji = UNIT_EMOJIS[(completedLevel.level - 1) % UNIT_EMOJIS.length];
+  const pal = LEVEL_PALETTES[(completedLevel.level - 1) % LEVEL_PALETTES.length]!;
+  const emoji = UNIT_EMOJIS[(completedLevel.level - 1) % UNIT_EMOJIS.length]!;
 
   useEffect(() => {
     if (awardFiredRef.current) return;

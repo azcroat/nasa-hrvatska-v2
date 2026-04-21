@@ -1,6 +1,59 @@
-// @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { Stats, AuthUser } from '../../types';
+
+interface LearnPathItem {
+  id?: string;
+  type?: string;
+  title?: string;
+  name?: string;
+  level?: number;
+  levelTitle?: string;
+  [key: string]: unknown;
+}
+interface PathLevel {
+  level: number;
+  title: string;
+  desc?: string;
+  items: unknown[];
+}
+interface PathData {
+  totalDone: number;
+  totalItems: number;
+  pct: number;
+  activeLv: PathLevel;
+  activeLvDone: number;
+  activeLvItemDone: boolean[] | null;
+  nextItem: LearnPathItem | null;
+}
+interface Palette {
+  grad: string;
+  light?: string;
+  text: string;
+  border: string;
+  accent?: string;
+}
+
+interface HomeTabProps {
+  dchlA: boolean[];
+  sDchlA: (v: boolean[]) => void;
+  dchlSl: boolean;
+  sDchlSl: (v: boolean) => void;
+  getWeekStats: () => { strong: number };
+  setTab: (tab: string) => void;
+  sCurEx?: (screen: string) => void;
+  allCats?: string[];
+  sh?: (arr: unknown[][]) => unknown[][];
+  launchPathItem: (item: LearnPathItem) => void;
+  syncReady?: boolean;
+  onSyncNow?: () => void;
+  authUser?: AuthUser | null;
+  comebackBonus?: boolean;
+  goal?: string;
+  isNewUserWindow?: boolean;
+  daysSinceJoin?: number | null;
+  resumeLesson?: (() => void) | null;
+}
 
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
 // leaving elements permanently at opacity:0. Skip entry animation on native.
@@ -45,9 +98,9 @@ const _NO_DIRECT_RESUME = new Set([
 ]);
 
 // Read last activity saved by App.jsx when exercises are launched
-function getLastActivity() {
-  const ex = safeGetItem('nh_last_ex');
-  const label = safeGetItem('nh_last_ex_label');
+function getLastActivity(): { ex: string; label: string } | null {
+  const ex = safeGetItem('nh_last_ex') as string | null;
+  const label = safeGetItem('nh_last_ex_label') as string | null;
   if (!ex || !label) return null;
   // Skip exercises that can't be navigated to directly without init data
   if (ex.startsWith('vocab_') || _NO_DIRECT_RESUME.has(ex)) return null;
@@ -195,13 +248,17 @@ export default function HomeTab({
   isNewUserWindow = false,
   daysSinceJoin = null,
   resumeLesson = null,
-}) {
+}: HomeTabProps) {
   const { setScr, doSignUp, launchSpeaking } = useApp();
   const { stats: st, award } = useStats();
   const dc = useMemo(() => getDailyChallenge(), []);
 
-  const ws = useMemo(() => getWeekStats(), [st]);
+  // getWeekStats reads external state; st is the change signal, getWeekStats is the accessor
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const ws = useMemo(() => getWeekStats(), [st, getWeekStats]);
 
+  // getWeekXP reads localStorage; re-derive when stats change (st is the stat-change signal)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const weekXP = useMemo(() => getWeekXP(), [st]);
 
   const streak = useMemo(() => {
@@ -216,7 +273,6 @@ export default function HomeTab({
   // getLastActivity() reads nh_last_ex/nh_last_ex_label from localStorage.
   // These only change when the user navigates to an exercise (at which point
   // HomeTab unmounts). Reading on every stats change (every XP gain) is wasteful.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const lastActivity = useMemo(() => getLastActivity(), []);
   // Track the current calendar day — updates when the app regains visibility so
   // word-of-day and phrase-of-day refresh automatically after midnight.
@@ -230,6 +286,8 @@ export default function HomeTab({
     return () => document.removeEventListener('visibilitychange', checkDay);
   }, []);
 
+  // currentDayIdx signals a calendar day change; force recompute even though getWordOfDay uses Date internally
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const wod = useMemo(() => getWordOfDay(), [currentDayIdx]);
 
   // Preload word-of-the-day audio on mount so first tap plays instantly
@@ -247,6 +305,8 @@ export default function HomeTab({
       }
     })() ||
     'fluent';
+  // st.lc signals lesson completion; force campaign recompute when it changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeCampaign = useMemo(() => getActiveCampaign(), [st.lc]);
 
   // Goal-setter modal: show for new users who haven't set a goal yet
@@ -260,7 +320,7 @@ export default function HomeTab({
   const [htab, setHTab] = useState('today');
 
   // Streak milestone celebration — fires once per milestone level
-  const [streakMilestone, setStreakMilestone] = useState(null);
+  const [streakMilestone, setStreakMilestone] = useState<number | null>(null);
   useEffect(() => {
     if (streak.count > 0 && checkAndMarkMilestone(streak.count)) {
       setStreakMilestone(streak.count);
@@ -269,7 +329,7 @@ export default function HomeTab({
 
   const questsDone = useMemo(() => {
     const d = localDateStr();
-    const q = (id) => localStorage.getItem('nh_quest_' + id + '_' + d) === '1';
+    const q = (id: string) => localStorage.getItem('nh_quest_' + id + '_' + d) === '1';
     const hasStreak = streak.count > 0;
     return {
       speak: q('speak'),
@@ -295,7 +355,10 @@ export default function HomeTab({
   const allQuestsDone = Object.entries(questsDone)
     .filter(([k]) => k !== 'streak' && k !== 'streak_alive')
     .every(([, v]) => v);
-  const _questXP = DAILY_QUESTS.filter((q) => questsDone[q.id]).reduce((s, q) => s + q.xp, 0);
+  const _questXP = DAILY_QUESTS.filter((q) => (questsDone as Record<string, boolean>)[q.id]).reduce(
+    (s, q) => s + q.xp,
+    0,
+  );
   void _questXP;
 
   // Award Daily Mastery +50 XP bonus the first time all quests are done today
@@ -316,7 +379,10 @@ export default function HomeTab({
   }, [allQuestsDone, masteryKey, award]);
 
   const _allOpts = useMemo(
-    () => dc.challenges?.map((ch) => ch.opts || [ch.a]) || [],
+    () =>
+      dc.challenges?.map(
+        (ch: Record<string, unknown>) => (ch.opts as unknown[] | undefined) || [ch.a],
+      ) || [],
     [dc.challenges],
   );
   void _allOpts;
@@ -338,9 +404,11 @@ export default function HomeTab({
     }
   });
 
-  function _readCampaignQuestsDone(campaign) {
+  function _readCampaignQuestsDone(
+    campaign: { id?: string; quests?: { id: string }[] } | null | undefined,
+  ) {
     if (!campaign?.quests?.length) return {};
-    const result = {};
+    const result: Record<string, boolean> = {};
     for (const q of campaign.quests) {
       result[q.id] = localStorage.getItem(`nh_cq_${campaign.id}_${q.id}`) === '1';
     }
@@ -367,7 +435,7 @@ export default function HomeTab({
     };
   }, []);
 
-  function markCampaignQuestDone(questId) {
+  function markCampaignQuestDone(questId: string) {
     if (!activeCampaign) return;
     try {
       localStorage.setItem(`nh_cq_${activeCampaign.id}_${questId}`, '1');
@@ -384,34 +452,38 @@ export default function HomeTab({
     return diff > 7 * 86400000; // more than 7 days
   }, []);
 
-  const pathData = useMemo(() => {
+  const pathData: PathData = useMemo(() => {
     let totalDone = 0,
       totalItems = 0;
-    let activeLv = null,
+    let activeLv: PathLevel | null = null,
       activeLvDone = 0,
-      activeLvItemDone = null,
-      nextItem = null;
+      activeLvItemDone: boolean[] | null = null,
+      nextItem: LearnPathItem | null = null;
     for (const lv of LEARN_PATH) {
       let lvd = 0;
-      const itemDone = lv.items.map((it) => {
+      const itemDone = (
+        lv.items as Array<Record<string, unknown> & { ck: (s: Stats) => boolean }>
+      ).map((it) => {
         totalItems++;
         const done = it.ck(st);
         if (done) {
           totalDone++;
           lvd++;
-        } else if (!nextItem) nextItem = { ...it, levelTitle: lv.title };
+        } else if (!nextItem)
+          nextItem = { ...(it as LearnPathItem), levelTitle: lv.title } as LearnPathItem;
         return done;
       });
       if (!activeLv && lvd < lv.items.length) {
-        activeLv = lv;
+        activeLv = lv as PathLevel;
         activeLvDone = lvd;
         activeLvItemDone = itemDone;
       }
     }
     if (!activeLv) {
-      activeLv = LEARN_PATH[LEARN_PATH.length - 1];
-      activeLvDone = activeLv.items.length;
-      activeLvItemDone = activeLv.items.map(() => true);
+      const lastLv = LEARN_PATH[LEARN_PATH.length - 1]! as PathLevel;
+      activeLv = lastLv;
+      activeLvDone = lastLv.items.length;
+      activeLvItemDone = lastLv.items.map(() => true);
     }
     return {
       totalDone,
@@ -424,11 +496,12 @@ export default function HomeTab({
     };
   }, [st]);
 
-  const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
+  const activePalette: Palette =
+    LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length]!;
 
   // ── Unit completion detection — show banner when user advances to next level ──
   const prevLvRef = React.useRef(pathData.activeLv);
-  const [completedLevel, setCompletedLevel] = useState(null);
+  const [completedLevel, setCompletedLevel] = useState<PathLevel | null>(null);
   useEffect(() => {
     const prev = prevLvRef.current;
     if (pathData.activeLv.level > prev.level) {
@@ -439,17 +512,17 @@ export default function HomeTab({
       }
     }
     prevLvRef.current = pathData.activeLv;
-  }, [pathData.activeLv.level]);
+  }, [pathData.activeLv]);
 
   // Daily rotating phrases — uses 365-entry curated pool so every day of the year is unique
   const phraseOfDay = useMemo(() => {
     const pool = PHRASES_365?.length ? PHRASES_365 : PHRASE_OF_DAY_POOL;
-    return pool[currentDayIdx % pool.length];
+    return pool[currentDayIdx % pool.length] ?? null;
   }, [currentDayIdx]);
 
   const todayPhrases = useMemo(() => {
     const start = (currentDayIdx * 4) % DAILY_PHRASES.length;
-    return [0, 1, 2, 3].map((i) => DAILY_PHRASES[(start + i) % DAILY_PHRASES.length]);
+    return [0, 1, 2, 3].map((i) => DAILY_PHRASES[(start + i) % DAILY_PHRASES.length]!);
   }, [currentDayIdx]);
 
   return (
@@ -553,10 +626,10 @@ export default function HomeTab({
 
       {/* ── CONTINUE LEARNING — primary CTA first ── */}
       <PathProgressCard
-        activePalette={activePalette}
-        pathData={pathData}
-        syncReady={syncReady}
-        launchPathItem={launchPathItem}
+        activePalette={activePalette as Parameters<typeof PathProgressCard>[0]['activePalette']}
+        pathData={pathData as Parameters<typeof PathProgressCard>[0]['pathData']}
+        syncReady={syncReady ?? false}
+        launchPathItem={launchPathItem as Parameters<typeof PathProgressCard>[0]['launchPathItem']}
         setTab={setTab}
         resumeLesson={resumeLesson}
         lastActivity={lastActivity}
@@ -566,7 +639,7 @@ export default function HomeTab({
       {/* ── HERO ── */}
       <HeroSection
         streak={streak}
-        pathData={pathData}
+        pathData={pathData as Parameters<typeof HeroSection>[0]['pathData']}
         allQuestsDone={allQuestsDone}
         userGoal={userGoal}
         comebackBonus={comebackBonus}
@@ -574,7 +647,7 @@ export default function HomeTab({
         sCurEx={sCurEx}
         onSyncNow={onSyncNow}
         wsMastered={ws.strong}
-        launchPathItem={launchPathItem}
+        launchPathItem={launchPathItem as Parameters<typeof HeroSection>[0]['launchPathItem']}
       />
 
       {/* ── DAILY CROATIAN PHRASES — always visible, above sub-tabs ── */}
@@ -609,7 +682,7 @@ export default function HomeTab({
             key="today"
             initial={_isNative ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={_isNative ? false : { opacity: 0 }}
+            exit={_isNative ? undefined : { opacity: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             <React.Fragment>
@@ -618,7 +691,9 @@ export default function HomeTab({
                 !anchorDismissed &&
                 (() => {
                   // Find the highest-XP incomplete tier-1 quest
-                  const incomplete = DAILY_QUESTS.filter((q) => q.tier === 1 && !questsDone[q.id]);
+                  const incomplete = DAILY_QUESTS.filter(
+                    (q) => q.tier === 1 && !(questsDone as Record<string, boolean>)[q.id],
+                  );
                   const mission = incomplete.sort((a, b) => b.xp - a.xp)[0];
                   if (!mission) return null;
                   const missionActions = {
@@ -626,9 +701,9 @@ export default function HomeTab({
                       label: 'Start Speaking →',
                       action: () => {
                         const pool = (_allCats || [])
-                          .flatMap((t) => V[t] || [])
-                          .filter((w) => w && w[0] && w[1]);
-                        launchSpeaking(_sh(pool).slice(0, 6));
+                          .flatMap((t: string) => (V as Record<string, unknown[][]>)[t] || [])
+                          .filter((w: unknown[]) => w && w[0] && w[1]);
+                        if (_sh) launchSpeaking(_sh(pool).slice(0, 6));
                       },
                     },
                     grammar: {
@@ -652,7 +727,9 @@ export default function HomeTab({
                       action: () => launchPathItem({ go: 'lesson' }),
                     },
                   };
-                  const act = missionActions[mission.id] || { label: 'Start →', action: () => {} };
+                  const act = (
+                    missionActions as Record<string, { label: string; action: () => void }>
+                  )[mission.id] || { label: 'Start →', action: () => {} };
                   return (
                     <motion.div
                       initial={_isNative ? false : { opacity: 0, y: -10 }}
@@ -977,12 +1054,12 @@ export default function HomeTab({
                               lineHeight: 1.2,
                             }}
                           >
-                            &ldquo;{phraseOfDay.hr}&rdquo;
+                            &ldquo;{phraseOfDay?.hr}&rdquo;
                           </div>
                           <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 3 }}>
-                            {phraseOfDay.en}
+                            {phraseOfDay?.en}
                           </div>
-                          {phraseOfDay.note && (
+                          {phraseOfDay?.note && (
                             <div
                               style={{
                                 fontSize: 11,
@@ -996,7 +1073,7 @@ export default function HomeTab({
                           )}
                         </div>
                         <button
-                          onClick={() => speak(phraseOfDay.hr)}
+                          onClick={() => phraseOfDay && speak(phraseOfDay.hr)}
                           aria-label="Hear pronunciation"
                           style={{
                             background: 'linear-gradient(135deg,#b45309,#92400e)',
@@ -1023,7 +1100,14 @@ export default function HomeTab({
 
               {/* ── GOAL-PERSONALIZED SHORTCUTS — based on user's chosen learning goal ── */}
               {(() => {
-                const GOAL_PATHS = {
+                type GoalPathItem = {
+                  icon: string;
+                  label: string;
+                  sub: string;
+                  action: () => void;
+                };
+                type GoalPath = { label: string; color: string; items: GoalPathItem[] };
+                const GOAL_PATHS: Record<string, GoalPath> = {
                   heritage: {
                     label: 'Heritage path',
                     color: '#dc2626',
@@ -1070,7 +1154,7 @@ export default function HomeTab({
                         sub: 'Diacritics & spelling',
                         action: () => {
                           setScr('typing');
-                          sCurEx('typing');
+                          if (sCurEx) sCurEx('typing');
                         },
                       },
                     ],
@@ -1124,7 +1208,7 @@ export default function HomeTab({
                     ],
                   },
                 };
-                const path = GOAL_PATHS[userGoal] || GOAL_PATHS.fluent;
+                const path = GOAL_PATHS[userGoal] ?? GOAL_PATHS['fluent']!;
                 return (
                   <div style={{ marginBottom: 14 }}>
                     <div
@@ -1278,7 +1362,10 @@ export default function HomeTab({
               {(() => {
                 const weakTopics = getWeakTopics(60);
                 if (!weakTopics || weakTopics.length === 0) return null;
-                const TOPIC_META = {
+                const TOPIC_META: Record<
+                  string,
+                  { label: string; icon: string; action: () => void }
+                > = {
                   vocabulary: {
                     label: 'Vocabulary',
                     icon: '📚',
@@ -1445,9 +1532,9 @@ export default function HomeTab({
                   } else if (quest.screen === 'speaking') {
                     // Speaking requires initialized items — build pool and launch
                     const pool = (_allCats || [])
-                      .flatMap((t) => V[t] || [])
+                      .flatMap((t) => (V as Record<string, unknown[][]>)[t] || [])
                       .filter((w) => w && w[0] && w[1]);
-                    const items = _sh(pool).slice(0, 6);
+                    const items = _sh ? _sh(pool).slice(0, 6) : [];
                     launchSpeaking(
                       items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']],
                     );
@@ -1463,9 +1550,9 @@ export default function HomeTab({
                     launchPathItem({ go: 'mcgame' });
                   } else if (screen === 'speaking') {
                     const pool = (_allCats || [])
-                      .flatMap((t) => V[t] || [])
+                      .flatMap((t) => (V as Record<string, unknown[][]>)[t] || [])
                       .filter((w) => w && w[0] && w[1]);
-                    const items = _sh(pool).slice(0, 6);
+                    const items = _sh ? _sh(pool).slice(0, 6) : [];
                     launchSpeaking(
                       items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']],
                     );
@@ -1486,14 +1573,14 @@ export default function HomeTab({
             key="progress"
             initial={_isNative ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={_isNative ? false : { opacity: 0 }}
+            exit={_isNative ? undefined : { opacity: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             <ProgressTabContent
               streak={streak}
               st={st}
               ws={ws}
-              weekXP={weekXP}
+              weekXP={weekXP ?? 0}
               nudgeDismissed={nudgeDismissed}
               setNudgeDismissed={setNudgeDismissed}
               setScr={setScr}
@@ -1509,7 +1596,7 @@ export default function HomeTab({
             key="review"
             initial={_isNative ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={_isNative ? false : { opacity: 0 }}
+            exit={_isNative ? undefined : { opacity: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             <ReviewTabContent />

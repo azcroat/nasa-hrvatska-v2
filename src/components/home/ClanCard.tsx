@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * ClanCard — 5-person study cohort with shared weekly XP goal.
  *
@@ -11,7 +10,21 @@ import { apiFetch } from '../../lib/apiFetch.js';
 const WEEKLY_GOAL = 500;
 const MAX_SIZE = 5;
 
-function MemberBar({ member, isMe, max }) {
+interface ClanMember {
+  uid: string;
+  name?: string;
+  displayName?: string;
+  weekXP?: number;
+}
+
+interface Clan {
+  id: string;
+  name?: string;
+  members?: ClanMember[];
+  focus?: string;
+}
+
+function MemberBar({ member, isMe, max }: { member: ClanMember; isMe: boolean; max: number }) {
   const pct = Math.min(100, Math.round(((member.weekXP || 0) / Math.max(max, 1)) * 100));
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -73,16 +86,16 @@ function MemberBar({ member, isMe, max }) {
   );
 }
 
-export default function ClanCard({ uid, displayName }) {
+export default function ClanCard({ uid, displayName }: { uid?: string; displayName?: string }) {
   const [phase, setPhase] = useState('loading'); // loading | none | active | creating | joining
-  const [clan, setClan] = useState(null);
+  const [clan, setClan] = useState<Clan | null>(null);
   const [totalXP, setTotalXP] = useState(0);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [clanName, setClanName] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const loadMyClan = useCallback(async () => {
     if (!uid) {
@@ -130,7 +143,7 @@ export default function ClanCard({ uid, displayName }) {
       setTotalXP(data.totalXP || 0);
       setPhase('active');
     } catch (e) {
-      setError(e.message || 'Failed to create clan');
+      setError((e as Error).message || 'Failed to create clan');
     } finally {
       setSubmitting(false);
     }
@@ -158,7 +171,7 @@ export default function ClanCard({ uid, displayName }) {
       setTotalXP(data.totalXP || 0);
       setPhase('active');
     } catch (e) {
-      setError(e.message || 'Failed to join clan');
+      setError((e as Error).message || 'Failed to join clan');
     } finally {
       setSubmitting(false);
     }

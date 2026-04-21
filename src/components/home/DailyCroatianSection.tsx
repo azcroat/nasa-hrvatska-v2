@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak } from '../../data';
 
@@ -25,11 +24,17 @@ const DAILY_SCENES = [
 function getDailyScene() {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((now - start) / 86400000);
-  return DAILY_SCENES[dayOfYear % DAILY_SCENES.length];
+  const dayOfYear = Math.floor((now.getTime() - start.getTime()) / 86400000);
+  return DAILY_SCENES[dayOfYear % DAILY_SCENES.length]!;
 }
 
-export default function DailyCroatianSection({ todayPhrases }) {
+interface TodayPhrase {
+  hr: string;
+  en: string;
+  cat?: string;
+}
+
+export default function DailyCroatianSection({ todayPhrases }: { todayPhrases: TodayPhrase[] }) {
   const scene = getDailyScene();
   const [imgFailed, setImgFailed] = useState(false);
 

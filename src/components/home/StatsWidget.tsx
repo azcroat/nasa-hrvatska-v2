@@ -1,8 +1,15 @@
-// @ts-nocheck
 import React from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
+import type { Stats } from '../../types';
 
-export default function StatsWidget({ streak, st, ws, weekXP }) {
+interface StatsWidgetProps {
+  streak: { count: number };
+  st: Stats;
+  ws: { strong: number };
+  weekXP: number;
+}
+
+export default function StatsWidget({ streak, st, ws, weekXP }: StatsWidgetProps) {
   if (st.lc === 0) {
     return (
       <div className="c" style={{ padding: 16, marginBottom: 8 }}>

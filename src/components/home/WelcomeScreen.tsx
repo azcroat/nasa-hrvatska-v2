@@ -1,8 +1,21 @@
-// @ts-nocheck
 import { useState, useRef, useEffect } from 'react';
 import { sh, PLACE, speak } from '../../data';
 import CroatianGrb from '../shared/CroatianGrb';
 import CroatianKnight from '../shared/CroatianKnight';
+import type { Stats, AuthUser } from '../../types';
+
+interface WelcomeScreenProps {
+  name: string;
+  au?: AuthUser | null;
+  st: Stats;
+  setScr: (screen: string) => void;
+  setName: (name: string) => void;
+  setPlacementQ: (q: unknown[]) => void;
+  setPlacementIdx: (idx: number) => void;
+  setPlacementScore: (score: number) => void;
+  setPlacementAnswers: (answers: boolean) => void;
+  setPlacementXp: (xp: number) => void;
+}
 
 const GOALS = [
   {
@@ -62,7 +75,7 @@ export default function WelcomeScreen({
   setPlacementScore,
   setPlacementAnswers,
   setPlacementXp,
-}) {
+}: WelcomeScreenProps) {
   const [step, setStep] = useState(0); // 0=hero, 1=goal, 2=daily, 3=heritage/partner
   const [goal, setGoal] = useState('');
   const [dailyMin, setDailyMin] = useState(0);
@@ -70,28 +83,28 @@ export default function WelcomeScreen({
   const [selectedGen, setSelectedGen] = useState(localStorage.getItem('nh_heritage_gen') || '');
 
   // Focus trap refs for the speak modal
-  const modalRef = useRef(null);
-  const triggerRefStep2 = useRef(null);
-  const triggerRefStep3 = useRef(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const triggerRefStep2 = useRef<HTMLButtonElement | null>(null);
+  const triggerRefStep3 = useRef<HTMLButtonElement | null>(null);
 
   // Move focus into modal and trap it when open
   useEffect(() => {
     if (!showSpeakModal) return undefined;
-    const focusable = modalRef.current?.querySelectorAll(
+    const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
-    if (focusable?.length) focusable[0].focus();
-    const handleKeyDown = (e) => {
+    if (focusable?.length) focusable[0]?.focus();
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
-      const elements = [...focusable];
+      const elements = focusable ? Array.from(focusable) : [];
       const first = elements[0];
       const last = elements[elements.length - 1];
       if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
-        last.focus();
+        last?.focus();
       } else if (!e.shiftKey && document.activeElement === last) {
         e.preventDefault();
-        first.focus();
+        first?.focus();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -102,9 +115,9 @@ export default function WelcomeScreen({
   useEffect(() => {
     if (!showSpeakModal) {
       const trigger = step === 2 ? triggerRefStep2.current : triggerRefStep3.current;
-      if (trigger) trigger.focus();
+      if (trigger) (trigger as HTMLElement).focus();
     }
-  }, [showSpeakModal]);
+  }, [showSpeakModal, step]);
 
   function startPlacement() {
     if (!name && au) setName(au.d);
@@ -1177,7 +1190,7 @@ export default function WelcomeScreen({
 }
 
 // 3-step indicator — dots fill left to right as user advances
-function StepDots({ step, dark = false }) {
+function StepDots({ step, dark = false }: { step: number; dark?: boolean }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 24 }}>
       {[0, 1, 2, 3].map((i) => (
