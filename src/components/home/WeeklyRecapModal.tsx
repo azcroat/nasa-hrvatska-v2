@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { weekKey } from '../../lib/dateUtils.js';
 import { getStreak } from '../../lib/appUtils.js';
@@ -36,7 +35,13 @@ export function markRecapShown() {
   } catch {}
 }
 
-export default function WeeklyRecapModal({ onClose, onMount }) {
+export default function WeeklyRecapModal({
+  onClose,
+  onMount,
+}: {
+  onClose: () => void;
+  onMount?: () => void;
+}) {
   const { stats: st } = useStats();
   const streak = getStreak();
   // Mark as shown on first render so tab-switching before close doesn't re-trigger it

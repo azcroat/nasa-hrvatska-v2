@@ -1,6 +1,6 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { Stats } from '../../types';
 
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
 // leaving elements permanently at opacity:0. Skip entry animation on native.
@@ -71,12 +71,41 @@ const LEVEL_PALETTE = [
   },
 ];
 
-// ─── Knight speech helpers (merged from KnightSpeech) ────────────────────────
-function _pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+interface HeroScene {
+  img: string;
+  label: string;
+  position: string;
+}
+interface KnightGreeting {
+  mood: string;
+  text: string;
+  sub?: string | null;
+}
+interface LearnPathItem {
+  id?: string;
+  type?: string;
+  title?: string;
+  name?: string;
+  level?: number;
+  [key: string]: unknown;
+}
+interface PathLevel {
+  level: number;
+  title: string;
+  items: unknown[];
+}
+interface PathData {
+  nextItem?: (LearnPathItem & { name?: string; title?: string }) | null;
+  activeLv: PathLevel;
+  activeLvDone: number;
 }
 
-function TypewriterText({ text, speed = 13 }) {
+// ─── Knight speech helpers (merged from KnightSpeech) ────────────────────────
+function _pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]!;
+}
+
+function TypewriterText({ text, speed = 13 }: { text: string; speed?: number }) {
   const [shown, setShown] = useState('');
   useEffect(() => {
     setShown('');
@@ -414,14 +443,19 @@ const HERO_SCENES = [
   { img: 'rabac', label: 'Rabac, Istra', position: '45%' },
 ];
 
-function getDailyScene() {
+function getDailyScene(): HeroScene {
   const d = new Date();
   const start = new Date(d.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((d - start) / 86400000);
-  return HERO_SCENES[dayOfYear % HERO_SCENES.length];
+  const dayOfYear = Math.floor((d.getTime() - start.getTime()) / 86400000);
+  return HERO_SCENES[dayOfYear % HERO_SCENES.length]!;
 }
 
-function getKnightGreeting(st, streakCount, level, practicedToday = false) {
+function getKnightGreeting(
+  st: Stats,
+  streakCount: number,
+  level: number,
+  practicedToday = false,
+): KnightGreeting {
   const hour = new Date().getHours();
   const day = new Date().getDay();
   const xp = st?.xp || 0;
@@ -553,10 +587,10 @@ function getKnightGreeting(st, streakCount, level, practicedToday = false) {
       mood: 'encouraged',
       text: 'Ponedjeljak — Monday. Fresh week, clean slate. The learners who study on Mondays are the ones who end up fluent.',
     };
-  return CONTEXTUAL_POOL[(new Date().getDate() + day) % CONTEXTUAL_POOL.length];
+  return CONTEXTUAL_POOL[(new Date().getDate() + day) % CONTEXTUAL_POOL.length]!;
 }
 
-function QuickReplyBanner({ label, onClick }) {
+function QuickReplyBanner({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
@@ -585,11 +619,25 @@ function QuickReplyBanner({ label, onClick }) {
   );
 }
 
-function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone, practicedToday }) {
+function getMascotMessage({
+  streak,
+  level,
+  lc,
+  comebackBonus,
+  allQuestsDone,
+  practicedToday,
+}: {
+  streak: number;
+  level: number;
+  lc?: number;
+  comebackBonus?: boolean;
+  allQuestsDone?: boolean;
+  practicedToday?: boolean;
+}): KnightGreeting {
   const h = new Date().getHours();
-  const lc = st?.lc || 0;
+  const _lc = lc ?? 0;
 
-  if (lc === 0)
+  if (_lc === 0)
     return {
       mood: 'ready',
       text: 'Dobrodošli! Ready to start your Croatian journey?',
@@ -701,12 +749,12 @@ function getMascotMessage({ streak, level, st, comebackBonus, allQuestsDone, pra
     },
     { mood: 'happy', text: 'Naša Hrvatska čeka! Croatia is waiting for you! 🇭🇷', sub: null },
   ];
-  return msgs[new Date().getDay() % msgs.length];
+  return msgs[new Date().getDay() % msgs.length]!;
 }
 
 // CEFR derived from the same formula as StatsTab so both screens always agree.
 // Thresholds: A1<300, A2<1200, B1<3500, B2<8000, C1<18000 (total = xp + lc*15 + gc*25)
-function getCEFR(xp, lc, gc) {
+function getCEFR(xp: number, lc: number, gc: number) {
   const total = (xp || 0) + (lc || 0) * 15 + (gc || 0) * 25;
   const BANDS = [
     { current: 'A1', next: 'A2', threshold: 300 },
@@ -716,12 +764,13 @@ function getCEFR(xp, lc, gc) {
     { current: 'C1', next: 'C2', threshold: 18000 },
   ];
   for (let i = 0; i < BANDS.length; i++) {
-    if (total < BANDS[i].threshold) {
-      const prev = i === 0 ? 0 : BANDS[i - 1].threshold;
+    const band = BANDS[i]!;
+    if (total < band.threshold) {
+      const prev = i === 0 ? 0 : BANDS[i - 1]!.threshold;
       return {
-        current: BANDS[i].current,
-        next: BANDS[i].next,
-        pctInLevel: Math.min(Math.round(((total - prev) / (BANDS[i].threshold - prev)) * 100), 99),
+        current: band.current,
+        next: band.next,
+        pctInLevel: Math.min(Math.round(((total - prev) / (band.threshold - prev)) * 100), 99),
       };
     }
   }
@@ -743,6 +792,17 @@ export default function HeroSection({
   onSyncNow,
   wsMastered,
   launchPathItem,
+}: {
+  streak: { count: number; last?: string };
+  pathData: PathData;
+  allQuestsDone?: boolean;
+  userGoal?: string;
+  comebackBonus?: boolean;
+  lastActivity?: { label?: string; ex?: string } | null;
+  sCurEx?: (screen: string) => void;
+  onSyncNow?: () => void;
+  wsMastered?: number;
+  launchPathItem?: (item: LearnPathItem) => void;
 }) {
   const { name } = useApp();
   const { level, stats: st, award, setStats } = useStats();
@@ -784,7 +844,7 @@ export default function HeroSection({
   const dailyXP = getDailyXP();
   const dailyXPGoal = getDailyXPGoal();
 
-  const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length];
+  const activePalette = LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length]!;
   const heroScene = getDailyScene();
 
   const _td = new Date();
@@ -805,7 +865,7 @@ export default function HeroSection({
   const _mascot = getMascotMessage({
     streak: streak.count,
     level,
-    st,
+    lc: st.lc,
     comebackBonus,
     allQuestsDone,
     practicedToday: streak.last === today,
@@ -818,30 +878,35 @@ export default function HeroSection({
   const [showTranslate, setShowTranslate] = useState(false);
   const { tDir, setTDir, tIn, setTIn, tOut, setTOut, tL, doTr } = useTranslator();
   const poolIdxRef = useRef(-1);
-  const lastPickRef = useRef({ grammar: -1, culture: -1, motivate: -1 });
+  type LastPickCategory = 'grammar' | 'culture' | 'motivate';
+  const lastPickRef = useRef<Record<LastPickCategory, number>>({
+    grammar: -1,
+    culture: -1,
+    motivate: -1,
+  });
 
   // Listen for knight:celebrate events (big XP awards from anywhere in the app)
   useEffect(() => {
-    const onCelebrate = (e) => {
-      const d = e.detail || {};
+    const onCelebrate = (e: Event) => {
+      const d = (e as CustomEvent<{ mood?: string; text?: string }>).detail || {};
       if (d.text) setGreeting({ mood: d.mood || 'celebrating', text: d.text });
     };
     window.addEventListener('knight:celebrate', onCelebrate);
     return () => window.removeEventListener('knight:celebrate', onCelebrate);
   }, []);
 
-  function pickPool(pool, category) {
-    let idx;
+  function pickPool<T>(pool: T[], category: LastPickCategory): T {
+    let idx: number;
     do {
       idx = Math.floor(Math.random() * pool.length);
     } while (idx === lastPickRef.current[category] && pool.length > 1);
     lastPickRef.current[category] = idx;
-    return pool[idx];
+    return pool[idx]!;
   }
 
   const cycleBubble = () => {
     poolIdxRef.current = (poolIdxRef.current + 1) % CONTEXTUAL_POOL.length;
-    setGreeting(CONTEXTUAL_POOL[poolIdxRef.current]);
+    if (CONTEXTUAL_POOL[poolIdxRef.current]) setGreeting(CONTEXTUAL_POOL[poolIdxRef.current]!);
   };
 
   return (
@@ -1271,7 +1336,8 @@ export default function HeroSection({
                     letterSpacing: '.02em',
                   }}
                 >
-                  {LEVEL_NARRATIVE[userGoal]?.[level - 1] || 'Learning'}
+                  {(LEVEL_NARRATIVE as Record<string, string[]>)[userGoal ?? '']?.[level - 1] ||
+                    'Learning'}
                 </span>
               </span>
             </div>

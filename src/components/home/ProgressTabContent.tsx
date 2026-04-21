@@ -1,7 +1,28 @@
-// @ts-nocheck
 import React, { useMemo } from 'react';
 import StatsWidget from './StatsWidget';
 import WeakWordsPanel from './WeakWordsPanel';
+import type { Stats } from '../../types';
+
+interface CEFRLevel {
+  code: string;
+  label: string;
+  minLessons: number;
+  maxLessons: number;
+  color: string;
+  bg: string;
+  border: string;
+  desc: string;
+}
+
+interface ProgressTabContentProps {
+  streak: { count: number };
+  st: Stats;
+  ws: { strong: number };
+  weekXP: number;
+  nudgeDismissed?: boolean;
+  setNudgeDismissed?: (v: boolean) => void;
+  setScr?: (screen: string) => void;
+}
 
 // CEFR milestones mapped to lesson counts (approximate thresholds based on content)
 const CEFR_LEVELS = [
@@ -57,14 +78,15 @@ const CEFR_LEVELS = [
   },
 ];
 
-function getCurrentCEFR(lc) {
+function getCurrentCEFR(lc: number): { level: CEFRLevel; idx: number } {
   for (let i = CEFR_LEVELS.length - 1; i >= 0; i--) {
-    if (lc >= CEFR_LEVELS[i].minLessons) return { level: CEFR_LEVELS[i], idx: i };
+    const lvl = CEFR_LEVELS[i]!;
+    if (lc >= lvl.minLessons) return { level: lvl, idx: i };
   }
-  return { level: CEFR_LEVELS[0], idx: 0 };
+  return { level: CEFR_LEVELS[0]!, idx: 0 };
 }
 
-function getCEFRProgress(lc) {
+function getCEFRProgress(lc: number): number {
   const { level, idx } = getCurrentCEFR(lc);
   if (idx >= CEFR_LEVELS.length - 1) return 100;
   const range = level.maxLessons - level.minLessons;
@@ -75,9 +97,12 @@ function getCEFRProgress(lc) {
 // Estimate vocab mastered from SRS data
 function getVocabStats() {
   try {
-    const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+    const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}') as Record<
+      string,
+      { r?: number; w?: number }
+    >;
     const all = Object.values(sr);
-    const mastered = all.filter((v) => (v.r || 0) >= 3).length;
+    const mastered = all.filter((v) => (v.r ?? 0) >= 3).length;
     return { mastered, seen: all.length };
   } catch {
     return { mastered: 0, seen: 0 };
@@ -100,7 +125,7 @@ function getStreakHistory() {
       String(d.getDate()).padStart(2, '0');
     const practiced =
       localStorage.getItem('nh_practiced_' + key) === '1' ||
-      localStorage.getItem('nh_daily_xp_' + key) > 0;
+      parseInt(localStorage.getItem('nh_daily_xp_' + key) || '0', 10) > 0;
     result.push({ date: d, key, practiced, isToday: i === 0 });
   }
   return result;
@@ -116,7 +141,7 @@ export default function ProgressTabContent({
   nudgeDismissed,
   setNudgeDismissed,
   setScr,
-}) {
+}: ProgressTabContentProps) {
   const { level: cefrLevel, idx: cefrIdx } = useMemo(() => getCurrentCEFR(st.lc), [st.lc]);
   const cefrProgress = useMemo(() => getCEFRProgress(st.lc), [st.lc]);
   const { mastered: vocabMastered, seen: vocabSeen } = useMemo(getVocabStats, [st.lc]);
@@ -539,8 +564,8 @@ export default function ProgressTabContent({
       {(() => {
         const dailyMin = parseInt(localStorage.getItem('nh_daily_min') || '0', 10);
         if (!dailyMin || dailyMin >= 20) return null;
-        const thresholds = { 5: 40, 10: 80, 15: 120 };
-        const xpTarget = thresholds[dailyMin] || 0;
+        const thresholds: Record<number, number> = { 5: 40, 10: 80, 15: 120 };
+        const xpTarget = thresholds[dailyMin] ?? 0;
         if (!xpTarget) return null;
         const dayOfWeek = new Date().getDay() || 7;
         if (dayOfWeek < 3) return null;
@@ -581,7 +606,7 @@ export default function ProgressTabContent({
                   onClick={() => {
                     localStorage.setItem('nh_daily_min', String(nextMin));
                     localStorage.removeItem('nh_goal_nudge_dismissed');
-                    setNudgeDismissed(true);
+                    if (setNudgeDismissed) setNudgeDismissed(true);
                   }}
                   style={{
                     background: 'var(--success)',
@@ -600,7 +625,7 @@ export default function ProgressTabContent({
                 <button
                   onClick={() => {
                     localStorage.setItem('nh_goal_nudge_dismissed', String(dailyMin));
-                    setNudgeDismissed(true);
+                    if (setNudgeDismissed) setNudgeDismissed(true);
                   }}
                   style={{
                     background: 'none',

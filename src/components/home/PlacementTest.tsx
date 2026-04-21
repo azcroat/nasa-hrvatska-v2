@@ -1,9 +1,42 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, Bar } from '../../data';
 
+type Skill = 'vocab' | 'grammar' | 'culture';
+
+interface PlacementQuestion {
+  q: string;
+  o: string[];
+  c: number;
+  skill?: Skill;
+}
+
+interface PlacementTestProps {
+  pq: PlacementQuestion[];
+  pi: number;
+  ps: number;
+  pa: boolean;
+  px: number;
+  sPi: (fn: (i: number) => number) => void;
+  sPs: (fn: (s: number) => number) => void;
+  sPa: (v: boolean) => void;
+  sPx: (v: number) => void;
+  setScr: (screen: string) => void;
+  setSt: (fn: (s: Record<string, unknown>) => Record<string, unknown>) => void;
+  setTab?: (tab: string) => void;
+}
+
 // Render a progress bar row for a skill in the results screen
-function SkillBar({ icon, label, score, rating }) {
+function SkillBar({
+  icon,
+  label,
+  score,
+  rating,
+}: {
+  icon: string;
+  label: string;
+  score: number;
+  rating: string;
+}) {
   const pct = Math.round(score * 100);
   const filled = Math.round(score * 10);
   const _empty = 10 - filled;
@@ -48,7 +81,7 @@ function SkillBar({ icon, label, score, rating }) {
   );
 }
 
-function getRating(score) {
+function getRating(score: number): string {
   if (score >= 0.85) return 'Excellent';
   if (score >= 0.6) return 'Strong';
   if (score >= 0.4) return 'Needs work';
@@ -68,7 +101,7 @@ export default function PlacementTest({
   setScr,
   setSt,
   setTab,
-}) {
+}: PlacementTestProps) {
   const [showResult, setShowResult] = useState(false);
   // Per-skill correct counts — tracked as we go
   // We use a ref-style approach: store in state updated on answer
@@ -94,18 +127,18 @@ export default function PlacementTest({
     const levelIcon = { beginner: '🌱', intermediate: '🌿', advanced: '🏆' };
 
     // Compute per-skill scores (guard against division by zero)
-    const safeDiv = (a, b) => (b === 0 ? 0 : a / b);
+    const safeDiv = (a: number, b: number) => (b === 0 ? 0 : a / b);
     const vocabScore = safeDiv(skillCorrect.vocab, skillTotal.vocab);
     const grammarScore = safeDiv(skillCorrect.grammar, skillTotal.grammar);
     const cultureScore = safeDiv(skillCorrect.culture, skillTotal.culture);
 
     // Determine weakest skill (only consider skills that were tested)
-    const scores = [];
+    const scores: { skill: Skill; score: number }[] = [];
     if (skillTotal.vocab > 0) scores.push({ skill: 'vocab', score: vocabScore });
     if (skillTotal.grammar > 0) scores.push({ skill: 'grammar', score: grammarScore });
     if (skillTotal.culture > 0) scores.push({ skill: 'culture', score: cultureScore });
     scores.sort((a, b) => a.score - b.score);
-    const weakest = scores.length > 0 ? scores[0].skill : 'vocab';
+    const weakest: Skill = scores[0]?.skill ?? 'vocab';
 
     const recommendations = {
       vocab: 'Start with vocabulary flashcards to build your word bank',
@@ -128,7 +161,7 @@ export default function PlacementTest({
 
     return (
       <div className="scr-wrap">
-        {H('📊 Your Results')}
+        {H('📊 Your Results', '', () => {})}
         <div style={{ paddingTop: 16 }}>
           {/* Level badge */}
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
@@ -247,22 +280,23 @@ export default function PlacementTest({
   }
 
   // Question screen
-  function handleAnswer(i) {
+  const currentQ = pq[pi]!;
+  function handleAnswer(i: number) {
     if (pa) return;
     sPx(i);
     sPa(true);
-    const correct = i === pq[pi].c;
+    const correct = i === currentQ.c;
     if (correct) sPs((s) => s + 1);
 
     // Track per-skill score
-    const skill = pq[pi].skill || 'vocab';
-    setSkillTotal((t) => ({ ...t, [skill]: (t[skill] || 0) + 1 }));
-    if (correct) setSkillCorrect((t) => ({ ...t, [skill]: (t[skill] || 0) + 1 }));
+    const skill: Skill = currentQ.skill ?? 'vocab';
+    setSkillTotal((t) => ({ ...t, [skill]: (t[skill] ?? 0) + 1 }));
+    if (correct) setSkillCorrect((t) => ({ ...t, [skill]: (t[skill] ?? 0) + 1 }));
   }
 
   return (
     <div className="scr-wrap">
-      {H('Question ' + (pi + 1) + ' of ' + pq.length)}
+      {H('Question ' + (pi + 1) + ' of ' + pq.length, '', () => {})}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: -8 }}>
         <button
           onClick={() => {
@@ -284,7 +318,7 @@ export default function PlacementTest({
         </button>
       </div>
       <Bar v={pi + 1} mx={pq.length} h={6} />
-      {pq[pi].skill && (
+      {currentQ.skill && (
         <div
           style={{
             fontSize: 11,
@@ -297,16 +331,17 @@ export default function PlacementTest({
             letterSpacing: '.05em',
           }}
         >
-          {{ vocab: '📚 Vocabulary', grammar: '📝 Grammar', culture: '🌍 Culture' }[pq[pi].skill] ||
-            ''}
+          {{ vocab: '📚 Vocabulary', grammar: '📝 Grammar', culture: '🌍 Culture' }[
+            currentQ.skill
+          ] || ''}
         </div>
       )}
       <div className="c" style={{ marginTop: 12 }}>
-        <p style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>{pq[pi].q}</p>
-        {pq[pi].o.map((o, i) => (
+        <p style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>{currentQ.q}</p>
+        {currentQ.o.map((o, i) => (
           <button
             key={`opt-${pi}-${o}`}
-            className={'ob ' + (pa ? (i === pq[pi].c ? 'ok' : px === i ? 'no' : '') : '')}
+            className={'ob ' + (pa ? (i === currentQ.c ? 'ok' : px === i ? 'no' : '') : '')}
             onClick={() => handleAnswer(i)}
           >
             {o}

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { getSR, getStreak } from '../../data';
 import AppContext from '../../context/AppContext';
@@ -47,7 +46,7 @@ function loadCachedPlan() {
   }
 }
 
-function savePlanToCache(plan) {
+function savePlanToCache(plan: unknown) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(plan));
   } catch {}
@@ -64,7 +63,7 @@ function getTodayDone() {
     return new Set();
   }
 }
-function markDone(idx) {
+function markDone(idx: number) {
   const today = new Date().toISOString().slice(0, 10);
   try {
     const done = getTodayDone();
@@ -152,12 +151,41 @@ function LoadingState() {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function DailyPlanCard(
-  /** @type {any} */ { level: _level, goal: _goal, streak: _streak, setScr: _setScrProp } = {},
-) {
+interface DailyPlan {
+  greeting?: string;
+  activities: DailyActivity[];
+  focus_topic?: string;
+  motivational_note?: string;
+  generatedAt?: number;
+}
+
+interface DailyActivity {
+  id?: string;
+  type: string;
+  title?: string;
+  duration?: number;
+  reason?: string;
+  icon?: string;
+  priority?: string | number;
+}
+
+interface DailyPlanCardProps {
+  level?: string;
+  goal?: string;
+  streak?: number | { count?: number };
+  setScr?: (screen: string) => void;
+  mistakePatterns?: string[];
+}
+
+export default function DailyPlanCard({
+  level: _level,
+  goal: _goal,
+  streak: _streak,
+  setScr: _setScrProp,
+}: DailyPlanCardProps = {}) {
   const { setScr, sCurEx } = useContext(AppContext);
   const [phase, setPhase] = useState('idle');
-  const [plan, setPlan] = useState(null);
+  const [plan, setPlan] = useState<DailyPlan | null>(null);
   // Derive streak from the prop passed by HomeTab (which uses useMemo(() => getStreak(), [st]))
   // so it stays in sync when updateStreak() fires after award(). Local state was stale.
   const streak = typeof _streak === 'object' ? (_streak?.count ?? 0) : (_streak ?? 0);
@@ -171,7 +199,7 @@ export default function DailyPlanCard(
       .sort((a, b) => b[1].w / (b[1].r + 1) - a[1].w / (a[1].r + 1))
       .slice(0, 8)
       .map(([w]) => w);
-    let majaMemory = {};
+    let majaMemory: { mistakePatterns?: unknown[] } = {};
     try {
       majaMemory = JSON.parse(localStorage.getItem('majaMemory') || '{}');
     } catch (_) {}
@@ -216,7 +244,7 @@ export default function DailyPlanCard(
       setPlan(data);
       setPhase('ready');
     } catch (e) {
-      console.warn('DailyPlanCard: fetch failed —', e.message);
+      console.warn('DailyPlanCard: fetch failed —', (e as Error).message);
       setPhase('error');
     }
   }, [collectPayload]);
@@ -409,7 +437,9 @@ export default function DailyPlanCard(
       </div>
     );
 
-  const completedCount = plan.activities.filter((_, i) => done.has(i)).length;
+  const completedCount = plan.activities.filter((_: DailyActivity, i: number) =>
+    done.has(i),
+  ).length;
   const allDone = completedCount === plan.activities.length;
   const isPersonalized = getStyleContextForAPI() !== null;
 
@@ -575,8 +605,8 @@ export default function DailyPlanCard(
         )}
 
         {plan.activities.map((act, i) => {
-          const icon = ACTIVITY_ICONS[act.id] || '📚';
-          const screen = ACTIVITY_SCREENS[act.id];
+          const icon = (ACTIVITY_ICONS as Record<string, string>)[act.id ?? ''] || '📚';
+          const screen = (ACTIVITY_SCREENS as Record<string, string>)[act.id ?? ''];
           const isDone = done.has(i);
           return (
             <button

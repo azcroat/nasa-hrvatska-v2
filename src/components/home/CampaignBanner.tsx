@@ -1,6 +1,29 @@
-// @ts-nocheck
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+
+interface CampaignQuest {
+  id: string;
+  xp: number;
+  screen?: string;
+  icon?: string;
+  name?: string;
+  desc?: string;
+  label?: string;
+  vocab?: string;
+}
+
+interface Campaign {
+  id: string;
+  color?: string;
+  quests?: CampaignQuest[];
+  name?: string;
+  icon?: string;
+  badge?: string;
+  desc?: string;
+  ctaLabel?: string;
+  multiplier?: number;
+  blurb?: string;
+}
 
 export default function CampaignBanner({
   activeCampaign,
@@ -10,6 +33,14 @@ export default function CampaignBanner({
   setTab,
   onQuestTap,
   onCtaTap,
+}: {
+  activeCampaign?: Campaign | null;
+  campaignDismissed?: boolean;
+  setCampaignDismissed: (v: boolean) => void;
+  campaignQuestsDone: Record<string, boolean>;
+  setTab?: (tab: string) => void;
+  onQuestTap?: (q: CampaignQuest) => void;
+  onCtaTap?: (screen?: string) => void;
 }) {
   const { setScr } = useApp();
 
@@ -36,7 +67,9 @@ export default function CampaignBanner({
   // Only 'easter' has a dedicated screen; other campaigns fall back to their first quest screen
   const CAMPAIGN_SCREENS = { easter: 'easter' };
   const ctaScreen =
-    CAMPAIGN_SCREENS[activeCampaign.id] || activeCampaign.quests?.[0]?.screen || 'dashboard';
+    (CAMPAIGN_SCREENS as Record<string, string>)[activeCampaign.id] ||
+    activeCampaign.quests?.[0]?.screen ||
+    'dashboard';
 
   return (
     <div

@@ -1,6 +1,17 @@
-// @ts-nocheck
 import React from 'react';
 import { DAILY_QUESTS } from '../../data';
+
+interface QuestItem {
+  id: string;
+  tier: number;
+  icon: string;
+  name: string;
+  desc: string;
+  xp: number;
+  _unlocked?: boolean;
+  _hasUpgrade?: boolean;
+  _upgradeName?: string;
+}
 
 // Maps tier-1 quest IDs to their tier-2 upgrade
 const TIER2_MAP_LOCAL = {
@@ -141,14 +152,14 @@ const QUEST_SCREEN_MAP = {
  * - Unpaired quests (write, streak, streak_alive, perfect) always show
  * This keeps the grid compact (max 10 cards) and reveals rewards naturally.
  */
-function buildVisibleQuests(questsDone) {
-  const shown = [];
-  const handled = new Set();
+function buildVisibleQuests(questsDone: Record<string, boolean>): QuestItem[] {
+  const shown: QuestItem[] = [];
+  const handled = new Set<string>();
 
   for (const q of DAILY_QUESTS) {
     if (handled.has(q.id)) continue;
 
-    const tier2Id = TIER2_MAP_LOCAL[q.id];
+    const tier2Id = TIER2_MAP_LOCAL[q.id as keyof typeof TIER2_MAP_LOCAL];
 
     if (q.tier === 1 && tier2Id) {
       // Paired quest: show tier-2 when tier-1 done, else show tier-1
@@ -174,7 +185,15 @@ function buildVisibleQuests(questsDone) {
   return shown;
 }
 
-export default function QuestTracker({ questsDone, allQuestsDone, onQuestStart }) {
+export default function QuestTracker({
+  questsDone,
+  allQuestsDone,
+  onQuestStart,
+}: {
+  questsDone: Record<string, boolean>;
+  allQuestsDone: boolean;
+  onQuestStart: (id: string, screen: string) => void;
+}) {
   const visibleQuests = buildVisibleQuests(questsDone);
   const questsDoneCount = visibleQuests.filter((q) => questsDone[q.id]).length;
   const total = visibleQuests.length;
@@ -305,7 +324,9 @@ export default function QuestTracker({ questsDone, allQuestsDone, onQuestStart }
       >
         {visibleQuests.map((q) => {
           const done = questsDone[q.id];
-          const qc = QUEST_COLORS[q.id] || QUEST_COLORS.master;
+          const qc =
+            (QUEST_COLORS as Record<string, typeof QUEST_COLORS.master>)[q.id] ||
+            QUEST_COLORS.master;
           const isUpgraded = q._unlocked; // tier-2 shown because tier-1 was completed
 
           return (
@@ -422,7 +443,12 @@ export default function QuestTracker({ questsDone, allQuestsDone, onQuestStart }
               ) : (
                 <>
                   <button
-                    onClick={() => onQuestStart(q.id, QUEST_SCREEN_MAP[q.id] || 'learnpath')}
+                    onClick={() =>
+                      onQuestStart(
+                        q.id,
+                        (QUEST_SCREEN_MAP as Record<string, string>)[q.id] ?? 'learnpath',
+                      )
+                    }
                     style={{
                       marginTop: 'auto',
                       fontSize: 11,

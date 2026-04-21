@@ -1,8 +1,15 @@
-// @ts-nocheck
 import React from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
 
-export default function WelcomeBackBanners({ comebackBonus, longAbsence }) {
+export default function WelcomeBackBanners({
+  comebackBonus,
+  longAbsence,
+}: {
+  comebackBonus?: boolean;
+  longAbsence?: boolean;
+  isNewUserWindow?: boolean;
+  daysSinceJoin?: number | null;
+}) {
   return (
     <>
       {comebackBonus && (

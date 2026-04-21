@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * DailyListeningCard — Comprehensible input at the user's CEFR level.
  *
@@ -10,6 +9,23 @@ import React, { useState, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { speak } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
+
+interface ListeningQuestion {
+  text?: string;
+  question?: string;
+  options: string[];
+  answer: string;
+}
+
+interface ListeningSpeaker {
+  name?: string;
+  lines?: string[];
+}
+
+interface ListeningData {
+  speakers: ListeningSpeaker[];
+  questions: ListeningQuestion[];
+}
 
 const XP_REWARD = 15;
 const TOPICS = [
@@ -25,25 +41,31 @@ const TOPICS = [
   'city',
 ];
 
-function getDailyTopic() {
+function getDailyTopic(): string {
   // Rotate topics deterministically by day
   const dayIdx = Math.floor(Date.now() / 86400000);
-  return TOPICS[dayIdx % TOPICS.length];
+  return TOPICS[dayIdx % TOPICS.length] ?? TOPICS[0]!;
 }
 
-function getCompletedKey(level) {
+function getCompletedKey(level: string) {
   const today = new Date().toISOString().slice(0, 10);
   return `nh_listening_done_${level}_${today}`;
 }
 
-export default function DailyListeningCard({ level, award }) {
+export default function DailyListeningCard({
+  level,
+  award,
+}: {
+  level: string;
+  award?: (xp: number) => void;
+}) {
   const [phase, setPhase] = useState('idle'); // idle | loading | reading | questions | done
-  const [data, setData] = useState(null); // {speakers, questions}
-  const [error, setError] = useState(null);
-  const [answers, setAnswers] = useState({}); // questionIdx -> selectedOption
+  const [data, setData] = useState<ListeningData | null>(null); // {speakers, questions}
+  const [error, setError] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({}); // questionIdx -> selectedOption
   const [checked, setChecked] = useState(false);
   const [score, setScore] = useState(0);
-  const [speakingLine, setSpeakingLine] = useState(null);
+  const [speakingLine, setSpeakingLine] = useState<string | null>(null);
   const completedKey = getCompletedKey(level);
   const alreadyDone =
     phase !== 'done' &&
@@ -77,7 +99,7 @@ export default function DailyListeningCard({ level, award }) {
   }, [level]);
 
   const handleAnswer = useCallback(
-    (qIdx, opt) => {
+    (qIdx: number, opt: string) => {
       if (checked) return;
       setAnswers((prev) => ({ ...prev, [qIdx]: opt }));
     },
@@ -102,7 +124,7 @@ export default function DailyListeningCard({ level, award }) {
     setTimeout(() => setPhase('done'), 400);
   }, [data, answers, award, completedKey]);
 
-  const speakLine = useCallback(async (text) => {
+  const speakLine = useCallback(async (text: string) => {
     setSpeakingLine(text);
     try {
       await speak(text);
@@ -373,7 +395,7 @@ export default function DailyListeningCard({ level, award }) {
       </div>
 
       {/* Comprehension questions */}
-      {data?.questions?.length > 0 && (
+      {(data?.questions?.length ?? 0) > 0 && data && (
         <div style={{ padding: '0 16px 16px' }}>
           <div style={{ borderTop: '1px solid var(--card-b)', paddingTop: 12, marginBottom: 10 }}>
             <div
