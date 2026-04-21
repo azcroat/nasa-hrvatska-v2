@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useRef, useMemo, useEffect } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak } from '../../data';
@@ -7,14 +6,44 @@ import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
+interface GrammarQuestion {
+  q: string;
+  o: string[];
+  c: number;
+}
+interface GrammarLesson {
+  title: string;
+  desc: string;
+  exs: string[][];
+  qs: GrammarQuestion[];
+}
+interface GrammarScreenProps {
+  gl: GrammarLesson | null;
+  gp: string;
+  gx: number;
+  gs: number;
+  ga: boolean;
+  gsl: number;
+  sGp: (v: string) => void;
+  sGx: (v: number | ((i: number) => number)) => void;
+  sGs: (v: (s: number) => number) => void;
+  sGa: (v: boolean) => void;
+  sGsl: (v: number) => void;
+  goBack: () => void;
+  award?: (xp: number) => void;
+  setSt: (fn: (s: { gc: number }) => { gc: number }) => void;
+}
+
 // Local Fisher-Yates shuffle with Math.random() — ensures different question
 // order every visit, unlike the date-seeded global sh() which produces the
 // same sequence all day (causes Grammar 1 and Grammar 2 to show identical order).
-function _shuffle(arr) {
+function _shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    const tmp = a[i] as T;
+    a[i] = a[j] as T;
+    a[j] = tmp;
   }
   return a;
 }
@@ -53,18 +82,18 @@ export default function GrammarScreen({
   goBack,
   award,
   setSt,
-}) {
+}: GrammarScreenProps) {
   const { writeDelta } = useStats();
   const resultFired = useRef(false);
 
   // Knight coaching — entry tip on learn phase
   useEffect(() => {
     const tip = GRAMMAR_ENTRY_TIPS[Math.floor(Math.random() * GRAMMAR_ENTRY_TIPS.length)];
-    knightSpeak(tip.mood, tip.text, 900);
+    if (tip) knightSpeak(tip.mood, tip.text, 900);
   }, []);
 
-  // Knight coaching — phase transitions
-
+  // Knight coaching — phase transitions (intentionally reacts only to gp changes)
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (gp === 'ex' && gx === 0) {
       knightSpeak(
@@ -85,6 +114,7 @@ export default function GrammarScreen({
       );
     }
   }, [gp]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Shuffle questions once per lesson (when gl changes) and shuffle each
   // question's options, storing the correct answer by value rather than index.
@@ -92,7 +122,7 @@ export default function GrammarScreen({
   const shuffledQs = useMemo(() => {
     if (!gl?.qs?.length) return [];
     return _shuffle(gl.qs).map((q) => {
-      const correctText = q.o[q.c];
+      const correctText = q.o[q.c] ?? '';
       const shuffledOpts = _shuffle(q.o);
       return { ...q, o: shuffledOpts, c: shuffledOpts.indexOf(correctText) };
     });
@@ -106,7 +136,7 @@ export default function GrammarScreen({
     <div className="scr-wrap">
       {gp === 'learn' && (
         <React.Fragment>
-          {H('📐 ' + gl.title)}
+          {H('📐 ' + gl.title, '', goBack)}
           <div className="c" style={{ marginBottom: 16 }}>
             <p style={{ fontSize: 15, color: '#44403c', lineHeight: 1.7 }}>{gl.desc}</p>
           </div>
@@ -120,7 +150,7 @@ export default function GrammarScreen({
                 justifyContent: 'space-between',
                 padding: '14px 20px',
               }}
-              onClick={() => speak(e[0])}
+              onClick={() => speak(e[0] ?? '')}
             >
               <span style={{ fontWeight: 700 }}>{e[0]}</span>
               <span style={{ color: 'var(--subtext)' }}>{e[1]}</span>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H } from '../../data';
 import { speak } from '../../lib/audio.js';
@@ -211,9 +210,50 @@ const TOPIC_TO_SCREEN = {
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
 
-export default function GrammarExplainer({ goBack, award }) {
+interface Topic {
+  id: string;
+  icon: string;
+  title: string;
+  level: string;
+  desc: string;
+}
+interface LessonQuizItem {
+  q: string;
+  opts?: string[];
+  options?: string[];
+  correct: number;
+  explanation?: string;
+}
+interface WritingResult {
+  score?: number;
+  summary?: string;
+  revised?: string;
+  tip?: string;
+  corrected_text?: string;
+  encouragement?: string;
+  changes?: { original: string; corrected: string; note?: string }[];
+  strengths?: string[];
+}
+interface Lesson {
+  title: string;
+  intro: string;
+  icon?: string;
+  tip?: string;
+  rule?: string;
+  examples?: { hr: string; en: string; note?: string }[];
+  table?: { headers: string[]; rows: string[][] };
+  quiz?: LessonQuizItem[];
+}
+
+export default function GrammarExplainer({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [phase, setPhase] = useState('pick');
-  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [level, setLevel] = useState(() => {
     try {
       return localStorage.getItem('nh_placement_result') || 'A2';
@@ -221,17 +261,17 @@ export default function GrammarExplainer({ goBack, award }) {
       return 'A2';
     }
   });
-  const [lesson, setLesson] = useState(null);
-  const [quizAnswers, setQuizAnswers] = useState([]);
+  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [quizAnswers, setQuizAnswers] = useState<(number | null)[]>([]);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const xpAwarded = useRef(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Writing practice state
   const [writingText, setWritingText] = useState('');
   const [writingLoading, setWritingLoading] = useState(false);
-  const [writingResult, setWritingResult] = useState(null);
-  const [writingError, setWritingError] = useState(null);
+  const [writingResult, setWritingResult] = useState<WritingResult | null>(null);
+  const [writingError, setWritingError] = useState<string | null>(null);
   const [writingSkipped, setWritingSkipped] = useState(false);
 
   async function generateLesson() {
@@ -261,7 +301,7 @@ export default function GrammarExplainer({ goBack, award }) {
       setWritingSkipped(false);
       setPhase('lesson');
     } catch (e) {
-      setError(e.message || 'Failed to generate lesson');
+      setError((e instanceof Error ? e.message : null) || 'Failed to generate lesson');
       setPhase('pick');
     }
   }
@@ -293,7 +333,9 @@ export default function GrammarExplainer({ goBack, award }) {
 
   async function handleCheckWriting() {
     if (!writingText.trim()) return;
-    const promptText = (selectedTopic && WRITING_PROMPTS[selectedTopic.id]) || FALLBACK_PROMPT;
+    const promptText =
+      (selectedTopic && (WRITING_PROMPTS as Record<string, string>)[selectedTopic.id]) ||
+      FALLBACK_PROMPT;
     setWritingLoading(true);
     setWritingResult(null);
     setWritingError(null);
@@ -313,7 +355,7 @@ export default function GrammarExplainer({ goBack, award }) {
       if (data.error) throw new Error(data.error);
       setWritingResult(data);
     } catch (e) {
-      setWritingError(e.message || 'Failed to evaluate writing');
+      setWritingError((e instanceof Error ? e.message : null) || 'Failed to evaluate writing');
     } finally {
       setWritingLoading(false);
     }
@@ -385,9 +427,11 @@ export default function GrammarExplainer({ goBack, award }) {
 
   // ── PHASE: lesson ─────────────────────────────────────────────────────────
   if (phase === 'lesson' && lesson) {
-    const _lc = LEVEL_COLORS[level] || LEVEL_COLORS['A2'];
+    const _lc =
+      (LEVEL_COLORS as Record<string, typeof LEVEL_COLORS.A1>)[level] || LEVEL_COLORS['A2'];
     const score = quizSubmitted
-      ? (lesson.quiz || []).filter((q, i) => quizAnswers[i] === q.correct).length
+      ? (lesson.quiz || []).filter((q: LessonQuizItem, i: number) => quizAnswers[i] === q.correct)
+          .length
       : null;
     const scoreColor = score === 3 ? '#16a34a' : score === 2 ? '#d97706' : '#dc2626';
 
@@ -635,7 +679,7 @@ export default function GrammarExplainer({ goBack, award }) {
                           borderRadius:
                             i === 0
                               ? '8px 0 0 0'
-                              : i === lesson.table.headers.length - 1
+                              : i === lesson.table!.headers.length - 1
                                 ? '0 8px 0 0'
                                 : 0,
                         }}
@@ -706,7 +750,7 @@ export default function GrammarExplainer({ goBack, award }) {
               )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {(lesson.quiz || []).map((q, qi) => {
+              {(lesson.quiz || []).map((q: LessonQuizItem, qi: number) => {
                 const answered = quizAnswers[qi];
                 const _isCorrect = quizSubmitted && answered === q.correct;
                 const _isWrong = quizSubmitted && answered !== null && answered !== q.correct;
@@ -864,7 +908,8 @@ export default function GrammarExplainer({ goBack, award }) {
                   lineHeight: 1.6,
                 }}
               >
-                {(selectedTopic && WRITING_PROMPTS[selectedTopic.id]) || FALLBACK_PROMPT}
+                {(selectedTopic && (WRITING_PROMPTS as Record<string, string>)[selectedTopic.id]) ||
+                  FALLBACK_PROMPT}
               </p>
               <textarea
                 value={writingText}
@@ -945,9 +990,9 @@ export default function GrammarExplainer({ goBack, award }) {
                           height: '100%',
                           width: (writingResult.score || 0) + '%',
                           background:
-                            writingResult.score >= 75
+                            (writingResult.score ?? 0) >= 75
                               ? '#16a34a'
-                              : writingResult.score >= 50
+                              : (writingResult.score ?? 0) >= 50
                                 ? '#d97706'
                                 : '#dc2626',
                           borderRadius: 99,
@@ -1168,12 +1213,16 @@ export default function GrammarExplainer({ goBack, award }) {
 
           {/* 8. Practice + Reset buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {selectedTopic && TOPIC_TO_SCREEN[selectedTopic.id] && (
+            {selectedTopic && (TOPIC_TO_SCREEN as Record<string, string>)[selectedTopic.id] && (
               <button
                 onClick={() => {
                   // Navigate to practice screen via goBack + setScr would be ideal,
                   // but since we only have goBack, we use history
-                  window.history.pushState({}, '', '/' + TOPIC_TO_SCREEN[selectedTopic.id]);
+                  window.history.pushState(
+                    {},
+                    '',
+                    '/' + (TOPIC_TO_SCREEN as Record<string, string>)[selectedTopic.id],
+                  );
                   window.dispatchEvent(new PopStateEvent('popstate'));
                 }}
                 style={{
@@ -1293,7 +1342,9 @@ export default function GrammarExplainer({ goBack, award }) {
         {/* Topic grid */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
           {TOPICS.map((topic) => {
-            const lc = LEVEL_COLORS[topic.level] || LEVEL_COLORS['A2'];
+            const lc =
+              (LEVEL_COLORS as Record<string, typeof LEVEL_COLORS.A1>)[topic.level] ||
+              LEVEL_COLORS['A2'];
             const isSelected = selectedTopic?.id === topic.id;
             return (
               <button
