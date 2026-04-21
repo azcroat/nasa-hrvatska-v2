@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
@@ -118,7 +117,7 @@ function playLevelUpSound() {
     });
     // Close context after all waves finish to prevent AudioContext leak
     const lastWave = waves[waves.length - 1];
-    const lastEnd = lastWave.t + lastWave.dur + 0.1;
+    const lastEnd = lastWave ? lastWave.t + lastWave.dur + 0.1 : 1;
     setTimeout(() => ctx.close().catch(() => {}), lastEnd * 1000);
   } catch (_) {}
 }
@@ -135,25 +134,28 @@ function makeOrbitParticles(n = 16) {
   }));
 }
 
-function LevelUpModal({ level, onClose }) {
-  const meta = LEVEL_META[level] || LEVEL_META[10];
+function LevelUpModal({ level, onClose }: { level: number; onClose?: () => void }) {
+  const meta =
+    (LEVEL_META as Record<number, (typeof LEVEL_META)[keyof typeof LEVEL_META] | undefined>)[
+      level
+    ] || LEVEL_META[10];
   const particles = useRef(makeOrbitParticles(16)).current;
   const [_phase, setPhase] = useState('burst'); // burst → reveal
   const [copied, setCopied] = useState(false);
   const haptic = useHaptic();
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   // Focus trap
   useEffect(() => {
     const modal = modalRef.current;
     if (!modal) return;
-    const focusable = modal.querySelectorAll(
+    const focusable = modal.querySelectorAll<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     first?.focus();
-    function handleKeyDown(e) {
+    function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         onClose?.();
         return;
@@ -227,12 +229,13 @@ function LevelUpModal({ level, onClose }) {
 
     const t1 = setTimeout(() => setPhase('reveal'), 150);
     // Auto-close after 6 s so it never traps the user
-    const t2 = setTimeout(() => onClose(), 6000);
+    const t2 = setTimeout(() => onClose?.(), 6000);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose]);
 
   return (
@@ -240,9 +243,9 @@ function LevelUpModal({ level, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="levelup-title"
-      onClick={onClose}
+      onClick={() => onClose?.()}
       onKeyDown={(e) => {
-        if (e.key === 'Escape') onClose();
+        if (e.key === 'Escape') onClose?.();
       }}
       style={{
         position: 'fixed',

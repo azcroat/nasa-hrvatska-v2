@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * AppModals — all modal overlays driven by gamification / auth events.
  *
@@ -6,6 +5,7 @@
  * Every modal here is conditionally rendered; none affect the page layout.
  */
 import React, { lazy, Suspense } from 'react';
+import type { Stats } from '../../types';
 import CelebrationModal from './CelebrationModal';
 import StreakMilestoneModal from './StreakMilestoneModal';
 import CeremonyModal from './CeremonyModal';
@@ -13,10 +13,46 @@ import LevelUpModal from './LevelUpModal';
 import OnboardingTour from './OnboardingTour';
 import PremiumWelcomeBanner from './PremiumWelcomeBanner';
 // speak is lazy-loaded on first use — audio.js lives in chunk-data (loaded with first screen)
-const _speakLazy = (text) => import('../../lib/audio.js').then((m) => m.speak(text));
+const _speakLazy = (text: string) => import('../../lib/audio.js').then((m) => m.speak(text));
 import { trackOnboardingComplete } from '../../lib/analytics.js';
 
 const PaywallScreen = lazy(() => import('./PaywallScreen'));
+
+interface AppModalsProps {
+  // Celebration / gamification
+  showCelebration: boolean;
+  setShowCelebration: (v: boolean) => void;
+  celebXP: number;
+  streakMilestone: number | null;
+  setStreakMilestone: (v: number | null) => void;
+  ceremonyType: string | null;
+  setCeremonyType: (v: string | null) => void;
+  levelUpData: { level: number } | null;
+  setLevelUpData: (v: { level: number } | null) => void;
+  // First words
+  showFirstWords: boolean;
+  setShowFirstWords: (v: boolean) => void;
+  // Onboarding
+  onboarded: boolean;
+  setOnboarded: (v: boolean) => void;
+  _syncReady: boolean;
+  authScreen: string;
+  currentScreen: string;
+  // Paywall
+  showPaywall: boolean;
+  setShowPaywall: (v: boolean) => void;
+  paywallFeature: string;
+  refreshSub: () => void;
+  // Premium welcome
+  showPremiumWelcome: boolean;
+  setShowPremiumWelcome: (v: boolean) => void;
+  // Shared data for modal content
+  stats: Stats;
+  lt: unknown;
+  setScr: (v: string) => void;
+  setTab: (v: string) => void;
+  name: string;
+}
 
 export function AppModals({
   // Celebration / gamification
@@ -52,7 +88,7 @@ export function AppModals({
   setScr,
   setTab,
   name,
-}) {
+}: AppModalsProps) {
   return (
     <Suspense fallback={null}>
       {showCelebration && (
@@ -60,7 +96,7 @@ export function AppModals({
           xp={celebXP}
           onClose={() => setShowCelebration(false)}
           streak={stats.str || 0}
-          lessonTopic={lt || ''}
+          lessonTopic={typeof lt === 'string' ? lt : ''}
           onNext={() => {
             setShowCelebration(false);
             setScr('dashboard');
@@ -127,7 +163,7 @@ export function AppModals({
                 ['Molim', 'Please'],
                 ['Da', 'Yes'],
                 ['Dobar dan', 'Good day'],
-              ].map(([hr, en]) => (
+              ].map(([hr = '', en]) => (
                 <button
                   key={hr}
                   onClick={() => _speakLazy(hr)}

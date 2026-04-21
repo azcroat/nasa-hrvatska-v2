@@ -1,11 +1,23 @@
-// @ts-nocheck
 import React from 'react';
 import { PHONEME_GUIDES } from './pronunciationUtils.js';
 
 // ── Full phoneme guide card (shown for Croatian-specific sounds) ──────────────
-export default function PhonemeGuideCard({ phoneme }) {
+export default function PhonemeGuideCard({ phoneme }: { phoneme: string }) {
   const [open, setOpen] = React.useState(false);
-  const guide = PHONEME_GUIDES[phoneme] || PHONEME_GUIDES[phoneme?.toLowerCase()];
+  const guides = PHONEME_GUIDES as Record<
+    string,
+    | {
+        ipa: string;
+        approx: string;
+        articulate: string;
+        example: string;
+        contrast?: string;
+        lips?: string;
+        tongue?: string;
+      }
+    | undefined
+  >;
+  const guide = guides[phoneme] || guides[phoneme?.toLowerCase()];
   if (!guide) return null;
   return (
     <div style={{ marginTop: 8 }}>

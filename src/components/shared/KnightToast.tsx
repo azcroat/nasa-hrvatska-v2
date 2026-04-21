@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * KnightToast — listens for the `knight:celebrate` custom event fired by
  * useAward whenever significant XP is earned, then shows a spring-animated
@@ -8,7 +7,7 @@
  * a graceful exit — no hard-cut CSS transitions.
  */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import CroatianKnight from './CroatianKnight';
 
 // 8 confetti particles that burst outward on entrance
@@ -24,7 +23,7 @@ const PARTICLES = [
 ];
 
 // Framer Motion variants
-const toastVariants = {
+const toastVariants: Variants = {
   hidden: { opacity: 0, y: 56, scale: 0.82 },
   visible: {
     opacity: 1,
@@ -40,18 +39,25 @@ const toastVariants = {
   },
 };
 
-const childVariants = {
+const childVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' } },
 };
 
-const containerVariants = {
+const containerVariants: Variants = {
   visible: { transition: { staggerChildren: 0.08, delayChildren: 0.12 } },
 };
 
-const particleVariants = {
+interface ParticleData {
+  dx: number;
+  dy: number;
+  color: string;
+  size: number;
+  rot: number;
+}
+const particleVariants: Variants = {
   hidden: { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 },
-  visible: (p) => ({
+  visible: (p: ParticleData) => ({
     opacity: [1, 1, 0],
     x: p.dx,
     y: p.dy,
@@ -65,10 +71,10 @@ export default function KnightToast() {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
   const [mood, setMood] = useState('celebrating');
-  const timerRef = useRef(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const show = useCallback((detail) => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+  const show = useCallback((detail: { text?: string; mood?: string } | null | undefined) => {
+    if (timerRef.current !== null) clearTimeout(timerRef.current);
     setMessage(detail?.text || 'Sjajno!');
     setMood(detail?.mood || 'celebrating');
     setVisible(true);
@@ -76,13 +82,13 @@ export default function KnightToast() {
   }, []);
 
   useEffect(() => {
-    function handler(e) {
-      show(e.detail);
+    function handler(e: Event) {
+      show((e as CustomEvent).detail);
     }
     window.addEventListener('knight:celebrate', handler);
     return () => {
       window.removeEventListener('knight:celebrate', handler);
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
     };
   }, [show]);
 

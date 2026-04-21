@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { lXP, nXP, getStreak } from '../../lib/appUtils.js';
 import CroatianGrb from './CroatianGrb';
@@ -12,7 +11,7 @@ const TABS = [
   { id: 'profile', label: 'Me' },
 ];
 
-function NavIcon({ id, active }) {
+function NavIcon({ id, active }: { id: string; active: boolean }) {
   const sw = 1.9;
   if (id === 'home')
     return (
@@ -183,11 +182,11 @@ const WEEKLY_OPTIONS = [
 function getWeeklyGoal() {
   return parseInt(localStorage.getItem('wkGoal') || '0');
 }
-function saveWeeklyGoal(v) {
+function saveWeeklyGoal(v: number) {
   localStorage.setItem('wkGoal', String(v));
 }
 
-function getWeeklyXP(currentXP) {
+function getWeeklyXP(currentXP: number) {
   try {
     const now = new Date();
     const monday = new Date(now);
@@ -219,6 +218,20 @@ export default function Sidebar({
   setSrchQ,
   onSearch,
   doOut,
+}: {
+  tab: string;
+  setTab: (tab: string) => void;
+  setScr: (scr: string) => void;
+  name?: string;
+  level: number;
+  st: { xp: number; lc?: number };
+  darkMode: boolean;
+  setDarkMode: (val: boolean) => void;
+  badges?: Record<string, number>;
+  srchQ?: string;
+  setSrchQ?: (q: string) => void;
+  onSearch?: () => void;
+  doOut?: () => void;
 }) {
   const [goalOpen, setGoalOpen] = useState(false);
   const [goal, setGoalState] = useState(getWeeklyGoal());
@@ -231,11 +244,11 @@ export default function Sidebar({
   const weeklyGoal = goal;
   const weeklyPct = weeklyGoal > 0 ? Math.min(Math.round((weeklyXP / weeklyGoal) * 100), 100) : 0;
 
-  const nameInitial = (name || 'U')[0].toUpperCase();
+  const nameInitial = (name || 'U')[0]!.toUpperCase();
   const LEVEL_PALETTE = ['#b45309', '#059669', '#1d4ed8', '#6d28d9', '#dc2626'];
-  const levelColor = LEVEL_PALETTE[(level - 1) % LEVEL_PALETTE.length];
+  const levelColor = LEVEL_PALETTE[(level - 1) % LEVEL_PALETTE.length] ?? '#0e7490';
 
-  function handleGoalPick(xp) {
+  function handleGoalPick(xp: number) {
     setGoalState(xp);
     saveWeeklyGoal(xp);
     setGoalOpen(false);
@@ -539,10 +552,10 @@ export default function Sidebar({
           <input
             type="search"
             aria-label="Search lessons"
-            value={srchQ}
-            onChange={(e) => setSrchQ(e.target.value)}
+            value={srchQ ?? ''}
+            onChange={(e) => setSrchQ?.(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') onSearch();
+              if (e.key === 'Enter') onSearch?.();
             }}
             placeholder="Search lessons…"
             style={{
@@ -578,7 +591,7 @@ export default function Sidebar({
               <NavIcon id={t.id} active={tab === t.id} />
             </span>
             <span style={{ flex: 1 }}>{t.label}</span>
-            {badges && badges[t.id] > 0 && <span className="sb-badge">{badges[t.id]}</span>}
+            {badges && (badges[t.id] ?? 0) > 0 && <span className="sb-badge">{badges[t.id]}</span>}
           </button>
         ))}
       </nav>
@@ -707,7 +720,7 @@ export default function Sidebar({
           </span>
         </button>
         <button
-          onClick={() => setDarkMode((d) => !d)}
+          onClick={() => setDarkMode(!darkMode)}
           style={{
             display: 'flex',
             alignItems: 'center',

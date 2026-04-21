@@ -1,6 +1,13 @@
-// @ts-nocheck
 import React from 'react';
 import CroatianKnight from './CroatianKnight';
+
+interface EmptyStateProps {
+  type?: string;
+  title?: string;
+  subtitle?: string;
+  action?: string;
+  onAction?: () => void;
+}
 
 export default function EmptyState({
   type = 'default', // 'no-lessons' | 'streak-broken' | 'level-up' | 'all-caught-up' | 'default'
@@ -8,7 +15,7 @@ export default function EmptyState({
   subtitle,
   action,
   onAction,
-}) {
+}: EmptyStateProps) {
   const configs = {
     'no-lessons': {
       mood: 'thinking',
@@ -42,7 +49,9 @@ export default function EmptyState({
     },
   };
 
-  const cfg = configs[type] || configs.default;
+  const cfg =
+    (configs as Record<string, (typeof configs)[keyof typeof configs] | undefined>)[type] ||
+    configs.default;
 
   return (
     <div

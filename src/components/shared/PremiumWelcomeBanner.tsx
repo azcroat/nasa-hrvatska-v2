@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 
 const FEATURES = [
@@ -15,7 +14,7 @@ const FEATURES = [
  * Users who don't understand what they have, don't use it.
  * Shown once per device, guarded by localStorage.
  */
-export default function PremiumWelcomeBanner({ onClose }) {
+export default function PremiumWelcomeBanner({ onClose }: { onClose?: () => void }) {
   const [visible, setVisible] = useState(true);
 
   function dismiss() {

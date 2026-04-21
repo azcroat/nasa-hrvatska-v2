@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 
 const GRAMMAR_TOPICS = [
@@ -172,9 +171,13 @@ const GRAMMAR_TOPICS = [
 /**
  * @param {{ onClose?: () => void }} props
  */
-export default function GrammarReference({ onClose }) {
+interface GrammarReferenceProps {
+  onClose?: () => void;
+}
+
+export default function GrammarReference({ onClose }: GrammarReferenceProps) {
   const [search, setSearch] = useState('');
-  const [openId, setOpenId] = useState(/** @type {string|null} */ null);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return GRAMMAR_TOPICS;

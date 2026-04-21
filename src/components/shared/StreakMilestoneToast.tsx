@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 // On Android WebView (Capacitor), Framer Motion entry animations with opacity:0
@@ -70,16 +69,16 @@ const MILESTONES = [
   },
 ];
 
-function getMilestone(streak) {
+function getMilestone(streak: number) {
   // Find the highest milestone that exactly matches — only fire once per level
   return MILESTONES.find((m) => m.days === streak) || null;
 }
 
-function getStorageKey(days) {
+function getStorageKey(days: number) {
   return `nh_streak_milestone_${days}`;
 }
 
-export function checkAndMarkMilestone(streakCount) {
+export function checkAndMarkMilestone(streakCount: number) {
   const m = getMilestone(streakCount);
   if (!m) return false;
   const key = getStorageKey(m.days);
@@ -88,7 +87,13 @@ export function checkAndMarkMilestone(streakCount) {
   return true;
 }
 
-export default function StreakMilestoneToast({ streakCount, onDismiss }) {
+export default function StreakMilestoneToast({
+  streakCount,
+  onDismiss,
+}: {
+  streakCount: number;
+  onDismiss?: () => void;
+}) {
   const m = getMilestone(streakCount);
   const firedRef = useRef(false);
 
@@ -148,7 +153,7 @@ export default function StreakMilestoneToast({ streakCount, onDismiss }) {
         key="streak-milestone"
         initial={_isNative ? false : { opacity: 0, scale: 0.85, y: -30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={_isNative ? false : { opacity: 0, scale: 0.9, y: -20 }}
+        exit={_isNative ? undefined : { opacity: 0, scale: 0.9, y: -20 }}
         transition={{ type: 'spring', stiffness: 320, damping: 24 }}
         style={{
           position: 'fixed',

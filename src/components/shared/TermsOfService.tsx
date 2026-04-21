@@ -1,7 +1,6 @@
-// @ts-nocheck
 import React from 'react';
 
-export default function TermsOfService({ goBack }) {
+export default function TermsOfService({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap" style={{ paddingBottom: 80, maxWidth: 700, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>

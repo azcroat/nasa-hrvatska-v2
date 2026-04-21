@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 
 // Video-first cinematic scene background.
@@ -22,16 +21,30 @@ import React, { useRef, useState } from 'react';
 
 const KB_ANIMS = ['kenBurns1', 'kenBurns2', 'kenBurns3', 'kenBurns4'];
 
-function pickKenBurns(imageSrc) {
+function pickKenBurns(imageSrc: string) {
   // Deterministic variant from image path — same image = same direction
   let h = 0;
   for (let i = 0; i < imageSrc.length; i++) h = (h * 31 + imageSrc.charCodeAt(i)) >>> 0;
   return KB_ANIMS[h % KB_ANIMS.length];
 }
 
-export default function VideoBackground({ videoSrc, imageSrc, overlay, style = {}, children }) {
+interface VideoBackgroundProps {
+  videoSrc?: string;
+  imageSrc?: string;
+  overlay?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+}
+
+export default function VideoBackground({
+  videoSrc,
+  imageSrc,
+  overlay,
+  style = {},
+  children,
+}: VideoBackgroundProps) {
   const [videoFailed, setVideoFailed] = useState(false);
-  const videoRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const useVideo = !videoFailed && !!videoSrc;
   const kbAnim = pickKenBurns(imageSrc || '');

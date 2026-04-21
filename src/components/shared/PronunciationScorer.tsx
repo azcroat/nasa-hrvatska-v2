@@ -1,25 +1,48 @@
-// @ts-nocheck
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import AzureResultPanel from './AzureResultPanel';
 import WebSpeechResultPanel from './WebSpeechResultPanel';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { isNative } from '../../lib/platform.js';
 
-/**
- * @param {{ targetText: string, targetEnglish?: string, level?: string, onScore?: (r: {spoken: string, score: number}) => void }} props
- */
-export default function PronunciationScorer({ targetText, targetEnglish, level = 'B1', onScore }) {
-  // ── Shared state ─────────────────────────────────────────────────────────────
-  const [state, setState] = useState('idle'); // idle | listening | recording | processing | scored | unsupported
-  const [result, setResult] = useState(/** @type {{spoken:string,score:number}|null} */ null);
-  const [coaching, setCoaching] = useState(null); // null | 'loading' | {feedback,issue,phonetic_guide,drills}
-  const [srErrorMsg, setSrErrorMsg] = useState(null);
-  const [azureResult, setAzureResult] = useState(null); // null | AzureAssessmentResult
-  const [mode, setMode] = useState('auto'); // 'auto' | 'webspeech' | 'azure'
+interface PronunciationScorerProps {
+  targetText: string;
+  targetEnglish?: string;
+  level?: string;
+  onScore?: (r: { spoken: string; score: number }) => void;
+}
 
-  const recRef = useRef(/** @type {any} */ null); // SpeechRecognition ref
-  const mediaRecRef = useRef(/** @type {MediaRecorder|null} */ null); // MediaRecorder ref
-  const chunksRef = useRef(/** @type {Blob[]} */ []); // recorded audio chunks
+interface ScoredResult {
+  spoken: string;
+  score: number;
+  recognizedViaTranslation?: boolean;
+}
+interface CoachingResult {
+  feedback?: string;
+  issue?: string;
+  phonetic_guide?: string;
+  drills?: Array<{ word: string; tip?: string }>;
+}
+
+export default function PronunciationScorer({
+  targetText,
+  targetEnglish,
+  level = 'B1',
+  onScore,
+}: PronunciationScorerProps) {
+  // ── Shared state ─────────────────────────────────────────────────────────────
+  const [state, setState] = useState<
+    'idle' | 'listening' | 'recording' | 'processing' | 'scored' | 'unsupported'
+  >('idle');
+  const [result, setResult] = useState<ScoredResult | null>(null);
+  const [coaching, setCoaching] = useState<CoachingResult | 'loading' | null>(null);
+  const [srErrorMsg, setSrErrorMsg] = useState<string | null>(null);
+  const [azureResult, setAzureResult] = useState<Record<string, unknown> | null>(null);
+  const [mode, setMode] = useState<'auto' | 'webspeech' | 'azure'>('auto');
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recRef = useRef<any>(null); // SpeechRecognition ref
+  const mediaRecRef = useRef<MediaRecorder | null>(null); // MediaRecorder ref
+  const chunksRef = useRef<Blob[]>([]); // recorded audio chunks
 
   // ── Browser capability checks ─────────────────────────────────────────────
   const webSpeechSupported = !!(
@@ -35,23 +58,23 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
   );
 
   // ── Levenshtein / similarity ──────────────────────────────────────────────
-  function levenshtein(a, b) {
+  function levenshtein(a: string, b: string): number {
     const m = a.length,
       n = b.length;
-    const dp = Array.from({ length: m + 1 }, (_, i) =>
-      Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+    const dp = Array.from({ length: m + 1 }, (_: unknown, i: number) =>
+      Array.from({ length: n + 1 }, (_2: unknown, j: number) => (i === 0 ? j : j === 0 ? i : 0)),
     );
     for (let i = 1; i <= m; i++)
       for (let j = 1; j <= n; j++)
-        dp[i][j] =
+        dp[i]![j] =
           a[i - 1] === b[j - 1]
-            ? dp[i - 1][j - 1]
-            : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-    return dp[m][n];
+            ? dp[i - 1]![j - 1]!
+            : 1 + Math.min(dp[i - 1]![j]!, dp[i]![j - 1]!, dp[i - 1]![j - 1]!);
+    return dp[m]![n]!;
   }
 
-  function similarity(a, b) {
-    const norm = (/** @type {string} */ s) =>
+  function similarity(a: string, b: string): number {
+    const norm = (s: string) =>
       s
         .toLowerCase()
         .replace(/[čć]/g, 'c')
@@ -66,11 +89,11 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
     const maxLen = Math.max(na.length, nb.length);
     if (maxLen === 0) return 100;
     const dist = levenshtein(na, nb);
-    return Math.round((1 - dist / maxLen) * 100);
+    return Math.round((1 - (dist as number) / maxLen) * 100);
   }
 
   // ── Stream ref for cleanup ────────────────────────────────────────────────
-  const streamRef = useRef(/** @type {MediaStream|null} */ null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // ── Unmount cleanup — stop mic, abort recognition ─────────────────────────
   useEffect(() => {
@@ -122,9 +145,11 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
     rec.continuous = false;
     rec.interimResults = false;
     rec.maxAlternatives = 3;
-    rec.onresult = (/** @type {any} */ e) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onresult = (e: any) => {
       if (!e.results?.[0]) return;
-      const transcripts = Array.from(e.results[0]).map((/** @type {any} */ r) => r.transcript);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const transcripts = Array.from(e.results[0]).map((r: any) => r.transcript as string);
       if (!transcripts.length) return;
 
       // English-translation detection: when hr-HR recognition falls back to en-US (or the browser's
@@ -149,12 +174,12 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
         }
       }
 
-      const best = /** @type {string[]} */ transcripts.reduce(
-        (/** @type {{text:string,score:number}} */ best, t) => {
+      const best = (transcripts as string[]).reduce(
+        (best: { text: string; score: number }, t: string) => {
           const s = similarity(t, targetText);
           return s > best.score ? { text: t, score: s } : best;
         },
-        { text: /** @type {string[]} */ transcripts[0], score: 0 },
+        { text: (transcripts as string[])[0] ?? '', score: 0 },
       );
       const r = { spoken: best.text, score: best.score };
       setResult(r);
@@ -162,7 +187,8 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       if (onScore) onScore(r);
       fetchCoaching(r.spoken, r.score);
     };
-    rec.onerror = (/** @type {any} */ e) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onerror = (e: any) => {
       const code = e?.error || '';
       const msg =
         code === 'not-allowed' || code === 'permission-denied'
@@ -205,8 +231,9 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       streamRef.current = stream;
     } catch (e) {
+      const errName = e instanceof Error ? e.name : '';
       const msg =
-        e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError'
+        errName === 'NotAllowedError' || errName === 'PermissionDeniedError'
           ? isNative()
             ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
             : 'Microphone permission denied. Please allow mic access in your browser settings.'
@@ -274,7 +301,7 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
     }
   }
 
-  async function submitToAzure(blob, mimeType = 'audio/webm') {
+  async function submitToAzure(blob: Blob, mimeType = 'audio/webm') {
     // Convert Blob → base64 using chunked approach (avoids O(n²) concatenation and apply stack overflow)
     let audioBase64;
     try {
@@ -283,7 +310,7 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
       const CHUNK = 8192;
       let binary = '';
       for (let i = 0; i < bytes.byteLength; i += CHUNK) {
-        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+        binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + CHUNK)));
       }
       audioBase64 = btoa(binary);
     } catch {
@@ -308,9 +335,9 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
         signal: controller.signal,
       });
       clearTimeout(tid);
-      const data = await res.json();
+      const data = (await res.json()) as Record<string, unknown>;
 
-      if (!res.ok || !data.ok) {
+      if (!res.ok || !data['ok']) {
         // Azure not configured or unavailable — fall back to Web Speech API mode.
         setMode('webspeech');
         startWebSpeech();
@@ -319,13 +346,14 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
 
       setAzureResult(data);
       setState('scored');
-      if (onScore) onScore({ spoken: targetText, score: data.overall ?? 0 });
-      fetchCoaching(targetText, data.overall ?? 0);
+      const overallScore = typeof data['overall'] === 'number' ? data['overall'] : 0;
+      if (onScore) onScore({ spoken: targetText, score: overallScore });
+      fetchCoaching(targetText, overallScore);
     } catch (fetchErr) {
       clearTimeout(tid);
       console.warn(
         'PronunciationScorer: Azure assess failed, falling back to Web Speech:',
-        fetchErr?.message,
+        fetchErr instanceof Error ? fetchErr.message : String(fetchErr),
       );
       // Graceful fallback: try Web Speech API. If unsupported, show error and reset.
       if (webSpeechSupported) {
@@ -353,7 +381,7 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
 
   // ── AI Coaching fetch ─────────────────────────────────────────────────────
   const fetchCoaching = useCallback(
-    async (spoken, score) => {
+    async (spoken: string, score: number) => {
       setCoaching('loading');
       const controller = new AbortController();
       const tid = setTimeout(() => controller.abort(), 12000); // 12s max
@@ -366,7 +394,7 @@ export default function PronunciationScorer({ targetText, targetEnglish, level =
         });
         clearTimeout(tid);
         if (!res.ok) throw new Error('API error');
-        const data = await res.json();
+        const data = (await res.json()) as CoachingResult;
         setCoaching(data);
       } catch {
         clearTimeout(tid);

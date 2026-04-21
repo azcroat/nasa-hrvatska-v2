@@ -8,6 +8,8 @@ import { useState, useEffect } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   preventDefault(): void;
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: string }>;
 }
 
 interface UsePwaInstallParams {

@@ -1,5 +1,10 @@
-// @ts-nocheck
 import React, { useRef, useEffect } from 'react';
+
+interface WaveformVisualizerProps {
+  active: boolean;
+  color?: string;
+  height?: number;
+}
 
 // Real-time audio waveform visualizer using Web Audio API AnalyserNode.
 // Activates mic when `active` is true; cleans up on deactivation.
@@ -9,12 +14,16 @@ import React, { useRef, useEffect } from 'react';
 //   active  - boolean: true = recording/listening, false = idle
 //   color   - CSS color for the waveform stroke (default: #0e7490)
 //   height  - canvas height in px (default: 44)
-export default function WaveformVisualizer({ active, color = '#0e7490', height = 44 }) {
-  const canvasRef = useRef(null);
-  const animRef = useRef(null);
-  const analyserRef = useRef(null);
-  const streamRef = useRef(null);
-  const ctxRef = useRef(null);
+export default function WaveformVisualizer({
+  active,
+  color = '#0e7490',
+  height = 44,
+}: WaveformVisualizerProps) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animRef = useRef<number | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const ctxRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
     if (!active) {
@@ -36,13 +45,15 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
       const cv = canvasRef.current;
       if (cv) {
         const c = cv.getContext('2d');
-        c.clearRect(0, 0, cv.width, cv.height);
-        c.strokeStyle = color + '40';
-        c.lineWidth = 1.5;
-        c.beginPath();
-        c.moveTo(0, cv.height / 2);
-        c.lineTo(cv.width, cv.height / 2);
-        c.stroke();
+        if (c) {
+          c.clearRect(0, 0, cv.width, cv.height);
+          c.strokeStyle = color + '40';
+          c.lineWidth = 1.5;
+          c.beginPath();
+          c.moveTo(0, cv.height / 2);
+          c.lineTo(cv.width, cv.height / 2);
+          c.stroke();
+        }
       }
       return undefined;
     }
@@ -88,6 +99,7 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
       analyser.getByteTimeDomainData(data);
 
       const ctx = cv.getContext('2d');
+      if (!ctx) return;
       const W = cv.width,
         H = cv.height;
       ctx.clearRect(0, 0, W, H);
@@ -105,7 +117,7 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
       ctx.beginPath();
       const step = W / (bufLen - 1);
       for (let i = 0; i < bufLen; i++) {
-        const v = data[i] / 128.0;
+        const v = (data[i] ?? 128) / 128.0;
         const y = (v * H) / 2;
         if (i === 0) ctx.moveTo(0, y);
         else ctx.lineTo(i * step, y);
@@ -121,6 +133,7 @@ export default function WaveformVisualizer({ active, color = '#0e7490', height =
         if (!mounted || !cv) return;
         animRef.current = requestAnimationFrame(tick);
         const ctx = cv.getContext('2d');
+        if (!ctx) return;
         const W = cv.width,
           H = cv.height;
         ctx.clearRect(0, 0, W, H);

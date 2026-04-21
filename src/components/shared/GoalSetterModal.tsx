@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 
 const GOALS = [
@@ -40,56 +39,77 @@ const CONNECTIONS = [
   },
 ];
 
-export default function GoalSetterModal({ onComplete }) {
-  const [step, setStep] = useState(0); // 0=goal, 1=commitment, 2=connection
-  const [goal, setGoal] = useState(null);
-  const [xp, setXp] = useState(null);
-  const [connection, setConnection] = useState(null);
+interface GoalSetterModalProps {
+  onComplete: (data: {
+    goal: string | null;
+    xp: string | number | null;
+    connection: string | null;
+  }) => void;
+}
 
-  const steps = [
+export default function GoalSetterModal({ onComplete }: GoalSetterModalProps) {
+  const [step, setStep] = useState(0); // 0=goal, 1=commitment, 2=connection
+  const [goal, setGoal] = useState<string | null>(null);
+  const [xp, setXp] = useState<string | number | null>(null);
+  const [connection, setConnection] = useState<string | null>(null);
+
+  const steps: Array<{
+    q: string;
+    sub: string;
+    options: Array<{
+      id: string | number;
+      icon?: string;
+      label?: string;
+      emoji?: string;
+      sub?: string;
+      xp?: number;
+    }>;
+    selected: string | number | null;
+    onSelect: (v: string | number) => void;
+  }> = [
     {
       q: "What's your main goal?",
       sub: "We'll personalize your learning path",
       options: GOALS,
       selected: goal,
-      onSelect: setGoal,
+      onSelect: (v) => setGoal(String(v)),
     },
     {
       q: 'How much time can you commit daily?',
       sub: "We'll set your daily XP target",
       options: COMMITMENTS,
       selected: xp,
-      onSelect: setXp,
+      onSelect: (v) => setXp(v),
     },
     {
       q: "What's your connection to Croatia?",
       sub: 'Helps us tailor your cultural content',
       options: CONNECTIONS,
       selected: connection,
-      onSelect: setConnection,
+      onSelect: (v) => setConnection(String(v)),
     },
   ];
 
-  const cur = steps[step];
+  const cur = steps[step]!;
   const canNext = cur.selected !== null;
 
   const handleNext = () => {
     if (step === 0) {
       // Persist goal immediately so re-visiting HomeTab never re-shows the modal
       try {
-        localStorage.setItem('nh_goal', goal);
+        if (goal) localStorage.setItem('nh_goal', goal);
         localStorage.setItem('nh_goal_set', '1');
       } catch (_) {}
       setStep(1);
     } else if (step === 1) {
       try {
-        localStorage.setItem('nh_daily_goal_xp', String(xp));
+        if (xp !== null) localStorage.setItem('nh_daily_goal_xp', String(xp));
       } catch (_) {}
       setStep(2);
     } else {
       // Final step — save remaining fields and close
       try {
-        localStorage.setItem('nh_connection', connection);
+        if (connection) localStorage.setItem('nh_connection', connection);
       } catch (_) {}
       onComplete({ goal, xp, connection });
     }

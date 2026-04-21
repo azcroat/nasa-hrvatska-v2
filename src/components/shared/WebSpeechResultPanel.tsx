@@ -1,9 +1,32 @@
-// @ts-nocheck
 import React from 'react';
 import { scoreColor, scoreEmoji, scoreLabel } from './pronunciationUtils.js';
 
 // ── Web Speech API scored result panel ───────────────────────────────────────
-export default function WebSpeechResultPanel({ result, coaching, onRetry, onGetCoaching }) {
+interface WebSpeechDrill {
+  word: string;
+  tip?: string;
+}
+interface WebSpeechCoaching {
+  feedback?: string;
+  phonetic_guide?: string;
+  drills?: WebSpeechDrill[];
+}
+interface WebSpeechResult {
+  score: number;
+  spoken?: string;
+  recognizedViaTranslation?: boolean;
+}
+export default function WebSpeechResultPanel({
+  result,
+  coaching,
+  onRetry,
+  onGetCoaching,
+}: {
+  result: WebSpeechResult;
+  coaching?: WebSpeechCoaching | 'loading' | null;
+  onRetry?: () => void;
+  onGetCoaching?: () => void;
+}) {
   return (
     <div
       style={{
@@ -137,7 +160,7 @@ export default function WebSpeechResultPanel({ result, coaching, onRetry, onGetC
                 Practice these:
               </div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {coaching.drills.map((d, i) => (
+                {coaching.drills.map((d: WebSpeechDrill, i: number) => (
                   <span
                     key={i}
                     title={d.tip}

@@ -1,6 +1,17 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 
+interface PhotoHeroProps {
+  src?: string;
+  alt?: string;
+  title?: string;
+  subtitle?: string;
+  height?: number;
+  overlay?: string;
+  titleColor?: string;
+  style?: React.CSSProperties;
+  priority?: boolean;
+  children?: React.ReactNode;
+}
 export default function PhotoHero({
   src,
   alt = 'Croatian landscape',
@@ -12,7 +23,7 @@ export default function PhotoHero({
   style = {},
   priority = false,
   children = null,
-}) {
+}: PhotoHeroProps) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
 

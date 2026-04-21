@@ -1,9 +1,13 @@
-// @ts-nocheck
 import React, { useEffect } from 'react';
 import { useHaptic } from '../../hooks/useHaptic';
 import BadgeArtwork from './BadgeArtwork';
 
-function BadgeToast({ show, badge }) {
+interface BadgeToastProps {
+  show: boolean;
+  badge?: { id: string; n: string; d: string } | null;
+}
+
+function BadgeToast({ show, badge }: BadgeToastProps) {
   const haptic = useHaptic();
   // Fire haptic only when a new badge is actually shown (badge.id changes).
   useEffect(() => {

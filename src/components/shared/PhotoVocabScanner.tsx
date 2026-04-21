@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 
@@ -24,8 +23,29 @@ function injectKeyframes() {
 const BRAND_RED = '#D4002D';
 const _BRAND_TEAL = '#0e7490';
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface VocabWord {
+  word: string;
+  translation: string;
+  pronunciation?: string;
+  example?: string;
+  note?: string;
+}
+interface ScanResult {
+  scene: string;
+  words: VocabWord[];
+}
+
 // ── VocabCard ─────────────────────────────────────────────────────────────────
-function VocabCard({ item, checked, onToggle }) {
+function VocabCard({
+  item,
+  checked,
+  onToggle,
+}: {
+  item: VocabWord;
+  checked: boolean;
+  onToggle: () => void;
+}) {
   return (
     <div
       style={{
@@ -152,7 +172,7 @@ function Spinner() {
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
-function Toast({ message }) {
+function Toast({ message }: { message: string }) {
   return (
     <div
       style={{
@@ -179,12 +199,17 @@ function Toast({ message }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-/**
- * PhotoVocabScanner
- *
- * @param {{ goBack: () => void, level?: string, onSaveWords?: (words: any[]) => void }} props
- */
-export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords }) {
+interface PhotoVocabScannerProps {
+  goBack: () => void;
+  level?: string;
+  onSaveWords?: (words: VocabWord[]) => void;
+}
+
+export default function PhotoVocabScanner({
+  goBack,
+  level = 'A2',
+  onSaveWords,
+}: PhotoVocabScannerProps) {
   // Inject keyframes on first render
   useEffect(() => {
     injectKeyframes();
@@ -193,23 +218,24 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   const desktop = isDesktop();
 
   // State machine: 'idle' → 'preview' → 'loading' → 'results' | 'error'
-  const [phase, setPhase] = useState('idle');
-  const [imageDataUrl, setImageDataUrl] = useState(null);
+  const [phase, setPhase] = useState<'idle' | 'preview' | 'loading' | 'results' | 'error'>('idle');
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [context, setContext] = useState('');
-  const [results, setResults] = useState(null); // { scene, words: [...] }
+  const [results, setResults] = useState<ScanResult | null>(null); // { scene, words: [...] }
   const [errorMsg, setErrorMsg] = useState('');
-  const [checked, setChecked] = useState({}); // word index → boolean
-  const [toast, setToast] = useState(null);
+  const [checked, setChecked] = useState<Record<number, boolean>>({}); // word index → boolean
+  const [toast, setToast] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // ── Shared: load a File/Blob as data URL ───────────────────────────────────
-  const loadFile = useCallback((file) => {
+  const loadFile = useCallback((file: File | null | undefined) => {
     if (!file || !file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      setImageDataUrl(ev.target.result);
+      const result = ev.target?.result;
+      if (typeof result === 'string') setImageDataUrl(result);
       setPhase('preview');
       setResults(null);
       setErrorMsg('');
@@ -220,7 +246,7 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
 
   // ── File input change ───────────────────────────────────────────────────────
   const handleFileChange = useCallback(
-    (e) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
       loadFile(file);
@@ -231,7 +257,7 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   );
 
   // ── Drag-and-drop ───────────────────────────────────────────────────────────
-  const handleDragOver = useCallback((e) => {
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(true);
   }, []);
@@ -241,10 +267,10 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   }, []);
 
   const handleDrop = useCallback(
-    (e) => {
+    (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       setDragOver(false);
-      const file = e.dataTransfer.files?.[0];
+      const file = e.dataTransfer.files?.[0] ?? null;
       loadFile(file);
     },
     [loadFile],
@@ -253,10 +279,10 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
   // ── Clipboard paste (Ctrl+V / Cmd+V) ───────────────────────────────────────
   useEffect(() => {
     if (!desktop) return;
-    const handlePaste = (e) => {
-      const item = Array.from(e.clipboardData?.items || []).find((i) =>
+    const handlePaste = (e: ClipboardEvent) => {
+      const item = Array.from(e.clipboardData?.items ?? []).find((i) =>
         i.type.startsWith('image/'),
-      );
+      ) as DataTransferItem | undefined;
       if (item) loadFile(item.getAsFile());
     };
     document.addEventListener('paste', handlePaste);
@@ -269,21 +295,23 @@ export default function PhotoVocabScanner({ goBack, level = 'A2', onSaveWords })
     setPhase('loading');
     setErrorMsg('');
     try {
-      const data = /** @type {any} */ await apiFetch('/api/photo-vocab', {
+      const data = (await apiFetch('/api/photo-vocab', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: imageDataUrl, level, context: context.trim() }),
-      });
+      })) as unknown as ScanResult;
       setResults(data);
       // Default: all words checked
-      const initial = {};
-      (data.words || []).forEach((_, i) => {
+      const initial: Record<number, boolean> = {};
+      (data.words || []).forEach((_: VocabWord, i: number) => {
         initial[i] = true;
       });
       setChecked(initial);
       setPhase('results');
     } catch (err) {
-      setErrorMsg(err?.message || 'Failed to scan image. Please try again.');
+      setErrorMsg(
+        (err instanceof Error ? err.message : null) || 'Failed to scan image. Please try again.',
+      );
       setPhase('error');
     }
   }, [imageDataUrl, level, context]);

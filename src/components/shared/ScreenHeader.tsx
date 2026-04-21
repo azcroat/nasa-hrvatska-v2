@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 /**
@@ -11,7 +10,15 @@ import React from 'react';
  *   goBack   {fn}      — called on back-button press
  *   pill     {string}  — optional right-side pill text (e.g. "+5 XP" or "A2")
  */
-export default function ScreenHeader({ title, goBack, pill }) {
+export default function ScreenHeader({
+  title,
+  goBack,
+  pill,
+}: {
+  title: string;
+  goBack?: () => void;
+  pill?: string;
+}) {
   return (
     <div className="screen-header">
       {goBack && (

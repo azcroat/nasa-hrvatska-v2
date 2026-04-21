@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 
 const SEARCH_INDEX = [
@@ -53,7 +52,7 @@ const SEARCH_INDEX = [
   { tab: 'profile', label: 'Badges & Achievements', icon: '🏆', desc: 'Your earned badges' },
 ];
 
-function normDiacritics(s) {
+function normDiacritics(s: string) {
   return s
     .toLowerCase()
     .replace(/[čć]/g, 'c')
@@ -62,14 +61,20 @@ function normDiacritics(s) {
     .replace(/đ/g, 'd');
 }
 
-export default function SearchModal({ setTab, onClose }) {
+export default function SearchModal({
+  setTab,
+  onClose,
+}: {
+  setTab: (tab: string) => void;
+  onClose: () => void;
+}) {
   const [q, setQ] = useState('');
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  function handleKeyDown(e) {
+  function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Escape') onClose();
   }
 
@@ -87,9 +92,9 @@ export default function SearchModal({ setTab, onClose }) {
         });
 
   // Group results by tab
-  const grouped = results.reduce((acc, item) => {
+  const grouped = results.reduce<Record<string, typeof results>>((acc, item) => {
     if (!acc[item.tab]) acc[item.tab] = [];
-    acc[item.tab].push(item);
+    acc[item.tab]!.push(item);
     return acc;
   }, {});
 
@@ -180,9 +185,9 @@ export default function SearchModal({ setTab, onClose }) {
                 marginBottom: 8,
               }}
             >
-              {TAB_LABELS[tab]}
+              {(TAB_LABELS as Record<string, string>)[tab]}
             </div>
-            {items.map((item, i) => (
+            {(items as typeof results).map((item, i) => (
               <button
                 key={i}
                 onClick={() => {

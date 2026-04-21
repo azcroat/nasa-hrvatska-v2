@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * PaywallScreen — Conversion-optimized premium upsell
  *
@@ -35,7 +34,15 @@ const PREMIUM_FEATURES = [
   { icon: '♾️', text: 'All levels A1 → C1 + new content monthly' },
 ];
 
-const PLANS = [
+const PLANS: Array<{
+  id: 'monthly' | 'yearly';
+  label: string;
+  price: string;
+  per: string;
+  priceNote: string | null;
+  badge: string | null;
+  highlight: boolean;
+}> = [
   {
     id: 'monthly',
     label: 'Monthly',
@@ -56,9 +63,17 @@ const PLANS = [
   },
 ];
 
-export default function PaywallScreen({ onClose, featureName = 'AI Tutor', onSubscribed }) {
-  const [selectedPlan, setSelectedPlan] =
-    /** @type {[('yearly'|'monthly'), Function]} */ useState('yearly');
+interface PaywallScreenProps {
+  onClose?: () => void;
+  featureName?: string;
+  onSubscribed?: () => void;
+}
+export default function PaywallScreen({
+  onClose,
+  featureName = 'AI Tutor',
+  onSubscribed,
+}: PaywallScreenProps) {
+  const [selectedPlan, setSelectedPlan] = useState<'yearly' | 'monthly'>('yearly');
   const [promoCode, setPromoCode] = useState('');
   const [promoMsg, setPromoMsg] = useState('');
   const [showPromo, setShowPromo] = useState(false);

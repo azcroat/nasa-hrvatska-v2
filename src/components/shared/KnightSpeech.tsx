@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import CroatianKnight from './CroatianKnight';
@@ -10,10 +9,10 @@ const _isNative =
   !window.location.port;
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]!;
 }
-function _todayKey(base) {
+function _todayKey(base: string) {
   const d = new Date();
   return (
     base +
@@ -27,7 +26,7 @@ function _todayKey(base) {
 }
 
 // ─── Typewriter component ─────────────────────────────────────────────────────
-function TypewriterText({ text, speed = 13 }) {
+function TypewriterText({ text, speed = 13 }: { text: string; speed?: number }) {
   const [shown, setShown] = useState('');
   useEffect(() => {
     setShown('');
@@ -39,6 +38,7 @@ function TypewriterText({ text, speed = 13 }) {
       if (i >= text.length) clearInterval(id);
     }, speed);
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
   const done = shown.length >= (text?.length || 0);
   return (
@@ -63,8 +63,15 @@ function TypewriterText({ text, speed = 13 }) {
 
 // ─── Celebration particle burst ───────────────────────────────────────────────
 const PARTY_COLORS = ['#CC0022', '#F4F0E2', '#D4A400', '#EE3042', '#FFDC3C'];
-function CelebrationBurst({ active }) {
-  const [particles, setParticles] = useState([]);
+interface KnightSpeechParticle {
+  id: number;
+  angle: number;
+  dist: number;
+  color: string;
+  size: number;
+}
+function CelebrationBurst({ active }: { active: boolean }) {
+  const [particles, setParticles] = useState<KnightSpeechParticle[]>([]);
   const [runKey, setRunKey] = useState(0);
   useEffect(() => {
     if (!active) return;
@@ -74,7 +81,7 @@ function CelebrationBurst({ active }) {
         id: i,
         angle: (i / 10) * 360 + (Math.random() * 24 - 12),
         dist: 32 + Math.random() * 22,
-        color: PARTY_COLORS[i % PARTY_COLORS.length],
+        color: PARTY_COLORS[i % PARTY_COLORS.length] ?? '#CC0022',
         size: 4 + Math.random() * 4,
       })),
     );
@@ -346,7 +353,15 @@ const CONTEXTUAL_POOL = [
 ];
 
 // ─── Contextual greeting engine ───────────────────────────────────────────────
-function getGreeting(st, streakCount, level) {
+interface GreetingMsg {
+  mood: string;
+  text: string;
+}
+function getGreeting(
+  st: Record<string, number> | null | undefined,
+  streakCount: number,
+  level: number,
+): GreetingMsg {
   const hour = new Date().getHours();
   const day = new Date().getDay();
   const xp = st?.xp || 0;
@@ -600,7 +615,7 @@ function getGreeting(st, streakCount, level) {
       },
     ]);
 
-  return CONTEXTUAL_POOL[(new Date().getDate() + day) % CONTEXTUAL_POOL.length];
+  return CONTEXTUAL_POOL[(new Date().getDate() + day) % CONTEXTUAL_POOL.length]!;
 }
 
 // ─── Mood → accent color ──────────────────────────────────────────────────────
@@ -617,7 +632,7 @@ const MOOD_COLOR = {
 };
 
 // ─── Speech bubble tail (points left toward the knight) ───────────────────────
-function _BubbleTail({ color }) {
+function _BubbleTail({ color }: { color: string }) {
   return (
     <>
       {/* Outer — acts as border */}
@@ -653,7 +668,15 @@ function _BubbleTail({ color }) {
 }
 
 // ─── Quick-reply pill button ──────────────────────────────────────────────────
-function QuickReply({ label, color, onClick }) {
+function QuickReply({
+  label,
+  color,
+  onClick,
+}: {
+  label: string;
+  color: string;
+  onClick: () => void;
+}) {
   return (
     <button
       onClick={onClick}
@@ -685,20 +708,27 @@ function QuickReply({ label, color, onClick }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
+interface KnightSpeechProps {
+  st?: Record<string, number> | null;
+  sessionKey?: string;
+  onDismiss?: () => void;
+  streak?: number;
+  level?: number;
+}
 export default function KnightSpeech({
   st,
   sessionKey = 'nh_knight_greeted',
   onDismiss,
   streak = 0,
   level = 1,
-}) {
+}: KnightSpeechProps) {
   const [mode, setMode] = useState('hidden');
   const [animOut, setAnimOut] = useState(false);
-  const [greeting, setGreeting] = useState(() => getGreeting(st, streak, level));
+  const [greeting, setGreeting] = useState<GreetingMsg>(() => getGreeting(st, streak, level));
   const [celebBurst, setCelebBurst] = useState(false);
   // introMood: temporary mood override for the first-visit walk-in sequence.
   // Runs through neutral → marching → celebrating → ready over ~3.2s.
-  const [introMood, setIntroMood] = useState(null);
+  const [introMood, setIntroMood] = useState<string | null>(null);
   // ── Persistent pool state (survives reload, resets daily) ────────────────────
   const POOL_KEY = 'nh_knight_pool';
   function _loadPoolState() {
@@ -717,7 +747,7 @@ export default function KnightSpeech({
       return { poolIdx: -1, lastPick: { grammar: -1, culture: -1, motivate: -1 } };
     }
   }
-  function _savePoolState(idx, lp) {
+  function _savePoolState(idx: number, lp: unknown) {
     try {
       localStorage.setItem(
         POOL_KEY,
@@ -733,7 +763,7 @@ export default function KnightSpeech({
   const _initPool = _loadPoolState();
   const poolIdxRef = useRef(_initPool.poolIdx);
   const lastPickRef = useRef(_initPool.lastPick);
-  const celebTimerRef = useRef(null);
+  const celebTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── First-visit walk-in intro sequence ───────────────────────────────────
   // Plays once ever: knight walks in from offscreen (handled by wrapper motion.div
@@ -756,6 +786,7 @@ export default function KnightSpeech({
       clearTimeout(t2);
       clearTimeout(t3);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentional: intro animation runs once on mount only
 
   // Show full once per day, then mini
@@ -766,12 +797,13 @@ export default function KnightSpeech({
       setGreeting(getGreeting(st, streak, level));
     }, 600);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionKey]);
 
   // Listen for celebration events from useAward and badge awards
   useEffect(() => {
-    const onCelebrate = (e) => {
-      const d = e.detail || {};
+    const onCelebrate = (e: Event) => {
+      const d = ((e as CustomEvent).detail || {}) as { mood?: string; text?: string };
       if (d.text) setGreeting({ mood: d.mood || 'celebrating', text: d.text });
       setAnimOut(false);
       setCelebBurst(false);
@@ -779,7 +811,7 @@ export default function KnightSpeech({
       // Don't re-open if user already dismissed today
       if (!localStorage.getItem(_todayKey(sessionKey))) {
         setMode('full');
-        clearTimeout(celebTimerRef.current);
+        if (celebTimerRef.current !== null) clearTimeout(celebTimerRef.current);
         celebTimerRef.current = setTimeout(() => setMode('mini'), 5500);
       }
     };
@@ -798,7 +830,7 @@ export default function KnightSpeech({
       },
     ];
     const onBadge = () => {
-      const reaction = BADGE_REACTIONS[Math.floor(Math.random() * BADGE_REACTIONS.length)];
+      const reaction = BADGE_REACTIONS[Math.floor(Math.random() * BADGE_REACTIONS.length)]!;
       setGreeting(reaction);
       setAnimOut(false);
       setCelebBurst(false);
@@ -806,7 +838,7 @@ export default function KnightSpeech({
       // Don't re-open if user already dismissed today
       if (!localStorage.getItem(_todayKey(sessionKey))) {
         setMode('full');
-        clearTimeout(celebTimerRef.current);
+        if (celebTimerRef.current !== null) clearTimeout(celebTimerRef.current);
         celebTimerRef.current = setTimeout(() => setMode('mini'), 6000);
       }
     };
@@ -815,8 +847,9 @@ export default function KnightSpeech({
     return () => {
       window.removeEventListener('knight:celebrate', onCelebrate);
       window.removeEventListener('knight:badge', onBadge);
-      clearTimeout(celebTimerRef.current);
+      if (celebTimerRef.current !== null) clearTimeout(celebTimerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const dismiss = () => {
@@ -830,20 +863,20 @@ export default function KnightSpeech({
   };
 
   // Pick next from a pool without immediate repetition
-  function pickPool(pool, category) {
-    let idx;
+  function pickPool(pool: GreetingMsg[], category: string): GreetingMsg {
+    let idx: number;
     do {
       idx = Math.floor(Math.random() * pool.length);
-    } while (idx === lastPickRef.current[category] && pool.length > 1);
-    lastPickRef.current[category] = idx;
+    } while (idx === (lastPickRef.current as Record<string, number>)[category] && pool.length > 1);
+    (lastPickRef.current as Record<string, number>)[category] = idx;
     _savePoolState(poolIdxRef.current, lastPickRef.current);
-    return pool[idx];
+    return pool[idx]!;
   }
 
   // Cycle through contextual pool on bubble tap
   const cycleBubble = () => {
     poolIdxRef.current = (poolIdxRef.current + 1) % CONTEXTUAL_POOL.length;
-    setGreeting(CONTEXTUAL_POOL[poolIdxRef.current]);
+    setGreeting(CONTEXTUAL_POOL[poolIdxRef.current]!);
     _savePoolState(poolIdxRef.current, lastPickRef.current);
   };
 
@@ -856,7 +889,7 @@ export default function KnightSpeech({
   const isStreakRisk = lc > 0 && streak === 0;
   const isEveningRisk = lc > 0 && streak > 0 && new Date().getHours() >= 21;
   const showUrgency = isStreakRisk || isEveningRisk;
-  const accentColor = MOOD_COLOR[mood] || MOOD_COLOR.happy;
+  const accentColor = (MOOD_COLOR as Record<string, string | undefined>)[mood] || MOOD_COLOR.happy;
 
   // ── Mini mode — floating knight button ────────────────────────────────────
   if (mode === 'mini') {
@@ -925,7 +958,7 @@ export default function KnightSpeech({
               : `0 6px 24px ${accentColor}28, var(--card-shadow)`;
           }}
         >
-          <CroatianKnight size={42} mood={isStreakRisk ? 'sad' : mood} variant={0} />
+          <CroatianKnight size={42} mood={isStreakRisk ? 'sad' : mood} />
           {showUrgency && (
             <span
               style={{

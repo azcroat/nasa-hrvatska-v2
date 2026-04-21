@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 
 const GENERIC_STEPS = [
@@ -47,26 +46,30 @@ const DIASPORA_STEPS = [
   },
 ];
 
-export default function OnboardingTour({ onDone, onLaunchLesson }) {
+interface OnboardingTourProps {
+  onDone: () => void;
+  onLaunchLesson?: () => void;
+}
+export default function OnboardingTour({ onDone, onLaunchLesson }: OnboardingTourProps) {
   const userGoal = localStorage.getItem('nh_goal');
   const isDiaspora = userGoal === 'heritage' || userGoal === 'family';
   const STEPS = isDiaspora ? DIASPORA_STEPS : GENERIC_STEPS;
   const [step, setStep] = useState(0);
-  const cur = STEPS[step];
+  const cur = STEPS[step]!;
   const isLast = step === STEPS.length - 1;
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   // Focus trap (also handles Escape)
   useEffect(() => {
     const modal = modalRef.current;
     if (!modal) return;
-    const focusable = modal.querySelectorAll(
+    const focusable = modal.querySelectorAll<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     first?.focus();
-    function handleKeyDown(e) {
+    function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         onDone();
         return;

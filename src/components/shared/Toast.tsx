@@ -1,7 +1,12 @@
-// @ts-nocheck
 import React, { useEffect, useRef } from 'react';
 
-export default function Toast({ message, type = 'success', onClose }) {
+interface ToastProps {
+  message: string;
+  type?: 'success' | 'error' | 'info';
+  onClose: () => void;
+}
+
+export default function Toast({ message, type = 'success', onClose }: ToastProps) {
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
@@ -15,7 +20,7 @@ export default function Toast({ message, type = 'success', onClose }) {
     error: { bg: '#dc2626', border: '#b91c1c' },
     info: { bg: '#0e7490', border: '#0c6780' },
   };
-  const c = colors[type] || colors.info;
+  const c = colors[type as keyof typeof colors] || colors.info;
 
   return (
     <div
