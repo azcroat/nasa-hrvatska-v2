@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import CroatianKnight from './CroatianKnight';
 import { reportError } from '../../lib/errorReporter.js';
@@ -15,17 +14,26 @@ export interface ScreenErrorBoundaryProps {
  * so a single broken component doesn't destroy the entire session.
  * Usage: <ScreenErrorBoundary name="HomeTab"><HomeTab .../></ScreenErrorBoundary>
  */
-export default class ScreenErrorBoundary extends React.Component<ScreenErrorBoundaryProps> {
-  constructor(props) {
+interface ScreenErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+  retries: number;
+}
+
+export default class ScreenErrorBoundary extends React.Component<
+  ScreenErrorBoundaryProps,
+  ScreenErrorBoundaryState
+> {
+  constructor(props: ScreenErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null, retries: 0 };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, info) {
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
     const screenName = String(this.props.name || 'Screen');
     console.error('[' + screenName + '] crashed:', error, info);
     reportError(error, screenName);

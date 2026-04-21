@@ -1,16 +1,20 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 
-function XPPopup({ showXP, xpA }) {
+interface XPPopupProps {
+  showXP: boolean;
+  xpA: number;
+}
+
+function XPPopup({ showXP, xpA }: XPPopupProps) {
   const alreadyEarned = xpA === 0;
 
   const [displayAmt, setDisplayAmt] = useState(0);
 
   useEffect(() => {
     if (!showXP || xpA <= 0) return;
-    let start = null;
+    let start: number | null = null;
     const duration = 600;
-    const animate = (ts) => {
+    const animate = (ts: number) => {
       if (!start) start = ts;
       const progress = Math.min((ts - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 2); // ease-out quad

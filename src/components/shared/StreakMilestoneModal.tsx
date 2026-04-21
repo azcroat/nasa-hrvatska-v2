@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { useHaptic } from '../../hooks/useHaptic';
@@ -55,9 +54,11 @@ const MESSAGES = {
   },
 };
 
-function StreakMilestoneModal({ days, onClose }) {
+function StreakMilestoneModal({ days, onClose }: { days: number; onClose?: () => void }) {
   const haptic = useHaptic();
-  const msg = MESSAGES[days] || {
+  const msg = (MESSAGES as Record<number, (typeof MESSAGES)[keyof typeof MESSAGES] | undefined>)[
+    days
+  ] || {
     emoji: '🔥',
     title: `${days}-Day Streak!`,
     sub: 'Keep it up!',
@@ -66,23 +67,24 @@ function StreakMilestoneModal({ days, onClose }) {
   };
   const fired = useRef(false);
   const [copied, setCopied] = useState(false);
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     haptic.award();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Focus trap
   useEffect(() => {
     const modal = modalRef.current;
     if (!modal) return;
-    const focusable = modal.querySelectorAll(
+    const focusable = modal.querySelectorAll<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     first?.focus();
-    function handleKeyDown(e) {
+    function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         onClose?.();
         return;
@@ -115,7 +117,9 @@ function StreakMilestoneModal({ days, onClose }) {
       if (Date.now() < end) requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
-    const t = setTimeout(onClose, 6000);
+    const t = setTimeout(() => {
+      onClose?.();
+    }, 6000);
     return () => clearTimeout(t);
   }, [onClose, msg.color]);
 
@@ -146,7 +150,7 @@ function StreakMilestoneModal({ days, onClose }) {
       onKeyDown={(e) => {
         if (e.key === 'Escape') {
           e.preventDefault();
-          onClose();
+          onClose?.();
         }
       }}
       style={{

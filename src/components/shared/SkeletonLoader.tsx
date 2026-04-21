@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 // Animated shimmer skeleton block
@@ -45,8 +44,14 @@ export function AIContentSkeleton({ message = 'Generating…', icon = '🤖' }) 
 }
 
 // Progress bar with pulsing animation and ETA message
-export function AIProgressBar({ phase = 'thinking', messages }) {
-  const defaultMessages = {
+export function AIProgressBar({
+  phase = 'thinking',
+  messages,
+}: {
+  phase?: string;
+  messages?: string[];
+}) {
+  const defaultMessages: Record<string, string[]> = {
     thinking: [
       'Thinking in Croatian…',
       'Consulting the baka…',
@@ -56,7 +61,7 @@ export function AIProgressBar({ phase = 'thinking', messages }) {
     audio: ['Recording voice…', 'Converting to speech…', 'Almost ready…'],
     processing: ['Analyzing…', 'Processing your answer…'],
   };
-  const msgs = messages || defaultMessages[phase] || defaultMessages.thinking;
+  const msgs = messages || defaultMessages[phase] || defaultMessages['thinking']!;
   const [msgIdx, setMsgIdx] = React.useState(0);
   React.useEffect(() => {
     const t = setInterval(() => setMsgIdx((i) => (i + 1) % msgs.length), 1800);

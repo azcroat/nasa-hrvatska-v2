@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useState, memo } from 'react';
 
 // Confetti colors — Croatian flag + gold
@@ -114,10 +113,17 @@ const CEREMONY_CONFIG = {
   },
 };
 
-function CeremonyModal({ type, stats, name, onClose }) {
+interface CeremonyModalProps {
+  type: string;
+  stats: { xp?: number; lc?: number; str?: number };
+  name?: string;
+  onClose?: () => void;
+}
+
+function CeremonyModal({ type, stats, name, onClose }: CeremonyModalProps) {
   const [showShare, setShowShare] = useState(false);
-  const cfg = CEREMONY_CONFIG[type] || CEREMONY_CONFIG['streak_30'];
-  const modalRef = useRef(null);
+  const cfg = CEREMONY_CONFIG[type as keyof typeof CEREMONY_CONFIG] || CEREMONY_CONFIG['streak_30'];
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // Prevent body scroll while modal is open
@@ -131,13 +137,13 @@ function CeremonyModal({ type, stats, name, onClose }) {
   useEffect(() => {
     const modal = modalRef.current;
     if (!modal) return;
-    const focusable = modal.querySelectorAll(
+    const focusable = modal.querySelectorAll<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     first?.focus();
-    function handleKeyDown(e) {
+    function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         onClose?.();
         return;
@@ -167,7 +173,7 @@ function CeremonyModal({ type, stats, name, onClose }) {
   const shareText = `${cfg.emoji} ${cfg.title} — ${cfg.titleHr}\n\nI've been learning Croatian with Naša Hrvatska!\n${lc} lessons · ${xp} XP · ${streak}-day streak\n\n${APP_URL}`;
   const shareTextShort = `${cfg.emoji} ${cfg.title} — learning Croatian with Naša Hrvatska! ${lc} lessons · ${xp} XP · ${streak}-day streak`;
 
-  function openInNewTab(url) {
+  function openInNewTab(url: string) {
     window.open(url, '_blank', 'noopener,noreferrer,width=600,height=480');
   }
 

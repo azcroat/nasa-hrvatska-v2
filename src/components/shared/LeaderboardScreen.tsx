@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import {
   subscribeToLeaderboard,
@@ -6,12 +5,20 @@ import {
   getLeagueForRank,
   LEAGUES,
   getWeekKey,
+  type League,
+  type LeaderboardEntry,
 } from '../../lib/leaderboard.js';
+import type { Firestore } from 'firebase/firestore';
 
 // ── Tier order for promotion comparison (lower index = worse tier) ──
 const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
-function getTierProgress(rank) {
+interface RankTrend {
+  delta: number;
+  dir: 'up' | 'down' | 'same';
+}
+
+function getTierProgress(rank: number | null) {
   if (!rank) return null;
   if (rank <= 3) return { message: "👑 You're at the top — defend your crown!", isTop: true };
   if (rank <= 10) return { message: `You're #${rank} — reach top 3 for Diamond 👑`, isTop: false };
@@ -29,21 +36,32 @@ function daysUntilMonday() {
   return diff === 0 ? 7 : diff;
 }
 
-export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
-  const [entries, setEntries] = useState([]);
-  const [myRank, setMyRank] = useState(null);
+interface LeaderboardScreenProps {
+  db: Firestore | null;
+  user?: { u?: string; d?: string; e?: string } | null;
+  weekXP?: number;
+  goBack: () => void;
+}
+export default function LeaderboardScreen({
+  db,
+  user,
+  weekXP = 0,
+  goBack,
+}: LeaderboardScreenProps) {
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [myRank, setMyRank] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const [league, setLeague] = useState(LEAGUES[0]);
+  const [league, setLeague] = useState<League>(LEAGUES[0]!);
   const [fetchError, setFetchError] = useState(false);
 
   // Rank trend state
-  const [rankTrend, setRankTrend] = useState(null); // { delta, dir: 'up'|'down'|'same' }
+  const [rankTrend, setRankTrend] = useState<RankTrend | null>(null);
 
   // Promotion celebration state
-  const [promotionTier, setPromotionTier] = useState(null); // tier name string, or null
+  const [promotionTier, setPromotionTier] = useState<string | null>(null);
 
   // user has shape { u: uid/email, d: displayName, e: email }
-  const uid = user?.u;
+  const uid = user?.u ?? '';
 
   useEffect(() => {
     let mounted = true;
@@ -325,7 +343,8 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {entries.map((e, i) => {
             const isMe = e.uid === uid;
-            const entryLeague = getLeagueForRank(e.rank);
+            const eRank = e.rank ?? 999;
+            const entryLeague = getLeagueForRank(eRank);
             const isNeighbor = !isMe && neighborhoodIndices.has(i);
             const isNeighborhoodStart =
               showNeighborhood && i === Math.max(0, myIndexInList - 2) && myIndexInList > 9;
@@ -380,19 +399,19 @@ export default function LeaderboardScreen({ db, user, weekXP = 0, goBack }) {
                     style={{
                       width: 28,
                       textAlign: 'center',
-                      fontSize: e.rank <= 3 ? 20 : 13,
+                      fontSize: eRank <= 3 ? 20 : 13,
                       fontWeight: 900,
                       color:
-                        e.rank === 1
+                        eRank === 1
                           ? 'var(--medal-gold, #f59e0b)'
-                          : e.rank === 2
+                          : eRank === 2
                             ? 'var(--medal-silver, #94a3b8)'
-                            : e.rank === 3
+                            : eRank === 3
                               ? 'var(--medal-bronze, #cd7f32)'
                               : 'var(--subtext)',
                     }}
                   >
-                    {e.rank === 1 ? '🥇' : e.rank === 2 ? '🥈' : e.rank === 3 ? '🥉' : `#${e.rank}`}
+                    {eRank === 1 ? '🥇' : eRank === 2 ? '🥈' : eRank === 3 ? '🥉' : `#${eRank}`}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useCallback } from 'react';
 
 const SCENES = [
@@ -31,7 +30,12 @@ const SCENES = [
   },
 ];
 
-function createNoise(ctx, gain, filterFreq, filterType = 'lowpass') {
+function createNoise(
+  ctx: AudioContext,
+  gain: number,
+  filterFreq: number,
+  filterType: BiquadFilterType = 'lowpass',
+) {
   const bufferSize = ctx.sampleRate * 2;
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
@@ -53,9 +57,13 @@ function createNoise(ctx, gain, filterFreq, filterType = 'lowpass') {
 
 export default function AmbientPlayer() {
   const [scene, setScene] = useState('off');
-  const ctxRef = useRef(null);
-  const nodesRef = useRef(null);
-  const lfoRef = useRef(null);
+  const ctxRef = useRef<AudioContext | null>(null);
+  const nodesRef = useRef<{
+    source: AudioBufferSourceNode;
+    filter: BiquadFilterNode;
+    gainNode: GainNode;
+  } | null>(null);
+  const lfoRef = useRef<{ lfo: OscillatorNode; lfoGain: GainNode } | null>(null);
 
   const stopAll = useCallback(() => {
     if (nodesRef.current) {
@@ -82,7 +90,7 @@ export default function AmbientPlayer() {
   }, []);
 
   const startScene = useCallback(
-    (sceneId) => {
+    (sceneId: string) => {
       stopAll();
       const cfg = SCENES.find((s) => s.id === sceneId);
       if (!cfg) return;
@@ -91,7 +99,12 @@ export default function AmbientPlayer() {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         ctxRef.current = ctx;
 
-        const nodes = createNoise(ctx, cfg.gain, cfg.filterFreq, cfg.filterType);
+        const nodes = createNoise(
+          ctx,
+          cfg.gain,
+          cfg.filterFreq,
+          cfg.filterType as BiquadFilterType,
+        );
         nodesRef.current = nodes;
 
         if (cfg.lfoFreq) {
@@ -111,7 +124,7 @@ export default function AmbientPlayer() {
     [stopAll],
   );
 
-  function handleSceneClick(sceneId) {
+  function handleSceneClick(sceneId: string) {
     if (scene === sceneId) {
       stopAll();
       setScene('off');

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 
 /** Props for CroatianKnight — exported for typed JSX in non-@ts-nocheck files. */
@@ -313,8 +312,17 @@ const MOOD: Record<string, MoodCfg> = {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
+interface EyeProps {
+  cx: number;
+  cy: number;
+  pxOff?: number;
+  pyOff?: number;
+  scaleY?: number;
+  wink?: boolean;
+}
+
 /** Single eye with pupil and reflective highlights. */
-function Eye({ cx, cy, pxOff = 0, pyOff = 0, scaleY = 1, wink = false }) {
+function Eye({ cx, cy, pxOff = 0, pyOff = 0, scaleY = 1, wink = false }: EyeProps) {
   const RX = 10,
     RY = 11;
   const sRY = Math.max(RY * scaleY, 0.5);
@@ -370,8 +378,12 @@ function BrowPath() {
   );
 }
 
+interface MouthProps {
+  type: string;
+}
+
 /** Mouth shape — centred at (0,0), caller wraps in a translate group. */
-function Mouth({ type }) {
+function Mouth({ type }: MouthProps) {
   switch (type) {
     case 'happy':
       return (
@@ -485,7 +497,15 @@ function Mouth({ type }) {
  * Croatian šahovnica shield — heraldic pointed shape, authentic white-first 3×3 pattern.
  * The real Croatian coat of arms always has white in the top-left cell.
  */
-function Shield({ cx, cy, r = 13, goldTrim = false, instanceId = 'def' }) {
+interface ShieldProps {
+  cx: number;
+  cy: number;
+  r?: number;
+  goldTrim?: boolean;
+  instanceId?: string;
+}
+
+function Shield({ cx, cy, r = 13, goldTrim = false, instanceId = 'def' }: ShieldProps) {
   // instanceId is passed from the parent to ensure clipPath IDs are unique per
   // mounted instance — coordinate-derived IDs collide when two knights render at the same size.
   const clipId = `kn-sh-${instanceId}`;
@@ -551,8 +571,15 @@ function Shield({ cx, cy, r = 13, goldTrim = false, instanceId = 'def' }) {
   );
 }
 
+interface SwordProps {
+  x: number;
+  y1: number;
+  y2: number;
+  golden?: boolean;
+}
+
 /** Sword — blade points downward from (x, y1) to (x, y2). */
-function Sword({ x, y1, y2, golden = false }) {
+function Sword({ x, y1, y2, golden = false }: SwordProps) {
   const blade = golden ? C.gold : C.silver;
   const bladeLt = golden ? C.goldLt : C.silverLt;
   const bladeDk = golden ? C.goldDk : C.silverDk;
@@ -616,8 +643,8 @@ const CroatianKnight = React.memo(function CroatianKnight({
   level = 1,
   className = '',
   style = {},
-}) {
-  const cfg = MOOD[mood] || MOOD.happy;
+}: CroatianKnightProps) {
+  const cfg = (MOOD[mood] || MOOD.happy)!;
 
   // Stable instance ID — ensures clipPath IDs are unique across concurrent knight instances
   // (CelebrationModal + KnightCompanion + any screen with multiple knights).
@@ -644,8 +671,8 @@ const CroatianKnight = React.memo(function CroatianKnight({
 
   // Auto-blink (random interval: 2.5–6 s)
   const [blink, setBlink] = useState(false);
-  const blinkRef = useRef(null);
-  const blinkInnerRef = useRef(null);
+  const blinkRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const blinkInnerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     function schedule() {
       blinkRef.current = setTimeout(
@@ -663,8 +690,8 @@ const CroatianKnight = React.memo(function CroatianKnight({
     }
     schedule();
     return () => {
-      clearTimeout(blinkRef.current);
-      clearTimeout(blinkInnerRef.current);
+      if (blinkRef.current !== null) clearTimeout(blinkRef.current);
+      if (blinkInnerRef.current !== null) clearTimeout(blinkInnerRef.current);
     };
   }, []);
 
@@ -702,7 +729,7 @@ const CroatianKnight = React.memo(function CroatianKnight({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        filter: MOOD_GLOW[mood] || 'none',
+        filter: (MOOD_GLOW as Record<string, string | undefined>)[mood] || 'none',
         animation: mood === 'onfire' ? 'kn-flicker 0.65s ease-in-out infinite' : undefined,
         ...style,
       }}

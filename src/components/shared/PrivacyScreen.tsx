@@ -1,8 +1,7 @@
-// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 
-export default function PrivacyScreen({ goBack }) {
+export default function PrivacyScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('Privacy & Terms', 'Last updated: March 2026', goBack)}

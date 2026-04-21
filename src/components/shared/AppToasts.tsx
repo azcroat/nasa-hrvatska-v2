@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * AppToasts — all transient toast / banner overlays.
  *
@@ -7,6 +6,42 @@
  */
 import React from 'react';
 import KnightToast from './KnightToast';
+
+interface DeferredInstallPrompt {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: string }>;
+}
+
+interface AppToastsProps {
+  // Gamification toasts
+  comebackBonus: boolean;
+  freezeUsedToast: boolean;
+  earnBackPrompt: { prev: number } | null;
+  streakRestoredCount: number;
+  ttsFailedToast: boolean;
+  // Streak repair
+  streakRepairAvailable: boolean;
+  onRepairStreak: ((action: string) => void) | null;
+  // PWA install banners
+  showAndroidInstall: boolean;
+  setShowAndroidInstall: (v: boolean) => void;
+  deferredInstallPrompt: DeferredInstallPrompt | null;
+  showPwaInstall: boolean;
+  setShowPwaInstall: (v: boolean) => void;
+  showBackupBanner: boolean;
+  setShowBackupBanner: (v: boolean) => void;
+  syncError: boolean;
+  setSyncError: (v: boolean) => void;
+  syncErrorCode: string | null;
+  // Subscription
+  isFreeAnnual: boolean;
+  daysLeft: number | null;
+  setShowPaywall: (v: boolean) => void;
+  // Email verification
+  emailUnverified: boolean;
+  setEmailUnverified: (v: boolean) => void;
+  resendVerification: () => void;
+}
 
 export function AppToasts({
   // Gamification toasts
@@ -37,7 +72,7 @@ export function AppToasts({
   emailUnverified,
   setEmailUnverified,
   resendVerification,
-}) {
+}: AppToastsProps) {
   return (
     <>
       {/* Knight celebration overlay — listens to knight:celebrate event from useAward */}

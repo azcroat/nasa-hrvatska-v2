@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useState, memo } from 'react';
 import confetti from 'canvas-confetti';
 import { rnd } from '../../lib/random.js';
@@ -43,15 +42,29 @@ function makeStars(n = 12) {
   }));
 }
 
-function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic = '' }) {
+interface CelebrationModalProps {
+  xp?: number;
+  onClose: () => void;
+  streak?: number;
+  onNext?: (() => void) | null;
+  lessonTopic?: string;
+}
+
+function CelebrationModal({
+  xp,
+  onClose,
+  streak = 0,
+  onNext = null,
+  lessonTopic = '',
+}: CelebrationModalProps) {
   // DOM particle layer removed — canvas-confetti handles all particles (better perf)
   const stars = useRef(makeStars(12)).current;
   const [displayXP, setDisplayXP] = useState(0);
   const [_phase, setPhase] = useState('burst'); // burst → reveal → done
   const [showMomentum, setShowMomentum] = useState(false);
-  const [difficulty, setDifficulty] = useState(null); // 'easy' | 'right' | 'hard'
+  const [difficulty, setDifficulty] = useState<string | null>(null); // 'easy' | 'right' | 'hard'
   const haptic = useHaptic();
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   // Lock body scroll when modal is open; restore focus to trigger element on close
   useEffect(() => {
@@ -70,13 +83,13 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
   useEffect(() => {
     const modal = modalRef.current;
     if (!modal) return;
-    const focusable = modal.querySelectorAll(
+    const focusable = modal.querySelectorAll<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     first?.focus();
-    function handleKeyDown(e) {
+    function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         onClose?.();
         return;
@@ -127,7 +140,7 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
     const target = xp || 0;
     const duration = 800;
     const start = Date.now();
-    let rafId;
+    let rafId: number;
     const tick = () => {
       const elapsed = Date.now() - start;
       const progress = Math.min(elapsed / duration, 1);
@@ -166,9 +179,10 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
       clearTimeout(t2);
       clearTimeout(t3);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose, xp]);
 
-  function rateDifficulty(rating) {
+  function rateDifficulty(rating: string) {
     setDifficulty(rating);
     // Save per-topic difficulty feedback
     try {
@@ -458,7 +472,7 @@ function CelebrationModal({ xp, onClose, streak = 0, onNext = null, lessonTopic 
               data-modal-focus
               onClick={() => {
                 onClose();
-                onNext();
+                onNext?.();
               }}
               style={{
                 width: '100%',

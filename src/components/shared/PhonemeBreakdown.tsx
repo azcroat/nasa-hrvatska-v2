@@ -1,10 +1,13 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { PHONEME_GUIDES, PHONEME_HINTS, scoreColor } from './pronunciationUtils.js';
 import PhonemeGuideCard from './PhonemeGuideCard';
 
 // ── Phoneme breakdown panel (Azure-mode only) ─────────────────────────────────
-export default function PhonemeBreakdown({ phonemes }) {
+interface Phoneme {
+  phoneme: string;
+  score: number;
+}
+export default function PhonemeBreakdown({ phonemes }: { phonemes: Phoneme[] }) {
   const [open, setOpen] = useState(false);
   if (!phonemes || phonemes.length === 0) return null;
   return (
@@ -29,9 +32,9 @@ export default function PhonemeBreakdown({ phonemes }) {
       {open && (
         <div style={{ marginTop: 4 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
-            {phonemes.map((p, i) => {
-              const hint =
-                PHONEME_HINTS[p.phoneme.toLowerCase()] || PHONEME_HINTS[p.phoneme] || null;
+            {phonemes.map((p: Phoneme, i: number) => {
+              const hints = PHONEME_HINTS as Record<string, string | undefined>;
+              const hint = hints[p.phoneme.toLowerCase()] || hints[p.phoneme] || null;
               return (
                 <span
                   key={i}
@@ -57,9 +60,13 @@ export default function PhonemeBreakdown({ phonemes }) {
           </div>
           {/* Show articulation guide for any low-scoring Croatian-specific phoneme */}
           {phonemes
-            .filter((p) => p.score < 70 && PHONEME_GUIDES[p.phoneme.toLowerCase()])
+            .filter(
+              (p: Phoneme) =>
+                p.score < 70 &&
+                (PHONEME_GUIDES as Record<string, unknown>)[p.phoneme.toLowerCase()],
+            )
             .slice(0, 1)
-            .map((p) => (
+            .map((p: Phoneme) => (
               <PhonemeGuideCard key={p.phoneme} phoneme={p.phoneme.toLowerCase()} />
             ))}
         </div>

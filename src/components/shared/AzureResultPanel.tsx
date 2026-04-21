@@ -1,11 +1,30 @@
-// @ts-nocheck
 import React from 'react';
 import { PHONEME_HINTS, scoreColor, scoreEmoji, scoreLabel } from './pronunciationUtils.js';
 import PhonemeBreakdown from './PhonemeBreakdown';
 import PhonemeGuideCard from './PhonemeGuideCard';
 
 // ── Azure Assessment results panel ────────────────────────────────────────────
-export default function AzureResultPanel({ azureResult, onRetry }) {
+interface WordScore {
+  word?: string;
+  score: number;
+  phonemes?: Array<{ phoneme: string; score: number }>;
+}
+
+interface AzureResultData {
+  overall?: number;
+  word_scores?: WordScore[];
+  accuracy?: number;
+  fluency?: number;
+  completeness?: number;
+  prosody?: number;
+}
+
+interface AzureResultPanelProps {
+  azureResult: AzureResultData;
+  onRetry: () => void;
+}
+
+export default function AzureResultPanel({ azureResult, onRetry }: AzureResultPanelProps) {
   // Find the single lowest-scoring phoneme across all words for a targeted tip.
   let worstPhoneme = null;
   let worstScore = Infinity;
@@ -18,7 +37,9 @@ export default function AzureResultPanel({ azureResult, onRetry }) {
     }
   }
   const worstHint = worstPhoneme
-    ? PHONEME_HINTS[worstPhoneme.toLowerCase()] || PHONEME_HINTS[worstPhoneme] || null
+    ? (PHONEME_HINTS as Record<string, string | undefined>)[worstPhoneme.toLowerCase()] ||
+      (PHONEME_HINTS as Record<string, string | undefined>)[worstPhoneme] ||
+      null
     : null;
 
   const overall = azureResult.overall ?? 0;
@@ -96,7 +117,7 @@ export default function AzureResultPanel({ azureResult, onRetry }) {
             Word Scores
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {azureResult.word_scores.map((w, i) => (
+            {azureResult.word_scores.map((w: WordScore, i: number) => (
               <div
                 key={w.word || `score-${w.score}`}
                 style={{
@@ -111,7 +132,7 @@ export default function AzureResultPanel({ azureResult, onRetry }) {
                   {w.word}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--subtext,#94a3b8)' }}>{w.score}%</div>
-                <PhonemeBreakdown phonemes={w.phonemes} />
+                <PhonemeBreakdown phonemes={w.phonemes ?? []} />
               </div>
             ))}
           </div>

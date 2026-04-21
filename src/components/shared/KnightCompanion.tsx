@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * KnightCompanion — global ambient knight for all non-home screens.
  *
@@ -98,7 +97,7 @@ const SCREEN_MOOD_MAP = {
 
 // ── Mood escalation based on current streak ───────────────────────────────────
 // Long streaks earn a more enthusiastic knight baseline.
-function getStreakMood(count) {
+function getStreakMood(count: number) {
   if (count >= 30) return 'celebrating';
   if (count >= 14) return 'victory';
   if (count >= 7) return 'marching';
@@ -130,8 +129,18 @@ const TAP_POOL = [
 
 // ─── Celebration particle burst ───────────────────────────────────────────────
 const PARTY_COLORS = ['#CC0022', '#F4F0E2', '#D4A400', '#EE3042', '#FFDC3C'];
-function CelebrationBurst({ active }) {
-  const [particles, setParticles] = React.useState([]);
+interface CelebrationBurstProps {
+  active: boolean;
+}
+interface Particle {
+  id: number;
+  angle: number;
+  dist: number;
+  color: string;
+  size: number;
+}
+function CelebrationBurst({ active }: CelebrationBurstProps) {
+  const [particles, setParticles] = React.useState<Particle[]>([]);
   const [runKey, setRunKey] = React.useState(0);
   React.useEffect(() => {
     if (!active) return;
@@ -141,7 +150,7 @@ function CelebrationBurst({ active }) {
         id: i,
         angle: (i / 10) * 360 + (Math.random() * 24 - 12),
         dist: 32 + Math.random() * 22,
-        color: PARTY_COLORS[i % PARTY_COLORS.length],
+        color: PARTY_COLORS[i % PARTY_COLORS.length] ?? '#CC0022',
         size: 4 + Math.random() * 4,
       })),
     );
@@ -195,7 +204,7 @@ export default function KnightCompanion() {
 
   const [flashMood, setFlashMood] = useState<string | null>(null);
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [bubble, setBubble] = useState(null); // { mood, text }
+  const [bubble, setBubble] = useState<{ mood: string; text: string } | null>(null);
   const [showBubble, setShowBubble] = useState(false);
   const [celebBurst, setCelebBurst] = useState(false);
   // glancing: temporarily override mood for attention-getter animation
@@ -204,9 +213,9 @@ export default function KnightCompanion() {
   const [introPlayed, setIntroPlayed] = useState(
     () => !!localStorage.getItem('nh_companion_intro'),
   );
-  const timerRef = useRef(null);
-  const idleTimerRef = useRef(null);
-  const glanceTimerRef = useRef(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const glanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastActivityRef = useRef(Date.now());
 
   // Hide on screens where KnightSpeech in HomeTab is active
@@ -218,7 +227,7 @@ export default function KnightCompanion() {
     currentScreen === 'new-placement';
 
   // ── Screen-aware mood ─────────────────────────────────────────────────────
-  const screenMood = SCREEN_MOOD_MAP[currentScreen] || null;
+  const screenMood = (SCREEN_MOOD_MAP as Record<string, string | undefined>)[currentScreen] || null;
 
   // ── Streak-based mood escalation ──────────────────────────────────────────
   const streakCount = getStreak()?.count || 0;
@@ -230,17 +239,17 @@ export default function KnightCompanion() {
 
   // ── Listen for knight:speak events dispatched by screens ─────────────────
   useEffect(() => {
-    const handler = (e) => {
-      const d = e.detail || {};
+    const handler = (e: Event) => {
+      const d = ((e as CustomEvent).detail || {}) as { mood?: string; text?: string };
       setBubble({ mood: d.mood || 'happy', text: d.text || 'Sjajno!' });
       setShowBubble(true);
-      clearTimeout(timerRef.current);
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => setShowBubble(false), 4000);
     };
     window.addEventListener('knight:speak', handler);
     return () => {
       window.removeEventListener('knight:speak', handler);
-      clearTimeout(timerRef.current);
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
     };
   }, []);
 
@@ -289,12 +298,12 @@ export default function KnightCompanion() {
   // ── Attention-getter: after 30s of inactivity, do a curiosity glance ─────
   const resetIdleTimer = useCallback(() => {
     lastActivityRef.current = Date.now();
-    clearTimeout(idleTimerRef.current);
+    if (idleTimerRef.current !== null) clearTimeout(idleTimerRef.current);
     idleTimerRef.current = setTimeout(() => {
       // Don't interrupt an active bubble or celebration
       if (!showBubbleRef.current) {
         setGlancing(true);
-        clearTimeout(glanceTimerRef.current);
+        if (glanceTimerRef.current !== null) clearTimeout(glanceTimerRef.current);
         // Glance animation runs once (~3.6s), then reset
         glanceTimerRef.current = setTimeout(() => setGlancing(false), 3800);
       }
@@ -307,8 +316,8 @@ export default function KnightCompanion() {
     resetIdleTimer(); // start the timer on mount
     return () => {
       events.forEach((ev) => window.removeEventListener(ev, resetIdleTimer));
-      clearTimeout(idleTimerRef.current);
-      clearTimeout(glanceTimerRef.current);
+      if (idleTimerRef.current !== null) clearTimeout(idleTimerRef.current);
+      if (glanceTimerRef.current !== null) clearTimeout(glanceTimerRef.current);
     };
   }, [resetIdleTimer]);
 
@@ -330,31 +339,40 @@ export default function KnightCompanion() {
 
   if (isHome) return null;
 
-  const accentColor = MOOD_COLOR[displayMood] || MOOD_COLOR.ready;
+  const accentColor =
+    (MOOD_COLOR as Record<string, string | undefined>)[displayMood] || MOOD_COLOR.ready;
 
   // On Android WebView, motion.button / motion.div with animate={{ scale, opacity }}
   // applies CSS transforms that create a GPU compositing layer — the button and bubble
   // become transparent/invisible. Same root cause as CroatianKnight.jsx SVG fix.
   // Use plain HTML elements on native: no Framer Motion, no compositing layer.
-  const MotionBtn = _isNative ? 'button' : motion.button;
-  const btnMotionProps = _isNative
-    ? {}
-    : {
-        initial: introPlayed ? { scale: 0.6, opacity: 0 } : { x: -80, opacity: 0, scale: 0.8 },
-        animate: { x: 0, scale: 1, opacity: 1 },
-        transition: introPlayed
-          ? { type: 'spring', stiffness: 420, damping: 22 }
-          : { type: 'spring', stiffness: 280, damping: 18, delay: 0.2 },
-        whileHover: { scale: 1.13 },
-        whileTap: { scale: 0.93 },
-      };
+  const nativeBtnStyle: React.CSSProperties = {
+    position: 'fixed',
+    bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+    left: 14,
+    width: 70,
+    height: 70,
+    borderRadius: '50%',
+    background: 'var(--card)',
+    border: `2.5px solid ${accentColor}55`,
+    boxShadow: `0 4px 18px ${accentColor}28, 0 2px 6px rgba(0,0,0,.10)`,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 0,
+    zIndex: 9500,
+    outline: streakMood === 'celebrating' ? `2px solid ${accentColor}` : 'none',
+    outlineOffset: 3,
+    transition: 'border-color .3s ease, box-shadow .3s ease',
+  };
 
   const handleTap = () => {
-    const msg = TAP_POOL[_tapIdx % TAP_POOL.length];
+    const msg = TAP_POOL[_tapIdx % TAP_POOL.length] ?? TAP_POOL[0]!;
     _tapIdx++;
     setBubble(msg);
     setShowBubble(true);
-    clearTimeout(timerRef.current);
+    if (timerRef.current !== null) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       setShowBubble(false);
       setBubble(null);
@@ -448,36 +466,36 @@ export default function KnightCompanion() {
       </AnimatePresence>
 
       {/* ── Mini knight button — walk-in intro on first appearance ── */}
-      <MotionBtn
-        onClick={handleTap}
-        aria-label="Chat with Vitez Hrvoje, your Croatian coach"
-        title="Vitez Hrvoje — tap for a message"
-        {...btnMotionProps}
-        style={{
-          position: 'fixed',
-          bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
-          left: 14,
-          width: 70,
-          height: 70,
-          borderRadius: '50%',
-          background: 'var(--card)',
-          border: `2.5px solid ${accentColor}55`,
-          boxShadow: `0 4px 18px ${accentColor}28, 0 2px 6px rgba(0,0,0,.10)`,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 0,
-          zIndex: 9500,
-          // Pulse ring on streak milestones to draw attention
-          outline: streakMood === 'celebrating' ? `2px solid ${accentColor}` : 'none',
-          outlineOffset: 3,
-          transition: 'border-color .3s ease, box-shadow .3s ease',
-        }}
-      >
-        <CroatianKnight size={52} mood={displayMood} />
-        <CelebrationBurst active={celebBurst} />
-      </MotionBtn>
+      {_isNative ? (
+        <button
+          onClick={handleTap}
+          aria-label="Chat with Vitez Hrvoje, your Croatian coach"
+          title="Vitez Hrvoje — tap for a message"
+          style={nativeBtnStyle}
+        >
+          <CroatianKnight size={52} mood={displayMood} />
+          <CelebrationBurst active={celebBurst} />
+        </button>
+      ) : (
+        <motion.button
+          onClick={handleTap}
+          aria-label="Chat with Vitez Hrvoje, your Croatian coach"
+          title="Vitez Hrvoje — tap for a message"
+          initial={introPlayed ? { scale: 0.6, opacity: 0 } : { x: -80, opacity: 0, scale: 0.8 }}
+          animate={{ x: 0, scale: 1, opacity: 1 }}
+          transition={
+            introPlayed
+              ? { type: 'spring', stiffness: 420, damping: 22 }
+              : { type: 'spring', stiffness: 280, damping: 18, delay: 0.2 }
+          }
+          whileHover={{ scale: 1.13 }}
+          whileTap={{ scale: 0.93 }}
+          style={nativeBtnStyle}
+        >
+          <CroatianKnight size={52} mood={displayMood} />
+          <CelebrationBurst active={celebBurst} />
+        </motion.button>
+      )}
     </>
   );
 }

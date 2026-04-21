@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { useStats } from '../../context/StatsContext';
 import { useApp } from '../../context/AppContext';
@@ -14,7 +13,7 @@ const CEFR_LABELS = {
 
 // Same formula as HeroSection and StatsTab — all three must stay in sync.
 // total = xp + lessons*15 + grammar*25 → A1<300, A2<1200, B1<3500, B2<8000, C1<18000
-function getCEFR(xp, lc, gc) {
+function getCEFR(xp: number, lc: number, gc: number) {
   const total = (xp || 0) + (lc || 0) * 15 + (gc || 0) * 25;
   if (total < 300) return 'A1';
   if (total < 1200) return 'A2';

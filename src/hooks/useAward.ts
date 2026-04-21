@@ -163,7 +163,7 @@ export function useAward({
   const [ttsFailedToast, setTtsFailedToast] = useState(false);
   const [showXP, setShowXP] = useState(false);
   const [xpA, setXpA] = useState(0);
-  const [nB, setNB] = useState<unknown>(null);
+  const [nB, setNB] = useState<{ id: string; n: string; d: string } | null>(null);
   const [sB, setSB] = useState(false);
 
   const award = useCallback(
@@ -238,7 +238,7 @@ export function useAward({
 
       // Schedule UI side effects AFTER the state update, outside the updater
       if (_pendingBadge) {
-        const badge = _pendingBadge as { id: string };
+        const badge = _pendingBadge as { id: string; n: string; d: string };
         setTimeout(() => {
           setNB(badge);
           setSB(true);
@@ -315,7 +315,7 @@ export function useAward({
       });
       // Fire badge toast + knight speech for any newly earned streak badge
       if (_pendingStreakBadge) {
-        const strBadge = _pendingStreakBadge as { id: string };
+        const strBadge = _pendingStreakBadge as { id: string; n: string; d: string };
         setTimeout(() => {
           setNB(strBadge);
           setSB(true);

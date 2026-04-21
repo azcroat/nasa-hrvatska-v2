@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 const CHARS = ['Č', 'č', 'Ć', 'ć', 'Đ', 'đ', 'Š', 'š', 'Ž', 'ž'];
@@ -6,7 +5,12 @@ const CHARS = ['Č', 'č', 'Ć', 'ć', 'Đ', 'đ', 'Š', 'š', 'Ž', 'ž'];
 /**
  * @param {{ onChar: (c: string) => void, style?: React.CSSProperties }} props
  */
-export default function CroatianKeyboard({ onChar, style }) {
+interface CroatianKeyboardProps {
+  onChar: (c: string) => void;
+  style?: React.CSSProperties;
+}
+
+export default function CroatianKeyboard({ onChar, style }: CroatianKeyboardProps) {
   return (
     <div
       style={{

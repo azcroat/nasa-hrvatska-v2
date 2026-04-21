@@ -1,5 +1,16 @@
-// @ts-nocheck
 import React from 'react';
+
+interface ShapeColors {
+  bg: string[];
+  border: string;
+  glow: string;
+  accent: string;
+}
+
+interface ShapeProps {
+  c: ShapeColors;
+  earned?: boolean;
+}
 
 // Badge shape categories mapped to actual badge IDs from data.jsx
 const BADGE_SHAPES = {
@@ -58,7 +69,7 @@ const SHAPE_COLORS = {
 
 // ── Shape renderers ──────────────────────────────────────────────────────────
 
-function FlameShape({ c, earned: _earned = false }) {
+function FlameShape({ c, earned: _earned = false }: ShapeProps) {
   return (
     <>
       {/* Shield outline */}
@@ -84,7 +95,7 @@ function FlameShape({ c, earned: _earned = false }) {
   );
 }
 
-function ScrollShape({ c, earned: _earned = false }) {
+function ScrollShape({ c, earned: _earned = false }: ShapeProps) {
   return (
     <>
       {/* Circular background */}
@@ -109,7 +120,7 @@ function ScrollShape({ c, earned: _earned = false }) {
   );
 }
 
-function StarShape({ c, earned: _earned = false }) {
+function StarShape({ c, earned: _earned = false }: ShapeProps) {
   const pts = Array.from({ length: 8 })
     .map((_, i) => {
       const angle = ((i * 45 - 90) * Math.PI) / 180;
@@ -126,7 +137,7 @@ function StarShape({ c, earned: _earned = false }) {
   );
 }
 
-function CrownShape({ c, earned: _earned = false }) {
+function CrownShape({ c, earned: _earned = false }: ShapeProps) {
   return (
     <>
       <circle cx="30" cy="30" r="26" fill={`url(#bg_crown)`} stroke={c.border} strokeWidth="1.5" />
@@ -144,7 +155,7 @@ function CrownShape({ c, earned: _earned = false }) {
   );
 }
 
-function CrossShape({ c, earned: _earned = false }) {
+function CrossShape({ c, earned: _earned = false }: ShapeProps) {
   return (
     <>
       <circle cx="30" cy="30" r="26" fill={`url(#bg_cross)`} stroke={c.border} strokeWidth="1.5" />
@@ -165,7 +176,7 @@ function CrossShape({ c, earned: _earned = false }) {
   );
 }
 
-function LightningShape({ c, earned: _earned = false }) {
+function LightningShape({ c, earned: _earned = false }: ShapeProps) {
   return (
     <>
       <circle
@@ -182,7 +193,7 @@ function LightningShape({ c, earned: _earned = false }) {
   );
 }
 
-function HeartShape({ c, earned: _earned = false }) {
+function HeartShape({ c, earned: _earned = false }: ShapeProps) {
   return (
     <>
       <circle cx="30" cy="30" r="26" fill={`url(#bg_heart)`} stroke={c.border} strokeWidth="1.5" />
@@ -235,9 +246,15 @@ function AllGradients() {
 
 // ── Main component ───────────────────────────────────────────────────────────
 
-export default function BadgeArtwork({ badgeId, size = 52, earned = true }) {
-  const shape = BADGE_SHAPES[badgeId] || 'star';
-  const c = SHAPE_COLORS[shape] || SHAPE_COLORS.star;
+interface BadgeArtworkProps {
+  badgeId: string;
+  size?: number;
+  earned?: boolean;
+}
+
+export default function BadgeArtwork({ badgeId, size = 52, earned = true }: BadgeArtworkProps) {
+  const shape = (BADGE_SHAPES as Record<string, string | undefined>)[badgeId] || 'star';
+  const c = (SHAPE_COLORS as Record<string, ShapeColors | undefined>)[shape] || SHAPE_COLORS.star;
 
   return (
     <svg
