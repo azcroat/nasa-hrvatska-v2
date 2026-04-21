@@ -1,6 +1,5 @@
-// @ts-nocheck
 import React, { lazy, useRef, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, type TargetAndTransition } from 'framer-motion';
 import { useSwipeBack } from '../hooks/useSwipeBack.js';
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
 // leaving elements permanently at opacity:0. Skip entry animation on native.
@@ -11,11 +10,11 @@ const _isNative =
   !window.location.port;
 // Local Fisher-Yates shuffle — keeps chunk-data out of AppRouter's startup import.
 // Screens that need data (V, GRAM, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS) import it directly.
-function _sh(a) {
+function _sh<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [b[i], b[j]] = [b[j], b[i]];
+    [b[i], b[j]] = [b[j]!, b[i]!];
   }
   return b;
 }
@@ -43,10 +42,12 @@ import { useStats } from '../context/StatsContext';
 // Uses sessionStorage to cap at 2 attempts — prevents infinite loops when the
 // SW is stuck (e.g. offline, or Cloudflare down). After 2 attempts, lets
 // ScreenErrorBoundary show a stable error rather than looping forever.
-function lazyWithReload(fn) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lazyWithReload(fn: () => Promise<any>) {
   return lazy(() =>
-    fn().catch((e) => {
-      const msg = (e?.message || '') + (e?.name || '');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fn().catch((e: any) => {
+      const msg = ((e?.message as string) || '') + ((e?.name as string) || '');
       const isChunkError =
         msg.includes('Failed to fetch') ||
         msg.includes('importing a module script failed') ||
@@ -63,7 +64,7 @@ function lazyWithReload(fn) {
             sessionStorage.setItem(key, String(n + 1));
             // Purge the JS runtime cache so the reload fetches fresh chunks from network.
             // Without this, StaleWhileRevalidate serves the same stale chunk again.
-            if ('caches' in window) {
+            if ('caches' in globalThis) {
               caches
                 .keys()
                 .then((names) => {
@@ -72,9 +73,9 @@ function lazyWithReload(fn) {
                   });
                 })
                 .catch(() => {})
-                .finally(() => window.location.reload());
+                .finally(() => globalThis.location.reload());
             } else {
-              window.location.reload();
+              globalThis.location.reload();
             }
             return new Promise(() => {}); // keep the promise pending so React doesn't render an error state
           }
@@ -303,7 +304,7 @@ const TAB_ORDER = ['home', 'learn', 'practice', 'croatia', 'profile'];
  * and its required launch-time data is missing. Provides a clear path back rather
  * than rendering an empty or broken exercise screen.
  */
-function ScreenGuard({ goBack, label = 'exercise' }) {
+function ScreenGuard({ goBack, label = 'exercise' }: { goBack: () => void; label?: string }) {
   return (
     <div
       style={{
@@ -359,7 +360,8 @@ function ScreenGuard({ goBack, label = 'exercise' }) {
  * Shared app state is pulled from AppContext via useApp().
  * Only high-frequency lesson/exercise state remains as direct props.
  */
-export default function AppRouter(props) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function AppRouter(props: Record<string, any>) {
   // Pull shared state from context
   const ctx = useApp();
   const { stats, setStats, level, award } = useStats();
@@ -513,7 +515,7 @@ export default function AppRouter(props) {
   // Saves window.scrollY when the user leaves a tab, restores it when they return.
   // This means a user who was halfway through the Practice exercise list gets
   // placed back there after switching to Croatia tab and back.
-  const tabScrollRef = useRef({});
+  const tabScrollRef = useRef<Record<string, number>>({});
   useEffect(() => {
     const savedY = tabScrollRef.current[tab] || 0;
     const id = requestAnimationFrame(() => {
@@ -552,7 +554,7 @@ export default function AppRouter(props) {
         key={_transKey}
         initial={_isNative ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={_isNative ? false : { opacity: 0, y: -8 }}
+        exit={(_isNative ? false : { opacity: 0, y: -8 }) as TargetAndTransition | undefined}
         transition={{ duration: 0.18, ease: 'easeOut' }}
         style={{ height: '100%' }}
       >
@@ -572,7 +574,7 @@ export default function AppRouter(props) {
         )}
         {currentScreen === 'placement' && (
           <PlacementTest
-            onComplete={function (level) {
+            onComplete={function (level: number) {
               localStorage.setItem('placement_done', '1');
               setStats(function (prev) {
                 return {
@@ -685,7 +687,10 @@ export default function AppRouter(props) {
                       border: '1.5px solid var(--card-b)',
                     }}
                   >
-                    {srchR.map(function (r, i) {
+                    {srchR.map(function (
+                      r: { hr: string; en: string; type: string; cat?: string; go: string },
+                      i: number,
+                    ) {
                       return (
                         <div
                           key={r.hr + ':' + r.type + ':' + i}
@@ -758,8 +763,8 @@ export default function AppRouter(props) {
                           dchlSl={dchlSl}
                           sDchlSl={sDchlSl}
                           getWeekStats={getWeekStats}
-                          setTab={(id) => {
-                            const VALID_TABS = {
+                          setTab={(id: string) => {
+                            const VALID_TABS: Record<string, number> = {
                               home: 1,
                               learn: 1,
                               practice: 1,
@@ -1731,10 +1736,13 @@ export default function AppRouter(props) {
             <PhotoVocabScanner
               goBack={goBack}
               level={level}
-              onSaveWords={(words) => {
-                words.forEach((w) => {
+              onSaveWords={(words: Array<{ hr: string; en: string }>) => {
+                words.forEach((w: { hr: string; en: string }) => {
                   if (w.hr && w.en) {
-                    setJWords((prev) => [...(prev || []), { hr: w.hr, en: w.en }]);
+                    setJWords((prev: Array<{ hr: string; en: string }> | null) => [
+                      ...(prev || []),
+                      { hr: w.hr, en: w.en },
+                    ]);
                     addWordToSRS(w.hr);
                   }
                 });
@@ -1920,7 +1928,7 @@ export default function AppRouter(props) {
           currentScreen === 'new-placement' && (
             <ScreenErrorBoundary key="new-placement" name="new-placement">
               <PlacementTest
-                onComplete={function (level) {
+                onComplete={function (level: number) {
                   localStorage.setItem('placement_done', '1');
                   setStats(function (prev) {
                     return {

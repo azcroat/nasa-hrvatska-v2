@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import FoodScene from './FoodScene';
 import FamilyScene from './FamilyScene';
@@ -19,7 +18,7 @@ const SCENES = {
   greetings: GreetingScene,
 };
 
-export default function VocabScene({ scene = 'food' }) {
-  const S = SCENES[scene] || FoodScene;
+export default function VocabScene({ scene = 'food' }: { scene?: string }) {
+  const S = SCENES[scene as keyof typeof SCENES] || FoodScene;
   return <S />;
 }

@@ -1,11 +1,24 @@
-// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { H } from '../../data';
+import type { AuthUser } from '../../types/index.js';
 
 const ADMIN_EMAILS = ['jschreiner75@gmail.com'];
 
-export default function AdminDashboard({ authUser, goBack }) {
-  const [stats, setStats] = useState(/** @type {any} */ null);
+interface AdminStats {
+  users: Array<{ id: string; name?: string; xp?: number; lc?: number; gc?: number }>;
+  totalXP: number;
+  totalLc: number;
+  count: number;
+  error?: string;
+}
+
+interface AdminDashboardProps {
+  authUser: AuthUser | null;
+  goBack?: () => void;
+}
+
+export default function AdminDashboard({ authUser, goBack }: AdminDashboardProps) {
+  const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   const isAdmin = authUser && ADMIN_EMAILS.includes(authUser.u);
@@ -19,12 +32,15 @@ export default function AdminDashboard({ authUser, goBack }) {
         const db = getFirestore();
         const q = query(collection(db, 'leaderboard'), orderBy('xp', 'desc'), limit(100));
         const snap = await getDocs(q);
-        const users = snap.docs.map((d) => /** @type {any} */ ({ id: d.id, ...d.data() }));
-        const totalXP = users.reduce((s, /** @type {any} */ u) => s + (u.xp || 0), 0);
-        const totalLc = users.reduce((s, /** @type {any} */ u) => s + (u.lc || 0), 0);
+        const users = snap.docs.map((d) => ({
+          id: d.id,
+          ...(d.data() as Record<string, unknown>),
+        })) as AdminStats['users'];
+        const totalXP = users.reduce((s, u) => s + ((u.xp as number) || 0), 0);
+        const totalLc = users.reduce((s, u) => s + ((u.lc as number) || 0), 0);
         setStats({ users, totalXP, totalLc, count: users.length });
       } catch (e) {
-        setStats({ error: e.message });
+        setStats({ users: [], totalXP: 0, totalLc: 0, count: 0, error: (e as Error).message });
       }
       setLoading(false);
     }
@@ -34,7 +50,7 @@ export default function AdminDashboard({ authUser, goBack }) {
   if (!isAdmin)
     return (
       <div className="scr-wrap">
-        {H('🔒 Admin', 'Access restricted')}
+        {H('🔒 Admin', 'Access restricted', undefined)}
         <p style={{ color: 'var(--subtext)' }}>You do not have admin access.</p>
         {goBack && (
           <button onClick={goBack} className="btn-primary">
@@ -46,7 +62,7 @@ export default function AdminDashboard({ authUser, goBack }) {
 
   return (
     <div className="scr-wrap" style={{ paddingBottom: 80 }}>
-      {H('🛠️ Admin Dashboard', 'Platform overview')}
+      {H('🛠️ Admin Dashboard', 'Platform overview', undefined)}
       {goBack && (
         <button
           onClick={goBack}

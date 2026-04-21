@@ -9,7 +9,8 @@
  */
 import { createContext, useContext } from 'react';
 
-const AppContext = createContext(/** @type {any} */ null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const AppContext = createContext<any>(null);
 
 /**
  * useApp() — access shared app state anywhere below AppContext.Provider.

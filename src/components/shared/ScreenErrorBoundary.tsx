@@ -3,12 +3,19 @@ import React from 'react';
 import CroatianKnight from './CroatianKnight';
 import { reportError } from '../../lib/errorReporter.js';
 
+/** Props for ScreenErrorBoundary — exported so AppRouter.tsx can use typed JSX. */
+export interface ScreenErrorBoundaryProps {
+  children: React.ReactNode;
+  name?: string;
+  goBack?: () => void;
+}
+
 /**
  * Per-screen error boundary. Catches crashes in individual tabs/screens
  * so a single broken component doesn't destroy the entire session.
  * Usage: <ScreenErrorBoundary name="HomeTab"><HomeTab .../></ScreenErrorBoundary>
  */
-export default class ScreenErrorBoundary extends React.Component {
+export default class ScreenErrorBoundary extends React.Component<ScreenErrorBoundaryProps> {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null, retries: 0 };
