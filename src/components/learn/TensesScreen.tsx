@@ -1,26 +1,42 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, TENSES } from '../../data';
 import { rnd } from '../../lib/random.js';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';
 
-export default function TensesScreen({ goBack, award }) {
+interface TensesQ {
+  verb: string;
+  en: string;
+  tense: string;
+  person: string;
+  personEn: string;
+  gender: string;
+  answer: string;
+  opts: string[];
+}
+
+export default function TensesScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [tnMode, setTnMode] = useState('learn');
   const [tnGender, setTnGender] = useState('m');
   const [tnTense, setTnTense] = useState('present');
   const [tnVerb, setTnVerb] = useState(0);
-  const [tnQ, setTnQ] = useState([]);
+  const [tnQ, setTnQ] = useState<TensesQ[]>([]);
   const [tnI, setTnI] = useState(0);
   const [tnS, setTnS] = useState(0);
   const [tnA, setTnA] = useState(false);
   const [tnSl, setTnSl] = useState(-1);
-  const [tnO, setTnO] = useState([]);
+  const [tnO, setTnO] = useState<string[]>([]);
 
-  function buildQuiz() {
-    const qs = [];
+  function buildQuiz(): void {
+    const qs: TensesQ[] = [];
     TENSES.verbs.forEach((v, vi) => {
       ['present', 'past', 'future'].forEach((t) => {
         const pidx = Math.floor(rnd() * 6);
@@ -35,8 +51,8 @@ export default function TensesScreen({ goBack, award }) {
               : gnd === 'm'
                 ? v.futureM
                 : v.futureF;
-        const correct = forms[pidx];
-        const person = TENSES.persons[pidx];
+        const correct = forms[pidx] ?? '';
+        const person = TENSES.persons[pidx] ?? '';
         const wrongForms = TENSES.verbs
           .filter((_, i) => i !== vi)
           .map((wv) => {
@@ -58,20 +74,20 @@ export default function TensesScreen({ goBack, award }) {
           en: v.en,
           tense: t,
           person,
-          personEn: TENSES.personsEn[pidx],
+          personEn: TENSES.personsEn[pidx] ?? '',
           gender: gnd,
           answer: correct,
           opts: sh([correct].concat(wrongs)),
         });
       });
     });
-    const picked = sh(qs).slice(0, 15);
+    const picked = sh(qs).slice(0, 15) as TensesQ[];
     setTnQ(picked);
     setTnI(0);
     setTnS(0);
     setTnA(false);
     setTnSl(-1);
-    setTnO(picked[0].opts);
+    setTnO(picked[0]!.opts);
   }
 
   return (
@@ -172,7 +188,7 @@ export default function TensesScreen({ goBack, award }) {
             ))}
           </div>
           {(() => {
-            const v = TENSES.verbs[tnVerb];
+            const v = TENSES.verbs[tnVerb]!;
             const forms =
               tnTense === 'present'
                 ? v.present
@@ -232,11 +248,11 @@ export default function TensesScreen({ goBack, award }) {
                               cursor: 'pointer',
                               background: isSpeaker ? 'rgba(14,116,144,.03)' : 'white',
                             }}
-                            onClick={() => speak(TENSES.persons[fi] + ' ' + f)}
+                            onClick={() => speak((TENSES.persons[fi] ?? '') + ' ' + f)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter' || e.key === ' ') {
                                 e.preventDefault();
-                                speak(TENSES.persons[fi] + ' ' + f);
+                                speak((TENSES.persons[fi] ?? '') + ' ' + f);
                               }
                             }}
                           >
@@ -303,11 +319,11 @@ export default function TensesScreen({ goBack, award }) {
                         tabIndex={0}
                         aria-label={`Play audio for Ja ${v.pastM[0]}`}
                         style={{ flex: 1, cursor: 'pointer' }}
-                        onClick={() => speak('ja ' + v.pastM[0])}
+                        onClick={() => speak('ja ' + (v.pastM[0] ?? ''))}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
-                            speak('ja ' + v.pastM[0]);
+                            speak('ja ' + (v.pastM[0] ?? ''));
                           }
                         }}
                       >
@@ -315,7 +331,7 @@ export default function TensesScreen({ goBack, award }) {
                           👨 Male:
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 800 }}>
-                          Ja {v.pastM[0]} <span aria-hidden="true">🔊</span>
+                          Ja {v.pastM[0] ?? ''} <span aria-hidden="true">🔊</span>
                         </div>
                       </div>
                       <div
@@ -323,11 +339,11 @@ export default function TensesScreen({ goBack, award }) {
                         tabIndex={0}
                         aria-label={`Play audio for Ja ${v.pastF[0]}`}
                         style={{ flex: 1, cursor: 'pointer' }}
-                        onClick={() => speak('ja ' + v.pastF[0])}
+                        onClick={() => speak('ja ' + (v.pastF[0] ?? ''))}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
-                            speak('ja ' + v.pastF[0]);
+                            speak('ja ' + (v.pastF[0] ?? ''));
                           }
                         }}
                       >
@@ -335,7 +351,7 @@ export default function TensesScreen({ goBack, award }) {
                           👩 Female:
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 800 }}>
-                          Ja {v.pastF[0]} <span aria-hidden="true">🔊</span>
+                          Ja {v.pastF[0] ?? ''} <span aria-hidden="true">🔊</span>
                         </div>
                       </div>
                     </div>
@@ -416,7 +432,7 @@ export default function TensesScreen({ goBack, award }) {
               </div>
             );
           }
-          const q = tnQ[tnI];
+          const q = tnQ[tnI]!;
           return (
             <React.Fragment>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -505,7 +521,7 @@ export default function TensesScreen({ goBack, award }) {
                   style={{ width: '100%', marginTop: 16 }}
                   onClick={() => {
                     if (tnI < total - 1) {
-                      const n = tnQ[tnI + 1];
+                      const n = tnQ[tnI + 1]!;
                       setTnO(n.opts);
                       setTnI(tnI + 1);
                       setTnA(false);

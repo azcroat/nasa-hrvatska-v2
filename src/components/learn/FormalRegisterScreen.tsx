@@ -1,21 +1,29 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { FORMAL_REGISTER } from '../../data';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 
-function QuizBlock({ questions, award }) {
+interface QuizQuestion {
+  q: string;
+  opts: string[];
+  a: string;
+}
+interface QuizBlockProps {
+  questions: QuizQuestion[];
+  award?: (xp: number) => void;
+}
+function QuizBlock({ questions, award }: QuizBlockProps) {
   const { stats, setStats, writeDelta } = useStats();
-  const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(null);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [score, setScore] = useState<number | null>(null);
 
-  function handleAnswer(qi, opt, correct) {
+  function handleAnswer(qi: number, opt: string, _correct: string) {
     if (answers[qi] !== undefined) return;
     const updated = { ...answers, [qi]: opt };
     setAnswers(updated);
     if (Object.keys(updated).length === questions.length) {
-      const pts = Object.entries(updated).filter(([i, v]) => v === questions[i].a).length;
+      const pts = Object.entries(updated).filter(([i, v]) => v === questions[Number(i)]?.a).length;
       setScore(pts);
       if (award) {
         award(pts * 5);
@@ -36,7 +44,7 @@ function QuizBlock({ questions, award }) {
       <h3 className="sh" style={{ marginTop: 4 }}>
         🎯 Quick Quiz
       </h3>
-      {questions.map(function (q, qi) {
+      {questions.map(function (q: QuizQuestion, qi: number) {
         const ans = answers[qi];
         return (
           <div key={qi} className="c" style={{ marginBottom: 12 }}>
@@ -45,7 +53,7 @@ function QuizBlock({ questions, award }) {
             >
               {qi + 1}. {q.q}
             </div>
-            {q.opts.map(function (opt, oi) {
+            {q.opts.map(function (opt: string, oi: number) {
               let bg = 'white',
                 bc = '#e7e5e4',
                 col = '#1c1917';
@@ -127,7 +135,11 @@ function QuizBlock({ questions, award }) {
   );
 }
 
-function FormalRegisterScreen({ goBack, award }) {
+interface ScreenProps {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+function FormalRegisterScreen({ goBack, award }: ScreenProps) {
   const [tab, setTab] = useState('rules');
   const tabs = [
     { k: 'rules', l: 'Rules' },
@@ -139,7 +151,7 @@ function FormalRegisterScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🤝 ' + FORMAL_REGISTER.title, FORMAL_REGISTER.intro)}
+      {H('🤝 ' + FORMAL_REGISTER.title, FORMAL_REGISTER.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         {tabs.map((t) => (
@@ -157,20 +169,26 @@ function FormalRegisterScreen({ goBack, award }) {
       {tab === 'rules' && (
         <div>
           {FORMAL_REGISTER.rules.map(function (r, i) {
-            const colors = ['#0e7490', '#7c3aed', '#ca8a04'];
-            const bgs = ['rgba(14,116,144,.06)', 'rgba(124,58,237,.06)', 'rgba(202,138,68,.06)'];
+            const colors: string[] = ['#0e7490', '#7c3aed', '#ca8a04'];
+            const bgs: string[] = [
+              'rgba(14,116,144,.06)',
+              'rgba(124,58,237,.06)',
+              'rgba(202,138,68,.06)',
+            ];
+            const color = colors[i] ?? '#0e7490';
+            const bg = bgs[i] ?? 'transparent';
             return (
               <div
                 key={i}
                 style={{
                   marginBottom: 14,
                   padding: '14px 16px',
-                  background: bgs[i],
+                  background: bg,
                   borderRadius: 14,
-                  borderLeft: '4px solid ' + colors[i],
+                  borderLeft: '4px solid ' + color,
                 }}
               >
-                <div style={{ fontSize: 16, fontWeight: 800, color: colors[i], marginBottom: 8 }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: color, marginBottom: 8 }}>
                   {r.icon} {r.rule}
                 </div>
                 {r.examples.map(function (ex, ei) {
@@ -182,7 +200,7 @@ function FormalRegisterScreen({ goBack, award }) {
                         color: '#44403c',
                         lineHeight: 1.6,
                         paddingLeft: 8,
-                        borderLeft: '2px solid ' + colors[i] + '44',
+                        borderLeft: '2px solid ' + color + '44',
                         marginBottom: 4,
                       }}
                     >

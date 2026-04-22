@@ -1,28 +1,34 @@
-// @ts-nocheck
 import React, { useState, useMemo } from 'react';
-import { H, speak } from '../../data';
+import { speak } from '../../data';
 import { V_B2, V_C1 } from '../../data/vocabulary.js';
+
+type LevelKey = keyof typeof LEVEL_DATA;
 
 const LEVEL_DATA = { B2: V_B2, C1: V_C1 };
 const LS_KEY = 'nh_adv_vocab_learned';
 
 function loadLearned() {
   try {
-    return new Set(JSON.parse(localStorage.getItem(LS_KEY) || '[]'));
+    return new Set<string>(JSON.parse(localStorage.getItem(LS_KEY) || '[]') as string[]);
   } catch {
-    return new Set();
+    return new Set<string>();
   }
 }
 
-function saveLearned(set) {
+function saveLearned(set: Set<string>) {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify([...set]));
   } catch {}
 }
 
-export default function AdvancedVocabScreen({ goBack, award }) {
-  const [level, setLevel] = useState('B2');
-  const [activeCat, setActiveCat] = useState(() => Object.keys(V_B2)[0]);
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+
+export default function AdvancedVocabScreen({ goBack, award }: Props) {
+  const [level, setLevel] = useState<LevelKey>('B2');
+  const [activeCat, setActiveCat] = useState<string>(() => Object.keys(V_B2)[0] ?? '');
   const [search, setSearch] = useState('');
   const [learned, setLearned] = useState(loadLearned);
 
@@ -30,31 +36,33 @@ export default function AdvancedVocabScreen({ goBack, award }) {
   const categories = Object.keys(data);
 
   // Keep activeCat in sync when switching level
-  const safeCat = categories.includes(activeCat) ? activeCat : categories[0];
+  const safeCat: string = categories.includes(activeCat) ? activeCat : (categories[0] ?? '');
 
   const words = useMemo(() => {
-    const list = data[safeCat] || [];
+    const list: string[][] = (data as Record<string, string[][]>)[safeCat] ?? [];
     if (!search.trim()) return list;
     const q = search.toLowerCase();
     return list.filter(
-      ([hr, en, ex]) =>
+      ([hr = '', en = '', ex = '']) =>
         hr.toLowerCase().includes(q) ||
         en.toLowerCase().includes(q) ||
         ex.toLowerCase().includes(q),
     );
   }, [data, safeCat, search]);
 
-  const totalInCat = (data[safeCat] || []).length;
-  const learnedInCat = (data[safeCat] || []).filter(([hr]) => learned.has(hr)).length;
+  const totalInCat = ((data as Record<string, string[][]>)[safeCat] ?? []).length;
+  const learnedInCat = ((data as Record<string, string[][]>)[safeCat] ?? []).filter(([hr = '']) =>
+    learned.has(hr),
+  ).length;
 
-  function toggleLevel(l) {
+  function toggleLevel(l: LevelKey) {
     setLevel(l);
     const cats = Object.keys(LEVEL_DATA[l]);
-    setActiveCat(cats[0]);
+    setActiveCat(cats[0] ?? '');
     setSearch('');
   }
 
-  function toggleLearned(word) {
+  function toggleLearned(word: string) {
     setLearned((prev) => {
       const next = new Set(prev);
       if (next.has(word)) next.delete(word);
@@ -100,7 +108,7 @@ export default function AdvancedVocabScreen({ goBack, award }) {
 
         {/* ── LEVEL TOGGLE ── */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, marginTop: 12 }}>
-          {['B2', 'C1'].map((l) => (
+          {(['B2', 'C1'] as LevelKey[]).map((l) => (
             <button
               key={l}
               onClick={() => toggleLevel(l)}
@@ -228,7 +236,7 @@ export default function AdvancedVocabScreen({ goBack, award }) {
             No words match your search.
           </div>
         )}
-        {words.map(([hr, en, ex], i) => {
+        {words.map(([hr = '', en = '', ex = '']: string[], i: number) => {
           const isLearned = learned.has(hr);
           return (
             <div
@@ -263,7 +271,7 @@ export default function AdvancedVocabScreen({ goBack, award }) {
                         fontFamily: "'Outfit', sans-serif",
                       }}
                     >
-                      {H(hr)}
+                      {hr}
                     </span>
                     <span
                       style={{
@@ -284,7 +292,7 @@ export default function AdvancedVocabScreen({ goBack, award }) {
                       marginTop: 4,
                     }}
                   >
-                    {H(ex)}
+                    {ex}
                   </div>
                 </div>
 

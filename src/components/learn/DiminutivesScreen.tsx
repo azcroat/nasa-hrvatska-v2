@@ -1,9 +1,11 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { DIMWORDS } from '../../data';
 
-function DiminutivesScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+function DiminutivesScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🐣 Umanjenice', 'Diminutives — making things small & cute', goBack)}

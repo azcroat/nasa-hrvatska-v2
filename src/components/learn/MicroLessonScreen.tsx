@@ -1,12 +1,40 @@
-// @ts-nocheck
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { H, speak, getMistakes } from '../../data';
 import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
+interface LessonExample {
+  hr: string;
+  en: string;
+  highlight?: string;
+  note?: string;
+}
+
+interface LessonQuestion {
+  question: string;
+  options: string[];
+  answer: number;
+  explanation?: string;
+}
+
+interface MicroLesson {
+  focus: string;
+  title: string;
+  intro: string;
+  examples: LessonExample[];
+  quiz: LessonQuestion[];
+  tip?: string;
+}
+
+interface WeakWord {
+  hr: string;
+  en: string;
+  missCount: number;
+}
+
 // Render a Croatian sentence with one word bolded in the brand teal
-function HighlightedSentence({ text, highlight }) {
+function HighlightedSentence({ text, highlight }: { text: string; highlight?: string }) {
   if (!highlight || !text) return <span>{text}</span>;
   const idx = text.toLowerCase().indexOf(highlight.toLowerCase());
   if (idx === -1) return <span>{text}</span>;
@@ -39,7 +67,7 @@ function Spinner() {
 }
 
 // Progress bar: filled fraction v/mx
-function MicroBar({ v, mx }) {
+function MicroBar({ v, mx }: { v: number; mx: number }) {
   const pct = mx > 0 ? Math.round((v / mx) * 100) : 0;
   return (
     <div
@@ -64,24 +92,32 @@ function MicroBar({ v, mx }) {
   );
 }
 
-export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
+export default function MicroLessonScreen({
+  goBack,
+  award,
+  goFlashcards,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+  goFlashcards?: () => void;
+}) {
   const { level } = useStats();
   const [phase, setPhase] = useState('loading'); // loading | error | intro | quiz | results
-  const [lesson, setLesson] = useState(null);
-  const [weakWords, setWeakWords] = useState([]);
+  const [lesson, setLesson] = useState<MicroLesson | null>(null);
+  const [weakWords, setWeakWords] = useState<WeakWord[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [noWords, setNoWords] = useState(false);
 
   // Quiz state
   const [qIdx, setQIdx] = useState(0);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
 
   // XP awarded once per results view
   const xpFiredRef = useRef(false);
 
-  const awardFn = typeof award === 'function' ? award : () => {};
+  const awardFn = useMemo(() => (typeof award === 'function' ? award : () => {}), [award]);
 
   // Award XP exactly once when results phase is reached
   useEffect(() => {
@@ -108,12 +144,17 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
     xpFiredRef.current = false;
 
     // Build weak words from the enriched mistakes store (has English meanings)
-    const mistakes = getMistakes();
-    const sorted = [...mistakes]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mistakes: any[] = getMistakes();
+    const sorted: WeakWord[] = [...mistakes]
       .filter((m) => (m.count || 0) >= 2 && m.hr && m.en)
       .sort((a, b) => (b.count || 0) - (a.count || 0))
       .slice(0, 5)
-      .map((m) => ({ hr: m.hr, en: m.en, missCount: m.count || 0 }));
+      .map((m) => ({
+        hr: m.hr as string,
+        en: m.en as string,
+        missCount: (m.count || 0) as number,
+      }));
 
     if (sorted.length < 2) {
       setNoWords(true);
@@ -141,13 +182,13 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Server error ${res.status}`);
+        throw new Error((body as { error?: string }).error || `Server error ${res.status}`);
       }
-      const data = await res.json();
+      const data = (await res.json()) as MicroLesson;
       setLesson(data);
       setPhase('intro');
     } catch (e) {
-      setErrorMsg(e.message || 'Could not generate lesson. Please try again.');
+      setErrorMsg((e as Error).message || 'Could not generate lesson. Please try again.');
       setPhase('error');
     }
   }, [level]);
@@ -159,7 +200,8 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
   // ── Preview words visible during loading ─────────────────────────────────────
   const loadingPreview = (() => {
     try {
-      return getMistakes()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (getMistakes() as any[])
         .filter((m) => (m.count || 0) >= 2 && m.hr)
         .sort((a, b) => (b.count || 0) - (a.count || 0))
         .slice(0, 5);
@@ -213,7 +255,8 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
               Words being analyzed
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {loadingPreview.map((m, i) => (
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {loadingPreview.map((m: any, i: number) => (
                 <div
                   key={i}
                   style={{
@@ -435,7 +478,7 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
             Examples
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {(lesson.examples || []).map((ex, i) => (
+            {(lesson.examples || []).map((ex: LessonExample, i: number) => (
               <div
                 key={i}
                 style={{
@@ -543,14 +586,14 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
     const isLast = qIdx >= questions.length - 1;
     const isCorrect = answered && selected === q.answer;
 
-    function handleSelect(i) {
+    function handleSelect(i: number): void {
       if (answered) return;
       setSelected(i);
       setAnswered(true);
-      if (i === q.answer) setCorrectCount((c) => c + 1);
+      if (i === q!.answer) setCorrectCount((c) => c + 1);
     }
 
-    function handleNext() {
+    function handleNext(): void {
       if (isLast) {
         setPhase('results');
       } else {
@@ -632,11 +675,11 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
 
         {/* Options */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
-          {(q.options || []).map((opt, i) => {
+          {(q.options || []).map((opt: string, i: number) => {
             let bg = 'var(--card)';
             let borderColor = 'var(--card-b)';
             let textColor = 'var(--heading)';
-            let icon = null;
+            let icon: string | null = null;
 
             if (answered) {
               if (i === q.answer) {
@@ -925,7 +968,7 @@ export default function MicroLessonScreen({ goBack, award, goFlashcards }) {
               Words Reviewed
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {weakWords.map((w, i) => (
+              {weakWords.map((w: WeakWord, i: number) => (
                 <div
                   key={i}
                   style={{

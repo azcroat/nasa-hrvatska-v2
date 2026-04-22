@@ -1,9 +1,8 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { WORDFORM } from '../../data';
 
-function WordFormScreen({ goBack }) {
+function WordFormScreen({ goBack }: { goBack: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🧩 Word Formation', 'How prefixes build Croatian vocabulary', goBack)}
@@ -85,7 +84,7 @@ function WordFormScreen({ goBack }) {
                       fontFamily: "'Outfit',sans-serif",
                     }}
                     onClick={function () {
-                      speak(p[0]);
+                      speak(p[0] ?? '');
                     }}
                   >
                     <span style={{ fontWeight: 700, color: '#0e7490' }}>{p[0]}</span>{' '}

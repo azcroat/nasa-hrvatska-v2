@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H } from '../../data';
 
@@ -163,7 +162,30 @@ const TOPICS = [
 ];
 
 // ─── CHANNEL CARD ─────────────────────────────────────────────────────────────
-function ChannelCard({ ch }) {
+interface Channel {
+  name: string;
+  desc: string;
+  icon: string;
+  level: string;
+  levelColor: string;
+  levelBg: string;
+  url: string;
+  label: string;
+}
+
+interface Topic {
+  key: string;
+  icon: string;
+  title: string;
+  desc: string;
+  level: string;
+  levelColor: string;
+  levelBg: string;
+  youtubeQuery: string;
+  inApp?: { label: string; screen: string };
+}
+
+function ChannelCard({ ch }: { ch: Channel }) {
   return (
     <div
       style={{
@@ -259,7 +281,7 @@ function ChannelCard({ ch }) {
 }
 
 // ─── TOPIC CARD ───────────────────────────────────────────────────────────────
-function TopicCard({ topic, onInApp }) {
+function TopicCard({ topic, onInApp }: { topic: Topic; onInApp: (screen: string) => void }) {
   const ytUrl = `https://www.youtube.com/results?search_query=${topic.youtubeQuery}`;
   return (
     <div
@@ -339,7 +361,7 @@ function TopicCard({ topic, onInApp }) {
           </a>
           {topic.inApp && (
             <button
-              onClick={() => onInApp(topic.inApp.screen)}
+              onClick={() => onInApp(topic.inApp!.screen)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -365,7 +387,13 @@ function TopicCard({ topic, onInApp }) {
 }
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
-export default function GrammarVideos({ goBack, setScr }) {
+export default function GrammarVideos({
+  goBack,
+  setScr,
+}: {
+  goBack: () => void;
+  setScr?: (screen: string) => void;
+}) {
   const [levelFilter, setLevelFilter] = useState('All');
   const levels = ['All', 'A1', 'A2', 'B1', 'B2'];
 

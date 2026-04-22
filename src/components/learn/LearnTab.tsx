@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { V, LEARN_PATH } from '../../data';
 import { useApp } from '../../context/AppContext';
@@ -53,6 +52,41 @@ const STAGE_COLORS = [
   { bg: 'linear-gradient(135deg,#dc2626,#b91c1c)', light: '#fff1f2', border: '#fecaca' },
 ];
 
+interface PendingLesson {
+  lesson: Record<string, unknown>;
+  tip: { title: string; tip: string };
+}
+
+interface LearnTabProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  allCats: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icons: Record<string, any>;
+  sCurEx: (ex: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sh: (arr: any[]) => any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sLt: (t: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sLi: (items: any[]) => void;
+  sLx: (x: number) => void;
+  sLs: (s: number) => void;
+  sLp: (p: string) => void;
+  sLa: (a: boolean) => void;
+  sLsl: (sl: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sGl: (l: any) => void;
+  sGp: (p: string) => void;
+  sGx: (x: number) => void;
+  sGs: (s: number) => void;
+  sGa: (a: boolean) => void;
+  sGsl: (sl: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  launchPathItem: (item: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  launchAnimLesson: (lesson: any) => void;
+}
+
 // Q-4: Removed dead state setters — target screens manage their own init state.
 export default function LearnTab({
   allCats,
@@ -74,11 +108,11 @@ export default function LearnTab({
   sGsl,
   launchPathItem,
   launchAnimLesson,
-}) {
+}: LearnTabProps) {
   const { setScr, setTab } = useApp();
   const { stats: st } = useStats();
   const [showBrowse, setShowBrowse] = useState(false);
-  const [pendingLesson, setPendingLesson] = useState(null);
+  const [pendingLesson, setPendingLesson] = useState<PendingLesson | null>(null);
   const [showMoreContent, setShowMoreContent] = useState(false);
 
   // ── PATH PROGRESS ──────────────────────────────────────────────────────
@@ -106,7 +140,7 @@ export default function LearnTab({
   const stagePct = currentStage
     ? Math.round((currentStageDone / currentStage.items.length) * 100)
     : 100;
-  const sc = STAGE_COLORS[((currentStage?.level || 1) - 1) % STAGE_COLORS.length];
+  const sc = STAGE_COLORS[((currentStage?.level || 1) - 1) % STAGE_COLORS.length]!;
 
   // CEFR level estimate from stats
   const cefrLevel = (() => {
@@ -165,8 +199,8 @@ export default function LearnTab({
     return null;
   })();
 
-  function launchVocab(t) {
-    const items = sh(V[t] || []);
+  function launchVocab(t: string): void {
+    const items = sh((V as Record<string, unknown[]>)[t] || []);
     if (!items.length) return;
     sLt(t);
     sLi(items);
@@ -179,15 +213,18 @@ export default function LearnTab({
     sCurEx('vocab_' + t);
   }
 
-  function handleLaunchPathItem(lesson) {
+  function handleLaunchPathItem(lesson: Record<string, unknown>): void {
     const tipKey = Object.keys(LESSON_TIPS).find((k) =>
-      (lesson.name || lesson.title || lesson.cat || '').toLowerCase().includes(k),
+      ((lesson.name || lesson.title || lesson.cat || '') as string).toLowerCase().includes(k),
     );
-    if (tipKey && LESSON_TIPS[tipKey]) {
-      setPendingLesson({ lesson, tip: LESSON_TIPS[tipKey] });
-    } else {
-      launchPathItem(lesson);
+    if (tipKey) {
+      const tip = (LESSON_TIPS as Record<string, { title: string; tip: string }>)[tipKey];
+      if (tip) {
+        setPendingLesson({ lesson, tip });
+        return;
+      }
     }
+    launchPathItem(lesson);
   }
 
   return (
@@ -272,7 +309,9 @@ export default function LearnTab({
                 CONTINUE · {nextItem.stageTitle}
               </div>
               <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>
-                {nextItem.name || nextItem.title || 'Next Lesson'}
+                {nextItem.name ||
+                  ((nextItem as Record<string, unknown>).title as string) ||
+                  'Next Lesson'}
               </div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,.65)', marginTop: 2 }}>
                 {overallPct}% complete overall · Stage {overallPct < 100 ? stagePct : 100}% done
@@ -677,7 +716,8 @@ export default function LearnTab({
       {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
       <LearnPathWidget
         sc={sc}
-        currentStage={currentStage}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        currentStage={currentStage as any}
         currentStageDone={currentStageDone}
         overallPct={overallPct}
         stagePct={stagePct}
@@ -799,7 +839,7 @@ export default function LearnTab({
                 border: 'rgba(220,38,38,.3)',
               },
             ]
-              .filter((item) => (V[item.cat] || []).length > 0)
+              .filter((item) => ((V as Record<string, unknown[]>)[item.cat] || []).length > 0)
               .map((item) => (
                 <button
                   key={item.cat}
@@ -812,7 +852,9 @@ export default function LearnTab({
                     <div className="vocab-pill-label" style={{ color: item.color }}>
                       {item.label}
                     </div>
-                    <div className="vocab-pill-count">{(V[item.cat] || []).length} words</div>
+                    <div className="vocab-pill-count">
+                      {((V as Record<string, unknown[]>)[item.cat] || []).length} words
+                    </div>
                   </div>
                 </button>
               ))}
@@ -892,7 +934,9 @@ export default function LearnTab({
             first: 'lp1',
           },
         };
-        const gf = GOAL_STAGE1[goal];
+        const gf = (
+          GOAL_STAGE1 as Record<string, (typeof GOAL_STAGE1)[keyof typeof GOAL_STAGE1] | undefined>
+        )[goal];
         if (!gf) return null;
         return (
           <div
@@ -923,7 +967,7 @@ export default function LearnTab({
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {gf.tips.map((tip, i) => (
+              {gf.tips.map((tip: string, i: number) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                   <span
                     style={{
@@ -955,8 +999,8 @@ export default function LearnTab({
 
       {/* ── 5-STAGE JOURNEY STRIP ───────────────────────────────────────── */}
       {(() => {
-        const stageCEFR = { 0: 'A1', 1: 'A2', 2: 'B1', 3: 'B1+', 4: 'B2+' };
-        const stageDescriptions = {
+        const stageCEFR: Record<number, string> = { 0: 'A1', 1: 'A2', 2: 'B1', 3: 'B1+', 4: 'B2+' };
+        const stageDescriptions: Record<number, string> = {
           0: '50+ core words your family uses every day',
           1: 'Greetings, family, numbers, days of week',
           2: 'Travel, food, work, expressing opinions',
@@ -982,7 +1026,7 @@ export default function LearnTab({
                 const lvDone = lv.items.filter((it) => st && it.ck(st)).length;
                 const isComplete = lvDone === lv.items.length;
                 const isCurrent = lv === currentStage;
-                const color = STAGE_COLORS[i % STAGE_COLORS.length];
+                const color = STAGE_COLORS[i % STAGE_COLORS.length]!;
                 return (
                   <React.Fragment key={lv.level}>
                     <div style={{ flex: 1, textAlign: 'center' }}>

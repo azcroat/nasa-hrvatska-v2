@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo, useRef } from 'react';
 import { NOUN_LIBRARY, CASE_INFO, declineNoun } from './CaseTransformerData.js';
 import { markQuest } from '../../lib/quests.js';
@@ -6,18 +5,40 @@ import CaseTransformerPicker from './CaseTransformerPicker';
 import CaseTransformerDeclension from './CaseTransformerDeclension';
 import CaseTransformerQuiz from './CaseTransformerQuiz';
 
-export default function CaseTransformer({ goBack, award }) {
+interface Noun {
+  hr: string;
+  en: string;
+  gender: string;
+  type?: string;
+  irregular?: boolean;
+}
+interface DeclinedForms {
+  sg: string[];
+  pl: string[];
+}
+interface QuizQuestion {
+  caseInfo: (typeof CASE_INFO)[number];
+  correct: string;
+  opts: string[];
+  example: string;
+}
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+
+export default function CaseTransformer({ goBack, award }: Props) {
   const [phase, setPhase] = useState('picker'); // "picker" | "declension" | "quiz"
-  const [selectedNoun, setSelectedNoun] = useState(null);
+  const [selectedNoun, setSelectedNoun] = useState<Noun | null>(null);
   const [number, setNumber] = useState('sg'); // "sg" | "pl"
   const [search, setSearch] = useState('');
   const [genderFilter, setGenderFilter] = useState('all');
 
   // Quiz state
-  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
-  const [quizChosen, setQuizChosen] = useState(null);
+  const [quizChosen, setQuizChosen] = useState<string | null>(null);
   const [quizDone, setQuizDone] = useState(false);
   const [xpAwarded, setXpAwarded] = useState(false);
   const xpAwardedRef = useRef(false); // synchronous guard against double-award
@@ -39,7 +60,7 @@ export default function CaseTransformer({ goBack, award }) {
   }, [selectedNoun]);
 
   // ── Noun picker ──────────────────────────────────────────────────────────────
-  function pickNoun(noun) {
+  function pickNoun(noun: Noun) {
     setSelectedNoun(noun);
     setNumber('sg');
     setPhase('declension');
@@ -51,24 +72,25 @@ export default function CaseTransformer({ goBack, award }) {
   }
 
   // ── Quiz builder ─────────────────────────────────────────────────────────────
-  function shuffle(arr) {
+  function shuffle<T>(arr: T[]): T[] {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+      [a[i], a[j]] = [a[j], a[i]] as [T, T];
     }
     return a;
   }
 
   function startQuiz() {
-    const forms = declineNoun(selectedNoun);
-    const questions = CASE_INFO.map((c, i) => {
-      const correct = forms.sg[i].replace('!', '');
+    if (!selectedNoun) return;
+    const forms = declineNoun(selectedNoun) as DeclinedForms;
+    const questions: QuizQuestion[] = CASE_INFO.map((c, i) => {
+      const correct = (forms.sg[i] ?? '').replace('!', '');
       const others = forms.sg
-        .filter((_, j) => j !== i)
-        .map((f) => f.replace('!', ''))
-        .filter((f) => f !== correct);
-      const uniqueOthers = [...new Set(others)];
+        .filter((_: string, j: number) => j !== i)
+        .map((f: string) => f.replace('!', ''))
+        .filter((f: string) => f !== correct);
+      const uniqueOthers: string[] = [...new Set<string>(others)];
       while (uniqueOthers.length < 3) uniqueOthers.push(selectedNoun.hr);
       const distractors = uniqueOthers.slice(0, 3);
       const opts = shuffle([correct, ...distractors]);
@@ -84,9 +106,10 @@ export default function CaseTransformer({ goBack, award }) {
     setPhase('quiz');
   }
 
-  function chooseAnswer(opt) {
+  function chooseAnswer(opt: string) {
     if (quizChosen !== null) return;
     const q = quizQuestions[quizIndex];
+    if (!q) return;
     setQuizChosen(opt);
     if (opt === q.correct) setQuizScore((s) => s + 1);
   }
@@ -139,11 +162,12 @@ export default function CaseTransformer({ goBack, award }) {
     );
   }
 
-  // Declension view
+  // Declension view — selectedNoun is always set when phase === 'declension'
+  if (!selectedNoun || !declined) return null;
   return (
     <CaseTransformerDeclension
       selectedNoun={selectedNoun}
-      declined={declined}
+      declined={declined as { sg: string[]; pl: string[]; [key: string]: string[] }}
       number={number}
       setNumber={setNumber}
       onBackToPicker={backToPicker}

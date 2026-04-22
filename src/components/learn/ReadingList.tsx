@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect } from 'react';
 import { H, READ } from '../../data';
 
@@ -10,7 +9,29 @@ const LEVEL_META = {
   c1: { badge: 'C1', color: '#dc2626', label: 'Advanced' },
 };
 
-function launchPassage(p, { sRp, sRph, sRqi, sRsc, sRa, sRsl, sHw, setScr, sCurEx }) {
+type LevelMeta = { badge: string; color: string; label: string };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Passage = Record<string, any>;
+
+interface LaunchSetters {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sRp: (p: any) => void;
+  sRph: (v: string) => void;
+  sRqi: (v: number) => void;
+  sRsc: (v: number) => void;
+  sRa: (v: boolean) => void;
+  sRsl: (v: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sHw: (v: any) => void;
+  setScr: (v: string) => void;
+  sCurEx: (v: string) => void;
+}
+
+function launchPassage(
+  p: Passage,
+  { sRp, sRph, sRqi, sRsc, sRa, sRsl, sHw, setScr, sCurEx }: LaunchSetters,
+): void {
   sRp(p);
   sRph('read');
   sRqi(0);
@@ -19,7 +40,11 @@ function launchPassage(p, { sRp, sRph, sRqi, sRsc, sRa, sRsl, sHw, setScr, sCurE
   sRsl(-1);
   sHw(null);
   setScr('reading');
-  sCurEx('reading_' + (p.title || 'passage').replace(/\s+/g, '_'));
+  sCurEx('reading_' + ((p.title as string | undefined) || 'passage').replace(/\s+/g, '_'));
+}
+
+interface ReadingListProps extends LaunchSetters {
+  goBack: () => void;
 }
 
 export default function ReadingList({
@@ -33,7 +58,7 @@ export default function ReadingList({
   sHw,
   sCurEx,
   goBack,
-}) {
+}: ReadingListProps) {
   // Level filter set by learn-path items (e.g. "Read a Story" shows beginner only).
   // When launched from the Learn tab directly, no filter is set and all levels show.
   let levelFilter = null;
@@ -56,6 +81,7 @@ export default function ReadingList({
     // Clear filter so returning from reading doesn't re-trigger this
     sessionStorage.removeItem('nh_readlist_filter');
     launchPassage(firstPassage, { sRp, sRph, sRqi, sRsc, sRa, sRsl, sHw, setScr, sCurEx });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Manual browse mode (launched directly from Practice/Learn tabs) ────────
@@ -69,7 +95,7 @@ export default function ReadingList({
         {totalPassages} passages across {levelCount} levels — choose one to read and quiz
       </div>
       {filteredEntries.map(([level, passages]) => {
-        const meta = LEVEL_META[level] || {
+        const meta: LevelMeta = (LEVEL_META as Record<string, LevelMeta | undefined>)[level] || {
           badge: level.toUpperCase(),
           color: '#78716c',
           label: level,

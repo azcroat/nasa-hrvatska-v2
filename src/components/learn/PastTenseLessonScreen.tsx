@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -157,19 +156,33 @@ const QUIZ_QS = [
   },
 ];
 
-export default function PastTenseLessonScreen({ goBack, award }) {
+interface QuizQuestion {
+  type: string;
+  prompt: string;
+  hint: string;
+  answer: string;
+  opts: string[];
+}
+
+export default function PastTenseLessonScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [tab, setTab] = useState('form');
   const [gender, setGender] = useState('m');
 
   // Quiz state
-  const [quizQs, setQuizQs] = useState([]);
+  const [quizQs, setQuizQs] = useState<QuizQuestion[]>([]);
   const [qi, setQi] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
-  const [opts, setOpts] = useState([]);
+  const [opts, setOpts] = useState<string[]>([]);
 
   function startQuiz() {
     const shuffled = sh([...QUIZ_QS]);
@@ -178,7 +191,7 @@ export default function PastTenseLessonScreen({ goBack, award }) {
     setScore(0);
     setAnswered(false);
     setSelected(-1);
-    setOpts(shuffled[0].opts);
+    setOpts(shuffled[0]!.opts);
     setTab('quiz');
   }
 
@@ -323,7 +336,7 @@ export default function PastTenseLessonScreen({ goBack, award }) {
                   cursor: 'pointer',
                   color: gender === g ? (g === 'm' ? '#0e7490' : '#dc2626') : 'var(--subtext)',
                 }}
-                onClick={() => setGender(g)}
+                onClick={() => setGender(g ?? 'm')}
               >
                 {label}
               </button>
@@ -661,7 +674,7 @@ export default function PastTenseLessonScreen({ goBack, award }) {
             );
           }
 
-          const q = quizQs[qi];
+          const q = quizQs[qi]!;
           return (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -760,7 +773,7 @@ export default function PastTenseLessonScreen({ goBack, award }) {
                   onClick={() => {
                     const next = qi + 1;
                     if (next < total) {
-                      setOpts(quizQs[next].opts);
+                      setOpts(quizQs[next]!.opts);
                       setQi(next);
                       setAnswered(false);
                       setSelected(-1);

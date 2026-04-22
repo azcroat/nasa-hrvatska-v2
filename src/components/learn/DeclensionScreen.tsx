@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo, useRef } from 'react';
 import { H, speak, sh } from '../../data';
 import { DECL } from '../../data';
@@ -6,22 +5,40 @@ import { markQuest } from '../../lib/quests.js';
 import { addWordToSRS } from '../../lib/srs.js';
 import { useStats } from '../../context/StatsContext.tsx';
 
+interface DeclNoun {
+  nom: string;
+  en: string;
+  g: string;
+  cases: string[];
+}
+interface DeclQuestion {
+  noun: string;
+  en: string;
+  caseName: string;
+  caseNum: number;
+  correct: string;
+  opts: string[];
+}
+
 // Build 14 case quiz questions: show a sentence context, pick the correct case form
-function buildDeclQuiz(nouns, caseNames) {
-  const qs = [];
+function buildDeclQuiz(nouns: DeclNoun[], caseNames: string[]): DeclQuestion[] {
+  const qs: DeclQuestion[] = [];
   // Mix questions: some ask for a specific case, some ask "which case is this form?"
   nouns.forEach((noun) => {
     caseNames.forEach((caseName, ci) => {
-      const correct = noun.cases[ci];
+      const correct = noun.cases[ci] ?? '';
       // Distractors: other cases of same noun, or same case of other nouns
       const sameCaseOtherNouns = nouns
         .filter((n) => n !== noun)
-        .map((n) => n.cases[ci])
+        .map((n) => n.cases[ci] ?? '')
         .filter((f) => f !== correct);
-      const otherCasesThisNoun = noun.cases.filter((_, i) => i !== ci && noun.cases[i] !== correct);
+      const otherCasesThisNoun = noun.cases.filter(
+        (_: string, i: number) => i !== ci && noun.cases[i] !== correct,
+      );
       const allDistractors = sh([...sameCaseOtherNouns, ...otherCasesThisNoun]);
       const distractors = allDistractors.slice(0, 3);
-      while (distractors.length < 3) distractors.push(noun.cases[(ci + 1) % caseNames.length]);
+      while (distractors.length < 3)
+        distractors.push(noun.cases[(ci + 1) % caseNames.length] ?? '');
       qs.push({
         noun: noun.nom,
         en: noun.en,
@@ -35,30 +52,38 @@ function buildDeclQuiz(nouns, caseNames) {
   return sh(qs).slice(0, 14);
 }
 
-export default function DeclensionScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+export default function DeclensionScreen({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('reference'); // 'reference' | 'quiz'
   const [dcNoun, sDcNoun] = useState(0);
 
-  const questions = useMemo(() => buildDeclQuiz(DECL.nouns, DECL.caseNames), []);
+  const questions = useMemo(
+    () => buildDeclQuiz(DECL.nouns as DeclNoun[], DECL.caseNames as string[]),
+    [],
+  );
   const [qi, setQi] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
   const awardFired = useRef(false);
 
   const n = DECL.nouns[dcNoun];
 
-  function handleAnswer(opt) {
+  function handleAnswer(opt: string) {
     if (answered) return;
-    const q = questions[qi];
+    const qItem = questions[qi];
+    if (!qItem) return;
     setSelected(opt);
     setAnswered(true);
-    if (opt === q.correct) {
+    if (opt === qItem.correct) {
       setScore((s) => s + 1);
       speak(opt);
-      addWordToSRS(q.noun);
+      addWordToSRS(qItem.noun);
     }
   }
 
@@ -79,6 +104,7 @@ export default function DeclensionScreen({ goBack, award }) {
 
   // ── Reference mode ────────────────────────────────────────────────────────────
   if (mode === 'reference') {
+    if (!n) return null;
     return (
       <div className="scr-wrap">
         {H('📝 Noun Declension Trainer', 'All 7 cases for key nouns', goBack)}
@@ -124,7 +150,7 @@ export default function DeclensionScreen({ goBack, award }) {
           >
             <span style={{ fontWeight: 800, fontSize: 16 }}>{n.nom}</span>
             <span style={{ fontSize: 13, opacity: 0.8, marginLeft: 8 }}>
-              ({n.en}) · {n.gender}
+              ({n.en}) · {n.g}
             </span>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -138,13 +164,13 @@ export default function DeclensionScreen({ goBack, award }) {
                       background: ci % 2 ? '#fafaf9' : 'white',
                     }}
                     onClick={function () {
-                      speak(n.cases[ci]);
+                      speak(n.cases[ci] ?? '');
                     }}
                     role="button"
                     tabIndex={0}
                     aria-label={`Play ${cs}: ${n.cases[ci]}`}
                     onKeyDown={function (e) {
-                      if (e.key === 'Enter' || e.key === ' ') speak(n.cases[ci]);
+                      if (e.key === 'Enter' || e.key === ' ') speak(n.cases[ci] ?? '');
                     }}
                   >
                     <td
@@ -253,6 +279,7 @@ export default function DeclensionScreen({ goBack, award }) {
 
   // ── Quiz mode ─────────────────────────────────────────────────────────────────
   const q = questions[qi];
+  if (!q) return null;
   const pctBar = Math.round(((qi + (answered ? 1 : 0)) / questions.length) * 100);
 
   return (
@@ -300,7 +327,7 @@ export default function DeclensionScreen({ goBack, award }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {q.opts.map((o, oi) => {
+        {q.opts.map((o: string, oi: number) => {
           let bg = 'white',
             bc = '#e7e5e4',
             col = '#1c1917';

@@ -1,21 +1,32 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { CONDITIONAL } from '../../data';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 
-function QuizBlock({ questions, award }) {
-  const { stats, setStats, writeDelta } = useStats();
-  const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(null);
+interface QuizQuestion {
+  q: string;
+  opts: string[];
+  a: string;
+}
+interface QuizBlockProps {
+  questions: QuizQuestion[];
+  award?: (xp: number) => void;
+}
 
-  function handleAnswer(qi, opt, correct) {
+function QuizBlock({ questions, award }: QuizBlockProps) {
+  const { stats, setStats, writeDelta } = useStats();
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [score, setScore] = useState<number | null>(null);
+
+  function handleAnswer(qi: number, opt: string, _correct: string) {
     if (answers[qi] !== undefined) return;
     const updated = { ...answers, [qi]: opt };
     setAnswers(updated);
     if (Object.keys(updated).length === questions.length) {
-      const pts = Object.entries(updated).filter(([i, v]) => v === questions[i].a).length;
+      const pts = Object.entries(updated).filter(
+        ([i, v]) => v === questions[i as unknown as number]?.a,
+      ).length;
       setScore(pts);
       if (award) {
         award(pts * 5);
@@ -36,7 +47,7 @@ function QuizBlock({ questions, award }) {
       <h3 className="sh" style={{ marginTop: 4 }}>
         🎯 Quick Quiz
       </h3>
-      {questions.map(function (q, qi) {
+      {questions.map(function (q: QuizQuestion, qi: number) {
         const ans = answers[qi];
         return (
           <div key={qi} className="c" style={{ marginBottom: 12 }}>
@@ -45,7 +56,7 @@ function QuizBlock({ questions, award }) {
             >
               {qi + 1}. {q.q}
             </div>
-            {q.opts.map(function (opt, oi) {
+            {q.opts.map(function (opt: string, oi: number) {
               let bg = 'white',
                 bc = '#e7e5e4',
                 col = '#1c1917';
@@ -127,7 +138,11 @@ function QuizBlock({ questions, award }) {
   );
 }
 
-function ConditionalScreen({ goBack, award }) {
+interface ScreenProps {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+function ConditionalScreen({ goBack, award }: ScreenProps) {
   const [tab, setTab] = useState('forms');
   const tabs = [
     { k: 'forms', l: 'Forms' },
@@ -139,7 +154,7 @@ function ConditionalScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🔀 ' + CONDITIONAL.title, CONDITIONAL.intro)}
+      {H('🔀 ' + CONDITIONAL.title, CONDITIONAL.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         {tabs.map((t) => (

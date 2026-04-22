@@ -1,21 +1,35 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { IMPERSONAL } from '../../data';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 
-function QuizBlock({ questions, award }) {
-  const { stats, setStats, writeDelta } = useStats();
-  const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(null);
+interface QuizQuestion {
+  q: string;
+  opts: string[];
+  a: string;
+}
 
-  function handleAnswer(qi, opt, correct) {
+function QuizBlock({
+  questions,
+  award,
+}: {
+  questions: QuizQuestion[];
+  award?: (pts: number) => void;
+}) {
+  const { stats, setStats, writeDelta } = useStats();
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [score, setScore] = useState<number | null>(null);
+
+  function handleAnswer(qi: number, opt: string, correct: string): void {
+    void correct;
     if (answers[qi] !== undefined) return;
     const updated = { ...answers, [qi]: opt };
     setAnswers(updated);
     if (Object.keys(updated).length === questions.length) {
-      const pts = Object.entries(updated).filter(([i, v]) => v === questions[i].a).length;
+      const pts = Object.entries(updated).filter(
+        ([i, v]) => v === (questions[Number(i)] as QuizQuestion).a,
+      ).length;
       setScore(pts);
       if (award) {
         award(pts * 5);
@@ -127,7 +141,13 @@ function QuizBlock({ questions, award }) {
   );
 }
 
-function ImpersonalScreen({ goBack, award }) {
+function ImpersonalScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const [tab, setTab] = useState('constructions');
   const tabs = [
     { k: 'constructions', l: 'Constructions' },
@@ -137,7 +157,7 @@ function ImpersonalScreen({ goBack, award }) {
 
   return (
     <div className="scr-wrap">
-      {H('🔁 ' + IMPERSONAL.title, IMPERSONAL.intro)}
+      {H('🔁 ' + IMPERSONAL.title, IMPERSONAL.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         {tabs.map((t) => (

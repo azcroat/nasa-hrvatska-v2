@@ -1,42 +1,57 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, PADEZI_FULL } from '../../data';
 import { useStats } from '../../context/StatsContext.tsx';
 
-export default function PadezifullScreen({ goBack, award }) {
+interface PfQuizQuestion {
+  base: string;
+  sentence: string;
+  en: string;
+  answer: string;
+  caseName: string;
+  opts: string[];
+}
+
+export default function PadezifullScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [pfTab, sPfTab] = useState('sing');
   const [pfMode, sPfMode] = useState('learn');
   const [pfGender, sPfGender] = useState('f');
-  const [pfQ, sPfQ] = useState([]);
+  const [pfQ, sPfQ] = useState<PfQuizQuestion[]>([]);
   const [pfI, sPfI] = useState(0);
   const [pfS, sPfS] = useState(0);
   const [pfA, sPfA] = useState(false);
   const [pfSl, sPfSl] = useState(-1);
-  const [pfO, sPfO] = useState([]);
+  const [pfO, sPfO] = useState<string[]>([]);
   const [pfCaseA, sPfCaseA] = useState(false);
   const [_pfCaseSl, sPfCaseSl] = useState(-1);
 
-  function startQuiz() {
-    const q = sh(PADEZI_FULL.quiz);
+  function startQuiz(): void {
+    const q = sh(PADEZI_FULL.quiz) as PfQuizQuestion[];
     sPfQ(q);
     sPfI(0);
     sPfS(0);
     sPfA(false);
     sPfSl(-1);
-    sPfO(q[0].opts);
+    sPfO(q[0]!.opts);
     sPfCaseA(false);
     sPfCaseSl(-1);
   }
 
-  const genderBg = (g) =>
+  const genderBg = (g: string): string =>
     g === 'f'
       ? 'linear-gradient(135deg,#dc2626,#b91c1c)'
       : g === 'n'
         ? 'linear-gradient(135deg,#16a34a,#15803d)'
         : 'linear-gradient(135deg,#0e7490,#164e63)';
-  const genderBorder = (g) => (g === 'f' ? '#dc2626' : g === 'n' ? '#16a34a' : '#0e7490');
+  const genderBorder = (g: string): string =>
+    g === 'f' ? '#dc2626' : g === 'n' ? '#16a34a' : '#0e7490';
 
   return (
     <div className="scr-wrap">
@@ -64,7 +79,8 @@ export default function PadezifullScreen({ goBack, award }) {
       {pfTab === 'sing' &&
         pfMode === 'learn' &&
         (() => {
-          const data = PADEZI_FULL.singEndings[pfGender];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const data = (PADEZI_FULL.singEndings as Record<string, any>)[pfGender];
           return (
             <React.Fragment>
               <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
@@ -93,7 +109,8 @@ export default function PadezifullScreen({ goBack, award }) {
                   </div>
                 )}
               </div>
-              {data.words.map((w, wi) => (
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {data.words.map((w: any, wi: number) => (
                 <div
                   key={wi}
                   className="c"
@@ -156,7 +173,8 @@ export default function PadezifullScreen({ goBack, award }) {
       {pfTab === 'plur' &&
         pfMode === 'learn' &&
         (() => {
-          const data = PADEZI_FULL.plurEndings[pfGender];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const data = (PADEZI_FULL.plurEndings as Record<string, any>)[pfGender];
           return (
             <React.Fragment>
               <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
@@ -183,7 +201,8 @@ export default function PadezifullScreen({ goBack, award }) {
                   Adj: {data.adjEnd.join(' / ')}
                 </div>
               </div>
-              {data.words.map((w, wi) => (
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {data.words.map((w: any, wi: number) => (
                 <div
                   key={wi}
                   className="c"
@@ -270,7 +289,7 @@ export default function PadezifullScreen({ goBack, award }) {
               </div>
             );
           }
-          const q = pfQ[pfI];
+          const q = pfQ[pfI]!;
           if (!pfA)
             return (
               <React.Fragment>
@@ -360,7 +379,7 @@ export default function PadezifullScreen({ goBack, award }) {
                 style={{ marginTop: 16 }}
                 onClick={() => {
                   if (pfI < total - 1) {
-                    const n = pfQ[pfI + 1];
+                    const n = pfQ[pfI + 1]!;
                     sPfO(n.opts);
                     sPfI(pfI + 1);
                     sPfA(false);

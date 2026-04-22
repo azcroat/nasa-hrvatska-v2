@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 
@@ -314,16 +313,35 @@ function getProgress() {
   }
 }
 
-function markDone(unitId) {
+interface Unit {
+  id: string;
+  icon: string;
+  title: string;
+  desc: string;
+  screen: string;
+  qs: number;
+}
+
+interface Level {
+  id: string;
+  label: string;
+  color: string;
+  bg: string;
+  border: string;
+  headerBg: string;
+  units: Unit[];
+}
+
+function markDone(unitId: string): void {
   try {
-    const done = getProgress();
+    const done = getProgress() as string[];
     if (!done.includes(unitId)) {
       localStorage.setItem(PROGRESS_KEY + 'done', JSON.stringify([...done, unitId]));
     }
   } catch (_e) {}
 }
 
-export default function GrammarTrackScreen({ goBack }) {
+export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
   const { setScr } = useApp();
   const [activeLevel, setActiveLevel] = useState('A1');
   const [done, setDone] = useState(getProgress);
@@ -341,13 +359,13 @@ export default function GrammarTrackScreen({ goBack }) {
     };
   }, []);
 
-  function launch(unit) {
+  function launch(unit: Unit): void {
     markDone(unit.id);
     setDone(getProgress());
     setScr(unit.screen);
   }
 
-  const level = LEVELS.find((l) => l.id === activeLevel) || LEVELS[0];
+  const level = (LEVELS.find((l: Level) => l.id === activeLevel) || LEVELS[0])!;
   const totalUnits = LEVELS.reduce((s, l) => s + l.units.length, 0);
   const doneCount = done.length;
   const pct = Math.round((doneCount / totalUnits) * 100);

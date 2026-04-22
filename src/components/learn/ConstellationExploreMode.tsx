@@ -1,15 +1,20 @@
-// @ts-nocheck
 // ── GrammarConstellation — Explore mode ───────────────────────
 import React from 'react';
 import { CASES } from './ConstellationData.js';
 import { CaseCard } from './ConstellationPieces';
 
+interface Props {
+  goBack: () => void;
+  expandedCase: string | null;
+  onToggleCase: (id: string) => void;
+  onStartQuiz: () => void;
+}
 export default function ConstellationExploreMode({
   goBack,
   expandedCase,
   onToggleCase,
   onStartQuiz,
-}) {
+}: Props) {
   return (
     <>
       {/* Header */}

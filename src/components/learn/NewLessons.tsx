@@ -1,19 +1,33 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC } from '../../data';
 
-// ── shared quiz engine ────────────────────────────────────────────────────────
-function QuizBlock({ questions, award }) {
-  const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(null);
+interface QuizQuestion {
+  q: string;
+  opts: string[];
+  a: string;
+}
 
-  function handleAnswer(qi, opt, correct) {
+// ── shared quiz engine ────────────────────────────────────────────────────────
+function QuizBlock({
+  questions,
+  award,
+}: {
+  questions: QuizQuestion[];
+  award?: (pts: number) => void;
+}) {
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [score, setScore] = useState<number | null>(null);
+
+  function handleAnswer(qi: number, opt: string, correct: string): void {
+    void correct;
     if (answers[qi] !== undefined) return;
     const updated = { ...answers, [qi]: opt };
     setAnswers(updated);
     if (Object.keys(updated).length === questions.length) {
-      const pts = Object.entries(updated).filter(([i, v]) => v === questions[i].a).length;
+      const pts = Object.entries(updated).filter(
+        ([i, v]) => v === (questions[Number(i)] as QuizQuestion).a,
+      ).length;
       setScore(pts);
       if (award) award(pts * 5);
     }
@@ -116,7 +130,13 @@ function QuizBlock({ questions, award }) {
 }
 
 // ── CONDITIONAL MOOD ─────────────────────────────────────────────────────────
-export function ConditionalScreen({ goBack, award }) {
+export function ConditionalScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const [tab, setTab] = useState('forms');
   const tabs = [
     { k: 'forms', l: 'Forms' },
@@ -373,7 +393,13 @@ export function ConditionalScreen({ goBack, award }) {
 }
 
 // ── FORMAL REGISTER (Vi vs ti) ────────────────────────────────────────────────
-export function FormalRegisterScreen({ goBack, award }) {
+export function FormalRegisterScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const [tab, setTab] = useState('rules');
   const tabs = [
     { k: 'rules', l: 'Rules' },
@@ -661,7 +687,13 @@ export function FormalRegisterScreen({ goBack, award }) {
 }
 
 // ── IMPERSONAL CONSTRUCTIONS ──────────────────────────────────────────────────
-export function ImpersonalScreen({ goBack, award }) {
+export function ImpersonalScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const [tab, setTab] = useState('constructions');
   const tabs = [
     { k: 'constructions', l: 'Constructions' },
@@ -814,10 +846,16 @@ export function ImpersonalScreen({ goBack, award }) {
 }
 
 // ── TECHNOLOGY VOCABULARY ─────────────────────────────────────────────────────
-export function TechVocScreen({ goBack, award }) {
+export function TechVocScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
-  const cat = TECH_VOC.categories[catIdx];
+  const cat = TECH_VOC.categories[catIdx]!;
 
   return (
     <div className="scr-wrap">
@@ -927,10 +965,16 @@ export function TechVocScreen({ goBack, award }) {
 }
 
 // ── BUREAUCRATIC / ADMINISTRATIVE ─────────────────────────────────────────────
-export function BureaucraticScreen({ goBack, award }) {
+export function BureaucraticScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
-  const cat = BUREAUCRATIC.categories[catIdx];
+  const cat = BUREAUCRATIC.categories[catIdx]!;
 
   return (
     <div className="scr-wrap">

@@ -1,21 +1,36 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, Spk, speak, sh, MODAL } from '../../data';
 
-export default function ModalScreen({ goBack, award, setSt }) {
+interface ModalQuizQ {
+  q: string;
+  a: string;
+  al: string[];
+  v?: string;
+  en?: string;
+}
+
+export default function ModalScreen({
+  goBack,
+  award,
+  setSt,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+  setSt?: (fn: (s: Record<string, number>) => Record<string, number>) => void;
+}) {
   const { writeDelta } = useStats();
   const finishFired = useRef(false);
   const [m7, sM7] = useState('menu');
   const [m7v, sM7v] = useState(0);
-  const [m7q, sM7q] = useState([]);
+  const [m7q, sM7q] = useState<ModalQuizQ[]>([]);
   const [m7i, sM7i] = useState(0);
   const [m7s, sM7s] = useState(0);
   const [m7a, sM7a] = useState(false);
   const [m7sl, sM7sl] = useState(-1);
-  const [m7o, sM7o] = useState([]);
+  const [m7o, sM7o] = useState<string[]>([]);
 
-  function resetMode(mode) {
+  function resetMode(mode: string): void {
     sM7(mode);
     sM7i(0);
     sM7s(0);
@@ -93,7 +108,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
 
       {m7 === 'learn' &&
         (() => {
-          const v = MODAL.verbs[m7v];
+          const v = MODAL.verbs[m7v]!;
           return (
             <React.Fragment>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
@@ -145,7 +160,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
                       <tr
                         key={pi}
                         style={{ borderBottom: '1px solid #f3f4f6', cursor: 'pointer' }}
-                        onClick={() => speak(v.forms[pi])}
+                        onClick={() => speak(v.forms[pi] ?? '')}
                       >
                         <td
                           style={{
@@ -212,10 +227,10 @@ export default function ModalScreen({ goBack, award, setSt }) {
       {m7 === 'fill' &&
         (() => {
           if (m7q.length === 0) {
-            const q = sh(MODAL.fillBlanks).slice(0, 10);
+            const q = (sh(MODAL.fillBlanks) as ModalQuizQ[]).slice(0, 10);
             setTimeout(() => {
               sM7q(q);
-              sM7o(sh([q[0].a, ...q[0].al]));
+              sM7o(sh([q[0]!.a, ...q[0]!.al]) as string[]);
             }, 0);
             return <div style={{ textAlign: 'center', padding: 40 }}>Loading...</div>;
           }
@@ -262,7 +277,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
               </div>
             );
           }
-          const q = m7q[m7i];
+          const q = m7q[m7i]!;
           const ci = m7o.indexOf(q.a);
           const pts = q.q.split('_____');
           return (
@@ -322,8 +337,8 @@ export default function ModalScreen({ goBack, award, setSt }) {
                   style={{ width: '100%', marginTop: 16 }}
                   onClick={() => {
                     if (m7i < total - 1) {
-                      const n = m7q[m7i + 1];
-                      sM7o(sh([n.a, ...n.al]));
+                      const n = m7q[m7i + 1]!;
+                      sM7o(sh([n.a, ...n.al]) as string[]);
                       sM7i((i) => i + 1);
                       sM7a(false);
                       sM7sl(-1);
@@ -343,10 +358,10 @@ export default function ModalScreen({ goBack, award, setSt }) {
       {m7 === 'quiz' &&
         (() => {
           if (m7q.length === 0) {
-            const q = sh(MODAL.masterQuiz).slice(0, 10);
+            const q = (sh(MODAL.masterQuiz) as ModalQuizQ[]).slice(0, 10);
             setTimeout(() => {
               sM7q(q);
-              sM7o(sh([q[0].a, ...q[0].al]));
+              sM7o(sh([q[0]!.a, ...q[0]!.al]) as string[]);
             }, 0);
             return <div style={{ textAlign: 'center', padding: 40 }}>Loading...</div>;
           }
@@ -395,7 +410,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
                     onClick={() => {
                       if (finishFired.current) return;
                       finishFired.current = true;
-                      setSt((s) => ({ ...s, mv: s.mv + 1, gc: s.gc + 1 }));
+                      if (setSt) setSt((s) => ({ ...s, mv: (s.mv || 0) + 1, gc: (s.gc || 0) + 1 }));
                       writeDelta({ mv: 1, gc: 1 });
                       if (typeof award === 'function') award(m7s * 3 + 20);
                       goBack();
@@ -407,7 +422,7 @@ export default function ModalScreen({ goBack, award, setSt }) {
               </div>
             );
           }
-          const q = m7q[m7i];
+          const q = m7q[m7i]!;
           const ci = m7o.indexOf(q.a);
           return (
             <React.Fragment>
@@ -447,8 +462,8 @@ export default function ModalScreen({ goBack, award, setSt }) {
                   style={{ width: '100%', marginTop: 16 }}
                   onClick={() => {
                     if (m7i < total - 1) {
-                      const n = m7q[m7i + 1];
-                      sM7o(sh([n.a, ...n.al]));
+                      const n = m7q[m7i + 1]!;
+                      sM7o(sh([n.a, ...n.al]) as string[]);
                       sM7i((i) => i + 1);
                       sM7a(false);
                       sM7sl(-1);

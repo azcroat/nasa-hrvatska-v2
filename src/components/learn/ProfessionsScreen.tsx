@@ -1,13 +1,12 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { PROFESSIONS, speak } from '../../data';
 
-const BACK_BTN = ({ goBack }) => (
+const BACK_BTN = ({ goBack }: { goBack: () => void }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
     ← Back
   </button>
 );
-const WRAP = ({ children }) => (
+const WRAP = ({ children }: { children: React.ReactNode }) => (
   <div
     style={{
       maxWidth: 620,
@@ -21,7 +20,17 @@ const WRAP = ({ children }) => (
     {children}
   </div>
 );
-const HERO = ({ icon, title, subtitle, color }) => (
+const HERO = ({
+  icon,
+  title,
+  subtitle,
+  color,
+}: {
+  icon: string;
+  title: string;
+  subtitle: string;
+  color: string;
+}) => (
   <div
     style={{
       background: `linear-gradient(135deg,${color}dd,${color})`,
@@ -40,7 +49,17 @@ const HERO = ({ icon, title, subtitle, color }) => (
     </div>
   </div>
 );
-const TAB_NAV = ({ tabs, active, setActive, accent }) => (
+const TAB_NAV = ({
+  tabs,
+  active,
+  setActive,
+  accent,
+}: {
+  tabs: string[];
+  active: string;
+  setActive: (t: string) => void;
+  accent: string;
+}) => (
   <div style={{ display: 'flex', gap: 4, marginBottom: 20, overflowX: 'auto', paddingBottom: 2 }}>
     {tabs.map((t) => (
       <button
@@ -63,7 +82,7 @@ const TAB_NAV = ({ tabs, active, setActive, accent }) => (
     ))}
   </div>
 );
-const TIP_BOX = ({ text }) => (
+const TIP_BOX = ({ text }: { text: string }) => (
   <div
     style={{
       background: 'rgba(14,116,144,.06)',
@@ -80,8 +99,15 @@ const TIP_BOX = ({ text }) => (
     {text}
   </div>
 );
-const QUIZ_SECTION = ({ quiz, accent }) => {
-  const [answers, setAnswers] = useState({});
+
+interface QuizItem {
+  q: string;
+  opts: string[];
+  a: string;
+}
+
+const QUIZ_SECTION = ({ quiz, accent }: { quiz: QuizItem[]; accent: string }) => {
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   return (
     <div>
       {quiz.map((q, i) => (
@@ -145,11 +171,11 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
               style={{
                 marginTop: 8,
                 fontSize: 11,
-                color: q.opts[answers[i]] === q.a ? '#15803d' : '#b91c1c',
+                color: q.opts[answers[i]!] === q.a ? '#15803d' : '#b91c1c',
                 fontWeight: 700,
               }}
             >
-              {q.opts[answers[i]] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
+              {q.opts[answers[i]!] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
             </div>
           )}
         </div>
@@ -158,11 +184,11 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
   );
 };
 
-function ProfessionsScreen({ goBack }) {
+function ProfessionsScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('Jobs');
   const [catIdx, setCatIdx] = useState(0);
   const d = PROFESSIONS;
-  const cat = d.categories[catIdx];
+  const cat = d.categories[catIdx]!;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useRef, useEffect, useState } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, Spk, speak } from '../../data';
@@ -22,6 +21,26 @@ export default function ReadingScreen({
   setScr,
   award,
   setSt,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rp: Record<string, any> | null;
+  rph: string;
+  rqi: number;
+  rsc: number;
+  ra: boolean;
+  rsl: number;
+  hw: string | null;
+  sRph: (v: string) => void;
+  sRqi: (v: number | ((i: number) => number)) => void;
+  sRsc: (v: number | ((s: number) => number)) => void;
+  sRa: (v: boolean) => void;
+  sRsl: (v: number) => void;
+  sHw: (v: string | null) => void;
+  goBack: () => void;
+  setScr: (v: string) => void;
+  award?: (pts: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setSt: (fn: (s: Record<string, any>) => Record<string, any>) => void;
 }) {
   const { stats, writeDelta } = useStats();
   const resultFired = useRef(false);
@@ -36,14 +55,14 @@ export default function ReadingScreen({
   if (!rp) return null;
   return (
     <div className="scr-wrap">
-      {H('📖 ' + rp.title, rp.tEn)}
+      {H('📖 ' + rp.title, rp.tEn, goBack)}
 
       {rph === 'read' && (
         <React.Fragment>
           <div className="c" style={{ marginBottom: 16 }}>
             <Spk text={rp.text} label="Listen" />
             <p className="rt" style={{ marginTop: 12 }}>
-              {rp.text.split(/(\s+)/).map((w, i) =>
+              {rp.text.split(/(\s+)/).map((w: string, i: number) =>
                 /^\s+$/.test(w) ? (
                   w
                 ) : (
@@ -70,7 +89,7 @@ export default function ReadingScreen({
 
       {rph === 'vocab' && (
         <React.Fragment>
-          {rp.vocab.map((v, i) => (
+          {rp.vocab.map((v: string[], i: number) => (
             <button
               key={i}
               aria-label={`Play audio for ${v[0]}`}
@@ -81,7 +100,7 @@ export default function ReadingScreen({
                 justifyContent: 'space-between',
                 padding: '14px 20px',
               }}
-              onClick={() => speak(v[0])}
+              onClick={() => speak(v[0] ?? '')}
             >
               <span style={{ fontWeight: 700 }}>
                 <span aria-hidden="true">🔊</span> {v[0]}
@@ -152,7 +171,7 @@ export default function ReadingScreen({
             <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>{rp.qs[rqi].q}</p>
             {/* Disable pointer events on all buttons after an answer is selected */}
             <div style={ra ? { pointerEvents: 'none' } : {}}>
-              {rp.qs[rqi].o.map((o, i) => {
+              {rp.qs[rqi].o.map((o: string, i: number) => {
                 const isCorrect = i === rp.qs[rqi].c;
                 const isSelected = rsl === i;
                 let cls = 'ob';

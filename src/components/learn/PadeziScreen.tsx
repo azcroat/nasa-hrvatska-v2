@@ -1,29 +1,42 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak, sh, PADEZI, PREPS } from '../../data';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 
-export default function PadeziScreen({ goBack, award, setSt }) {
+interface PadeziQuizQ {
+  q: string;
+  a: string;
+  al: string[];
+}
+
+export default function PadeziScreen({
+  goBack,
+  award,
+  setSt,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+  setSt?: (fn: (s: Record<string, number>) => Record<string, number>) => void;
+}) {
   const { writeDelta } = useStats();
   const finishFired = useRef(false);
   const [czMode, sCzMode] = useState('learn');
-  const [czQ, sCzQ] = useState([]);
+  const [czQ, sCzQ] = useState<PadeziQuizQ[]>([]);
   const [czI, sCzI] = useState(0);
   const [czS, sCzS] = useState(0);
   const [czA, sCzA] = useState(false);
   const [czSl, sCzSl] = useState(-1);
-  const [czO, sCzO] = useState([]);
+  const [czO, sCzO] = useState<string[]>([]);
 
-  function startQuiz() {
-    const q = sh(PADEZI.quiz);
+  function startQuiz(): void {
+    const q = sh(PADEZI.quiz) as PadeziQuizQ[];
     sCzQ(q);
     sCzI(0);
     sCzS(0);
     sCzA(false);
     sCzSl(-1);
-    sCzO(sh([q[0].a].concat(q[0].al)));
+    sCzO(sh([q[0]!.a].concat(q[0]!.al)) as string[]);
   }
 
   return (
@@ -42,9 +55,9 @@ export default function PadeziScreen({ goBack, award, setSt }) {
               sCzA(false);
               sCzSl(-1);
               if (m === 'quiz') {
-                const q = sh(PADEZI.quiz);
+                const q = sh(PADEZI.quiz) as PadeziQuizQ[];
                 sCzQ(q);
-                sCzO(sh([q[0].a].concat(q[0].al)));
+                sCzO(sh([q[0]!.a].concat(q[0]!.al)) as string[]);
               }
             }}
           >
@@ -165,7 +178,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
                       finishFired.current = true;
                       markQuest('grammar');
                       if (typeof award === 'function') award(czS * 3 + 15);
-                      setSt((s) => ({ ...s, gc: s.gc + 1 }));
+                      if (setSt) setSt((s) => ({ ...s, gc: (s.gc || 0) + 1 }));
                       writeDelta({ gc: 1 });
                       goBack();
                     }}
@@ -176,7 +189,7 @@ export default function PadeziScreen({ goBack, award, setSt }) {
               </div>
             );
           }
-          const q = czQ[czI];
+          const q = czQ[czI]!;
           const ci = czO.indexOf(q.a);
           return (
             <React.Fragment>
@@ -212,8 +225,8 @@ export default function PadeziScreen({ goBack, award, setSt }) {
                   style={{ width: '100%', marginTop: 16 }}
                   onClick={() => {
                     if (czI < total - 1) {
-                      const n = czQ[czI + 1];
-                      sCzO(sh([n.a].concat(n.al)));
+                      const n = czQ[czI + 1]!;
+                      sCzO(sh([n.a].concat(n.al)) as string[]);
                       sCzI((i) => i + 1);
                       sCzA(false);
                       sCzSl(-1);

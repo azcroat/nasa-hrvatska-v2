@@ -1,9 +1,11 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { ASPECT } from '../../data';
 
-function AspectScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+function AspectScreen({ goBack }: Props) {
   const userLevel =
     typeof localStorage !== 'undefined' ? localStorage.getItem('nh_level') || 'A1' : 'A1';
   const isA1 = userLevel === 'A1';

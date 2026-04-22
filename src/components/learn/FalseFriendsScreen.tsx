@@ -1,11 +1,14 @@
-// @ts-nocheck
 import React, { useRef } from 'react';
 import { H, speak } from '../../data';
 import { FALSEFR } from '../../data';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 
-function FalseFriendsScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+function FalseFriendsScreen({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
   const completed = useRef(false);
 

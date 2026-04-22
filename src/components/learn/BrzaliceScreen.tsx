@@ -1,13 +1,18 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak, shMemo } from '../../data';
 import { BRZALICE } from '../../data';
 
-function BrzaliceScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+function BrzaliceScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('😝 Brzalice', 'Croatian Tongue Twisters', goBack)}
-      {shMemo('bz', BRZALICE).map(function (b, i) {
+      {shMemo('bz', BRZALICE, BRZALICE.length).map(function (
+        b: { hr: string; en: string; focus: string },
+        i: number,
+      ) {
         return (
           <div key={i} className="c" style={{ marginBottom: 12 }}>
             <button

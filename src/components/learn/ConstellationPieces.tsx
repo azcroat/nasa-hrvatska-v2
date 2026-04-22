@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ── GrammarConstellation — shared UI sub-components ───────────
 import React from 'react';
 
@@ -62,17 +61,21 @@ export function ConstellationBackground() {
       viewBox="0 0 780 280"
       preserveAspectRatio="xMidYMid slice"
     >
-      {connections.map(([a, b], i) => (
-        <line
-          key={i}
-          x1={points[a][0]}
-          y1={points[a][1]}
-          x2={points[b][0]}
-          y2={points[b][1]}
-          stroke="#60a5fa"
-          strokeWidth="0.8"
-        />
-      ))}
+      {connections.map(([a, b], i) => {
+        const pa = points[a ?? 0] ?? [0, 0];
+        const pb = points[b ?? 0] ?? [0, 0];
+        return (
+          <line
+            key={i}
+            x1={pa[0]}
+            y1={pa[1]}
+            x2={pb[0]}
+            y2={pb[1]}
+            stroke="#60a5fa"
+            strokeWidth="0.8"
+          />
+        );
+      })}
       {points.map(([x, y], i) => (
         <circle key={i} cx={x} cy={y} r={i % 3 === 0 ? 2.5 : 1.5} fill="#93c5fd" />
       ))}
@@ -80,13 +83,16 @@ export function ConstellationBackground() {
   );
 }
 
-export function EndingsTable({ endings }) {
+interface EndingsTableProps {
+  endings: { m: string; f: string; n: string };
+}
+export function EndingsTable({ endings }: EndingsTableProps) {
   return (
     <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
       {[
-        ['M', endings.m],
-        ['F', endings.f],
-        ['N', endings.n],
+        ['M', endings.m] as [string, string],
+        ['F', endings.f] as [string, string],
+        ['N', endings.n] as [string, string],
       ].map(([label, val]) => (
         <div
           key={label}
@@ -110,7 +116,28 @@ export function EndingsTable({ endings }) {
   );
 }
 
-export function CaseCard({ caseData, expanded, onToggle }) {
+interface CaseExample {
+  hr: string;
+  en: string;
+}
+interface CaseDataType {
+  id: string;
+  name: string;
+  abbr: string;
+  color: string;
+  question: string;
+  shortDesc: string;
+  pattern: string;
+  examples: CaseExample[];
+  tip: string;
+  endings: { m: string; f: string; n: string };
+}
+interface CaseCardProps {
+  caseData: CaseDataType;
+  expanded: boolean;
+  onToggle: () => void;
+}
+export function CaseCard({ caseData, expanded, onToggle }: CaseCardProps) {
   const { name, abbr, color, question, shortDesc, pattern, examples, tip, endings } = caseData;
 
   return (
@@ -177,7 +204,7 @@ export function CaseCard({ caseData, expanded, onToggle }) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 8 }}>
-            {examples.map((ex, i) => (
+            {examples.map((ex: CaseExample, i: number) => (
               <div
                 key={i}
                 style={{

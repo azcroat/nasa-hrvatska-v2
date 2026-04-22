@@ -1,19 +1,29 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { BUREAUCRATIC } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
-function QuizBlock({ questions, award }) {
-  const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(null);
+interface QuizQuestion {
+  q: string;
+  opts: string[];
+  a: string;
+}
+interface QuizBlockProps {
+  questions: QuizQuestion[];
+  award?: (xp: number) => void;
+}
+function QuizBlock({ questions, award }: QuizBlockProps) {
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [score, setScore] = useState<number | null>(null);
 
-  function handleAnswer(qi, opt, correct) {
+  function handleAnswer(qi: number, opt: string, _correct: string) {
     if (answers[qi] !== undefined) return;
     const updated = { ...answers, [qi]: opt };
     setAnswers(updated);
     if (Object.keys(updated).length === questions.length) {
-      const pts = Object.entries(updated).filter(([i, v]) => v === questions[i].a).length;
+      const pts = Object.entries(updated).filter(
+        ([i, v]) => v === questions[i as unknown as number]?.a,
+      ).length;
       setScore(pts);
       if (award) {
         award(pts * 5);
@@ -27,7 +37,7 @@ function QuizBlock({ questions, award }) {
       <h3 className="sh" style={{ marginTop: 4 }}>
         🎯 Quick Quiz
       </h3>
-      {questions.map(function (q, qi) {
+      {questions.map(function (q: QuizQuestion, qi: number) {
         const ans = answers[qi];
         return (
           <div key={qi} className="c" style={{ marginBottom: 12 }}>
@@ -36,7 +46,7 @@ function QuizBlock({ questions, award }) {
             >
               {qi + 1}. {q.q}
             </div>
-            {q.opts.map(function (opt, oi) {
+            {q.opts.map(function (opt: string, oi: number) {
               let bg = 'white',
                 bc = '#e7e5e4',
                 col = '#1c1917';
@@ -118,14 +128,18 @@ function QuizBlock({ questions, award }) {
   );
 }
 
-function BureaucraticScreen({ goBack, award }) {
+interface ScreenProps {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+function BureaucraticScreen({ goBack, award }: ScreenProps) {
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
   const cat = BUREAUCRATIC.categories[catIdx];
 
   return (
     <div className="scr-wrap">
-      {H('🏛️ ' + BUREAUCRATIC.title, BUREAUCRATIC.intro)}
+      {H('🏛️ ' + BUREAUCRATIC.title, BUREAUCRATIC.intro, goBack)}
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         <button
@@ -168,9 +182,9 @@ function BureaucraticScreen({ goBack, award }) {
             })}
           </div>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#0e7490', marginBottom: 10 }}>
-            {cat.icon} {cat.name}
+            {cat?.icon} {cat?.name}
           </div>
-          {cat.words.map(function (w, i) {
+          {(cat?.words ?? []).map(function (w, i) {
             return (
               <button
                 key={i}

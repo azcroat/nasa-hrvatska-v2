@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useMemo, useRef } from 'react';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';
@@ -9,13 +8,19 @@ import ConstellationExploreMode from './ConstellationExploreMode';
 import ConstellationQuizMode from './ConstellationQuizMode';
 import ConstellationDoneMode from './ConstellationDoneMode';
 
-export default function GrammarConstellation({ goBack, award }) {
+export default function GrammarConstellation({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('explore');
-  const [expandedCase, setExpandedCase] = useState(null);
+  const [expandedCase, setExpandedCase] = useState<string | null>(null);
   const [quizIdx, setQuizIdx] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
   const awardCalled = useRef(false);
   const [finalScore, setFinalScore] = useState(0);
@@ -23,7 +28,7 @@ export default function GrammarConstellation({ goBack, award }) {
   // Shuffle question order once per session so users see different sequences on retake
   const shuffledQuiz = useMemo(() => sh([...QUIZ]), []);
 
-  function toggleCase(id) {
+  function toggleCase(id: string) {
     setExpandedCase((prev) => (prev === id ? null : id));
   }
 
@@ -35,11 +40,11 @@ export default function GrammarConstellation({ goBack, award }) {
     setAnswered(false);
   }
 
-  function handleAnswer(opt) {
+  function handleAnswer(opt: string) {
     if (answered) return;
     setSelected(opt);
     setAnswered(true);
-    if (opt === shuffledQuiz[quizIdx].answer) {
+    if (opt === shuffledQuiz[quizIdx]?.answer) {
       setQuizScore((s) => s + 1);
     }
   }
@@ -50,7 +55,7 @@ export default function GrammarConstellation({ goBack, award }) {
       setSelected(null);
       setAnswered(false);
     } else {
-      const fs = quizScore + (selected === shuffledQuiz[quizIdx].answer ? 1 : 0);
+      const fs = quizScore + (selected === shuffledQuiz[quizIdx]?.answer ? 1 : 0);
       setFinalScore(fs);
       setMode('done');
       if (!awardCalled.current) {

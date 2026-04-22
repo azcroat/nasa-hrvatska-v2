@@ -1,9 +1,13 @@
-// @ts-nocheck
 // ── GrammarConstellation — Done/results mode ──────────────────
 import React from 'react';
 import { CASES, getDoneMessage } from './ConstellationData.js';
 
-export default function ConstellationDoneMode({ finalScore, onReviewCases, goBack }) {
+interface Props {
+  finalScore: number;
+  onReviewCases: () => void;
+  goBack: () => void;
+}
+export default function ConstellationDoneMode({ finalScore, onReviewCases, goBack }: Props) {
   return (
     <>
       {/* Score card */}
@@ -102,7 +106,7 @@ export default function ConstellationDoneMode({ finalScore, onReviewCases, goBac
             </span>
             <span style={{ color: '#cbd5e1', fontSize: 13, flex: 1 }}>{c.name}</span>
             <span style={{ color: '#475569', fontSize: 11 }}>
-              {c.question.split('(')[0].trim()}
+              {(c.question.split('(')[0] ?? '').trim()}
             </span>
           </div>
         ))}

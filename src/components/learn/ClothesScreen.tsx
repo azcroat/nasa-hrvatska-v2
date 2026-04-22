@@ -1,13 +1,18 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { CLOTHES, speak } from '../../data';
 
-const BACK_BTN = ({ goBack }) => (
+interface BackBtnProps {
+  goBack: () => void;
+}
+const BACK_BTN = ({ goBack }: BackBtnProps) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
     ← Back
   </button>
 );
-const WRAP = ({ children }) => (
+interface WrapProps {
+  children: React.ReactNode;
+}
+const WRAP = ({ children }: WrapProps) => (
   <div
     style={{
       maxWidth: 620,
@@ -21,7 +26,13 @@ const WRAP = ({ children }) => (
     {children}
   </div>
 );
-const HERO = ({ icon, title, subtitle, color }) => (
+interface HeroProps {
+  icon: string;
+  title: string;
+  subtitle: string;
+  color: string;
+}
+const HERO = ({ icon, title, subtitle, color }: HeroProps) => (
   <div
     style={{
       background: `linear-gradient(135deg,${color}dd,${color})`,
@@ -40,9 +51,15 @@ const HERO = ({ icon, title, subtitle, color }) => (
     </div>
   </div>
 );
-const TAB_NAV = ({ tabs, active, setActive, accent }) => (
+interface TabNavProps {
+  tabs: string[];
+  active: string;
+  setActive: (t: string) => void;
+  accent: string;
+}
+const TAB_NAV = ({ tabs, active, setActive, accent }: TabNavProps) => (
   <div style={{ display: 'flex', gap: 4, marginBottom: 20, overflowX: 'auto', paddingBottom: 2 }}>
-    {tabs.map((t) => (
+    {tabs.map((t: string) => (
       <button
         key={t}
         onClick={() => setActive(t)}
@@ -63,7 +80,10 @@ const TAB_NAV = ({ tabs, active, setActive, accent }) => (
     ))}
   </div>
 );
-const TIP_BOX = ({ text }) => (
+interface TipBoxProps {
+  text: string;
+}
+const TIP_BOX = ({ text }: TipBoxProps) => (
   <div
     style={{
       background: 'rgba(14,116,144,.06)',
@@ -80,11 +100,20 @@ const TIP_BOX = ({ text }) => (
     {text}
   </div>
 );
-const QUIZ_SECTION = ({ quiz, accent }) => {
-  const [answers, setAnswers] = useState({});
+interface QuizItem2 {
+  q: string;
+  opts: string[];
+  a: string;
+}
+interface QuizSectionProps2 {
+  quiz: QuizItem2[];
+  accent: string;
+}
+const QUIZ_SECTION = ({ quiz, accent: _accent }: QuizSectionProps2) => {
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   return (
     <div>
-      {quiz.map((q, i) => (
+      {quiz.map((q: QuizItem2, i: number) => (
         <div
           key={i}
           style={{
@@ -100,7 +129,7 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
             {i + 1}. {q.q}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {q.opts.map((opt, j) => {
+            {q.opts.map((opt: string, j: number) => {
               const sel = answers[i];
               const correct = opt === q.a;
               let bg = '#f5f5f4',
@@ -145,11 +174,11 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
               style={{
                 marginTop: 8,
                 fontSize: 11,
-                color: q.opts[answers[i]] === q.a ? '#15803d' : '#b91c1c',
+                color: q.opts[answers[i] as number] === q.a ? '#15803d' : '#b91c1c',
                 fontWeight: 700,
               }}
             >
-              {q.opts[answers[i]] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
+              {q.opts[answers[i] as number] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
             </div>
           )}
         </div>
@@ -158,7 +187,10 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
   );
 };
 
-function ClothesScreen({ goBack }) {
+interface ClothesScreenProps {
+  goBack: () => void;
+}
+function ClothesScreen({ goBack }: ClothesScreenProps) {
   const [tab, setTab] = useState('Clothing');
   const [catIdx, setCatIdx] = useState(0);
   const d = CLOTHES;
@@ -198,10 +230,10 @@ function ClothesScreen({ goBack }) {
             ))}
           </div>
           <div style={{ fontSize: 13, fontWeight: 800, color: '#7c3aed', marginBottom: 10 }}>
-            {cat.icon} {cat.cat}
+            {cat?.icon} {cat?.cat}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {cat.items.map((item, i) => (
+            {(cat?.items ?? []).map((item, i) => (
               <div
                 key={i}
                 style={{
