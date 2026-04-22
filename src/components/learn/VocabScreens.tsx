@@ -1,9 +1,8 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, speak } from '../../data';
 
 // Shows a pronunciation difficulty badge for words with Croatian diacritics
-function PronDifficulty({ word }) {
+function PronDifficulty({ word }: { word: string }) {
   if (!word) return null;
   const veryHard = /[čć].*[šž]|dž/.test(word);
   const hard = /[čćšžđ]/.test(word);
@@ -28,13 +27,13 @@ function PronDifficulty({ word }) {
   );
 }
 
-const BACK_BTN = ({ goBack }) => (
+const BACK_BTN = ({ goBack }: { goBack: () => void }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
     ← Back
   </button>
 );
 
-const WRAP = ({ children }) => (
+const WRAP = ({ children }: { children: React.ReactNode }) => (
   <div
     style={{
       maxWidth: 620,
@@ -49,7 +48,17 @@ const WRAP = ({ children }) => (
   </div>
 );
 
-const HERO = ({ icon, title, subtitle, color }) => (
+const HERO = ({
+  icon,
+  title,
+  subtitle,
+  color,
+}: {
+  icon: string;
+  title: string;
+  subtitle: string;
+  color: string;
+}) => (
   <div
     style={{
       background: `linear-gradient(135deg,${color}dd,${color})`,
@@ -69,9 +78,19 @@ const HERO = ({ icon, title, subtitle, color }) => (
   </div>
 );
 
-const TAB_NAV = ({ tabs, active, setActive, accent }) => (
+const TAB_NAV = ({
+  tabs,
+  active,
+  setActive,
+  accent,
+}: {
+  tabs: string[];
+  active: string;
+  setActive: (t: string) => void;
+  accent: string;
+}) => (
   <div style={{ display: 'flex', gap: 4, marginBottom: 20, overflowX: 'auto', paddingBottom: 2 }}>
-    {tabs.map((t) => (
+    {tabs.map((t: string) => (
       <button
         key={t}
         onClick={() => setActive(t)}
@@ -93,7 +112,7 @@ const TAB_NAV = ({ tabs, active, setActive, accent }) => (
   </div>
 );
 
-const TIP_BOX = ({ text }) => (
+const TIP_BOX = ({ text }: { text: string }) => (
   <div
     style={{
       background: 'rgba(14,116,144,.06)',
@@ -111,11 +130,16 @@ const TIP_BOX = ({ text }) => (
   </div>
 );
 
-const QUIZ_SECTION = ({ quiz, accent }) => {
-  const [answers, setAnswers] = useState({});
+interface VsQuizItem {
+  q: string;
+  opts: string[];
+  a: string;
+}
+const QUIZ_SECTION = ({ quiz, accent }: { quiz: VsQuizItem[]; accent: string }) => {
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   return (
     <div>
-      {quiz.map((q, i) => (
+      {quiz.map((q: VsQuizItem, i: number) => (
         <div
           key={i}
           style={{
@@ -131,7 +155,7 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
             {i + 1}. {q.q}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {q.opts.map((opt, j) => {
+            {q.opts.map((opt: string, j: number) => {
               const sel = answers[i];
               const correct = opt === q.a;
               let bg = '#f5f5f4',
@@ -176,11 +200,11 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
               style={{
                 marginTop: 8,
                 fontSize: 11,
-                color: q.opts[answers[i]] === q.a ? '#15803d' : '#b91c1c',
+                color: q.opts[answers[i]!] === q.a ? '#15803d' : '#b91c1c',
                 fontWeight: 700,
               }}
             >
-              {q.opts[answers[i]] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
+              {q.opts[answers[i]!] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
             </div>
           )}
         </div>
@@ -189,7 +213,7 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
   );
 };
 
-export function CountriesScreen({ goBack }) {
+export function CountriesScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('Countries');
   const d = COUNTRIES;
   return (
@@ -335,11 +359,11 @@ export function CountriesScreen({ goBack }) {
   );
 }
 
-export function ProfessionsScreen({ goBack }) {
+export function ProfessionsScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('Jobs');
   const [catIdx, setCatIdx] = useState(0);
   const d = PROFESSIONS;
-  const cat = d.categories[catIdx];
+  const cat = d.categories[catIdx]!;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
@@ -482,7 +506,7 @@ export function ProfessionsScreen({ goBack }) {
   );
 }
 
-export function WeatherScreen({ goBack }) {
+export function WeatherScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('Vocabulary');
   const d = WEATHER;
   return (
@@ -654,11 +678,11 @@ export function WeatherScreen({ goBack }) {
   );
 }
 
-export function ClothesScreen({ goBack }) {
+export function ClothesScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('Clothing');
   const [catIdx, setCatIdx] = useState(0);
   const d = CLOTHES;
-  const cat = d.categories[catIdx];
+  const cat = d.categories[catIdx]!;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
@@ -795,11 +819,11 @@ export function ClothesScreen({ goBack }) {
   );
 }
 
-export function BodyDescScreen({ goBack }) {
+export function BodyDescScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('Description');
   const [secIdx, setSecIdx] = useState(0);
   const d = BODYDESC;
-  const sec = d.sections[secIdx];
+  const sec = d.sections[secIdx]!;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
@@ -927,9 +951,9 @@ export function BodyDescScreen({ goBack }) {
   );
 }
 
-export function PhonologyScreen({ goBack }) {
+export function PhonologyScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('Letters');
-  const [selLetter, setSelLetter] = useState(null);
+  const [selLetter, setSelLetter] = useState<number | null>(null);
   const d = PHONOLOGY;
   return (
     <WRAP>
@@ -975,7 +999,7 @@ export function PhonologyScreen({ goBack }) {
           </div>
           {selLetter !== null &&
             (() => {
-              const l = d.letters[selLetter];
+              const l = d.letters[selLetter]!;
               return (
                 <div
                   style={{
@@ -1086,7 +1110,7 @@ export function PhonologyScreen({ goBack }) {
                     padding: '10px',
                     cursor: 'pointer',
                   }}
-                  onClick={() => speak(p.example_a.split(' ')[0])}
+                  onClick={() => speak(p.example_a.split(' ')[0] ?? '')}
                 >
                   <div style={{ fontSize: 26, fontWeight: 900, color: '#b45309' }}>{p.a}</div>
                   <div style={{ fontSize: 11, color: '#44403c', marginTop: 4 }}>{p.example_a}</div>
@@ -1105,7 +1129,7 @@ export function PhonologyScreen({ goBack }) {
                     padding: '10px',
                     cursor: 'pointer',
                   }}
-                  onClick={() => speak(p.example_b.split(' ')[0])}
+                  onClick={() => speak(p.example_b.split(' ')[0] ?? '')}
                 >
                   <div style={{ fontSize: 26, fontWeight: 900, color: '#b45309' }}>{p.b}</div>
                   <div style={{ fontSize: 11, color: '#44403c', marginTop: 4 }}>{p.example_b}</div>

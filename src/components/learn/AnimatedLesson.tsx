@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ═══════════════════════════════════════════════════════════
 // AnimatedLesson — Animated Grammar Lesson Player
 // The app's equivalent of pre-produced video lessons,
@@ -33,25 +32,47 @@ if (typeof document !== 'undefined' && !document.getElementById(SLIDE_ANIM_ID)) 
 }
 
 // ── Helpers ──────────────────────────────────────────────────
-function LS_GET(key, fallback) {
+function LS_GET<T>(key: string, fallback: T): T {
   try {
     const v = localStorage.getItem(key);
-    return v === null ? fallback : JSON.parse(v);
+    return v === null ? fallback : (JSON.parse(v) as T);
   } catch {
     return fallback;
   }
 }
-function LS_SET(key, value) {
+function LS_SET(key: string, value: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {}
 }
 
-// ── Main Component ─────────────────────────────────────────────
-export default function AnimatedLesson({ lesson, goBack, award }) {
+interface LessonSlide {
+  type: string;
+  correct?: number;
+  items?: Array<{ hr: string }>;
+  [key: string]: unknown;
+}
+
+interface LessonData {
+  title: string;
+  level: string;
+  duration: string;
+  bg: string;
+  color: string;
+  slides: LessonSlide[];
+  [key: string]: unknown;
+}
+
+interface Props {
+  lesson: LessonData | null;
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+
+export default function AnimatedLesson({ lesson, goBack, award }: Props) {
   const [slide, setSlide] = useState(0);
-  const [quizAnswers, setQuizAnswers] = useState({});
-  const [quizResults, setQuizResults] = useState({});
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
+  const [quizResults, setQuizResults] = useState<Record<number, boolean>>({});
   const [score, setScore] = useState(0);
   const [_done, setDone] = useState(false);
   const [autoTTS, setAutoTTS] = useState(() => LS_GET('nh_autotts', false));
@@ -63,7 +84,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   const currentSlide = slides[slide];
 
   // Count quiz slides for score display
-  const quizSlides = slides.reduce((acc, s, i) => {
+  const quizSlides = slides.reduce<number[]>((acc, s, i) => {
     if (s.type === 'quiz') acc.push(i);
     return acc;
   }, []);
@@ -73,8 +94,9 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   useEffect(() => {
     if (!autoTTS || !ttsAvailable || !currentSlide) return undefined;
     if (currentSlide.type === 'example' && currentSlide.items && currentSlide.items.length > 0) {
+      const firstItem = currentSlide.items[0];
       const timer = setTimeout(() => {
-        speak(currentSlide.items[0].hr);
+        if (firstItem) speak(firstItem.hr);
       }, 600);
       return () => clearTimeout(timer);
     }
@@ -96,19 +118,20 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   }, [slide]);
 
   function handleToggleTTS() {
-    setAutoTTS((prev) => {
+    setAutoTTS((prev: boolean) => {
       const next = !prev;
       LS_SET('nh_autotts', next);
       return next;
     });
   }
 
-  function handleAnswer(slideIndex, optionIndex) {
+  function handleAnswer(slideIndex: number, optionIndex: number) {
     setQuizAnswers((prev) => ({ ...prev, [slideIndex]: optionIndex }));
   }
 
-  function handleCheck(slideIndex) {
+  function handleCheck(slideIndex: number) {
     const s = slides[slideIndex];
+    if (!s) return;
     const chosen = quizAnswers[slideIndex];
     if (chosen === undefined) return;
     const correct = chosen === s.correct;
@@ -139,33 +162,28 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
   const isLastSlide = slide === totalSlides - 1;
 
   // ── Render slide content ─────────────────────────────────
-  function renderSlide() {
-    switch (currentSlide.type) {
+  function renderSlide(cs: LessonSlide) {
+    switch (cs.type) {
       case 'intro':
-        return <IntroSlide slide={currentSlide} lesson={lesson} />;
+        return <IntroSlide slide={cs} lesson={lesson!} />;
 
       case 'rule':
-        return <RuleSlide slide={currentSlide} lesson={lesson} />;
+        return <RuleSlide slide={cs} lesson={lesson!} />;
 
       case 'example':
         return (
-          <ExampleSlide
-            slide={currentSlide}
-            lesson={lesson}
-            autoTTS={autoTTS}
-            ttsAvailable={ttsAvailable}
-          />
+          <ExampleSlide slide={cs} lesson={lesson!} autoTTS={autoTTS} ttsAvailable={ttsAvailable} />
         );
 
       case 'table':
-        return <TableSlide slide={currentSlide} lesson={lesson} />;
+        return <TableSlide slide={cs} lesson={lesson!} />;
 
       case 'quiz':
         return (
           <QuizSlide
-            slide={currentSlide}
+            slide={cs}
             slideIndex={slide}
-            lesson={lesson}
+            lesson={lesson!}
             quizAnswers={quizAnswers}
             quizResults={quizResults}
             onAnswer={handleAnswer}
@@ -176,19 +194,17 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
       case 'summary':
         return (
           <SummarySlide
-            slide={currentSlide}
-            lesson={lesson}
+            slide={cs}
+            lesson={lesson!}
             score={score}
             quizTotal={quizTotal}
-            xpAwarded={xpAwarded.current}
+            xpAwarded={xpAwarded.current ? 1 : 0}
           />
         );
 
       default:
         return (
-          <div style={{ color: 'var(--subtext)', padding: 24 }}>
-            Unknown slide type: {currentSlide.type}
-          </div>
+          <div style={{ color: 'var(--subtext)', padding: 24 }}>Unknown slide type: {cs.type}</div>
         );
     }
   }
@@ -292,7 +308,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
 
       {/* ── Slide Content (animated) ── */}
       <div key={slide} style={{ animation: 'slideIn 0.3s ease forwards' }}>
-        {renderSlide()}
+        {renderSlide(currentSlide)}
       </div>
 
       {/* ── Navigation — fixed above the app nav bar so it's always visible ── */}
@@ -354,7 +370,7 @@ export default function AnimatedLesson({ lesson, goBack, award }) {
 
             {/* Slide type indicator dots */}
             <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
-              {slides.map((s, i) => (
+              {slides.map((_s, i) => (
                 <div
                   key={i}
                   style={{

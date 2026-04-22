@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ─── LessonSlides.jsx ─────────────────────────────────────────────────────────
 // All slide-type sub-components for AnimatedLesson.
 // Each receives only the props it needs — no shared state.
@@ -6,9 +5,49 @@
 import React, { useEffect, useRef } from 'react';
 import { speak } from '../../lib/audio.js';
 
+export interface LessonMeta {
+  color: string;
+  bg: string;
+  icon?: string;
+  title?: string;
+  [key: string]: unknown;
+}
+
+export interface SlideItem {
+  hr: string;
+  en?: string;
+  note?: string;
+  [key: string]: unknown;
+}
+
+export interface BaseSlide {
+  type?: string;
+  title?: string;
+  body?: string;
+  icon?: string;
+  highlight?: string;
+  items?: SlideItem[];
+  headers?: string[];
+  rows?: string[][];
+  q?: string;
+  options?: string[];
+  correct?: number;
+  explanation?: string;
+  points?: string[];
+  [key: string]: unknown;
+}
+
 // ── Progress bar ──────────────────────────────────────────────────────────────
 
-export function ProgressBar({ current, total, color }) {
+export function ProgressBar({
+  current,
+  total,
+  color,
+}: {
+  current: number;
+  total: number;
+  color: string;
+}) {
   const pct = total > 0 ? Math.round((current / total) * 100) : 0;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -47,7 +86,7 @@ export function ProgressBar({ current, total, color }) {
 
 // ── Intro slide ───────────────────────────────────────────────────────────────
 
-export function IntroSlide({ slide, lesson }) {
+export function IntroSlide({ slide, lesson }: { slide: BaseSlide; lesson: LessonMeta }) {
   return (
     <div style={{ textAlign: 'center', padding: '8px 0 16px' }}>
       {/* Color accent strip */}
@@ -90,7 +129,7 @@ export function IntroSlide({ slide, lesson }) {
 
 // ── Rule slide ────────────────────────────────────────────────────────────────
 
-export function RuleSlide({ slide, lesson }) {
+export function RuleSlide({ slide, lesson }: { slide: BaseSlide; lesson: LessonMeta }) {
   function highlightedBody() {
     if (!slide.highlight) {
       return (
@@ -99,10 +138,10 @@ export function RuleSlide({ slide, lesson }) {
         </p>
       );
     }
-    const parts = slide.body.split(slide.highlight);
+    const parts = (slide.body ?? '').split(slide.highlight ?? '');
     return (
       <p style={{ fontSize: 'var(--text-base)', color: 'var(--subtext)', lineHeight: 1.7 }}>
-        {parts.map((part, i) => (
+        {parts.map((part: string, i: number) => (
           <React.Fragment key={i}>
             {part}
             {i < parts.length - 1 && (
@@ -153,7 +192,17 @@ export function RuleSlide({ slide, lesson }) {
 
 // ── Example slide ─────────────────────────────────────────────────────────────
 
-export function ExampleSlide({ slide, lesson, autoTTS, ttsAvailable }) {
+export function ExampleSlide({
+  slide,
+  lesson,
+  autoTTS,
+  ttsAvailable,
+}: {
+  slide: BaseSlide;
+  lesson: LessonMeta;
+  autoTTS: boolean;
+  ttsAvailable: boolean;
+}) {
   const didAutoSpeak = useRef(false);
 
   useEffect(() => {
@@ -164,7 +213,7 @@ export function ExampleSlide({ slide, lesson, autoTTS, ttsAvailable }) {
     if (autoTTS && ttsAvailable && slide.items && slide.items.length > 0 && !didAutoSpeak.current) {
       didAutoSpeak.current = true;
       const timer = setTimeout(() => {
-        speak(slide.items[0].hr);
+        speak(slide.items![0]!.hr);
       }, 600);
       return () => clearTimeout(timer);
     }
@@ -185,7 +234,7 @@ export function ExampleSlide({ slide, lesson, autoTTS, ttsAvailable }) {
         {slide.title}
       </h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {slide.items.map((item, i) => (
+        {slide.items!.map((item: SlideItem, i: number) => (
           <div
             key={i}
             style={{
@@ -268,7 +317,7 @@ export function ExampleSlide({ slide, lesson, autoTTS, ttsAvailable }) {
 
 // ── Table slide ───────────────────────────────────────────────────────────────
 
-export function TableSlide({ slide, lesson }) {
+export function TableSlide({ slide, lesson }: { slide: BaseSlide; lesson: LessonMeta }) {
   return (
     <div>
       <h3
@@ -286,7 +335,7 @@ export function TableSlide({ slide, lesson }) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)' }}>
           <thead>
             <tr>
-              {slide.headers.map((h, i) => (
+              {slide.headers!.map((h: string, i: number) => (
                 <th
                   key={i}
                   style={{
@@ -306,9 +355,9 @@ export function TableSlide({ slide, lesson }) {
             </tr>
           </thead>
           <tbody>
-            {slide.rows.map((row, ri) => (
+            {slide.rows!.map((row: string[], ri: number) => (
               <tr key={ri}>
-                {row.map((cell, ci) => (
+                {row.map((cell: string, ci: number) => (
                   <td
                     key={ci}
                     style={{
@@ -343,15 +392,22 @@ export function QuizSlide({
   quizResults,
   onAnswer,
   onCheck,
+}: {
+  slide: BaseSlide;
+  slideIndex: number;
+  lesson: LessonMeta;
+  quizAnswers: Record<number, number>;
+  quizResults: Record<number, boolean>;
+  onAnswer: (index: number, choice: number) => void;
+  onCheck: (index: number) => void;
 }) {
   const selected = quizAnswers[slideIndex];
   const revealed = quizResults[slideIndex] !== undefined;
   const isCorrect = quizResults[slideIndex] === true;
   const hasSelected = selected !== undefined;
 
-  function optionStyle(i) {
-    /** @type {import('react').CSSProperties} */
-    const base = {
+  function optionStyle(i: number): React.CSSProperties {
+    const base: React.CSSProperties = {
       width: '100%',
       padding: '12px 16px',
       marginBottom: 8,
@@ -440,7 +496,7 @@ export function QuizSlide({
 
       {/* Options */}
       <div>
-        {slide.options.map((opt, i) => (
+        {slide.options!.map((opt: string, i: number) => (
           <button
             key={i}
             style={optionStyle(i)}
@@ -538,7 +594,19 @@ export function QuizSlide({
 
 // ── Summary slide ─────────────────────────────────────────────────────────────
 
-export function SummarySlide({ slide, lesson, score, quizTotal, xpAwarded }) {
+export function SummarySlide({
+  slide,
+  lesson,
+  score,
+  quizTotal,
+  xpAwarded,
+}: {
+  slide: BaseSlide;
+  lesson: LessonMeta;
+  score: number;
+  quizTotal: number;
+  xpAwarded: number;
+}) {
   return (
     <div style={{ textAlign: 'center' }}>
       {/* Header */}
@@ -599,7 +667,7 @@ export function SummarySlide({ slide, lesson, score, quizTotal, xpAwarded }) {
             gap: 8,
           }}
         >
-          {slide.points.map((pt, i) => (
+          {slide.points!.map((pt: string, i: number) => (
             <li
               key={i}
               style={{
