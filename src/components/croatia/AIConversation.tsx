@@ -456,7 +456,7 @@ export default function AIConversation({
       ...(memoryContext ? { memoryContext } : {}),
       mistakePatterns: learnerErrors.map((e) => ({ pattern: e?.pattern || String(e), count: 1 })),
       learnerErrors,
-      isHeritage: !!(stats as unknown as Record<string, unknown>)?.heritage,
+      isHeritage: !!stats?.heritage,
     };
     // Cancel any previous in-flight stream before starting a new one
     majaAbortRef.current?.abort();

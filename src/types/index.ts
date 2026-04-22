@@ -25,6 +25,7 @@ export interface Stats {
   readingDone?: number;
   mediaVisits?: number;
   streak?: number;
+  heritage?: boolean; // Heritage/diaspora Croatian speaker flag (wires to AI conversation context)
 }
 
 export type StatsAction =
