@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * PitchAccentMastery — teach the 4 Croatian pitch accents.
  *
@@ -394,7 +393,13 @@ const PRACTICAL = {
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function PitchAccentMastery({ goBack, award }) {
+export default function PitchAccentMastery({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const [phase, setPhase] = useState('intro'); // intro | lesson | practical | done
   const [accentIdx, setAccentIdx] = useState(0);
   const [lessonPhase, setLessonPhase] = useState('theory'); // theory | examples | pairs | quiz
@@ -405,7 +410,7 @@ export default function PitchAccentMastery({ goBack, award }) {
   const [_completedAccents, setCompletedAccents] = useState(new Set());
   const awardFired = useRef(false);
 
-  const accent = ACCENTS[accentIdx];
+  const accent = ACCENTS[accentIdx]!;
 
   useEffect(() => {
     knightSpeak(
@@ -429,9 +434,9 @@ export default function PitchAccentMastery({ goBack, award }) {
     }
   }
 
-  function handleQuizAnswer(optIdx) {
+  function handleQuizAnswer(optIdx: number) {
     if (quizAnswered) return;
-    const correct = accent.quiz[quizIdx].opts[optIdx] === accent.quiz[quizIdx].correct;
+    const correct = accent.quiz[quizIdx]!.opts[optIdx]! === accent.quiz[quizIdx]!.correct;
     setQuizSelected(optIdx);
     setQuizAnswered(true);
     if (correct) setQuizScore((s) => s + 1);
@@ -772,7 +777,12 @@ export default function PitchAccentMastery({ goBack, award }) {
         {/* THEORY */}
         {lessonPhase === 'theory' &&
           (() => {
-            const lesson = LESSON_BY_ACCENT[accent.id];
+            const lesson = (
+              LESSON_BY_ACCENT as Record<
+                string,
+                (typeof LESSON_BY_ACCENT)[keyof typeof LESSON_BY_ACCENT]
+              >
+            )[accent.id];
             return (
               <div>
                 <div
@@ -787,13 +797,13 @@ export default function PitchAccentMastery({ goBack, award }) {
                     lineHeight: 1.8,
                   }}
                 >
-                  {(lesson?.theory || accent.desc).split('\n\n').map((para, i) => (
+                  {(lesson?.theory || accent.desc).split('\n\n').map((para: string, i: number) => (
                     <p key={i} style={{ margin: i === 0 ? 0 : '12px 0 0' }}>
                       {para}
                     </p>
                   ))}
                 </div>
-                {lesson?.keyPoints?.length > 0 && (
+                {(lesson?.keyPoints?.length ?? 0) > 0 && (
                   <div
                     style={{
                       background: `${accent.bg}`,
@@ -815,13 +825,13 @@ export default function PitchAccentMastery({ goBack, award }) {
                     >
                       Key Points
                     </div>
-                    {lesson.keyPoints.map((pt, i) => (
+                    {lesson?.keyPoints?.map((pt: string, i: number) => (
                       <div
                         key={i}
                         style={{
                           display: 'flex',
                           gap: 10,
-                          marginBottom: i < lesson.keyPoints.length - 1 ? 8 : 0,
+                          marginBottom: i < (lesson?.keyPoints?.length ?? 0) - 1 ? 8 : 0,
                           alignItems: 'flex-start',
                         }}
                       >
@@ -1188,7 +1198,7 @@ export default function PitchAccentMastery({ goBack, award }) {
                 {quizIdx < accent.quiz.length - 1
                   ? 'Next Question →'
                   : accentIdx < ACCENTS.length - 1
-                    ? `Next Accent: ${ACCENTS[accentIdx + 1].nameEn} →`
+                    ? `Next Accent: ${ACCENTS[accentIdx + 1]!.nameEn} →`
                     : 'Final Section →'}
               </button>
             )}

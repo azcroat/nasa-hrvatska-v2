@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { H } from '../../data';
@@ -388,6 +387,37 @@ const SCENARIOS = [
   },
 ];
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Phrase {
+  hr: string;
+  en: string;
+  note: string;
+}
+interface DialogueLine {
+  role: string;
+  speaker: string;
+  text: string;
+  trans: string;
+}
+interface QuizQuestion {
+  q: string;
+  options: string[];
+  ans: number;
+}
+interface Scenario {
+  id: string;
+  icon: string;
+  title: string;
+  titleEn: string;
+  color: string;
+  description: string;
+  difficulty: string;
+  phrases: Phrase[];
+  dialogue: DialogueLine[];
+  quiz: QuizQuestion[];
+}
+
 // ─── Difficulty badge colours ─────────────────────────────────────────────────
 
 const DIFF_COLOR = {
@@ -409,7 +439,7 @@ function getStudied() {
   }
 }
 
-function markStudied(id) {
+function markStudied(id: string): void {
   try {
     const s = getStudied();
     s.add(id);
@@ -421,7 +451,7 @@ function markStudied(id) {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function DiffBadge({ level }) {
+function DiffBadge({ level }: { level: string }) {
   return (
     <span
       style={{
@@ -429,7 +459,7 @@ function DiffBadge({ level }) {
         fontSize: 10,
         fontWeight: 800,
         color: '#fff',
-        background: DIFF_COLOR[level] || '#64748b',
+        background: (DIFF_COLOR as Record<string, string>)[level] || '#64748b',
         borderRadius: 6,
         padding: '2px 7px',
         letterSpacing: '.05em',
@@ -441,7 +471,7 @@ function DiffBadge({ level }) {
   );
 }
 
-function MenuView({ onSelect }) {
+function MenuView({ onSelect }: { onSelect: (s: Scenario) => void }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {SCENARIOS.map((s) => (
@@ -503,10 +533,10 @@ function MenuView({ onSelect }) {
   );
 }
 
-function PhrasesTab({ phrases }) {
-  const [copied, setCopied] = useState(null);
+function PhrasesTab({ phrases }: { phrases: Phrase[] }) {
+  const [copied, setCopied] = useState<number | null>(null);
 
-  function handleCopy(hr, idx) {
+  function handleCopy(hr: string, idx: number): void {
     try {
       navigator.clipboard.writeText(hr).catch(() => {});
     } catch {
@@ -518,7 +548,7 @@ function PhrasesTab({ phrases }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {phrases.map((p, i) => (
+      {phrases.map((p: Phrase, i: number) => (
         <div
           key={i}
           style={{
@@ -578,10 +608,10 @@ function PhrasesTab({ phrases }) {
   );
 }
 
-function DialogueTab({ dialogue }) {
+function DialogueTab({ dialogue }: { dialogue: DialogueLine[] }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {dialogue.map((line, i) => {
+      {dialogue.map((line: DialogueLine, i: number) => {
         const isA = line.role === 'A';
         return (
           <div
@@ -645,7 +675,15 @@ function DialogueTab({ dialogue }) {
   );
 }
 
-function LearnView({ scenario, onStartQuiz, onBack }) {
+function LearnView({
+  scenario,
+  onStartQuiz,
+  onBack,
+}: {
+  scenario: Scenario;
+  onStartQuiz: () => void;
+  onBack: () => void;
+}) {
   const [tab, setTab] = useState('phrases');
 
   return (
@@ -754,18 +792,18 @@ function LearnView({ scenario, onStartQuiz, onBack }) {
   );
 }
 
-function QuizView({ scenario, onBack }) {
+function QuizView({ scenario, onBack }: { scenario: Scenario; onBack: () => void }) {
   const { award } = useApp();
   const awardFired = useRef(false);
   const [qIdx, setQIdx] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [answers, setAnswers] = useState([]);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [done, setDone] = useState(false);
 
   const questions = scenario.quiz;
-  const current = questions[qIdx];
+  const current = questions[qIdx]!;
 
-  function handleSelect(optIdx) {
+  function handleSelect(optIdx: number): void {
     if (selected !== null) return;
     setSelected(optIdx);
   }
@@ -773,7 +811,7 @@ function QuizView({ scenario, onBack }) {
   function handleNext() {
     const updated = [...answers, selected];
     if (qIdx + 1 >= questions.length) {
-      const correct = updated.filter((a, i) => a === questions[i].ans).length;
+      const correct = updated.filter((a, i) => a === questions[i]!.ans).length;
       if (!awardFired.current) {
         awardFired.current = true;
         if (typeof award === 'function') award(correct * 5);
@@ -788,7 +826,7 @@ function QuizView({ scenario, onBack }) {
   }
 
   if (done) {
-    const correct = answers.filter((a, i) => a === questions[i].ans).length;
+    const correct = answers.filter((a, i) => a === questions[i]!.ans).length;
     const perfect = correct === questions.length;
     const xp = correct * 5;
 
@@ -871,7 +909,7 @@ function QuizView({ scenario, onBack }) {
 
         {/* Answer review */}
         <div style={{ marginBottom: 16 }}>
-          {questions.map((q, i) => {
+          {questions.map((q: QuizQuestion, i: number) => {
             const userAns = answers[i];
             const isRight = userAns === q.ans;
             return (
@@ -904,7 +942,7 @@ function QuizView({ scenario, onBack }) {
             onClick={() => {
               setQIdx(0);
               setSelected(null);
-              setAnswers([]);
+              setAnswers([] as (number | null)[]);
               setDone(false);
             }}
             style={{
@@ -1031,7 +1069,7 @@ function QuizView({ scenario, onBack }) {
 
       {/* Options */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-        {current.options.map((opt, oi) => {
+        {current.options.map((opt: string, oi: number) => {
           let bg = 'var(--card)';
           let border = '2px solid var(--card-b)';
           let color = 'var(--heading)';
@@ -1120,24 +1158,27 @@ function QuizView({ scenario, onBack }) {
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
-export default function PracticalCroatianScreen({ goBack, stats }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PCSProps = { goBack: () => void; stats?: Record<string, any> };
+export default function PracticalCroatianScreen({ goBack, stats }: PCSProps) {
+  void stats;
   const { award } = useApp();
   const [view, setView] = useState('menu'); // 'menu' | 'learn' | 'quiz'
-  const [scenario, setScenario] = useState(null);
+  const [scenario, setScenario] = useState<Scenario | null>(null);
 
-  function handleSelectScenario(s) {
+  function handleSelectScenario(s: Scenario): void {
     setScenario(s);
     setView('learn');
   }
 
-  function handleStartQuiz() {
+  function handleStartQuiz(): void {
     // Award 10 XP for studying — once per scenario
     const studied = getStudied();
-    if (!studied.has(scenario.id)) {
+    if (scenario && !studied.has(scenario.id)) {
       if (typeof award === 'function') award(10);
       markStudied(scenario.id);
     }
-    setView('quiz');
+    if (scenario) setView('quiz');
   }
 
   function handleBackToMenu() {

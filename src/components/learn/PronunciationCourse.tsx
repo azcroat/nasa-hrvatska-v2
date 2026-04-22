@@ -1,6 +1,16 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { PHONOLOGY, speak } from '../../data';
+
+interface PronLetter {
+  letter: string;
+  name: string;
+  ipa: string;
+  color: string;
+  like: string;
+  memory: string;
+  examples: { hr: string; en: string }[];
+  [key: string]: unknown;
+}
 
 const PROG_KEY = 'nh_pron_progress';
 function getProgress() {
@@ -10,7 +20,7 @@ function getProgress() {
     return {};
   }
 }
-function savePracticed(letter) {
+function savePracticed(letter: string) {
   const p = getProgress();
   p[letter] = (p[letter] || 0) + 1;
   try {
@@ -19,14 +29,22 @@ function savePracticed(letter) {
 }
 
 // ─── Back button ──────────────────────────────────────────────────────────────
-const BackBtn = ({ onClick }) => (
+const BackBtn = ({ onClick }: { onClick: () => void }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={onClick}>
     ← Back
   </button>
 );
 
 // ─── Letter overview list ─────────────────────────────────────────────────────
-function LetterList({ letters, onSelect, goBack }) {
+function LetterList({
+  letters,
+  onSelect,
+  goBack,
+}: {
+  letters: PronLetter[];
+  onSelect: (l: PronLetter) => void;
+  goBack: () => void;
+}) {
   const progress = getProgress();
 
   return (
@@ -82,7 +100,7 @@ function LetterList({ letters, onSelect, goBack }) {
           gap: 10,
         }}
       >
-        {letters.map((l) => {
+        {letters.map((l: PronLetter) => {
           const practiced = (progress[l.letter] || 0) > 0;
           return (
             <button
@@ -168,9 +186,19 @@ function LetterList({ letters, onSelect, goBack }) {
 }
 
 // ─── Single letter lesson ─────────────────────────────────────────────────────
-function LetterLesson({ letter: l, letters, onComplete, goBack }) {
+function LetterLesson({
+  letter: l,
+  letters,
+  onComplete,
+  goBack,
+}: {
+  letter: PronLetter;
+  letters: PronLetter[];
+  onComplete: () => void;
+  goBack: () => void;
+}) {
   const [quizMode, setQuizMode] = useState(false);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState<Record<number, string>>({});
 
   // Build a simple 3-question quiz for this letter
   const quiz = [
@@ -182,33 +210,32 @@ function LetterLesson({ letter: l, letters, onComplete, goBack }) {
     {
       q: `Which English word gives the best hint for "${l.letter.toUpperCase()}"?`,
       opts: shuffleOpts([
-        l.like
-          .split('—')[0]
+        (l.like.split('—')[0] ?? '')
           .replace(/like ['"]?/i, '')
           .split(' or ')[0]
-          .trim(),
+          ?.trim() ?? '',
         ...getWrongLike(l, letters),
       ]),
-      correct: l.like
-        .split('—')[0]
-        .replace(/like ['"]?/i, '')
-        .split(' or ')[0]
-        .trim(),
+      correct:
+        (l.like.split('—')[0] ?? '')
+          .replace(/like ['"]?/i, '')
+          .split(' or ')[0]
+          ?.trim() ?? '',
     },
     {
       q: `Which word contains "${l.letter.toUpperCase()}"?`,
       opts: shuffleOpts([
-        l.examples[0].hr + ' (' + l.examples[0].en + ')',
+        l.examples[0]!.hr + ' (' + l.examples[0]!.en + ')',
         ...getWrongExample(l, letters),
       ]),
-      correct: l.examples[0].hr + ' (' + l.examples[0].en + ')',
+      correct: l.examples[0]!.hr + ' (' + l.examples[0]!.en + ')',
     },
   ];
 
   const allAnswered = quiz.every((_, i) => answers[i] !== undefined);
   const correctCount = quiz.filter((q, i) => answers[i] === q.correct).length;
 
-  function handleAnswer(qi, opt) {
+  function handleAnswer(qi: number, opt: string) {
     if (answers[qi] !== undefined) return;
     setAnswers((a) => ({ ...a, [qi]: opt }));
   }
@@ -312,7 +339,7 @@ function LetterLesson({ letter: l, letters, onComplete, goBack }) {
             >
               🔊 Listen & Repeat
             </div>
-            {l.examples.map((ex, i) => (
+            {l.examples.map((ex: { hr: string; en: string }, i: number) => (
               <div
                 key={i}
                 role="button"
@@ -462,7 +489,7 @@ function LetterLesson({ letter: l, letters, onComplete, goBack }) {
 }
 
 // ─── Utility: highlight the target letter(s) in a word ───────────────────────
-function highlightLetter(word, target, color) {
+function highlightLetter(word: string, target: string, color: string) {
   const parts = [];
   let remaining = word;
   const tLower = target.toLowerCase();
@@ -489,54 +516,64 @@ function highlightLetter(word, target, color) {
 }
 
 // ─── Quiz option helpers ───────────────────────────────────────────────────────
-function shuffleOpts(arr) {
+function shuffleOpts(arr: string[]) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    const tmp = a[i]!;
+    a[i] = a[j]!;
+    a[j] = tmp;
   }
   return a;
 }
 
-function _fySample(arr, n) {
+function _fySample(arr: PronLetter[], n: number) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    const tmp = a[i]!;
+    a[i] = a[j]!;
+    a[j] = tmp;
   }
   return a.slice(0, n);
 }
 
-function getWrongIpa(current, all) {
+function getWrongIpa(current: PronLetter, all: PronLetter[]) {
   return _fySample(
-    all.filter((l) => l.letter !== current.letter && l.ipa !== current.ipa),
+    all.filter((l: PronLetter) => l.letter !== current.letter && l.ipa !== current.ipa),
     3,
-  ).map((l) => l.ipa);
+  ).map((l: PronLetter) => l.ipa);
 }
 
-function getWrongLike(current, all) {
+function getWrongLike(current: PronLetter, all: PronLetter[]) {
   return _fySample(
-    all.filter((l) => l.letter !== current.letter),
+    all.filter((l: PronLetter) => l.letter !== current.letter),
     3,
-  ).map((l) =>
-    l.like
-      .split('—')[0]
-      .replace(/like ['"]?/i, '')
-      .split(' or ')[0]
-      .trim(),
+  ).map(
+    (l: PronLetter) =>
+      (l.like.split('—')[0] ?? '')
+        .replace(/like ['"]?/i, '')
+        .split(' or ')[0]
+        ?.trim() ?? '',
   );
 }
 
-function getWrongExample(current, all) {
+function getWrongExample(current: PronLetter, all: PronLetter[]) {
   return _fySample(
-    all.filter((l) => l.letter !== current.letter),
+    all.filter((l: PronLetter) => l.letter !== current.letter),
     3,
-  ).map((l) => l.examples[0].hr + ' (' + l.examples[0].en + ')');
+  ).map((l: PronLetter) => l.examples[0]!.hr + ' (' + l.examples[0]!.en + ')');
 }
 
 // ─── Main component ────────────────────────────────────────────────────────────
-export default function PronunciationCourse({ goBack, award }) {
-  const [selected, setSelected] = useState(null);
+export default function PronunciationCourse({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
+  const [selected, setSelected] = useState<PronLetter | null>(null);
   const [completedThis, setCompletedThis] = useState(new Set());
 
   const letters = PHONOLOGY?.letters || [];

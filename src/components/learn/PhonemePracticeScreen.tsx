@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -14,7 +13,7 @@ function loadMastered() {
   }
 }
 
-function saveMastered(set) {
+function saveMastered(set: Set<string>) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
   } catch {}
@@ -125,9 +124,15 @@ const PHONEMES = [
   },
 ];
 
-export default function PhonemePracticeScreen({ goBack, award }) {
-  const [mastered, setMastered] = useState(() => loadMastered());
-  const [active, setActive] = useState(null);
+export default function PhonemePracticeScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number, bonus?: boolean) => void;
+}) {
+  const [mastered, setMastered] = useState<Set<string>>(() => loadMastered() as Set<string>);
+  const [active, setActive] = useState<number | null>(null);
   const [celebrated, setCelebrated] = useState(false);
 
   useEffect(() => {
@@ -138,7 +143,7 @@ export default function PhonemePracticeScreen({ goBack, award }) {
     );
   }, []);
 
-  function markMastered(key) {
+  function markMastered(key: string) {
     const next = new Set(mastered);
     next.add(key);
     setMastered(next);
@@ -255,7 +260,7 @@ export default function PhonemePracticeScreen({ goBack, award }) {
 
   // ── Active phoneme drill ───────────────────────────────────────────────────
   if (active !== null) {
-    const p = PHONEMES[active];
+    const p = PHONEMES[active]!;
     const isMastered = mastered.has(p.key);
     return (
       <div className="scr-wrap">
