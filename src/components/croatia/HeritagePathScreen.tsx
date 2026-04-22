@@ -345,14 +345,16 @@ const DIASPORA_VOCAB = [
 ];
 
 const HERITAGE_PROGRESS_KEY = 'nh_heritage_progress';
-function loadProgress() {
+function loadProgress(): Set<string> {
   try {
-    return new Set(JSON.parse(localStorage.getItem(HERITAGE_PROGRESS_KEY) || '[]'));
+    return new Set<string>(
+      JSON.parse(localStorage.getItem(HERITAGE_PROGRESS_KEY) || '[]') as string[],
+    );
   } catch {
-    return new Set();
+    return new Set<string>();
   }
 }
-function saveProgress(set: Set<unknown>) {
+function saveProgress(set: Set<string>) {
   try {
     localStorage.setItem(HERITAGE_PROGRESS_KEY, JSON.stringify([...set]));
   } catch {}
