@@ -1,13 +1,24 @@
-// @ts-nocheck
 import React from 'react';
+
+interface Scenario {
+  cat: string;
+}
+
+interface AIConversationHeaderProps {
+  appMode: string;
+  setAppMode: (mode: string) => void;
+  scenario: Scenario | null;
+  sceneForCat: (cat: string) => string;
+  onModeChange: (mode: string) => void;
+}
 
 export default function AIConversationHeader({
   appMode,
-  setAppMode,
+  setAppMode: _setAppMode,
   scenario,
   sceneForCat,
   onModeChange,
-}) {
+}: AIConversationHeaderProps) {
   const _headerBg = scenario
     ? `linear-gradient(145deg,rgba(12,74,110,0.88),rgba(14,116,144,0.82)), url('${sceneForCat(scenario.cat)}') center / cover no-repeat`
     : 'linear-gradient(145deg,#0c4a6e,#0e7490)';
@@ -78,9 +89,9 @@ export default function AIConversationHeader({
                 alt="Maja — Croatian tutor"
                 loading="lazy"
                 onError={(e) => {
-                  const t = /** @type {HTMLImageElement} */ e.target;
+                  const t = e.currentTarget;
                   t.style.display = 'none';
-                  const sib = /** @type {HTMLElement} */ t.nextSibling;
+                  const sib = t.nextSibling as HTMLElement | null;
                   if (sib) sib.style.display = 'flex';
                 }}
                 style={{
@@ -171,7 +182,7 @@ export default function AIConversationHeader({
         ].map(([mode, label]) => (
           <button
             key={mode}
-            onClick={() => onModeChange(mode)}
+            onClick={() => onModeChange(mode ?? '')}
             style={{
               padding: '7px 16px',
               borderRadius: 20,

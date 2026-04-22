@@ -1,8 +1,11 @@
-// @ts-nocheck
 import React from 'react';
 import { H, IDIOMS, speak } from '../../data';
 
-export default function IdiomsScreen({ goBack }) {
+interface IdiomsScreenProps {
+  goBack: () => void;
+}
+
+export default function IdiomsScreen({ goBack }: IdiomsScreenProps) {
   return (
     <div className="scr-wrap">
       {H('🗣️ Idioms & Slang', 'Speak like a real Croatian!', goBack)}

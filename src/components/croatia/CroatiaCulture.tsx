@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, speak } from '../../data';
 import {
@@ -17,7 +16,7 @@ import {
   GYM,
 } from '../../data';
 
-export function TextingScreen({ goBack }) {
+export function TextingScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('📱 Texting & Slang', 'How Croatian kids actually text', goBack)}
@@ -46,7 +45,7 @@ export function TextingScreen({ goBack }) {
   );
 }
 
-export function FriendsScreen({ goBack }) {
+export function FriendsScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🤝 Making Friends', 'Real phrases kids use', goBack)}
@@ -72,7 +71,7 @@ export function FriendsScreen({ goBack }) {
   );
 }
 
-export function FoodOrderScreen({ goBack }) {
+export function FoodOrderScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🍕 Ordering Food', 'Bakery, fast food, ice cream, restaurants', goBack)}
@@ -101,7 +100,7 @@ export function FoodOrderScreen({ goBack }) {
                       color: 'var(--text)',
                     }}
                     onClick={function () {
-                      speak(w[0]);
+                      speak(w[0] ?? '');
                     }}
                   >
                     <span style={{ fontWeight: 700, color: 'var(--accent,#0e7490)' }}>{w[0]}</span>
@@ -164,7 +163,7 @@ export function FoodOrderScreen({ goBack }) {
               padding: '10px 14px',
             }}
             onClick={function () {
-              speak(p[0]);
+              speak(p[0] ?? '');
             }}
           >
             <span style={{ fontWeight: 700, fontSize: 14 }}>
@@ -178,7 +177,7 @@ export function FoodOrderScreen({ goBack }) {
   );
 }
 
-export function TransportScreen({ goBack }) {
+export function TransportScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🚌 Getting Around', 'Bus, tram, taxi phrases', goBack)}
@@ -209,7 +208,7 @@ export function TransportScreen({ goBack }) {
   );
 }
 
-export function EmergencyScreen({ goBack }) {
+export function EmergencyScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🚨 Emergency Phrases', 'Medical, police, urgent', goBack)}
@@ -238,7 +237,7 @@ export function EmergencyScreen({ goBack }) {
               padding: '10px 14px',
             }}
             onClick={function () {
-              speak(p[0]);
+              speak(p[0] ?? '');
             }}
           >
             <span style={{ fontWeight: 700, fontSize: 14, color: '#dc2626' }}>
@@ -283,7 +282,7 @@ export function EmergencyScreen({ goBack }) {
   );
 }
 
-export function FootballScreen({ goBack }) {
+export function FootballScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('⚽ Football & Water Polo', "Croatia's biggest sports", goBack)}
@@ -295,7 +294,7 @@ export function FootballScreen({ goBack }) {
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(w[0]);
+                speak(w[0] ?? '');
               }}
             >
               <span style={{ fontWeight: 700, fontSize: 13 }}>{w[0]}</span>
@@ -331,7 +330,7 @@ export function FootballScreen({ goBack }) {
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(w[0]);
+                speak(w[0] ?? '');
               }}
             >
               <span style={{ fontWeight: 700 }}>{w[0]}</span>
@@ -345,7 +344,7 @@ export function FootballScreen({ goBack }) {
   );
 }
 
-export function PopCultureScreen({ goBack }) {
+export function PopCultureScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🎵 Croatian Pop Culture', 'Music, TV & artists your friends know', goBack)}
@@ -376,7 +375,7 @@ export function PopCultureScreen({ goBack }) {
   );
 }
 
-export function PracticalScreen({ goBack }) {
+export function PracticalScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('💼 Practical Life in Croatia', 'Documents, customs, culture', goBack)}
@@ -398,7 +397,7 @@ export function PracticalScreen({ goBack }) {
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(d[0]);
+                speak(d[0] ?? '');
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700 }}>
@@ -428,7 +427,7 @@ export function PracticalScreen({ goBack }) {
   );
 }
 
-export function SchoolScreen({ goBack }) {
+export function SchoolScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🏫 School Survival Kit', 'Everything for Croatian school', goBack)}
@@ -458,7 +457,7 @@ export function SchoolScreen({ goBack }) {
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(w[0]);
+                speak(w[0] ?? '');
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--heading)' }}>
@@ -481,7 +480,7 @@ export function SchoolScreen({ goBack }) {
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(w[0]);
+                speak(w[0] ?? '');
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700, color: '#7c3aed' }}>
@@ -508,7 +507,7 @@ export function SchoolScreen({ goBack }) {
               padding: '10px 14px',
             }}
             onClick={function () {
-              speak(p[0]);
+              speak(p[0] ?? '');
             }}
           >
             <span style={{ fontWeight: 700, fontSize: 14 }}>
@@ -522,7 +521,7 @@ export function SchoolScreen({ goBack }) {
   );
 }
 
-export function GroceryScreen({ goBack }) {
+export function GroceryScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🛒 Grocery Shopping', 'Stores, brands & essential vocab', goBack)}
@@ -564,7 +563,7 @@ export function GroceryScreen({ goBack }) {
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(w[0]);
+                speak(w[0] ?? '');
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0e7490' }}>
@@ -589,7 +588,7 @@ export function GroceryScreen({ goBack }) {
               padding: '10px 14px',
             }}
             onClick={function () {
-              speak(p[0]);
+              speak(p[0] ?? '');
             }}
           >
             <span style={{ fontWeight: 700, fontSize: 14 }}>
@@ -610,7 +609,7 @@ function HimnaPlayer() {
   const [current, setCurrent] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLAudioElement | null>(null);
 
   function toggle() {
     const a = ref.current;
@@ -622,14 +621,14 @@ function HimnaPlayer() {
     }
   }
 
-  function seek(e) {
+  function seek(e: React.MouseEvent<HTMLDivElement>) {
     const a = ref.current;
     if (!a || !a.duration) return;
     const r = e.currentTarget.getBoundingClientRect();
     a.currentTime = ((e.clientX - r.left) / r.width) * a.duration;
   }
 
-  function fmt(s) {
+  function fmt(s: number) {
     return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
   }
 
@@ -806,7 +805,7 @@ function HimnaPlayer() {
   );
 }
 
-export function HistoryScreen({ goBack }) {
+export function HistoryScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🇭🇷 ' + HISTORY.title, HISTORY.subtitle, goBack)}
@@ -912,7 +911,7 @@ export function HistoryScreen({ goBack }) {
               className="c"
               style={{ padding: '10px 14px' }}
               onClick={function () {
-                speak(v[0]);
+                speak(v[0] ?? '');
               }}
             >
               <div style={{ fontSize: 14, fontWeight: 700, color: '#991b1b' }}>
@@ -962,15 +961,43 @@ export function HistoryScreen({ goBack }) {
 }
 
 // ── Shared inner component used by both sport screens ──────────────────────
-function SportScreen({ data, accent, heroGradient, heroIcon }) {
+interface SportPhrase {
+  hr: string;
+  en: string;
+  note?: string;
+}
+interface SportSection {
+  title: string;
+  en: string;
+  icon: string;
+  phrases: SportPhrase[];
+}
+interface SportData {
+  title: string;
+  subtitle: string;
+  intro: string;
+  sections: SportSection[];
+}
+
+function SportScreen({
+  data,
+  accent,
+  heroGradient,
+  heroIcon,
+}: {
+  data: SportData;
+  accent: string;
+  heroGradient: string;
+  heroIcon: string;
+}) {
   const [activeSection, setActiveSection] = useState(0);
-  const [playing, setPlaying] = useState(null);
-  const section = data.sections[activeSection];
-  const totalPhrases = data.sections.reduce(function (sum, s) {
+  const [playing, setPlaying] = useState<string | null>(null);
+  const section = data.sections[activeSection]!;
+  const totalPhrases = data.sections.reduce(function (sum: number, s: SportSection) {
     return sum + s.phrases.length;
   }, 0);
 
-  function playPhrase(hr, key) {
+  function playPhrase(hr: string, key: string) {
     setPlaying(key);
     speak(hr);
     setTimeout(function () {
@@ -979,7 +1006,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
   }
 
   // Detect vocab-style sections (short terms, no contextual notes)
-  const isVocabSection = section.phrases.every(function (p) {
+  const isVocabSection = section.phrases.every(function (p: SportPhrase) {
     return p.hr.length <= 35 && !p.note;
   });
 
@@ -1057,7 +1084,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
           paddingBottom: 0,
         }}
       >
-        {data.sections.map(function (s, si) {
+        {data.sections.map(function (s: SportSection, si: number) {
           const isActive = activeSection === si;
           return (
             <button
@@ -1137,7 +1164,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
       {/* ── Vocab grid (short terms) ──────────────────────────────────── */}
       {isVocabSection && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-          {section.phrases.map(function (p, pi) {
+          {section.phrases.map(function (p: SportPhrase, pi: number) {
             const key = activeSection + '-' + pi;
             const isPlaying = playing === key;
             return (
@@ -1205,7 +1232,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
       {/* ── Phrase list (full sentences / commands) ───────────────────── */}
       {!isVocabSection && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {section.phrases.map(function (p, pi) {
+          {section.phrases.map(function (p: SportPhrase, pi: number) {
             const key = activeSection + '-' + pi;
             const isPlaying = playing === key;
             return (
@@ -1325,7 +1352,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
   );
 }
 
-export function BasketballScreen({ goBack }) {
+export function BasketballScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div>
       {goBack && (
@@ -1358,7 +1385,7 @@ export function BasketballScreen({ goBack }) {
   );
 }
 
-export function GymScreen({ goBack }) {
+export function GymScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div>
       {goBack && (

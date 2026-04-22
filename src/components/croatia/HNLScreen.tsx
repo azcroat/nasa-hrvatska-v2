@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { FOOTBALL, speak } from '../../data';
 
@@ -305,7 +304,7 @@ const LIVE_LINKS = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function HNLScreen({ goBack }) {
+export default function HNLScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('standings');
 
   return (
@@ -398,7 +397,7 @@ export default function HNLScreen({ goBack }) {
         ].map(([key, label]) => (
           <button
             key={key}
-            onClick={() => setTab(key)}
+            onClick={() => setTab(key ?? '')}
             style={{
               flex: 1,
               padding: '8px 4px',
@@ -874,7 +873,7 @@ export default function HNLScreen({ goBack }) {
                 aria-label={`Play audio for ${w[0]}`}
                 className="c"
                 style={{ padding: '10px 12px' }}
-                onClick={() => speak(w[0])}
+                onClick={() => speak(w[0] ?? '')}
               >
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#003da5' }}>
                   {w[0]} <span aria-hidden="true">🔊</span>
@@ -908,7 +907,7 @@ export default function HNLScreen({ goBack }) {
                 gap: 12,
                 padding: '10px 14px',
               }}
-              onClick={() => speak(p[0])}
+              onClick={() => speak(p[0] ?? '')}
             >
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--heading)' }}>
@@ -955,7 +954,7 @@ export default function HNLScreen({ goBack }) {
                 aria-label={`Play audio for ${w[0]}`}
                 className="c"
                 style={{ padding: '10px 12px' }}
-                onClick={() => speak(w[0])}
+                onClick={() => speak(w[0] ?? '')}
               >
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#0e7490' }}>
                   {w[0]} <span aria-hidden="true">🔊</span>

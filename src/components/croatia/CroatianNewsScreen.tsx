@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { H } from '../../data';
 import { useStats } from '../../context/StatsContext';
@@ -69,6 +68,37 @@ const FALLBACK_ARTICLES = [
 ];
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
+const LC = LEVEL_COLORS as Record<string, string>;
+
+interface WordTooltip {
+  articleId: number;
+  wordIndex: number;
+  word: string;
+  translation?: string;
+  note?: string;
+}
+
+interface TranslatingState {
+  articleId: number;
+  wordIndex: number;
+}
+
+interface VocabItem {
+  word: string;
+  meaning: string;
+}
+
+interface NewsArticle {
+  source: string;
+  simplified_title: string;
+  simplified_title_en: string;
+  simplified_text: string;
+  simplified_text_en: string;
+  key_vocabulary: VocabItem[];
+  summary_one_sentence: string;
+  link: string | null;
+  date?: string;
+}
 
 // ── Skeleton card for loading state ──────────────────────────────────────────
 function SkeletonCard() {
@@ -104,12 +134,26 @@ function SkeletonCard() {
 }
 
 // ── Word-tappable text renderer ───────────────────────────────────────────────
-function TappableText({ text, articleId, translating, tooltip, onWordTap, style = undefined }) {
+function TappableText({
+  text,
+  articleId,
+  translating,
+  tooltip,
+  onWordTap,
+  style = undefined,
+}: {
+  text: string;
+  articleId: number;
+  translating: TranslatingState | null;
+  tooltip: WordTooltip | null;
+  onWordTap: (word: string, articleId: number, wordIndex: number) => void;
+  style?: React.CSSProperties;
+}) {
   const words = text.split(/(\s+)/);
   let wordIdx = 0;
   return (
     <span style={style}>
-      {words.map((chunk, i) => {
+      {words.map((chunk: string, i: number) => {
         if (/^\s+$/.test(chunk)) return chunk;
         const idx = wordIdx++;
         const clean = chunk.replace(/[.,!?;:"'()[\]]/g, '');
@@ -188,7 +232,23 @@ function TappableText({ text, articleId, translating, tooltip, onWordTap, style 
 }
 
 // ── Individual article card ───────────────────────────────────────────────────
-function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward, awarded }) {
+function ArticleCard({
+  article,
+  index,
+  translating,
+  tooltip,
+  onWordTap,
+  onAward,
+  awarded,
+}: {
+  article: NewsArticle;
+  index: number;
+  translating: TranslatingState | null;
+  tooltip: WordTooltip | null;
+  onWordTap: (word: string, articleId: number, wordIndex: number) => void;
+  onAward: () => void;
+  awarded: boolean;
+}) {
   const [showTranslation, setShowTranslation] = useState(false);
   const [showVocab, setShowVocab] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -209,9 +269,9 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
       if (!res.ok) throw new Error('TTS failed');
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-      const url = await new Promise((resolve) => {
+      const url = await new Promise<string>((resolve) => {
         const r = new FileReader();
-        r.onload = () => resolve(r.result);
+        r.onload = () => resolve(r.result as string);
         r.readAsDataURL(blob);
       });
       const audio = new Audio(url);
@@ -422,7 +482,7 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
             </button>
             {showVocab && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {article.key_vocabulary.map((v, i) => (
+                {article.key_vocabulary.map((v: VocabItem, i: number) => (
                   <div
                     key={i}
                     style={{
@@ -475,8 +535,14 @@ function ArticleCard({ article, index, translating, tooltip, onWordTap, onAward,
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function CroatianNewsScreen({ goBack, award }) {
-  const { level: userLevel } = useStats();
+export default function CroatianNewsScreen({
+  goBack,
+  award,
+}: {
+  goBack?: () => void;
+  award?: (xp: number) => void;
+}) {
+  const { level: userLevelNum } = useStats();
   const isOnline = useOnlineStatus();
 
   const mountedRef = useRef(true);
@@ -487,21 +553,30 @@ export default function CroatianNewsScreen({ goBack, award }) {
     [],
   );
 
+  const LEVEL_MAP: Record<number, string> = {
+    1: 'A1',
+    2: 'A2',
+    3: 'B1',
+    4: 'B2',
+    5: 'C1',
+    6: 'C2',
+  };
+  const userLevel = LEVEL_MAP[userLevelNum] ?? 'B1';
   const defaultLevel = LEVELS.includes(userLevel) ? userLevel : 'B1';
   const [selectedLevel, setSelectedLevel] = useState(defaultLevel);
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
 
-  const [translating, setTranslating] = useState(null); // { articleId, wordIndex }
-  const [tooltip, setTooltip] = useState(null); // { articleId, wordIndex, word, translation, note }
+  const [translating, setTranslating] = useState<TranslatingState | null>(null); // { articleId, wordIndex }
+  const [tooltip, setTooltip] = useState<WordTooltip | null>(null); // { articleId, wordIndex, word, translation, note }
 
   // Track how many articles the user has engaged with for award
   const [engagedArticles, setEngagedArticles] = useState(new Set());
   const awardGiven = useRef(false);
 
-  function markEngaged(articleIdx) {
+  function markEngaged(articleIdx: number) {
     setEngagedArticles((prev) => {
       const next = new Set(prev);
       next.add(articleIdx);
@@ -514,7 +589,7 @@ export default function CroatianNewsScreen({ goBack, award }) {
     });
   }
 
-  const fetchNews = useCallback(async (level) => {
+  const fetchNews = useCallback(async (level: string) => {
     setLoading(true);
     setError(null);
     setUsingFallback(false);
@@ -546,7 +621,7 @@ export default function CroatianNewsScreen({ goBack, award }) {
     }
   }, [selectedLevel, isOnline, fetchNews]);
 
-  async function translateWord(word, articleId, wordIndex) {
+  async function translateWord(word: string, articleId: number, wordIndex: number) {
     if (translating) return;
     setTranslating({ articleId, wordIndex });
     try {
@@ -603,12 +678,12 @@ export default function CroatianNewsScreen({ goBack, award }) {
               padding: '6px 14px',
               borderRadius: 20,
               cursor: 'pointer',
-              background: selectedLevel === lvl ? LEVEL_COLORS[lvl] || '#0e7490' : 'var(--card)',
+              background: selectedLevel === lvl ? LC[lvl] || '#0e7490' : 'var(--card)',
               color: selectedLevel === lvl ? '#fff' : 'var(--subtext)',
               fontSize: 13,
               fontWeight: 700,
               fontFamily: "'Outfit',sans-serif",
-              border: `1.5px solid ${selectedLevel === lvl ? LEVEL_COLORS[lvl] || '#0e7490' : 'var(--card-b)'}`,
+              border: `1.5px solid ${selectedLevel === lvl ? LC[lvl] || '#0e7490' : 'var(--card-b)'}`,
               transition: 'all .2s',
             }}
           >

@@ -1,7 +1,44 @@
-// @ts-nocheck
 import React from 'react';
 import { portraitSrc } from './SpeakingAvatar';
 import { deriveWeakAreas } from './ConversationScenarios.js';
+
+interface ConvoScenario {
+  id: string;
+  cat: string;
+  icon?: string;
+  title: string;
+  hr?: string;
+  desc?: string;
+  levels: string[];
+  color?: string;
+  bg?: string;
+  aiName: string;
+  [key: string]: unknown;
+}
+
+interface ConvoStats {
+  ct?: unknown[];
+}
+
+interface AIConversationConvoSetupProps {
+  Header: React.ReactNode;
+  level: string;
+  setLevel: (l: string) => void;
+  activeCat: string;
+  setActiveCat: (c: string) => void;
+  scenario: ConvoScenario | null;
+  setScenario: (s: ConvoScenario | null) => void;
+  filteredScenarios: ConvoScenario[];
+  stats: ConvoStats | null;
+  customText: string;
+  setCustomText: (t: string) => void;
+  showCustom: boolean;
+  setShowCustom: (updater: (prev: boolean) => boolean) => void;
+  customSceneImg: string | null;
+  customSceneLoading: boolean;
+  isOnline: boolean;
+  onStart: () => void;
+}
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const CATS = ['All', 'Errands', 'Out & About', 'Social', 'Practical', 'Culture', 'Professional'];
@@ -31,7 +68,7 @@ const FREE_TALK_SCENARIO = {
     "You are Mate, a warm and patient Croatian local. Have a natural open-ended conversation in Croatian with the learner. Start with a genuine greeting and let the topic flow wherever feels natural — daily life, Croatian culture, food, travel, hobbies. Adapt vocabulary and complexity to the learner's CEFR level.",
 };
 
-function sceneForCat(cat) {
+function sceneForCat(cat: string) {
   const SCENE_FOR_CAT = {
     Errands: '/images/scenes/zagreb.webp',
     'Out & About': '/images/scenes/dubrovnik-hero.webp',
@@ -40,7 +77,7 @@ function sceneForCat(cat) {
     Heritage: '/images/scenes/dalmatian-coast.webp',
     'Work & Travel': '/images/scenes/plitvice.webp',
   };
-  return SCENE_FOR_CAT[cat] || '/images/scenes/dubrovnik-hero.webp';
+  return (SCENE_FOR_CAT as Record<string, string>)[cat] ?? '/images/scenes/dubrovnik-hero.webp';
 }
 
 export default function AIConversationConvoSetup({
@@ -61,7 +98,7 @@ export default function AIConversationConvoSetup({
   customSceneLoading,
   isOnline,
   onStart,
-}) {
+}: AIConversationConvoSetupProps) {
   return (
     <div className="scr-wrap">
       {Header}
@@ -202,7 +239,7 @@ export default function AIConversationConvoSetup({
               color: activeCat === c ? 'white' : 'var(--subtext)',
             }}
           >
-            {CAT_ICONS[c]} {c}
+            {(CAT_ICONS as Record<string, string>)[c]} {c}
           </button>
         ))}
       </div>
@@ -233,7 +270,7 @@ export default function AIConversationConvoSetup({
             No scenarios match this filter. Try changing the level or category.
           </div>
         ) : (
-          filteredScenarios.map((s) => {
+          filteredScenarios.map((s: ConvoScenario) => {
             const selected = scenario?.id === s.id;
             return (
               <div
@@ -322,9 +359,9 @@ export default function AIConversationConvoSetup({
                       alt={s.aiName}
                       loading="lazy"
                       onError={(e) => {
-                        const t = /** @type {HTMLImageElement} */ e.target;
+                        const t = e.target as HTMLImageElement;
                         t.style.display = 'none';
-                        const sib = /** @type {HTMLElement} */ t.nextSibling;
+                        const sib = t.nextSibling as HTMLElement | null;
                         if (sib) sib.style.display = 'flex';
                       }}
                       style={{
@@ -391,7 +428,7 @@ export default function AIConversationConvoSetup({
                       {s.aiName} · <span style={{ fontWeight: 500 }}>{s.desc}</span>
                     </div>
                     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                      {s.levels.map((l) => (
+                      {s.levels.map((l: string) => (
                         <span
                           key={l}
                           style={{
@@ -436,7 +473,7 @@ export default function AIConversationConvoSetup({
         }}
       >
         <div
-          onClick={() => setShowCustom((p) => !p)}
+          onClick={() => setShowCustom((p: boolean) => !p)}
           style={{
             display: 'flex',
             alignItems: 'center',

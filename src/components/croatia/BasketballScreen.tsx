@@ -1,17 +1,43 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak } from '../../data';
 import { BASKETBALL } from '../../data';
 
-function SportScreen({ data, accent, heroGradient, heroIcon }) {
+interface SportPhrase {
+  hr: string;
+  en: string;
+  note?: string;
+}
+
+interface SportSection {
+  icon: string;
+  title: string;
+  en: string;
+  phrases: SportPhrase[];
+}
+
+interface SportData {
+  title: string;
+  subtitle: string;
+  intro: string;
+  sections: SportSection[];
+}
+
+interface SportScreenProps {
+  data: SportData;
+  accent: string;
+  heroGradient: string;
+  heroIcon: string;
+}
+
+function SportScreen({ data, accent, heroGradient, heroIcon }: SportScreenProps) {
   const [activeSection, setActiveSection] = useState(0);
-  const [playing, setPlaying] = useState(null);
-  const section = data.sections[activeSection];
-  const totalPhrases = data.sections.reduce(function (sum, s) {
+  const [playing, setPlaying] = useState<string | null>(null);
+  const section = data.sections[activeSection]!;
+  const totalPhrases = data.sections.reduce(function (sum: number, s: SportSection) {
     return sum + s.phrases.length;
   }, 0);
 
-  function playPhrase(hr, key) {
+  function playPhrase(hr: string, key: string) {
     setPlaying(key);
     speak(hr);
     setTimeout(function () {
@@ -19,7 +45,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
     }, 2200);
   }
 
-  const isVocabSection = section.phrases.every(function (p) {
+  const isVocabSection = section.phrases.every(function (p: SportPhrase) {
     return p.hr.length <= 35 && !p.note;
   });
 
@@ -94,7 +120,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
           paddingBottom: 0,
         }}
       >
-        {data.sections.map(function (s, si) {
+        {data.sections.map(function (s: SportSection, si: number) {
           const isActive = activeSection === si;
           return (
             <button
@@ -170,7 +196,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
       </div>
       {isVocabSection && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-          {section.phrases.map(function (p, pi) {
+          {section.phrases.map(function (p: SportPhrase, pi: number) {
             const key = activeSection + '-' + pi;
             const isPlaying = playing === key;
             return (
@@ -236,7 +262,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
       )}
       {!isVocabSection && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {section.phrases.map(function (p, pi) {
+          {section.phrases.map(function (p: SportPhrase, pi: number) {
             const key = activeSection + '-' + pi;
             const isPlaying = playing === key;
             return (
@@ -353,7 +379,7 @@ function SportScreen({ data, accent, heroGradient, heroIcon }) {
   );
 }
 
-function BasketballScreen({ goBack }) {
+function BasketballScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div>
       {goBack && (

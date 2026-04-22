@@ -17,11 +17,20 @@ export interface WritePrompt {
   prompt: string;
 }
 
+export interface WriteChange {
+  original: string;
+  corrected: string;
+  note?: string;
+}
+
 export interface WriteEvaluation {
-  score?: number;
-  feedback?: string;
-  corrections?: unknown[];
-  vocabulary?: unknown[];
+  score: number;
+  level_demonstrated?: string;
+  encouragement?: string;
+  corrected_text?: string;
+  changes?: WriteChange[];
+  strengths?: string[];
+  improvements?: string[];
   [key: string]: unknown;
 }
 
@@ -32,8 +41,8 @@ export interface WriteMode {
   setWriteLevel: (l: string) => void;
   writeText: string;
   setWriteText: (t: string) => void;
-  writePhase: 'setup' | 'writing' | 'result';
-  setWritePhase: (p: 'setup' | 'writing' | 'result') => void;
+  writePhase: 'setup' | 'writing' | 'evaluating' | 'result';
+  setWritePhase: (p: 'setup' | 'writing' | 'evaluating' | 'result') => void;
   writeEval: WriteEvaluation | null;
   setWriteEval: (e: WriteEvaluation | null) => void;
   writeEvalError: string;
@@ -44,7 +53,9 @@ export function useWriteMode(initialLevel = 'B1'): WriteMode {
   const [writePrompt, setWritePrompt] = useState<WritePrompt | null>(null);
   const [writeLevel, setWriteLevel] = useState<string>(initialLevel);
   const [writeText, setWriteText] = useState<string>('');
-  const [writePhase, setWritePhase] = useState<'setup' | 'writing' | 'result'>('setup');
+  const [writePhase, setWritePhase] = useState<'setup' | 'writing' | 'evaluating' | 'result'>(
+    'setup',
+  );
   const [writeEval, setWriteEval] = useState<WriteEvaluation | null>(null);
   const [writeEvalError, setWriteEvalError] = useState<string>('');
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import DiscoverTab from './DiscoverTab';
 import CultureTab from './CultureTab';
@@ -13,9 +12,13 @@ const ANCHORS = [
   { id: 'section-stories', label: 'Stories', icon: '📖', cefr: 'A1–B2' },
 ];
 
-export default function CroatiaTab({ sCurEx }) {
+interface CroatiaTabProps {
+  sCurEx: unknown;
+}
+
+export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
   const [activeAnchor, setActiveAnchor] = useState('section-discover');
-  const stripRef = useRef(null);
+  const stripRef = useRef<HTMLDivElement | null>(null);
 
   // Track first-visit for "New" badges on Media and Stories
   const [visited, setVisited] = useState(() => ({
@@ -26,14 +29,17 @@ export default function CroatiaTab({ sCurEx }) {
   // IntersectionObserver — highlights the anchor corresponding to the most
   // visible section as the user scrolls
   useEffect(() => {
-    const els = ANCHORS.map((a) => document.getElementById(a.id)).filter(Boolean);
+    const els = ANCHORS.map((a) => document.getElementById(a.id)).filter(
+      (el): el is HTMLElement => el !== null,
+    );
     if (!els.length) return;
     const obs = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible.length) setActiveAnchor(visible[0].target.id);
+        const top = visible[0];
+        if (top) setActiveAnchor(top.target.id);
       },
       { threshold: [0.05, 0.2, 0.5], rootMargin: '-48px 0px -45% 0px' },
     );
@@ -42,7 +48,7 @@ export default function CroatiaTab({ sCurEx }) {
   }, []);
 
   const scrollTo = useCallback(
-    (anchorId) => {
+    (anchorId: string) => {
       if (anchorId === 'section-media' && !visited.media) {
         try {
           localStorage.setItem('nh_visited_media', '1');
@@ -292,7 +298,7 @@ export default function CroatiaTab({ sCurEx }) {
       </div>
 
       {/* ── HISTORY & LIFE — CultureTab renders both with in-page anchor IDs ── */}
-      <CultureTab sCurEx={sCurEx} />
+      <CultureTab sCurEx={sCurEx as ((ex: string) => void) | undefined} />
 
       {/* ── MEDIA ─────────────────────────────────────────────────────────── */}
       <div id="section-media">

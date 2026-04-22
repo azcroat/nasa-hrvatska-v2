@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak, H } from '../../data';
 
@@ -179,8 +178,12 @@ const SAMPLE_HEADLINES = [
   },
 ];
 
-export default function CivicScreen({ goBack }) {
-  const [activeSection, setActiveSection] = useState(null);
+interface CivicScreenProps {
+  goBack: () => void;
+}
+
+export default function CivicScreen({ goBack }: CivicScreenProps) {
+  const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showHeadlines, setShowHeadlines] = useState(false);
 
   const active = activeSection ? CIVIC_SECTIONS.find((s) => s.id === activeSection) : null;

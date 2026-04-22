@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 import { H } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -283,7 +282,12 @@ const CHAPTERS = [
   },
 ];
 
-export default function BakaSummer({ goBack, award }) {
+interface BakaSummerProps {
+  goBack: () => void;
+  award: (xp: number) => void;
+}
+
+export default function BakaSummer({ goBack, award }: BakaSummerProps) {
   const [chaptersDone, setChaptersDone] = useState(() => {
     try {
       const arr = JSON.parse(localStorage.getItem('nh_baka_done') || '[]');
@@ -322,7 +326,7 @@ export default function BakaSummer({ goBack, award }) {
     }
   }, [chaptersDone, bonusAwarded, award]);
 
-  const current = CHAPTERS[chapter];
+  const current = CHAPTERS[chapter]!;
   const isCompleted = chaptersDone.has(chapter);
   const allDone = chaptersDone.size === 16;
 
@@ -344,7 +348,7 @@ export default function BakaSummer({ goBack, award }) {
     }
   }
 
-  function goToChapter(idx) {
+  function goToChapter(idx: number) {
     const maxAllowed = chaptersDone.size;
     if (idx >= 0 && idx <= Math.min(maxAllowed, 15)) {
       setChapter(idx);

@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { EVENTS, TOP100 } from '../../data';
 
-export function EventsCalendar({ goBack }) {
+interface EventsCalendarProps {
+  goBack: () => void;
+}
+
+export function EventsCalendar({ goBack }: EventsCalendarProps) {
   const [evM, sEvM] = useState(new Date().getMonth() + 1 || 1);
   return (
     <div className="scr-wrap">
@@ -106,8 +109,12 @@ export function EventsCalendar({ goBack }) {
   );
 }
 
-export function Top100Screen({ goBack }) {
-  const [t1k, sT1k] = useState(null);
+interface Top100ScreenProps {
+  goBack: () => void;
+}
+
+export function Top100Screen({ goBack }: Top100ScreenProps) {
+  const [t1k, sT1k] = useState<string | null>(null);
   return (
     <div className="scr-wrap">
       {H('💯 Top 100 Words', 'Essential words for real-world situations', goBack)}
@@ -160,7 +167,7 @@ export function Top100Screen({ goBack }) {
             {t1k}
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {TOP100[t1k].map(function (w, i) {
+            {((TOP100 as Record<string, string[][]>)[t1k!] ?? []).map(function (w, i) {
               return (
                 <button
                   key={i}
@@ -168,7 +175,7 @@ export function Top100Screen({ goBack }) {
                   className="c"
                   style={{ padding: '10px 14px' }}
                   onClick={function () {
-                    speak(w[0]);
+                    speak(w[0]!);
                   }}
                 >
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#0e7490' }}>

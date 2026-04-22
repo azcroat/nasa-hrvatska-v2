@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * HeritagePathScreen — a structured learning track for heritage Croatian speakers.
  *
@@ -353,14 +352,20 @@ function loadProgress() {
     return new Set();
   }
 }
-function saveProgress(set) {
+function saveProgress(set: Set<unknown>) {
   try {
     localStorage.setItem(HERITAGE_PROGRESS_KEY, JSON.stringify([...set]));
   } catch {}
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function HeritagePathScreen({ goBack, award }) {
+export default function HeritagePathScreen({
+  goBack,
+  award,
+}: {
+  goBack?: () => void;
+  award?: (amt: number) => void;
+}) {
   const [section, setSection] = useState('home'); // home | dialects | passive | grammar | diaspora | done
   const [activeModule, setActiveModule] = useState(0);
   const [exerciseIdx, setExerciseIdx] = useState(0);
@@ -379,7 +384,7 @@ export default function HeritagePathScreen({ goBack, award }) {
     );
   }, []);
 
-  function completeModule(id) {
+  function completeModule(id: string) {
     setCompleted((prev) => {
       const next = new Set([...prev, id]);
       saveProgress(next);
@@ -387,7 +392,7 @@ export default function HeritagePathScreen({ goBack, award }) {
     });
   }
 
-  function awardOnce(amt) {
+  function awardOnce(amt: number) {
     if (!awardFired.current) {
       awardFired.current = true;
       if (typeof award === 'function') award(amt);
@@ -592,7 +597,7 @@ export default function HeritagePathScreen({ goBack, award }) {
 
   // ── DIALECTS ──────────────────────────────────────────────────────────────
   if (section === 'dialects') {
-    const dialect = DIALECT_AWARENESS[activeModule];
+    const dialect = DIALECT_AWARENESS[activeModule]!;
     return (
       <div className="scr-wrap">
         <button
@@ -631,7 +636,7 @@ export default function HeritagePathScreen({ goBack, award }) {
         <div
           style={{
             background: dialect.bg,
-            border: `2px solid ${dialect.border}`,
+            border: `2px solid ${dialect.color}`,
             borderRadius: 20,
             padding: '20px',
             marginBottom: 16,
@@ -723,7 +728,7 @@ export default function HeritagePathScreen({ goBack, award }) {
         <div
           style={{
             background: dialect.bg,
-            border: `1px solid ${dialect.border}`,
+            border: `1px solid ${dialect.color}`,
             borderLeft: `4px solid ${dialect.color}`,
             borderRadius: 12,
             padding: '12px 16px',
@@ -766,8 +771,8 @@ export default function HeritagePathScreen({ goBack, award }) {
 
   // ── PASSIVE → ACTIVE ──────────────────────────────────────────────────────
   if (section === 'passive') {
-    const mod = PASSIVE_TO_ACTIVE[activeModule];
-    const ex = mod.exercises[exerciseIdx];
+    const mod = PASSIVE_TO_ACTIVE[activeModule]!;
+    const ex = mod.exercises[exerciseIdx]!;
     return (
       <div className="scr-wrap">
         <button
@@ -966,8 +971,8 @@ export default function HeritagePathScreen({ goBack, award }) {
 
   // ── GRAMMAR ───────────────────────────────────────────────────────────────
   if (section === 'grammar') {
-    const mod = GRAMMAR_GAPS[grammarModule];
-    const ex = mod.exercises[grammarExIdx];
+    const mod = GRAMMAR_GAPS[grammarModule]!;
+    const ex = mod.exercises[grammarExIdx]!;
     return (
       <div className="scr-wrap">
         <button

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak, H } from '../../data';
 
@@ -99,7 +98,11 @@ const PHRASES = [
   { hr: 'Kako ti je?', en: 'How are you? (in the kafić context)', ph: 'ka-ko ti ye' },
 ];
 
-export default function KaficScreen({ goBack }) {
+interface KaficScreenProps {
+  goBack: () => void;
+}
+
+export default function KaficScreen({ goBack }: KaficScreenProps) {
   const [tab, setTab] = useState('culture'); // 'culture' | 'order' | 'phrases'
 
   const tabs = [

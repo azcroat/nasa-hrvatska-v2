@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext.tsx';
@@ -182,9 +181,39 @@ const QUIZ = [
 
 const LS_KEY = 'nh_dialect_quiz_done';
 
+interface DialectFeature {
+  feature: string;
+  dialect: string;
+  standard: string;
+}
+interface Dialect {
+  id: string;
+  name: string;
+  nameEn: string;
+  icon: string;
+  color: string;
+  region: string;
+  pronoun: string;
+  speakers: string;
+  standard: boolean;
+  tagline: string;
+  description: string;
+  features: DialectFeature[];
+  sample: string;
+  sampleEn?: string;
+  famousFor?: string;
+  hearIn?: string;
+  tip?: string;
+}
+interface QuizQuestion {
+  q: string;
+  options: string[];
+  ans: number;
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function DialectCard({ dialect, onTap }) {
+function DialectCard({ dialect, onTap }: { dialect: Dialect; onTap: (d: Dialect) => void }) {
   return (
     <button
       onClick={() => onTap(dialect)}
@@ -287,7 +316,7 @@ function DialectCard({ dialect, onTap }) {
   );
 }
 
-function ComparisonTable({ features }) {
+function ComparisonTable({ features }: { features: DialectFeature[] }) {
   return (
     <div
       style={{
@@ -342,7 +371,7 @@ function ComparisonTable({ features }) {
       </div>
 
       {/* Rows */}
-      {features.map((row, i) => (
+      {features.map((row: DialectFeature, i: number) => (
         <div
           key={i}
           style={{
@@ -376,7 +405,7 @@ function ComparisonTable({ features }) {
   );
 }
 
-function DetailView({ dialect, onBack }) {
+function DetailView({ dialect, onBack }: { dialect: Dialect; onBack: () => void }) {
   return (
     <div>
       {/* Back button */}
@@ -633,11 +662,11 @@ function DetailView({ dialect, onBack }) {
   );
 }
 
-function QuizView({ onBack, award }) {
+function QuizView({ onBack, award }: { onBack: () => void; award?: (xp: number) => void }) {
   const { stats, setStats, writeDelta } = useStats();
   const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState([]); // array of booleans
-  const [selected, setSelected] = useState(null); // selected option index for current q
+  const [answers, setAnswers] = useState<boolean[]>([]); // array of booleans
+  const [selected, setSelected] = useState<number | null>(null); // selected option index for current q
   const [done, setDone] = useState(false);
 
   // Shuffle question order and option order once per quiz attempt
@@ -645,24 +674,24 @@ function QuizView({ onBack, award }) {
     const arr = [...QUIZ];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+      [arr[i]!, arr[j]!] = [arr[j]!, arr[i]!];
     }
-    return arr.map((q) => {
+    return arr.map((q: QuizQuestion) => {
       const correctOpt = q.options[q.ans];
       const opts = [...q.options];
       for (let i = opts.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [opts[i], opts[j]] = [opts[j], opts[i]];
+        [opts[i]!, opts[j]!] = [opts[j]!, opts[i]!];
       }
-      return { ...q, options: opts, ans: opts.indexOf(correctOpt) };
+      return { ...q, options: opts, ans: opts.indexOf(correctOpt ?? '') };
     });
   }, []);
 
-  const q = shuffledQuiz[idx];
+  const q = shuffledQuiz[idx]!;
   const isAnswered = selected !== null;
   const isCorrect = selected === q.ans;
 
-  function handleSelect(optIdx) {
+  function handleSelect(optIdx: number) {
     if (isAnswered) return;
     setSelected(optIdx);
   }
@@ -1020,13 +1049,19 @@ function QuizView({ onBack, award }) {
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
-export default function DialectAwarenessScreen({ goBack, stats }) {
+export default function DialectAwarenessScreen({
+  goBack,
+  stats: _stats,
+}: {
+  goBack?: () => void;
+  stats?: unknown;
+}) {
   const { award } = useApp();
 
   const [view, setView] = useState('menu'); // 'menu' | 'detail' | 'quiz'
-  const [selectedDialect, setSelectedDialect] = useState(null);
+  const [selectedDialect, setSelectedDialect] = useState<Dialect | null>(null);
 
-  function openDetail(dialect) {
+  function openDetail(dialect: Dialect) {
     setSelectedDialect(dialect);
     setView('detail');
   }

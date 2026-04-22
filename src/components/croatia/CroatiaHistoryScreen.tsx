@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, speak } from '../../data';
 import { HISTORY } from '../../data';
@@ -10,7 +9,7 @@ function HimnaPlayer() {
   const [current, setCurrent] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLAudioElement | null>(null);
 
   function toggle() {
     const a = ref.current;
@@ -22,14 +21,14 @@ function HimnaPlayer() {
     }
   }
 
-  function seek(e) {
+  function seek(e: React.MouseEvent<HTMLDivElement>) {
     const a = ref.current;
     if (!a || !a.duration) return;
     const r = e.currentTarget.getBoundingClientRect();
     a.currentTime = ((e.clientX - r.left) / r.width) * a.duration;
   }
 
-  function fmt(s) {
+  function fmt(s: number) {
     return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
   }
 
@@ -206,7 +205,7 @@ function HimnaPlayer() {
   );
 }
 
-function CroatiaHistoryScreen({ goBack }) {
+function CroatiaHistoryScreen({ goBack }: { goBack?: () => void }) {
   return (
     <div className="scr-wrap">
       {H('🇭🇷 ' + HISTORY.title, HISTORY.subtitle, goBack)}
@@ -312,7 +311,7 @@ function CroatiaHistoryScreen({ goBack }) {
               className="c"
               style={{ padding: '10px 14px' }}
               onClick={function () {
-                speak(v[0]);
+                speak(v[0] ?? '');
               }}
             >
               <div style={{ fontSize: 14, fontWeight: 700, color: '#991b1b' }}>

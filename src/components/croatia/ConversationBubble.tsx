@@ -1,7 +1,31 @@
-// @ts-nocheck
-import React from 'react';
+import React, { type CSSProperties } from 'react';
 
-export default function ConversationBubble({ msg, personaCfg }) {
+interface Correction {
+  original: string;
+  corrected: string;
+  echo?: string;
+}
+
+interface ConversationMessage {
+  role: string;
+  content: string;
+  streaming?: boolean;
+  correction?: Correction;
+}
+
+interface PersonaConfig {
+  name: string;
+  avatar: string;
+  fallbackEmoji: string;
+  accentColor: string;
+}
+
+interface ConversationBubbleProps {
+  msg: ConversationMessage;
+  personaCfg?: PersonaConfig;
+}
+
+export default function ConversationBubble({ msg, personaCfg }: ConversationBubbleProps) {
   const isUser = msg.role === 'user';
   const cfg = personaCfg || {
     name: 'Maja Kovačević',
@@ -10,8 +34,7 @@ export default function ConversationBubble({ msg, personaCfg }) {
     accentColor: '#D4002D',
   };
 
-  /** @type {import('react').CSSProperties} */
-  const bubbleStyle = isUser
+  const bubbleStyle: CSSProperties = isUser
     ? {
         background: 'rgba(212,0,45,0.08)',
         border: '1px solid rgba(212,0,45,0.2)',
@@ -69,7 +92,7 @@ export default function ConversationBubble({ msg, personaCfg }) {
               loading="lazy"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
-                const sib = /** @type {HTMLElement} */ e.currentTarget.nextSibling;
+                const sib = e.currentTarget.nextSibling as HTMLElement | null;
                 if (sib) sib.style.display = 'flex';
               }}
             />

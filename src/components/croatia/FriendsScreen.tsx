@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { FRIENDS } from '../../data';
 
-function FriendsScreen({ goBack }) {
+interface FriendsScreenProps {
+  goBack: () => void;
+}
+
+function FriendsScreen({ goBack }: FriendsScreenProps) {
   return (
     <div className="scr-wrap">
       {H('🤝 Making Friends', 'Real phrases kids use', goBack)}

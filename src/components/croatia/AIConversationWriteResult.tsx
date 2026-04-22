@@ -1,13 +1,20 @@
-// @ts-nocheck
 import React from 'react';
 import { speak } from '../../data';
+import type { WriteEvaluation } from '../../hooks/useWriteMode';
+
+interface AIConversationWriteResultProps {
+  writeEvalError: string | null;
+  writeEval: WriteEvaluation | null;
+  onBackToWriting: () => void;
+  onReset: () => void;
+}
 
 export default function AIConversationWriteResult({
   writeEvalError,
   writeEval,
   onBackToWriting,
   onReset,
-}) {
+}: AIConversationWriteResultProps) {
   if (writeEvalError || !writeEval)
     return (
       <div className="scr-wrap" style={{ textAlign: 'center', paddingTop: 40 }}>
@@ -26,7 +33,7 @@ export default function AIConversationWriteResult({
       </div>
     );
 
-  const ev = writeEval;
+  const ev: WriteEvaluation = writeEval;
   const scoreEmoji = ev.score >= 80 ? '🏆' : ev.score >= 55 ? '👏' : '📚';
 
   return (
@@ -66,7 +73,7 @@ export default function AIConversationWriteResult({
       {/* Encouragement */}
       {ev.encouragement && (
         <div
-          onClick={() => speak(ev.encouragement)}
+          onClick={() => speak(ev.encouragement!)}
           style={{
             background: 'var(--success-bg)',
             border: '1.5px solid var(--success-b)',
@@ -138,150 +145,180 @@ export default function AIConversationWriteResult({
       )}
 
       {/* Individual changes */}
-      {ev.changes?.length > 0 && (
-        <div
-          style={{
-            background: 'var(--card)',
-            border: '1.5px solid var(--card-b)',
-            borderRadius: 18,
-            padding: 18,
-            marginBottom: 14,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 'var(--text-xs)',
-              fontWeight: 800,
-              color: 'var(--error)',
-              letterSpacing: '.08em',
-              textTransform: 'uppercase',
-              marginBottom: 12,
-            }}
-          >
-            📝 Corrections ({ev.changes.length})
-          </div>
-          {ev.changes.map((c, i) => (
+      {(ev.changes?.length ?? 0) > 0 &&
+        (() => {
+          const changes = ev.changes!;
+          return (
             <div
-              key={i}
               style={{
-                marginBottom: i < ev.changes.length - 1 ? 14 : 0,
-                paddingBottom: i < ev.changes.length - 1 ? 14 : 0,
-                borderBottom: i < ev.changes.length - 1 ? '1px solid var(--card-b)' : 'none',
+                background: 'var(--card)',
+                border: '1.5px solid var(--card-b)',
+                borderRadius: 18,
+                padding: 18,
+                marginBottom: 14,
               }}
             >
               <div
                 style={{
-                  display: 'flex',
-                  gap: 8,
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  marginBottom: 4,
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: 800,
+                  color: 'var(--error)',
+                  letterSpacing: '.08em',
+                  textTransform: 'uppercase',
+                  marginBottom: 12,
                 }}
               >
-                <span
+                📝 Corrections ({changes.length})
+              </div>
+              {changes.map((c, i) => (
+                <div
+                  key={i}
                   style={{
-                    fontSize: 'var(--text-sm)',
-                    color: 'var(--error)',
-                    textDecoration: 'line-through',
-                    fontWeight: 600,
+                    marginBottom: i < changes.length - 1 ? 14 : 0,
+                    paddingBottom: i < changes.length - 1 ? 14 : 0,
+                    borderBottom: i < changes.length - 1 ? '1px solid var(--card-b)' : 'none',
                   }}
                 >
-                  {c.original}
-                </span>
-                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)' }}>→</span>
-                <span
-                  style={{ fontSize: 'var(--text-sm)', color: 'var(--success)', fontWeight: 800 }}
-                >
-                  {c.corrected}
-                </span>
-              </div>
-              <div
-                style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)', lineHeight: 1.45 }}
-              >
-                {c.note}
-              </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 8,
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      marginBottom: 4,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--error)',
+                        textDecoration: 'line-through',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {c.original}
+                    </span>
+                    <span style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)' }}>→</span>
+                    <span
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--success)',
+                        fontWeight: 800,
+                      }}
+                    >
+                      {c.corrected}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--subtext)',
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    {c.note}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })()}
 
       {/* Strengths */}
-      {ev.strengths?.length > 0 && (
-        <div
-          style={{
-            background: 'var(--card)',
-            border: '1.5px solid var(--card-b)',
-            borderRadius: 18,
-            padding: 18,
-            marginBottom: 14,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 'var(--text-xs)',
-              fontWeight: 800,
-              color: 'var(--success)',
-              letterSpacing: '.08em',
-              textTransform: 'uppercase',
-              marginBottom: 10,
-            }}
-          >
-            ✅ Strengths
-          </div>
-          {ev.strengths.map((s, i) => (
+      {(ev.strengths?.length ?? 0) > 0 &&
+        (() => {
+          const strengths = ev.strengths!;
+          return (
             <div
-              key={i}
-              style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}
+              style={{
+                background: 'var(--card)',
+                border: '1.5px solid var(--card-b)',
+                borderRadius: 18,
+                padding: 18,
+                marginBottom: 14,
+              }}
             >
-              <span style={{ color: 'var(--success)', fontWeight: 900, flexShrink: 0 }}>•</span>
-              <span
-                style={{ fontSize: 'var(--text-base)', color: 'var(--heading)', lineHeight: 1.55 }}
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: 800,
+                  color: 'var(--success)',
+                  letterSpacing: '.08em',
+                  textTransform: 'uppercase',
+                  marginBottom: 10,
+                }}
               >
-                {s}
-              </span>
+                ✅ Strengths
+              </div>
+              {strengths.map((s, i) => (
+                <div
+                  key={i}
+                  style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}
+                >
+                  <span style={{ color: 'var(--success)', fontWeight: 900, flexShrink: 0 }}>•</span>
+                  <span
+                    style={{
+                      fontSize: 'var(--text-base)',
+                      color: 'var(--heading)',
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    {s}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })()}
 
       {/* Improvements */}
-      {ev.improvements?.length > 0 && (
-        <div
-          style={{
-            background: 'var(--card)',
-            border: '1.5px solid var(--card-b)',
-            borderRadius: 18,
-            padding: 18,
-            marginBottom: 20,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 'var(--text-xs)',
-              fontWeight: 800,
-              color: 'var(--lavender)',
-              letterSpacing: '.08em',
-              textTransform: 'uppercase',
-              marginBottom: 10,
-            }}
-          >
-            🎯 Areas to Improve
-          </div>
-          {ev.improvements.map((s, i) => (
+      {(ev.improvements?.length ?? 0) > 0 &&
+        (() => {
+          const improvements = ev.improvements!;
+          return (
             <div
-              key={i}
-              style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}
+              style={{
+                background: 'var(--card)',
+                border: '1.5px solid var(--card-b)',
+                borderRadius: 18,
+                padding: 18,
+                marginBottom: 20,
+              }}
             >
-              <span style={{ color: 'var(--lavender)', fontWeight: 900, flexShrink: 0 }}>•</span>
-              <span
-                style={{ fontSize: 'var(--text-base)', color: 'var(--heading)', lineHeight: 1.55 }}
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: 800,
+                  color: 'var(--lavender)',
+                  letterSpacing: '.08em',
+                  textTransform: 'uppercase',
+                  marginBottom: 10,
+                }}
               >
-                {s}
-              </span>
+                🎯 Areas to Improve
+              </div>
+              {improvements.map((s, i) => (
+                <div
+                  key={i}
+                  style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}
+                >
+                  <span style={{ color: 'var(--lavender)', fontWeight: 900, flexShrink: 0 }}>
+                    •
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 'var(--text-base)',
+                      color: 'var(--heading)',
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    {s}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })()}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 32 }}>
         <button className="b bg" onClick={onBackToWriting}>

@@ -1,5 +1,32 @@
-// @ts-nocheck
 import React, { useState } from 'react';
+
+interface Player {
+  name: string;
+  pos: string;
+  ht: string;
+  wt: string;
+  school: string;
+  conf: string;
+  div: string;
+  born: string;
+  yr: string;
+  jersey: string;
+  stat: string;
+  badge: string;
+  note: string;
+  bio: string;
+  stats: string;
+  espn: string;
+  schoolColor: string;
+  schoolSecondary: string;
+}
+
+interface DivGroup {
+  div: string;
+  players: Player[];
+}
+
+type DivColorKey = 'NCAA D1' | 'NCAA D2' | 'NCAA D3' | 'NAIA';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  CROATIAN-BORN NCAA / NAIA BASKETBALL PLAYERS
@@ -172,8 +199,10 @@ const DIV_COLORS = {
   NAIA: { bg: '#fdf4ff', border: '#e9d5ff', text: '#6b21a8', badge: '#7c3aed' },
 };
 
-function PlayerCard({ p }) {
-  const dc = DIV_COLORS[p.div] || DIV_COLORS['NCAA D1'];
+function PlayerCard({ p }: { p: Player }) {
+  const dc =
+    (DIV_COLORS as Record<string, (typeof DIV_COLORS)[DivColorKey]>)[p.div] ??
+    DIV_COLORS['NCAA D1'];
 
   return (
     <div
@@ -385,18 +414,18 @@ function PlayerCard({ p }) {
   );
 }
 
-export default function CroatiaAthletes({ goBack }) {
+export default function CroatiaAthletes({ goBack }: { goBack: () => void }) {
   const [divFilter, setDivFilter] = useState('all');
 
-  const divCounts = PLAYERS.reduce((acc, p) => {
-    acc[p.div] = (acc[p.div] || 0) + 1;
+  const divCounts = PLAYERS.reduce<Record<string, number>>((acc, p) => {
+    acc[p.div] = (acc[p.div] ?? 0) + 1;
     return acc;
   }, {});
 
   const filtered = divFilter === 'all' ? PLAYERS : PLAYERS.filter((p) => p.div === divFilter);
 
   // Group filtered by division
-  const grouped = DIV_ORDER.reduce((acc, div) => {
+  const grouped = DIV_ORDER.reduce<DivGroup[]>((acc, div) => {
     const group = filtered.filter((p) => p.div === div);
     if (group.length) acc.push({ div, players: group });
     return acc;
@@ -407,7 +436,7 @@ export default function CroatiaAthletes({ goBack }) {
     ...DIV_ORDER.filter((d) => divCounts[d]).map((d) => ({
       key: d,
       label: d,
-      count: divCounts[d],
+      count: divCounts[d] ?? 0,
     })),
   ];
 
@@ -542,7 +571,10 @@ export default function CroatiaAthletes({ goBack }) {
       >
         {divTabs.map((t) => {
           const active = divFilter === t.key;
-          const _dc = t.key !== 'all' ? DIV_COLORS[t.key] : null;
+          const _dc =
+            t.key !== 'all'
+              ? (DIV_COLORS as Record<string, (typeof DIV_COLORS)[DivColorKey] | undefined>)[t.key]
+              : null;
           return (
             <button
               key={t.key}
@@ -586,53 +618,58 @@ export default function CroatiaAthletes({ goBack }) {
       </div>
 
       {/* Player groups */}
-      {grouped.map(({ div, players }) => (
-        <div key={div}>
-          {/* Division header */}
-          {divFilter === 'all' && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                marginBottom: 12,
-              }}
-            >
+      {grouped.map(({ div, players }: DivGroup) => {
+        const dc = (DIV_COLORS as Record<string, (typeof DIV_COLORS)[DivColorKey] | undefined>)[
+          div
+        ];
+        return (
+          <div key={div}>
+            {/* Division header */}
+            {divFilter === 'all' && (
               <div
                 style={{
-                  height: 2,
-                  flex: 1,
-                  background: `linear-gradient(90deg,${DIV_COLORS[div]?.badge || '#94a3b8'},transparent)`,
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 900,
-                  color: DIV_COLORS[div]?.badge || '#94a3b8',
-                  letterSpacing: '.1em',
-                  background: DIV_COLORS[div]?.bg,
-                  padding: '3px 10px',
-                  borderRadius: 20,
-                  border: `1px solid ${DIV_COLORS[div]?.border}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  marginBottom: 12,
                 }}
               >
-                {div} · {players.length} player{players.length > 1 ? 's' : ''}
-              </span>
-              <div
-                style={{
-                  height: 2,
-                  flex: 1,
-                  background: `linear-gradient(270deg,${DIV_COLORS[div]?.badge || '#94a3b8'},transparent)`,
-                }}
-              />
-            </div>
-          )}
-          {players.map((p) => (
-            <PlayerCard key={p.name} p={p} />
-          ))}
-        </div>
-      ))}
+                <div
+                  style={{
+                    height: 2,
+                    flex: 1,
+                    background: `linear-gradient(90deg,${dc?.badge ?? '#94a3b8'},transparent)`,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 900,
+                    color: dc?.badge ?? '#94a3b8',
+                    letterSpacing: '.1em',
+                    background: dc?.bg,
+                    padding: '3px 10px',
+                    borderRadius: 20,
+                    border: `1px solid ${dc?.border ?? '#e2e8f0'}`,
+                  }}
+                >
+                  {div} · {players.length} player{players.length > 1 ? 's' : ''}
+                </span>
+                <div
+                  style={{
+                    height: 2,
+                    flex: 1,
+                    background: `linear-gradient(270deg,${dc?.badge ?? '#94a3b8'},transparent)`,
+                  }}
+                />
+              </div>
+            )}
+            {players.map((p: Player) => (
+              <PlayerCard key={p.name} p={p} />
+            ))}
+          </div>
+        );
+      })}
 
       {/* Footer */}
       <div

@@ -1,11 +1,10 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PHOTO_CREDITS } from '../../lib/photos';
 import CroatianKnight from '../shared/CroatianKnight';
 
 // Seeded pseudo-random: same day → same result; no obvious pattern across days
-function seededRandom(seed) {
+function seededRandom(seed: number) {
   const x = Math.sin(seed + 1) * 10000;
   return x - Math.floor(x);
 }
@@ -395,17 +394,19 @@ const KNIGHT_MESSAGES = [
 
 export default function DiscoverTab() {
   const { setScr } = useApp();
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  const heroCity = HERO_CITIES[dayOfYear % HERO_CITIES.length];
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000,
+  );
+  const heroCity = HERO_CITIES[dayOfYear % HERO_CITIES.length]!;
   // Seeded-random fact selection: same day → same fact; no obvious repeating pattern
   const factIdx = Math.floor(seededRandom(dayOfYear) * heroCity.facts.length);
-  const dailyFact = heroCity.facts[factIdx];
+  const dailyFact = heroCity.facts[factIdx]!;
 
   // Rotating knight message
   const [kMsgIdx, setKMsgIdx] = useState(0);
   const [kMsgVisible, setKMsgVisible] = useState(true);
-  const kTimerRef = useRef(null);
-  const kFadeRef = useRef(null);
+  const kTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const kFadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     kTimerRef.current = setInterval(() => {
       setKMsgVisible(false);
@@ -415,12 +416,12 @@ export default function DiscoverTab() {
       }, 350);
     }, 5500);
     return () => {
-      clearInterval(kTimerRef.current);
-      clearTimeout(kFadeRef.current);
+      clearInterval(kTimerRef.current ?? undefined);
+      clearTimeout(kFadeRef.current ?? undefined);
     };
   }, []);
 
-  const kMsg = KNIGHT_MESSAGES[kMsgIdx];
+  const kMsg = KNIGHT_MESSAGES[kMsgIdx]!;
 
   return (
     <div style={{ paddingBottom: 16 }}>
@@ -548,7 +549,7 @@ export default function DiscoverTab() {
       {/* ── FEATURED STORY PREVIEW ── */}
       <button
         onClick={() => {
-          const el = document.querySelector('[data-ctab="stories"]');
+          const el = document.querySelector('[data-ctab="stories"]') as HTMLElement | null;
           if (el) el.click();
         }}
         className="tc"
