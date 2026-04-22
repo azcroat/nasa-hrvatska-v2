@@ -1,6 +1,40 @@
-// @ts-nocheck
 import React from 'react';
 import { CT_STYLES } from './CaseTransformerData.js';
+
+interface Noun {
+  hr: string;
+  en: string;
+  gender: string;
+}
+interface CaseInfoItem {
+  name: string;
+  abbr: string;
+  en: string;
+  question: string;
+  use: string;
+  color: string;
+  bg: string;
+  example: string;
+}
+interface QuizQuestion {
+  caseInfo: CaseInfoItem;
+  correct: string;
+  opts: string[];
+  example: string;
+}
+interface Props {
+  selectedNoun: Noun | null;
+  quizQuestions: QuizQuestion[];
+  quizIndex: number;
+  quizScore: number;
+  quizChosen: string | null;
+  quizDone: boolean;
+  xpAwarded: boolean;
+  onBackToDeclension: () => void;
+  onChooseAnswer: (opt: string) => void;
+  onNextQuestion: () => void;
+  onStartQuiz: () => void;
+}
 
 export default function CaseTransformerQuiz({
   selectedNoun,
@@ -14,8 +48,9 @@ export default function CaseTransformerQuiz({
   onChooseAnswer,
   onNextQuestion,
   onStartQuiz,
-}) {
+}: Props) {
   if (quizDone) {
+    if (!selectedNoun) return null;
     return (
       <div className="scr-wrap">
         <div className="c" style={{ textAlign: 'center', padding: '40px 24px' }}>
@@ -64,6 +99,7 @@ export default function CaseTransformerQuiz({
   }
 
   const q = quizQuestions[quizIndex];
+  if (!q || !selectedNoun) return null;
   const ci = q.caseInfo;
 
   return (

@@ -1,7 +1,28 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { H } from '../../data';
 import { SCENES, TOTAL_WORDS } from './VocabSceneData.js';
+
+interface SceneItem {
+  id: string;
+  hr: string;
+  en: string;
+  icon: string;
+  note: string;
+  x: number;
+  y: number;
+}
+
+interface SceneInfo {
+  id: string;
+  title: string;
+  titleEn: string;
+  icon: string;
+  emoji: string;
+  color: string;
+  bg: string;
+  items: SceneItem[];
+  [key: string]: unknown;
+}
 
 // ─── Inline styles & CSS injection ───────────────────────────────────────────
 
@@ -60,7 +81,7 @@ const CONFETTI_COLORS = [
 export function Confetti() {
   const pieces = Array.from({ length: 28 }, (_, i) => ({
     id: i,
-    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length]!,
     left: `${(i / 28) * 100}%`,
     delay: `${(i * 0.07).toFixed(2)}s`,
     duration: `${1.2 + (i % 5) * 0.18}s`,
@@ -97,7 +118,7 @@ export function Confetti() {
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
-export function Toast({ text, onDone }) {
+export function Toast({ text, onDone }: { text: string; onDone: () => void }) {
   useEffect(() => {
     const t = setTimeout(onDone, 2200);
     return () => clearTimeout(t);
@@ -127,7 +148,17 @@ export function Toast({ text, onDone }) {
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
-export function ProgressBar({ value, max, color, height = 6 }) {
+export function ProgressBar({
+  value,
+  max,
+  color,
+  height = 6,
+}: {
+  value: number;
+  max: number;
+  color?: string;
+  height?: number;
+}) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
     <div style={{ height, background: 'rgba(0,0,0,.08)', borderRadius: 99, overflow: 'hidden' }}>
@@ -146,12 +177,24 @@ export function ProgressBar({ value, max, color, height = 6 }) {
 
 // ─── Scene Picker ─────────────────────────────────────────────────────────────
 
-export function ScenePicker({ onSelect, allDiscovered }) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function ScenePicker({
+  onSelect,
+  allDiscovered,
+}: {
+  onSelect: (scene: any) => void;
+  allDiscovered: Record<string, Set<string>>;
+}) {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const totalDiscovered = SCENES.reduce((s, sc) => s + (allDiscovered[sc.id]?.size ?? 0), 0);
 
   return (
     <div className="scr-wrap">
-      {H('🎭 Vocabulary Scenes', 'Tap objects in a scene to discover their Croatian names')}
+      {H(
+        '🎭 Vocabulary Scenes',
+        'Tap objects in a scene to discover their Croatian names',
+        () => {},
+      )}
 
       {/* Progress summary */}
       <div
@@ -258,7 +301,19 @@ export function ScenePicker({ onSelect, allDiscovered }) {
 
 // ─── Item Button ──────────────────────────────────────────────────────────────
 
-export function ItemButton({ item, discovered, isActive, isQuiz, onTap }) {
+export function ItemButton({
+  item,
+  discovered,
+  isActive,
+  isQuiz,
+  onTap,
+}: {
+  item: SceneItem;
+  discovered: boolean;
+  isActive: boolean;
+  isQuiz: boolean;
+  onTap: () => void;
+}) {
   const [justFound, setJustFound] = useState(false);
   const prevDisc = React.useRef(discovered);
 
@@ -272,8 +327,7 @@ export function ItemButton({ item, discovered, isActive, isQuiz, onTap }) {
     return undefined;
   }, [discovered]);
 
-  /** @type {import('react').CSSProperties} */
-  const baseStyle = {
+  const baseStyle: React.CSSProperties = {
     position: 'absolute',
     left: `${item.x}%`,
     top: `${item.y}%`,
@@ -375,6 +429,16 @@ export function ItemPopup({
   onSpeak,
   onAddSRS,
   onQuizAnswer,
+}: {
+  item: SceneItem;
+  scene: SceneInfo;
+  isAdded: boolean;
+  isQuiz: boolean;
+  quizRevealed: boolean;
+  onClose: () => void;
+  onSpeak: () => void;
+  onAddSRS: () => void;
+  onQuizAnswer: (result: boolean | null) => void;
 }) {
   return (
     <>
@@ -561,7 +625,15 @@ export function ItemPopup({
 
 // ─── Scene Complete Overlay ───────────────────────────────────────────────────
 
-export function SceneComplete({ scene, onNext, onBack }) {
+export function SceneComplete({
+  scene,
+  onNext,
+  onBack,
+}: {
+  scene: SceneInfo;
+  onNext: () => void;
+  onBack: () => void;
+}) {
   return (
     <div
       style={{

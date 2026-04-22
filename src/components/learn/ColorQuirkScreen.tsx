@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { COLORQUIRK } from '../../data';
 
-function ColorQuirkScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function ColorQuirkScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🎨 Color Quirks', 'Colors mean different things in Croatian!', goBack)}
@@ -23,11 +26,11 @@ function ColorQuirkScreen({ goBack }) {
             </div>
             <div style={{ fontSize: 14, color: '#0e7490', marginTop: 2 }}>
               {'Literal: '}
-              {q.literal}
+              {q.lit}
             </div>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#16a34a', marginTop: 2 }}>
-              {'Means: '}
-              {q.means}
+              {'Note: '}
+              {q.note}
             </div>
           </button>
         );

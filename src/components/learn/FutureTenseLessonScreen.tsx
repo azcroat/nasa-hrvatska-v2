@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -194,18 +193,31 @@ const QUIZ_QS = [
   },
 ];
 
-export default function FutureTenseLessonScreen({ goBack, award }) {
+interface QuizQ {
+  type: string;
+  prompt: string;
+  hint: string;
+  answer: string;
+  opts: string[];
+}
+export default function FutureTenseLessonScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [tab, setTab] = useState('fut1');
 
   // Quiz state
-  const [quizQs, setQuizQs] = useState([]);
+  const [quizQs, setQuizQs] = useState<QuizQ[]>([]);
   const [qi, setQi] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
-  const [opts, setOpts] = useState([]);
+  const [opts, setOpts] = useState<string[]>([]);
 
   function startQuiz() {
     const shuffled = sh([...QUIZ_QS]);
@@ -214,7 +226,7 @@ export default function FutureTenseLessonScreen({ goBack, award }) {
     setScore(0);
     setAnswered(false);
     setSelected(-1);
-    setOpts(shuffled[0].opts);
+    setOpts(shuffled[0]?.opts ?? []);
     setTab('quiz');
   }
 
@@ -832,6 +844,7 @@ export default function FutureTenseLessonScreen({ goBack, award }) {
           }
 
           const q = quizQs[qi];
+          if (!q) return null;
           const typeColors = {
             fut1: { bg: '#dbeafe', color: '#1e40af', label: 'Future I' },
             fut2: { bg: '#fce7f3', color: '#9d174d', label: 'Future II' },
@@ -839,7 +852,8 @@ export default function FutureTenseLessonScreen({ goBack, award }) {
             short: { bg: '#dcfce7', color: '#166534', label: 'Short form' },
             interrog: { bg: '#fef3c7', color: '#92400e', label: 'Question' },
           };
-          const tc = typeColors[q.type] || typeColors.fut1;
+          const tc =
+            (typeColors as Record<string, typeof typeColors.fut1>)[q.type] ?? typeColors.fut1;
 
           return (
             <div>
@@ -923,7 +937,7 @@ export default function FutureTenseLessonScreen({ goBack, award }) {
                   onClick={() => {
                     const next = qi + 1;
                     if (next < total) {
-                      setOpts(quizQs[next].opts);
+                      setOpts(quizQs[next]?.opts ?? []);
                       setQi(next);
                       setAnswered(false);
                       setSelected(-1);

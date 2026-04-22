@@ -1,14 +1,19 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { COUNTRIES, speak } from '../../data';
 
-const BACK_BTN = ({ goBack }) => (
+interface BackBtnProps3 {
+  goBack: () => void;
+}
+const BACK_BTN = ({ goBack }: BackBtnProps3) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
     ← Back
   </button>
 );
 
-const WRAP = ({ children }) => (
+interface WrapProps3 {
+  children: React.ReactNode;
+}
+const WRAP = ({ children }: WrapProps3) => (
   <div
     style={{
       maxWidth: 620,
@@ -23,7 +28,13 @@ const WRAP = ({ children }) => (
   </div>
 );
 
-const HERO = ({ icon, title, subtitle, color }) => (
+interface HeroProps3 {
+  icon: string;
+  title: string;
+  subtitle: string;
+  color: string;
+}
+const HERO = ({ icon, title, subtitle, color }: HeroProps3) => (
   <div
     style={{
       background: `linear-gradient(135deg,${color}dd,${color})`,
@@ -43,9 +54,15 @@ const HERO = ({ icon, title, subtitle, color }) => (
   </div>
 );
 
-const TAB_NAV = ({ tabs, active, setActive, accent }) => (
+interface TabNavProps3 {
+  tabs: string[];
+  active: string;
+  setActive: (t: string) => void;
+  accent: string;
+}
+const TAB_NAV = ({ tabs, active, setActive, accent }: TabNavProps3) => (
   <div style={{ display: 'flex', gap: 4, marginBottom: 20, overflowX: 'auto', paddingBottom: 2 }}>
-    {tabs.map((t) => (
+    {tabs.map((t: string) => (
       <button
         key={t}
         onClick={() => setActive(t)}
@@ -67,7 +84,10 @@ const TAB_NAV = ({ tabs, active, setActive, accent }) => (
   </div>
 );
 
-const TIP_BOX = ({ text }) => (
+interface TipBoxProps3 {
+  text: string;
+}
+const TIP_BOX = ({ text }: TipBoxProps3) => (
   <div
     style={{
       background: 'rgba(14,116,144,.06)',
@@ -85,11 +105,20 @@ const TIP_BOX = ({ text }) => (
   </div>
 );
 
-const QUIZ_SECTION = ({ quiz, accent }) => {
-  const [answers, setAnswers] = useState({});
+interface QuizItem3 {
+  q: string;
+  opts: string[];
+  a: string;
+}
+interface QuizSectionProps3 {
+  quiz: QuizItem3[];
+  accent: string;
+}
+const QUIZ_SECTION = ({ quiz, accent: _accent }: QuizSectionProps3) => {
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   return (
     <div>
-      {quiz.map((q, i) => (
+      {quiz.map((q: QuizItem3, i: number) => (
         <div
           key={i}
           style={{
@@ -105,7 +134,7 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
             {i + 1}. {q.q}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {q.opts.map((opt, j) => {
+            {q.opts.map((opt: string, j: number) => {
               const sel = answers[i];
               const correct = opt === q.a;
               let bg = '#f5f5f4',
@@ -150,11 +179,11 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
               style={{
                 marginTop: 8,
                 fontSize: 11,
-                color: q.opts[answers[i]] === q.a ? '#15803d' : '#b91c1c',
+                color: q.opts[answers[i] as number] === q.a ? '#15803d' : '#b91c1c',
                 fontWeight: 700,
               }}
             >
-              {q.opts[answers[i]] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
+              {q.opts[answers[i] as number] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
             </div>
           )}
         </div>
@@ -163,7 +192,10 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
   );
 };
 
-function CountriesScreen({ goBack }) {
+interface CountriesScreenProps {
+  goBack: () => void;
+}
+function CountriesScreen({ goBack }: CountriesScreenProps) {
   const [tab, setTab] = useState('Countries');
   const d = COUNTRIES;
   return (

@@ -1,12 +1,16 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { SVOJMOJ } from '../../data';
 
-function SvojMojScreen({ goBack, award }) {
-  const [quizAnswers, setQuizAnswers] = useState({});
+interface QuizAnswer {
+  chosen: string;
+  note: string;
+}
 
-  function handleQuiz(qi, o, correct, note) {
+function SvojMojScreen({ goBack, award }: { goBack: () => void; award?: (pts: number) => void }) {
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, QuizAnswer>>({});
+
+  function handleQuiz(qi: number, o: string, correct: string, note: string): void {
     if (quizAnswers[qi] !== undefined) return;
     setQuizAnswers((prev) => ({ ...prev, [qi]: { chosen: o, note } }));
     if (o === correct && award) award(5);

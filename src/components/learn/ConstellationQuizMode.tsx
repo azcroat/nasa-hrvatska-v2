@@ -1,26 +1,43 @@
-// @ts-nocheck
 // ── GrammarConstellation — Quiz mode ──────────────────────────
 import React, { useMemo } from 'react';
 import { CASES } from './ConstellationData.js';
 import { sh } from '../../data';
 
+interface QuizItem {
+  q: string;
+  answer: string;
+  options: string[];
+}
+interface Props {
+  quizIdx: number;
+  quizTotal: number;
+  shuffledQuiz: QuizItem[];
+  quizScore: number;
+  selected: string | null;
+  answered: boolean;
+  onBackToExplore: () => void;
+  onAnswer: (opt: string) => void;
+  onNext: () => void;
+}
 export default function ConstellationQuizMode({
   quizIdx,
   quizTotal,
   shuffledQuiz,
-  quizScore,
+  quizScore: _quizScore,
   selected,
   answered,
   onBackToExplore,
   onAnswer,
   onNext,
-}) {
+}: Props) {
   const currentQ = shuffledQuiz[quizIdx];
   const shuffledOptions = useMemo(
-    () => sh([...currentQ.options]),
+    () => (currentQ ? sh([...currentQ.options]) : []),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [quizIdx],
   );
+
+  if (!currentQ) return null;
 
   return (
     <>

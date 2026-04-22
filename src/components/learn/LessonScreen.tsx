@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import {
@@ -32,6 +31,36 @@ const CONFETTI_COLORS = [
   '#e879f9',
 ];
 
+interface LessonScreenProps {
+  lt: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  li: any[];
+  lx: number;
+  ls: number;
+  lp: string;
+  la: boolean;
+  lsl: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  qi: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icons: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sLi: (items: any[]) => void;
+  sLx: (x: number | ((prev: number) => number)) => void;
+  sLs: (s: number | ((prev: number) => number)) => void;
+  sLp: (p: string) => void;
+  sLa: (a: boolean) => void;
+  sLsl: (sl: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sQi: (qi: any[]) => void;
+  goBack: () => void;
+  award?: (pts: number, celebrate?: boolean) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setSt: (fn: (prev: any) => any) => void;
+  setScr: (screen: string) => void;
+  goToPractice?: () => void;
+}
+
 export default function LessonScreen({
   lt,
   li,
@@ -54,7 +83,7 @@ export default function LessonScreen({
   setSt,
   setScr,
   goToPractice,
-}) {
+}: LessonScreenProps) {
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
 
@@ -70,6 +99,7 @@ export default function LessonScreen({
       speak(li[0][0]);
     }, 600);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lp]);
 
   // Knight reacts across all lesson phases
@@ -93,7 +123,7 @@ export default function LessonScreen({
           text: 'Polako! Take your time with each word. Speed comes naturally — depth comes from attention. ⚔️',
         },
       ];
-      const tip = tips[Math.floor(Math.random() * tips.length)];
+      const tip = tips[Math.floor(Math.random() * tips.length)]!;
       knightSpeak(tip.mood, tip.text, 900);
       return;
     }
@@ -108,6 +138,7 @@ export default function LessonScreen({
           : 'Svaki početak je težak — every beginning is hard. Come back and it gets easier. 🛡️',
       400,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lp]);
   const [showFlashcards, setShowFlashcards] = useState(false);
   const earnedXp = qi.length > 0 ? Math.round((ls / qi.length) * 30) + 5 : 5;
@@ -129,10 +160,11 @@ export default function LessonScreen({
 
   // Build a lookup from Croatian infinitive → aspect pair info
   const aspectMap = useMemo(() => {
-    const map = {};
-    (ASPECT_PAIRS || []).forEach((pair) => {
-      if (pair.impf) map[pair.impf] = pair;
-      if (pair.pf) map[pair.pf] = pair;
+    const map: Record<string, unknown> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (ASPECT_PAIRS || []).forEach((pair: any) => {
+      if (pair.impf) map[pair.impf as string] = pair;
+      if (pair.pf) map[pair.pf as string] = pair;
     });
     return map;
   }, []);
@@ -141,9 +173,13 @@ export default function LessonScreen({
   // Press 1–4 to select an answer; Enter or Space to advance after answering.
   useEffect(() => {
     if (lp !== 'quiz' || !qi[lx]) return;
-    function handleKey(e) {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      const num = { '1': 0, '2': 1, '3': 2, '4': 3 }[e.key];
+    function handleKey(e: KeyboardEvent): void {
+      if (
+        (e.target as HTMLElement).tagName === 'INPUT' ||
+        (e.target as HTMLElement).tagName === 'TEXTAREA'
+      )
+        return;
+      const num = ({ '1': 0, '2': 1, '3': 2, '4': 3 } as Record<string, number>)[e.key];
       if (num !== undefined && !la && num < qi[lx].opts.length) {
         e.preventDefault();
         sLsl(num);
@@ -157,7 +193,8 @@ export default function LessonScreen({
           playWrong();
           haptic([40, 30, 40]);
         }
-        srMark(qi[lx][0], ok);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        srMark((qi[lx] as any)?.[0], ok, undefined);
         recordTopicResult('vocabulary', ok);
       }
       if ((e.key === 'Enter' || e.key === ' ') && la) {
@@ -191,6 +228,7 @@ export default function LessonScreen({
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lp, lx, la, ls, qi]);
 
   /* ── FLASHCARDS OVERLAY ───────────────────────────────────────── */
@@ -202,7 +240,7 @@ export default function LessonScreen({
   if (lp === 'learn')
     return (
       <div className="scr-wrap">
-        {H((icons?.[lt] || '📚') + ' ' + lt)}
+        {H((icons?.[lt] || '📚') + ' ' + lt, '', goBack)}
         <div
           style={{
             background: 'linear-gradient(135deg, var(--info-bg), rgba(14,116,144,0.08))',
@@ -313,12 +351,13 @@ export default function LessonScreen({
                   )}
                   {/* Aspect pair */}
                   {(() => {
-                    const pair = aspectMap[w[0]];
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const pair = aspectMap[w[0]] as any;
                     if (!pair) return null;
                     const partner =
                       pair.impf === w[0]
-                        ? { label: 'pf', word: pair.pf }
-                        : { label: 'impf', word: pair.impf };
+                        ? { label: 'pf', word: pair.pf as string }
+                        : { label: 'impf', word: pair.impf as string };
                     return (
                       <div
                         style={{
@@ -334,7 +373,7 @@ export default function LessonScreen({
                         }}
                       >
                         <span style={{ color: 'var(--info)', fontWeight: 700 }}>
-                          {pair.impf === w[0] ? 'impf' : 'pf'}
+                          {(pair as { impf?: string }).impf === w[0] ? 'impf' : 'pf'}
                         </span>
                         <span style={{ color: 'var(--subtext)' }}>↔</span>
                         <span
@@ -607,7 +646,7 @@ export default function LessonScreen({
             </div>
           )}
 
-          {qi[lx].opts.map((o, i) => (
+          {qi[lx].opts.map((o: string, i: number) => (
             <button
               key={i}
               className={'ob ' + (la ? (i === qi[lx].ci ? 'ok' : lsl === i ? 'no' : '') : '')}
@@ -637,7 +676,8 @@ export default function LessonScreen({
                     playWrong();
                     haptic([40, 30, 40]);
                   }
-                  srMark(qi[lx][0], ok);
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  srMark((qi[lx] as any)?.[0], ok, undefined);
                   recordTopicResult('vocabulary', ok);
                 }
               }}
@@ -1167,16 +1207,16 @@ export default function LessonScreen({
                   <span
                     role="button"
                     tabIndex={0}
-                    onClick={() => speak(culturalCity.vocab[0].hr)}
+                    onClick={() => speak(culturalCity.vocab[0]!.hr)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') speak(culturalCity.vocab[0].hr);
+                      if (e.key === 'Enter') speak(culturalCity.vocab[0]!.hr);
                     }}
                     style={{ fontSize: 14, fontWeight: 800, color: 'white', cursor: 'pointer' }}
                   >
-                    🔊 {culturalCity.vocab[0].hr}
+                    🔊 {culturalCity.vocab[0]!.hr}
                   </span>
                   <span style={{ fontSize: 12, color: 'rgba(255,255,255,.6)' }}>
-                    {culturalCity.vocab[0].en}
+                    {culturalCity.vocab[0]!.en}
                   </span>
                 </div>
               )}
@@ -1305,7 +1345,7 @@ export default function LessonScreen({
               }}
               onClick={() => {
                 resultFired.current = false;
-                sLi(shuffleArr(V[lt] || []));
+                sLi(shuffleArr((V as Record<string, unknown[]>)[lt] || []));
                 sLx(0);
                 sLs(0);
                 sLp('learn');

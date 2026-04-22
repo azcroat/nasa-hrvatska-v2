@@ -1,13 +1,18 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { BODYDESC, speak } from '../../data';
 
-const BACK_BTN = ({ goBack }) => (
+interface BackBtnProps {
+  goBack: () => void;
+}
+const BACK_BTN = ({ goBack }: BackBtnProps) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
     ← Back
   </button>
 );
-const WRAP = ({ children }) => (
+interface WrapProps {
+  children: React.ReactNode;
+}
+const WRAP = ({ children }: WrapProps) => (
   <div
     style={{
       maxWidth: 620,
@@ -21,7 +26,13 @@ const WRAP = ({ children }) => (
     {children}
   </div>
 );
-const HERO = ({ icon, title, subtitle, color }) => (
+interface HeroProps {
+  icon: string;
+  title: string;
+  subtitle: string;
+  color: string;
+}
+const HERO = ({ icon, title, subtitle, color }: HeroProps) => (
   <div
     style={{
       background: `linear-gradient(135deg,${color}dd,${color})`,
@@ -40,9 +51,15 @@ const HERO = ({ icon, title, subtitle, color }) => (
     </div>
   </div>
 );
-const TAB_NAV = ({ tabs, active, setActive, accent }) => (
+interface TabNavProps {
+  tabs: string[];
+  active: string;
+  setActive: (t: string) => void;
+  accent: string;
+}
+const TAB_NAV = ({ tabs, active, setActive, accent }: TabNavProps) => (
   <div style={{ display: 'flex', gap: 4, marginBottom: 20, overflowX: 'auto', paddingBottom: 2 }}>
-    {tabs.map((t) => (
+    {tabs.map((t: string) => (
       <button
         key={t}
         onClick={() => setActive(t)}
@@ -63,7 +80,10 @@ const TAB_NAV = ({ tabs, active, setActive, accent }) => (
     ))}
   </div>
 );
-const TIP_BOX = ({ text }) => (
+interface TipBoxProps {
+  text: string;
+}
+const TIP_BOX = ({ text }: TipBoxProps) => (
   <div
     style={{
       background: 'rgba(14,116,144,.06)',
@@ -80,11 +100,21 @@ const TIP_BOX = ({ text }) => (
     {text}
   </div>
 );
-const QUIZ_SECTION = ({ quiz, accent }) => {
-  const [answers, setAnswers] = useState({});
+
+interface QuizItem {
+  q: string;
+  opts: string[];
+  a: string;
+}
+interface QuizSectionProps {
+  quiz: QuizItem[];
+  accent: string;
+}
+const QUIZ_SECTION = ({ quiz, accent }: QuizSectionProps) => {
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   return (
     <div>
-      {quiz.map((q, i) => (
+      {quiz.map((q: QuizItem, i: number) => (
         <div
           key={i}
           style={{
@@ -100,7 +130,7 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
             {i + 1}. {q.q}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {q.opts.map((opt, j) => {
+            {q.opts.map((opt: string, j: number) => {
               const sel = answers[i];
               const correct = opt === q.a;
               let bg = '#f5f5f4',
@@ -145,11 +175,11 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
               style={{
                 marginTop: 8,
                 fontSize: 11,
-                color: q.opts[answers[i]] === q.a ? '#15803d' : '#b91c1c',
+                color: q.opts[answers[i] as number] === q.a ? '#15803d' : '#b91c1c',
                 fontWeight: 700,
               }}
             >
-              {q.opts[answers[i]] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
+              {q.opts[answers[i] as number] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
             </div>
           )}
         </div>
@@ -158,7 +188,10 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
   );
 };
 
-function BodyDescScreen({ goBack }) {
+interface BodyDescScreenProps {
+  goBack: () => void;
+}
+function BodyDescScreen({ goBack }: BodyDescScreenProps) {
   const [tab, setTab] = useState('Description');
   const [secIdx, setSecIdx] = useState(0);
   const d = BODYDESC;
@@ -199,7 +232,7 @@ function BodyDescScreen({ goBack }) {
             ))}
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
-            {sec.items.map((item, i) => (
+            {(sec?.items ?? []).map((item, i) => (
               <div
                 key={i}
                 role="button"

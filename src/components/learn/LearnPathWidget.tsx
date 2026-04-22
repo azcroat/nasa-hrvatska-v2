@@ -1,5 +1,5 @@
-// @ts-nocheck
 import React from 'react';
+import type { Stats } from '../../types/index';
 import CroatianKnight from '../shared/CroatianKnight';
 
 // ─── LearnPathWidget ──────────────────────────────────────────────────────────
@@ -17,7 +17,7 @@ const JOURNEY_STOPS = [
   { icon: '🗺️', name: 'Krk', tagline: 'Oldest Croatian', color: '#be185d' },
 ];
 
-function JourneyStrip({ currentLevel }) {
+function JourneyStrip({ currentLevel }: { currentLevel: number }) {
   return (
     <div
       style={{
@@ -61,7 +61,7 @@ function JourneyStrip({ currentLevel }) {
                     borderRadius: 3,
                     background:
                       isDone || isCurrent
-                        ? `linear-gradient(90deg, ${JOURNEY_STOPS[i - 1].color}, ${stop.color})`
+                        ? `linear-gradient(90deg, ${JOURNEY_STOPS[i - 1]?.color ?? stop.color}, ${stop.color})`
                         : 'rgba(148,163,184,.35)',
                     transition: 'background .4s ease',
                     flexShrink: 0,
@@ -191,6 +191,46 @@ function JourneyStrip({ currentLevel }) {
   );
 }
 
+interface PathItem {
+  id: string;
+  name: string;
+  diff?: number;
+  dur?: string;
+  description?: string;
+  label?: string;
+  [key: string]: unknown;
+}
+
+interface Stage {
+  level: number;
+  title: string;
+  desc: string;
+  items: PathItem[];
+}
+
+interface StageColor {
+  bg: string;
+  light: string;
+  border: string;
+}
+
+interface LearnPathWidgetProps {
+  sc: StageColor;
+  currentStage: Stage | null;
+  currentStageDone: number;
+  overallPct: number;
+  stagePct: number;
+  totalDone: number;
+  totalItems: number;
+  nextItem: PathItem | null;
+  cefrLevel: string;
+  cefrPct: number;
+  setScr: (screen: string) => void;
+  setTab?: (tab: string) => void;
+  st: Stats | null;
+  handleLaunchPathItem: (item: PathItem) => void;
+}
+
 export default function LearnPathWidget({
   sc,
   currentStage,
@@ -206,7 +246,7 @@ export default function LearnPathWidget({
   setTab,
   st,
   handleLaunchPathItem,
-}) {
+}: LearnPathWidgetProps) {
   return (
     <div
       style={{

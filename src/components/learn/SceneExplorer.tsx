@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { speak } from '../../lib/audio.js';
 import {
@@ -19,14 +18,47 @@ import {
   Toast,
 } from './VocabSceneComponents';
 
-export default function SceneExplorer({ scene, onBack, onNextScene, award }) {
+interface SceneItem {
+  id: string;
+  hr: string;
+  en: string;
+  icon: string;
+  note: string;
+  x: number;
+  y: number;
+}
+
+interface Scene {
+  id: string;
+  title: string;
+  titleEn: string;
+  icon: string;
+  emoji: string;
+  color: string;
+  bg: string;
+  sceneStyle: Record<string, string | number>;
+  items: SceneItem[];
+  [key: string]: unknown;
+}
+
+export default function SceneExplorer({
+  scene,
+  onBack,
+  onNextScene,
+  award,
+}: {
+  scene: Scene;
+  onBack: () => void;
+  onNextScene: () => void;
+  award?: (pts: number) => void;
+}) {
   const [discovered, setDiscovered] = useState(() => loadDiscovered(scene.id));
-  const [activeItem, setActiveItem] = useState(null);
+  const [activeItem, setActiveItem] = useState<SceneItem | null>(null);
   const [addedToSRS, setAddedToSRS] = useState(() => loadSRS());
   const [viewMode, setViewMode] = useState('explore');
   const [quizScore, setQuizScore] = useState({ known: 0, unknown: 0 });
   const [quizRevealed, setQuizRevealed] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [showComplete, setShowComplete] = useState(false);
   const [completeFired, setCompleteFired] = useState(false);
   const awardFired = useRef(false);
@@ -47,7 +79,7 @@ export default function SceneExplorer({ scene, onBack, onNextScene, award }) {
   }, [discCount, total, completeFired, award]);
 
   const handleItemTap = useCallback(
-    (item) => {
+    (item: SceneItem) => {
       // Mark discovered
       setDiscovered((prev) => {
         if (!prev.has(item.id)) {
@@ -82,7 +114,8 @@ export default function SceneExplorer({ scene, onBack, onNextScene, award }) {
 
     // Persist to SRS queue
     const queue = loadSRSQueue();
-    const exists = queue.some((q) => q.hr === activeItem.hr && q.en === activeItem.en);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const exists = (queue as any[]).some((q) => q.hr === activeItem.hr && q.en === activeItem.en);
     if (!exists) {
       queue.push({ hr: activeItem.hr, en: activeItem.en, note: activeItem.note });
       saveSRSQueue(queue);
@@ -92,7 +125,7 @@ export default function SceneExplorer({ scene, onBack, onNextScene, award }) {
   }, [activeItem, addedToSRS, scene.id]);
 
   const handleQuizAnswer = useCallback(
-    (result) => {
+    (result: boolean | null) => {
       if (result === null) {
         // "Reveal" pressed
         setQuizRevealed(true);
@@ -201,7 +234,8 @@ export default function SceneExplorer({ scene, onBack, onNextScene, award }) {
         }}
       >
         {/* SVG illustration background */}
-        {SCENE_SVGS[scene.id] || (
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {(SCENE_SVGS as Record<string, any>)[scene.id] || (
           <div
             style={{
               position: 'absolute',

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * HeritageModeScreen — Heritage Learner Mode for the Croatian diaspora.
  *
@@ -212,7 +211,13 @@ const BAKA_PHRASES = [
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function HeritageModeScreen({ goBack, award }) {
+export default function HeritageModeScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number) => void;
+}) {
   const { setScr } = useApp();
 
   // Active section: 'check' | 'dialect' | 'gaps' | 'baka' | 'done'
@@ -220,7 +225,7 @@ export default function HeritageModeScreen({ goBack, award }) {
   const [sectionsVisited, setSectionsVisited] = useState(new Set(['check']));
 
   // Section 1 state
-  const [wordKnown, setWordKnown] = useState({});
+  const [wordKnown, setWordKnown] = useState<Record<number, string>>({});
   const [checkDone, setCheckDone] = useState(false);
 
   // Section 2 state
@@ -229,7 +234,7 @@ export default function HeritageModeScreen({ goBack, award }) {
   );
 
   // Section 3 state
-  const [gapRatings, setGapRatings] = useState({});
+  const [gapRatings, setGapRatings] = useState<Record<string, number>>({});
 
   // Section 4 state
   const [savedPhrases, setSavedPhrases] = useState(() => {
@@ -256,7 +261,7 @@ export default function HeritageModeScreen({ goBack, award }) {
     } catch {}
   }, []);
 
-  function visitSection(id) {
+  function visitSection(id: string): void {
     setSection(id);
     setSectionsVisited((prev) => new Set([...prev, id]));
   }

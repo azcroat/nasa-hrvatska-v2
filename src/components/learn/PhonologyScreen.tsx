@@ -1,13 +1,12 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { PHONOLOGY, speak } from '../../data';
 
-const BACK_BTN = ({ goBack }) => (
+const BACK_BTN = ({ goBack }: { goBack: () => void }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
     ← Back
   </button>
 );
-const WRAP = ({ children }) => (
+const WRAP = ({ children }: { children: React.ReactNode }) => (
   <div
     style={{
       maxWidth: 620,
@@ -21,7 +20,17 @@ const WRAP = ({ children }) => (
     {children}
   </div>
 );
-const HERO = ({ icon, title, subtitle, color }) => (
+const HERO = ({
+  icon,
+  title,
+  subtitle,
+  color,
+}: {
+  icon: string;
+  title: string;
+  subtitle: string;
+  color: string;
+}) => (
   <div
     style={{
       background: `linear-gradient(135deg,${color}dd,${color})`,
@@ -40,9 +49,19 @@ const HERO = ({ icon, title, subtitle, color }) => (
     </div>
   </div>
 );
-const TAB_NAV = ({ tabs, active, setActive, accent }) => (
+const TAB_NAV = ({
+  tabs,
+  active,
+  setActive,
+  accent,
+}: {
+  tabs: string[];
+  active: string;
+  setActive: (t: string) => void;
+  accent: string;
+}) => (
   <div style={{ display: 'flex', gap: 4, marginBottom: 20, overflowX: 'auto', paddingBottom: 2 }}>
-    {tabs.map((t) => (
+    {tabs.map((t: string) => (
       <button
         key={t}
         onClick={() => setActive(t)}
@@ -63,7 +82,7 @@ const TAB_NAV = ({ tabs, active, setActive, accent }) => (
     ))}
   </div>
 );
-const TIP_BOX = ({ text }) => (
+const TIP_BOX = ({ text }: { text: string }) => (
   <div
     style={{
       background: 'rgba(14,116,144,.06)',
@@ -80,11 +99,17 @@ const TIP_BOX = ({ text }) => (
     {text}
   </div>
 );
-const QUIZ_SECTION = ({ quiz, accent }) => {
-  const [answers, setAnswers] = useState({});
+interface PhonQuizItem {
+  q: string;
+  opts: string[];
+  a: string;
+}
+
+const QUIZ_SECTION = ({ quiz, accent }: { quiz: PhonQuizItem[]; accent: string }) => {
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   return (
     <div>
-      {quiz.map((q, i) => (
+      {quiz.map((q: PhonQuizItem, i: number) => (
         <div
           key={i}
           style={{
@@ -100,7 +125,7 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
             {i + 1}. {q.q}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {q.opts.map((opt, j) => {
+            {q.opts.map((opt: string, j: number) => {
               const sel = answers[i];
               const correct = opt === q.a;
               let bg = '#f5f5f4',
@@ -145,11 +170,11 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
               style={{
                 marginTop: 8,
                 fontSize: 11,
-                color: q.opts[answers[i]] === q.a ? '#15803d' : '#b91c1c',
+                color: q.opts[answers[i]!] === q.a ? '#15803d' : '#b91c1c',
                 fontWeight: 700,
               }}
             >
-              {q.opts[answers[i]] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
+              {q.opts[answers[i]!] === q.a ? '✓ Correct!' : `✗ Answer: ${q.a}`}
             </div>
           )}
         </div>
@@ -158,9 +183,9 @@ const QUIZ_SECTION = ({ quiz, accent }) => {
   );
 };
 
-function PhonologyScreen({ goBack }) {
+function PhonologyScreen({ goBack }: { goBack: () => void }) {
   const [tab, setTab] = useState('Letters');
-  const [selLetter, setSelLetter] = useState(null);
+  const [selLetter, setSelLetter] = useState<number | null>(null);
   const d = PHONOLOGY;
   return (
     <WRAP>
@@ -206,7 +231,7 @@ function PhonologyScreen({ goBack }) {
           </div>
           {selLetter !== null &&
             (() => {
-              const l = d.letters[selLetter];
+              const l = d.letters[selLetter]!;
               return (
                 <div
                   style={{
@@ -317,7 +342,7 @@ function PhonologyScreen({ goBack }) {
                     padding: '10px',
                     cursor: 'pointer',
                   }}
-                  onClick={() => speak(p.example_a.split(' ')[0])}
+                  onClick={() => speak(p.example_a.split(' ')[0] ?? '')}
                 >
                   <div style={{ fontSize: 26, fontWeight: 900, color: '#b45309' }}>{p.a}</div>
                   <div style={{ fontSize: 11, color: '#44403c', marginTop: 4 }}>{p.example_a}</div>
@@ -336,7 +361,7 @@ function PhonologyScreen({ goBack }) {
                     padding: '10px',
                     cursor: 'pointer',
                   }}
-                  onClick={() => speak(p.example_b.split(' ')[0])}
+                  onClick={() => speak(p.example_b.split(' ')[0] ?? '')}
                 >
                   <div style={{ fontSize: 26, fontWeight: 900, color: '#b45309' }}>{p.b}</div>
                   <div style={{ fontSize: 11, color: '#44403c', marginTop: 4 }}>{p.example_b}</div>

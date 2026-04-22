@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { V, GRAM } from '../../data';
 
@@ -47,17 +46,36 @@ const CEFR_STYLE = {
   B1: { color: 'var(--warning,#d97706)', bg: 'var(--warning-bg,rgba(217,119,6,.1))' },
   B2: { color: 'var(--lavender,#7c3aed)', bg: 'var(--bar-bg)' },
 };
-function getVocabCEFR(cat, wordCount) {
+function getVocabCEFR(cat: string, wordCount: number) {
   const key = (cat || '').toLowerCase();
-  if (VOCAB_CEFR[key]) return VOCAB_CEFR[key];
+  if (VOCAB_CEFR[key as keyof typeof VOCAB_CEFR]) return VOCAB_CEFR[key as keyof typeof VOCAB_CEFR];
   if (wordCount < 15) return 'A1';
   if (wordCount < 25) return 'A2';
   return 'B1';
 }
 
+// ─── Shared tuple types for grammar/vocab map arrays ──────────────────────────
+type GrammarTile = [string, string, string, () => void];
+type GrammarTile5 = [string, string, string, string, () => void];
+type RefTile = [string, string, string];
+function tiles4(arr: GrammarTile[]): GrammarTile[] {
+  return arr;
+}
+function tiles5(arr: GrammarTile5[]): GrammarTile5[] {
+  return arr;
+}
+function tiles3(arr: RefTile[]): RefTile[] {
+  return arr;
+}
+
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-function LevelBadge({ label, color, bg }) {
+interface LevelBadgeProps {
+  label: string;
+  color: string;
+  bg: string;
+}
+function LevelBadge({ label, color, bg }: LevelBadgeProps) {
   return (
     <span
       style={{
@@ -77,7 +95,14 @@ function LevelBadge({ label, color, bg }) {
   );
 }
 
-function Section({ title, icon, count, defaultOpen = false, children }) {
+interface SectionProps {
+  title: string;
+  icon: string;
+  count?: string | number;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}
+function Section({ title, icon, count, defaultOpen = false, children }: SectionProps) {
   const [open, setOpen] = React.useState(defaultOpen);
   const sectionId = `section-content-${title.toLowerCase().replace(/\s+/g, '-')}`;
   return (
@@ -149,6 +174,23 @@ function Section({ title, icon, count, defaultOpen = false, children }) {
 
 // ─── BrowseContentModal ───────────────────────────────────────────────────────
 
+interface BrowseContentModalProps {
+  allCats: string[];
+  icons: Record<string, string>;
+  st?: { ct?: string[]; gc?: number } | null;
+  setScr: (screen: string) => void;
+  sCurEx: (ex: string) => void;
+  sGl: (lesson: unknown) => void;
+  sGp: (phase: string) => void;
+  sGx: (idx: number) => void;
+  sGs: (score: number) => void;
+  sGa: (val: boolean) => void;
+  sGsl: (idx: number) => void;
+  launchVocab: (cat: string) => void;
+  launchAnimLesson?: ((id: string) => void) | null;
+  onClose: () => void;
+}
+
 export default function BrowseContentModal({
   allCats,
   icons,
@@ -164,7 +206,7 @@ export default function BrowseContentModal({
   launchVocab,
   launchAnimLesson,
   onClose,
-}) {
+}: BrowseContentModalProps) {
   return (
     <div
       style={{
@@ -264,7 +306,7 @@ export default function BrowseContentModal({
                     <div
                       style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}
                     >
-                      {V[t].length} words
+                      {((V as Record<string, string[][]>)[t] ?? []).length} words
                     </div>
                     <div
                       style={{
@@ -275,14 +317,18 @@ export default function BrowseContentModal({
                         lineHeight: 1.3,
                       }}
                     >
-                      {(V[t] || [])
+                      {((V as Record<string, string[][]>)[t] ?? [])
                         .slice(0, 2)
-                        .map((w) => w[0])
+                        .map((w: string[]) => w[0] ?? '')
                         .join(' · ')}
                     </div>
                     {(() => {
-                      const cefr = getVocabCEFR(t, (V[t] || []).length);
-                      const { color, bg } = CEFR_STYLE[cefr] || CEFR_STYLE.A2;
+                      const cefr = getVocabCEFR(
+                        t,
+                        ((V as Record<string, string[][]>)[t] ?? []).length,
+                      );
+                      const { color, bg } =
+                        CEFR_STYLE[cefr as keyof typeof CEFR_STYLE] ?? CEFR_STYLE.A2;
                       return (
                         <span
                           style={{
@@ -317,14 +363,14 @@ export default function BrowseContentModal({
               Themes
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-              {[
+              {tiles3([
                 ['🌍', 'Countries', 'countries'],
                 ['💼', 'Professions', 'professions'],
                 ['🌤️', 'Weather', 'weather'],
                 ['👗', 'Clothing', 'clothes'],
                 ['👤', 'Appearance', 'bodydesc'],
                 ['🔤', 'Pronunciation', 'phonology'],
-              ].map(([icon, label, screen]) => (
+              ]).map(([icon, label, screen]) => (
                 <button
                   key={screen}
                   className="tc"
@@ -354,7 +400,7 @@ export default function BrowseContentModal({
             <div
               style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}
             >
-              {[
+              {tiles4([
                 [
                   '📜',
                   'Grammar Intro',
@@ -403,7 +449,7 @@ export default function BrowseContentModal({
                     sCurEx('boje');
                   },
                 ],
-              ].map((/** @type {any} */ [icon, label, cefr, fn]) => (
+              ]).map(([icon, label, cefr, fn]) => (
                 <button
                   key={label}
                   className="tc"
@@ -442,7 +488,7 @@ export default function BrowseContentModal({
             <div
               style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}
             >
-              {[
+              {tiles4([
                 [
                   '📚',
                   'Padeži Master',
@@ -469,7 +515,7 @@ export default function BrowseContentModal({
                     sCurEx('conjdrill');
                   },
                 ],
-              ].map((/** @type {any} */ [icon, label, cefr, fn]) => (
+              ]).map(([icon, label, cefr, fn]) => (
                 <button
                   key={label}
                   className="tc"
@@ -506,7 +552,7 @@ export default function BrowseContentModal({
               <div style={{ flex: 1, height: 1, background: 'var(--card-b)' }} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {[
+              {tiles4([
                 [
                   '🔮',
                   'Modal Verbs',
@@ -528,7 +574,7 @@ export default function BrowseContentModal({
                 ['🔁', 'Impersonal', 'b2', () => setScr('impersonal')],
                 ['💻', 'Tech & Digital', 'b2', () => setScr('techvoc')],
                 ['🏛️', 'Admin Life', 'b2', () => setScr('bureaucratic')],
-              ].map((/** @type {any} */ [icon, label, cefr, fn]) => (
+              ]).map(([icon, label, cefr, fn]) => (
                 <button
                   key={label}
                   className="tc"
@@ -678,7 +724,7 @@ export default function BrowseContentModal({
             defaultOpen={true}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {[
+              {tiles5([
                 // ── Animated Grammar Lessons (22 total, A1→C1) ──────────────────────
                 [
                   '🔤',
@@ -871,7 +917,7 @@ export default function BrowseContentModal({
                     setScr('grammarreader');
                   },
                 ],
-              ].map((/** @type {any[]} */ [icon, label, sub, key, fn]) => (
+              ]).map(([icon, label, sub, key, fn]) => (
                 <button
                   key={key}
                   className="tc"
@@ -911,7 +957,7 @@ export default function BrowseContentModal({
         {/* Reference */}
         <Section title="Quick Reference" icon="📌" count="13 guides" defaultOpen={false}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-            {[
+            {tiles3([
               ['🔤', 'Alphabet', 'alphabet'],
               ['🧩', 'Word Patterns', 'wordform'],
               ['🐣', 'Diminutives', 'diminutives'],
@@ -925,7 +971,7 @@ export default function BrowseContentModal({
               ['💻', 'Tech & Digital', 'techvoc'],
               ['🏛️', 'Admin Life', 'bureaucratic'],
               ['🎭', 'Ti vs Vi', 'tivicompare'],
-            ].map(([icon, label, screen]) => (
+            ]).map(([icon, label, screen]) => (
               <button
                 key={screen}
                 className="tc"

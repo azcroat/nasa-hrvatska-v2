@@ -1,7 +1,23 @@
-// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 import { GENDER_COLOR, GENDER_BG, GENDER_LABEL, CT_STYLES } from './CaseTransformerData.js';
+
+interface Noun {
+  hr: string;
+  en: string;
+  gender: string;
+  type?: string;
+  irregular?: boolean;
+}
+interface Props {
+  goBack: () => void;
+  filteredNouns: Noun[];
+  search: string;
+  setSearch: (s: string) => void;
+  genderFilter: string;
+  setGenderFilter: (g: string) => void;
+  onPickNoun: (n: Noun) => void;
+}
 
 export default function CaseTransformerPicker({
   goBack,
@@ -11,7 +27,7 @@ export default function CaseTransformerPicker({
   genderFilter,
   setGenderFilter,
   onPickNoun,
-}) {
+}: Props) {
   return (
     <div className="scr-wrap">
       <style>{CT_STYLES}</style>
@@ -104,11 +120,11 @@ export default function CaseTransformerPicker({
                 <span
                   className="ct-badge"
                   style={{
-                    background: GENDER_BG[noun.gender],
-                    color: GENDER_COLOR[noun.gender],
+                    background: (GENDER_BG as Record<string, string>)[noun.gender],
+                    color: (GENDER_COLOR as Record<string, string>)[noun.gender],
                   }}
                 >
-                  {GENDER_LABEL[noun.gender]}
+                  {(GENDER_LABEL as Record<string, string>)[noun.gender]}
                 </span>
                 {noun.irregular && (
                   <span className="ct-badge" style={{ background: '#fef9c3', color: '#854d0e' }}>

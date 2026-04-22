@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { speak } from '../../lib/audio.js';
 import {
@@ -9,6 +8,27 @@ import {
   CT_STYLES,
 } from './CaseTransformerData.js';
 
+interface Noun {
+  hr: string;
+  en: string;
+  gender: string;
+  type?: string;
+  irregular?: boolean;
+}
+interface DeclinedForms {
+  sg: string[];
+  pl: string[];
+  [key: string]: string[];
+}
+interface Props {
+  selectedNoun: Noun;
+  declined: DeclinedForms;
+  number: string;
+  setNumber: (n: string) => void;
+  onBackToPicker: () => void;
+  onStartQuiz: () => void;
+}
+
 export default function CaseTransformerDeclension({
   selectedNoun,
   declined,
@@ -16,8 +36,8 @@ export default function CaseTransformerDeclension({
   setNumber,
   onBackToPicker,
   onStartQuiz,
-}) {
-  const forms = declined[number]; // array of 7 forms
+}: Props) {
+  const forms = declined[number] ?? []; // array of 7 forms
 
   return (
     <div className="scr-wrap">
@@ -64,11 +84,11 @@ export default function CaseTransformerDeclension({
           <span
             className="ct-badge"
             style={{
-              background: GENDER_BG[selectedNoun.gender],
-              color: GENDER_COLOR[selectedNoun.gender],
+              background: (GENDER_BG as Record<string, string>)[selectedNoun.gender],
+              color: (GENDER_COLOR as Record<string, string>)[selectedNoun.gender],
             }}
           >
-            {GENDER_LABEL[selectedNoun.gender]}
+            {(GENDER_LABEL as Record<string, string>)[selectedNoun.gender]}
           </span>
           {selectedNoun.irregular && (
             <span className="ct-badge" style={{ background: '#fef9c3', color: '#854d0e' }}>
@@ -91,7 +111,7 @@ export default function CaseTransformerDeclension({
 
         <button
           className="ct-speak-btn"
-          onClick={() => speak(declined.sg[0].replace('!', ''))}
+          onClick={() => speak((declined.sg[0] ?? '').replace('!', ''))}
           aria-label="Listen to pronunciation"
         >
           <span aria-hidden="true">🔊</span>
@@ -109,27 +129,26 @@ export default function CaseTransformerDeclension({
           gap: 0,
         }}
       >
-        {[
-          ['sg', 'Singular'],
-          ['pl', 'Plural'],
-        ].map(([val, label]) => (
-          <button
-            key={val}
-            className="ct-toggle-pill"
-            style={{
-              background: number === val ? '#0e7490' : 'transparent',
-              color: number === val ? '#fff' : 'var(--subtext)',
-            }}
-            onClick={() => setNumber(val)}
-          >
-            {label}
-          </button>
-        ))}
+        {[['sg', 'Singular'] as [string, string], ['pl', 'Plural'] as [string, string]].map(
+          ([val, label]) => (
+            <button
+              key={val}
+              className="ct-toggle-pill"
+              style={{
+                background: number === val ? '#0e7490' : 'transparent',
+                color: number === val ? '#fff' : 'var(--subtext)',
+              }}
+              onClick={() => setNumber(val)}
+            >
+              {label}
+            </button>
+          ),
+        )}
       </div>
 
       {/* 7 case cards */}
       {CASE_INFO.map((ci, i) => {
-        const rawForm = forms[i] || '';
+        const rawForm = forms[i] ?? '';
         const form = rawForm.replace('!', '');
         const exampleText = ci.example.replace('[WORD]', form);
         const parts = exampleText.split(form);

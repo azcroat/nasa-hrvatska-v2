@@ -1,26 +1,38 @@
-// @ts-nocheck
 import React, { useState, useMemo, useRef } from 'react';
 import { H, ALPHA, speak, sh } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';
 
+interface AlphaQuizQuestion {
+  prompt: string;
+  promptEn: string;
+  ipa: string;
+  correct: string;
+  opts: string[];
+}
+
 // Build 10 quiz questions: hear a description → pick the letter
-function buildAlphaQuiz(alpha) {
+function buildAlphaQuiz(alpha: string[][]): AlphaQuizQuestion[] {
   // Pick 10 letters spread across the alphabet
   const pool = sh([...alpha]).slice(0, 10);
-  return pool.map((letter) => {
-    const distractors = sh(alpha.filter((l) => l[0] !== letter[0])).slice(0, 3);
+  return pool.map((letter: string[]) => {
+    const distractors = sh(alpha.filter((l: string[]) => l[0] !== letter[0])).slice(0, 3);
     return {
-      prompt: letter[2], // example word (e.g. "auto")
-      promptEn: letter[3], // english (e.g. "car")
-      ipa: letter[1], // IPA (e.g. "/a/")
-      correct: letter[0], // letter display (e.g. "A a")
-      opts: sh([letter[0], ...distractors.map((d) => d[0])]),
+      prompt: letter[2] ?? '',
+      promptEn: letter[3] ?? '',
+      ipa: letter[1] ?? '',
+      correct: letter[0] ?? '',
+      opts: sh([letter[0] ?? '', ...distractors.map((d: string[]) => d[0] ?? '')]),
     };
   });
 }
 
-export default function AlphabetScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+
+export default function AlphabetScreen({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('reference'); // 'reference' | 'quiz'
 
@@ -28,23 +40,24 @@ export default function AlphabetScreen({ goBack, award }) {
   const questions = useMemo(() => buildAlphaQuiz(ALPHA), []);
   const [qi, setQi] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
   const [learnedCount, setLearnedCount] = useState(0);
   const learnedRef = useRef(new Set());
   const awardFired = useRef(false);
 
-  function markLearned(letter) {
+  function markLearned(letter: string) {
     if (!learnedRef.current.has(letter)) {
       learnedRef.current.add(letter);
       setLearnedCount(learnedRef.current.size);
     }
   }
 
-  function handleAnswer(opt) {
+  function handleAnswer(opt: string) {
     if (answered) return;
     const q = questions[qi];
+    if (!q) return;
     const isCorrect = opt === q.correct;
     setSelected(opt);
     setAnswered(true);
@@ -113,8 +126,8 @@ export default function AlphabetScreen({ goBack, award }) {
                 background: learnedRef.current.has(l[0]) ? 'rgba(22,163,74,.05)' : 'var(--card)',
               }}
               onClick={() => {
-                speak(l[2]);
-                markLearned(l[0]);
+                speak(l[2] ?? '');
+                markLearned(l[0] ?? '');
               }}
             >
               <div
@@ -218,6 +231,7 @@ export default function AlphabetScreen({ goBack, award }) {
 
   // ── Quiz mode ─────────────────────────────────────────────────────────────────
   const q = questions[qi];
+  if (!q) return null;
   const pctBar = Math.round(((qi + (answered ? 1 : 0)) / questions.length) * 100);
 
   return (

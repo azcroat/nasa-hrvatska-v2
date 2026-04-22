@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak, H } from '../../data';
 
@@ -101,8 +100,8 @@ const SITUATIONS = [
   },
 ];
 
-export default function TiViScreen({ goBack }) {
-  const [selected, setSelected] = useState(null);
+export default function TiViScreen({ goBack }: { goBack: () => void }) {
+  const [selected, setSelected] = useState<number | null>(null);
   const [_showFormal, _setShowFormal] = useState(null); // null = show both, 'formal'/'informal' = filter
 
   const displayed = SITUATIONS;

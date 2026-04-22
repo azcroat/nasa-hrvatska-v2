@@ -1,8 +1,10 @@
-// @ts-nocheck
 import React from 'react';
 import { H, DIALECTS } from '../../data';
 
-function DialectsScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+function DialectsScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🗺️ Regional Dialects', 'Štokavski, Kajkavski, Čakavski', goBack)}

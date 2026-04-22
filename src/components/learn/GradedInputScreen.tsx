@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useCallback } from 'react';
 import { speak } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
@@ -7,8 +6,38 @@ import { GRADED_STORIES } from '../../data/gradedStories.js';
 import { markQuest } from '../../lib/quests.js';
 
 const LEVELS = ['All', 'A1', 'A2', 'B1'];
-const LEVEL_COLOR = { A1: '#166534', A2: '#1e40af', B1: '#92400e' };
-const LEVEL_BG = { A1: '#dcfce7', A2: '#dbeafe', B1: '#fef3c7' };
+const LEVEL_COLOR: Record<string, string> = { A1: '#166534', A2: '#1e40af', B1: '#92400e' };
+const LEVEL_BG: Record<string, string> = { A1: '#dcfce7', A2: '#dbeafe', B1: '#fef3c7' };
+
+// ── Types ──────────────────────────────────────────────────────────────────────
+interface VocabItem {
+  hr: string;
+  en: string;
+  ex?: string;
+}
+interface Paragraph {
+  hr: string;
+  en: string;
+}
+interface QuizItem {
+  q: string;
+  qEn?: string;
+  opts: string[];
+  correct: number;
+}
+interface GradedStory {
+  id: string;
+  level: string;
+  icon: string;
+  title: string;
+  titleEn: string;
+  duration: number;
+  focus: string;
+  intro: string;
+  vocabulary: VocabItem[];
+  paragraphs: Paragraph[];
+  quiz: QuizItem[];
+}
 
 const COMPLETED_KEY = 'nh_graded_done';
 function getDone() {
@@ -18,7 +47,7 @@ function getDone() {
     return [];
   }
 }
-function markDone(id) {
+function markDone(id: string) {
   const done = getDone();
   if (!done.includes(id)) {
     try {
@@ -28,14 +57,14 @@ function markDone(id) {
 }
 
 // ─── Back button ─────────────────────────────────────────────────────────────
-const BackBtn = ({ onClick }) => (
+const BackBtn = ({ onClick }: { onClick: () => void }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={onClick}>
     ← Back
   </button>
 );
 
 // ─── Level badge ──────────────────────────────────────────────────────────────
-const LevelBadge = ({ level }) => (
+const LevelBadge = ({ level }: { level: string }) => (
   <span
     style={{
       background: LEVEL_BG[level] || '#f5f5f4',
@@ -52,7 +81,7 @@ const LevelBadge = ({ level }) => (
 );
 
 // ─── TTS audio helper ─────────────────────────────────────────────────────────
-async function playTTS(text, audioRef) {
+async function playTTS(text: string, audioRef: React.MutableRefObject<HTMLAudioElement | null>) {
   // Stop any previous audio
   if (audioRef.current) {
     audioRef.current.pause();
@@ -61,11 +90,12 @@ async function playTTS(text, audioRef) {
 
   // Try the app's TTS API first, fall back to Web Speech
   try {
-    const res = await apiFetch('/api/tts', {
+    const rawRes = await apiFetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, voice: getVoicePreference() }),
     });
+    const res = (rawRes.ok ? await rawRes.json() : null) as { audioUrl?: string } | null;
     if (res?.audioUrl) {
       const a = new Audio(res.audioUrl);
       audioRef.current = a;
@@ -77,7 +107,13 @@ async function playTTS(text, audioRef) {
 }
 
 // ─── List view ────────────────────────────────────────────────────────────────
-function StoryList({ onSelect, goBack }) {
+function StoryList({
+  onSelect,
+  goBack,
+}: {
+  onSelect: (story: GradedStory) => void;
+  goBack: () => void;
+}) {
   const [filter, setFilter] = useState('All');
   const done = getDone();
 
@@ -203,11 +239,11 @@ function StoryList({ onSelect, goBack }) {
 }
 
 // ─── Pronunciation assessment helper ─────────────────────────────────────────
-async function assessPronunciation(audioBlob, referenceText) {
+async function assessPronunciation(audioBlob: Blob, referenceText: string) {
   const arrayBuffer = await audioBlob.arrayBuffer();
   const bytes = new Uint8Array(arrayBuffer);
   let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i] ?? 0);
   const base64 = btoa(binary);
 
   const res = await apiFetch('/api/pronunciation-assess', {
@@ -220,27 +256,41 @@ async function assessPronunciation(audioBlob, referenceText) {
 }
 
 // ─── Reader view ──────────────────────────────────────────────────────────────
-function StoryReader({ story, onStartQuiz, goBack }) {
+interface AssessResult {
+  overall: number;
+  accuracy: number;
+  fluency: number;
+  word_scores?: { word: string; score: number }[];
+}
+function StoryReader({
+  story,
+  onStartQuiz,
+  goBack,
+}: {
+  story: GradedStory;
+  onStartQuiz: () => void;
+  goBack: () => void;
+}) {
   const [showEn, setShowEn] = useState(false);
   const [showVocab, setShowVocab] = useState(false);
-  const [playingIdx, setPlayingIdx] = useState(null);
-  const [recordingIdx, setRecordingIdx] = useState(null); // paragraph index being recorded
-  const [assessResults, setAssessResults] = useState({}); // { [paraIdx]: assessResult }
-  const [assessError, setAssessError] = useState(null);
-  const mediaRecorderRef = useRef(null);
-  const audioRef = useRef(null);
+  const [playingIdx, setPlayingIdx] = useState<number | null>(null);
+  const [recordingIdx, setRecordingIdx] = useState<number | null>(null);
+  const [assessResults, setAssessResults] = useState<Record<number, AssessResult>>({});
+  const [assessError, setAssessError] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const handlePlay = useCallback(async (text, idx) => {
+  const handlePlay = useCallback(async (text: string, idx: number) => {
     setPlayingIdx(idx);
     await playTTS(text, audioRef);
     setPlayingIdx(null);
   }, []);
 
-  const startRecording = useCallback(async (paraIdx, paraText) => {
+  const startRecording = useCallback(async (paraIdx: number, paraText: string) => {
     setAssessError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const chunks = [];
+      const chunks: Blob[] = [];
       const mr = new MediaRecorder(stream, {
         mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg',
       });
@@ -581,7 +631,15 @@ function StoryReader({ story, onStartQuiz, goBack }) {
 }
 
 // ─── Quiz view ────────────────────────────────────────────────────────────────
-function StoryQuiz({ story, onComplete, goBack }) {
+function StoryQuiz({
+  story,
+  onComplete,
+  goBack,
+}: {
+  story: GradedStory;
+  onComplete: (xp: number) => void;
+  goBack: () => void;
+}) {
   const [qi, setQi] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
@@ -590,16 +648,15 @@ function StoryQuiz({ story, onComplete, goBack }) {
   const resultFired = useRef(false);
 
   // Guard: validate quiz data before rendering
-  let q, isLast, quizDataError;
-  try {
-    if (!Array.isArray(story.quiz) || story.quiz.length === 0) throw new Error('no quiz');
-    q = story.quiz[qi];
-    if (!q || !Array.isArray(q.opts) || q.opts.length === 0 || q.correct == null)
-      throw new Error('malformed item');
-    isLast = qi === story.quiz.length - 1;
-  } catch {
-    quizDataError = true;
-  }
+  const q: QuizItem | undefined = story.quiz[qi];
+  const isLast = qi === story.quiz.length - 1;
+  const quizDataError =
+    !Array.isArray(story.quiz) ||
+    story.quiz.length === 0 ||
+    !q ||
+    !Array.isArray(q.opts) ||
+    q.opts.length === 0 ||
+    q.correct == null;
 
   if (quizDataError) {
     return (
@@ -631,8 +688,8 @@ function StoryQuiz({ story, onComplete, goBack }) {
     );
   }
 
-  function choose(idx) {
-    if (answered) return;
+  function choose(idx: number) {
+    if (answered || !q) return;
     setSelected(idx);
     setAnswered(true);
     if (idx === q.correct) setScore((s) => s + 1);
@@ -651,7 +708,6 @@ function StoryQuiz({ story, onComplete, goBack }) {
   }
 
   if (done) {
-    const _finalScore = score + (selected === q.correct ? 0 : 0); // already counted
     const xp = Math.round((score / story.quiz.length) * 25) + 10;
     return (
       <div className="scr-wrap" style={{ textAlign: 'center' }}>
@@ -701,6 +757,8 @@ function StoryQuiz({ story, onComplete, goBack }) {
       </div>
     );
   }
+
+  if (!q) return null;
 
   return (
     <div className="scr-wrap">
@@ -804,11 +862,17 @@ function StoryQuiz({ story, onComplete, goBack }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function GradedInputScreen({ goBack, award }) {
+export default function GradedInputScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [view, setView] = useState('list'); // 'list' | 'reader' | 'quiz'
-  const [story, setStory] = useState(null);
+  const [story, setStory] = useState<GradedStory | null>(null);
 
-  function selectStory(s) {
+  function selectStory(s: GradedStory) {
     setStory(s);
     setView('reader');
   }
@@ -817,7 +881,7 @@ export default function GradedInputScreen({ goBack, award }) {
     setView('quiz');
   }
 
-  function complete(xp) {
+  function complete(xp: number) {
     if (story) markDone(story.id);
     if (typeof award === 'function') award(xp);
     markQuest('reading');
