@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { FOODORDER } from '../../data';
 
-function FoodOrderScreen({ goBack }) {
+interface FoodOrderScreenProps {
+  goBack: () => void;
+}
+
+function FoodOrderScreen({ goBack }: FoodOrderScreenProps) {
   return (
     <div className="scr-wrap">
       {H('🍕 Ordering Food', 'Bakery, fast food, ice cream, restaurants', goBack)}
@@ -32,7 +35,7 @@ function FoodOrderScreen({ goBack }) {
                       color: 'var(--text)',
                     }}
                     onClick={function () {
-                      speak(w[0]);
+                      speak(w[0]!);
                     }}
                   >
                     <span style={{ fontWeight: 700, color: 'var(--accent,#0e7490)' }}>{w[0]}</span>
@@ -95,7 +98,7 @@ function FoodOrderScreen({ goBack }) {
               padding: '10px 14px',
             }}
             onClick={function () {
-              speak(p[0]);
+              speak(p[0]!);
             }}
           >
             <span style={{ fontWeight: 700, fontSize: 14 }}>

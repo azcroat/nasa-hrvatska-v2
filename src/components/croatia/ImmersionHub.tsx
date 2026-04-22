@@ -1,10 +1,32 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { MEDIA } from '../../data';
 import { LEVEL_COLORS } from './MediaPlayerUtils';
 
+interface JourneyItem {
+  level: string;
+  icon: string;
+  title: string;
+  weeks: string;
+  desc: string;
+  goals: string[];
+  habit: string;
+}
+
+interface MediaItem {
+  level: string;
+  cat: string;
+  title?: string;
+  name?: string;
+  desc: string;
+  tip?: string;
+  icon?: string;
+  color?: string;
+  web?: string;
+  scr?: string;
+}
+
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-const LEVEL_LABELS = {
+const LEVEL_LABELS: Record<string, string> = {
   A1: 'Beginner',
   A2: 'Elementary',
   B1: 'Intermediate',
@@ -12,6 +34,7 @@ const LEVEL_LABELS = {
   C1: 'Advanced',
   C2: 'Mastery',
 };
+const LC = LEVEL_COLORS as Record<string, string>;
 
 const JOURNEY = [
   {
@@ -174,13 +197,19 @@ const TIPS = [
   },
 ];
 
-export default function ImmersionHub({ goBack, setScr }) {
+export default function ImmersionHub({
+  goBack,
+  setScr,
+}: {
+  goBack?: () => void;
+  setScr?: (scr: unknown, ...args: unknown[]) => void;
+}) {
   const [activeTab, setActiveTab] = useState('journey'); // journey | media | schedule | tips
   const [levelFilter, setLevelFilter] = useState('all');
   const [catFilter, setCatFilter] = useState('all');
 
   const allCats = ['tv', 'music', 'film', 'sport', 'podcast', 'culture'];
-  const catLabels = {
+  const catLabels: Record<string, string> = {
     tv: '📺 TV & News',
     music: '🎵 Music',
     film: '🎬 Film',
@@ -195,16 +224,16 @@ export default function ImmersionHub({ goBack, setScr }) {
     return true;
   });
 
-  const _LevelBadge = ({ level, small }) => (
+  const _LevelBadge = ({ level, small }: { level: string; small?: boolean }) => (
     <span
       style={{
-        background: LEVEL_COLORS[level] + '22',
-        color: LEVEL_COLORS[level],
+        background: LC[level] + '22',
+        color: LC[level],
         fontWeight: 800,
         fontSize: small ? 10 : 11,
         padding: small ? '2px 6px' : '3px 8px',
         borderRadius: 20,
-        border: `1px solid ${LEVEL_COLORS[level]}44`,
+        border: `1px solid ${LC[level]}44`,
         whiteSpace: 'nowrap',
       }}
     >
@@ -356,8 +385,8 @@ export default function ImmersionHub({ goBack, setScr }) {
                 key={l}
                 style={{
                   flex: '0 0 calc(33% - 4px)',
-                  background: `${LEVEL_COLORS[l]}11`,
-                  border: `2px solid ${LEVEL_COLORS[l]}44`,
+                  background: `${LC[l]}11`,
+                  border: `2px solid ${LC[l]}44`,
                   borderRadius: 12,
                   padding: '10px 8px',
                   textAlign: 'center',
@@ -365,13 +394,13 @@ export default function ImmersionHub({ goBack, setScr }) {
                 }}
               >
                 <div style={{ fontSize: 18 }}>{JOURNEY.find((j) => j.level === l)?.icon}</div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: LEVEL_COLORS[l] }}>{l}</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: LC[l] }}>{l}</div>
                 <div style={{ fontSize: 9, color: '#78716c' }}>{LEVEL_LABELS[l]}</div>
               </div>
             ))}
           </div>
           {JOURNEY.map((j) => (
-            <JourneyCard key={j.level} j={j} color={LEVEL_COLORS[j.level]} />
+            <JourneyCard key={j.level} j={j} color={LC[j.level] ?? '#78716c'} />
           ))}
         </div>
       )}
@@ -397,7 +426,7 @@ export default function ImmersionHub({ goBack, setScr }) {
                   label={l}
                   active={levelFilter === l}
                   onClick={() => setLevelFilter(l)}
-                  color={LEVEL_COLORS[l]}
+                  color={LC[l] ?? '#78716c'}
                 />
               ))}
             </div>
@@ -417,7 +446,7 @@ export default function ImmersionHub({ goBack, setScr }) {
               {allCats.map((c) => (
                 <FilterBtn
                   key={c}
-                  label={catLabels[c]}
+                  label={catLabels[c] ?? c}
                   active={catFilter === c}
                   onClick={() => setCatFilter(c)}
                   color="#0e7490"
@@ -434,7 +463,7 @@ export default function ImmersionHub({ goBack, setScr }) {
             </div>
           )}
           {filtered.map((m, i) => (
-            <MediaCard key={i} m={m} />
+            <MediaCard key={i} m={m as MediaItem} />
           ))}
         </div>
       )}
@@ -625,7 +654,7 @@ export default function ImmersionHub({ goBack, setScr }) {
   );
 }
 
-function JourneyCard({ j, color }) {
+function JourneyCard({ j, color }: { j: JourneyItem; color: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="c" style={{ marginBottom: 12, padding: 0, overflow: 'hidden' }}>
@@ -694,7 +723,7 @@ function JourneyCard({ j, color }) {
           <div style={{ fontSize: 12, fontWeight: 800, color, marginBottom: 8 }}>
             GOALS AT THIS LEVEL
           </div>
-          {j.goals.map((g, i) => (
+          {j.goals.map((g: string, i: number) => (
             <div
               key={i}
               style={{
@@ -728,8 +757,8 @@ function JourneyCard({ j, color }) {
   );
 }
 
-function MediaCard({ m }) {
-  const color = LEVEL_COLORS[m.level] || '#78716c';
+function MediaCard({ m }: { m: MediaItem }) {
+  const color = LC[m.level] || '#78716c';
   return (
     <div
       className="c"
@@ -813,7 +842,17 @@ function MediaCard({ m }) {
   );
 }
 
-function FilterBtn({ label, active, onClick, color }) {
+function FilterBtn({
+  label,
+  active,
+  onClick,
+  color,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  color: string;
+}) {
   return (
     <button
       onClick={onClick}

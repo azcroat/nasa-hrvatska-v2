@@ -1,14 +1,15 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { incrementCulture } from '../../data';
 import { useApp } from '../../context/AppContext';
 import PhotoHero from '../shared/PhotoHero';
 import { PHOTOS } from '../../lib/photos';
 
-export default function CultureTab({ sCurEx }) {
+type CardTuple = [() => void, string, string, string, string, string];
+
+export default function CultureTab({ sCurEx }: { sCurEx?: (ex: string) => void }) {
   const { setScr } = useApp();
-  const [expandedCtx, setExpandedCtx] = useState({});
-  const toggleCtx = (key) => setExpandedCtx((prev) => ({ ...prev, [key]: !prev[key] }));
+  const [expandedCtx, setExpandedCtx] = useState<Record<string, boolean>>({});
+  const toggleCtx = (key: string) => setExpandedCtx((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <React.Fragment>
@@ -28,7 +29,7 @@ export default function CultureTab({ sCurEx }) {
             🏰
           </div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title" role="heading" aria-level="2">
+            <div className="section-hdr-title" role="heading" aria-level={2}>
               History &amp; Regions
             </div>
             <div className="section-hdr-sub">Journey through Croatia's past and places</div>
@@ -95,7 +96,7 @@ export default function CultureTab({ sCurEx }) {
             [
               () => {
                 setScr('kings');
-                sCurEx('kings');
+                sCurEx?.('kings');
               },
               '👑',
               'Croatian Kings',
@@ -175,68 +176,71 @@ export default function CultureTab({ sCurEx }) {
               '#78716c',
               'history',
             ],
-          ].map((/** @type {any} */ [fn, icon, title, sub, color, type], i) => (
-            <button
-              key={i}
-              onClick={fn}
-              className="exercise-card"
-              style={{
-                borderLeftColor: color,
-                border: `1.5px solid ${color}25`,
-                borderLeftWidth: 3,
-              }}
-            >
-              <div
+          ].map((row, i) => {
+            const [fn, icon, title, sub, color, type] = row as CardTuple;
+            return (
+              <button
+                key={i}
+                onClick={fn}
+                className="exercise-card"
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: `${color}15`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 18,
-                  flexShrink: 0,
+                  borderLeftColor: color,
+                  border: `1.5px solid ${color}25`,
+                  borderLeftWidth: 3,
                 }}
               >
-                {icon}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 'var(--text-sm)',
-                    fontWeight: 700,
-                    color: 'var(--heading)',
-                    lineHeight: 1.2,
-                    marginBottom: 2,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 10,
+                    background: `${color}15`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                    flexShrink: 0,
                   }}
                 >
-                  {title}
+                  {icon}
                 </div>
-                <div
-                  style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', lineHeight: 1.3 }}
-                >
-                  {sub}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: 700,
+                      color: 'var(--heading)',
+                      lineHeight: 1.2,
+                      marginBottom: 2,
+                    }}
+                  >
+                    {title}
+                  </div>
+                  <div
+                    style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', lineHeight: 1.3 }}
+                  >
+                    {sub}
+                  </div>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      fontSize: 9,
+                      fontWeight: 800,
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      marginTop: 4,
+                      background: 'rgba(124,58,237,0.1)',
+                      color: 'var(--lavender, #7c3aed)',
+                    }}
+                  >
+                    {type}
+                  </span>
                 </div>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    fontSize: 9,
-                    fontWeight: 800,
-                    padding: '2px 6px',
-                    borderRadius: 4,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    marginTop: 4,
-                    background: 'rgba(124,58,237,0.1)',
-                    color: 'var(--lavender, #7c3aed)',
-                  }}
-                >
-                  {type}
-                </span>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -256,7 +260,7 @@ export default function CultureTab({ sCurEx }) {
             🏘️
           </div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title" role="heading" aria-level="2">
+            <div className="section-hdr-title" role="heading" aria-level={2}>
               Croatian Life
             </div>
             <div className="section-hdr-sub">Everyday vocabulary for real situations</div>
@@ -358,82 +362,85 @@ export default function CultureTab({ sCurEx }) {
               'culture',
             ],
             [() => setScr('gym'), '🏋️', 'At the Gym', 'Fitness vocabulary', '#16a34a', 'language'],
-          ].map((/** @type {any} */ [fn, icon, title, sub, color, type], i) => (
-            <button
-              key={i}
-              onClick={fn}
-              className="exercise-card"
-              style={{
-                borderLeftColor: color,
-                border: `1.5px solid ${color}25`,
-                borderLeftWidth: 3,
-              }}
-            >
-              <div
+          ].map((row, i) => {
+            const [fn, icon, title, sub, color, type] = row as CardTuple;
+            return (
+              <button
+                key={i}
+                onClick={fn}
+                className="exercise-card"
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: `${color}15`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 18,
-                  flexShrink: 0,
+                  borderLeftColor: color,
+                  border: `1.5px solid ${color}25`,
+                  borderLeftWidth: 3,
                 }}
               >
-                {icon}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 'var(--text-sm)',
-                    fontWeight: 700,
-                    color: 'var(--heading)',
-                    lineHeight: 1.2,
-                    marginBottom: 2,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 10,
+                    background: `${color}15`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                    flexShrink: 0,
                   }}
                 >
-                  {title}
+                  {icon}
                 </div>
-                <div
-                  style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', lineHeight: 1.3 }}
-                >
-                  {sub}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: 700,
+                      color: 'var(--heading)',
+                      lineHeight: 1.2,
+                      marginBottom: 2,
+                    }}
+                  >
+                    {title}
+                  </div>
+                  <div
+                    style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', lineHeight: 1.3 }}
+                  >
+                    {sub}
+                  </div>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      fontSize: 9,
+                      fontWeight: 800,
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      marginTop: 4,
+                      background:
+                        type === 'interactive'
+                          ? 'rgba(14,116,144,0.1)'
+                          : type === 'reading'
+                            ? 'rgba(22,163,74,0.1)'
+                            : type === 'history'
+                              ? 'rgba(124,58,237,0.1)'
+                              : 'rgba(217,119,6,0.1)',
+                      color:
+                        type === 'interactive'
+                          ? 'var(--info)'
+                          : type === 'reading'
+                            ? '#14532d'
+                            : type === 'history'
+                              ? 'var(--lavender, #7c3aed)'
+                              : '#78350f',
+                    }}
+                  >
+                    {type}
+                  </span>
                 </div>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    fontSize: 9,
-                    fontWeight: 800,
-                    padding: '2px 6px',
-                    borderRadius: 4,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    marginTop: 4,
-                    background:
-                      type === 'interactive'
-                        ? 'rgba(14,116,144,0.1)'
-                        : type === 'reading'
-                          ? 'rgba(22,163,74,0.1)'
-                          : type === 'history'
-                            ? 'rgba(124,58,237,0.1)'
-                            : 'rgba(217,119,6,0.1)',
-                    color:
-                      type === 'interactive'
-                        ? 'var(--info)'
-                        : type === 'reading'
-                          ? '#14532d'
-                          : type === 'history'
-                            ? 'var(--lavender, #7c3aed)'
-                            : '#78350f',
-                  }}
-                >
-                  {type}
-                </span>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -444,7 +451,7 @@ export default function CultureTab({ sCurEx }) {
             📰
           </div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title" role="heading" aria-level="2">
+            <div className="section-hdr-title" role="heading" aria-level={2}>
               Stories &amp; News
             </div>
             <div className="section-hdr-sub">Live the language through real Croatian stories</div>
@@ -521,7 +528,7 @@ export default function CultureTab({ sCurEx }) {
                     loading="lazy"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
-                      const p = /** @type {HTMLElement} */ e.currentTarget.parentNode;
+                      const p = e.currentTarget.parentNode as HTMLElement | null;
                       if (p) p.innerText = emoji;
                     }}
                   />
@@ -931,7 +938,7 @@ export default function CultureTab({ sCurEx }) {
             🌊
           </div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title" role="heading" aria-level="2">
+            <div className="section-hdr-title" role="heading" aria-level={2}>
               Immersion
             </div>
             <div className="section-hdr-sub">AI conversation + curated media from A1 to C2</div>
@@ -1104,7 +1111,7 @@ export default function CultureTab({ sCurEx }) {
             🎭
           </div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title" role="heading" aria-level="2">
+            <div className="section-hdr-title" role="heading" aria-level={2}>
               Language &amp; Culture
             </div>
             <div className="section-hdr-sub">Deepen your connection to Croatian identity</div>
@@ -1226,7 +1233,7 @@ export default function CultureTab({ sCurEx }) {
             🗺️
           </div>
           <div className="section-hdr-text">
-            <div className="section-hdr-title" role="heading" aria-level="2">
+            <div className="section-hdr-title" role="heading" aria-level={2}>
               Explore Croatia
             </div>
             <div className="section-hdr-sub">Cities, parks, beaches &amp; islands</div>

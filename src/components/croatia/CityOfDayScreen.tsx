@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak } from '../../data';
 import { getCityOfDay } from '../../data';
@@ -6,7 +5,7 @@ import { getCityOfDay } from '../../data';
 // Normalize city name to lookup key — strip diacritics, lowercase, collapse spaces
 // Handles: Šibenik→sibenik, Varaždin→varazdin, Korčula→korcula, Poreč→porec,
 //          Vukovar Grad→vukovar grad, Brač→brac, etc.
-function normKey(s) {
+function normKey(s: string) {
   return (s || '')
     .toLowerCase()
     .normalize('NFD')
@@ -64,7 +63,11 @@ const CITY_PHOTOS = {
     'https://images.unsplash.com/photo-1559570704-fea2efaf9e79?w=800&q=85&fit=crop&auto=format',
 };
 
-function CityOfDayScreen({ goBack }) {
+interface CityOfDayScreenProps {
+  goBack: () => void;
+}
+
+function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
   const [tab, setTab] = useState('overview');
   const city = getCityOfDay();
   const _tomorrow = (function () {
@@ -87,7 +90,7 @@ function CityOfDayScreen({ goBack }) {
   const safeHistory = city.history || '';
   const safeDidYouKnow = city.didYouKnow || '';
   const cityKey = normKey(city.name);
-  const photoUrl = CITY_PHOTOS[cityKey] || CITY_PHOTOS.default;
+  const photoUrl = (CITY_PHOTOS as Record<string, string>)[cityKey] ?? CITY_PHOTOS.default;
 
   return (
     <div className="scr-wrap">
@@ -345,7 +348,7 @@ function CityOfDayScreen({ goBack }) {
               >
                 🏛️ Key Historical Facts
               </div>
-              {histFacts.map(function (f, fi) {
+              {(histFacts as string[]).map(function (f: string, fi: number) {
                 return (
                   <div
                     key={fi}
@@ -418,7 +421,7 @@ function CityOfDayScreen({ goBack }) {
               Vocabulary coming soon for {city.name}.
             </div>
           )}
-          {safeVocab.map(function (v, vi) {
+          {(safeVocab as Array<{ hr: string; en: string; note?: string }>).map(function (v, vi) {
             return (
               <div
                 key={vi}

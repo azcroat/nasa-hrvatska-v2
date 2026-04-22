@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H } from '../../data';
 
@@ -478,14 +477,14 @@ Hrvatski ministar kulture čestitao je svim sudionicima i najavio povećanje pro
   },
 ];
 
-export default function CroatiaToday({ goBack }) {
-  const [selected, setSelected] = useState(null);
+export default function CroatiaToday({ goBack }: { goBack?: () => void }) {
+  const [selected, setSelected] = useState<number | null>(null);
   const [showSummary, setShowSummary] = useState(false);
 
   const todayIndex = new Date().getDate() % 10;
-  const featuredArticle = ARTICLES[todayIndex];
+  const featuredArticle = ARTICLES[todayIndex]!;
 
-  const handleSelect = (idx) => {
+  const handleSelect = (idx: number) => {
     setSelected(idx);
     setShowSummary(false);
     window.scrollTo(0, 0);
@@ -497,8 +496,8 @@ export default function CroatiaToday({ goBack }) {
   };
 
   if (selected !== null) {
-    const art = ARTICLES[selected];
-    const color = CAT_COLORS[art.category];
+    const art = ARTICLES[selected]!;
+    const color = (CAT_COLORS as Record<string, string>)[art.category]!;
     return (
       <div className="scr-wrap">
         <button
@@ -710,7 +709,7 @@ export default function CroatiaToday({ goBack }) {
         <div
           onClick={() => handleSelect(featuredArticle.id)}
           style={{
-            background: `linear-gradient(145deg, ${CAT_COLORS[featuredArticle.category]}ee 0%, ${CAT_COLORS[featuredArticle.category]}99 100%)`,
+            background: `linear-gradient(145deg, ${(CAT_COLORS as Record<string, string>)[featuredArticle.category]}ee 0%, ${(CAT_COLORS as Record<string, string>)[featuredArticle.category]}99 100%)`,
             borderRadius: 18,
             padding: '22px 20px',
             cursor: 'pointer',
@@ -802,7 +801,7 @@ export default function CroatiaToday({ goBack }) {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {ARTICLES.map((art) => {
-          const color = CAT_COLORS[art.category];
+          const color = (CAT_COLORS as Record<string, string>)[art.category]!;
           const isFeatured = art.id === featuredArticle.id;
           return (
             <div

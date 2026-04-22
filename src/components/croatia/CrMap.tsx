@@ -1,11 +1,14 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H } from '../../data';
 import { MAPPLACES } from '../../data';
 
-export default function CrMap({ goBack }) {
+interface CrMapProps {
+  goBack: () => void;
+}
+
+export default function CrMap({ goBack }: CrMapProps) {
   const [mapCat, setMapCat] = useState('all');
-  const [mapSel, setMapSel] = useState(null);
+  const [mapSel, setMapSel] = useState<number | null>(null);
   return (
     <div className="scr-wrap">
       {H('🗺️ Interactive Map', 'Explore Croatia & get directions', goBack)}

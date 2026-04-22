@@ -1,13 +1,12 @@
-// @ts-nocheck
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { V, speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
-function _shuffleOpts(opts) {
+function _shuffleOpts(opts: string[]) {
   const a = [...opts];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    [a[i], a[j]] = [a[j]!, a[i]!];
   }
   return a;
 }
@@ -195,7 +194,13 @@ const TABS = [
   { id: 'kviz', label: 'Kviz' },
 ];
 
-export default function EasterScreen({ onBack, award }) {
+export default function EasterScreen({
+  onBack,
+  award,
+}: {
+  onBack: () => void;
+  award?: (xp: number) => void;
+}) {
   // Persist completion across sessions — once done, quiz is locked
   const [kvizPermanentlyDone] = useState(() => {
     try {
@@ -209,8 +214,8 @@ export default function EasterScreen({ onBack, award }) {
 
   // Quiz state
   const [qIdx, setQIdx] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [answers, setAnswers] = useState([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<boolean[]>([]);
   const [quizDone, setQuizDone] = useState(kvizPermanentlyDone);
   const xpAwarded = useRef(kvizPermanentlyDone);
 
@@ -235,9 +240,9 @@ export default function EasterScreen({ onBack, award }) {
     }
   }, [tab, easterVocab.length]);
 
-  function handleAnswer(opt) {
+  function handleAnswer(opt: string) {
     if (selected !== null) return;
-    const isCorrect = opt === shuffledQuestions[qIdx].correct;
+    const isCorrect = opt === shuffledQuestions[qIdx]!.correct;
     const newAnswers = [...answers, isCorrect];
     setSelected(opt);
     setAnswers(newAnswers);
@@ -422,8 +427,8 @@ export default function EasterScreen({ onBack, award }) {
             return (
               <button
                 key={i}
-                aria-label={`Play audio for ${hr}`}
-                onClick={() => speak(hr)}
+                aria-label={`Play audio for ${hr ?? ''}`}
+                onClick={() => speak(hr ?? '')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -619,21 +624,21 @@ export default function EasterScreen({ onBack, award }) {
                     lineHeight: 1.4,
                   }}
                 >
-                  {shuffledQuestions[qIdx].q}
+                  {shuffledQuestions[qIdx]!.q}
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {shuffledQuestions[qIdx].opts.map((opt, oi) => {
+                {shuffledQuestions[qIdx]!.opts.map((opt, oi) => {
                   let bg = 'var(--card)';
                   let border = '1px solid var(--card-b)';
                   let color = 'var(--heading)';
                   if (selected !== null) {
-                    if (opt === shuffledQuestions[qIdx].correct) {
+                    if (opt === shuffledQuestions[qIdx]!.correct) {
                       bg = 'rgba(22,163,74,.12)';
                       border = `1.5px solid ${ACCENT}`;
                       color = ACCENT;
-                    } else if (opt === selected && opt !== shuffledQuestions[qIdx].correct) {
+                    } else if (opt === selected && opt !== shuffledQuestions[qIdx]!.correct) {
                       bg = 'rgba(239,68,68,.1)';
                       border = '1.5px solid #ef4444';
                       color = '#ef4444';

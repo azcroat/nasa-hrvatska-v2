@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { H } from '../../data';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -7,8 +6,33 @@ import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface Region {
+  name: string;
+  icon: string;
+  color: string;
+  desc: string;
+  image: string;
+}
+interface HeritageData {
+  title?: string;
+  parts?: NarrativePartData[];
+  phrases?: PhraseItem[];
+  words?: WordItem[];
+  cultural_insight?: string;
+  connection_prompt?: string;
+  ancestral_phrases?: PhraseItem[];
+  regional_words?: WordItem[];
+  did_you_know?: string;
+  [key: string]: unknown;
+}
+interface AudioShim {
+  pause(): void;
+  addEventListener(ev: string, fn: (() => void) | null): void;
+}
+
 // ── Region data ───────────────────────────────────────────────────────────────
-const REGIONS = [
+const REGIONS: Region[] = [
   {
     name: 'Dalmatia',
     icon: '☀️',
@@ -77,7 +101,7 @@ const _iosDevice =
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-async function playTTS(text) {
+async function playTTS(text: string) {
   const res = await apiFetch('/api/tts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -104,7 +128,7 @@ async function playTTS(text) {
             src.stop();
           } catch {}
         },
-        addEventListener(ev, fn) {
+        addEventListener(ev: string, fn: (() => void) | null) {
           if (ev === 'ended') src.onended = fn;
         },
       };
@@ -114,9 +138,9 @@ async function playTTS(text) {
   }
 
   // Non-iOS: use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-  const url = await new Promise((resolve) => {
+  const url = await new Promise<string>((resolve) => {
     const r = new FileReader();
-    r.onload = () => resolve(r.result);
+    r.onload = () => resolve(r.result as string);
     r.readAsDataURL(blob);
   });
   const audio = new Audio(url);
@@ -129,14 +153,30 @@ async function playTTS(text) {
 }
 
 // ── Part card component ────────────────────────────────────────────────────────
-function NarrativePart({ part, index, accentColor, onRead }) {
+interface NarrativePartData {
+  heading: string;
+  text: string;
+}
+
+function NarrativePart({
+  part,
+  index,
+  accentColor,
+  onRead,
+}: {
+  part: NarrativePartData;
+  index: number;
+  accentColor: string;
+  onRead: (i: number) => void;
+}) {
   const [read, setRead] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!ref.current || read) return undefined;
     const obs = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        const entry = entries[0]!;
         if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
           setRead(true);
           onRead(index);
@@ -219,7 +259,14 @@ function NarrativePart({ part, index, accentColor, onRead }) {
 }
 
 // ── Phrase card ───────────────────────────────────────────────────────────────
-function PhraseCard({ phrase, accentColor }) {
+interface PhraseItem {
+  croatian?: string;
+  hr?: string;
+  english?: string;
+  en?: string;
+  context?: string;
+}
+function PhraseCard({ phrase, accentColor }: { phrase: PhraseItem; accentColor: string }) {
   return (
     <div
       style={{
@@ -246,7 +293,15 @@ function PhraseCard({ phrase, accentColor }) {
 }
 
 // ── Word card ─────────────────────────────────────────────────────────────────
-function WordCard({ word, accentColor }) {
+interface WordItem {
+  croatian?: string;
+  hr?: string;
+  word?: string;
+  english?: string;
+  en?: string;
+  translation?: string;
+}
+function WordCard({ word, accentColor }: { word: WordItem; accentColor: string }) {
   return (
     <div
       style={{
@@ -271,7 +326,7 @@ function WordCard({ word, accentColor }) {
 }
 
 // ── Pulsing dots ──────────────────────────────────────────────────────────────
-function PulsingDots({ color }) {
+function PulsingDots({ color }: { color?: string }) {
   return (
     <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
       {[0, 1, 2].map((i) => (
@@ -292,30 +347,36 @@ function PulsingDots({ color }) {
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
-export default function HeritageStoryScreen({ goBack, award }) {
+export default function HeritageStoryScreen({
+  goBack,
+  award,
+}: {
+  goBack?: () => void;
+  award?: (amt: number) => void;
+}) {
   const isOnline = useOnlineStatus();
 
   // Form state
-  const [selectedRegion, setSelectedRegion] = useState(REGIONS[0]);
+  const [selectedRegion, setSelectedRegion] = useState<Region>(REGIONS[0]!);
   const [userName, setUserName] = useState('');
   const [familyNotes, setFamilyNotes] = useState('');
   const [selectedEra, setSelectedEra] = useState('Any era');
 
   // Phase: form | loading | story | error
   const [phase, setPhase] = useState('form');
-  const [heritageData, setHeritageData] = useState(null);
+  const [heritageData, setHeritageData] = useState<HeritageData | null>(null);
   const [error, setError] = useState('');
 
   // Story interactions
   const [ttsPlaying, setTtsPlaying] = useState(false);
   const [saved, setSaved] = useState(false);
-  const audioRef = useRef(null);
-  const readParts = useRef(new Set());
+  const audioRef = useRef<HTMLAudioElement | AudioShim | null>(null);
+  const readParts = useRef(new Set<number>());
   const awardFired = useRef(false);
   const _unmountedRef = useRef(false);
 
   const handlePartRead = useCallback(
-    (index) => {
+    (index: number) => {
       readParts.current.add(index);
       if (readParts.current.size >= 3 && !awardFired.current) {
         awardFired.current = true;
@@ -815,7 +876,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             loading="lazy"
             onError={(e) => {
-              /** @type {HTMLImageElement} */ e.target.src = '/images/scenes/dalmatian-ai.webp';
+              (e.target as HTMLImageElement).src = '/images/scenes/dalmatian-ai.webp';
             }}
           />
           <div
@@ -1046,7 +1107,7 @@ export default function HeritageStoryScreen({ goBack, award }) {
             className="b"
             onClick={() => {
               stopTTS();
-              goBack();
+              goBack?.();
             }}
             style={{
               flex: 1,

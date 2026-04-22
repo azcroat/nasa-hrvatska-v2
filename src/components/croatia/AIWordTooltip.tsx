@@ -1,8 +1,14 @@
-// @ts-nocheck
 import React from 'react';
 import { speak } from '../../data';
+import type { TooltipData } from '../../hooks/useConversationSession';
 
-export default function AIWordTooltip({ tooltip, onClose, onSave }) {
+interface AIWordTooltipProps {
+  tooltip: TooltipData | null;
+  onClose: () => void;
+  onSave: () => void;
+}
+
+export default function AIWordTooltip({ tooltip, onClose, onSave }: AIWordTooltipProps) {
   if (!tooltip) return null;
 
   return (

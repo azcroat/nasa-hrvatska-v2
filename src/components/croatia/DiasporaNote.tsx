@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak, H } from '../../data';
 
@@ -58,8 +57,12 @@ const HERITAGE_TRUTHS = [
   },
 ];
 
-export default function DiasporaNote({ goBack }) {
-  const [activeEx, setActiveEx] = useState(null);
+interface DiasporaProps {
+  goBack: () => void;
+}
+
+export default function DiasporaNote({ goBack }: DiasporaProps) {
+  const [activeEx, setActiveEx] = useState<number | null>(null);
 
   return (
     <div>

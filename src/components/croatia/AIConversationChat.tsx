@@ -1,9 +1,56 @@
-// @ts-nocheck
 import React from 'react';
 import SpeakingAvatar, { portraitSrc } from './SpeakingAvatar';
 import TappableMessage from './TappableMessage';
 import WaveformVisualizer from '../shared/WaveformVisualizer';
 import { STARTERS, sceneForCat } from './ConversationScenarios.js';
+import type { ConversationMessage } from '../../hooks/useConversationSession';
+
+interface ChatScenario {
+  id: string;
+  cat: string;
+  aiName: string;
+  title: string;
+  hr?: string;
+  levels: string[];
+  [key: string]: unknown;
+}
+
+interface AIConversationChatProps {
+  scenario: ChatScenario;
+  level: string;
+  messages: ConversationMessage[];
+  corrections: Record<string | number, unknown>;
+  loading: boolean;
+  chatError: string;
+  sendError: string;
+  input: string;
+  setInput: (v: string) => void;
+  listening: boolean;
+  isSpeaking: boolean;
+  npcVideoUrl: string | null;
+  npcVideoLoading: boolean;
+  muted: boolean;
+  setMuted: React.Dispatch<React.SetStateAction<boolean>>;
+  showStarters: boolean;
+  setShowStarters: (v: boolean) => void;
+  userCount: number;
+  isOnline: boolean;
+  hasSpeechAPI: boolean;
+  isVoiceProcessing: boolean;
+  vadLevel: number;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  onSend: () => void;
+  onSendError: () => void;
+  onInterrupt: () => void;
+  onToggleVoice: () => void;
+  onHint: () => void;
+  onRetryOpener: () => void;
+  onReset: () => void;
+  onEndEvaluate: () => void;
+  onWordClick: (word: string) => void;
+  onSpeakMessage: (text: string) => void;
+}
 
 export default function AIConversationChat({
   scenario,
@@ -40,7 +87,7 @@ export default function AIConversationChat({
   onEndEvaluate,
   onWordClick,
   onSpeakMessage,
-}) {
+}: AIConversationChatProps) {
   return (
     <div
       style={{
@@ -94,7 +141,7 @@ export default function AIConversationChat({
             name={scenario.aiName}
             size={40}
             isSpeaking={isSpeaking}
-            videoUrl={npcVideoUrl}
+            videoUrl={npcVideoUrl as null}
           />
           <div
             style={{
@@ -223,7 +270,7 @@ export default function AIConversationChat({
               borderRadius: 20,
             }}
           >
-            {scenario.hr} · {level}
+            {String(scenario.hr ?? '')} · {level}
           </span>
         </div>
         {/* Tap-to-translate hint */}
@@ -320,7 +367,7 @@ export default function AIConversationChat({
         )}
 
         {/* Message list */}
-        {messages.map((m, i) => {
+        {messages.map((m: ConversationMessage, i: number) => {
           if (m.role === 'hint')
             return (
               <div
@@ -340,7 +387,9 @@ export default function AIConversationChat({
             );
 
           const isUser = m.role === 'user';
-          const correction = corrections[i];
+          const correction = corrections[i] as
+            | { corrected?: string; explanation?: string; note?: string; echo?: string }
+            | undefined;
 
           return (
             <React.Fragment key={i}>
@@ -391,7 +440,7 @@ export default function AIConversationChat({
                       🔊
                     </span>
                   )}
-                  {!isUser && m.gloss && m.scaffolding >= 1 && (
+                  {!isUser && m.gloss && Number(m.scaffolding) >= 1 && (
                     <div
                       style={{
                         marginTop: 6,
@@ -403,7 +452,7 @@ export default function AIConversationChat({
                         fontStyle: 'italic',
                       }}
                     >
-                      {m.gloss}
+                      {m.gloss as React.ReactNode}
                     </div>
                   )}
                 </div>
@@ -501,14 +550,14 @@ export default function AIConversationChat({
                 width: 30,
                 height: 30,
                 borderRadius: '50%',
-                background: `linear-gradient(135deg,${scenario.color},${scenario.color}99)`,
+                background: `linear-gradient(135deg,${String(scenario.color ?? '#0e7490')},${String(scenario.color ?? '#0e7490')}99)`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 'var(--text-base)',
               }}
             >
-              {scenario.icon}
+              {scenario.icon as React.ReactNode}
             </div>
             <div
               style={{
@@ -638,7 +687,11 @@ export default function AIConversationChat({
                   scrollbarWidth: 'none',
                 }}
               >
-                {(STARTERS[level] || STARTERS.B1).map((s, i) => (
+                {(
+                  (STARTERS as Record<string, string[]>)[level] ??
+                  (STARTERS as Record<string, string[]>)['B1'] ??
+                  []
+                ).map((s: string, i: number) => (
                   <button
                     key={i}
                     onClick={() => {
@@ -691,7 +744,7 @@ export default function AIConversationChat({
                         ? 'Listening — speak in Croatian…'
                         : 'Piši na hrvatskom…'
                 }
-                disabled={loading || !isOnline || (chatError && messages.length === 0)}
+                disabled={loading || !isOnline || !!(chatError && messages.length === 0)}
                 style={{
                   flex: 1,
                   padding: '11px 14px',
@@ -788,7 +841,7 @@ export default function AIConversationChat({
                 </button>
                 <span style={{ color: 'var(--card-b)', fontSize: 'var(--text-base)' }}>|</span>
                 <button
-                  onClick={() => setShowStarters((p) => !p)}
+                  onClick={() => setShowStarters(!showStarters)}
                   style={{
                     background: showStarters ? 'var(--info)' : 'none',
                     border: `1.5px solid ${showStarters ? 'var(--info)' : 'var(--card-b)'}`,

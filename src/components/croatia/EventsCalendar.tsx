@@ -1,13 +1,16 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { EVENTS } from '../../data';
 
-function EventsCalendar({ goBack }) {
+interface EventsCalendarProps {
+  goBack: () => void;
+}
+
+function EventsCalendar({ goBack }: EventsCalendarProps) {
   const [evM, sEvM] = useState(new Date().getMonth() + 1 || 1);
   return (
     <div className="scr-wrap">
-      {H('📅 Croatian Events & Holidays', 'Traditional celebrations throughout the year')}
+      {H('📅 Croatian Events & Holidays', 'Traditional celebrations throughout the year', goBack)}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(function (m) {
           return (

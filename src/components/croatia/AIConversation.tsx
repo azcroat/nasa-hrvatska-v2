@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { speak } from '../../data';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -7,7 +6,10 @@ import { useApp } from '../../context/AppContext';
 import useWhisperSTT from '../../hooks/useWhisperSTT.js';
 import useConversationMemory from '../../hooks/useConversationMemory.js';
 import { markPracticed } from '../../hooks/useNotifications';
-import { useConversationSession } from '../../hooks/useConversationSession';
+import {
+  useConversationSession,
+  type ConversationMessage,
+} from '../../hooks/useConversationSession';
 import { useWriteMode } from '../../hooks/useWriteMode';
 import { markQuest } from '../../lib/quests.js';
 import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
@@ -22,6 +24,22 @@ import AIConversationResult from './AIConversationResult';
 import AIConversationChat from './AIConversationChat';
 import AIWordTooltip from './AIWordTooltip';
 import { PORTRAIT_MAP } from './SpeakingAvatar';
+
+interface Scenario {
+  id: string;
+  cat: string;
+  aiName: string;
+  title: string;
+  levels: string[];
+  [key: string]: unknown;
+}
+
+interface AIConversationProps {
+  goBack?: () => void;
+  setScr: (scr: unknown, ...args: unknown[]) => void;
+  sCurEx: unknown;
+  setJWords: (words: unknown[]) => void;
+}
 
 // ── Writing prompts ──────────────────────────────────────────────────────────
 const WRITE_PROMPTS = [
@@ -209,15 +227,35 @@ const TOPIC_FOR_CAT = {
   'Work & Travel': 'work',
   Professional: 'work',
 };
-function topicForScenario(s) {
-  return TOPIC_FOR_SCENARIO_ID[s?.id] || TOPIC_FOR_CAT[s?.cat] || 'free';
+interface MajaResult {
+  croatian: string;
+  english_gloss?: string;
+  scaffolding_level?: string;
+  emotion?: string;
+  correction?: { corrected: string; echo?: string };
+  errorPatterns?: string[];
+  is_session_end?: boolean;
 }
 
-export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWords }) {
+function topicForScenario(s: Scenario | null): string {
+  if (!s) return 'free';
+  return (
+    (TOPIC_FOR_SCENARIO_ID as Record<string, string>)[s.id] ||
+    (TOPIC_FOR_CAT as Record<string, string>)[s.cat] ||
+    'free'
+  );
+}
+
+export default function AIConversation({
+  goBack: _goBack,
+  setScr,
+  sCurEx,
+  setJWords,
+}: AIConversationProps) {
   const { award, stats: appSt } = useStats();
   const { name: userName, au } = useApp();
   const stats = appSt;
-  const isOnline = useOnlineStatus();
+  const { isOnline } = useOnlineStatus();
 
   // ── Mode & setup filters ────────────────────────────────────────────────────
   const [appMode, setAppMode] = useState('convo'); // "convo" | "write"
@@ -240,8 +278,8 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   const {
     phase,
     setPhase,
-    scenario,
-    setScenario,
+    scenario: scenarioRaw,
+    setScenario: setScenarioRaw,
     level,
     setLevel,
     turnCount,
@@ -283,6 +321,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     savedWords,
     setSavedWords,
   } = useConversationSession(initialLevel);
+  // Cast scenario to the Scenario interface for typed property access
+  const scenario = scenarioRaw as Scenario | null;
+  const setScenario = setScenarioRaw as (s: Scenario | null) => void;
 
   // ── Write mode state (6 vars → 1 hook) ─────────────────────────────────────
   const {
@@ -305,14 +346,14 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
-  const memorySummaryRef = useRef(null); // cached memory summary for this session
+  const memorySummaryRef = useRef<string | null>(null); // cached memory summary for this session
   const evalXpFired = useRef(false);
   const writeXpFired = useRef(false);
 
   // ── Whisper STT + VAD ───────────────────────────────────────────────────────
   const stt = useWhisperSTT({
     isSpeaking,
-    onResult: (text) => {
+    onResult: (text: string) => {
       // Auto-submit voice transcription — mirrors the old r.onend handler
       setInput('');
       sendMessageCore(text);
@@ -321,7 +362,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       // User spoke while Maja was talking — clear the speaking animation
       setIsSpeaking(false);
     },
-    onError: (msg) => {
+    onError: (msg: string) => {
       setSendError(msg);
     },
   });
@@ -332,15 +373,17 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
   // ── Persistent conversation memory ─────────────────────────────────────────
   const { loadMemories, saveMemory } = useConversationMemory();
-  const npcVideoFiredRef = useRef(null);
+  const npcVideoFiredRef = useRef<string | null>(null);
   const speakGenRef = useRef(0); // prevents stale animation clear
-  const translationCacheRef = useRef({});
+  const translationCacheRef = useRef<Record<string, { translation: string; note: string | null }>>(
+    {},
+  );
 
-  const messagesEndRef = useRef(/** @type {HTMLDivElement | null} */ null);
-  const inputRef = useRef(null);
-  const writeTextRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const writeTextRef = useRef<HTMLTextAreaElement | null>(null);
   const isMountedRef = useRef(true);
-  const majaAbortRef = useRef(null); // AbortController for the active /api/conversation stream
+  const majaAbortRef = useRef<AbortController | null>(null); // AbortController for the active /api/conversation stream
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
@@ -361,17 +404,19 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
   useEffect(() => {
     if (!tooltip) return undefined;
-    function dismiss(e) {
-      if (!e.target.closest('[data-tooltip]') && !e.target.closest('[data-word]')) {
+    function dismiss(e: PointerEvent) {
+      const target = e.target as Element | null;
+      if (target && !target.closest('[data-tooltip]') && !target.closest('[data-word]')) {
         setTooltip(null);
       }
     }
     document.addEventListener('pointerdown', dismiss);
     return () => document.removeEventListener('pointerdown', dismiss);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tooltip]);
 
   // ── Speaking animation — tied to actual audio end, not a timer estimate ──────
-  async function speakWithAnim(text) {
+  async function speakWithAnim(text: string) {
     if (!text) return;
     const myGen = ++speakGenRef.current;
     setIsSpeaking(true);
@@ -395,7 +440,12 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }
 
   // ── Streaming conversation caller — uses /api/conversation (Maja persona) ───
-  async function callMaja(msgs, topic, turn, memoryContext) {
+  async function callMaja(
+    msgs: unknown[],
+    topic: string,
+    turn: number,
+    memoryContext: string | null,
+  ): Promise<MajaResult> {
     const learnerErrors = getErrorsForAPI(6);
     const body = {
       messages: msgs,
@@ -406,7 +456,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       ...(memoryContext ? { memoryContext } : {}),
       mistakePatterns: learnerErrors.map((e) => ({ pattern: e?.pattern || String(e), count: 1 })),
       learnerErrors,
-      isHeritage: !!stats?.heritage,
+      isHeritage: !!(stats as unknown as Record<string, unknown>)?.heritage,
     };
     // Cancel any previous in-flight stream before starting a new one
     majaAbortRef.current?.abort();
@@ -422,8 +472,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         signal: ctrl.signal,
       });
     } catch (netErr) {
-      if (netErr.name === 'AbortError') throw new Error('Request timed out — please try again.');
-      throw new Error('Network error — check your connection. (' + netErr.message + ')');
+      const err = netErr as Error;
+      if (err.name === 'AbortError') throw new Error('Request timed out — please try again.');
+      throw new Error('Network error — check your connection. (' + err.message + ')');
     }
     if (!res.ok) {
       let errData;
@@ -462,7 +513,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    let result = null;
+    let result: MajaResult | null = null;
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -481,7 +532,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           }
           if (parsed.error === 'timeout')
             throw new Error('The AI took too long to respond. Please try again.');
-          if (parsed.type === 'done' && parsed.result) result = parsed.result;
+          if (parsed.type === 'done' && parsed.result) result = parsed.result as MajaResult;
         }
       }
     } finally {
@@ -498,7 +549,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }
 
   // ── Legacy caller — used for non-conversation endpoints (hints, eval, write) ─
-  async function callAI(msgs, params, mode = 'convo') {
+  async function callAI(msgs: unknown[], params: Record<string, unknown>, mode = 'convo') {
     let res, data;
     try {
       res = await apiFetch('/api/ai-chat', {
@@ -507,8 +558,9 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
         body: JSON.stringify({ messages: msgs, mode, params, learnerErrors: getErrorsForAPI(6) }),
       });
     } catch (netErr) {
-      if (netErr.name === 'AbortError') throw new Error('Request timed out — please try again.');
-      throw new Error('Network error — check your connection. (' + netErr.message + ')');
+      const err = netErr as Error;
+      if (err.name === 'AbortError') throw new Error('Request timed out — please try again.');
+      throw new Error('Network error — check your connection. (' + err.message + ')');
     }
     try {
       data = await res.json();
@@ -537,7 +589,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     return data.text;
   }
 
-  function parseJSON(raw) {
+  function parseJSON(raw: string) {
     const clean = raw
       .replace(/^```json\s*/i, '')
       .replace(/^```\s*/i, '')
@@ -566,7 +618,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     if (npcVideoFiredRef.current !== scenario.id) {
       npcVideoFiredRef.current = scenario.id;
       setNpcVideoLoading(true);
-      const portraitKey = PORTRAIT_MAP[scenario.id] || 'young-woman';
+      const portraitKey = (PORTRAIT_MAP as Record<string, string>)[scenario.id] || 'young-woman';
       apiFetch(`/api/npc-video?portrait=${encodeURIComponent(portraitKey)}`)
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => {
@@ -603,7 +655,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       setTurnCount(1);
       setMessages([
         {
-          role: 'assistant',
+          role: 'assistant' as const,
           content: result.croatian,
           gloss: result.english_gloss,
           scaffolding: result.scaffolding_level,
@@ -612,7 +664,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       ]);
       if (!muted) speakWithAnim(result.croatian);
     } catch (e) {
-      const msg = e.message || '';
+      const msg = (e as Error).message || '';
       setChatError(msg.startsWith('setup_error:') ? msg.slice(12) : msg);
     }
     setLoading(false);
@@ -620,11 +672,11 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   }
 
   // ── Core send — accepts explicit text so voice auto-submit bypasses state lag ─
-  async function sendMessageCore(userText) {
+  async function sendMessageCore(userText: string) {
     if (!userText.trim() || loading) return;
     setSendError('');
     const userMsgIndex = messages.length; // index of the user message being added
-    const userMsg = { role: 'user', content: userText };
+    const userMsg: ConversationMessage = { role: 'user', content: userText };
     // Build context: exclude hint messages (they're UI-only, not conversation turns)
     const contextMsgs = messages
       .filter((m) => m.role !== 'hint')
@@ -641,7 +693,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       const result = await callMaja(next, topic, turnCount, memorySummaryRef.current);
       setTurnCount((prev) => prev + 1);
 
-      const assistantMsg = {
+      const assistantMsg: ConversationMessage = {
         role: 'assistant',
         content: result.croatian,
         gloss: result.english_gloss,
@@ -670,7 +722,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       }
     } catch (e) {
       setInput(userText);
-      setSendError(e.message || 'Send failed — please try again.');
+      setSendError((e as Error).message || 'Send failed — please try again.');
     }
     setLoading(false);
   }
@@ -679,7 +731,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     sendMessageCore(input.trim());
   }
 
-  async function translateWord(word) {
+  async function translateWord(word: string) {
     const clean = word.replace(/[.,!?;:…«»"'""''()\[\]]/g, '').trim();
     if (!clean || clean.length < 2) return;
     const cached = translationCacheRef.current[clean.toLowerCase()];
@@ -723,10 +775,10 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     const entry = { w: tooltip.word, t: tooltip.translation, added: Date.now() };
     try {
       const existing = JSON.parse(localStorage.getItem('uJournal') || '[]');
-      if (!existing.find((e) => e.w === tooltip.word)) {
+      if (!existing.find((e: { w: string }) => e.w === tooltip.word)) {
         const updated = [...existing, entry];
         localStorage.setItem('uJournal', JSON.stringify(updated));
-        if (typeof setJWords === 'function') setJWords(updated);
+        setJWords(updated);
       }
     } catch {
       /* storage error */
@@ -781,7 +833,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       setTurnCount(1);
       setMessages([
         {
-          role: 'assistant',
+          role: 'assistant' as const,
           content: result.croatian,
           gloss: result.english_gloss,
           scaffolding: result.scaffolding_level,
@@ -790,7 +842,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       ]);
       if (!muted) speakWithAnim(result.croatian);
     } catch (e) {
-      const msg = e.message || '';
+      const msg = (e as Error).message || '';
       setChatError(msg.startsWith('setup_error:') ? msg.slice(12) : msg);
     }
     setLoading(false);
@@ -812,24 +864,28 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setPhase('evaluating');
     const convoText = currentMessages
       .filter((m) => m.role !== 'hint')
-      .map((m) => `${m.role === 'user' ? 'LEARNER' : 'AI (' + scenario.aiName + ')'}: ${m.content}`)
+      .map(
+        (m) => `${m.role === 'user' ? 'LEARNER' : 'AI (' + scenario?.aiName + ')'}: ${m.content}`,
+      )
       .join('\n\n');
     try {
       const raw = await callAI(
         [{ role: 'user', content: convoText }],
-        { level, scenarioTitle: scenario.title },
+        { level, scenarioTitle: scenario?.title ?? '' },
         'evaluate',
       );
       const ev = parseJSON(raw);
       setEvaluation(ev);
       if (ev && ev.mistakes && Array.isArray(ev.mistakes)) {
-        ev.mistakes.forEach((m) => {
-          logError(m.type || 'conversation_grammar', 'grammar', {
-            wrong: m.original,
-            correct: m.correction,
-            source: 'conversation',
-          });
-        });
+        (ev.mistakes as Array<{ type?: string; original?: string; correction?: string }>).forEach(
+          (m) => {
+            logError(m.type || 'conversation_grammar', 'grammar', {
+              wrong: m.original,
+              correct: m.correction,
+              source: 'conversation',
+            });
+          },
+        );
       }
       if (ev && !evalXpFired.current && typeof award === 'function') {
         evalXpFired.current = true;
@@ -853,7 +909,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
             setConvoVocab(syncData.vocabulary.slice(0, 8));
             vocabForMemory = syncData.vocabulary
               .slice(0, 6)
-              .map((v) => v.hr || v.word || '')
+              .map((v: { hr?: string; word?: string }) => v.hr || v.word || '')
               .filter(Boolean);
           }
         }
@@ -865,7 +921,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           level,
           scenario: scenario?.title,
           score: ev.score ?? 0,
-          struggles: (ev.mistakes || [])
+          struggles: ((ev.mistakes || []) as Array<{ type?: string }>)
             .slice(0, 4)
             .map((m) => m.type || 'grammar')
             .filter(Boolean),
@@ -876,7 +932,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
 
       setPhase('result');
     } catch (e) {
-      setEvalError(e.message || 'Evaluation failed');
+      setEvalError((e as Error).message || 'Evaluation failed');
       setPhase('result');
     }
   }
@@ -887,7 +943,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     try {
       const raw = await callAI(
         [{ role: 'user', content: writeText.trim() }],
-        { level: writeLevel, writingPrompt: writePrompt.prompt },
+        { level: writeLevel, writingPrompt: writePrompt?.prompt ?? '' },
         'writeeval',
       );
       const result = parseJSON(raw);
@@ -903,7 +959,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
       }
       setWritePhase('result');
     } catch (e) {
-      setWriteEvalError(e.message || 'Evaluation failed');
+      setWriteEvalError((e as Error).message || 'Evaluation failed');
       setWritePhase('result');
     }
   }
@@ -930,7 +986,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
     setWritePrompt(null);
   }
 
-  function handleModeChange(mode) {
+  function handleModeChange(mode: string) {
     setAppMode(mode);
     resetConvo();
     resetWrite();
@@ -950,9 +1006,14 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
   );
   // Show the mic button if any voice input method is available:
   // Whisper+VAD (MediaRecorder) OR Web Speech API fallback
-  const hasVoiceSupport =
-    !!(navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== 'undefined') ||
-    !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  // Runtime check — MediaRecorder / SpeechRecognition may be absent in some WebViews
+  const hasVoiceSupport = (() => {
+    const w = window as unknown as Record<string, unknown>;
+    const hasGUM = typeof navigator.mediaDevices?.getUserMedia === 'function';
+    const hasMR = hasGUM && !!w['MediaRecorder'];
+    const hasSTT = !!w['SpeechRecognition'] || !!w['webkitSpeechRecognition'];
+    return hasMR || hasSTT;
+  })();
 
   const Header = (
     <AIConversationHeader
@@ -1051,7 +1112,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 'var(--text-base)', fontWeight: 800, color: 'var(--heading)' }}>
-              {writePrompt.icon} {writePrompt.title}
+              {writePrompt?.icon} {writePrompt?.title}
             </div>
             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)' }}>
               Level {writeLevel} · Write in Croatian
@@ -1092,7 +1153,7 @@ export default function AIConversation({ goBack: _goBack, setScr, sCurEx, setJWo
               lineHeight: 1.6,
             }}
           >
-            <strong>Prompt:</strong> {writePrompt.prompt}
+            <strong>Prompt:</strong> {writePrompt?.prompt}
           </div>
         </div>
         {/* Writing area */}

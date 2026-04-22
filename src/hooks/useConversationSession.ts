@@ -7,6 +7,14 @@
 
 import { useState } from 'react';
 
+export interface TooltipData {
+  word: string;
+  translation?: string | null;
+  note?: string | null;
+  loading?: boolean;
+  saved?: boolean;
+}
+
 export interface ConversationMessage {
   role: 'user' | 'assistant' | 'hint';
   content: string;
@@ -17,8 +25,8 @@ export interface ConversationMessage {
 
 export interface ConversationSession {
   // Flow
-  phase: 'setup' | 'chat' | 'result';
-  setPhase: (p: 'setup' | 'chat' | 'result') => void;
+  phase: 'setup' | 'chat' | 'evaluating' | 'result';
+  setPhase: (p: 'setup' | 'chat' | 'evaluating' | 'result') => void;
   scenario: Record<string, unknown> | null;
   setScenario: (s: Record<string, unknown> | null) => void;
   level: string;
@@ -49,8 +57,8 @@ export interface ConversationSession {
   corrections: Record<string, unknown>;
   setCorrections: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
   // UI
-  tooltip: unknown | null;
-  setTooltip: (v: unknown | null) => void;
+  tooltip: TooltipData | null;
+  setTooltip: React.Dispatch<React.SetStateAction<TooltipData | null>>;
   showStarters: boolean;
   setShowStarters: (v: boolean) => void;
   listening: boolean;
@@ -71,7 +79,7 @@ export interface ConversationSession {
 }
 
 export function useConversationSession(initialLevel: string): ConversationSession {
-  const [phase, setPhase] = useState<'setup' | 'chat' | 'result'>('setup');
+  const [phase, setPhase] = useState<'setup' | 'chat' | 'evaluating' | 'result'>('setup');
   const [scenario, setScenario] = useState<Record<string, unknown> | null>(null);
   const [level, setLevel] = useState<string>(initialLevel);
   const [turnCount, setTurnCount] = useState<number>(0);
@@ -85,7 +93,7 @@ export function useConversationSession(initialLevel: string): ConversationSessio
   const [convoVocab, setConvoVocab] = useState<unknown[]>([]);
   const [weakAreasForSession, setWeakAreasForSession] = useState<string[]>([]);
   const [corrections, setCorrections] = useState<Record<string, unknown>>({});
-  const [tooltip, setTooltip] = useState<unknown | null>(null);
+  const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [showStarters, setShowStarters] = useState<boolean>(false);
   const [listening, setListening] = useState<boolean>(false);
   const [muted, setMuted] = useState<boolean>(false);

@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { EMERGENCY } from '../../data';
 
-function EmergencyScreen({ goBack }) {
+interface EmergencyScreenProps {
+  goBack: () => void;
+}
+
+function EmergencyScreen({ goBack }: EmergencyScreenProps) {
   return (
     <div className="scr-wrap">
       {H('🚨 Emergency Phrases', 'Medical, police, urgent', goBack)}
@@ -32,7 +35,7 @@ function EmergencyScreen({ goBack }) {
               padding: '10px 14px',
             }}
             onClick={function () {
-              speak(p[0]);
+              speak(p[0]!);
             }}
           >
             <span style={{ fontWeight: 700, fontSize: 14, color: '#dc2626' }}>

@@ -1,8 +1,19 @@
-// @ts-nocheck
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { LEVEL_COLORS } from './MediaPlayerUtils';
+import type { WritePrompt } from '../../hooks/useWriteMode';
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
+interface AIConversationWriteSetupProps {
+  Header: ReactNode;
+  writeLevel: string;
+  setWriteLevel: (level: string) => void;
+  writePrompt: WritePrompt | null;
+  setWritePrompt: (prompt: WritePrompt | null) => void;
+  filteredPrompts: WritePrompt[];
+  isOnline: boolean;
+  onStart: () => void;
+}
 
 export default function AIConversationWriteSetup({
   Header,
@@ -13,7 +24,7 @@ export default function AIConversationWriteSetup({
   filteredPrompts,
   isOnline,
   onStart,
-}) {
+}: AIConversationWriteSetupProps) {
   return (
     <div className="scr-wrap">
       {Header}
@@ -102,8 +113,8 @@ export default function AIConversationWriteSetup({
                           fontWeight: 800,
                           padding: '2px 7px',
                           borderRadius: 10,
-                          background: LEVEL_COLORS[p.level] + '20',
-                          color: LEVEL_COLORS[p.level],
+                          background: (LEVEL_COLORS as Record<string, string>)[p.level] + '20',
+                          color: (LEVEL_COLORS as Record<string, string>)[p.level],
                         }}
                       >
                         {p.level}

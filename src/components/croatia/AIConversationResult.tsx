@@ -1,6 +1,50 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak } from '../../data';
+
+interface ConvoMistake {
+  original?: string;
+  correction?: string;
+  rule?: string;
+}
+
+interface ConvoFocusArea {
+  topic?: string;
+  explanation?: string;
+  exercise?: string;
+}
+
+interface ConvoVocabItem {
+  word?: string;
+  hr?: string;
+  english?: string;
+  en?: string;
+}
+
+interface ConvoEvaluation {
+  score: number;
+  scoreLabel?: string;
+  level_demonstrated?: string;
+  encouragement?: string;
+  strengths?: string[];
+  mistakes?: ConvoMistake[];
+  focus_areas?: ConvoFocusArea[];
+  vocabulary_feedback?: string;
+  [key: string]: unknown;
+}
+
+interface AIConversationResultProps {
+  evalError: string | null;
+  evaluation: ConvoEvaluation | Record<string, unknown> | null;
+  level: string;
+  userCount: number;
+  weakAreasForSession: string[];
+  convoVocab: ConvoVocabItem[] | unknown[] | null;
+  setJWords: (words: unknown[]) => void;
+  setScr: (scr: unknown, ...args: unknown[]) => void;
+  sCurEx: ((ex: string) => void) | unknown;
+  onBackToChat: () => void;
+  onReset: () => void;
+}
 
 const EXERCISE_MAP = {
   akudrill: '🍽️ Accusative Case',
@@ -34,7 +78,7 @@ export default function AIConversationResult({
   sCurEx,
   onBackToChat,
   onReset,
-}) {
+}: AIConversationResultProps) {
   const [savedVocab, setSavedVocab] = useState(new Set());
   if (evalError || !evaluation)
     return (
@@ -54,7 +98,9 @@ export default function AIConversationResult({
       </div>
     );
 
-  const ev = evaluation;
+  const ev = evaluation as ConvoEvaluation;
+  const vocab = convoVocab as ConvoVocabItem[] | null;
+  const curEx = sCurEx as ((ex: string) => void) | null;
   const scoreEmoji = ev.score >= 80 ? '🏆' : ev.score >= 55 ? '👏' : '📚';
   const scoreLabel =
     ev.score >= 80 ? 'Excellent!' : ev.score >= 55 ? 'Good Progress' : 'Keep Practicing';
@@ -100,7 +146,7 @@ export default function AIConversationResult({
 
       {ev.encouragement && (
         <div
-          onClick={() => speak(ev.encouragement)}
+          onClick={() => speak(ev.encouragement ?? '')}
           style={{
             background: 'var(--success-bg)',
             border: '1.5px solid var(--success-b)',
@@ -135,7 +181,7 @@ export default function AIConversationResult({
         </div>
       )}
 
-      {ev.strengths?.length > 0 && (
+      {(ev.strengths?.length ?? 0) > 0 && (
         <div
           style={{
             background: 'var(--card)',
@@ -157,7 +203,7 @@ export default function AIConversationResult({
           >
             ✅ What You Did Well
           </div>
-          {ev.strengths.map((s, i) => (
+          {ev.strengths!.map((s: string, i: number) => (
             <div
               key={i}
               style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}
@@ -177,7 +223,7 @@ export default function AIConversationResult({
         </div>
       )}
 
-      {ev.mistakes?.length > 0 && (
+      {(ev.mistakes?.length ?? 0) > 0 && (
         <div
           style={{
             background: 'var(--card)',
@@ -199,13 +245,14 @@ export default function AIConversationResult({
           >
             📝 Corrections
           </div>
-          {ev.mistakes.map((m, i) => (
+          {ev.mistakes!.map((m: ConvoMistake, i: number) => (
             <div
               key={i}
               style={{
-                marginBottom: i < ev.mistakes.length - 1 ? 14 : 0,
-                paddingBottom: i < ev.mistakes.length - 1 ? 14 : 0,
-                borderBottom: i < ev.mistakes.length - 1 ? '1px solid var(--card-b)' : 'none',
+                marginBottom: i < (ev.mistakes?.length ?? 0) - 1 ? 14 : 0,
+                paddingBottom: i < (ev.mistakes?.length ?? 0) - 1 ? 14 : 0,
+                borderBottom:
+                  i < (ev.mistakes?.length ?? 0) - 1 ? '1px solid var(--card-b)' : 'none',
               }}
             >
               <div
@@ -244,7 +291,7 @@ export default function AIConversationResult({
         </div>
       )}
 
-      {ev.focus_areas?.length > 0 && (
+      {(ev.focus_areas?.length ?? 0) > 0 && (
         <div
           style={{
             background: 'var(--card)',
@@ -266,15 +313,16 @@ export default function AIConversationResult({
           >
             🎯 Focus for the Next Few Days
           </div>
-          {ev.focus_areas.map((f, i) => (
+          {ev.focus_areas!.map((f: ConvoFocusArea, i: number) => (
             <div
               key={i}
               style={{
                 display: 'flex',
                 gap: 12,
-                marginBottom: i < ev.focus_areas.length - 1 ? 16 : 0,
-                paddingBottom: i < ev.focus_areas.length - 1 ? 16 : 0,
-                borderBottom: i < ev.focus_areas.length - 1 ? '1px solid var(--card-b)' : 'none',
+                marginBottom: i < (ev.focus_areas?.length ?? 0) - 1 ? 16 : 0,
+                paddingBottom: i < (ev.focus_areas?.length ?? 0) - 1 ? 16 : 0,
+                borderBottom:
+                  i < (ev.focus_areas?.length ?? 0) - 1 ? '1px solid var(--card-b)' : 'none',
               }}
             >
               <div
@@ -316,11 +364,11 @@ export default function AIConversationResult({
                 >
                   {f.explanation}
                 </div>
-                {f.exercise && EXERCISE_MAP[f.exercise] && (
+                {f.exercise && (EXERCISE_MAP as Record<string, string>)[f.exercise] && (
                   <button
                     onClick={() => {
                       setScr(f.exercise);
-                      sCurEx && sCurEx(f.exercise);
+                      if (curEx && f.exercise) curEx(f.exercise);
                     }}
                     style={{
                       fontSize: 'var(--text-sm)',
@@ -335,7 +383,7 @@ export default function AIConversationResult({
                       transition: 'all .15s',
                     }}
                   >
-                    Practice now: {EXERCISE_MAP[f.exercise]} →
+                    Practice now: {(EXERCISE_MAP as Record<string, string>)[f.exercise ?? '']} →
                   </button>
                 )}
               </div>
@@ -388,7 +436,7 @@ export default function AIConversationResult({
             🎯 Conversation focused on:
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {weakAreasForSession.map((area, i) => (
+            {weakAreasForSession.map((area: string, i: number) => (
               <span
                 key={i}
                 style={{
@@ -411,7 +459,7 @@ export default function AIConversationResult({
         </div>
       )}
 
-      {convoVocab && convoVocab.length > 0 && (
+      {vocab && vocab.length > 0 && (
         <div
           style={{
             background: 'var(--card)',
@@ -437,7 +485,7 @@ export default function AIConversationResult({
             These words appeared in your conversation. Save them to your journal for spaced
             repetition review.
           </div>
-          {convoVocab.map((v, i) => (
+          {vocab.map((v: ConvoVocabItem, i: number) => (
             <div
               key={i}
               style={{
@@ -445,7 +493,7 @@ export default function AIConversationResult({
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '10px 0',
-                borderBottom: i < convoVocab.length - 1 ? '1px solid var(--card-b)' : 'none',
+                borderBottom: i < vocab.length - 1 ? '1px solid var(--card-b)' : 'none',
                 gap: 12,
               }}
             >
@@ -476,10 +524,10 @@ export default function AIConversationResult({
                 disabled={savedVocab.has(i)}
                 onClick={() => {
                   if (typeof setJWords === 'function') {
-                    setJWords((prev) => [
-                      ...(prev || []),
-                      { hr: v.word || v.hr, en: v.english || v.en },
-                    ]);
+                    const existing: unknown[] = JSON.parse(
+                      localStorage.getItem('uJournal') || '[]',
+                    );
+                    setJWords([...existing, { hr: v.word || v.hr, en: v.english || v.en }]);
                   }
                   setSavedVocab((s) => new Set([...s, i]));
                 }}
