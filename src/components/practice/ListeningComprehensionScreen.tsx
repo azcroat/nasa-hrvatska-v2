@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 import { speak, speakSlow, stopAudio } from '../../lib/audio.ts';
@@ -17,7 +16,8 @@ function loadProgress() {
   }
 }
 
-function saveProgress(prog) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function saveProgress(prog: any) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
   } catch {}
@@ -859,7 +859,8 @@ const EXERCISES = {
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function shuffle(arr) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function shuffle(arr: any[]) {
   const b = [...arr];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -930,7 +931,7 @@ const STOP_WORDS = new Set([
   'vaša',
 ]);
 
-function extractKeyWords(sentence) {
+function extractKeyWords(sentence: string) {
   const words = sentence
     .replace(/[.,!?;:"'«»—–\-\u201c\u201d]/g, ' ')
     .split(/\s+/)
@@ -941,7 +942,7 @@ function extractKeyWords(sentence) {
 }
 
 /** Highlight key words in the Croatian transcript */
-function HighlightedTranscript({ text, keyWords }) {
+function HighlightedTranscript({ text, keyWords }: { text: string; keyWords: string[] }) {
   if (!keyWords || keyWords.length === 0) {
     return <span>{text}</span>;
   }
@@ -975,12 +976,12 @@ function HighlightedTranscript({ text, keyWords }) {
 }
 
 /** Generate a stable question ID based on level + set index + question index */
-function _makeQId(levelId, setIdx, qIdx) {
+function _makeQId(levelId: string, setIdx: number, qIdx: number) {
   return `${levelId}__s${setIdx}__q${qIdx}`;
 }
 
 /** Find the graded story closest to the given CEFR level */
-function getBonusStory(levelId) {
+function getBonusStory(levelId: string) {
   const stories = GRADED_STORIES.filter((s) => s.level === levelId);
   if (stories.length > 0) return stories[Math.floor(Math.random() * stories.length)];
   // fallback: any story
@@ -990,7 +991,7 @@ function getBonusStory(levelId) {
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-function AudioControls({ text, accentColor }) {
+function AudioControls({ text, accentColor }: { text: string; accentColor: string }) {
   const [playing, setPlaying] = useState(false);
   const [slowPlaying, setSlowPlaying] = useState(false);
   const mountedRef = useRef(true);
@@ -1088,7 +1089,15 @@ function AudioControls({ text, accentColor }) {
   );
 }
 
-function TranscriptToggle({ text, keyWords, accentColor }) {
+function TranscriptToggle({
+  text,
+  keyWords,
+  accentColor,
+}: {
+  text: string;
+  keyWords: string[];
+  accentColor: string;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ marginTop: 14 }}>
@@ -1167,7 +1176,17 @@ function TranscriptToggle({ text, keyWords, accentColor }) {
   );
 }
 
-function WeakWordsPanel({ missedQuestions, accentColor, onAddToFlashcards }) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function WeakWordsPanel({
+  missedQuestions,
+  accentColor,
+  onAddToFlashcards,
+}: {
+  missedQuestions: any[];
+  accentColor: string;
+  onAddToFlashcards: (words: any[]) => void;
+}) {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const [added, setAdded] = useState(false);
   if (missedQuestions.length === 0) return null;
 
@@ -1238,7 +1257,17 @@ function WeakWordsPanel({ missedQuestions, accentColor, onAddToFlashcards }) {
   );
 }
 
-function BonusStoryCard({ levelId, accentColor, onOpen }) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function BonusStoryCard({
+  levelId,
+  accentColor,
+  onOpen,
+}: {
+  levelId: string;
+  accentColor: string;
+  onOpen: (story: any) => void;
+}) {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const story = getBonusStory(levelId);
   if (!story) return null;
   return (
@@ -1298,11 +1327,12 @@ function BonusStoryCard({ levelId, accentColor, onOpen }) {
   );
 }
 
-function GradedStoryModal({ story, onClose }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function GradedStoryModal({ story, onClose }: { story: any; onClose: () => void }) {
   const [paraIdx, setParaIdx] = useState(0);
   const [showEn, setShowEn] = useState(false);
   const [quizMode, setQuizMode] = useState(false);
-  const [quizAnswer, setQuizAnswer] = useState(null);
+  const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [quizIdx, setQuizIdx] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
@@ -1323,7 +1353,7 @@ function GradedStoryModal({ story, onClose }) {
     speak(para.hr);
   }
 
-  function handleQuizAnswer(optIdx) {
+  function handleQuizAnswer(optIdx: number) {
     if (quizAnswer !== null) return;
     setQuizAnswer(optIdx);
     if (optIdx === story.quiz[quizIdx].correct) setQuizScore((s) => s + 1);
@@ -1417,7 +1447,8 @@ function GradedStoryModal({ story, onClose }) {
         {!quizMode ? (
           <>
             <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-              {story.paragraphs.map((_, i) => (
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {story.paragraphs.map((_: any, i: number) => (
                 <div
                   key={i}
                   style={{
@@ -1642,7 +1673,8 @@ function GradedStoryModal({ story, onClose }) {
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {story.quiz[quizIdx].opts.map((opt, idx) => {
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {story.quiz[quizIdx].opts.map((opt: any, idx: number) => {
                 const correct = story.quiz[quizIdx].correct;
                 let bg = 'var(--card)',
                   border = '1.5px solid var(--card-b)',
@@ -1713,62 +1745,78 @@ function GradedStoryModal({ story, onClose }) {
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
-export default function ListeningComprehensionScreen({ goBack, award }) {
+export default function ListeningComprehensionScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   useApp();
 
   // Navigation state
-  const [selectedLevel, setSelectedLevel] = useState(null);
-  const [selectedSet, setSelectedSet] = useState(null);
-  const [selectedSetIdx, setSelectedSetIdx] = useState(null);
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [selectedSet, setSelectedSet] = useState<any | null>(null);
+  const [selectedSetIdx, setSelectedSetIdx] = useState<number | null>(null);
   const [questionIdx, setQuestionIdx] = useState(0);
-  const [chosen, setChosen] = useState(null);
+  const [chosen, setChosen] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
-  const [shuffledQuestions, setShuffledQuestions] = useState(null);
-  const [missedQuestions, setMissedQuestions] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [shuffledQuestions, setShuffledQuestions] = useState<any[] | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [missedQuestions, setMissedQuestions] = useState<any[]>([]);
 
   // Bonus story modal
-  const [bonusStory, setBonusStory] = useState(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [bonusStory, setBonusStory] = useState<any | null>(null);
 
   // Persist progress
-  const [progress, setProgress] = useState(() => loadProgress());
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [progress, setProgress] = useState<any>(() => loadProgress());
 
   // Computed: level completion
   const levelIds = Object.keys(EXERCISES);
-  const levelData = selectedLevel ? EXERCISES[selectedLevel] : null;
+  const levelData = selectedLevel
+    ? ((EXERCISES as Record<string, typeof EXERCISES.A1>)[selectedLevel] ?? null)
+    : null;
 
-  function getCompletedQuestions(levelId, setIdx) {
-    const lvl = progress[levelId] || {};
+  function getCompletedQuestions(levelId: string, setIdx: number) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lvl = (progress as any)[levelId] || {};
     const set = lvl[setIdx] || {};
     return Object.keys(set).filter((k) => set[k] === true).length;
   }
 
-  function getTotalQuestionsForSet(levelId, setIdx) {
-    return EXERCISES[levelId].sets[setIdx].questions.length;
+  function getTotalQuestionsForSet(levelId: string, setIdx: number) {
+    return (EXERCISES as Record<string, typeof EXERCISES.A1>)[levelId]!.sets[setIdx]!.questions
+      .length;
   }
 
-  function isSetComplete(levelId, setIdx) {
+  function isSetComplete(levelId: string, setIdx: number) {
     const total = getTotalQuestionsForSet(levelId, setIdx);
     return getCompletedQuestions(levelId, setIdx) >= total;
   }
 
-  function isLevelComplete(levelId) {
-    const sets = EXERCISES[levelId].sets;
+  function isLevelComplete(levelId: string) {
+    const sets = (EXERCISES as Record<string, typeof EXERCISES.A1>)[levelId]!.sets;
     return sets.every((_, si) => isSetComplete(levelId, si));
   }
 
-  function getLevelCompletionCount(levelId) {
-    const sets = EXERCISES[levelId].sets;
+  function getLevelCompletionCount(levelId: string) {
+    const sets = (EXERCISES as Record<string, typeof EXERCISES.A1>)[levelId]!.sets;
     return sets.reduce((sum, _, si) => sum + getCompletedQuestions(levelId, si), 0);
   }
 
-  function getLevelTotalCount(levelId) {
-    const sets = EXERCISES[levelId].sets;
+  function getLevelTotalCount(levelId: string) {
+    const sets = (EXERCISES as Record<string, typeof EXERCISES.A1>)[levelId]!.sets;
     return sets.reduce((sum, _, si) => sum + getTotalQuestionsForSet(levelId, si), 0);
   }
 
-  function markQuestionDone(levelId, setIdx, qIdx) {
-    setProgress((prev) => {
+  function markQuestionDone(levelId: string, setIdx: number, qIdx: number) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setProgress((prev: any) => {
       const next = {
         ...prev,
         [levelId]: {
@@ -1784,9 +1832,11 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
     });
   }
 
-  function startSet(setData, setIdx) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function startSet(setData: any, setIdx: number) {
     // Build ordered questions preserving original indices for progress tracking
-    const indexed = setData.questions.map((q, i) => ({ ...q, _origIdx: i }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const indexed = setData.questions.map((q: any, i: number) => ({ ...q, _origIdx: i }));
     const shuffled = shuffle(indexed).map((q) => ({ ...q, opts: shuffle(q.opts) }));
     setShuffledQuestions(shuffled);
     setSelectedSet(setData);
@@ -1798,10 +1848,10 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
     setMissedQuestions([]);
   }
 
-  function handleAnswer(opt) {
+  function handleAnswer(opt: string) {
     if (chosen !== null) return;
     setChosen(opt);
-    const q = shuffledQuestions[questionIdx];
+    const q = shuffledQuestions![questionIdx]!;
     const correct = opt === q.en;
     if (correct) {
       setScore((s) => s + 1);
@@ -1809,11 +1859,11 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
       setMissedQuestions((prev) => [...prev, { hr: q.hr, en: q.en }]);
     }
     // Mark this question as done in progress
-    markQuestionDone(selectedLevel, selectedSetIdx, q._origIdx);
+    markQuestionDone(selectedLevel!, selectedSetIdx!, q._origIdx);
   }
 
   function next() {
-    const qs = shuffledQuestions;
+    const qs = shuffledQuestions!;
     if (questionIdx + 1 >= qs.length) {
       setFinished(true);
       // `score` already includes the last answer (handleAnswer incremented it before Next was clickable).
@@ -1838,7 +1888,8 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
     setMissedQuestions([]);
   }
 
-  function handleAddToFlashcards(words) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function handleAddToFlashcards(words: any[]) {
     // Dispatch event to app-level handler if available
     try {
       window.dispatchEvent(
@@ -1854,8 +1905,8 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
     const total = shuffledQuestions.length;
     const displayScore = score;
     const pct = Math.round((displayScore / total) * 100);
-    const ld = EXERCISES[selectedLevel];
-    const levelNowComplete = isLevelComplete(selectedLevel);
+    const ld = (EXERCISES as Record<string, typeof EXERCISES.A1>)[selectedLevel!]!;
+    const levelNowComplete = isLevelComplete(selectedLevel!);
 
     return (
       <div className="scr-wrap">
@@ -1923,7 +1974,7 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
           onAddToFlashcards={handleAddToFlashcards}
         />
 
-        <BonusStoryCard levelId={selectedLevel} accentColor={ld.color} onOpen={setBonusStory} />
+        <BonusStoryCard levelId={selectedLevel!} accentColor={ld.color} onOpen={setBonusStory} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '20px 0 0' }}>
           <button className="b bp" onClick={reset} style={{ width: '100%' }}>
@@ -1948,14 +1999,14 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
 
   // ── Active question ──────────────────────────────────────────────────────
   if (selectedSet && shuffledQuestions) {
-    const q = shuffledQuestions[questionIdx];
+    const q = shuffledQuestions[questionIdx]!;
     const total = shuffledQuestions.length;
-    const ld = EXERCISES[selectedLevel];
+    const ld = (EXERCISES as Record<string, typeof EXERCISES.A1>)[selectedLevel!]!;
     const keyWords = extractKeyWords(q.hr);
 
     // Completion within the set
-    const completedInSet = getCompletedQuestions(selectedLevel, selectedSetIdx);
-    const totalInSet = getTotalQuestionsForSet(selectedLevel, selectedSetIdx);
+    const completedInSet = getCompletedQuestions(selectedLevel!, selectedSetIdx!);
+    const totalInSet = getTotalQuestionsForSet(selectedLevel!, selectedSetIdx!);
 
     return (
       <div className="scr-wrap" style={{ paddingBottom: 24 }}>
@@ -2090,7 +2141,7 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
 
         {/* Answer options */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {q.opts.map((opt) => {
+          {q.opts.map((opt: string) => {
             const isCorrect = opt === q.en;
             const isChosen = opt === chosen;
             let bg = 'var(--card)',
@@ -2410,7 +2461,7 @@ export default function ListeningComprehensionScreen({ goBack, award }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {levelIds.map((lid) => {
-          const ld = EXERCISES[lid];
+          const ld = (EXERCISES as Record<string, typeof EXERCISES.A1>)[lid]!;
           const completed = getLevelCompletionCount(lid);
           const total = getLevelTotalCount(lid);
           const pct = total > 0 ? Math.round((completed / total) * 100) : 0;

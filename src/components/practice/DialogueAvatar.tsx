@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 const DIALOGUE_PORTRAIT = {
@@ -13,8 +12,8 @@ const DIALOGUE_PORTRAIT = {
   family_gathering: 'grandmother',
 };
 
-export default function DialogueAvatar({ scenarioId }) {
-  const key = DIALOGUE_PORTRAIT[scenarioId];
+export default function DialogueAvatar({ scenarioId }: { scenarioId: string }) {
+  const key = (DIALOGUE_PORTRAIT as Record<string, string>)[scenarioId];
   const [err, setErr] = React.useState(false);
   if (!key || err) return null;
   return (

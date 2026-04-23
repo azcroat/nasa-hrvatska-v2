@@ -1,16 +1,22 @@
-// @ts-nocheck
 import React, { useEffect } from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
 import { markPracticed } from '../../hooks/useNotifications';
 import { useApp } from '../../context/AppContext';
 
+interface Props {
+  activePool: unknown[][];
+  known: number;
+  missed: unknown[][];
+  onGoBack: () => void;
+  onStudyMissed: (missed: unknown[][]) => void;
+}
 export default function FlashcardResultScreen({
   activePool,
   known,
   missed,
   onGoBack,
   onStudyMissed,
-}) {
+}: Props) {
   const { setScr } = useApp();
   // Mark practiced + campaign quest uskrs_q2 ("Practice family vocab") done on first flashcard completion
   useEffect(() => {

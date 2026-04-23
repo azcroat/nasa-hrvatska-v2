@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 
 const PHASES = ['Pair', 'Fill-In', 'Why?', 'Compare'];
 
-export default function AspectPhaseBar({ phase, total }) {
+interface Props {
+  phase: number;
+  total: number;
+}
+export default function AspectPhaseBar({ phase, total }: Props) {
   return (
     <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
       {PHASES.slice(0, total).map((label, i) => (

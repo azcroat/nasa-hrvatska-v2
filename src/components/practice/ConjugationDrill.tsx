@@ -1,31 +1,40 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak, sh, CONJ } from '../../data';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 
-export default function ConjugationDrill({ goBack, award, setSt }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFn = (s: any) => any;
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+  setSt: (fn: AnyFn) => void;
+}
+export default function ConjugationDrill({ goBack, award, setSt }: Props) {
   const { writeDelta } = useStats();
   const finishFired = useRef(false);
   const [cjMode, sCjMode] = useState('menu');
-  const [cjQ, sCjQ] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [cjQ, sCjQ] = useState<any[]>([]);
   const [cjI, sCjI] = useState(0);
   const [cjS, sCjS] = useState(0);
   const [cjA, sCjA] = useState(false);
   const [cjSl, sCjSl] = useState(-1);
-  const [cjO, sCjO] = useState([]);
+  const [cjO, sCjO] = useState<string[]>([]);
 
-  function startQuiz(tense) {
+  function startQuiz(tense: string) {
     const pool = tense === 'all' ? CONJ.verbs : CONJ.verbs.filter((v) => v.tense === tense);
-    const qs = [];
-    pool.forEach((v) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const qs: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pool.forEach((v: any) => {
       CONJ.persons.forEach((p, pi) => {
         qs.push({ verb: v.inf, en: v.en, tense: v.tense, person: p, pi, answer: v.forms[pi] });
       });
     });
     const picked = sh(qs).slice(0, 20);
-    const first = picked[0];
+    const first = picked[0]!;
     const wrongs = sh(CONJ.verbs.flatMap((v) => v.forms).filter((f) => f !== first.answer)).slice(
       0,
       3,
@@ -94,7 +103,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
                       cursor: 'pointer',
                       textAlign: 'center',
                     }}
-                    onClick={() => speak(v.forms[0])}
+                    onClick={() => speak(v.forms[0] ?? '')}
                   >
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#164e63' }}>{v.inf}</div>
                     <div style={{ fontSize: 11, color: '#78716c' }}>{v.en}</div>
@@ -141,7 +150,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
               </div>
             );
           }
-          const q = cjQ[cjI];
+          const q = cjQ[cjI]!;
           const ci = cjO.indexOf(q.answer);
           const tC = q.tense === 'present' ? '#0e7490' : q.tense === 'past' ? '#b45309' : '#7c3aed';
           const tL = q.tense.toUpperCase();
@@ -204,7 +213,7 @@ export default function ConjugationDrill({ goBack, award, setSt }) {
                   style={{ width: '100%', marginTop: 16 }}
                   onClick={() => {
                     if (cjI < total - 1) {
-                      const next = cjQ[cjI + 1];
+                      const next = cjQ[cjI + 1]!;
                       const wrongs = sh(
                         CONJ.verbs.flatMap((v) => v.forms).filter((f) => f !== next.answer),
                       ).slice(0, 3);

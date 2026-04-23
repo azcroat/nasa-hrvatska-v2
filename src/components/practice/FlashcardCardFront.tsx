@@ -1,10 +1,14 @@
-// @ts-nocheck
 import React from 'react';
 
-export default function FlashcardCardFront({ card, cardImg, cardImgLoading }) {
+interface Props {
+  card: (string | undefined)[];
+  cardImg: string | null;
+  cardImgLoading: boolean;
+}
+export default function FlashcardCardFront({ card, cardImg, cardImgLoading }: Props) {
   const word = card[0];
   const example = card[3];
-  const blankedExample = example ? example.replace(new RegExp(word, 'gi'), '___') : null;
+  const blankedExample = example && word ? example.replace(new RegExp(word, 'gi'), '___') : null;
 
   return (
     <div

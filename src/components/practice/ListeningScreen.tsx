@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { Bar, speak, speakSlow, sh } from '../../data';
 import ScreenHeader from '../shared/ScreenHeader';
@@ -26,7 +25,17 @@ const LISTENING_TIPS = [
   },
 ];
 
-export default function ListeningScreen({ questions, goBack, award }) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export default function ListeningScreen({
+  questions,
+  goBack,
+  award,
+}: {
+  questions: any[];
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const questFired = useRef(false);
@@ -35,7 +44,7 @@ export default function ListeningScreen({ questions, goBack, award }) {
   // Knight coaching — entry tip on mount
   useEffect(() => {
     const tip = LISTENING_TIPS[Math.floor(Math.random() * LISTENING_TIPS.length)];
-    knightSpeak(tip.mood, tip.text, 900);
+    if (tip) knightSpeak(tip.mood, tip.text, 900);
   }, []);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
@@ -96,7 +105,7 @@ export default function ListeningScreen({ questions, goBack, award }) {
   const correct = q.en;
   const isCorrect = options[selected] === correct;
 
-  function handleAnswer(oi) {
+  function handleAnswer(oi: number) {
     if (answered) return;
     setSelected(oi);
     setAnswered(true);

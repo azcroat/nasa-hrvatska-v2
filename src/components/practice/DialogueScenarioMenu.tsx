@@ -1,16 +1,24 @@
-// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 
 const DIFF_COLORS = { A1: '#dcfce7', A2: '#dbeafe', B1: '#fef3c7', B2: '#fce7f3' };
 const DIFF_TEXT = { A1: '#166534', A2: '#1e40af', B1: '#92400e', B2: '#9d174d' };
 
-export default function DialogueScenarioMenu({ scenarios, onSelect }) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export default function DialogueScenarioMenu({
+  scenarios,
+  onSelect,
+}: {
+  scenarios: any[];
+  onSelect: (s: any) => void;
+}) {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   return (
     <div className="scr-wrap">
-      {H('💬 Dialogue Simulator', 'Real conversations, real Croatian')}
+      {H('💬 Dialogue Simulator', 'Real conversations, real Croatian', undefined)}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        {scenarios.map((s) => (
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {scenarios.map((s: any) => (
           <button
             key={s.id}
             className="tc"
@@ -31,8 +39,8 @@ export default function DialogueScenarioMenu({ scenarios, onSelect }) {
                   marginTop: 8,
                   fontSize: 10,
                   fontWeight: 800,
-                  background: DIFF_COLORS[s.difficulty] || '#f3f4f6',
-                  color: DIFF_TEXT[s.difficulty] || '#374151',
+                  background: (DIFF_COLORS as Record<string, string>)[s.difficulty] || '#f3f4f6',
+                  color: (DIFF_TEXT as Record<string, string>)[s.difficulty] || '#374151',
                   borderRadius: 6,
                   padding: '2px 7px',
                   letterSpacing: '.04em',

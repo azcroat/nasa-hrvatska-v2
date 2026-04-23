@@ -1,5 +1,5 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
+import type { McQuestion } from '../../hooks/useMcGameReducer';
 import { srMark, recordMistake } from '../../data';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { useHaptic } from '../../hooks/useHaptic';
@@ -68,17 +68,26 @@ const MC_KEYFRAMES = `
   }
 `;
 
+interface McGameProps {
+  questions: McQuestion[];
+  onComplete: (questions: McQuestion[], score: number) => void;
+  goBack: () => void;
+  award: ((xp: number, bonus?: boolean) => void) | undefined;
+  challengeMode?: boolean;
+}
 export default function McGame({
   questions: rawQuestions,
   onComplete,
   goBack,
   award,
   challengeMode = false,
-}) {
+}: McGameProps) {
   // Guard: drop any question where the correct answer isn't present in opts
   const questions = React.useMemo(
     () =>
-      (rawQuestions || []).filter((q) => q && Array.isArray(q.opts) && q.opts.includes(q.correct)),
+      (rawQuestions || []).filter(
+        (q: McQuestion) => q && Array.isArray(q.opts) && q.opts.includes(q.correct),
+      ),
     [rawQuestions],
   );
 
@@ -95,20 +104,23 @@ export default function McGame({
   const initialHearts = React.useMemo(() => {
     const h = isHeartsMode ? getHearts() : 5;
     return Math.min(5, Math.max(0, Number.isFinite(h) ? Math.floor(h) : 5));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentionally empty — initial hearts must not recompute on re-renders
 
   const [state, dispatch] = useMcGameReducer(questions, initialHearts);
 
   // AI explain-error: null | 'loading' | {explanation, rule, tip, example}
-  const [aiExplain, setAiExplain] = useState(null);
+  const [aiExplain, setAiExplain] = useState<
+    null | 'loading' | { explanation?: string; rule?: string; tip?: string; example?: string }
+  >(null);
 
   // Stable refs — not state; preventing setState-after-teardown and double-fire
-  const firstOptionRef = useRef(null);
+  const firstOptionRef = useRef<HTMLButtonElement | null>(null);
   const resultFired = useRef(false);
-  const clearedIndices = useRef(new Set());
-  const timersRef = useRef([]);
+  const clearedIndices = useRef(new Set<number>());
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const q = state.queue[0] || null;
+  const q = state.queue[0] ?? null;
 
   // Clear all pending timers on unmount
   useEffect(
@@ -143,14 +155,14 @@ export default function McGame({
         text: "Don't second-guess your first instinct — it's usually the language brain speaking. 🧠",
       },
     ];
-    const tip = tips[Math.floor(Math.random() * tips.length)];
+    const tip = tips[Math.floor(Math.random() * tips.length)]!;
     knightSpeak(tip.mood, tip.text, 800);
   }, []);
 
   // Keyboard shortcuts 1–4 to select options
   useEffect(() => {
     if (state.answered) return undefined;
-    const handleKeyNum = (e) => {
+    const handleKeyNum = (e: KeyboardEvent) => {
       const numKey = parseInt(e.key);
       if (numKey >= 1 && numKey <= (q?.opts?.length || 4)) {
         const optIndex = numKey - 1;
@@ -159,14 +171,17 @@ export default function McGame({
     };
     window.addEventListener('keydown', handleKeyNum);
     return () => window.removeEventListener('keydown', handleKeyNum);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.answered, q?._qIdx]); // handleAnswer captured via closure — stable within question lifecycle
 
   if (!q) return null;
+  // TypeScript cannot narrow `q` across function closures — re-assert as non-null
+  const currentQ = q;
 
-  function handleAnswer(o, i) {
+  function handleAnswer(o: string, i: number) {
     if (state.answered) return;
 
-    const isCorrect = o === q.correct;
+    const isCorrect = o === currentQ.correct;
 
     // ── Side effects (imperative, cannot live in reducer) ──────────────────────
     if (isCorrect) {
@@ -188,8 +203,14 @@ export default function McGame({
     } else {
       haptic.wrong();
       playWrong();
-      if (q.hr)
-        recordMistake(q.hr, q.en || q.correct || '', q.q || q.prompt || '', q.category || '');
+      if (currentQ.hr)
+        recordMistake(
+          currentQ.hr,
+          currentQ.en || currentQ.correct || '',
+          currentQ.q || currentQ.prompt || '',
+          currentQ.category || '',
+          undefined,
+        );
       // Knight reacts to wrong answers — first mistake is gentle curiosity; streak of 3+ escalates to focus cue
       const nextWrongStreak = state.wrongStreak + 1;
       if (nextWrongStreak === 1)
@@ -205,15 +226,15 @@ export default function McGame({
       // Knight flash — face reaction to wrong answer
       knightFlash(nextWrongStreak >= 3 ? 'struggling' : 'oops', nextWrongStreak >= 3 ? 2000 : 1500);
       // Fetch AI explanation for this error (fire-and-forget, non-blocking)
-      const wrongOpt = q.opts[i] || '';
-      setAiExplain('loading');
+      const wrongOpt = currentQ.opts[i] ?? '';
+      setAiExplain('loading' as const);
       apiFetch('/api/explain-error', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           wrong: wrongOpt,
-          correct: q.correct,
-          context: q.hr || q.q || '',
+          correct: currentQ.correct,
+          context: currentQ.hr || currentQ.q || '',
           type: 'multiple_choice',
           level: localStorage.getItem('nh_level') || 'B1',
         }),
@@ -226,8 +247,8 @@ export default function McGame({
           setAiExplain(null);
         });
     }
-    if (q.hr) srMark(q.hr, isCorrect);
-    if (q.hr) recordTopicResult('vocabulary', isCorrect);
+    if (currentQ.hr) srMark(currentQ.hr, isCorrect, 0);
+    if (currentQ.hr) recordTopicResult('vocabulary', isCorrect);
 
     // Persistent hearts: call loseHeart() before dispatch so reducer receives result
     const persistentHeartsAfter = !isCorrect && isHeartsMode ? loseHeart() : undefined;
@@ -238,8 +259,11 @@ export default function McGame({
       payload: {
         isCorrect,
         optionIndex: i,
-        question: q,
-        grammarTip: isCorrect ? null : (GRAMMAR_TIPS[(q.category || '').toLowerCase()] ?? null),
+        question: currentQ,
+        grammarTip: isCorrect
+          ? null
+          : ((GRAMMAR_TIPS as Record<string, string>)[(currentQ.category || '').toLowerCase()] ??
+            null),
         persistentHeartsAfter,
         isHeartsMode,
       },
@@ -273,11 +297,11 @@ export default function McGame({
 
   function handleNext() {
     setAiExplain(null);
-    const wasCorrect = state.selected !== -1 && q.opts[state.selected] === q.correct;
+    const wasCorrect = state.selected !== -1 && currentQ.opts[state.selected] === currentQ.correct;
 
     if (wasCorrect) {
-      if (!clearedIndices.current.has(q._qIdx)) {
-        clearedIndices.current.add(q._qIdx);
+      if (!clearedIndices.current.has(currentQ._qIdx)) {
+        clearedIndices.current.add(currentQ._qIdx);
       }
 
       if (state.queue.length === 1) {
@@ -317,21 +341,25 @@ export default function McGame({
     }
   }
 
-  function handleKey(e, i) {
+  function handleKey(e: React.KeyboardEvent<HTMLButtonElement>, i: number) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
       e.preventDefault();
-      const next = e.currentTarget.parentElement.children[Math.min(i + 1, q.opts.length - 1)];
+      const next = e.currentTarget.parentElement?.children[
+        Math.min(i + 1, currentQ.opts.length - 1)
+      ] as HTMLElement | undefined;
       if (next) next.focus();
     } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
       e.preventDefault();
-      const prev = e.currentTarget.parentElement.children[Math.max(i - 1, 0)];
+      const prev = e.currentTarget.parentElement?.children[Math.max(i - 1, 0)] as
+        | HTMLElement
+        | undefined;
       if (prev) prev.focus();
     }
   }
 
   const progress = questions.length ? (state.clearedCount / questions.length) * 100 : 0;
   const wasCurrentCorrect =
-    state.answered && state.selected !== -1 && q.opts[state.selected] === q.correct;
+    state.answered && state.selected !== -1 && currentQ.opts[state.selected] === currentQ.correct;
   const isLast = state.queue.length === 1 && wasCurrentCorrect;
 
   // "No hearts left" — show game-over screen unless user chose to continue

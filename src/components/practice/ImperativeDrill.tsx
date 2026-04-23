@@ -1,10 +1,10 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
 import { rnd } from '../../lib/random.js';
-function shLocal(a) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function shLocal(a: any[]) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
@@ -170,19 +170,23 @@ const DATA = [
   },
 ];
 
-export default function ImperativeDrill({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+export default function ImperativeDrill({ goBack, award }: Props) {
   const finishFired = useRef(false);
   const [q] = useState(() => shLocal(DATA));
   const total = q.length;
   const [idx, setIdx] = useState(0);
-  const [chosen, setChosen] = useState(null);
+  const [chosen, setChosen] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
 
-  const cur = q[idx];
+  const cur = q[idx]!;
   const answered = chosen !== null;
 
-  function pick(opt) {
+  function pick(opt: string) {
     if (answered) return;
     setChosen(opt);
     if (opt === cur.answer) setScore((s) => s + 1);
@@ -253,7 +257,7 @@ export default function ImperativeDrill({ goBack, award }) {
         </div>
         <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>{cur.en}</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 16 }}>
-          {cur.opts.map((opt) => {
+          {cur.opts.map((opt: string) => {
             let bg = 'white';
             let bc = 'rgba(14,116,144,.12)';
             if (answered) {

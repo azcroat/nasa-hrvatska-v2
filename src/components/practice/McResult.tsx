@@ -1,10 +1,20 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { V, sh } from '../../data';
 import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+interface McResultProps {
+  questions: any[];
+  score: number;
+  mistakes?: any[];
+  setScr: (scr: string) => void;
+  goBack: () => void;
+  onNewGame: (items: any[]) => void;
+  award?: (xp: number) => void;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
 export default function McResult({
   questions,
   score,
@@ -13,7 +23,7 @@ export default function McResult({
   goBack,
   onNewGame,
   award,
-}) {
+}: McResultProps) {
   const total = questions.length;
   const allCats = Object.keys(V);
   const targetXP = score * 3 + 5;
@@ -24,7 +34,7 @@ export default function McResult({
   useEffect(() => {
     let start = 0;
     const duration = 900;
-    const step = (timestamp) => {
+    const step = (timestamp: number) => {
       if (!start) start = timestamp;
       const progress = Math.min((timestamp - start) / duration, 1);
       // ease-out cubic
@@ -57,14 +67,16 @@ export default function McResult({
             : 'Practice makes perfect — "vježba čini majstora." Try again tomorrow. 📐',
       700,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Confetti on mount ─────────────────────────────────────────────────────
   useEffect(() => {
     const ratio = score / total;
     if (ratio >= 0.6) {
-      const fire = (origin) =>
-        confetti({
+      const fire = (origin: { x: number; y: number }) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (confetti as any)({
           particleCount: ratio >= 1.0 ? 80 : 50,
           spread: 55,
           origin,
@@ -78,6 +90,7 @@ export default function McResult({
         fire({ x: 0.8, y: 0.6 });
       }, 200);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Mistake review drill state ────────────────────────────────────────────
@@ -97,7 +110,7 @@ export default function McResult({
     setReviewPhase('drilling');
   }
 
-  function handleReviewMark(known) {
+  function handleReviewMark(known: boolean) {
     if (known) setKnownCount((k) => k + 1);
     const next = reviewIdx + 1;
     if (next >= mistakes.length) {
@@ -110,7 +123,8 @@ export default function McResult({
   }
 
   function playAgain() {
-    const pool = allCats.flatMap((c) => V[c]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pool = allCats.flatMap((c) => (V as Record<string, any[]>)[c] || []);
     const items = sh(pool)
       .slice(0, 15)
       .map((w) => {

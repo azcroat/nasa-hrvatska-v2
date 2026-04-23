@@ -1,13 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 
 // Renders tip text, turning "📚 See: Topic Name" into a styled pill badge
-export default function TipContent({ tip }) {
+export default function TipContent({ tip }: { tip?: string }) {
   if (!tip) return null;
   const parts = tip.split(/(📚 See:[^.!?]+)/g);
   return (
     <>
-      {parts.map((part, i) => {
+      {parts.map((part: string, i: number) => {
         if (part.startsWith('📚 See:')) {
           const label = part.replace('📚 See:', '').trim();
           return (

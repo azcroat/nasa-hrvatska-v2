@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -20,28 +19,36 @@ const TOPICS = [
   { key: 'city', emoji: '🏙️', hr: 'Grad', en: 'City' },
 ];
 
-export default function AIListeningScreen({ goBack, award }) {
+export default function AIListeningScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const isOnline = useOnlineStatus();
   const [phase, setPhase] = useState('setup');
-  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [style, setStyle] = useState('dialogue');
-  const [content, setContent] = useState(null);
-  const [audioUrl, setAudioUrl] = useState(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [content, setContent] = useState<any>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [qIndex, setQIndex] = useState(0);
-  const [answers, setAnswers] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [answers, setAnswers] = useState<any[]>([]);
   const [score, setScore] = useState(0);
   const xpAwarded = useRef(false);
   const [readyVisible, setReadyVisible] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [audioSource, setAudioSource] = useState('loading');
 
-  const audioRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const mountedRef = useRef(true);
-  const readyTimer = useRef(null);
+  const readyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const level = localStorage.getItem('nh_level') || 'B1';
 
@@ -59,7 +66,7 @@ export default function AIListeningScreen({ goBack, award }) {
   // No cleanup needed for data URLs; they are GC'd normally.
   useEffect(
     () => () => {
-      clearTimeout(readyTimer.current);
+      if (readyTimer.current !== null) clearTimeout(readyTimer.current);
     },
     [],
   );
@@ -85,9 +92,11 @@ export default function AIListeningScreen({ goBack, award }) {
       // Build TTS text
       let fullText = '';
       if (style === 'dialogue' && data.speakers) {
-        data.speakers.forEach((spk) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data.speakers.forEach((spk: any) => {
           if (!Array.isArray(spk.lines)) return;
-          spk.lines.forEach((line) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          spk.lines.forEach((line: any) => {
             fullText += `${spk.name}: ${line}\n\n`;
           });
         });
@@ -111,9 +120,9 @@ export default function AIListeningScreen({ goBack, award }) {
       } else {
         const blob = await ttsRes.blob();
         // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-        const url = await new Promise((resolve) => {
+        const url = await new Promise<string>((resolve) => {
           const r = new FileReader();
-          r.onload = () => resolve(r.result);
+          r.onload = () => resolve(r.result as string);
           r.readAsDataURL(blob);
         });
         if (!mountedRef.current) return; // data: URLs are GC'd normally — no revocation needed
@@ -180,23 +189,24 @@ export default function AIListeningScreen({ goBack, award }) {
     setIsPlaying(true);
   }
 
-  function setAudioSpeed(s) {
+  function setAudioSpeed(s: number) {
     setSpeed(s);
     if (audioRef.current) audioRef.current.playbackRate = s;
   }
 
   // ── Questions ─────────────────────────────────────────────────────────────
-  function selectAnswer(optionIndex) {
+  function selectAnswer(optionIndex: number) {
     if (answers[qIndex] !== undefined) return;
     if (!content?.questions?.[qIndex]) return;
     const correct = content.questions[qIndex].correct;
     const isRight = optionIndex === correct;
-    setAnswers((prev) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setAnswers((prev: any[]) => {
       const a = [...prev];
       a[qIndex] = optionIndex;
       return a;
     });
-    if (isRight) setScore((s) => s + 1);
+    if (isRight) setScore((s: number) => s + 1);
   }
 
   function nextQuestion() {
@@ -242,9 +252,12 @@ export default function AIListeningScreen({ goBack, award }) {
   function buildTranscript() {
     if (!content) return '';
     if (style === 'dialogue' && content.speakers) {
-      return content.speakers
-        .map((spk) => (spk.lines || []).map((l) => `${spk.name}: ${l}`).join('\n'))
-        .join('\n\n');
+      return (
+        content.speakers
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((spk: any) => (spk.lines || []).map((l: any) => `${spk.name}: ${l}`).join('\n'))
+          .join('\n\n')
+      );
     }
     return content.narrator || '';
   }
@@ -593,7 +606,8 @@ export default function AIListeningScreen({ goBack, award }) {
               Vocabulary
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {content.vocab.map((v, i) => (
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {content.vocab.map((v: any, i: number) => (
                 <span
                   key={i}
                   style={{
@@ -637,7 +651,8 @@ export default function AIListeningScreen({ goBack, award }) {
 
         {/* Progress dots */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-          {content.questions.map((_, i) => (
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {content.questions.map((_: any, i: number) => (
             <div
               key={i}
               style={{
@@ -658,7 +673,8 @@ export default function AIListeningScreen({ goBack, award }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-          {q.options.map((opt, oi) => {
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {q.options.map((opt: any, oi: number) => {
             let bg = 'var(--card)',
               border = 'var(--bar-bg)',
               color = 'var(--heading)';
@@ -783,7 +799,8 @@ export default function AIListeningScreen({ goBack, award }) {
             >
               Vocabulary from this exercise
             </div>
-            {content.vocab.map((v, i) => (
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {content.vocab.map((v: any, i: number) => (
               <div
                 key={i}
                 style={{

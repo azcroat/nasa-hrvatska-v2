@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, MEDIA } from '../../data';
 
@@ -42,9 +41,9 @@ const LEVEL_META = {
   },
 };
 
-export default function ListeningPath({ goBack }) {
+export default function ListeningPath({ goBack }: { goBack: () => void }) {
   const [activeLevel, setActiveLevel] = useState('A1');
-  const meta = LEVEL_META[activeLevel];
+  const meta = (LEVEL_META as Record<string, typeof LEVEL_META.A1>)[activeLevel] ?? LEVEL_META.A1;
   const levelMedia = MEDIA.filter(function (m) {
     return m.level === activeLevel;
   });
@@ -55,7 +54,7 @@ export default function ListeningPath({ goBack }) {
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {LEVELS.map(function (lv) {
-          const m = LEVEL_META[lv];
+          const m = (LEVEL_META as Record<string, typeof LEVEL_META.A1>)[lv] ?? LEVEL_META.A1;
           return (
             <button
               key={lv}

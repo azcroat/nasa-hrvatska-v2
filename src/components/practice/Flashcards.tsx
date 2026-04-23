@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bar, srMark } from '../../data';
@@ -15,7 +14,8 @@ import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 const MAX_CACHE_ENTRIES = 20;
-function evictCache(cacheRef) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function evictCache(cacheRef: React.MutableRefObject<any>) {
   const keys = Object.keys(cacheRef.current);
   if (keys.length > MAX_CACHE_ENTRIES) {
     // Drop oldest half when limit exceeded
@@ -26,7 +26,13 @@ function evictCache(cacheRef) {
 }
 
 // Fetch AI-generated contextual image for a vocabulary word via FLUX
-async function fetchCardImage(word, meaning, cacheRef, signal) {
+
+async function fetchCardImage(
+  word: string,
+  meaning: string,
+  cacheRef: React.MutableRefObject<any>,
+  signal: AbortSignal,
+) {
   const key = `img:${word}`;
   if (cacheRef.current[key]) return cacheRef.current[key];
   try {
@@ -63,7 +69,15 @@ const XP_PER_KNOWN = 2;
 const XP_COMPLETION_BONUS = 5;
 const FLASH_RESUME_KEY = 'nh_flash_resume';
 
-export default function Flashcards({ pool, goBack, award }) {
+export default function Flashcards({
+  pool,
+  goBack,
+  award,
+}: {
+  pool: any[];
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const finishFired = useRef(false);
   const [activePool, setActivePool] = useState(pool);
   const [idx, setIdx] = useState(() => {
@@ -85,20 +99,21 @@ export default function Flashcards({ pool, goBack, award }) {
   });
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState(0);
-  const [missed, setMissed] = useState([]);
+
+  const [missed, setMissed] = useState<any[]>([]);
   const [done, setDone] = useState(false);
   const [correctAnim, setCorrectAnim] = useState(false);
   const [wrongAnim, setWrongAnim] = useState(false);
   const [showStillLearning, setShowStillLearning] = useState(false);
-  const [sparkPos, setSparkPos] = useState(null);
-  const [exiting, setExiting] = /** @type {[false|string, Function]} */ useState(false);
+  const [sparkPos, setSparkPos] = useState<{ x: number; y: number } | null>(null);
+  const [exiting, setExiting] = useState<string | false>(false);
   const [entering, setEntering] = useState(false);
-  const cardRef = useRef(null);
-  const knowBtnRef = useRef(null);
-  const touchStartX = useRef(null);
-  const touchStartY = useRef(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const knowBtnRef = useRef<HTMLButtonElement | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
   const mountedRef = useRef(true);
-  const lastSpokenRef = useRef(null);
+  const lastSpokenRef = useRef<string | null>(null);
   const consecCorrectRef = useRef(0); // consecutive correct answers (for onfire flash)
   const consecWrongRef = useRef(0); // consecutive wrong answers (for struggling flash)
   const advancingRef = useRef(false); // guard against double-tap during card transition
@@ -127,14 +142,16 @@ export default function Flashcards({ pool, goBack, award }) {
     }
   }, [idx, activePool]);
 
-  const [aiSentence, setAiSentence] = useState(null);
+  const [aiSentence, setAiSentence] = useState<{ hr: string; en: string; note?: string } | null>(
+    null,
+  );
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(false);
-  const aiCacheRef = useRef({});
+  const aiCacheRef = useRef<Record<string, { hr: string; en: string; note?: string }>>({});
 
-  const [cardImg, setCardImg] = useState(null);
+  const [cardImg, setCardImg] = useState<string | null>(null);
   const [cardImgLoading, setCardImgLoading] = useState(false);
-  const imgCacheRef = useRef({});
+  const imgCacheRef = useRef<Record<string, string>>({});
 
   // Reset AI state when card index changes
   useEffect(() => {
@@ -174,6 +191,7 @@ export default function Flashcards({ pool, goBack, award }) {
       controller.abort();
       clearTimeout(timeoutId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, done]);
 
   // Fetch AI example sentence when card is flipped and no static example exists
@@ -220,6 +238,7 @@ export default function Flashcards({ pool, goBack, award }) {
       controller.abort();
       clearTimeout(timeoutId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flipped, idx, done]);
 
   // When buttons appear (card flipped), focus "I Know It" so keyboard users can act
@@ -230,8 +249,12 @@ export default function Flashcards({ pool, goBack, award }) {
   // Global keyboard shortcuts: Space/Enter = flip, ArrowRight/K = Know it, ArrowLeft/S = Still learning
   useEffect(() => {
     if (done) return undefined;
-    function handleKey(e) {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    function handleKey(e: KeyboardEvent) {
+      if (
+        (e.target as HTMLElement).tagName === 'INPUT' ||
+        (e.target as HTMLElement).tagName === 'TEXTAREA'
+      )
+        return;
       if ((e.key === ' ' || e.key === 'Enter') && !flipped) {
         e.preventDefault();
         setFlipped(true);
@@ -245,6 +268,7 @@ export default function Flashcards({ pool, goBack, award }) {
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flipped, done, idx]);
 
   // When a new card loads, return focus to the card
@@ -266,9 +290,10 @@ export default function Flashcards({ pool, goBack, award }) {
       if (mountedRef.current) speak(word);
     }, 300);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flipped, idx]);
 
-  function finish(finalKnown) {
+  function finish(finalKnown: number) {
     if (finishFired.current) return;
     finishFired.current = true;
     try {
@@ -305,7 +330,7 @@ export default function Flashcards({ pool, goBack, award }) {
     }
   }
 
-  function studyMissedAgain(missedCards) {
+  function studyMissedAgain(missedCards: any[]) {
     finishFired.current = false;
     lastSpokenRef.current = null;
     try {
@@ -334,7 +359,7 @@ export default function Flashcards({ pool, goBack, award }) {
     );
   }
 
-  function advanceCard(direction, callback) {
+  function advanceCard(direction: string, callback: () => void) {
     if (advancingRef.current) return; // block rapid double-taps during transition
     advancingRef.current = true;
     setExiting(direction);
@@ -358,7 +383,7 @@ export default function Flashcards({ pool, goBack, award }) {
   }
 
   function handleStillLearning() {
-    srMark(activePool[idx][0], false); // "Still Learning" = wrong for SRS scheduling
+    srMark(activePool[idx]![0], false, 0); // "Still Learning" = wrong for SRS scheduling
     playWrong();
     haptic([30, 20, 30]);
     consecCorrectRef.current = 0;
@@ -396,7 +421,7 @@ export default function Flashcards({ pool, goBack, award }) {
     setTimeout(() => {
       if (mountedRef.current) setSparkPos(null);
     }, 700);
-    srMark(activePool[idx][0], true); // "Know It" = correct for SRS scheduling
+    srMark(activePool[idx]![0], true, 0); // "Know It" = correct for SRS scheduling
     consecWrongRef.current = 0;
     consecCorrectRef.current += 1;
     if (consecCorrectRef.current >= 3) {
@@ -421,15 +446,15 @@ export default function Flashcards({ pool, goBack, award }) {
     });
   }
 
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]!.clientX;
+    touchStartY.current = e.touches[0]!.clientY;
   };
 
-  const handleTouchEnd = (e) => {
-    if (touchStartX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = e.changedTouches[0]!.clientX - touchStartX.current;
+    const dy = e.changedTouches[0]!.clientY - touchStartY.current;
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
     touchStartX.current = null;

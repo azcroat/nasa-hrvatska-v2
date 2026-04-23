@@ -1,10 +1,9 @@
-// @ts-nocheck
 import React from 'react';
 import { speak } from '../../lib/audio.js';
 import { getMemoryHook } from '../../lib/memoryHooks.js';
 
 // Converts Croatian text to a simple English phonetic approximation.
-function getPronunciation(word) {
+function getPronunciation(word: string) {
   if (!word) return '';
   let s = word;
   s = s.replace(/[Dd][žŽ]/g, 'j');
@@ -22,7 +21,7 @@ function getPronunciation(word) {
 }
 
 // Derive a simple tip from the Croatian word when no example sentence exists.
-function getWordTip(croatianWord, englishMeaning) {
+function getWordTip(croatianWord: string, englishMeaning: string) {
   if (!croatianWord || !englishMeaning) return null;
   const w = croatianWord.trim();
   const en = englishMeaning.toLowerCase();
@@ -82,16 +81,27 @@ function getWordTip(croatianWord, englishMeaning) {
   else if (/[bcčćdfghjklmnprsštvzž]/.test(lastChar)) gender = 'm.';
 
   if (gender) {
-    const labels = { 'm.': 'masculine', 'f.': 'feminine', 'n.': 'neuter' };
+    const labels: Record<string, string> = { 'm.': 'masculine', 'f.': 'feminine', 'n.': 'neuter' };
     return { type: 'noun', gender, en: `${labels[gender]} noun` };
   }
 
   return null;
 }
 
-export default function FlashcardCardBack({ card, aiLoading, aiSentence, aiError }) {
-  const croatianWord = card[0];
-  const englishMeaning = card[1];
+interface AiSentence {
+  hr: string;
+  en: string;
+  note?: string;
+}
+interface Props {
+  card: (string | undefined)[];
+  aiLoading: boolean;
+  aiSentence: AiSentence | null;
+  aiError: boolean;
+}
+export default function FlashcardCardBack({ card, aiLoading, aiSentence, aiError }: Props) {
+  const croatianWord = card[0] ?? '';
+  const englishMeaning = card[1] ?? '';
   const exampleSentence = card[3];
   const phonetic = getPronunciation(croatianWord);
   const hasSpecial = croatianWord !== phonetic;
