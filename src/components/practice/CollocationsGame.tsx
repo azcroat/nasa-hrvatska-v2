@@ -1,9 +1,9 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 
 import { rnd } from '../../lib/random.js';
-function shLocal(a) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function shLocal(a: any[]) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
@@ -190,7 +190,11 @@ const DATA = [
   },
 ];
 
-export default function CollocationsGame({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+export default function CollocationsGame({ goBack, award }: Props) {
   const finishFired = useRef(false);
   const [qs] = useState(() => shLocal(DATA));
   const [idx, setIdx] = useState(0);
@@ -231,7 +235,7 @@ export default function CollocationsGame({ goBack, award }) {
     );
   }
 
-  const q = qs[idx];
+  const q = qs[idx]!;
 
   return (
     <div className="scr-wrap">
@@ -247,7 +251,7 @@ export default function CollocationsGame({ goBack, award }) {
         <div style={{ fontSize: 18, fontWeight: 600 }}>{q.q}</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 16 }}>
-        {q.opts.map((o, oi) => (
+        {q.opts.map((o: string, oi: number) => (
           <button
             key={oi}
             className="ob"

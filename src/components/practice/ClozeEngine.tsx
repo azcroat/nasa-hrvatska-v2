@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { H, speak, stopAudio, srMark } from '../../data';
 import { useStats } from '../../context/StatsContext';
@@ -204,7 +203,8 @@ const SENTENCE_BANK = [
   },
 ];
 
-function shuffle(arr) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function shuffle(arr: any[]) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -213,7 +213,11 @@ function shuffle(arr) {
   return a;
 }
 
-export default function ClozeEngine({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+export default function ClozeEngine({ goBack, award }: Props) {
   const { level } = useStats();
   const mountedRef = useRef(true);
   useEffect(
@@ -224,17 +228,17 @@ export default function ClozeEngine({ goBack, award }) {
   );
   const questions = useMemo(() => shuffle(SENTENCE_BANK).slice(0, 12), []);
   const [qi, setQi] = useState(0);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [typingMode, setTypingMode] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState('');
-  const [feedbackAnim, setFeedbackAnim] = useState(null); // 'correct' | 'wrong' | null
-  const [aiExplain, setAiExplain] = useState(null); // null | 'loading' | {explanation,rule,tip,example}
+  const [feedbackAnim, setFeedbackAnim] = useState<'correct' | 'wrong' | null>(null);
+  const [aiExplain, setAiExplain] = useState<null | 'loading' | Record<string, string>>(null);
 
   const fetchExplanation = useCallback(
-    async (wrong, correct, context) => {
+    async (wrong: string, correct: string, context: string) => {
       setAiExplain('loading');
       try {
         const res = await apiFetch('/api/explain-error', {
@@ -260,26 +264,26 @@ export default function ClozeEngine({ goBack, award }) {
     [level],
   );
 
-  const q = questions[qi];
+  const q = questions[qi]!;
   // Shuffle options once per question
   const options = useMemo(() => shuffle(q?.options || []), [q]);
 
   const isCorrect = selected === q?.blank;
   const isAnswered = selected !== null;
 
-  function handleSelect(opt) {
+  function handleSelect(opt: string) {
     if (isAnswered) return;
     setSelected(opt);
     if (opt === q.blank) {
       setScore((s) => s + 1);
-      srMark(q.blank, true);
+      srMark(q.blank, true, 0);
       speak(q.sentence);
       setFeedbackAnim('correct');
       setTimeout(() => {
         if (mountedRef.current) setFeedbackAnim(null);
       }, 500);
     } else {
-      srMark(q.blank, false);
+      srMark(q.blank, false, 0);
       logError(q.blank, 'grammar', { wrong: opt, correct: q.blank, source: 'cloze_engine' });
       setFeedbackAnim('wrong');
       setTimeout(() => {
@@ -307,7 +311,7 @@ export default function ClozeEngine({ goBack, award }) {
 
   function handleTypedSubmit() {
     if (!typedAnswer.trim()) return;
-    const normalize = (s) =>
+    const normalize = (s: string) =>
       s
         .toLowerCase()
         .trim()

@@ -1,11 +1,11 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, Bar, speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { rnd } from '../../lib/random.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
-function shLocal(a) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function shLocal(a: any[]) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
@@ -85,10 +85,20 @@ const DATA = [
   },
 ];
 
-const levelColor = { A1: '#dcfce7', A2: '#dbeafe', B1: '#fef3c7', B2: '#f3e8ff' };
-const levelText = { A1: '#166534', A2: '#1d4ed8', B1: '#92400e', B2: '#6b21a8' };
+const levelColor: Record<string, string> = {
+  A1: '#dcfce7',
+  A2: '#dbeafe',
+  B1: '#fef3c7',
+  B2: '#f3e8ff',
+};
+const levelText: Record<string, string> = {
+  A1: '#166534',
+  A2: '#1d4ed8',
+  B1: '#92400e',
+  B2: '#6b21a8',
+};
 
-function normalise(s) {
+function normalise(s: string) {
   return s
     .trim()
     .toLowerCase()
@@ -97,11 +107,15 @@ function normalise(s) {
 
 const DIACRITICS = ['Č', 'Ć', 'Š', 'Ž', 'Đ', 'č', 'ć', 'š', 'ž', 'đ'];
 
-function stripDiacritics(s) {
+function stripDiacritics(s: string) {
   return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-export default function DictationScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+export default function DictationScreen({ goBack, award }: Props) {
   const finishFired = useRef(false);
   const mountedRef = useRef(true);
   useEffect(
@@ -117,37 +131,40 @@ export default function DictationScreen({ goBack, award }) {
   const [checked, setChecked] = useState(false);
   const [correct, setCorrect] = useState(false);
   const [closeMatch, setCloseMatch] = useState(false);
-  const inputRef = useRef(null);
-  const [aiExplain, setAiExplain] = useState(null); // null | 'loading' | {explanation,rule,tip,example}
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [aiExplain, setAiExplain] = useState<null | 'loading' | Record<string, string>>(null);
 
-  const fetchExplanation = useCallback(async (wrong, correctText, level) => {
-    setAiExplain('loading');
-    try {
-      const res = await apiFetch('/api/explain-error', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          wrong,
-          correct: correctText,
-          type: 'dictation',
-          level: level || 'A2',
-        }),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (!mountedRef.current) return;
-      if (!res.ok) throw new Error('API error');
-      const data = await res.json();
-      if (mountedRef.current) setAiExplain(data);
-    } catch {
-      if (mountedRef.current)
-        setAiExplain({
-          explanation: 'Could not load explanation.',
-          rule: '',
-          tip: '',
-          example: '',
+  const fetchExplanation = useCallback(
+    async (wrong: string, correctText: string, level: string) => {
+      setAiExplain('loading');
+      try {
+        const res = await apiFetch('/api/explain-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wrong,
+            correct: correctText,
+            type: 'dictation',
+            level: level || 'A2',
+          }),
+          signal: AbortSignal.timeout(20000),
         });
-    }
-  }, []);
+        if (!mountedRef.current) return;
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+        if (mountedRef.current) setAiExplain(data);
+      } catch {
+        if (mountedRef.current)
+          setAiExplain({
+            explanation: 'Could not load explanation.',
+            rule: '',
+            tip: '',
+            example: '',
+          });
+      }
+    },
+    [],
+  );
 
   const total = qs.length;
 
@@ -218,14 +235,14 @@ export default function DictationScreen({ goBack, award }) {
     setAiExplain(null);
   }
 
-  function insertDiacritic(ch) {
+  function insertDiacritic(ch: string) {
     if (!inputRef.current) {
       setInput((prev) => prev + ch);
       return;
     }
     const el = inputRef.current;
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
     const next = input.slice(0, start) + ch + input.slice(end);
     setInput(next);
     setTimeout(() => {

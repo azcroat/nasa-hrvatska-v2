@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, speak } from '../../data';
 import { useStats } from '../../context/StatsContext';
@@ -13,7 +12,7 @@ import { SCENARIOS } from './dialogueScenarios.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 // Normalize Croatian diacritics for lenient free-text comparison
-function normCro(s) {
+function normCro(s: string) {
   return s
     .toLowerCase()
     .replace(/[čć]/g, 'c')
@@ -26,37 +25,43 @@ function normCro(s) {
 }
 
 // Build a shuffled options array for a single turn; returns { opts, correctIdx }
-function shuffleTurnOpts(turn) {
-  const indices = turn.opts.map((_, i) => i);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function shuffleTurnOpts(turn: any) {
+  const indices = turn.opts.map((_: unknown, i: number) => i);
   for (let i = indices.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
     [indices[i], indices[j]] = [indices[j], indices[i]];
   }
-  const shuffledOpts = indices.map((i) => turn.opts[i]);
+  const shuffledOpts = indices.map((i: number) => turn.opts[i]);
   const correctIdx = indices.indexOf(turn.answer);
   return { opts: shuffledOpts, correctIdx };
 }
 
-export default function DialogueSim({ award }) {
+export default function DialogueSim({ award }: { award?: (xp: number) => void }) {
   const { level: userLevel } = useStats();
   const finishFired = useRef(false);
-  const [scenario, setScenario] = useState(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [scenario, setScenario] = useState<any>(null);
   const [turnIdx, setTurnIdx] = useState(0);
-  const [shuffledTurns, setShuffledTurns] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [shuffledTurns, setShuffledTurns] = useState<any[]>([]);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
   const [done, setDone] = useState(false);
   const [freeMode, setFreeMode] = useState(false);
   const [freeInput, setFreeInput] = useState('');
-  const [freeResult, setFreeResult] = useState(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [freeResult, setFreeResult] = useState<any>(null);
 
   // AI Conversation Mode state
   const [aiMode, setAiMode] = useState(false);
-  const [aiHistory, setAiHistory] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [aiHistory, setAiHistory] = useState<any[]>([]);
   const [aiInput, setAiInput] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiCoaching, setAiCoaching] = useState(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [aiCoaching, setAiCoaching] = useState<any>(null);
   const [aiTurns, setAiTurns] = useState(0);
   const [aiDone, setAiDone] = useState(false);
   const [aiError, setAiError] = useState('');
@@ -68,7 +73,8 @@ export default function DialogueSim({ award }) {
     if (line && !line.startsWith('[')) speak(line);
   }, [scenario, turnIdx, aiMode]);
 
-  function startScenario(s) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function startScenario(s: any) {
     finishFired.current = false;
     setScenario(s);
     setShuffledTurns(s.turns.map(shuffleTurnOpts));
@@ -89,11 +95,11 @@ export default function DialogueSim({ award }) {
     setAiError('');
   }
 
-  function handleSelect(i) {
+  function handleSelect(i: number) {
     if (answered) return;
     setSelected(i);
     setAnswered(true);
-    if (i === shuffledTurns[turnIdx].correctIdx) {
+    if (i === shuffledTurns[turnIdx]?.correctIdx) {
       setScore((sc) => sc + 1);
     }
   }
@@ -123,7 +129,7 @@ export default function DialogueSim({ award }) {
             ? freeResult && freeResult.matched
               ? 1
               : 0
-            : selected === shuffledTurns[turnIdx].correctIdx
+            : selected === shuffledTurns[turnIdx]?.correctIdx
               ? 1
               : 0;
           award((score + lastCorrect) * 6);
@@ -219,7 +225,7 @@ export default function DialogueSim({ award }) {
 
   return (
     <div className="scr-wrap">
-      {H('💬 ' + scenario.title, scenario.subtitle)}
+      {H('💬 ' + scenario.title, scenario.subtitle, goBack)}
       <Bar v={turnIdx + 1} mx={totalTurns} h={6} color="#0e7490" />
 
       <div

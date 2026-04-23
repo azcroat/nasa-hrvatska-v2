@@ -1,9 +1,9 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { rnd } from '../../lib/random.js';
-function shLocal(a) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function shLocal(a: any[]) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
@@ -562,7 +562,7 @@ const LEVELS = {
 
 const LEVEL_KEYS = ['A1', 'A2', 'B1', 'B2'];
 
-function gradeMessage(pct) {
+function gradeMessage(pct: number) {
   if (pct >= 90) return { icon: '🏆', msg: "Excellent! You've mastered this level!" };
   if (pct >= 75) return { icon: '⭐', msg: 'Great! Ready to move up!' };
   if (pct >= 60) return { icon: '📚', msg: 'Good progress! Review and retry.' };
@@ -571,27 +571,29 @@ function gradeMessage(pct) {
 
 // Shuffle one level's questions: randomise question order AND option order,
 // storing the correct answer by value so index checks remain valid.
-function shuffleLevel(levelKey) {
-  const raw = LEVELS[levelKey].questions;
-  return shLocal([...raw]).map((q) => {
+function shuffleLevel(levelKey: string) {
+  const raw = (LEVELS as Record<string, typeof LEVELS.A1>)[levelKey]!.questions;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return shLocal([...raw]).map((q: any) => {
     const correctText = q.opts[q.answer];
     const shuffledOpts = shLocal([...q.opts]);
     return { ...q, opts: shuffledOpts, answer: shuffledOpts.indexOf(correctText) };
   });
 }
 
-export default function CefrTest({ award }) {
+export default function CefrTest({ award }: { award?: (xp: number) => void }) {
   const finishFired = useRef(false);
-  const [levelKey, setLevelKey] = useState(null);
+  const [levelKey, setLevelKey] = useState<string | null>(null);
   // Shuffled questions for the active level — rebuilt each time a level is started
-  const [shuffledQuestions, setShuffledQuestions] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [shuffledQuestions, setShuffledQuestions] = useState<any[]>([]);
   const [qIdx, setQIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selected, setSelected] = useState(-1);
   const [done, setDone] = useState(false);
 
-  function startLevel(key) {
+  function startLevel(key: string) {
     finishFired.current = false;
     setLevelKey(key);
     setShuffledQuestions(shuffleLevel(key));
@@ -606,10 +608,10 @@ export default function CefrTest({ award }) {
   const activeQuestions = shuffledQuestions.length
     ? shuffledQuestions
     : levelKey
-      ? LEVELS[levelKey].questions
+      ? (LEVELS as Record<string, typeof LEVELS.A1>)[levelKey]!.questions
       : [];
 
-  function handleSelect(i) {
+  function handleSelect(i: number) {
     if (answered) return;
     setSelected(i);
     setAnswered(true);
@@ -649,10 +651,10 @@ export default function CefrTest({ award }) {
   if (!levelKey) {
     return (
       <div className="scr-wrap">
-        {H('🎓 CEFR Assessment', 'Test your Croatian proficiency')}
+        {H('🎓 CEFR Assessment', 'Test your Croatian proficiency', undefined)}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {LEVEL_KEYS.map((key) => {
-            const lv = LEVELS[key];
+            const lv = (LEVELS as Record<string, typeof LEVELS.A1>)[key]!;
             return (
               <button
                 key={key}
@@ -699,7 +701,7 @@ export default function CefrTest({ award }) {
     );
   }
 
-  const level = LEVELS[levelKey];
+  const level = (LEVELS as Record<string, typeof LEVELS.A1>)[levelKey]!;
   const total = activeQuestions.length;
 
   // --- RESULTS SCREEN ---
@@ -709,7 +711,7 @@ export default function CefrTest({ award }) {
     const { icon, msg } = gradeMessage(pct);
     return (
       <div className="scr-wrap">
-        {H('🎓 ' + level.label, 'Assessment complete')}
+        {H('🎓 ' + level.label, 'Assessment complete', undefined)}
         <div
           style={{
             background: level.color,
@@ -785,12 +787,12 @@ export default function CefrTest({ award }) {
   }
 
   // --- TEST SCREEN ---
-  const q = activeQuestions[qIdx];
+  const q = activeQuestions[qIdx]!;
   const isCorrect = selected === q.answer;
 
   return (
     <div className="scr-wrap">
-      {H('🎓 ' + level.label, `Question ${qIdx + 1} of ${total}`)}
+      {H('🎓 ' + level.label, `Question ${qIdx + 1} of ${total}`, undefined)}
       <Bar v={qIdx + 1} mx={total} h={6} color={level.border} />
 
       {/* Question card */}
@@ -831,7 +833,8 @@ export default function CefrTest({ award }) {
 
       {/* Options */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-        {q.opts.map((opt, i) => {
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {q.opts.map((opt: any, i: number) => {
           let bg = 'var(--card)';
           let border = '1.5px solid var(--card-b)';
           let color = 'var(--heading)';

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
 import { speak, getMistakes, recordMistake } from '../../data';
 import { getSR } from '../../lib/srs.ts';
@@ -19,16 +18,21 @@ const STYLES = `
 `;
 
 // ─── BUILD ADAPTIVE SESSION ───────────────────────────────────────────────────
-function buildAdaptiveSession(sr, mistakes) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildAdaptiveSession(sr: any, mistakes: any[]) {
   const now = Date.now();
-  const session = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session: any[] = [];
 
   // 1. OVERDUE SRS CARDS (highest priority)
   const overdue = Object.entries(sr)
-    .filter(([, c]) => c.due && c.due <= now && c.w > 0)
-    .sort(([, a], [, b]) => (b.l || 0) - (a.l || 0))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .filter(([, c]: [string, any]) => c.due && c.due <= now && c.w > 0)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .sort(([, a]: [string, any], [, b]: [string, any]) => (b.l || 0) - (a.l || 0))
     .slice(0, 8)
-    .map(([id, c]) => ({ type: 'srs', id, card: c, priority: 'overdue' }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map(([id, c]: [string, any]) => ({ type: 'srs', id, card: c, priority: 'overdue' }));
   session.push(...overdue);
 
   // 2. HIGH-MISTAKE ITEMS (from mistake log)
@@ -43,25 +47,29 @@ function buildAdaptiveSession(sr, mistakes) {
   const grammarMistakes = mistakes.filter(
     (m) => m.category && ['grammar', 'cases', 'aspect', 'verb'].some((c) => m.category.includes(c)),
   );
-  const catCounts = {};
-  grammarMistakes.forEach((m) => {
+  const catCounts: Record<string, number> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  grammarMistakes.forEach((m: any) => {
     catCounts[m.category] = (catCounts[m.category] || 0) + m.count;
   });
   const weakestGrammarCat = Object.entries(catCounts).sort(([, a], [, b]) => b - a)[0]?.[0];
 
   // 4. Fill to 15 items minimum with due SRS cards
   const dueSoon = Object.entries(sr)
-    .filter(([, c]) => c.due && c.due <= now + 24 * 60 * 60 * 1000)
-    .sort(([, a], [, b]) => a.due - b.due)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .filter(([, c]: [string, any]) => c.due && c.due <= now + 24 * 60 * 60 * 1000)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .sort(([, a]: [string, any], [, b]: [string, any]) => a.due - b.due)
     .slice(0, Math.max(0, 15 - session.length))
-    .map(([id, c]) => ({ type: 'srs', id, card: c, priority: 'due' }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map(([id, c]: [string, any]) => ({ type: 'srs', id, card: c, priority: 'due' }));
   session.push(...dueSoon);
 
   return { session, weakestGrammarCat, totalItems: session.length };
 }
 
 // ─── PROGRESS BAR ─────────────────────────────────────────────────────────────
-function ProgressBar({ current, total }) {
+function ProgressBar({ current, total }: { current: number; total: number }) {
   const pct = total > 0 ? Math.round((current / total) * 100) : 0;
   return (
     <div
@@ -87,7 +95,8 @@ function ProgressBar({ current, total }) {
 }
 
 // ─── SRS CARD REVIEW ──────────────────────────────────────────────────────────
-function SRSCardReview({ item, onResult }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function SRSCardReview({ item, onResult }: { item: any; onResult: (correct: boolean) => void }) {
   const [flipped, setFlipped] = useState(false);
   const word = item.id;
 
@@ -173,7 +182,15 @@ function SRSCardReview({ item, onResult }) {
 }
 
 // ─── MISTAKE CARD REVIEW ──────────────────────────────────────────────────────
-function MistakeCardReview({ item, onResult }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MistakeCardItem = any;
+function MistakeCardReview({
+  item,
+  onResult,
+}: {
+  item: MistakeCardItem;
+  onResult: (correct: boolean) => void;
+}) {
   const [flipped, setFlipped] = useState(false);
   const m = item.item;
 
@@ -277,7 +294,7 @@ function MistakeCardReview({ item, onResult }) {
 }
 
 // ─── SHARED BUTTON STYLE ─────────────────────────────────────────────────────
-function btnStyle(color) {
+function btnStyle(color: string) {
   return {
     width: '100%',
     padding: '14px 16px',
@@ -294,7 +311,7 @@ function btnStyle(color) {
 }
 
 // ─── INSIGHT PILL ─────────────────────────────────────────────────────────────
-function Pill({ label, color = '#7c3aed' }) {
+function Pill({ label, color = '#7c3aed' }: { label: string; color?: string }) {
   return (
     <span
       style={{
@@ -316,7 +333,11 @@ function Pill({ label, color = '#7c3aed' }) {
 }
 
 // ─── MAIN SCREEN ─────────────────────────────────────────────────────────────
-export default function AdaptiveReviewScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+export default function AdaptiveReviewScreen({ goBack, award }: Props) {
   useStats(); // keeps provider contract; stats read via sr/mistakes directly
   const [view, setView] = useState('dashboard'); // 'dashboard' | 'session' | 'results'
   const [sessionIdx, setSessionIdx] = useState(0);
@@ -570,15 +591,22 @@ export default function AdaptiveReviewScreen({ goBack, award }) {
       return null;
     }
 
-    function handleResult(isCorrect) {
+    function handleResult(isCorrect: boolean) {
       if (isCorrect) {
         setCorrect((c) => c + 1);
       } else {
         setWrong((w) => w + 1);
         if (current.type === 'srs') {
-          recordMistake(current.id, '', current.id, 'adaptive');
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (recordMistake as (...a: any[]) => void)(current.id, '', current.id, 'adaptive');
         } else if (current.type === 'mistake') {
-          recordMistake(current.item.hr, current.item.en || '', current.item.q || '', 'adaptive');
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (recordMistake as (...a: any[]) => void)(
+            current.item.hr,
+            current.item.en || '',
+            current.item.q || '',
+            'adaptive',
+          );
         }
       }
       if (sessionIdx + 1 >= session.length) {

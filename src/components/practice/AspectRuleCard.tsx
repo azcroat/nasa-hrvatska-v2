@@ -1,7 +1,17 @@
-// @ts-nocheck
 import React from 'react';
 
-export default function AspectRuleCard({ rule, highlight }) {
+interface Rule {
+  icon: string;
+  label: string;
+  explanation: string;
+  example: { hr: string; en: string };
+  counterex: { hr: string; en: string };
+}
+interface Props {
+  rule: Rule;
+  highlight: boolean;
+}
+export default function AspectRuleCard({ rule, highlight }: Props) {
   return (
     <div
       style={{

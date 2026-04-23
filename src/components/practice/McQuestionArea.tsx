@@ -1,7 +1,10 @@
-// @ts-nocheck
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Spk } from '../../data';
+import type { McQuestion } from '../../hooks/useMcGameReducer';
+
+// McQuestion has optional runtime-only fields not in the strict type definition
+type McQuestionExtended = McQuestion & { hint?: string; explanation?: string; cat?: string };
 
 const LABELS = ['A', 'B', 'C', 'D', 'E'];
 
@@ -36,7 +39,7 @@ const CATEGORY_HINTS = {
 };
 
 // Pattern-based hints derived from the Croatian word itself
-function _detectHintFromWord(hr) {
+function _detectHintFromWord(hr: string) {
   if (!hr) return null;
   const w = hr.trim().toLowerCase();
   // Verb infinitives
@@ -58,7 +61,7 @@ function _detectHintFromWord(hr) {
   return null;
 }
 
-function getGrammarHint(q) {
+function getGrammarHint(q: McQuestionExtended) {
   // 1. Use question-specific hint/explanation if present
   if (q.hint) return q.hint;
   if (q.explanation) return q.explanation;
@@ -68,7 +71,7 @@ function getGrammarHint(q) {
     if (cat.includes(key)) return hint;
   }
   // 3. Word-pattern detection
-  const wordHint = _detectHintFromWord(q.hr);
+  const wordHint = q.hr ? _detectHintFromWord(q.hr) : null;
   if (wordHint) return wordHint;
   // 4. Rotating pool of general tips (keyed by question index to stay stable during session)
   const GENERAL_TIPS = [
@@ -99,14 +102,14 @@ const PARTICLE_POSITIONS = [
   [-20, -40],
 ];
 
-function ParticleBurst({ active }) {
+function ParticleBurst({ active }: { active: boolean }) {
   if (!active) return null;
   return (
     <div
       style={{ position: 'absolute', top: '50%', left: '50%', pointerEvents: 'none', zIndex: 10 }}
     >
       {PARTICLES.map((e, i) => {
-        const [topOff, leftOff] = PARTICLE_POSITIONS[i];
+        const [topOff, leftOff] = PARTICLE_POSITIONS[i]!;
         return (
           <div
             key={i}
@@ -127,6 +130,21 @@ function ParticleBurst({ active }) {
   );
 }
 
+interface McQuestionAreaProps {
+  q: McQuestionExtended;
+  answered: boolean;
+  selected: number;
+  revealCorrect: boolean;
+  glowIndex: number;
+  burst: number;
+  qTransition: boolean;
+  score: number;
+  questions: McQuestion[];
+  isLast: boolean;
+  firstOptionRef: React.RefObject<HTMLButtonElement | null>;
+  onAnswer: (opt: string, i: number) => void;
+  onKey: (e: React.KeyboardEvent<HTMLButtonElement>, i: number) => void;
+}
 export default function McQuestionArea({
   q,
   answered,
@@ -141,7 +159,7 @@ export default function McQuestionArea({
   firstOptionRef,
   onAnswer,
   onKey,
-}) {
+}: McQuestionAreaProps) {
   return (
     <>
       {/* Question card */}
@@ -193,7 +211,7 @@ export default function McQuestionArea({
           transition: 'opacity 0.2s ease, transform 0.2s ease',
         }}
       >
-        {q.opts.map((o, i) => {
+        {q.opts.map((o: string, i: number) => {
           const isCorrect = answered && o === q.correct;
           const isWrong = answered && selected === i && o !== q.correct;
           const isRevealedCorrect = revealCorrect && o === q.correct && !isCorrect;
@@ -273,7 +291,7 @@ export default function McQuestionArea({
         style={{ marginTop: 8, justifyContent: 'center' }}
       >
         <span>Select:</span>
-        {(q?.opts || []).map((_, i) => (
+        {(q?.opts || []).map((_: string, i: number) => (
           <span key={i}>
             <span className="kb-key" data-key={i + 1} />
           </span>

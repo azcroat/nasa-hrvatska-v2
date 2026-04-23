@@ -1,7 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 
-export default function McGameOver({ challengeMode, onTryAgain, onContinueAnyway, onBack }) {
+interface Props {
+  challengeMode: boolean;
+  onTryAgain: () => void;
+  onContinueAnyway: () => void;
+  onBack: () => void;
+}
+export default function McGameOver({ challengeMode, onTryAgain, onContinueAnyway, onBack }: Props) {
   return (
     <div className="scr-wrap" style={{ textAlign: 'center', padding: '40px 20px' }}>
       <div style={{ fontSize: 52 }}>💔</div>

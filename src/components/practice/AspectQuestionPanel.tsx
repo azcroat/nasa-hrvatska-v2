@@ -1,8 +1,24 @@
-// @ts-nocheck
 import React from 'react';
 import AspectTimeline from './AspectTimeline';
 import AspectRuleCard from './AspectRuleCard';
 
+interface Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  item: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  question: any;
+  answered: boolean;
+  selected: string | null;
+  correct: boolean;
+  revealRule: boolean;
+  phase: number;
+  idx: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: any[];
+  onAnswer: (opt: string) => void;
+  onNext: () => void;
+  onToggleRevealRule: () => void;
+}
 export default function AspectQuestionPanel({
   item,
   question,
@@ -16,7 +32,7 @@ export default function AspectQuestionPanel({
   onAnswer,
   onNext,
   onToggleRevealRule,
-}) {
+}: Props) {
   return (
     <div className="c" style={{ padding: '18px 16px' }}>
       {/* ── Pair header (always visible) ── */}
@@ -77,7 +93,7 @@ export default function AspectQuestionPanel({
             </div>
           )}
           <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
-            {question.opts.map((opt, i) => {
+            {question.opts.map((opt: string, i: number) => {
               let bg = 'var(--card)';
               let border = '2px solid var(--card-b)';
               let color = 'var(--heading)';
@@ -152,7 +168,7 @@ export default function AspectQuestionPanel({
             </div>
           )}
           <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
-            {question.opts.map((opt, i) => {
+            {question.opts.map((opt: string, i: number) => {
               let bg = 'var(--card)';
               let border = '2px solid var(--card-b)';
               let color = 'var(--heading)';
@@ -232,7 +248,8 @@ export default function AspectQuestionPanel({
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-            {question.opts.map((opt, i) => {
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {question.opts.map((opt: any, i: number) => {
               let bg = 'var(--card)';
               let border = '2px solid var(--card-b)';
               let color = 'var(--heading)';
@@ -293,7 +310,8 @@ export default function AspectQuestionPanel({
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
-            {question.opts.map((opt, i) => {
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {question.opts.map((opt: any, i: number) => {
               let bg = 'var(--card)';
               let border = '2px solid var(--card-b)';
               let color = 'var(--heading)';

@@ -1,13 +1,24 @@
-// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 
-export default function DialogueResultsScreen({ scenario, score, totalTurns, onBack }) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export default function DialogueResultsScreen({
+  scenario,
+  score,
+  totalTurns,
+  onBack,
+}: {
+  scenario: any;
+  score: number;
+  totalTurns: number;
+  onBack: () => void;
+}) {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const pct = Math.round((score / totalTurns) * 100);
   const isExcellent = pct > 80;
   return (
     <div className="scr-wrap">
-      {H('💬 Dialogue Simulator', scenario.title)}
+      {H('💬 Dialogue Simulator', scenario.title, onBack)}
       <div
         style={{
           background: 'var(--card)',

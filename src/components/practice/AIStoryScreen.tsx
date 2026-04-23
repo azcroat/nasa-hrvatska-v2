@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
 import { speak } from '../../lib/audio.js';
@@ -9,10 +8,15 @@ function getWeakWords() {
   try {
     const raw = localStorage.getItem('nh_sr');
     if (!raw) return [];
-    const sr = JSON.parse(raw);
+    const sr = JSON.parse(raw) as Record<string, { w: number; r: number }>;
     return Object.entries(sr)
       .filter(([, v]) => v.w > v.r && v.r + v.w >= 2)
-      .sort((a, b) => b[1].w - b[1].r - (a[1].w - a[1].r))
+      .sort(
+        (a, b) =>
+          (b[1] as { w: number; r: number }).w -
+          (b[1] as { w: number; r: number }).r -
+          ((a[1] as { w: number; r: number }).w - (a[1] as { w: number; r: number }).r),
+      )
       .slice(0, 8)
       .map(([word]) => word);
   } catch {
@@ -20,14 +24,20 @@ function getWeakWords() {
   }
 }
 
-export default function AIStoryScreen({ goBack, award }) {
+export default function AIStoryScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const isOnline = useOnlineStatus();
   const [loading, setLoading] = useState(false);
-  const [story, setStory] = useState(null);
-  const [translation, setTranslation] = useState(null);
-  const [wordsUsed, setWordsUsed] = useState([]);
-  const [rawReply, setRawReply] = useState(null);
-  const [error, setError] = useState(null);
+  const [story, setStory] = useState<string | null>(null);
+  const [translation, setTranslation] = useState<string | null>(null);
+  const [wordsUsed, setWordsUsed] = useState<string[]>([]);
+  const [rawReply, setRawReply] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [showTranslation, setShowTranslation] = useState(false);
   const [done, setDone] = useState(false);
   const weakWords = getWeakWords();
@@ -58,7 +68,7 @@ export default function AIStoryScreen({ goBack, award }) {
         signal: AbortSignal.timeout(25000),
       });
       if (!res.ok) {
-        let errBody = {};
+        let errBody: Record<string, string> = {};
         try {
           errBody = await res.json();
         } catch {
@@ -69,8 +79,8 @@ export default function AIStoryScreen({ goBack, award }) {
             'Sign in to generate AI stories. Tap the Profile tab to create a free account.',
           );
         if (res.status === 429) {
-          const t = errBody.resetAt
-            ? new Date(errBody.resetAt).toLocaleTimeString([], {
+          const t = errBody['resetAt']
+            ? new Date(errBody['resetAt']).toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
               })
@@ -83,7 +93,7 @@ export default function AIStoryScreen({ goBack, award }) {
           throw new Error(
             'AI story service is temporarily unavailable. Please try again in a moment.',
           );
-        throw new Error(errBody.error || `Request failed (${res.status})`);
+        throw new Error(errBody['error'] || `Request failed (${res.status})`);
       }
       const data = await res.json();
       const replyText = data.reply || data.message || data.text || JSON.stringify(data);
@@ -112,8 +122,8 @@ export default function AIStoryScreen({ goBack, award }) {
       } else {
         setRawReply(replyText);
       }
-    } catch (err) {
-      setError(err.message || 'Failed to generate story');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : null) || 'Failed to generate story');
     } finally {
       setLoading(false);
     }
@@ -121,6 +131,7 @@ export default function AIStoryScreen({ goBack, award }) {
 
   useEffect(() => {
     generateStory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleDone() {
@@ -130,7 +141,7 @@ export default function AIStoryScreen({ goBack, award }) {
   }
 
   // Highlight weak words in the story text
-  function renderHighlightedStory(text, words) {
+  function renderHighlightedStory(text: string, words: string[]) {
     if (!words || words.length === 0) return <span>{text}</span>;
     const safeWords = words.filter((w) => w != null && typeof w === 'string');
     if (safeWords.length === 0) return <span>{text}</span>;
@@ -139,7 +150,7 @@ export default function AIStoryScreen({ goBack, award }) {
       'gi',
     );
     const parts = text.split(pattern);
-    return parts.map((part, i) => {
+    return parts.map((part: string, i: number) => {
       const isWord = safeWords.some((w) => w.toLowerCase() === part.toLowerCase());
       if (isWord) {
         return (

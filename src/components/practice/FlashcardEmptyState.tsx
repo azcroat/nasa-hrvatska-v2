@@ -1,8 +1,10 @@
-// @ts-nocheck
 import React from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
 
-export default function FlashcardEmptyState({ onGoBack }) {
+interface Props {
+  onGoBack: () => void;
+}
+export default function FlashcardEmptyState({ onGoBack }: Props) {
   return (
     <div className="scr-wrap">
       <div style={{ textAlign: 'center', padding: '40px 20px' }}>

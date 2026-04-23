@@ -1,7 +1,10 @@
-// @ts-nocheck
 import React from 'react';
 
-export default function AspectTimeline({ aspect, dimmed }) {
+interface Props {
+  aspect: string;
+  dimmed: boolean;
+}
+export default function AspectTimeline({ aspect, dimmed }: Props) {
   const isPf = aspect === 'pf';
   const color = dimmed ? 'var(--subtext)' : isPf ? 'var(--success,#16a34a)' : 'var(--info,#0284c7)';
   const bgColor = dimmed ? 'var(--bar-bg)' : isPf ? 'rgba(22,163,74,.07)' : 'rgba(2,132,199,.07)';

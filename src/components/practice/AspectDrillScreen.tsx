@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo, useRef } from 'react';
 import { H, Bar, sh, ASPECT_PAIRS } from '../../data';
 import AspectPhaseBar from './AspectPhaseBar';
@@ -131,7 +130,8 @@ const ASPECT_KEYFRAMES = `
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function guessRule(item) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function guessRule(item: any) {
   const ctx = (item.ctx || '').toLowerCase();
   const rule = (item.rule || '').toLowerCase();
   if (
@@ -172,14 +172,14 @@ function guessRule(item) {
   return 'completed';
 }
 
-function gapSentence(sentence, target, _wrong) {
+function gapSentence(sentence: string, target: string, _wrong: string) {
   if (!sentence) return `___ (${target})`;
   const stem = target.length > 4 ? target.slice(0, 4) : target.slice(0, 3);
   const words = sentence.split(' ');
   for (let i = 0; i < words.length; i++) {
-    const w = words[i].replace(/[.,!?]/g, '');
+    const w = words[i]!.replace(/[.,!?]/g, '');
     if (w.toLowerCase().startsWith(stem.toLowerCase()) && w.length > stem.length) {
-      words[i] = words[i].replace(w, '___');
+      words[i] = words[i]!.replace(w, '___');
       return words.join(' ');
     }
   }
@@ -193,7 +193,13 @@ function gapSentence(sentence, target, _wrong) {
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
-export default function AspectDrillScreen({ goBack, award }) {
+export default function AspectDrillScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
 
@@ -209,7 +215,7 @@ export default function AspectDrillScreen({ goBack, award }) {
   });
   const [mistakesOnly, setMistakesOnly] = useState(false);
 
-  function recordMistake(en) {
+  function recordMistake(en: string) {
     setMistakeIds((prev) => {
       const next = new Set(prev);
       next.add(en);
@@ -217,7 +223,7 @@ export default function AspectDrillScreen({ goBack, award }) {
       return next;
     });
   }
-  function clearMistake(en) {
+  function clearMistake(en: string) {
     setMistakeIds((prev) => {
       const next = new Set(prev);
       next.delete(en);
@@ -229,7 +235,7 @@ export default function AspectDrillScreen({ goBack, award }) {
   const allItems = useMemo(() => {
     if (!ASPECT_PAIRS?.length) return [];
     return sh([...ASPECT_PAIRS]);
-  }, [ASPECT_PAIRS]);
+  }, []);
 
   const items = useMemo(() => {
     if (mistakesOnly && mistakeIds.size > 0) {
@@ -260,9 +266,9 @@ export default function AspectDrillScreen({ goBack, award }) {
         )?.id || guessRule(item)
       : guessRule(item);
 
-    const rule = ASPECT_RULES.find((r) => r.id === ruleId) || ASPECT_RULES[0];
+    const rule = ASPECT_RULES.find((r) => r.id === ruleId) || ASPECT_RULES[0]!;
 
-    const ctxParts = (item.ctx || '').split('/').map((s) => s.trim());
+    const ctxParts = (item.ctx || '').split('/').map((s: string) => s.trim());
     const impfSentence = ctxParts[0] || `${item.impf} — ongoing or habitual`;
     const pfSentence = ctxParts[1] || `${item.pf} — completed, done`;
 
@@ -356,27 +362,31 @@ export default function AspectDrillScreen({ goBack, award }) {
     return null;
   }, [item, phase, idx]);
 
-  function handleAnswer(opt) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function handleAnswer(opt: any) {
     if (answered) return;
     setSelected(opt);
     setAnswered(true);
+    const currentQuestion = question;
+    const currentItem = item;
+    if (!currentQuestion || !currentItem) return;
     const isCorrect =
-      question.type === 'why'
-        ? opt === question.correct
-        : question.type === 'compare'
+      currentQuestion.type === 'why'
+        ? opt === currentQuestion.correct
+        : currentQuestion.type === 'compare'
           ? opt === 'pf'
-          : opt === question.correct;
+          : opt === currentQuestion.correct;
     recordTopicResult('aspect', isCorrect);
     if (isCorrect) {
       setScore((s) => s + 1);
-      if (mistakeIds.has(item.en)) clearMistake(item.en);
+      if (mistakeIds.has(currentItem.en)) clearMistake(currentItem.en);
     } else {
-      recordMistake(item.en);
+      recordMistake(currentItem.en);
     }
   }
 
   function isAnswerCorrect() {
-    if (!answered || selected === null) return false;
+    if (!answered || selected === null || !question) return false;
     if (question.type === 'why') return selected === question.correct;
     if (question.type === 'compare') return selected === 'pf';
     return selected === question.correct;

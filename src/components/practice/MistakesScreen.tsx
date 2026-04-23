@@ -1,10 +1,19 @@
-// @ts-nocheck
 import React, { useState, useCallback } from 'react';
 import { H, getMistakes, clearMistake, clearAllMistakes, speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
 // ── Flip card ──────────────────────────────────────────────────────────────────
-function FlipCard({ mistake, onGotIt, onStudyAgain }) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function FlipCard({
+  mistake,
+  onGotIt,
+  onStudyAgain,
+}: {
+  mistake: any;
+  onGotIt: () => void;
+  onStudyAgain: () => void;
+}) {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const [flipped, setFlipped] = useState(false);
 
   function handleFlip() {
@@ -188,7 +197,8 @@ function FlipCard({ mistake, onGotIt, onStudyAgain }) {
 }
 
 // ── List item ──────────────────────────────────────────────────────────────────
-function MistakeListItem({ mistake, onClear }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MistakeListItem({ mistake, onClear }: { mistake: any; onClear: (hr: string) => void }) {
   return (
     <div className="c" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
       <button
@@ -256,12 +266,24 @@ function MistakeListItem({ mistake, onClear }) {
 }
 
 // ── Main screen ────────────────────────────────────────────────────────────────
-export default function MistakesScreen({ goBack, award }) {
-  const [mistakes, setMistakes] = useState(() => getMistakes().sort((a, b) => b.count - a.count));
+
+export default function MistakesScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number, bonus?: boolean) => void;
+}) {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const [mistakes, setMistakes] = useState<any[]>(() =>
+    getMistakes().sort((a: any, b: any) => b.count - a.count),
+  );
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const [mode, setMode] = useState('list'); // 'list' | 'review'
   const [reviewIdx, setReviewIdx] = useState(0);
   const [mastered, setMastered] = useState(0);
-  const [reviewDeck, setReviewDeck] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [reviewDeck, setReviewDeck] = useState<any[]>([]);
 
   function startReview() {
     const arr = [...mistakes];
@@ -278,8 +300,10 @@ export default function MistakesScreen({ goBack, award }) {
 
   const handleGotIt = useCallback(() => {
     const word = reviewDeck[reviewIdx];
+    if (!word) return;
     clearMistake(word.hr);
-    setMistakes(getMistakes().sort((a, b) => b.count - a.count));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setMistakes(getMistakes().sort((a: any, b: any) => b.count - a.count));
     const newMastered = mastered + 1;
     setMastered(newMastered);
     if (reviewIdx + 1 >= reviewDeck.length) {
@@ -308,9 +332,10 @@ export default function MistakesScreen({ goBack, award }) {
     setMistakes([]);
   }
 
-  function clearOne(hr) {
+  function clearOne(hr: string) {
     clearMistake(hr);
-    setMistakes(getMistakes().sort((a, b) => b.count - a.count));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setMistakes(getMistakes().sort((a: any, b: any) => b.count - a.count));
   }
 
   // ── REVIEW MODE ──────────────────────────────────────────────────────────────
@@ -400,7 +425,8 @@ export default function MistakesScreen({ goBack, award }) {
               <button
                 className="b bp"
                 onClick={() => {
-                  setMistakes(getMistakes().sort((a, b) => b.count - a.count));
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  setMistakes(getMistakes().sort((a: any, b: any) => b.count - a.count));
                   setMode('list');
                 }}
               >
@@ -494,7 +520,8 @@ export default function MistakesScreen({ goBack, award }) {
               Clear All
             </button>
           </div>
-          {mistakes.map((m) => (
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {mistakes.map((m: any) => (
             <MistakeListItem key={m.hr} mistake={m} onClear={clearOne} />
           ))}
         </>

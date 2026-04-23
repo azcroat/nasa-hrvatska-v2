@@ -1,16 +1,21 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, BOJE } from '../../data';
 
-export default function BojeGame({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
+export default function BojeGame({ goBack, award }: Props) {
   const finishFired = useRef(false);
   const [bjMode, sBjMode] = useState('learn');
   const [bjIdx, sBjIdx] = useState(0);
   const [bjSc, sBjSc] = useState(0);
   const [bjAns, sBjAns] = useState(false);
   const [bjSel, sBjSel] = useState(-1);
-  const [bjOpts, sBjOpts] = useState([]);
-  const [bjQ, sBjQ] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [bjOpts, sBjOpts] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [bjQ, sBjQ] = useState<any[]>([]);
 
   function startQuiz() {
     finishFired.current = false;
@@ -24,7 +29,8 @@ export default function BojeGame({ goBack, award }) {
     sBjOpts(q.length ? getOpts(q[0]) : []);
   }
 
-  function getOpts(q) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getOpts(q: any) {
     const allForms = BOJE.colors.flatMap((c) => {
       if (q.g === 'f') return [c.f];
       if (q.g === 'n') return [c.n];
@@ -167,7 +173,7 @@ export default function BojeGame({ goBack, award }) {
               </div>
             );
           }
-          const q = bjQ[bjIdx];
+          const q = bjQ[bjIdx]!;
           const gLabel =
             q.g === 'f'
               ? 'feminine'
@@ -245,7 +251,7 @@ export default function BojeGame({ goBack, award }) {
                   style={{ width: '100%', marginTop: 16 }}
                   onClick={() => {
                     if (bjIdx < total - 1) {
-                      const nq = bjQ[bjIdx + 1];
+                      const nq = bjQ[bjIdx + 1]!;
                       sBjOpts(getOpts(nq));
                       sBjIdx((i) => i + 1);
                       sBjAns(false);
