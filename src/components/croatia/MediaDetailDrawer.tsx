@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * MediaDetailDrawer — bottom-sheet player for media items.
  *
@@ -10,11 +9,24 @@
  */
 import React, { useEffect, useRef, useCallback } from 'react';
 import RadioPlayer from './RadioPlayer';
+
+interface MediaItem {
+  ytId?: string;
+  stream?: string;
+  web?: string;
+  icon?: string;
+  color: string;
+  name: string;
+  level?: string;
+  tip?: string;
+  desc?: string;
+}
+
 import { openUrl } from '../../lib/platform.ts';
 
 // ── YouTube iframe embed ──────────────────────────────────────────────────────
 
-function YouTubeEmbed({ ytId, color }) {
+function YouTubeEmbed({ ytId, color }: { ytId: string; color: string }) {
   const src = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
   return (
     <div
@@ -49,7 +61,15 @@ function YouTubeEmbed({ ytId, color }) {
 
 // ── External link card ────────────────────────────────────────────────────────
 
-function ExternalCard({ m, activeStream, setActiveStream }) {
+function ExternalCard({
+  m,
+  activeStream,
+  setActiveStream,
+}: {
+  m: MediaItem;
+  activeStream: string | null;
+  setActiveStream: (id: string | null) => void;
+}) {
   const handleOpen = useCallback(() => {
     if (m.web) openUrl(m.web);
   }, [m.web]);
@@ -156,12 +176,22 @@ function ExternalCard({ m, activeStream, setActiveStream }) {
 
 // ── Main drawer ───────────────────────────────────────────────────────────────
 
-export default function MediaDetailDrawer({ item, onClose, activeStream, setActiveStream }) {
+export default function MediaDetailDrawer({
+  item,
+  onClose,
+  activeStream,
+  setActiveStream,
+}: {
+  item: MediaItem | null;
+  onClose: () => void;
+  activeStream: string | null;
+  setActiveStream: (id: string | null) => void;
+}) {
   const overlayRef = useRef(null);
 
   // Close on Escape
   useEffect(() => {
-    function onKey(e) {
+    function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose();
     }
     window.addEventListener('keydown', onKey);
@@ -180,7 +210,7 @@ export default function MediaDetailDrawer({ item, onClose, activeStream, setActi
 
   const hasYT = !!item.ytId;
 
-  function handleOverlayClick(e) {
+  function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === overlayRef.current) onClose();
   }
 
@@ -290,10 +320,10 @@ export default function MediaDetailDrawer({ item, onClose, activeStream, setActi
           {/* YouTube embed takes priority */}
           {hasYT && (
             <div style={{ marginBottom: 16 }}>
-              <YouTubeEmbed ytId={item.ytId} color={item.color} />
+              <YouTubeEmbed ytId={item.ytId!} color={item.color} />
               {item.web && (
                 <button
-                  onClick={() => openUrl(item.web)}
+                  onClick={() => openUrl(item.web!)}
                   style={{
                     marginTop: 10,
                     width: '100%',

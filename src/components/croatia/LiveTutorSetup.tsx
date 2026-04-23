@@ -1,5 +1,20 @@
-// @ts-nocheck
 import React from 'react';
+
+interface Props {
+  goBack: () => void;
+  level: string;
+  setLevel: (l: string) => void;
+  topic: string;
+  setTopic: (t: string) => void;
+  micPermission: string;
+  audioStatus: string;
+  testingAudio: boolean;
+  audioTestResult: string | null;
+  avatarError: boolean;
+  setAvatarError: (v: boolean) => void;
+  onTestSpeaker: () => void;
+  onStart: () => void;
+}
 
 const TOPICS = [
   'Free conversation',
@@ -28,7 +43,7 @@ export default function LiveTutorSetup({
   setAvatarError,
   onTestSpeaker,
   onStart,
-}) {
+}: Props) {
   return (
     <div className="c" style={{ minHeight: '100vh', paddingBottom: 80 }}>
       {/* Header */}

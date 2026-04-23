@@ -1,13 +1,65 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { CITY_PHOTOS } from './StoryModeData.js';
 
+interface Token {
+  type: 'word' | 'space';
+  value: string;
+  key: string;
+}
+
+interface WordTokenProps {
+  word: string;
+  accentColor: string;
+  onTap: () => void;
+  isPunctuation: boolean;
+}
+
+interface StoryData {
+  story?: string;
+  title?: string;
+  title_en?: string;
+  cultural_note?: string;
+  vocabulary?: {
+    hr?: string;
+    en?: string;
+    croatian?: string;
+    english?: string;
+    word?: string;
+    translation?: string;
+  }[];
+  comprehension_questions?: string[];
+}
+
+interface CityItem {
+  name: string;
+  icon: string;
+  color: string;
+  region: string;
+}
+
+interface StoryViewPanelProps {
+  storyData: StoryData;
+  selectedCity: CityItem;
+  selectedLevel: string;
+  ttsPlaying: boolean;
+  tappedWords: number;
+  vocabOpen: boolean;
+  setVocabOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  discussOpen: boolean;
+  setDiscussOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  storyRef: React.RefObject<HTMLDivElement | null>;
+  onWordTap: () => void;
+  onTTSToggle: () => void;
+  onNewStory: () => void;
+  onBack: () => void;
+}
+
 // ── Word token component ───────────────────────────────────────────────────────
-function WordToken({ word, accentColor, onTap, isPunctuation }) {
+function WordToken({ word, accentColor, onTap, isPunctuation }: WordTokenProps) {
   const [state, setState] = useState('idle'); // idle | loading | shown
   const [translation, setTranslation] = useState(null);
-  const timerRef = useRef(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleClick = useCallback(async () => {
     if (isPunctuation) return;
@@ -27,14 +79,19 @@ function WordToken({ word, accentColor, onTap, isPunctuation }) {
       const tr = data.translation || data.reply || data.content || '…';
       setTranslation(tr);
       setState('shown');
-      clearTimeout(timerRef.current);
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => setState('idle'), 2500);
     } catch {
       setState('idle');
     }
   }, [word, isPunctuation, onTap]);
 
-  useEffect(() => () => clearTimeout(timerRef.current), []);
+  useEffect(
+    () => () => {
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+    },
+    [],
+  );
 
   const isActive = state === 'loading' || state === 'shown';
 
@@ -103,8 +160,8 @@ function WordToken({ word, accentColor, onTap, isPunctuation }) {
 }
 
 // ── Tokenise story text into words + punctuation ──────────────────────────────
-function tokenise(text) {
-  const tokens = [];
+function tokenise(text: string): Token[] {
+  const tokens: Token[] = [];
   const parts = text.split(/(\s+)/);
   parts.forEach((part, i) => {
     if (/^\s+$/.test(part)) {
@@ -141,10 +198,13 @@ export default function StoryViewPanel({
   onTTSToggle,
   onNewStory,
   onBack,
-}) {
+}: StoryViewPanelProps) {
   const accentColor = selectedCity.color;
-  const photoSrc = CITY_PHOTOS[selectedCity.name] || CITY_PHOTOS.default;
-  const tokens = tokenise(storyData.story || '');
+  const photoSrc =
+    (CITY_PHOTOS as Record<string, string>)[selectedCity.name] ??
+    (CITY_PHOTOS as Record<string, string>).default ??
+    '';
+  const tokens = tokenise(storyData.story ?? '');
 
   return (
     <div className="scr-wrap" ref={storyRef}>
@@ -165,7 +225,8 @@ export default function StoryViewPanel({
           alt={selectedCity.name}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           onError={(e) => {
-            /** @type {HTMLImageElement} */ e.target.src = CITY_PHOTOS.default;
+            (e.currentTarget as HTMLImageElement).src =
+              (CITY_PHOTOS as Record<string, string>).default ?? '';
           }}
         />
         <div

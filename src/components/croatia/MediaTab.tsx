@@ -1,5 +1,20 @@
-// @ts-nocheck
 import React, { useState, useMemo, useCallback } from 'react';
+
+interface MediaItem {
+  name: string;
+  icon?: string;
+  desc?: string;
+  level?: string;
+  web?: string;
+  scr?: string;
+  stream?: string;
+  color?: string;
+  cat?: string;
+  live?: boolean;
+  video?: boolean;
+  ytId?: string;
+  [key: string]: unknown;
+}
 import { MEDIA, incrementCulture } from '../../data';
 import { useApp } from '../../context/AppContext';
 import SpotifySection from './SpotifySection';
@@ -17,7 +32,7 @@ function getRecentMedia() {
     return {};
   }
 }
-function markMediaUsed(name) {
+function markMediaUsed(name: string) {
   try {
     const used = getRecentMedia();
     used[name] = Date.now();
@@ -36,8 +51,8 @@ const GOAL_CAT_PREF = {
   '': ['tv', 'music', 'podcast'],
 };
 
-function getTodaysPicks(goal) {
-  const preferred = GOAL_CAT_PREF[goal] || GOAL_CAT_PREF[''];
+function getTodaysPicks(goal: string) {
+  const preferred = (GOAL_CAT_PREF as Record<string, string[]>)[goal] || GOAL_CAT_PREF[''];
   const usable = MEDIA.filter((m) => !m.stream && (m.scr || m.web) && preferred.includes(m.cat));
   const sorted = sortMediaForGoal(usable, goal);
   // Rotate picks daily so they feel fresh
@@ -121,7 +136,15 @@ const FILTERS = [
 ];
 
 // ── Compact carousel card (140px wide) ───────────────────────────────────────
-function CarouselCard({ m, onOpen, goalTag }) {
+function CarouselCard({
+  m,
+  onOpen,
+  goalTag,
+}: {
+  m: MediaItem;
+  onOpen: () => void;
+  goalTag?: string;
+}) {
   return (
     <button
       onClick={onOpen}
@@ -218,7 +241,7 @@ function CarouselCard({ m, onOpen, goalTag }) {
 }
 
 // ── Today's Pick card (flexible width, 3 per row) ────────────────────────────
-function PickCard({ m, onOpen, isTop }) {
+function PickCard({ m, onOpen, isTop }: { m: MediaItem; onOpen: () => void; isTop?: boolean }) {
   return (
     <button
       onClick={onOpen}
@@ -300,7 +323,7 @@ function PickCard({ m, onOpen, isTop }) {
 }
 
 // ── Expanded 2-col grid card ──────────────────────────────────────────────────
-function GridCard({ m, onOpen }) {
+function GridCard({ m, onOpen }: { m: MediaItem; onOpen: () => void }) {
   return (
     <button
       onClick={onOpen}
@@ -387,10 +410,10 @@ function GridCard({ m, onOpen }) {
 
 export default function MediaTab() {
   const { setScr, award } = useApp();
-  const [activeStream, setActiveStream] = useState(null);
+  const [activeStream, setActiveStream] = useState<string | null>(null);
   const [mediaFilter, setMediaFilter] = useState('foryou');
   const [expandedCats, setExpandedCats] = useState(new Set());
-  const [drawerItem, setDrawerItem] = useState(null);
+  const [drawerItem, setDrawerItem] = useState<MediaItem | null>(null);
   // Incremented when an item is opened, to refresh the "Continue" row
   const [recentVersion, setRecentVersion] = useState(0);
   const userGoal = getGoalPersonalization();
@@ -398,16 +421,17 @@ export default function MediaTab() {
   const recentMedia = useMemo(() => {
     const used = getRecentMedia();
     return Object.entries(used)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
       .slice(0, 5)
-      .map(([name]) => MEDIA.find((m) => m.name === name))
-      .filter(Boolean);
+      .map(([name]) => MEDIA.find((m) => (m as MediaItem).name === name))
+      .filter(Boolean) as MediaItem[];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recentVersion]);
 
   const todaysPicks = useMemo(() => getTodaysPicks(userGoal), [userGoal]);
 
   const openItem = useCallback(
-    (m) => {
+    (m: MediaItem) => {
       // Track engagement
       if (m.scr || m.web || m.ytId || m.stream) {
         incrementCulture('mediaCnt');
@@ -438,7 +462,7 @@ export default function MediaTab() {
     [setScr, award],
   );
 
-  function toggleExpand(cat) {
+  function toggleExpand(cat: string) {
     setExpandedCats((prev) => {
       const next = new Set(prev);
       if (next.has(cat)) next.delete(cat);
@@ -460,7 +484,7 @@ export default function MediaTab() {
       {/* ─── Media detail drawer ──────────────────────── */}
       {drawerItem && (
         <MediaDetailDrawer
-          item={drawerItem}
+          item={drawerItem as Parameters<typeof MediaDetailDrawer>[0]['item']}
           onClose={() => setDrawerItem(null)}
           activeStream={activeStream}
           setActiveStream={setActiveStream}
@@ -582,7 +606,7 @@ export default function MediaTab() {
             }}
           >
             {recentMedia.map((m, i) => (
-              <CarouselCard key={i} m={m} onOpen={() => openItem(m)} goalTag={null} />
+              <CarouselCard key={i} m={m} onOpen={() => openItem(m)} />
             ))}
           </div>
         </div>
@@ -605,7 +629,12 @@ export default function MediaTab() {
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {todaysPicks.map((m, i) => (
-              <PickCard key={i} m={m} onOpen={() => openItem(m)} isTop={i === 0} />
+              <PickCard
+                key={i}
+                m={m as MediaItem}
+                onOpen={() => openItem(m as MediaItem)}
+                isTop={i === 0}
+              />
             ))}
           </div>
         </div>
@@ -673,54 +702,60 @@ export default function MediaTab() {
             </span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
-            {MEDIA.filter((m) => !!m.stream).map((m, i) => (
-              <div
-                key={i}
-                style={{
-                  background: `linear-gradient(175deg,#0c1520 0%,${m.color}40 100%)`,
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: `1px solid ${m.color}30`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  boxShadow: `0 4px 20px ${m.color}18`,
-                }}
-              >
-                <div style={{ padding: '14px 10px 6px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, marginBottom: 4 }}>{m.icon}</div>
-                  <div
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 900,
-                      color: 'white',
-                      lineHeight: 1.25,
-                      marginBottom: 2,
-                    }}
-                  >
-                    {m.name.split(' — ')[0].replace(' Live', '').replace(' Radio Live', '').trim()}
+            {MEDIA.filter((m) => !!(m as MediaItem).stream).map((m, i) => {
+              const mi = m as MediaItem;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    background: `linear-gradient(175deg,#0c1520 0%,${mi.color}40 100%)`,
+                    borderRadius: 16,
+                    overflow: 'hidden',
+                    border: `1px solid ${mi.color}30`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxShadow: `0 4px 20px ${mi.color}18`,
+                  }}
+                >
+                  <div style={{ padding: '14px 10px 6px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 28, marginBottom: 4 }}>{mi.icon}</div>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 900,
+                        color: 'white',
+                        lineHeight: 1.25,
+                        marginBottom: 2,
+                      }}
+                    >
+                      {(mi.name.split(' — ')[0] ?? mi.name)
+                        .replace(' Live', '')
+                        .replace(' Radio Live', '')
+                        .trim()}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 9,
+                        color: 'rgba(255,255,255,.4)',
+                        lineHeight: 1.3,
+                        marginBottom: 6,
+                      }}
+                    >
+                      {mi.level}
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: 9,
-                      color: 'rgba(255,255,255,.4)',
-                      lineHeight: 1.3,
-                      marginBottom: 6,
-                    }}
-                  >
-                    {m.level}
+                  <div style={{ padding: '0 8px 10px' }}>
+                    <RadioPlayer
+                      src={mi.stream ?? ''}
+                      color={mi.color ?? '#D4002D'}
+                      streamId={mi.name}
+                      activeStream={activeStream}
+                      setActiveStream={setActiveStream}
+                    />
                   </div>
                 </div>
-                <div style={{ padding: '0 8px 10px' }}>
-                  <RadioPlayer
-                    src={m.stream}
-                    color={m.color}
-                    streamId={m.name}
-                    activeStream={activeStream}
-                    setActiveStream={setActiveStream}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -769,7 +804,9 @@ export default function MediaTab() {
 
       {/* ─── CONTENT CATEGORIES — horizontal carousels ── */}
       {catsToShow.map((cat) => {
-        const meta = CAT_META[cat];
+        const meta = (CAT_META as Record<string, { emoji: string; title: string; accent: string }>)[
+          cat
+        ];
         if (!meta) return null;
         const rawItems = MEDIA.filter((m) => m.cat === cat && !m.stream);
         if (!rawItems.length) return null;
@@ -818,7 +855,7 @@ export default function MediaTab() {
             </div>
 
             {/* Genre vocabulary strip (Lingopie-style) */}
-            {GENRE_VOCAB[cat] && (
+            {(GENRE_VOCAB as Record<string, { hr: string; en: string }[]>)[cat] && (
               <div
                 style={{
                   display: 'flex',
@@ -830,36 +867,38 @@ export default function MediaTab() {
                   marginBottom: 2,
                 }}
               >
-                {GENRE_VOCAB[cat].map(({ hr, en }) => (
-                  <div
-                    key={hr}
-                    style={{
-                      flexShrink: 0,
-                      borderRadius: 20,
-                      padding: '4px 11px',
-                      background: `${meta.accent}12`,
-                      border: `1px solid ${meta.accent}30`,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: 1,
-                    }}
-                  >
-                    <span
+                {((GENRE_VOCAB as Record<string, { hr: string; en: string }[]>)[cat] ?? []).map(
+                  ({ hr, en }: { hr: string; en: string }) => (
+                    <div
+                      key={hr}
                       style={{
-                        fontSize: 11,
-                        fontWeight: 800,
-                        color: meta.accent,
-                        fontStyle: 'italic',
+                        flexShrink: 0,
+                        borderRadius: 20,
+                        padding: '4px 11px',
+                        background: `${meta.accent}12`,
+                        border: `1px solid ${meta.accent}30`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 1,
                       }}
                     >
-                      {hr}
-                    </span>
-                    <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>
-                      {en}
-                    </span>
-                  </div>
-                ))}
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          color: meta.accent,
+                          fontStyle: 'italic',
+                        }}
+                      >
+                        {hr}
+                      </span>
+                      <span style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>
+                        {en}
+                      </span>
+                    </div>
+                  ),
+                )}
               </div>
             )}
 
@@ -877,9 +916,9 @@ export default function MediaTab() {
                   {carouselItems.map((m, i) => (
                     <CarouselCard
                       key={i}
-                      m={m}
-                      onOpen={() => openItem(m)}
-                      goalTag={tagMediaForGoal(m, userGoal)}
+                      m={m as MediaItem}
+                      onOpen={() => openItem(m as MediaItem)}
+                      goalTag={tagMediaForGoal(m, userGoal) ?? undefined}
                     />
                   ))}
                   {/* "See all" sentinel card */}
@@ -933,7 +972,7 @@ export default function MediaTab() {
                   className="nh-stagger"
                 >
                   {items.map((m, i) => (
-                    <GridCard key={i} m={m} onOpen={() => openItem(m)} />
+                    <GridCard key={i} m={m as MediaItem} onOpen={() => openItem(m as MediaItem)} />
                   ))}
                 </div>
                 <button

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak, H } from '../../data';
 
@@ -264,16 +263,20 @@ const SCENARIOS = [
   },
 ];
 
-export default function SurvivalDinner({ goBack }) {
-  const [activeScenario, setActiveScenario] = useState(null);
-  const [revealed, setRevealed] = useState({});
+interface Props {
+  goBack: () => void;
+}
 
-  function toggleReveal(key) {
+export default function SurvivalDinner({ goBack }: Props) {
+  const [activeScenario, setActiveScenario] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+
+  function toggleReveal(key: string) {
     setRevealed((r) => ({ ...r, [key]: !r[key] }));
   }
 
   if (activeScenario) {
-    const sc = SCENARIOS.find((s) => s.id === activeScenario);
+    const sc = SCENARIOS.find((s) => s.id === activeScenario)!;
     return (
       <div>
         {H(`${sc.icon} ${sc.title}`, 'Tap any phrase to hear it', goBack)}

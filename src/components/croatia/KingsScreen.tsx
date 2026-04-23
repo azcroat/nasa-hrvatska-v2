@@ -1,11 +1,21 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 import { H, speak } from '../../data';
 import { KINGS } from '../../data';
 
-export default function KingsScreen({ goBack, award, setSt }) {
+interface KingsSt {
+  hi?: number;
+  [key: string]: unknown;
+}
+
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+  setSt: React.Dispatch<React.SetStateAction<KingsSt>>;
+}
+
+export default function KingsScreen({ goBack, award, setSt }: Props) {
   const { writeDelta } = useStats();
   const finishFired = useRef(false);
   const [kgTab, sKgTab] = useState('timeline');
@@ -92,9 +102,9 @@ export default function KingsScreen({ goBack, award, setSt }) {
                 }}
               >
                 <div style={{ minWidth: 60, fontSize: 14, fontWeight: 800, color: '#b45309' }}>
-                  {f[0]}
+                  {f[0]!}
                 </div>
-                <div style={{ fontSize: 14, color: '#44403c' }}>{f[1]}</div>
+                <div style={{ fontSize: 14, color: '#44403c' }}>{f[1]!}</div>
               </div>
             );
           })}
@@ -273,17 +283,17 @@ export default function KingsScreen({ goBack, award, setSt }) {
               return (
                 <button
                   key={i}
-                  aria-label={`Play audio for ${v[0]}`}
+                  aria-label={`Play audio for ${v[0]!}`}
                   className="c"
                   style={{ padding: '10px 14px' }}
                   onClick={function () {
-                    speak(v[0]);
+                    speak(v[0]!);
                   }}
                 >
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#b45309' }}>
-                    {v[0]} <span aria-hidden="true">🔊</span>
+                    {v[0]!} <span aria-hidden="true">🔊</span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--subtext)' }}>{v[1]}</div>
+                  <div style={{ fontSize: 12, color: 'var(--subtext)' }}>{v[1]!}</div>
                 </button>
               );
             })}
@@ -294,7 +304,7 @@ export default function KingsScreen({ goBack, award, setSt }) {
             onClick={function () {
               if (finishFired.current) return;
               finishFired.current = true;
-              setSt(function (s) {
+              setSt(function (s: KingsSt) {
                 return Object.assign({}, s, { hi: (s.hi || 0) + 1 });
               });
               writeDelta({ hi: 1 });

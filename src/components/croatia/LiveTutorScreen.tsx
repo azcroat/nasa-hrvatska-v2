@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
@@ -19,6 +18,28 @@ const DEBRIEF_EXTRA_CSS = `
 }
 `;
 
+// ─────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────
+interface TutorMessage {
+  role: string;
+  content: string;
+  comprehension_prompt?: string;
+  gloss?: string;
+  correction?: string | null;
+  phase?: string;
+}
+interface DebriefResult {
+  summary?: string;
+  strength?: string;
+  nextStep?: string;
+  durationSecs: number;
+  xpEarned?: number;
+}
+interface Props {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}
 // ─────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────
@@ -73,7 +94,7 @@ function injectCSS() {
 // ─────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
-export default function LiveTutorScreen({ goBack, award }) {
+export default function LiveTutorScreen({ goBack, award }: Props) {
   injectCSS();
   const isOnline = useOnlineStatus();
 
@@ -83,12 +104,12 @@ export default function LiveTutorScreen({ goBack, award }) {
   const [started, setStarted] = useState(false);
 
   // ── Session debrief ───────────────────────
-  const [debrief, setDebrief] = useState(null);
+  const [debrief, setDebrief] = useState<DebriefResult | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
-  const sessionStartRef = useRef(null);
+  const sessionStartRef = useRef<number | null>(null);
 
   // ── Conversation state ────────────────────
-  const [messages, setMessages] = useState([]); // { role, content, gloss?, correction?, phase? }
+  const [messages, setMessages] = useState<TutorMessage[]>([]); // { role, content, gloss?, correction?, phase? }
   const [breakdownCount, setBreakdownCount] = useState(0);
   const [sessionHistory, setSessionHistory] = useState('');
   const [turnCount, setTurnCount] = useState(0);
@@ -103,7 +124,7 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ── Loading / error / playback state ─────
   const [thinking, setThinking] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [showGloss, setShowGloss] = useState(true);
   const [phase, setPhase] = useState('none');
   const [avatarError, setAvatarError] = useState(false);
@@ -112,17 +133,19 @@ export default function LiveTutorScreen({ goBack, award }) {
   // 'unknown' | 'ok' | 'no-output' | 'suspended'
   const [audioStatus, setAudioStatus] = useState('unknown');
   const [testingAudio, setTestingAudio] = useState(false);
-  const [audioTestResult, setAudioTestResult] = useState(null); // null | 'ok' | 'fail'
-  const ttsFailCountRef = useRef(0); // consecutive TTS failures during active session
+  const [audioTestResult, setAudioTestResult] = useState<'ok' | 'fail' | null>(null); // null | 'ok' | 'fail'
+  const ttsFailCountRef = useRef<number>(0); // consecutive TTS failures during active session
   const [showAudioWarning, setShowAudioWarning] = useState(false);
 
   // ── Refs ──────────────────────────────────
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const audioRef = useRef(null);
-  const bottomRef = useRef(null);
-  const apiMsgsRef = useRef([]); // mirrors messages but only role+content for API calls
-  const recordingStreamRef = useRef(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<{ pause: () => void; currentTime: number } | HTMLAudioElement | null>(
+    null,
+  );
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const apiMsgsRef = useRef<{ role: string; content: string }[]>([]); // mirrors messages but only role+content for API calls
+  const recordingStreamRef = useRef<MediaStream | null>(null);
 
   // ── Check mic permission on mount ─────────
   useEffect(() => {
@@ -134,7 +157,7 @@ export default function LiveTutorScreen({ goBack, award }) {
       // Permissions API not supported — discover on first use
       return undefined;
     }
-    let permStatus;
+    let permStatus: PermissionStatus | undefined;
     navigator.permissions
       .query({ name: 'microphone' })
       .then((status) => {
@@ -187,7 +210,8 @@ export default function LiveTutorScreen({ goBack, award }) {
       let ctx = getAudioContext();
       let tempCtx = false;
       if (!ctx) {
-        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
         tempCtx = true;
       }
       await ctx.resume();
@@ -214,14 +238,14 @@ export default function LiveTutorScreen({ goBack, award }) {
 
   // ── Auto-scroll ───────────────────────────
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    (bottomRef.current as HTMLDivElement | null)?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
 
   // ── Start session: send opening message ───
   const startSession = useCallback(async () => {
     setStarted(true);
     setDebrief(null);
-    sessionStartRef.current = Date.now();
+    sessionStartRef.current = Date.now() as number;
     setMessages([]);
     apiMsgsRef.current = [];
     setBreakdownCount(0);
@@ -233,11 +257,12 @@ export default function LiveTutorScreen({ goBack, award }) {
     // Prime the tutor with a system-style user message
     const opener = `Zdravo! Htio/htjela bih vježbati hrvatski. Tema: ${topic}. Razina: ${level}.`;
     await sendToTutor(opener, 0, '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topic, level]);
 
   // ── Core: send user text → tutor API → TTS ──
   const sendToTutor = useCallback(
-    async (userText, currentBreakdown, currentHistory) => {
+    async (userText: string, currentBreakdown: number, currentHistory: string) => {
       setThinking(true);
       setError(null);
 
@@ -312,9 +337,9 @@ export default function LiveTutorScreen({ goBack, award }) {
         // Play TTS (streaming)
         setThinking(false);
         await playTTSStreaming(fullCroatian);
-      } catch (e) {
+      } catch (err: unknown) {
         setThinking(false);
-        const msg = e.message || '';
+        const msg = (err as Error).message || '';
         setError(
           msg === 'rate_limit' || msg.includes('429')
             ? 'Rate limit reached — wait a moment and try again.'
@@ -332,11 +357,12 @@ export default function LiveTutorScreen({ goBack, award }) {
         );
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [level, topic, turnCount, award],
   );
 
   // ── TTS: blob fallback helper ──────────────
-  const playBlob = async (blob) => {
+  const playBlob = async (blob: Blob): Promise<void> => {
     // iOS: use the pre-unlocked AudioContext to bypass HTMLAudioElement autoplay policy
     const ctx = getAudioContext();
     const isIOS =
@@ -368,9 +394,9 @@ export default function LiveTutorScreen({ goBack, award }) {
       }
     }
     // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-    const url = await new Promise((resolve) => {
+    const url = await new Promise<string>((resolve) => {
       const r = new FileReader();
-      r.onload = () => resolve(r.result);
+      r.onload = () => resolve(r.result as string);
       r.readAsDataURL(blob);
     });
     const audio = new Audio(url);
@@ -383,7 +409,7 @@ export default function LiveTutorScreen({ goBack, award }) {
   };
 
   // ── TTS: streaming playback ────────────────
-  const playTTSStreaming = async (text) => {
+  const playTTSStreaming = async (text: string): Promise<void> => {
     setPlaying(true);
     setPhase('speaking');
     let mseUrl = null;
@@ -429,16 +455,16 @@ export default function LiveTutorScreen({ goBack, award }) {
       if (!res.body) throw new Error('TTS response has no body');
       const reader = res.body.getReader();
 
-      const appendChunk = (chunk) =>
-        new Promise((resolve, reject) => {
+      const appendChunk = (chunk: Uint8Array) =>
+        new Promise<void>((resolve, reject) => {
           const doAppend = () => {
             try {
-              sourceBuffer.appendBuffer(chunk);
-            } catch (e) {
-              reject(e);
+              sourceBuffer.appendBuffer(new Uint8Array(chunk).buffer as ArrayBuffer);
+            } catch (appendErr: unknown) {
+              reject(appendErr);
               return;
             }
-            sourceBuffer.addEventListener('updateend', resolve, { once: true });
+            sourceBuffer.addEventListener('updateend', () => resolve(), { once: true });
           };
           // If a previous append is still in progress, queue this one after it finishes
           if (sourceBuffer.updating) {
@@ -548,7 +574,8 @@ export default function LiveTutorScreen({ goBack, award }) {
       recorder.start();
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
-    } catch (e) {
+    } catch (err: unknown) {
+      const e = err as Error;
       if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
         setMicPermission('denied');
       } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
@@ -556,11 +583,15 @@ export default function LiveTutorScreen({ goBack, award }) {
       }
       setUseFallbackInput(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRecording, thinking, playing]);
 
   // ── STT: stop recording ────────────────────
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+    if (
+      mediaRecorderRef.current &&
+      (mediaRecorderRef.current as MediaRecorder).state === 'recording'
+    ) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
@@ -568,7 +599,7 @@ export default function LiveTutorScreen({ goBack, award }) {
 
   // ── STT: send audio blob to Deepgram /api/stt ─
   const transcribeAudio = useCallback(
-    async (blob, mimeType) => {
+    async (blob: Blob, mimeType: string) => {
       setPhase('thinking'); // show loading state
       const controller = new AbortController();
       const tid = setTimeout(() => controller.abort(), 15000); // 15s max
@@ -655,7 +686,7 @@ export default function LiveTutorScreen({ goBack, award }) {
 
   // ── Text input submit ──────────────────────
   const handleTextSubmit = useCallback(
-    (e) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
       const txt = textInput.trim();
       if (!txt || thinking || playing) return;
@@ -668,7 +699,10 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ── Cleanup on unmount ─────────────────────
   useEffect(() => {
     return () => {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      if (
+        mediaRecorderRef.current &&
+        (mediaRecorderRef.current as MediaRecorder).state === 'recording'
+      ) {
         try {
           mediaRecorderRef.current.stop();
         } catch {}
@@ -789,7 +823,8 @@ export default function LiveTutorScreen({ goBack, award }) {
   // ─────────────────────────────────────────────
   // RENDER — Active conversation screen
   // ─────────────────────────────────────────────
-  const phaseInfo = PHASE_LABELS[phase] || PHASE_LABELS.none;
+  const phaseInfo =
+    (PHASE_LABELS as Record<string, { icon: string; label: string }>)[phase] || PHASE_LABELS.none;
   const micBusy = phase === 'speaking' || phase === 'thinking' || thinking || playing;
   const canType = !thinking && !playing;
   const showMic = !useFallbackInput;

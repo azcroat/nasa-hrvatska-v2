@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
@@ -10,12 +9,42 @@ import { STORY_CITIES, GOAL_META } from './StoryModeData.js';
 import StorySetupPanel from './StorySetupPanel';
 import StoryViewPanel from './StoryViewPanel';
 
+interface StoryData {
+  story: string;
+  title?: string;
+  title_en?: string;
+  cultural_note?: string;
+  vocabulary?: {
+    hr?: string;
+    en?: string;
+    croatian?: string;
+    english?: string;
+    word?: string;
+    translation?: string;
+  }[];
+  comprehension_questions?: string[];
+  [key: string]: unknown;
+}
+
+interface GoalMeta {
+  label: string;
+  icon: string;
+  cities: string[];
+  theme: string;
+  tip: string;
+}
+
+interface AudioPlayer {
+  pause(): void;
+  addEventListener(ev: string, fn: () => void): void;
+}
+
 // ── TTS helper ────────────────────────────────────────────────────────────────
 const _iosDevice =
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-async function playTTS(text) {
+async function playTTS(text: string): Promise<AudioPlayer | HTMLAudioElement> {
   const res = await apiFetch('/api/tts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -41,7 +70,7 @@ async function playTTS(text) {
             src.stop();
           } catch {}
         },
-        addEventListener(ev, fn) {
+        addEventListener(ev: string, fn: () => void) {
           if (ev === 'ended') src.onended = fn;
         },
       };
@@ -51,9 +80,9 @@ async function playTTS(text) {
   }
 
   // Non-iOS: use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-  const url = await new Promise((resolve) => {
+  const url = await new Promise<string>((resolve) => {
     const r = new FileReader();
-    r.onload = () => resolve(r.result);
+    r.onload = () => resolve(r.result as string);
     r.readAsDataURL(blob);
   });
   const audio = new Audio(url);
@@ -66,7 +95,7 @@ async function playTTS(text) {
 }
 
 // ── Pulsing dots ──────────────────────────────────────────────────────────────
-function PulsingDots({ color }) {
+function PulsingDots({ color }: { color?: string }) {
   return (
     <span style={{ display: 'inline-flex', gap: 5, alignItems: 'center' }}>
       {[0, 1, 2].map((i) => (
@@ -87,7 +116,13 @@ function PulsingDots({ color }) {
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
-export default function StoryModeScreen({ goBack, award }) {
+export default function StoryModeScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const { level: userLevel } = useStats();
   const isOnline = useOnlineStatus();
 
@@ -99,7 +134,7 @@ export default function StoryModeScreen({ goBack, award }) {
       return '';
     }
   })();
-  const goalMeta = GOAL_META[userGoal] || null;
+  const goalMeta = (GOAL_META as Record<string, GoalMeta>)[userGoal] ?? null;
 
   // Setup state — pre-select a goal-recommended city if available
   const [selectedCity, setSelectedCity] = useState(() => {
@@ -107,14 +142,14 @@ export default function StoryModeScreen({ goBack, award }) {
       const rec = STORY_CITIES.find((c) => goalMeta.cities.includes(c.name));
       if (rec) return rec;
     }
-    return STORY_CITIES[0];
+    return STORY_CITIES[0]!;
   });
-  const [selectedLevel, setSelectedLevel] = useState(userLevel || 'A2');
+  const [selectedLevel, setSelectedLevel] = useState<string>(String(userLevel || 'A2'));
   const [characterName, setCharacterName] = useState('');
 
   // Phase: setup | loading | story | error
   const [phase, setPhase] = useState('setup');
-  const [storyData, setStoryData] = useState(null);
+  const [storyData, setStoryData] = useState<StoryData | null>(null);
   const [error, setError] = useState('');
 
   // Story interaction state
@@ -122,10 +157,10 @@ export default function StoryModeScreen({ goBack, award }) {
   const [vocabOpen, setVocabOpen] = useState(false);
   const [discussOpen, setDiscussOpen] = useState(false);
   const [ttsPlaying, setTtsPlaying] = useState(false);
-  const audioRef = useRef(null);
+  const audioRef = useRef<AudioPlayer | HTMLAudioElement | null>(null);
   const awardFired = useRef(false);
   const _unmountedRef = useRef(false);
-  const storyRef = useRef(null);
+  const storyRef = useRef<HTMLDivElement | null>(null);
   const tappedWordsRef = useRef(0);
 
   // Keep ref in sync so scroll handler always sees current value without re-adding listener
@@ -192,6 +227,7 @@ export default function StoryModeScreen({ goBack, award }) {
       setError('Could not generate story. Please try again.');
       setPhase('setup');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline, selectedCity, selectedLevel, characterName]);
 
   const handleTTS = useCallback(async () => {
@@ -223,7 +259,7 @@ export default function StoryModeScreen({ goBack, award }) {
 
   const stopTTS = useCallback(() => {
     if (audioRef.current) {
-      audioRef.current.pause();
+      (audioRef.current as { pause(): void }).pause();
       audioRef.current = null;
     }
     setTtsPlaying(false);

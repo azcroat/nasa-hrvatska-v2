@@ -1,8 +1,24 @@
-// @ts-nocheck
 import React from 'react';
 import CroatianGrb from '../shared/CroatianGrb';
 
-export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg }) {
+interface PersonaCfg {
+  name?: string;
+  orbColor?: string;
+  thinkingColor?: string;
+  speakingColor?: string;
+  listenColor?: string;
+  accentColor?: string;
+  [key: string]: unknown;
+}
+
+interface Props {
+  phase: string;
+  waveform: number[];
+  liveTranscript: string;
+  personaCfg?: PersonaCfg;
+}
+
+export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg }: Props) {
   const cfg = personaCfg || {
     orbColor: '#D4002D',
     thinkingColor: '#F59E0B',
@@ -10,8 +26,7 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
     listenColor: '#0e7490',
     accentColor: '#D4002D',
   };
-  /** @type {import('react').CSSProperties} */
-  const containerStyle = {
+  const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -19,8 +34,7 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
     margin: '4px 0 8px',
   };
 
-  /** @type {import('react').CSSProperties} */
-  const orbWrapStyle = {
+  const orbWrapStyle: React.CSSProperties = {
     position: 'relative',
     width: 200,
     height: 200,
@@ -91,7 +105,7 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
           </div>
         </div>
         <span style={{ fontSize: 13, color: '#d97706', fontWeight: 600 }}>
-          {cfg.name.split(' ')[0]} razmišlja...
+          {(cfg.name as string | undefined)?.split(' ')[0]} razmišlja...
         </span>
       </div>
     );
@@ -108,8 +122,7 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
           : speakColor === '#7c3aed'
             ? '124,58,237'
             : '180,83,9';
-    /** @type {import('react').CSSProperties} */
-    const pulseBase = {
+    const pulseBase: React.CSSProperties = {
       position: 'absolute',
       width: 120,
       height: 120,
@@ -149,7 +162,7 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
           </div>
         </div>
         <span style={{ fontSize: 13, color: speakColor, fontWeight: 600 }}>
-          {cfg.name.split(' ')[0]} govori...
+          {(cfg.name as string | undefined)?.split(' ')[0]} govori...
         </span>
       </div>
     );
@@ -197,7 +210,7 @@ export default function MajaOrb({ phase, waveform, liveTranscript, personaCfg })
             padding: '0 4px',
           }}
         >
-          {waveform.map((h, i) => (
+          {waveform.map((h: number, i: number) => (
             <div
               key={i}
               style={{

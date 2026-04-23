@@ -1,5 +1,14 @@
-// @ts-nocheck
 // ── Shared constants and helpers for the Media section ────────────────────────
+
+interface MediaItem {
+  cat?: string;
+  level?: string;
+  live?: boolean;
+  video?: boolean;
+  scr?: string;
+  web?: string;
+  [key: string]: unknown;
+}
 
 export const LEVEL_COLORS = {
   A1: '#16a34a',
@@ -93,27 +102,30 @@ export function getGoalPersonalization() {
     return '';
   }
 }
-export function tagMediaForGoal(m, goal) {
+export function tagMediaForGoal(m: MediaItem, goal: string): string | null {
   if (!goal) return null;
   if ((goal === 'heritage' || goal === 'family') && (m.cat === 'music' || m.cat === 'culture'))
     return 'For the diaspora';
   if (goal === 'travel' && (m.cat === 'tv' || m.cat === 'podcast')) return 'Great for travellers';
   return null;
 }
-export function sortMediaForGoal(items, goal) {
+export function sortMediaForGoal(items: MediaItem[], goal: string): MediaItem[] {
   if (goal === 'fluent')
     return [...items].sort((a, b) => {
       const order = { A1: 0, A2: 1, B1: 2, B2: 3, C1: 4, C2: 5 };
-      return (order[a.level] ?? 9) - (order[b.level] ?? 9);
+      return (
+        ((order as Record<string, number>)[a.level as string] ?? 9) -
+        ((order as Record<string, number>)[b.level as string] ?? 9)
+      );
     });
   if (goal === 'heritage' || goal === 'family')
     return [...items].sort((a, b) => {
-      const priority = (m) => (m.cat === 'music' || m.cat === 'culture' ? 0 : 1);
+      const priority = (mi: MediaItem) => (mi.cat === 'music' || mi.cat === 'culture' ? 0 : 1);
       return priority(a) - priority(b);
     });
   if (goal === 'travel')
     return [...items].sort((a, b) => {
-      const priority = (m) => (m.cat === 'tv' || m.cat === 'podcast' ? 0 : 1);
+      const priority = (mi: MediaItem) => (mi.cat === 'tv' || mi.cat === 'podcast' ? 0 : 1);
       return priority(a) - priority(b);
     });
   return items;
@@ -147,16 +159,16 @@ if (typeof document !== 'undefined' && !document.getElementById('nh-media-css'))
   document.head.appendChild(s);
 }
 
-export function getDomain(url) {
+export function getDomain(url: string | null | undefined): string | null {
   if (!url) return null;
   try {
     return new URL(url).hostname.replace(/^www\./, '');
-  } catch (e) {
+  } catch {
     return null;
   }
 }
 
-export function getActionLabel(m, cat) {
+export function getActionLabel(m: MediaItem, cat: string): [string, boolean] {
   if (m.scr && !m.web) return ['Open →', false];
   if (m.live) {
     if (cat === 'tv') return ['Watch Live ↗', true];
@@ -171,5 +183,5 @@ export function getActionLabel(m, cat) {
     podcast: 'Listen ↗',
     culture: 'Read ↗',
   };
-  return [labels[cat] || 'Open ↗', false];
+  return [(labels as Record<string, string>)[cat] || 'Open ↗', false];
 }

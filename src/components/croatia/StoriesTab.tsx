@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { incrementCulture } from '../../data';
 import { useApp } from '../../context/AppContext';
@@ -425,11 +424,16 @@ Tvoja familia 💙🇭🇷`,
   },
 ];
 
-function WordTile({ w, award }) {
+interface WordTileProps {
+  w: { hr: string; en: string };
+  award?: ((xp: number) => void) | null;
+}
+
+function WordTile({ w, award }: WordTileProps) {
   const [saved, setSaved] = useState(() => {
     try {
       const j = JSON.parse(localStorage.getItem('uJournal') || '[]');
-      return j.some((x) => x.hr === w.hr);
+      return j.some((x: { hr: string }) => x.hr === w.hr);
     } catch {
       return false;
     }
@@ -459,7 +463,7 @@ function WordTile({ w, award }) {
           if (saved) return;
           try {
             const j = JSON.parse(localStorage.getItem('uJournal') || '[]');
-            if (!j.some((x) => x.hr === w.hr)) {
+            if (!j.some((x: { hr: string }) => x.hr === w.hr)) {
               j.push({ hr: w.hr, en: w.en });
               localStorage.setItem('uJournal', JSON.stringify(j));
             }
@@ -488,9 +492,9 @@ function WordTile({ w, award }) {
 
 export default function StoriesTab() {
   const { award } = useApp();
-  const [openLetter, setOpenLetter] = useState(null);
-  const [expandedCtx, setExpandedCtx] = useState({});
-  const toggleCtx = (key) => setExpandedCtx((prev) => ({ ...prev, [key]: !prev[key] }));
+  const [openLetter, setOpenLetter] = useState<string | null>(null);
+  const [expandedCtx, setExpandedCtx] = useState<Record<string, boolean>>({});
+  const toggleCtx = (key: string) => setExpandedCtx((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <React.Fragment>
@@ -560,7 +564,7 @@ export default function StoriesTab() {
               <button
                 onClick={() => {
                   const opening = openLetter !== letter.id;
-                  setOpenLetter(opening ? letter.id : null);
+                  setOpenLetter(opening ? (letter.id as string) : null);
                   if (opening) {
                     incrementCulture('bakaCnt');
                     if (award) award(5);

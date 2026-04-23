@@ -1,10 +1,13 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { TOP100 } from '../../data';
 
-function Top100Screen({ goBack }) {
-  const [t1k, sT1k] = useState(null);
+interface Props {
+  goBack: () => void;
+}
+
+function Top100Screen({ goBack }: Props) {
+  const [t1k, sT1k] = useState<string | null>(null);
   return (
     <div className="scr-wrap">
       {H('💯 Top 100 Words', 'Essential words for real-world situations', goBack)}
@@ -57,21 +60,21 @@ function Top100Screen({ goBack }) {
             {t1k}
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {TOP100[t1k].map(function (w, i) {
+            {(TOP100 as unknown as Record<string, [string, string][]>)[t1k!]!.map(function (w, i) {
               return (
                 <button
                   key={i}
-                  aria-label={`Play audio for ${w[0]}`}
+                  aria-label={`Play audio for ${w[0]!}`}
                   className="c"
                   style={{ padding: '10px 14px' }}
                   onClick={function () {
-                    speak(w[0]);
+                    speak(w[0]!);
                   }}
                 >
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#0e7490' }}>
-                    {w[0]} <span aria-hidden="true">🔊</span>
+                    {w[0]!} <span aria-hidden="true">🔊</span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--subtext)' }}>{w[1]}</div>
+                  <div style={{ fontSize: 12, color: 'var(--subtext)' }}>{w[1]!}</div>
                 </button>
               );
             })}
