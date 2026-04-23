@@ -1,10 +1,36 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H } from '../../data';
 import { useStats } from '../../context/StatsContext';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
+
+interface WordBreakdown {
+  word: string;
+  meaning: string;
+  note?: string;
+}
+interface ExampleDialogue {
+  speaker: string;
+  line: string;
+}
+interface PhraseData {
+  phrase: string;
+  translation: string;
+  literal?: string;
+  pronunciation_guide?: string;
+  when_to_use?: string;
+  cultural_note?: string;
+  example_dialogue?: ExampleDialogue[];
+  word_breakdown?: WordBreakdown[];
+  related_phrases?: string[];
+  focus?: string;
+  [key: string]: unknown;
+}
+interface ChatMessage {
+  role: string;
+  content: string;
+}
 
 // ── Category definitions ──────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -215,7 +241,7 @@ const SEED_PHRASES = {
 };
 
 // ── Beautiful loading skeleton ────────────────────────────────────────────────
-function PhraseSkeletonLoader({ color }) {
+function PhraseSkeletonLoader({ color }: { color?: string }) {
   const c = color || '#0e7490';
   return (
     <div>
@@ -266,40 +292,46 @@ function PhraseSkeletonLoader({ color }) {
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function PhraseOfDayScreen({ goBack, award }) {
+export default function PhraseOfDayScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const { level: userLevel } = useStats();
   const isOnline = useOnlineStatus();
 
   const [selectedCategory, setSelectedCategory] = useState('greeting');
-  const [phraseData, setPhraseData] = useState(null);
+  const [phraseData, setPhraseData] = useState<PhraseData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showPracticeChat, setShowPracticeChat] = useState(false);
-  const [chatHistory, setChatHistory] = useState([]); // {role:'maja'|'user', content:string}
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]); // {role:'maja'|'user', content:string}
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
-  const chatEndRef = useRef(null);
-  const chatInputRef = useRef(null);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const chatInputRef = useRef<HTMLInputElement | null>(null);
 
   // Track award (hear it + cultural note read)
   const [heardIt, setHeardIt] = useState(false);
   const [readCultural, setReadCultural] = useState(false);
-  const awardGiven = useRef(false);
+  const awardGiven = useRef<boolean>(false);
 
-  function checkAward(heard, cultural) {
+  function checkAward(heard: boolean, cultural: boolean) {
     if (!awardGiven.current && (heard || cultural)) {
       awardGiven.current = true;
       award && award(5);
     }
   }
 
-  const color = CATEGORY_COLORS[selectedCategory] || '#0e7490';
+  const color = (CATEGORY_COLORS as Record<string, string>)[selectedCategory] || '#0e7490';
   const catLabel = CATEGORIES.find((c) => c.id === selectedCategory)?.label || selectedCategory;
 
   const fetchPhrase = useCallback(
-    async (category) => {
+    async (category: string) => {
       setLoading(true);
       setError(null);
       setPhraseData(null);
@@ -309,7 +341,10 @@ export default function PhraseOfDayScreen({ goBack, award }) {
       awardGiven.current = false;
 
       if (!isOnline) {
-        setPhraseData(SEED_PHRASES[category] || SEED_PHRASES.greeting);
+        setPhraseData(
+          (SEED_PHRASES as unknown as Record<string, PhraseData>)[category] ||
+            (SEED_PHRASES.greeting as unknown as PhraseData),
+        );
         setLoading(false);
         return;
       }
@@ -354,7 +389,10 @@ export default function PhraseOfDayScreen({ goBack, award }) {
       } catch {
         // Fall back to seed data
         setError('Using curated phrase (AI unavailable)');
-        setPhraseData(SEED_PHRASES[category] || SEED_PHRASES.greeting);
+        setPhraseData(
+          (SEED_PHRASES as unknown as Record<string, PhraseData>)[category] ||
+            (SEED_PHRASES.greeting as unknown as PhraseData),
+        );
       } finally {
         setLoading(false);
       }
@@ -378,9 +416,9 @@ export default function PhraseOfDayScreen({ goBack, award }) {
       if (!res.ok) throw new Error('TTS failed');
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-      const url = await new Promise((resolve) => {
+      const url = await new Promise<string>((resolve) => {
         const r = new FileReader();
-        r.onload = () => resolve(r.result);
+        r.onload = () => resolve(r.result as string);
         r.readAsDataURL(blob);
       });
       const audio = new Audio(url);
@@ -514,7 +552,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
         }}
       >
         {CATEGORIES.map((cat) => {
-          const catColor = CATEGORY_COLORS[cat.id];
+          const catColor = (CATEGORY_COLORS as Record<string, string>)[cat.id];
           const active = selectedCategory === cat.id;
           return (
             <button
@@ -909,7 +947,7 @@ export default function PhraseOfDayScreen({ goBack, award }) {
                         key={i}
                         style={{
                           borderBottom:
-                            i < phraseData.word_breakdown.length - 1
+                            i < (phraseData.word_breakdown?.length ?? 0) - 1
                               ? '1px solid var(--card-b)'
                               : 'none',
                         }}

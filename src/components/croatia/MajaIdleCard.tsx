@@ -1,6 +1,33 @@
-// @ts-nocheck
 import React from 'react';
 import MemoryChips from './MemoryChips';
+
+interface PersonaCfg {
+  name?: string;
+  avatar?: string;
+  title?: string;
+  accentColor?: string;
+  fallbackEmoji?: string;
+  [key: string]: unknown;
+}
+
+interface Memory {
+  sessionCount: number;
+  relationshipLevel: number;
+  totalMinutes: number;
+  knownFacts: Record<string, unknown>;
+  recentVocab?: { hr: string; en: string }[];
+  nextTopicSuggestion?: string;
+  [key: string]: unknown;
+}
+
+interface Props {
+  personaKey: string;
+  personaCfg: PersonaCfg;
+  memory: Memory;
+  name?: string;
+  isFirstTime: boolean;
+  showWelcome: boolean;
+}
 
 const PERSONA_FACTS = {
   teacher: [
@@ -32,9 +59,9 @@ const PERSONA_TAGLINES = {
   baka: 'Baka Mara te dočekuje s toplinom i hranom. Savršeno za početnike.',
 };
 
-function relationshipLabel(level) {
+function relationshipLabel(level: number): string {
   const labels = ['stranac', 'poznanik', 'redoviti polaznik', 'prijatelj', 'bliski prijatelj'];
-  return labels[Math.min(level, 4)] || 'stranac';
+  return labels[Math.min(level, 4)] ?? 'stranac';
 }
 
 export default function MajaIdleCard({
@@ -44,7 +71,7 @@ export default function MajaIdleCard({
   name,
   isFirstTime,
   showWelcome,
-}) {
+}: Props) {
   return (
     <div
       style={{
@@ -71,7 +98,7 @@ export default function MajaIdleCard({
           loading="lazy"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
-            const sib = /** @type {HTMLElement} */ e.currentTarget.nextSibling;
+            const sib = e.currentTarget.nextSibling as HTMLElement | null;
             if (sib) sib.style.display = 'flex';
           }}
         />
@@ -161,7 +188,7 @@ export default function MajaIdleCard({
                 textAlign: 'center',
               }}
             >
-              Upoznaj {personaCfg.name.split(' ')[0]}
+              Upoznaj {(personaCfg.name ?? '').split(' ')[0]}
             </h2>
             <div
               style={{
@@ -183,7 +210,7 @@ export default function MajaIdleCard({
                 loading="lazy"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
-                  const sib = /** @type {HTMLElement} */ e.currentTarget.nextSibling;
+                  const sib = e.currentTarget.nextSibling as HTMLElement | null;
                   if (sib) sib.style.display = 'flex';
                 }}
               />
@@ -213,18 +240,20 @@ export default function MajaIdleCard({
                 gap: 8,
               }}
             >
-              {(PERSONA_FACTS[personaKey] || []).map((item) => (
-                <li
-                  key={item}
-                  style={{
-                    fontSize: 14,
-                    color: 'var(--heading)',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {item}
-                </li>
-              ))}
+              {((PERSONA_FACTS as Record<string, string[]>)[personaKey] || []).map(
+                (item: string) => (
+                  <li
+                    key={item}
+                    style={{
+                      fontSize: 14,
+                      color: 'var(--heading)',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {item}
+                  </li>
+                ),
+              )}
             </ul>
             <p
               style={{
@@ -236,7 +265,7 @@ export default function MajaIdleCard({
                 textAlign: 'center',
               }}
             >
-              {PERSONA_TAGLINES[personaKey] || ''}
+              {(PERSONA_TAGLINES as Record<string, string>)[personaKey] || ''}
             </p>
           </div>
         ) : (
@@ -270,13 +299,13 @@ export default function MajaIdleCard({
               Dosad {memory.sessionCount} {memory.sessionCount === 1 ? 'razgovor' : 'razgovora'} ·{' '}
               {memory.totalMinutes} minuta
             </p>
-            {memory.recentVocab?.length > 0 && (
+            {(memory.recentVocab?.length ?? 0) > 0 && (
               <p style={{ fontSize: 12, color: 'var(--subtext)', margin: '0 0 6px' }}>
                 Nedavno ste naučili:{' '}
                 <strong>
-                  {memory.recentVocab
-                    .slice(0, 3)
-                    .map((v) => v.hr)
+                  {memory
+                    .recentVocab!.slice(0, 3)
+                    .map((v: { hr: string; en: string }) => v.hr)
                     .join(', ')}
                 </strong>
               </p>

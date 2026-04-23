@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { SCHOOL } from '../../data';
 
-function SchoolScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function SchoolScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🏫 School Survival Kit', 'Everything for Croatian school', goBack)}
@@ -29,17 +32,17 @@ function SchoolScreen({ goBack }) {
           return (
             <button
               key={i}
-              aria-label={`Play audio for ${w[0]}`}
+              aria-label={`Play audio for ${w[0]!}`}
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(w[0]);
+                speak(w[0]!);
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--heading)' }}>
-                {w[0]} <span aria-hidden="true">🔊</span>
+                {w[0]!} <span aria-hidden="true">🔊</span>
               </div>
-              <div style={{ fontSize: 11, color: 'var(--subtext)' }}>{w[1]}</div>
+              <div style={{ fontSize: 11, color: 'var(--subtext)' }}>{w[1]!}</div>
             </button>
           );
         })}
@@ -52,17 +55,17 @@ function SchoolScreen({ goBack }) {
           return (
             <button
               key={i}
-              aria-label={`Play audio for ${w[0]}`}
+              aria-label={`Play audio for ${w[0]!}`}
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(w[0]);
+                speak(w[0]!);
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700, color: '#7c3aed' }}>
-                {w[0]} <span aria-hidden="true">🔊</span>
+                {w[0]!} <span aria-hidden="true">🔊</span>
               </div>
-              <div style={{ fontSize: 11, color: 'var(--subtext)' }}>{w[1]}</div>
+              <div style={{ fontSize: 11, color: 'var(--subtext)' }}>{w[1]!}</div>
             </button>
           );
         })}
@@ -74,7 +77,7 @@ function SchoolScreen({ goBack }) {
         return (
           <button
             key={i}
-            aria-label={`Play audio for ${p[0]}`}
+            aria-label={`Play audio for ${p[0]!}`}
             className="c"
             style={{
               marginBottom: 6,
@@ -83,13 +86,13 @@ function SchoolScreen({ goBack }) {
               padding: '10px 14px',
             }}
             onClick={function () {
-              speak(p[0]);
+              speak(p[0]!);
             }}
           >
             <span style={{ fontWeight: 700, fontSize: 14 }}>
-              {p[0]} <span aria-hidden="true">🔊</span>
+              {p[0]!} <span aria-hidden="true">🔊</span>
             </span>
-            <span style={{ color: 'var(--subtext)', fontSize: 13 }}>{p[1]}</span>
+            <span style={{ color: 'var(--subtext)', fontSize: 13 }}>{p[1]!}</span>
           </button>
         );
       })}

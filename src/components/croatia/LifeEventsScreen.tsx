@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak, H } from '../../data';
 
@@ -278,8 +277,12 @@ const EVENTS = [
   },
 ];
 
-export default function LifeEventsScreen({ goBack }) {
-  const [activeEvent, setActiveEvent] = useState(null);
+interface Props {
+  goBack: () => void;
+}
+
+function _LifeEventsScreen({ goBack }: Props) {
+  const [activeEvent, setActiveEvent] = useState<string | null>(null);
 
   const ev = activeEvent ? EVENTS.find((e) => e.id === activeEvent) : null;
 

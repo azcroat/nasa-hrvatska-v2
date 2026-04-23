@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { TRANSPORT } from '../../data';
 
-function TransportScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function TransportScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🚌 Getting Around', 'Bus, tram, taxi phrases', goBack)}

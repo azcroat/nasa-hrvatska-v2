@@ -1,16 +1,20 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { sh } from '../../data';
 import { REGIONS } from '../../data';
 
-function RegionScreen({ regionKey, goBack }) {
+interface Props {
+  regionKey: string;
+  goBack: () => void;
+}
+
+function RegionScreen({ regionKey, goBack }: Props) {
   const [tab, setTab] = useState('overview');
   const [quizI, setQuizI] = useState(0);
-  const [quizSel, setQuizSel] = useState(null);
+  const [quizSel, setQuizSel] = useState<string | null>(null);
   const [quizScore, setQuizScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
-  const [expandedPerson, setExpandedPerson] = useState(null);
-  const r = REGIONS[regionKey];
+  const [expandedPerson, setExpandedPerson] = useState<number | null>(null);
+  const r = (REGIONS as Record<string, (typeof REGIONS)[keyof typeof REGIONS]>)[regionKey]!;
 
   const TABS = [
     { id: 'overview', label: 'Overview', icon: '📖' },
@@ -27,10 +31,10 @@ function RegionScreen({ regionKey, goBack }) {
     setQuizDone(false);
   }
 
-  function handleQuizAnswer(opt) {
+  function handleQuizAnswer(opt: string) {
     if (quizSel !== null) return;
     setQuizSel(opt);
-    const correct = opt === r.quiz[quizI].a;
+    const correct = opt === r.quiz[quizI]!.a;
     if (correct) setQuizScore((s) => s + 1);
     setTimeout(() => {
       if (quizI < r.quiz.length - 1) {
@@ -89,7 +93,7 @@ function RegionScreen({ regionKey, goBack }) {
       {/* OVERVIEW */}
       {tab === 'overview' && (
         <div>
-          {r.sections.map(function (s, i) {
+          {r.sections.map(function (s: { h: string; t: string }, i: number) {
             return (
               <div
                 key={i}
@@ -114,7 +118,7 @@ function RegionScreen({ regionKey, goBack }) {
               >
                 💡 Did You Know?
               </div>
-              {r.facts.map(function (f, i) {
+              {r.facts.map(function (f: string, i: number) {
                 return (
                   <div
                     key={i}
@@ -157,7 +161,7 @@ function RegionScreen({ regionKey, goBack }) {
                 background: `linear-gradient(${accentColor},${accentColor}40)`,
               }}
             />
-            {r.timeline.map(function (t, i) {
+            {r.timeline.map(function (t: { year: string; event: string }, i: number) {
               return (
                 <div
                   key={i}
@@ -198,7 +202,10 @@ function RegionScreen({ regionKey, goBack }) {
           <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
             Notable figures from {r.title}
           </div>
-          {r.people.map(function (p, i) {
+          {r.people.map(function (
+            p: { name: string; years: string; role: string; story: string },
+            i: number,
+          ) {
             const open = expandedPerson === i;
             return (
               <div
@@ -268,7 +275,7 @@ function RegionScreen({ regionKey, goBack }) {
           <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
             Local words, dialect terms & cultural vocabulary
           </div>
-          {r.vocab.map(function (v, i) {
+          {r.vocab.map(function (v: { hr: string; en: string; tip?: string }, i: number) {
             return (
               <div
                 key={i}
@@ -287,7 +294,7 @@ function RegionScreen({ regionKey, goBack }) {
                     {v.en}
                   </span>
                 </div>
-                {v.note && (
+                {v.tip && (
                   <div
                     style={{
                       fontSize: 12,
@@ -296,7 +303,7 @@ function RegionScreen({ regionKey, goBack }) {
                       fontStyle: 'italic',
                     }}
                   >
-                    {v.note}
+                    {v.tip}
                   </div>
                 )}
               </div>
@@ -341,12 +348,12 @@ function RegionScreen({ regionKey, goBack }) {
                     color: 'var(--heading)',
                   }}
                 >
-                  {r.quiz[quizI].q}
+                  {r.quiz[quizI]!.q}
                 </div>
               </div>
-              {sh([r.quiz[quizI].a, ...r.quiz[quizI].al]).map(function (opt, i) {
+              {sh([r.quiz[quizI]!.a, ...r.quiz[quizI]!.al]).map(function (opt, i) {
                 const chosen = quizSel === opt;
-                const correct = opt === r.quiz[quizI].a;
+                const correct = opt === r.quiz[quizI]!.a;
                 const revealed = quizSel !== null;
                 let bg = 'var(--card)',
                   border = '1px solid var(--card-b)',

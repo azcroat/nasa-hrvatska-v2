@@ -1,7 +1,10 @@
-// @ts-nocheck
 import React, { useMemo } from 'react';
 
-export default function MemoryChips({ knownFacts }) {
+interface Props {
+  knownFacts: Record<string, unknown>;
+}
+
+export default function MemoryChips({ knownFacts }: Props) {
   const entries = useMemo(() => Object.entries(knownFacts || {}), [knownFacts]);
   if (!entries.length) return null;
 
@@ -28,7 +31,7 @@ export default function MemoryChips({ knownFacts }) {
     name: '👤',
   };
 
-  function getIcon(key) {
+  function getIcon(key: string): string {
     const lk = key.toLowerCase();
     for (const [k, v] of Object.entries(iconMap)) {
       if (lk.includes(k)) return v;

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 
 // ─────────────────────────────────────────────
@@ -58,7 +57,26 @@ const PERSONAS = [
 // ─────────────────────────────────────────────
 // PERSONA CARD
 // ─────────────────────────────────────────────
-function PersonaCard({ persona, selected, onSelect }) {
+interface Persona {
+  key: string;
+  name: string;
+  age: number;
+  location: string;
+  avatar: string;
+  fallbackEmoji: string;
+  specialty: string;
+  desc: string;
+  color: string;
+  level: string;
+}
+
+interface PersonaCardProps {
+  persona: Persona;
+  selected: boolean;
+  onSelect: (key: string) => void;
+}
+
+function PersonaCard({ persona, selected, onSelect }: PersonaCardProps) {
   const [imgError, setImgError] = useState(false);
 
   const borderColor = selected ? persona.color : 'var(--card-b)';
@@ -205,8 +223,13 @@ function PersonaCard({ persona, selected, onSelect }) {
 // ─────────────────────────────────────────────
 // MAIN SCREEN
 // ─────────────────────────────────────────────
-export default function PersonaScreen({ goBack, setScr }) {
-  const [selected, setSelected] = useState(null);
+interface Props {
+  goBack: () => void;
+  setScr: (scr: string) => void;
+}
+
+export default function PersonaScreen({ goBack, setScr }: Props) {
+  const [selected, setSelected] = useState<string | null>(null);
 
   // Load existing persona from localStorage on mount
   useEffect(() => {
@@ -220,7 +243,7 @@ export default function PersonaScreen({ goBack, setScr }) {
     }
   }, []);
 
-  function handleSelect(key) {
+  function handleSelect(key: string) {
     setSelected(key);
   }
 

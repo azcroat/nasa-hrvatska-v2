@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 import { PRACTICAL } from '../../data';
 
-function PracticalScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function PracticalScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('💼 Practical Life in Croatia', 'Documents, customs, culture', goBack)}
@@ -25,7 +28,7 @@ function PracticalScreen({ goBack }) {
               className="c"
               style={{ padding: '8px 12px' }}
               onClick={function () {
-                speak(d[0]);
+                speak(d[0] ?? '');
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700 }}>

@@ -1,13 +1,16 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { ROLEPLAY } from '../../data';
 
-function RoleplayScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function RoleplayScreen({ goBack }: Props) {
   const [rpIdx, setRpIdx] = useState(0);
   const [rpLine, setRpLine] = useState(0);
   const [rpShow, setRpShow] = useState(false);
-  const r = ROLEPLAY[rpIdx];
+  const r = ROLEPLAY[rpIdx]!;
   return (
     <div className="scr-wrap">
       {H('🎭 Conversation Role-Play', 'Practice real-life dialogues', goBack)}

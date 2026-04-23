@@ -1,5 +1,21 @@
-// @ts-nocheck
 import React, { useRef } from 'react';
+
+interface DebriefData {
+  summary?: string;
+  strength?: string;
+  nextStep?: string;
+  durationSecs: number;
+  xpEarned?: number;
+}
+
+interface Props {
+  goBack: () => void;
+  debrief: DebriefData;
+  turnCount: number;
+  topic: string;
+  award?: (xp: number) => void;
+  onPracticeAgain: () => void;
+}
 
 export default function LiveTutorDebrief({
   goBack,
@@ -8,9 +24,9 @@ export default function LiveTutorDebrief({
   topic,
   award,
   onPracticeAgain,
-}) {
-  const awardFired = useRef(false);
-  const fmtDur = (s) => `${Math.floor(s / 60)}m ${s % 60}s`;
+}: Props) {
+  const awardFired = useRef<boolean>(false);
+  const fmtDur = (s: number) => `${Math.floor(s / 60)}m ${s % 60}s`;
   const xpEarned = debrief.xpEarned ?? 30;
 
   return (

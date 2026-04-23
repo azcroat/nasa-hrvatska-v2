@@ -1,14 +1,27 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { markImmersionToday } from './MediaPlayerUtils';
 import { API_BASE } from '../../lib/platform.ts';
 
-export default function RadioPlayer({ src, color, streamId, activeStream, setActiveStream }) {
+interface Props {
+  src: string;
+  color: string;
+  streamId: string;
+  activeStream: string | null;
+  setActiveStream: (id: string | null) => void;
+}
+
+export default function RadioPlayer({
+  src,
+  color,
+  streamId,
+  activeStream,
+  setActiveStream,
+}: Props) {
   const isActive = activeStream === streamId;
   const [playing, setPlaying] = useState(false);
   const [buffering, setBuffering] = useState(false);
   const [error, setError] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLAudioElement | null>(null);
   const mounted = useRef(false);
 
   useEffect(() => {
@@ -28,8 +41,9 @@ export default function RadioPlayer({ src, color, streamId, activeStream, setAct
   // Space bar shortcut when this player is active
   useEffect(() => {
     if (!isActive) return undefined;
-    function onKey(e) {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    function onKey(e: KeyboardEvent) {
+      const tgt = e.target as HTMLElement;
+      if (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA') return;
       if (e.code === 'Space') {
         e.preventDefault();
         toggle();
@@ -37,6 +51,7 @@ export default function RadioPlayer({ src, color, streamId, activeStream, setAct
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, playing, buffering]);
 
   function toggle() {

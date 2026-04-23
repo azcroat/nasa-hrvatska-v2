@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
@@ -22,6 +21,42 @@ import {
 } from './MajaScreenUtils.js';
 
 // ─────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────
+interface ConversationMessage {
+  role: string;
+  content: string;
+  streaming?: boolean;
+  correction?: unknown;
+  emotion?: string;
+}
+interface DebriefData {
+  majaNotes: string;
+  didWell: string;
+  focusNext: string;
+  newVocab?: { hr: string; en: string; used_in?: string }[];
+  nextTopicSuggestion?: string;
+  xpEarned?: number;
+  durationSecs: number;
+  updatedFacts?: Record<string, unknown>;
+  mistakePatternsUpdate?: unknown[];
+  suggestLevelUp?: boolean;
+  suggestLevelUpTo?: string;
+  levelUpMessage?: string;
+}
+interface SessionState {
+  count: number;
+  relationshipLevel: number;
+  knownFacts: Record<string, unknown>;
+  mistakePatterns: unknown[];
+  lastSummary: string;
+  nextTopic: string;
+}
+interface ApiError extends Error {
+  _status?: number;
+}
+
+// ─────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
 export default function MajaScreen() {
@@ -30,13 +65,16 @@ export default function MajaScreen() {
 
   // ── persona ────────────────────────────────
   const [personaKey] = useState(() => getPersona());
-  const personaCfg = PERSONA_CONFIG[personaKey] || PERSONA_CONFIG.teacher;
+  const personaCfg =
+    (personaKey
+      ? (PERSONA_CONFIG as Record<string, typeof PERSONA_CONFIG.teacher>)[personaKey]
+      : null) || PERSONA_CONFIG.teacher;
 
   // ── state ──────────────────────────────────
   const [memory, setMemory] = useState(loadMemory);
   const [phase, setPhase] = useState('idle');
-  const [conversation, setConversation] = useState([]);
-  const [session, setSession] = useState({
+  const [conversation, setConversation] = useState<ConversationMessage[]>([]);
+  const [session, setSession] = useState<SessionState>({
     count: 0,
     relationshipLevel: 0,
     knownFacts: {},
@@ -47,28 +85,28 @@ export default function MajaScreen() {
   const [waveform, setWaveform] = useState(Array(30).fill(4));
   const [liveTranscript, setLiveTranscript] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [debrief, setDebrief] = useState(null);
+  const [debrief, setDebrief] = useState<DebriefData | null>(null);
   const [elapsedSecs, setElapsedSecs] = useState(0);
   const [sessionActive, setSessionActive] = useState(false);
   const [fallbackText, setFallbackText] = useState('');
   const [micDenied, setMicDenied] = useState(false);
 
   // ── refs ───────────────────────────────────
-  const debriefXpFired = useRef(false);
-  const phaseRef = useRef('idle');
-  const recRef = useRef(null);
-  const audioRef = useRef(null);
-  const audioUrlRef = useRef(null);
-  const audioCtxRef = useRef(null);
-  const analyserRef = useRef(null);
-  const animFrameRef = useRef(null);
-  const silenceTimerRef = useRef(null);
-  const transcriptRef = useRef('');
-  const sessionStartRef = useRef(null);
-  const elapsedTimerRef = useRef(null);
-  const scrollRef = useRef(null);
-  const mediaStreamRef = useRef(null);
-  const streamAbortRef = useRef(null);
+  const debriefXpFired = useRef<boolean>(false);
+  const phaseRef = useRef<string>('idle');
+  const recRef = useRef<InstanceType<typeof window.SpeechRecognition> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const transcriptRef = useRef<string>('');
+  const sessionStartRef = useRef<number | null>(null);
+  const elapsedTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const streamAbortRef = useRef<AbortController | null>(null);
 
   // keep phaseRef in sync
   useEffect(() => {
@@ -87,12 +125,13 @@ export default function MajaScreen() {
     if (sessionActive) {
       sessionStartRef.current = Date.now() - elapsedSecs * 1000;
       elapsedTimerRef.current = setInterval(() => {
-        setElapsedSecs(Math.floor((Date.now() - sessionStartRef.current) / 1000));
+        setElapsedSecs(Math.floor((Date.now() - (sessionStartRef.current ?? Date.now())) / 1000));
       }, 1000);
     } else {
-      clearInterval(elapsedTimerRef.current);
+      clearInterval(elapsedTimerRef.current ?? undefined);
     }
-    return () => clearInterval(elapsedTimerRef.current);
+    return () => clearInterval(elapsedTimerRef.current ?? undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionActive]);
 
   // cleanup on unmount
@@ -104,8 +143,8 @@ export default function MajaScreen() {
       }
       stopMicImmediate();
       stopWaveform();
-      clearTimeout(silenceTimerRef.current);
-      clearInterval(elapsedTimerRef.current);
+      clearTimeout(silenceTimerRef.current ?? undefined);
+      clearInterval(elapsedTimerRef.current ?? undefined);
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -115,6 +154,7 @@ export default function MajaScreen() {
         audioUrlRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── waveform helpers ───────────────────────
@@ -139,7 +179,8 @@ export default function MajaScreen() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioCtxRef.current = ctx;
       const source = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
@@ -156,14 +197,14 @@ export default function MajaScreen() {
         analyser.getByteFrequencyData(data);
         const bars = Array.from({ length: 30 }, (_, i) => {
           const idx = Math.floor((i / 30) * data.length);
-          return Math.max(2, Math.min(60, (data[idx] / 255) * 60));
+          return Math.max(2, Math.min(60, ((data[idx] ?? 0) / 255) * 60));
         });
         setWaveform(bars);
         animFrameRef.current = requestAnimationFrame(tick);
       };
       animFrameRef.current = requestAnimationFrame(tick);
-    } catch (err) {
-      if (err.name === 'NotAllowedError') {
+    } catch (err: unknown) {
+      if ((err as Error).name === 'NotAllowedError') {
         setMicDenied(true);
       }
       // waveform not critical — continue without it
@@ -171,7 +212,7 @@ export default function MajaScreen() {
   }, [stopWaveform]);
 
   // ── TTS helper ─────────────────────────────
-  const playTTS = useCallback(async (text) => {
+  const playTTS = useCallback(async (text: string): Promise<void> => {
     try {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -191,9 +232,9 @@ export default function MajaScreen() {
 
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-      const url = await new Promise((resolve) => {
+      const url = await new Promise<string>((resolve) => {
         const r = new FileReader();
-        r.onload = () => resolve(r.result);
+        r.onload = () => resolve(r.result as string);
         r.readAsDataURL(blob);
       });
       audioUrlRef.current = url;
@@ -220,7 +261,7 @@ export default function MajaScreen() {
 
   // ── mic helpers ────────────────────────────
   function stopMicImmediate() {
-    clearTimeout(silenceTimerRef.current);
+    clearTimeout(silenceTimerRef.current ?? undefined);
     if (recRef.current) {
       try {
         recRef.current.onresult = null;
@@ -239,7 +280,7 @@ export default function MajaScreen() {
 
   // ── send message ───────────────────────────
   const sendMessage = useCallback(
-    async (text) => {
+    async (text: string) => {
       if (!text.trim()) {
         setPhase('listening');
         startListening();
@@ -298,7 +339,7 @@ export default function MajaScreen() {
             if (done) break;
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split('\n');
-            buffer = lines.pop(); // keep incomplete line in buffer
+            buffer = lines.pop() ?? ''; // keep incomplete line in buffer
             for (const line of lines) {
               if (!line.startsWith('data: ')) continue;
               const data = line.slice(6).trim();
@@ -382,6 +423,7 @@ export default function MajaScreen() {
       }
     },
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [conversation, session, level, name, playTTS],
   );
 
@@ -397,7 +439,8 @@ export default function MajaScreen() {
 
     if (!SR_SUPPORTED) return; // fallback text input handles it
 
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRec = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
     const rec = new SpeechRec();
     rec.lang = 'hr-HR';
     rec.interimResults = true;
@@ -405,7 +448,7 @@ export default function MajaScreen() {
     recRef.current = rec;
 
     const resetSilenceTimer = () => {
-      clearTimeout(silenceTimerRef.current);
+      clearTimeout(silenceTimerRef.current ?? undefined);
       silenceTimerRef.current = setTimeout(() => {
         const captured = transcriptRef.current.trim();
         if (captured.length > 1 && phaseRef.current === 'listening') {
@@ -415,18 +458,20 @@ export default function MajaScreen() {
       }, SILENCE_DELAY_MS);
     };
 
-    rec.onresult = (e) => {
+    rec.onresult = (e: Event) => {
+      const se = e as unknown as { results: SpeechRecognitionResultList };
       let full = '';
-      for (let i = 0; i < e.results.length; i++) {
-        if (e.results[i]?.[0]) full += e.results[i][0].transcript;
+      for (let i = 0; i < se.results.length; i++) {
+        if (se.results[i]?.[0]) full += se.results[i]![0]!.transcript;
       }
       transcriptRef.current = full;
       setLiveTranscript(full);
       resetSilenceTimer();
     };
 
-    rec.onerror = (e) => {
-      if (e.error === 'not-allowed') {
+    rec.onerror = (e: Event) => {
+      const re = e as unknown as { error: string };
+      if (re.error === 'not-allowed') {
         setMicDenied(true);
         setPhase('listening'); // fallback will show
       }
@@ -485,9 +530,10 @@ export default function MajaScreen() {
       });
 
       if (!res.ok) {
-        const e = new Error(`API ${res.status}`);
-        e._status = res.status;
-        throw e;
+        const apiErr: ApiError = Object.assign(new Error(`API ${res.status}`), {
+          _status: res.status,
+        });
+        throw apiErr;
       }
       const data = await res.json();
 
@@ -511,15 +557,18 @@ export default function MajaScreen() {
       if (phaseRef.current === 'maja-speaking') {
         startListening();
       }
-    } catch (e) {
-      let msg = 'Nije moguće spojiti se s Majom. Provjeri internet vezu.';
+    } catch (err: unknown) {
+      const e = err as ApiError;
+      let msg = 'Nije moguće spojiti se s Majom. Provjeri internetsku vezu.';
       if (e?._status === 401) msg = 'Sesija je istekla. Odjavi se i prijavi ponovo.';
       else if (e?._status === 429) msg = 'Prekoračen dnevni limit AI razgovora. Pokušaj sutra.';
-      else if (e?._status >= 500) msg = 'Serverska greška. Pokušaj za nekoliko minuta.';
+      else if (e?._status !== undefined && e._status >= 500)
+        msg = 'Serverska greška. Pokušaj za koji trenutak.';
       setErrorMsg(msg);
       setPhase('error');
       setSessionActive(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level, name, playTTS, startListening]);
 
   // ── end session ────────────────────────────
@@ -721,10 +770,10 @@ export default function MajaScreen() {
           <>
             {/* ── Persona avatar card + welcome ── */}
             <MajaIdleCard
-              personaKey={personaKey}
+              personaKey={personaKey ?? 'teacher'}
               personaCfg={personaCfg}
               memory={memory}
-              name={name}
+              name={name ?? ''}
               isFirstTime={isFirstTime}
               showWelcome={!sessionActive}
             />
@@ -834,7 +883,11 @@ export default function MajaScreen() {
                 }}
               >
                 {conversation.map((msg, i) => (
-                  <ConversationBubble key={i} msg={msg} personaCfg={personaCfg} />
+                  <ConversationBubble
+                    key={i}
+                    msg={msg as Parameters<typeof ConversationBubble>[0]['msg']}
+                    personaCfg={personaCfg}
+                  />
                 ))}
               </div>
             )}

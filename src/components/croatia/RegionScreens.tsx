@@ -1,19 +1,23 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak, sh } from '../../data';
 import { REGIONS, ROLEPLAY, RECIPES } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { useApp } from '../../context/AppContext';
 
-export function RegionScreen({ regionKey, goBack }) {
+interface RegionProps {
+  regionKey: string;
+  goBack: () => void;
+}
+
+export function RegionScreen({ regionKey, goBack }: RegionProps) {
   const { award } = useApp();
   const [tab, setTab] = useState('overview');
   const [quizI, setQuizI] = useState(0);
-  const [quizSel, setQuizSel] = useState(null);
+  const [quizSel, setQuizSel] = useState<string | null>(null);
   const [quizScore, setQuizScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
-  const [expandedPerson, setExpandedPerson] = useState(null);
-  const r = REGIONS[regionKey];
+  const [expandedPerson, setExpandedPerson] = useState<number | null>(null);
+  const r = (REGIONS as Record<string, (typeof REGIONS)[keyof typeof REGIONS]>)[regionKey]!;
 
   const TABS = [
     { id: 'overview', label: 'Overview', icon: '📖' },
@@ -30,10 +34,10 @@ export function RegionScreen({ regionKey, goBack }) {
     setQuizDone(false);
   }
 
-  function handleQuizAnswer(opt) {
+  function handleQuizAnswer(opt: string) {
     if (quizSel !== null) return;
     setQuizSel(opt);
-    const correct = opt === r.quiz[quizI].a;
+    const correct = opt === r.quiz[quizI]!.a;
     if (correct) setQuizScore((s) => s + 1);
     setTimeout(() => {
       if (quizI < r.quiz.length - 1) {
@@ -97,7 +101,7 @@ export function RegionScreen({ regionKey, goBack }) {
       {/* OVERVIEW */}
       {tab === 'overview' && (
         <div>
-          {r.sections.map(function (s, i) {
+          {r.sections.map(function (s: { h: string; t: string }, i: number) {
             return (
               <div
                 key={i}
@@ -122,7 +126,7 @@ export function RegionScreen({ regionKey, goBack }) {
               >
                 💡 Did You Know?
               </div>
-              {r.facts.map(function (f, i) {
+              {r.facts.map(function (f: string, i: number) {
                 return (
                   <div
                     key={i}
@@ -165,7 +169,7 @@ export function RegionScreen({ regionKey, goBack }) {
                 background: `linear-gradient(${accentColor},${accentColor}40)`,
               }}
             />
-            {r.timeline.map(function (t, i) {
+            {r.timeline.map(function (t: { year: string; event: string }, i: number) {
               return (
                 <div
                   key={i}
@@ -206,7 +210,10 @@ export function RegionScreen({ regionKey, goBack }) {
           <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
             Notable figures from {r.title}
           </div>
-          {r.people.map(function (p, i) {
+          {r.people.map(function (
+            p: { name: string; years: string; role: string; story: string },
+            i: number,
+          ) {
             const open = expandedPerson === i;
             return (
               <div
@@ -276,7 +283,7 @@ export function RegionScreen({ regionKey, goBack }) {
           <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
             Local words, dialect terms & cultural vocabulary
           </div>
-          {r.vocab.map(function (v, i) {
+          {r.vocab.map(function (v: { hr: string; en: string; tip?: string }, i: number) {
             return (
               <div
                 key={i}
@@ -295,7 +302,7 @@ export function RegionScreen({ regionKey, goBack }) {
                     {v.en}
                   </span>
                 </div>
-                {v.note && (
+                {v.tip && (
                   <div
                     style={{
                       fontSize: 12,
@@ -304,7 +311,7 @@ export function RegionScreen({ regionKey, goBack }) {
                       fontStyle: 'italic',
                     }}
                   >
-                    {v.note}
+                    {v.tip}
                   </div>
                 )}
               </div>
@@ -349,12 +356,12 @@ export function RegionScreen({ regionKey, goBack }) {
                     color: 'var(--heading)',
                   }}
                 >
-                  {r.quiz[quizI].q}
+                  {r.quiz[quizI]!.q}
                 </div>
               </div>
-              {sh([r.quiz[quizI].a, ...r.quiz[quizI].al]).map(function (opt, i) {
+              {sh([r.quiz[quizI]!.a, ...r.quiz[quizI]!.al]).map(function (opt, i) {
                 const chosen = quizSel === opt;
-                const correct = opt === r.quiz[quizI].a;
+                const correct = opt === r.quiz[quizI]!.a;
                 const revealed = quizSel !== null;
                 let bg = 'var(--card)',
                   border = '1px solid var(--card-b)',
@@ -432,11 +439,15 @@ export function RegionScreen({ regionKey, goBack }) {
   );
 }
 
-export function RoleplayScreen({ goBack }) {
+interface RoleplayProps {
+  goBack: () => void;
+}
+
+export function RoleplayScreen({ goBack }: RoleplayProps) {
   const [rpIdx, setRpIdx] = useState(0);
   const [rpLine, setRpLine] = useState(0);
   const [rpShow, setRpShow] = useState(false);
-  const r = ROLEPLAY[rpIdx];
+  const r = ROLEPLAY[rpIdx]!;
   return (
     <div className="scr-wrap">
       {H('🎭 Conversation Role-Play', 'Practice real-life dialogues', goBack)}
@@ -557,10 +568,14 @@ export function RoleplayScreen({ goBack }) {
   );
 }
 
-export function RecipesScreen({ goBack }) {
+interface RecipesProps {
+  goBack: () => void;
+}
+
+export function RecipesScreen({ goBack }: RecipesProps) {
   const [rcIdx, setRcIdx] = useState(0);
-  const [rcServ, setRcServ] = useState(RECIPES[0].servings);
-  const r = RECIPES[rcIdx];
+  const [rcServ, setRcServ] = useState(RECIPES[0]!.servings);
+  const r = RECIPES[rcIdx]!;
   const scale = rcServ / r.servings;
   return (
     <div className="scr-wrap">
@@ -633,7 +648,7 @@ export function RecipesScreen({ goBack }) {
       </div>
       <h3 className="sh">🥚 Ingredients (scaled)</h3>
       {r.ing.map(function (ig, i) {
-        const amt = ig[0];
+        const amt = ig[0]!;
         const num = parseFloat(amt);
         const unit = amt.replace(/[0-9./]+/g, '').trim();
         const scaled = !isNaN(num) ? Math.round(num * scale * 10) / 10 + unit : amt;
@@ -642,7 +657,7 @@ export function RecipesScreen({ goBack }) {
             key={i}
             role="button"
             tabIndex={0}
-            aria-label={`Play audio for ${ig[1]}`}
+            aria-label={`Play audio for ${ig[1]!}`}
             style={{
               padding: '6px 0',
               fontSize: 14,
@@ -652,18 +667,18 @@ export function RecipesScreen({ goBack }) {
               cursor: 'pointer',
             }}
             onClick={function () {
-              speak(ig[1].split('(')[0]);
+              speak(ig[1]!.split('(')[0] ?? '');
             }}
             onKeyDown={function (e) {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                speak(ig[1].split('(')[0]);
+                speak(ig[1]!.split('(')[0] ?? '');
               }
             }}
           >
             <span style={{ fontWeight: 800, color: 'var(--info)', minWidth: 60 }}>{scaled}</span>
             <span>
-              {ig[1]} <span aria-hidden="true">🔊</span>
+              {ig[1]!} <span aria-hidden="true">🔊</span>
             </span>
           </div>
         );
@@ -671,7 +686,7 @@ export function RecipesScreen({ goBack }) {
       <h3 className="sh" style={{ marginTop: 16 }}>
         👨‍🍳 Steps
       </h3>
-      {r.steps.map(function (s, i) {
+      {r.steps.map(function (s: string, i: number) {
         return (
           <div
             key={i}
@@ -681,12 +696,12 @@ export function RecipesScreen({ goBack }) {
             className="c"
             style={{ marginBottom: 8, display: 'flex', gap: 12, cursor: 'pointer' }}
             onClick={function () {
-              speak(s.split('(')[0]);
+              speak(s.split('(')[0] ?? '');
             }}
             onKeyDown={function (e) {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                speak(s.split('(')[0]);
+                speak(s.split('(')[0] ?? '');
               }
             }}
           >

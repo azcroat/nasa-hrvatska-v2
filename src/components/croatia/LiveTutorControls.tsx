@@ -1,5 +1,26 @@
-// @ts-nocheck
 import React from 'react';
+
+interface Props {
+  turnCount: number;
+  breakdownCount: number;
+  messages: unknown[];
+  summaryLoading: boolean;
+  showGloss: boolean;
+  setShowGloss: React.Dispatch<React.SetStateAction<boolean>>;
+  showMic: boolean;
+  isRecording: boolean;
+  playing: boolean;
+  thinking: boolean;
+  micBusy: boolean;
+  phase: string;
+  textInput: string;
+  setTextInput: React.Dispatch<React.SetStateAction<string>>;
+  canType: boolean;
+  onStartRecording: () => void;
+  onStopRecording: () => void;
+  onEndSession: () => void;
+  onTextSubmit: (e: React.FormEvent) => void;
+}
 
 export default function LiveTutorControls({
   turnCount,
@@ -21,7 +42,7 @@ export default function LiveTutorControls({
   onStopRecording,
   onEndSession,
   onTextSubmit,
-}) {
+}: Props) {
   return (
     <div
       style={{
@@ -64,7 +85,7 @@ export default function LiveTutorControls({
           )}
         </div>
         <button
-          onClick={() => setShowGloss((v) => !v)}
+          onClick={() => setShowGloss((v: boolean) => !v)}
           style={{
             padding: '4px 10px',
             borderRadius: 20,

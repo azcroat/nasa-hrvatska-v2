@@ -1,8 +1,11 @@
-// @ts-nocheck
 import React from 'react';
 import { H, PROVERBS, speak } from '../../data';
 
-export default function ProverbsScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+export default function ProverbsScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🌟 Hrvatske Poslovice', 'Croatian Proverbs — Tap to hear', goBack)}

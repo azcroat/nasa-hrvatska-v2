@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 
 const SPOTIFY_PLAYLISTS = {
@@ -122,7 +121,22 @@ const SPOTIFY_PLAYLISTS = {
   ],
 };
 
-function SpotifyCard({ pl, openId, setOpenId }) {
+interface PlaylistItem {
+  id: string;
+  name: string;
+  desc: string;
+  icon: string;
+  color: string;
+  tag: string;
+}
+
+interface SpotifyCardProps {
+  pl: PlaylistItem;
+  openId: string | null;
+  setOpenId: (id: string | null) => void;
+}
+
+function SpotifyCard({ pl, openId, setOpenId }: SpotifyCardProps) {
   const isOpen = openId === pl.id;
   return (
     <div
@@ -285,7 +299,7 @@ function SpotifyCard({ pl, openId, setOpenId }) {
 }
 
 export default function SpotifySection() {
-  const [openId, setOpenId] = useState(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const groups = [
     { label: '🎤 Croatian Icons', key: 'icons' },
     { label: '🎧 Genres & Moods', key: 'genres' },
@@ -313,7 +327,7 @@ export default function SpotifySection() {
             {label}
             <div style={{ flex: 1, height: 1, background: 'rgba(30,215,96,.15)' }} />
           </div>
-          {SPOTIFY_PLAYLISTS[key].map((pl) => (
+          {(SPOTIFY_PLAYLISTS as Record<string, PlaylistItem[]>)[key]!.map((pl) => (
             <SpotifyCard key={pl.id} pl={pl} openId={openId} setOpenId={setOpenId} />
           ))}
         </div>

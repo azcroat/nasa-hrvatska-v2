@@ -1,14 +1,18 @@
-// @ts-nocheck
 import React from 'react';
 
 // ── TappableMessage — defined outside to prevent remount on every parent render ─
 // Each word in an AI message is a span; tapping calls onWordClick and stops
 // event propagation so the outer "tap to speak" div is not also triggered.
-export default function TappableMessage({ text, onWordClick }) {
+interface Props {
+  text: string;
+  onWordClick: (word: string) => void;
+}
+
+export default function TappableMessage({ text, onWordClick }: Props) {
   const tokens = text.split(/(\s+)/);
   return (
     <>
-      {tokens.map((token, i) => {
+      {tokens.map((token: string, i: number) => {
         if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
         const stripped = token.replace(/[.,!?;:…«»"'""''()\[\]]/g, '').trim();
         if (stripped.length < 2) return <span key={i}>{token}</span>;

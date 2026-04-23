@@ -1,7 +1,33 @@
-// @ts-nocheck
 import React from 'react';
 
-function fmtDuration(secs) {
+interface DebriefData {
+  majaNotes?: string;
+  didWell?: string;
+  focusNext?: string;
+  newVocab?: { hr: string; en: string; used_in?: string }[];
+  nextTopicSuggestion?: string;
+  xpEarned?: number;
+  durationSecs?: number;
+  suggestLevelUp?: boolean;
+  suggestLevelUpTo?: string;
+  levelUpMessage?: string;
+}
+
+interface ConversationMessage {
+  role: string;
+  content: string;
+}
+
+interface Props {
+  debrief: DebriefData;
+  conversation: ConversationMessage[];
+  durationSecs: number;
+  onContinue: () => void;
+  onBack: () => void;
+  award?: (xp: number) => void;
+}
+
+function fmtDuration(secs: number): string {
   const m = Math.floor(secs / 60);
   const s = secs % 60;
   return `${m} min ${s} sec`;
@@ -14,8 +40,8 @@ export default function DebriefScreen({
   onContinue,
   onBack,
   award,
-}) {
-  const cardStyle = (borderColor) => ({
+}: Props) {
+  const cardStyle = (borderColor: string): React.CSSProperties => ({
     background: 'var(--card)',
     border: `1px solid var(--card-b)`,
     borderLeft: `3px solid ${borderColor}`,
@@ -150,7 +176,7 @@ export default function DebriefScreen({
       </div>
 
       {/* New vocab */}
-      {debrief.newVocab?.length > 0 && (
+      {(debrief.newVocab?.length ?? 0) > 0 && (
         <div style={{ marginBottom: 12 }}>
           <h3
             style={{
@@ -170,13 +196,13 @@ export default function DebriefScreen({
               overflow: 'hidden',
             }}
           >
-            {debrief.newVocab.map((v, i) => (
+            {debrief.newVocab?.map((v: { hr: string; en: string; used_in?: string }, i: number) => (
               <div
                 key={i}
                 style={{
                   padding: '10px 14px',
                   borderBottom:
-                    i < debrief.newVocab.length - 1 ? '1px solid var(--card-b)' : 'none',
+                    i < (debrief.newVocab?.length ?? 0) - 1 ? '1px solid var(--card-b)' : 'none',
                   fontSize: 14,
                   lineHeight: 1.5,
                 }}

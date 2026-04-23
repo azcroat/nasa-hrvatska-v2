@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 // ── Portrait mapping — scenario ID → portrait filename ──────────────────────
@@ -35,14 +34,23 @@ export const PORTRAIT_MAP = {
   weekend: 'young-woman',
 };
 
-export function portraitSrc(scenarioId) {
-  const key = PORTRAIT_MAP[scenarioId] || 'young-woman';
+export function portraitSrc(scenarioId: string): string {
+  const key = (PORTRAIT_MAP as Record<string, string>)[scenarioId] ?? 'young-woman';
   return `/images/portraits/${key}.webp`;
 }
 
 // ── Speaking avatar — portrait photo with live speaking ring + D-ID video ──
 // When videoUrl is provided and isSpeaking is true, shows the lip-synced video.
 // Falls back to static portrait otherwise.
+interface SpeakingAvatarProps {
+  src: string;
+  name: string;
+  size?: number;
+  isSpeaking?: boolean;
+  videoUrl?: string | null;
+  style?: React.CSSProperties;
+}
+
 export default function SpeakingAvatar({
   src,
   name,
@@ -50,11 +58,11 @@ export default function SpeakingAvatar({
   isSpeaking = false,
   videoUrl = null,
   style: extraStyle = undefined,
-}) {
+}: SpeakingAvatarProps) {
   const [imgErr, setImgErr] = React.useState(false);
   const [videoErr, setVideoErr] = React.useState(false);
   const [videoEnded, setVideoEnded] = React.useState(false);
-  const videoRef = React.useRef(null);
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
 
   // Play video when speaking starts; reset when done
   React.useEffect(() => {
@@ -84,7 +92,7 @@ export default function SpeakingAvatar({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        ...extraStyle,
+        ...(extraStyle ?? {}),
       }}
     >
       {/* D-ID lip-sync video (shown when speaking) */}

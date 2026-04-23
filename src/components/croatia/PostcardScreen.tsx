@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data';
 import { useStats } from '../../context/StatsContext';
@@ -28,7 +27,7 @@ const CITIES = [
   { name: 'Labin', region: 'Istria', photo: '/images/scenes/labin.webp', color: '#0e7490' },
 ];
 
-function sanitizeForCanvas(str, maxLen = 400) {
+function sanitizeForCanvas(str: string, maxLen = 400): string {
   if (!str) return '';
   // Remove control characters and limit length
   return String(str)
@@ -40,22 +39,34 @@ function sanitizeForCanvas(str, maxLen = 400) {
     .slice(0, maxLen);
 }
 
-export default function PostcardScreen({ goBack, award }) {
+export default function PostcardScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const { level: userLevel } = useStats();
 
   const [step, setStep] = useState(1);
-  const [selectedCity, setSelectedCity] = useState(CITIES[0]);
+  const [selectedCity, setSelectedCity] = useState(CITIES[0]!);
   const [userText, setUserText] = useState('');
   const [toName, setToName] = useState('');
   const [fromName, setFromName] = useState('');
-  const [correction, setCorrection] = useState(null);
+  const [correction, setCorrection] = useState<{
+    changes?: { original: string; corrected: string; explanation?: string; note?: string }[];
+    score?: number;
+    encouragement?: string;
+    local_touch?: string;
+    alternative_closing?: string;
+  } | null>(null);
   const [correctedText, setCorrectedText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [canvasReady, setCanvasReady] = useState(false);
   const [copied, setCopied] = useState(false);
   const awardFired = useRef(false);
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // ─── Canvas drawing ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -65,6 +76,7 @@ export default function PostcardScreen({ goBack, award }) {
     setCanvasReady(false);
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     canvas.width = 800;
     canvas.height = 560;
 
@@ -103,7 +115,7 @@ export default function PostcardScreen({ goBack, award }) {
 
     img.src = selectedCity.photo;
 
-    function drawWritingSide(ctx, _canvas) {
+    function drawWritingSide(ctx: CanvasRenderingContext2D, _canvas: HTMLCanvasElement) {
       // ── 3. White writing area (right 45%)
       ctx.fillStyle = '#fafaf9';
       ctx.fillRect(440, 0, 360, 560);
@@ -840,7 +852,7 @@ export default function PostcardScreen({ goBack, award }) {
                 Changes explained
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {correction.changes.map((ch, i) => (
+                {(correction.changes ?? []).map((ch, i) => (
                   <div
                     key={i}
                     style={{

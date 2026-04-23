@@ -1,16 +1,19 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { RECIPES } from '../../data';
 
-function RecipesScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function RecipesScreen({ goBack }: Props) {
   const [rcIdx, setRcIdx] = useState(0);
-  const [rcServ, setRcServ] = useState(RECIPES[0].servings);
-  const r = RECIPES[rcIdx];
+  const [rcServ, setRcServ] = useState(RECIPES[0]!.servings);
+  const r = RECIPES[rcIdx]!;
   const scale = rcServ / r.servings;
   return (
     <div className="scr-wrap">
-      {H('🍳 Croatian Recipes', 'Cook & learn vocabulary')}
+      {H('🍳 Croatian Recipes', 'Cook & learn vocabulary', goBack)}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
         {RECIPES.map(function (rec, i) {
           return (
@@ -79,7 +82,7 @@ function RecipesScreen({ goBack }) {
       </div>
       <h3 className="sh">🥚 Ingredients (scaled)</h3>
       {r.ing.map(function (ig, i) {
-        const amt = ig[0];
+        const amt = ig[0]!;
         const num = parseFloat(amt);
         const unit = amt.replace(/[0-9./]+/g, '').trim();
         const scaled = !isNaN(num) ? Math.round(num * scale * 10) / 10 + unit : amt;
@@ -88,7 +91,7 @@ function RecipesScreen({ goBack }) {
             key={i}
             role="button"
             tabIndex={0}
-            aria-label={`Play audio for ${ig[1]}`}
+            aria-label={`Play audio for ${ig[1]!}`}
             style={{
               padding: '6px 0',
               fontSize: 14,
@@ -98,18 +101,18 @@ function RecipesScreen({ goBack }) {
               cursor: 'pointer',
             }}
             onClick={function () {
-              speak(ig[1].split('(')[0]);
+              speak(ig[1]!.split('(')[0] ?? '');
             }}
             onKeyDown={function (e) {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                speak(ig[1].split('(')[0]);
+                speak(ig[1]!.split('(')[0] ?? '');
               }
             }}
           >
             <span style={{ fontWeight: 800, color: 'var(--info)', minWidth: 60 }}>{scaled}</span>
             <span>
-              {ig[1]} <span aria-hidden="true">🔊</span>
+              {ig[1]!} <span aria-hidden="true">🔊</span>
             </span>
           </div>
         );
@@ -127,12 +130,12 @@ function RecipesScreen({ goBack }) {
             className="c"
             style={{ marginBottom: 8, display: 'flex', gap: 12, cursor: 'pointer' }}
             onClick={function () {
-              speak(s.split('(')[0]);
+              speak(s.split('(')[0] ?? '');
             }}
             onKeyDown={function (e) {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                speak(s.split('(')[0]);
+                speak(s.split('(')[0] ?? '');
               }
             }}
           >

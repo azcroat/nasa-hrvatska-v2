@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 import { POPCULTURE } from '../../data';
 
-function PopCultureScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function PopCultureScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🎵 Croatian Pop Culture', 'Music, TV & artists your friends know', goBack)}

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import RadioPlayer from './RadioPlayer';
 import {
@@ -17,14 +16,20 @@ function getCompletedMedia() {
     return {};
   }
 }
-function markMediaDone(id) {
+function markMediaDone(id: string) {
   const done = getCompletedMedia();
   done[id] = Date.now();
   localStorage.setItem('nh_media_done', JSON.stringify(done));
 }
 
 // ── Learning Mode Toggle ──────────────────────────────────────────────────────
-export function LearningModeToggle({ enabled, onToggle }) {
+export function LearningModeToggle({
+  enabled,
+  onToggle,
+}: {
+  enabled: boolean;
+  onToggle: () => void;
+}) {
   return (
     <button
       onClick={onToggle}
@@ -84,7 +89,7 @@ export function LearningModeToggle({ enabled, onToggle }) {
 }
 
 // ── Goal Tag Badge ────────────────────────────────────────────────────────────
-export function GoalTag({ label }) {
+export function GoalTag({ label }: { label: string }) {
   return (
     <span
       style={{
@@ -105,8 +110,9 @@ export function GoalTag({ label }) {
 }
 
 // ── Vocab Preview (Learning Mode) ─────────────────────────────────────────────
-function VocabPreview({ cat }) {
-  const words = DOMAIN_VOCAB[cat] || DOMAIN_VOCAB.culture;
+function VocabPreview({ cat }: { cat: string }) {
+  const words =
+    (DOMAIN_VOCAB as Record<string, { hr: string; en: string }[]>)[cat] || DOMAIN_VOCAB.culture;
   return (
     <div
       style={{
@@ -128,7 +134,7 @@ function VocabPreview({ cat }) {
         Words you'll hear
       </div>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-        {words.map((w) => (
+        {words.map((w: { hr: string; en: string }) => (
           <div
             key={w.hr}
             style={{
@@ -157,7 +163,7 @@ const COMPREHENSION_QS = {
   podcast: "After listening: what was the host's main argument?",
   culture: 'After reading: name one tradition or custom mentioned.',
 };
-function ComprehensionCard({ cat, itemId }) {
+function ComprehensionCard({ cat, itemId }: { cat: string; itemId: string }) {
   const key = `nh_media_engaged_${itemId}`;
   const [done, setDone] = useState(() => {
     try {
@@ -166,7 +172,7 @@ function ComprehensionCard({ cat, itemId }) {
       return false;
     }
   });
-  const q = COMPREHENSION_QS[cat] || COMPREHENSION_QS.culture;
+  const q = (COMPREHENSION_QS as Record<string, string>)[cat] || COMPREHENSION_QS.culture;
   function markDone() {
     try {
       localStorage.setItem(key, '1');
@@ -220,6 +226,33 @@ function ComprehensionCard({ cat, itemId }) {
   );
 }
 
+interface MediaItem {
+  name: string;
+  icon?: string;
+  desc?: string;
+  level?: string;
+  web?: string;
+  scr?: string;
+  stream?: string;
+  color?: string;
+  locale?: string;
+  tip?: string;
+  cat?: string;
+  live?: boolean;
+  video?: boolean;
+  [key: string]: unknown;
+}
+
+interface MediaCardProps {
+  m: MediaItem;
+  cat: string;
+  onOpen: () => void;
+  activeStream: string | null;
+  setActiveStream: (id: string | null) => void;
+  learningMode: boolean;
+  goalTag?: string;
+}
+
 export default function MediaCard({
   m,
   cat,
@@ -228,10 +261,10 @@ export default function MediaCard({
   setActiveStream,
   learningMode,
   goalTag,
-}) {
+}: MediaCardProps) {
   const [tipOpen, setTipOpen] = useState(false);
   const [done, setDone] = useState(() => !!getCompletedMedia()[m.name]);
-  const lc = LEVEL_COLORS[m.level] || '#78716c';
+  const lc = m.level ? ((LEVEL_COLORS as Record<string, string>)[m.level] ?? '#78716c') : '#78716c';
   const isExternal = !!m.web;
   const isInternal = !!m.scr && !m.web;
   const hasAction = isExternal || isInternal;
@@ -409,8 +442,8 @@ export default function MediaCard({
         {m.stream ? (
           <RadioPlayer
             src={m.stream}
-            color={m.color}
-            streamId={streamId}
+            color={m.color ?? '#D4002D'}
+            streamId={streamId ?? m.name}
             activeStream={activeStream}
             setActiveStream={setActiveStream}
           />
