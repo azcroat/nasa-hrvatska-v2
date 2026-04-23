@@ -281,7 +281,7 @@ interface Props {
   goBack: () => void;
 }
 
-function _LifeEventsScreen({ goBack }: Props) {
+export default function LifeEventsScreen({ goBack }: Props) {
   const [activeEvent, setActiveEvent] = useState<string | null>(null);
 
   const ev = activeEvent ? EVENTS.find((e) => e.id === activeEvent) : null;
