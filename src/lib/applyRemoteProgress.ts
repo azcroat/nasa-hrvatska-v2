@@ -136,7 +136,6 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
       lJ = JSON.parse(localStorage.getItem('uJournal') || '[]');
     } catch (_) {}
     const jM = new Map<string, unknown>();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // Remote entries set first; local entries set second so local wins on conflict
     // (preserves user notes/edits made on this device over older remote entries).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -338,8 +337,8 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
     try {
       lCW = JSON.parse(localStorage.getItem('nh_custom_words') || '[]');
     } catch (_) {}
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cwMap = new Map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [...fp.nh_custom_words, ...lCW].map((w: any) => [w?.word || JSON.stringify(w), w]),
     );
     try {

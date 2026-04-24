@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck — content-only data file with no logic; strict typing deferred
 // Naša Hrvatska — Data Layer (vocabulary, exercises, content)
 // This file is the single source of truth for all app data.

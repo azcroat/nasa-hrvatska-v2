@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { statsReducer } from '../lib/statsReducer';
 
 // Minimal valid Stats shape — all required fields present
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DS: any = {
   xp: 0,
   lc: 0,
@@ -25,6 +26,7 @@ const DS: any = {
   mediaVisits: 0,
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function makeState(overrides: Record<string, unknown> = {}): any {
   return { ...DS, ...overrides };
 }
@@ -58,6 +60,7 @@ describe('statsReducer — APPLY', () => {
     const state = makeState({ xp: 100 });
     const result = statsReducer(state, {
       type: 'APPLY',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       payload: (prev: any) => ({ ...prev, xp: prev.xp + 50 }),
     });
     expect(result.xp).toBe(150);
@@ -67,6 +70,7 @@ describe('statsReducer — APPLY', () => {
     const state = makeState({ xp: 100 });
     statsReducer(state, {
       type: 'APPLY',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       payload: (prev: any) => ({ ...prev, xp: 999 }),
     });
     expect(state.xp).toBe(100);
@@ -74,9 +78,11 @@ describe('statsReducer — APPLY', () => {
 
   it('APPLY function receives full state', () => {
     const state = makeState({ xp: 10, lc: 5, ct: ['food'] });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let received: any;
     statsReducer(state, {
       type: 'APPLY',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       payload: (prev: any) => {
         received = prev;
         return prev;

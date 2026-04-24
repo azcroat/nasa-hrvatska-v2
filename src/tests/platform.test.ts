@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 
 // platform.ts reads window.location at module-import time for API_BASE/NATIVE_API_ENDPOINTS.
 // We re-import via dynamic import after patching window.location to test both branches.

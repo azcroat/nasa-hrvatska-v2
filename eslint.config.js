@@ -116,7 +116,7 @@ export default [
   {
     files: ['src/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': ['warn', {
         args: 'none',
         varsIgnorePattern: '^_',
@@ -129,7 +129,7 @@ export default [
       // progressively fixed. Banning it during migration would force 2000+ type fixes
       // before any TypeScript coverage is possible. Remove this override once all
       // @ts-nocheck markers have been resolved.
-      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/ban-ts-comment': 'error',
       // The following rules were already off for .jsx files and must stay off for .tsx
       // during migration — same code patterns exist throughout (React && expr, escapes, etc.)
       '@typescript-eslint/no-unused-expressions': 'off',
