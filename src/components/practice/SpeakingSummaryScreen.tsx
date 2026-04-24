@@ -1,35 +1,49 @@
-// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 
-function scoreBadgeColor(s) {
+interface WordScore {
+  word: string;
+  meaning: string;
+  score: number;
+}
+
+interface Props {
+  wordScores: WordScore[];
+  onDone: () => void;
+}
+
+function scoreBadgeColor(s: number) {
   if (s >= 90)
     return { bg: 'var(--success-bg)', border: 'var(--success-b)', text: 'var(--success)' };
   if (s >= 70) return { bg: '#fff7ed', border: '#fed7aa', text: '#c2410c' };
   if (s >= 50) return { bg: '#fff7ed', border: '#fed7aa', text: '#ea580c' };
   return { bg: '#fef2f2', border: '#fecaca', text: 'var(--error)' };
 }
-function scoreBadgeLabel(s) {
+function scoreBadgeLabel(s: number) {
   if (s >= 90) return `🟢 Excellent! ${s}%`;
   if (s >= 70) return `🟡 Good! ${s}%`;
   if (s >= 50) return `🟠 Keep practicing ${s}%`;
   return `🔴 Try again ${s}%`;
 }
 
-export default function SpeakingSummaryScreen({ wordScores, onDone }) {
+export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
   const scored = wordScores;
   const avg =
     scored.length > 0
-      ? Math.round(scored.reduce((sum, ws) => sum + ws.score, 0) / scored.length)
+      ? Math.round(scored.reduce((sum: number, ws: WordScore) => sum + ws.score, 0) / scored.length)
       : null;
   const best =
-    scored.length > 0 ? scored.reduce((b, ws) => (ws.score > b.score ? ws : b), scored[0]) : null;
+    scored.length > 0
+      ? scored.reduce((b: WordScore, ws: WordScore) => (ws.score > b.score ? ws : b), scored[0]!)
+      : null;
   const worst =
-    scored.length > 0 ? scored.reduce((b, ws) => (ws.score < b.score ? ws : b), scored[0]) : null;
+    scored.length > 0
+      ? scored.reduce((b: WordScore, ws: WordScore) => (ws.score < b.score ? ws : b), scored[0]!)
+      : null;
 
   return (
     <div className="scr-wrap">
-      {H('🎤 Pronunciation Results')}
+      {H('🎤 Pronunciation Results', undefined, undefined)}
       <div className="c" style={{ textAlign: 'center', marginTop: 16 }}>
         {/* Average score badge */}
         {avg !== null && (
@@ -206,7 +220,7 @@ export default function SpeakingSummaryScreen({ wordScores, onDone }) {
             >
               Word-by-word breakdown
             </div>
-            {scored.map((ws, idx) => {
+            {scored.map((ws: WordScore, idx: number) => {
               const colors = scoreBadgeColor(ws.score);
               return (
                 <div

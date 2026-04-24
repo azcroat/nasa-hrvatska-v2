@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { H, Bar, Spk, srMark, getSR, sh, V } from '../../data';
 import { getPrioritizedReviewQueue } from '../../lib/srs.js';
@@ -11,11 +10,35 @@ import { playFanfare as _playFanfare } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
-export default function ReviewScreen({ goBack, award, allCats }) {
+interface AiExplanation {
+  rule?: string;
+  tip?: string;
+  explanation?: string;
+  example?: string;
+}
+
+interface ReviewScreenProps {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+  allCats?: string[];
+}
+
+interface ReviewStateRef {
+  answered: boolean;
+  idx: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  questions: any[];
+  score: number;
+}
+
+export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenProps) {
   const haptic = useHaptic();
   const finishFired = useRef(false);
   const _cats = allCats || Object.keys(V);
-  const pool = useMemo(() => _cats.flatMap((t) => V[t] || []), [_cats]);
+  const pool = useMemo(
+    () => _cats.flatMap((t: string) => (V as Record<string, string[][]>)[t] || []),
+    [_cats],
+  );
 
   const dueWords = useMemo(() => {
     return getPrioritizedReviewQueue(pool);
@@ -26,7 +49,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
   const [selected, setSelected] = useState(-1);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
-  const [aiExplain, setAiExplain] = useState(null); // null | 'loading' | {explanation,rule,tip,example}
+  const [aiExplain, setAiExplain] = useState<null | 'loading' | AiExplanation>(null);
 
   // Knight reacts when the review session ends
   useEffect(() => {
@@ -41,37 +64,36 @@ export default function ReviewScreen({ goBack, award, allCats }) {
           : 'Review done. Spaced repetition takes time — show up tomorrow and watch the numbers climb. 📈',
       600,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
 
   const questions = useMemo(() => {
     if (dueWords.length === 0) return [];
-    return dueWords.slice(0, 20).map((w) => {
+    return (dueWords as string[][]).slice(0, 20).map((w: string[]) => {
       // Filter to words with a different English meaning, then deduplicate
       // meanings — prevents synonyms from making the correct answer appear twice.
       const seen = new Set([w[1]]);
-      const distractors = sh(pool.filter((x) => x[1] !== w[1]))
-        .filter((x) => {
+      const distractors = sh(pool.filter((x: string[]) => x[1] !== w[1]))
+        .filter((x: string[]) => {
           if (seen.has(x[1])) return false;
           seen.add(x[1]);
           return true;
         })
         .slice(0, 3)
-        .map((x) => x[1]);
-      const opts = sh([w[1], ...distractors]);
-      return { word: w, opts, correct: w[1] };
+        .map((x: string[]) => x[1]!);
+      const opts: string[] = sh([w[1]!, ...distractors]);
+      return { word: w, opts, correct: w[1]! };
     });
   }, [dueWords, pool]);
 
   // Use a ref to hold current values so the keyboard handler never goes stale
-  const stateRef = useRef(
-    /** @type {{answered: boolean, idx: number, questions: any[], score: number}} */ {},
-  );
+  const stateRef = useRef<ReviewStateRef>({ answered: false, idx: 0, questions: [], score: 0 });
   stateRef.current = { answered, idx, questions, score };
 
   // Keyboard shortcuts: 1-4 to pick answer, Space/Enter to advance
   // Hooks must be unconditional — placed before all early returns
   useEffect(() => {
-    function handleKey(e) {
+    function handleKey(e: KeyboardEvent) {
       const { answered: ans, idx: i, questions: qs } = stateRef.current;
       if (e.key === ' ' || e.key === 'Enter') {
         if (ans) {
@@ -101,7 +123,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
               source: 'srs_review',
             });
           }
-          srMark(q.word[0], ok);
+          srMark(q.word[0], ok, undefined);
         }
       }
     }
@@ -345,13 +367,13 @@ export default function ReviewScreen({ goBack, award, allCats }) {
                   setAiExplain(null);
                 } else {
                   haptic.wrong();
-                  logError(q.word[0], 'vocabulary', {
+                  logError(q.word[0]!, 'vocabulary', {
                     wrong: opt,
                     correct: q.correct,
                     source: 'srs_review',
                   });
                   // Fetch AI explanation for wrong answers (fire-and-forget, non-blocking)
-                  setAiExplain('loading');
+                  setAiExplain('loading' as const);
                   apiFetch('/api/explain-error', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -371,7 +393,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
                       setAiExplain(null);
                     });
                 }
-                srMark(q.word[0], ok);
+                srMark(q.word[0], ok, undefined);
               }}
             >
               <span style={{ opacity: 0.4, fontSize: 11, marginRight: 6 }}>{i + 1}</span>
@@ -451,7 +473,7 @@ export default function ReviewScreen({ goBack, award, allCats }) {
                 <span>Getting AI explanation…</span>
               </div>
             )}
-            {aiExplain && aiExplain !== 'loading' && (
+            {aiExplain && aiExplain !== 'loading' && typeof aiExplain === 'object' && (
               <div
                 style={{
                   background: 'linear-gradient(135deg,rgba(124,58,237,.06),rgba(124,58,237,.03))',
@@ -476,19 +498,19 @@ export default function ReviewScreen({ goBack, award, allCats }) {
                   }}
                 >
                   <span>🤖</span>
-                  <span>AI Explanation · {aiExplain.rule}</span>
+                  <span>AI Explanation · {(aiExplain as AiExplanation).rule}</span>
                 </div>
                 <div
                   style={{
                     fontSize: 13,
                     color: 'var(--heading)',
                     lineHeight: 1.6,
-                    marginBottom: aiExplain.tip ? 8 : 0,
+                    marginBottom: (aiExplain as AiExplanation).tip ? 8 : 0,
                   }}
                 >
-                  {aiExplain.explanation}
+                  {(aiExplain as AiExplanation).explanation}
                 </div>
-                {aiExplain.tip && (
+                {(aiExplain as AiExplanation).tip && (
                   <div
                     style={{
                       fontSize: 12,
@@ -501,12 +523,12 @@ export default function ReviewScreen({ goBack, award, allCats }) {
                       borderLeft: '3px solid rgba(124,58,237,.4)',
                     }}
                   >
-                    💡 {aiExplain.tip}
+                    💡 {(aiExplain as AiExplanation).tip}
                   </div>
                 )}
-                {aiExplain.example && (
+                {(aiExplain as AiExplanation).example && (
                   <div style={{ fontSize: 12, color: '#7c3aed', fontWeight: 700, marginTop: 6 }}>
-                    e.g. {aiExplain.example}
+                    e.g. {(aiExplain as AiExplanation).example}
                   </div>
                 )}
               </div>

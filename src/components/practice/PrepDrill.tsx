@@ -1,8 +1,13 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, PREPDRILL } from '../../data';
 
-export default function PrepDrill({ goBack, award }) {
+export default function PrepDrill({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [ppQ] = useState(() => sh(PREPDRILL));
   const [ppI, sPpI] = useState(0);
   const [ppS, sPpS] = useState(0);
@@ -59,7 +64,7 @@ export default function PrepDrill({ goBack, award }) {
         <div style={{ fontSize: 13, color: '#78716c', marginTop: 4 }}>{q.en}</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 16 }}>
-        {q.opts.map((o, oi) => (
+        {q.opts.map((o: string, oi: number) => (
           <button
             key={oi}
             className="ob"

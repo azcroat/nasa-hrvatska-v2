@@ -1,13 +1,19 @@
-// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 import { isAndroid, isSpeechRecognitionSupported } from '../../lib/platform.js';
 
-export default function SprintSetupScreen({ level, onStart, onBack, isOnline = true }) {
+interface Props {
+  level: string;
+  onStart: () => void;
+  onBack: () => void;
+  isOnline?: boolean;
+}
+
+export default function SprintSetupScreen({ level, onStart, onBack, isOnline = true }: Props) {
   const srSupported = isSpeechRecognitionSupported();
   return (
     <div className="scr-wrap" style={{ padding: '0 16px 32px', maxWidth: 600, margin: '0 auto' }}>
-      {H('🎤 Speaking Sprint', 'Listen · Speak · Compare')}
+      {H('🎤 Speaking Sprint', 'Listen · Speak · Compare', undefined)}
 
       {/* Android WebView — microphone / speech recognition not supported */}
       {isAndroid() && !srSupported && (

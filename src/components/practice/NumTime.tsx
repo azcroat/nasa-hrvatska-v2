@@ -1,19 +1,25 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, NUMTIME } from '../../data';
 
-export default function NumTime({ goBack, award }) {
+export default function NumTime({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
+  type NTQuestion = { q: string; a: string; al: string[] };
   const finishFired = useRef(false);
-  const [ntQData] = useState(() => {
-    const q = sh([...NUMTIME.numbers, ...NUMTIME.time]).slice(0, 10);
-    return [q, sh([q[0].a].concat(q[0].al))];
-  });
-  const [ntQ, firstOpts] = ntQData;
+  const initialData = useState<[NTQuestion[], string[]]>(() => {
+    const q = sh([...NUMTIME.numbers, ...NUMTIME.time]).slice(0, 10) as NTQuestion[];
+    return [q, sh([q[0]!.a].concat(q[0]!.al))];
+  })[0];
+  const ntQ = initialData[0];
   const [ntI, sNtI] = useState(0);
   const [ntS, sNtS] = useState(0);
   const [ntA, sNtA] = useState(false);
   const [ntSl, sNtSl] = useState(-1);
-  const [ntO, sNtO] = useState(firstOpts);
+  const [ntO, sNtO] = useState(initialData[1]);
 
   const total = ntQ.length;
 
@@ -49,7 +55,7 @@ export default function NumTime({ goBack, award }) {
     );
   }
 
-  const q = ntQ[ntI];
+  const q = ntQ[ntI]!;
   const ci = ntO.indexOf(q.a);
 
   return (
@@ -83,7 +89,7 @@ export default function NumTime({ goBack, award }) {
             style={{ width: '100%', marginTop: 16 }}
             onClick={() => {
               if (ntI < total - 1) {
-                const n = ntQ[ntI + 1];
+                const n = ntQ[ntI + 1]!;
                 sNtO(sh([n.a].concat(n.al)));
                 sNtI((i) => i + 1);
                 sNtA(false);

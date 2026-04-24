@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * SentenceTileScreen — DuoLingo-style sentence tile assembly exercise.
  *
@@ -30,32 +29,44 @@ const TILE_STYLE_BASE = {
   whiteSpace: 'nowrap',
 };
 
-function shuffle(arr) {
+function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    const tmp = a[i] as T;
+    a[i] = a[j] as T;
+    a[j] = tmp;
   }
   return a;
 }
 
 // Normalize for comparison: lowercase, strip punctuation
-function norm(s) {
+function norm(s: string) {
   return s
     .replace(/[.?!,;:]/g, '')
     .trim()
     .toLowerCase();
 }
 
+interface SentItem {
+  en: string;
+  hr: string;
+  opts: string[];
+}
+interface Tile {
+  id: number;
+  word: string;
+}
+
 // Build tile bank: correct words + 2 distractors from wrong opts
-function buildBank(item) {
+function buildBank(item: SentItem): Tile[] {
   const correctWords = item.hr
     .replace(/[.?!,;:]/g, ' ')
     .trim()
     .split(/\s+/)
     .filter(Boolean);
   // Pick up to 2 distractor words from wrong option sentences
-  const distractors = [];
+  const distractors: string[] = [];
   for (const opt of item.opts || []) {
     if (norm(opt) === norm(item.hr)) continue;
     const words = opt
@@ -65,7 +76,10 @@ function buildBank(item) {
       .filter(Boolean);
     for (const w of words) {
       const wn = norm(w);
-      if (!correctWords.some((cw) => norm(cw) === wn) && !distractors.some((d) => norm(d) === wn)) {
+      if (
+        !correctWords.some((cw: string) => norm(cw) === wn) &&
+        !distractors.some((d: string) => norm(d) === wn)
+      ) {
         distractors.push(w);
         if (distractors.length >= 2) break;
       }
@@ -76,7 +90,13 @@ function buildBank(item) {
   return shuffle([...correctWords, ...distractors].map((word, i) => ({ id: i, word })));
 }
 
-export default function SentenceTileScreen({ goBack, award }) {
+export default function SentenceTileScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number, celebrate?: boolean) => void;
+}) {
   const haptic = useHaptic();
 
   const questions = useMemo(() => {
@@ -85,15 +105,17 @@ export default function SentenceTileScreen({ goBack, award }) {
 
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
-  const [bank, setBank] = useState(() => (questions.length > 0 ? buildBank(questions[0]) : []));
-  const [tray, setTray] = useState([]);
-  const [feedback, setFeedback] = useState(null); // null | 'correct' | 'wrong'
+  const [bank, setBank] = useState<Tile[]>(() =>
+    questions.length > 0 ? buildBank(questions[0]!) : [],
+  );
+  const [tray, setTray] = useState<Tile[]>([]);
+  const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [done, setDone] = useState(false);
 
-  const q = questions[idx];
+  const q = questions[idx]!;
 
   const tapBank = useCallback(
-    (tile) => {
+    (tile: Tile) => {
       if (feedback) return;
       setBank((prev) => prev.filter((t) => t.id !== tile.id));
       setTray((prev) => [...prev, tile]);
@@ -102,7 +124,7 @@ export default function SentenceTileScreen({ goBack, award }) {
   );
 
   const tapTray = useCallback(
-    (tile) => {
+    (tile: Tile) => {
       if (feedback) return;
       setTray((prev) => prev.filter((t) => t.id !== tile.id));
       setBank((prev) => [...prev, tile]);
@@ -142,7 +164,7 @@ export default function SentenceTileScreen({ goBack, award }) {
       setDone(true);
     } else {
       setIdx(nextIdx);
-      setBank(buildBank(questions[nextIdx]));
+      setBank(buildBank(questions[nextIdx]!));
       setTray([]);
       setFeedback(null);
     }

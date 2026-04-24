@@ -583,7 +583,7 @@ describe('MyWordsScreen — drill mode mark result', () => {
     clickDrillMyWords();
     flipDrillCard();
     fireEvent.click(screen.getByText('Got it ✓'));
-    expect(mockSrMark).toHaveBeenCalledWith('kuća', true);
+    expect(mockSrMark).toHaveBeenCalledWith('kuća', true, 0);
   });
 
   it('"Try again ✗" calls srMark(hr, false)', () => {
@@ -592,7 +592,7 @@ describe('MyWordsScreen — drill mode mark result', () => {
     clickDrillMyWords();
     flipDrillCard();
     fireEvent.click(screen.getByText('Try again ✗'));
-    expect(mockSrMark).toHaveBeenCalledWith('kuća', false);
+    expect(mockSrMark).toHaveBeenCalledWith('kuća', false, 0);
   });
 
   it('"Got it ✓" on non-last card advances to card 2', () => {

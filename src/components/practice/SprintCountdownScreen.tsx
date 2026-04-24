@@ -1,7 +1,10 @@
-// @ts-nocheck
 import React from 'react';
 
-export default function SprintCountdownScreen({ countdown }) {
+interface Props {
+  countdown: number;
+}
+
+export default function SprintCountdownScreen({ countdown }: Props) {
   return (
     <div
       className="scr-wrap"
@@ -14,15 +17,12 @@ export default function SprintCountdownScreen({ countdown }) {
       }}
     >
       <div
-        style={
-          /** @type {any} */ {
-            fontSize: 100,
-            fontWeight: 900,
-            color: '#d4002d',
-            animation: 'sprint-countdown 0.5s ease-out',
-            key: countdown,
-          }
-        }
+        style={{
+          fontSize: 100,
+          fontWeight: 900,
+          color: '#d4002d',
+          animation: 'sprint-countdown 0.5s ease-out',
+        }}
       >
         {countdown}
       </div>

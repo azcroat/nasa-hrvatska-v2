@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, V, sh, srMark, speak, getDueReviews } from '../../data';
 import CroatianKeyboard from '../shared/CroatianKeyboard';
@@ -9,7 +8,7 @@ import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 // ── Answer checking helpers ───────────────────────────────────────────────────
 
 /** Normalize diacritics for fuzzy matching (č→c, ć→c, š→s, ž→z, đ→d) */
-function normalize(s) {
+function normalize(s: string) {
   return s
     .trim()
     .toLowerCase()
@@ -20,30 +19,35 @@ function normalize(s) {
 }
 
 /** Levenshtein edit distance between two strings */
-function levenshtein(a, b) {
+function levenshtein(a: string, b: string): number {
   const m = a.length,
     n = b.length;
-  const dp = [];
+  const dp: number[][] = [];
   for (let i = 0; i <= m; i++) {
     dp[i] = [i];
-    for (let j = 1; j <= n; j++) dp[i][j] = i === 0 ? j : 0;
+    for (let j = 1; j <= n; j++) (dp[i] as number[])[j] = i === 0 ? j : 0;
   }
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      dp[i][j] =
+      (dp[i] as number[])[j] =
         a[i - 1] === b[j - 1]
-          ? dp[i - 1][j - 1]
-          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+          ? (dp[i - 1] as number[])[j - 1]!
+          : 1 +
+            Math.min(
+              (dp[i - 1] as number[])[j]!,
+              (dp[i] as number[])[j - 1]!,
+              (dp[i - 1] as number[])[j - 1]!,
+            );
     }
   }
-  return dp[m][n];
+  return (dp[m] as number[])[n]!;
 }
 
 /**
  * Check a typed answer against the target.
  * Returns 'perfect' | 'diacritic' | 'close' | 'wrong'
  */
-function checkAnswer(input, target) {
+function checkAnswer(input: string, target: string) {
   const inp = input.trim().toLowerCase();
   const tgt = target.trim().toLowerCase();
   if (inp === tgt) return 'perfect';
@@ -63,8 +67,8 @@ function buildPool() {
   const allWords = Object.values(V).flat();
   try {
     const dueSet = new Set(getDueReviews());
-    const dueWords = allWords.filter((w) => dueSet.has(w[0]));
-    const otherWords = allWords.filter((w) => !dueSet.has(w[0]));
+    const dueWords = allWords.filter((w) => dueSet.has(w[0]!));
+    const otherWords = allWords.filter((w) => !dueSet.has(w[0]!));
     const pool = [...sh(dueWords), ...sh(otherWords)].slice(0, 15);
     return pool.length >= 5 ? pool : sh(allWords).slice(0, 15);
   } catch {
@@ -107,9 +111,15 @@ const RESULT_CONFIG = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function TypingScreen({ goBack, award }) {
+export default function TypingScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const finishFired = useRef(false);
-  const inputRef = useRef(/** @type {HTMLInputElement|null} */ null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const startTsRef = useRef(0); // tracks when current word was presented
   const consecCorrectRef = useRef(0);
   const consecWrongRef = useRef(0);
@@ -118,9 +128,7 @@ export default function TypingScreen({ goBack, award }) {
   const [tyI, sTyI] = useState(0);
   const [tyS, sTyS] = useState(0); // correct count (perfect + close accepted)
   const [tyIn, sTyIn] = useState('');
-  const [result, setResult] = useState(
-    /** @type {null|'perfect'|'diacritic'|'close'|'wrong'} */ null,
-  );
+  const [result, setResult] = useState<null | 'perfect' | 'diacritic' | 'close' | 'wrong'>(null);
 
   // Record when word is presented
   useEffect(() => {
@@ -129,7 +137,7 @@ export default function TypingScreen({ goBack, award }) {
 
   if (!tyPool.length) return null;
 
-  const tyW = tyPool[tyI];
+  const tyW = tyPool[tyI]!;
 
   // ── Finished screen ──────────────────────────────────────────────────────────
   if (tyI >= tyPool.length) {
@@ -168,10 +176,10 @@ export default function TypingScreen({ goBack, award }) {
   // ── Check answer ─────────────────────────────────────────────────────────────
   function submitAnswer() {
     if (result) return; // already answered
-    const verdict = checkAnswer(tyIn, tyW[0]);
+    const verdict = checkAnswer(tyIn, tyW[0]!);
     const timeMs = Math.max(500, Date.now() - startTsRef.current);
     const isCorrect = verdict === 'perfect' || verdict === 'diacritic' || verdict === 'close';
-    srMark(tyW[0], isCorrect, timeMs);
+    srMark(tyW[0]!, isCorrect, timeMs);
     recordTopicResult('production', isCorrect);
     if (isCorrect) {
       sTyS((s) => s + 1);
@@ -191,7 +199,7 @@ export default function TypingScreen({ goBack, award }) {
       );
     }
     setResult(verdict);
-    speak(tyW[0]);
+    speak(tyW[0]!);
   }
 
   function nextWord() {
@@ -202,7 +210,7 @@ export default function TypingScreen({ goBack, award }) {
     setTimeout(() => inputRef.current?.focus(), 50);
   }
 
-  function insertChar(char) {
+  function insertChar(char: string) {
     const el = inputRef.current;
     if (!el) {
       sTyIn((v) => v + char);
@@ -218,7 +226,7 @@ export default function TypingScreen({ goBack, award }) {
     }, 0);
   }
 
-  const cfg = result ? RESULT_CONFIG[result] : null;
+  const cfg = result ? RESULT_CONFIG[result]! : null;
 
   return (
     <div className="scr-wrap">
@@ -272,9 +280,9 @@ export default function TypingScreen({ goBack, award }) {
           textAlign: 'center',
           fontSize: 20,
           fontWeight: 700,
-          background: result ? cfg.bg : undefined,
-          borderColor: result ? cfg.border : undefined,
-          color: result ? cfg.color : undefined,
+          background: result ? cfg!.bg : undefined,
+          borderColor: result ? cfg!.border : undefined,
+          color: result ? cfg!.color : undefined,
           transition: 'all .2s',
         }}
       />
@@ -300,10 +308,10 @@ export default function TypingScreen({ goBack, award }) {
               cursor: 'pointer',
             }}
             onClick={() => {
-              srMark(tyW[0], false, 999999);
+              srMark(tyW[0]!, false, 999999);
               recordTopicResult('production', false);
               setResult('wrong');
-              speak(tyW[0]);
+              speak(tyW[0]!);
             }}
           >
             Skip
@@ -322,21 +330,21 @@ export default function TypingScreen({ goBack, award }) {
           style={{
             marginTop: 14,
             padding: '14px 16px',
-            background: cfg.bg,
-            border: `1px solid ${cfg.border}`,
+            background: cfg!.bg,
+            border: `1px solid ${cfg!.border}`,
             borderRadius: 14,
             textAlign: 'center',
           }}
         >
-          <div style={{ fontSize: 18, fontWeight: 800, color: cfg.color, marginBottom: 6 }}>
-            {cfg.icon} {cfg.label}
+          <div style={{ fontSize: 18, fontWeight: 800, color: cfg!.color, marginBottom: 6 }}>
+            {cfg!.icon} {cfg!.label}
           </div>
           {result !== 'perfect' && (
             <div
               style={{ fontSize: 16, color: 'var(--heading)', fontWeight: 700, marginBottom: 4 }}
             >
               Correct:{' '}
-              <span style={{ color: cfg.color, fontFamily: "'Playfair Display',serif" }}>
+              <span style={{ color: cfg!.color, fontFamily: "'Playfair Display',serif" }}>
                 {tyW[0]}
               </span>
             </div>

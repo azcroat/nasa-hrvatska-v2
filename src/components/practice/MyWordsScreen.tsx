@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useCallback } from 'react';
 import { speak, srMark } from '../../data';
 
@@ -12,11 +11,19 @@ function loadWords() {
   }
 }
 
-function saveWords(words) {
+interface CustomWord {
+  hr: string;
+  en: string;
+  phonetic?: string;
+  example?: string;
+  addedAt: number;
+}
+
+function saveWords(words: CustomWord[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
 }
 
-function timeAgo(ts) {
+function timeAgo(ts: number) {
   const secs = Math.floor((Date.now() - ts) / 1000);
   if (secs < 60) return 'just now';
   const mins = Math.floor(secs / 60);
@@ -31,8 +38,7 @@ function timeAgo(ts) {
 
 /* ─── Styles ─────────────────────────────────────────────────────────── */
 
-/** @type {Record<string, import('react').CSSProperties>} */
-const S = {
+const S: Record<string, React.CSSProperties> = {
   wrap: {
     minHeight: '100vh',
     background: 'var(--app-bg)',
@@ -362,9 +368,17 @@ const S = {
 
 /* ─── Sub-views ───────────────────────────────────────────────────────── */
 
-function WordList({ words, setWords, setView }) {
+function WordList({
+  words,
+  setWords,
+  setView,
+}: {
+  words: CustomWord[];
+  setWords: (w: CustomWord[]) => void;
+  setView: (v: string) => void;
+}) {
   const deleteWord = useCallback(
-    (idx) => {
+    (idx: number) => {
       const updated = words.filter((_, i) => i !== idx);
       setWords(updated);
       saveWords(updated);
@@ -433,7 +447,15 @@ function WordList({ words, setWords, setView }) {
   );
 }
 
-function AddWordForm({ words, setWords, setView }) {
+function AddWordForm({
+  words,
+  setWords,
+  setView,
+}: {
+  words: CustomWord[];
+  setWords: (w: CustomWord[]) => void;
+  setView: (v: string) => void;
+}) {
   const [hr, setHr] = useState('');
   const [en, setEn] = useState('');
   const [phonetic, setPhonetic] = useState('');
@@ -520,7 +542,15 @@ function AddWordForm({ words, setWords, setView }) {
   );
 }
 
-function DrillMode({ words, setView, onComplete }) {
+function DrillMode({
+  words,
+  setView,
+  onComplete,
+}: {
+  words: CustomWord[];
+  setView: (v: string) => void;
+  onComplete?: (correct: number, total: number) => void;
+}) {
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [correct, setCorrect] = useState(0);
@@ -556,10 +586,10 @@ function DrillMode({ words, setView, onComplete }) {
     );
   }
 
-  const word = words[idx];
+  const word = words[idx]!;
 
-  function handleResult(gotIt) {
-    srMark(word.hr, gotIt);
+  function handleResult(gotIt: boolean) {
+    srMark(word.hr, gotIt, 0);
     const newCorrect = gotIt ? correct + 1 : correct;
     if (gotIt) setCorrect(newCorrect);
     setFlipped(false);
@@ -630,7 +660,13 @@ function DrillMode({ words, setView, onComplete }) {
 
 /* ─── Main Component ─────────────────────────────────────────────────── */
 
-export default function MyWordsScreen({ onBack, award }) {
+export default function MyWordsScreen({
+  onBack,
+  award,
+}: {
+  onBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [view, setView] = useState('list');
   const [words, setWords] = useState(() => loadWords());
 

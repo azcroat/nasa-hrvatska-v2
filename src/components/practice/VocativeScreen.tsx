@@ -1,20 +1,27 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, VOCATIVE } from '../../data';
 import { speak } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
 
 // Shuffle helper
-function sh(a) {
+function sh<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [b[i], b[j]] = [b[j], b[i]];
+    const tmp = b[i] as T;
+    b[i] = b[j] as T;
+    b[j] = tmp;
   }
   return b;
 }
 
-export default function VocativeScreen({ goBack, award }) {
+export default function VocativeScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [phase, setPhase] = useState('rules'); // rules | dialogues | quiz | done
   const [quizQ] = useState(() => sh(VOCATIVE.quiz));
   const [qi, setQi] = useState(0);
@@ -69,41 +76,44 @@ export default function VocativeScreen({ goBack, award }) {
               </span>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {rule.examples.map(([base, voc], ei) => (
-                <div
-                  key={ei}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    background: 'var(--app-bg)',
-                    borderRadius: 8,
-                    padding: '4px 10px',
-                    border: '1px solid var(--card-b)',
-                    fontSize: 13,
-                  }}
-                >
-                  <span style={{ color: 'var(--subtext)', textDecoration: 'line-through' }}>
-                    {base}
-                  </span>
-                  <span style={{ color: 'var(--subtext)' }}>→</span>
-                  <button
+              {rule.examples.map((ex: string[], ei: number) => {
+                const [base, voc] = ex;
+                return (
+                  <div
+                    key={ei}
                     style={{
-                      fontWeight: 800,
-                      color: 'var(--success)',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      background: 'var(--app-bg)',
+                      borderRadius: 8,
+                      padding: '4px 10px',
+                      border: '1px solid var(--card-b)',
                       fontSize: 13,
-                      fontFamily: 'inherit',
                     }}
-                    onClick={() => speak(voc)}
                   >
-                    {voc}!
-                  </button>
-                </div>
-              ))}
+                    <span style={{ color: 'var(--subtext)', textDecoration: 'line-through' }}>
+                      {base}
+                    </span>
+                    <span style={{ color: 'var(--subtext)' }}>→</span>
+                    <button
+                      style={{
+                        fontWeight: 800,
+                        color: 'var(--success)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        fontSize: 13,
+                        fontFamily: 'inherit',
+                      }}
+                      onClick={() => speak(voc ?? '')}
+                    >
+                      {voc}!
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -121,7 +131,7 @@ export default function VocativeScreen({ goBack, award }) {
 
   // ── Phase: Dialogues ──────────────────────────────────────────────────────
   if (phase === 'dialogues') {
-    const d = VOCATIVE.dialogues[dIdx];
+    const d = VOCATIVE.dialogues[dIdx]!;
     const isLast = dIdx === VOCATIVE.dialogues.length - 1;
     return (
       <div className="scr-wrap">
@@ -228,13 +238,13 @@ export default function VocativeScreen({ goBack, award }) {
   if (phase === 'quiz') {
     if (qi >= total) {
       // Show results inline, then transition to done
-      if (phase !== 'done') {
+      if ((phase as string) !== 'done') {
         setTimeout(() => setPhase('done'), 0);
       }
       return null;
     }
 
-    const q = quizQ[qi];
+    const q = quizQ[qi]!;
     const opts = sh([q.a, ...q.al]);
 
     return (

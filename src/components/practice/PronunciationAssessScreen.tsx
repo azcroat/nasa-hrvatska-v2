@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
@@ -101,7 +100,7 @@ const PHRASES = {
 };
 
 // Map CEFR level strings to phrase bank keys
-function levelKey(level) {
+function levelKey(level: unknown): string {
   if (!level) return 'A1';
   const l = String(level).toUpperCase();
   if (l.startsWith('B2') || l.startsWith('C')) return 'B2';
@@ -111,7 +110,7 @@ function levelKey(level) {
 }
 
 // Grade based on average score
-function overallGrade(avg) {
+function overallGrade(avg: number) {
   if (avg >= 90)
     return {
       letter: 'A',
@@ -154,7 +153,11 @@ function overallGrade(avg) {
 }
 
 // ── Progress bar ─────────────────────────────────────────────────────────────
-function ProgressBar({ value, color = '#D4002D' }) {
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+}
+function ProgressBar({ value, color = '#D4002D' }: ProgressBarProps) {
   return (
     <div style={{ height: 6, borderRadius: 4, background: 'var(--card-b)', overflow: 'hidden' }}>
       <div
@@ -171,7 +174,10 @@ function ProgressBar({ value, color = '#D4002D' }) {
 }
 
 // ── Score chip ───────────────────────────────────────────────────────────────
-function ScoreChip({ score }) {
+interface ScoreChipProps {
+  score: number;
+}
+function ScoreChip({ score }: ScoreChipProps) {
   const c = scoreColor(score);
   return (
     <span
@@ -195,19 +201,23 @@ function ScoreChip({ score }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function PronunciationAssessScreen({ goBack, award }) {
+interface PronunciationAssessProps {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+export default function PronunciationAssessScreen({ goBack, award }: PronunciationAssessProps) {
   const { setScr } = useApp();
   const { level } = useStats();
 
   const phrases = useMemo(() => {
-    const bank = PHRASES[levelKey(level)] || PHRASES.A1;
+    const bank = (PHRASES as Record<string, typeof PHRASES.A1>)[levelKey(level)] || PHRASES.A1;
     // Shuffle and take 8 phrases for a focused assessment
     const shuffled = [...bank].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 8);
   }, [level]);
 
   const [step, setStep] = useState(0); // 0 = intro, 1..n = phrase n-1, n+1 = results
-  const [scores, setScores] = useState({}); // phraseIdx → score
+  const [scores, setScores] = useState<Record<number, number>>({}); // phraseIdx → score
   const xpAwarded = useRef(false);
 
   const totalPhrases = phrases.length;
@@ -218,11 +228,13 @@ export default function PronunciationAssessScreen({ goBack, award }) {
   const completedCount = Object.keys(scores).length;
   const avgScore =
     completedCount > 0
-      ? Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / completedCount)
+      ? Math.round(
+          Object.values(scores).reduce((a: number, b: number) => a + b, 0) / completedCount,
+        )
       : 0;
 
   const handleScore = useCallback(
-    (result) => {
+    (result: { score: number }) => {
       setScores((prev) => ({ ...prev, [currentIdx]: result.score }));
     },
     [currentIdx],
@@ -613,17 +625,17 @@ export default function PronunciationAssessScreen({ goBack, award }) {
             marginBottom: 8,
           }}
         >
-          {currentPhrase.hr}
+          {currentPhrase?.hr}
         </div>
         <div style={{ fontSize: 14, color: 'var(--subtext)', fontStyle: 'italic' }}>
-          {currentPhrase.en}
+          {currentPhrase?.en}
         </div>
       </div>
 
       {/* Scorer */}
       <PronunciationScorer
-        targetText={currentPhrase.hr}
-        level={level || 'B1'}
+        targetText={currentPhrase?.hr ?? ''}
+        level={String(level || 'B1')}
         onScore={handleScore}
       />
 

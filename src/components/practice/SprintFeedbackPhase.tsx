@@ -1,8 +1,21 @@
-// @ts-nocheck
 import React from 'react';
 
-function computeFeedback(userSaid, modelResponse) {
-  const clean = (s) =>
+interface SprintPrompt {
+  hr: string;
+  en: string;
+  model_response: string;
+}
+
+interface Props {
+  currentPrompt: SprintPrompt;
+  userTranscript: string;
+  rounds: number;
+  onNextRound: () => void;
+  onDone: () => void;
+}
+
+function computeFeedback(userSaid: string, modelResponse: string) {
+  const clean = (s: string) =>
     s
       .toLowerCase()
       .replace(/[.,?!;:'"—–-]/g, '')
@@ -26,7 +39,7 @@ export default function SprintFeedbackPhase({
   rounds,
   onNextRound,
   onDone,
-}) {
+}: Props) {
   const { grade, missing } = computeFeedback(userTranscript, currentPrompt.model_response);
   const keyPhrase = currentPrompt.model_response.split(/\s+/).slice(0, 5).join(' ');
 
@@ -64,7 +77,7 @@ export default function SprintFeedbackPhase({
       border: 'var(--border)',
     },
   };
-  const cfg = gradeConfig[grade] || gradeConfig.skip;
+  const cfg = gradeConfig[grade as keyof typeof gradeConfig] ?? gradeConfig.skip;
 
   return (
     <div className="scr-wrap" style={{ padding: '0 16px 32px', maxWidth: 600, margin: '0 auto' }}>

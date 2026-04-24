@@ -179,13 +179,13 @@ describe('ZnamGame — quiz mechanics', () => {
     // Correct answer
     fireEvent.click(screen.getByText('Zdravo'));
     expect(mockSrMark).toHaveBeenCalledTimes(1);
-    expect(mockSrMark).toHaveBeenCalledWith('Zdravo', true);
+    expect(mockSrMark).toHaveBeenCalledWith('Zdravo', true, 0);
   });
 
   it('srMark records wrong answers with isCorrect=false', () => {
     enterQuizMode();
     fireEvent.click(screen.getByText('Dobar dan')); // wrong
-    expect(mockSrMark).toHaveBeenCalledWith('Zdravo', false);
+    expect(mockSrMark).toHaveBeenCalledWith('Zdravo', false, 0);
   });
 
   it('options are locked after answering (clicking again does not re-award)', () => {

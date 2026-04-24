@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 import { sh } from '../../data';
 import { TRANSLATE_DRILLS } from '../../data/exercises.js';
@@ -12,17 +11,23 @@ const CEFR_BG = {
   B2: 'rgba(124,58,237,.12)',
 };
 
-export default function TranslateDrillsScreen({ goBack, award }) {
+export default function TranslateDrillsScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const drills = useMemo(() => sh([...TRANSLATE_DRILLS]), []);
   const [idx, setIdx] = useState(0);
-  const [chosen, setChosen] = useState(null); // option string user tapped
+  const [chosen, setChosen] = useState<string | null>(null); // option string user tapped
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
 
-  const drill = drills[idx];
+  const drill = drills[idx]!;
   const isCorrect = chosen === drill?.hr;
 
-  function pick(opt) {
+  function pick(opt: string) {
     if (chosen) return;
     setChosen(opt);
     const correct = opt === drill.hr;
@@ -160,8 +165,8 @@ export default function TranslateDrillsScreen({ goBack, award }) {
         {/* CEFR badge */}
         <span
           style={{
-            background: CEFR_BG[drill.level],
-            color: CEFR_COLORS[drill.level],
+            background: (CEFR_BG as Record<string, string>)[drill.level],
+            color: (CEFR_COLORS as Record<string, string>)[drill.level],
             fontSize: 11,
             fontWeight: 700,
             padding: '3px 10px',
@@ -201,7 +206,7 @@ export default function TranslateDrillsScreen({ goBack, award }) {
 
         {/* Options */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
-          {drill.opts.map((opt) => {
+          {drill.opts.map((opt: string) => {
             const isSelected = chosen === opt;
             const correct = opt === drill.hr;
             let bg = 'rgba(255,255,255,.06)';

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, Spk, PITCH_ACCENT } from '../../data';
 import { useStats } from '../../context/StatsContext.tsx';
@@ -35,12 +34,18 @@ const ACCENT_TYPES = [
   },
 ];
 
-export default function PitchAccentScreen({ goBack, award }) {
+export default function PitchAccentScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
 
@@ -135,9 +140,9 @@ export default function PitchAccentScreen({ goBack, award }) {
     );
   }
 
-  const item = items[idx];
+  const item = items[idx]!;
   const correct = item.type;
-  const accentInfo = ACCENT_TYPES.find((a) => a.id === correct);
+  const accentInfo = ACCENT_TYPES.find((a) => a.id === correct)!;
 
   return (
     <div className="scr-wrap">

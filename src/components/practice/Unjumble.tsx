@@ -1,9 +1,14 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, UNJUMBLE } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
-export default function Unjumble({ goBack, award }) {
+export default function Unjumble({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [ujQ] = useState(() => sh(UNJUMBLE).slice(0, 10));
   const [ujI, sUjI] = useState(0);
   const [ujS, sUjS] = useState(0);

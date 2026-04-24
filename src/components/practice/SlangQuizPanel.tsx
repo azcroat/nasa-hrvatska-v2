@@ -1,6 +1,28 @@
-// @ts-nocheck
 import React from 'react';
 import { speak } from '../../data';
+
+interface SlangSection {
+  color: string;
+  light: string;
+  border: string;
+}
+interface SlangQuestion {
+  hr: string;
+  correct: string;
+  opts: string[];
+}
+interface SlangQuizPanelProps {
+  section: SlangSection;
+  quizMode: boolean;
+  quizDone: boolean;
+  quizQuestions: SlangQuestion[];
+  quizIdx: number;
+  quizSelected: string | null;
+  quizScore: number;
+  onAnswer: (opt: string) => void;
+  onTryAgain: () => void;
+  onDone: () => void;
+}
 
 export default function SlangQuizPanel({
   section,
@@ -13,7 +35,7 @@ export default function SlangQuizPanel({
   onAnswer,
   onTryAgain,
   onDone,
-}) {
+}: SlangQuizPanelProps) {
   if (!quizMode) return null;
 
   if (quizDone) {
@@ -188,11 +210,11 @@ export default function SlangQuizPanel({
             lineHeight: 1.3,
           }}
         >
-          {quizQuestions[quizIdx].hr}
+          {quizQuestions[quizIdx]!.hr}
         </div>
         <button
-          aria-label={`Play audio for ${quizQuestions[quizIdx].hr}`}
-          onClick={() => speak(quizQuestions[quizIdx].hr)}
+          aria-label={`Play audio for ${quizQuestions[quizIdx]!.hr}`}
+          onClick={() => speak(quizQuestions[quizIdx]!.hr)}
           style={{
             marginTop: 10,
             padding: '4px 12px',
@@ -210,8 +232,8 @@ export default function SlangQuizPanel({
       </div>
       {/* Options */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {quizQuestions[quizIdx].opts.map((opt, oi) => {
-          const isCorrect = opt === quizQuestions[quizIdx].correct;
+        {quizQuestions[quizIdx]!.opts.map((opt: string, oi: number) => {
+          const isCorrect = opt === quizQuestions[quizIdx]!.correct;
           const isSelected = quizSelected === opt;
           let bg = 'var(--card)';
           let borderC = 'var(--card-b)';
