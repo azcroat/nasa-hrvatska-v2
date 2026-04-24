@@ -1,26 +1,35 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { PRONOUNCASE } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
 
-function PronounsScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function PronounsScreen({ goBack, award }: Props) {
   const questions = shMemo('pc', PRONOUNCASE.quiz, 10);
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleAnswer(e, isCorrect, sentence) {
-    e.target.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    e.target.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(
+    e: React.MouseEvent<HTMLButtonElement>,
+    isCorrect: boolean,
+    sentence: string,
+  ) {
+    (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
+    (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     recordTopicResult('grammar', isCorrect);
     if (isCorrect) {
       if (typeof award === 'function') award(3);
       speak(sentence);
     }
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    const btn = e.target as HTMLButtonElement;
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     if (isCorrect) correctRef.current++;
     answeredRef.current++;
     if (answeredRef.current >= questions.length && !done) {
@@ -94,7 +103,7 @@ function PronounsScreen({ goBack, award }) {
         </table>
       </div>
       <h3 className="sh">🧠 Fill the Blank</h3>
-      {questions.map(function (q, qi) {
+      {questions.map(function (q: { q: string; opts: string[]; a: string }, qi: number) {
         return (
           <div key={qi} className="c" style={{ marginBottom: 10, padding: '10px 14px' }}>
             <div

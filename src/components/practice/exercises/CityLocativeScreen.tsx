@@ -1,23 +1,28 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { CITYLOC } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-function CityLocativeScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function CityLocativeScreen({ goBack, award }: Props) {
   const quizCities = shMemo('cl', CITYLOC.cities, 8);
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleAnswer(e, isCorrect) {
-    e.target.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    e.target.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(e: React.MouseEvent<HTMLButtonElement>, isCorrect: boolean) {
+    (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
+    (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     if (isCorrect) {
       if (typeof award === 'function') award(3);
     }
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    const btn = e.target as HTMLButtonElement;
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     if (isCorrect) correctRef.current++;
     answeredRef.current++;
     if (answeredRef.current >= quizCities.length && !done) {
@@ -83,8 +88,8 @@ function CityLocativeScreen({ goBack, award }) {
         })}
       </div>
       <h3 className="sh">🎯 Quick Quiz</h3>
-      {quizCities.map(function (c2, i) {
-        const wrong = CITYLOC.cities[(i + 3) % CITYLOC.cities.length].lok;
+      {quizCities.map(function (c2: { nom: string; lok: string }, i: number) {
+        const wrong = (CITYLOC.cities[(i + 3) % CITYLOC.cities.length] ?? CITYLOC.cities[0]!).lok;
         return (
           <div
             key={i}

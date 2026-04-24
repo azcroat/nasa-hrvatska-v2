@@ -1,14 +1,18 @@
-// @ts-nocheck
 import React, { useState, useMemo, useRef } from 'react';
 import { H, speak, sh } from '../../../data';
 import { REFLEXIVE } from '../../../data';
 import { rnd } from '../../../lib/random.js';
 import { markQuest } from '../../../lib/quests.js';
 
-function ReflexiveScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function ReflexiveScreen({ goBack, award }: Props) {
   const [tab, setTab] = useState('rules');
   const [_qIdx] = useState(() => Math.floor(rnd() * REFLEXIVE.quiz.length));
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const questFiredRef = useRef(false);
   const tabs = [
     { id: 'rules', label: 'SE Rules' },
@@ -25,7 +29,7 @@ function ReflexiveScreen({ goBack, award }) {
 
   const shuffledQuizOpts = useMemo(() => REFLEXIVE.quiz.map((q) => sh([...q.opts])), []);
 
-  function handleQuiz(qi, o, a) {
+  function handleQuiz(qi: number, o: string, a: string) {
     if (answers[qi] !== undefined) return;
     const newAnswers = { ...answers, [qi]: o };
     setAnswers(newAnswers);
@@ -225,10 +229,10 @@ function ReflexiveScreen({ goBack, award }) {
                   style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}
                 >
                   {[
-                    { key: 'present', label: 'PRESENT', data: ex.present },
-                    { key: 'past', label: 'PAST', data: ex.past },
-                    { key: 'future', label: 'FUTURE', data: ex.future },
-                    { key: 'negative', label: 'NEGATIVE', data: ex.negative },
+                    { key: 'present' as const, label: 'PRESENT', data: ex.present },
+                    { key: 'past' as const, label: 'PAST', data: ex.past },
+                    { key: 'future' as const, label: 'FUTURE', data: ex.future },
+                    { key: 'negative' as const, label: 'NEGATIVE', data: ex.negative },
                   ].map(function (row) {
                     const c = TENSE_COLORS[row.key];
                     return (
@@ -314,6 +318,7 @@ function ReflexiveScreen({ goBack, award }) {
                   }}
                 >
                   {Object.keys(v.forms).map(function (p, pi) {
+                    const formVal = (v.forms as Record<string, string>)[p] ?? '';
                     return (
                       <div
                         key={pi}
@@ -324,14 +329,14 @@ function ReflexiveScreen({ goBack, award }) {
                           cursor: 'pointer',
                         }}
                         onClick={function () {
-                          speak(v.forms[p]);
+                          speak(formVal);
                         }}
                       >
                         <span style={{ fontWeight: 700, color: '#0e7490' }}>
                           {p}
                           {': '}
                         </span>
-                        {v.forms[p]}
+                        {formVal}
                       </div>
                     );
                   })}
@@ -394,7 +399,7 @@ function ReflexiveScreen({ goBack, award }) {
                   {'🇬🇧 '}
                   {q.q}
                 </div>
-                {shuffledQuizOpts[qi].map(function (o, oi) {
+                {(shuffledQuizOpts[qi] ?? []).map(function (o, oi) {
                   const chosen = answers[qi];
                   let bg = 'white',
                     bc = '#e7e5e4',
@@ -447,18 +452,18 @@ function ReflexiveScreen({ goBack, award }) {
           {Object.keys(answers).length === REFLEXIVE.quiz.length && (
             <div className="c" style={{ marginTop: 16, padding: '20px 16px', textAlign: 'center' }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>
-                {Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i].a).length /
+                {Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i]!.a).length /
                   REFLEXIVE.quiz.length >=
                 0.8
                   ? '🏆'
-                  : Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i].a).length /
+                  : Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i]!.a).length /
                         REFLEXIVE.quiz.length >=
                       0.6
                     ? '⭐'
                     : '💪'}
               </div>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-                {Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i].a).length}/
+                {Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i]!.a).length}/
                 {REFLEXIVE.quiz.length} correct
               </div>
               <button className="b bp" style={{ marginTop: 12 }} onClick={goBack}>

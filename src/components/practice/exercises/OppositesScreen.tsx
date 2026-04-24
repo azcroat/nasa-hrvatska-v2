@@ -1,13 +1,19 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak, shMemo } from '../../../data';
 import { ADJOPPOSITES } from '../../../data';
 
-function OppositesScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function OppositesScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('↔️ Opposites', 'Learn adjective pairs with animals', goBack)}
-      {shMemo('ao', ADJOPPOSITES).map(function (p, i) {
+      {shMemo('ao', ADJOPPOSITES, undefined).map(function (
+        p: { a: string; b: string; ex: { a: string; b: string } },
+        i: number,
+      ) {
         return (
           <div
             key={i}

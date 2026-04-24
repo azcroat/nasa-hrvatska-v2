@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useMemo } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { NEGATION } from '../../../data';
@@ -50,10 +49,15 @@ const NEGATION_QUIZ = [
   { q: "'Nothing is ready' = Ništa ___ gotovo.", a: 'nije', opts: ['nije', 'ne', 'nema', 'nisam'] },
 ];
 
-function NegationScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function NegationScreen({ goBack, award }: Props) {
   const [tab, setTab] = useState('learn');
   // answers[qi] = the option the user selected (string), or undefined
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const questFiredRef = useRef(false);
   // Stable shuffled quiz + options — computed once per mount
   const shuffledQuiz = useMemo(() => sh([...NEGATION_QUIZ]), []);
@@ -61,14 +65,14 @@ function NegationScreen({ goBack, award }) {
 
   const answeredCount = Object.keys(answers).length;
   const correctCount = Object.entries(answers).filter(
-    ([qi, sel]) => sel === shuffledQuiz[qi].a,
+    ([qi, sel]) => sel === (shuffledQuiz[Number(qi)] ?? { a: '' }).a,
   ).length;
   const allDone = answeredCount === shuffledQuiz.length;
 
-  function handleAnswer(qi, opt) {
+  function handleAnswer(qi: number, opt: string) {
     if (answers[qi] !== undefined) return;
     setAnswers((prev) => ({ ...prev, [qi]: opt }));
-    const isCorrect = opt === shuffledQuiz[qi].a;
+    const isCorrect = opt === (shuffledQuiz[qi] ?? { a: '' }).a;
     recordTopicResult('grammar', isCorrect);
     if (isCorrect) {
       if (typeof award === 'function') award(3);
@@ -140,7 +144,10 @@ function NegationScreen({ goBack, award }) {
             <br />
             <strong>htjeti (to want):</strong> neću / nećeš / neće / nećemo / nećete / neće
           </div>
-          {shMemo('ng', NEGATION).map(function (n, ni) {
+          {shMemo('ng', NEGATION, undefined).map(function (
+            n: { pos: string; neg: string; en: string },
+            ni: number,
+          ) {
             return (
               <div
                 key={ni}
@@ -224,7 +231,7 @@ function NegationScreen({ goBack, award }) {
                   {q.q}
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {shuffledOpts[qi].map((opt, oi) => {
+                  {(shuffledOpts[qi] ?? []).map((opt, oi) => {
                     let bg = 'white',
                       bc = '#e7e5e4',
                       col = '#1c1917';

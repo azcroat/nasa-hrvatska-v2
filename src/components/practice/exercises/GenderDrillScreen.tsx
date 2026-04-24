@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../../context/StatsContext.tsx';
 import { H, speak, sh } from '../../../data';
@@ -6,20 +5,31 @@ import { GENDERDRILL } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
 
-function GenderDrillScreen({ goBack, award, setSt }) {
+interface GenderEntry {
+  guess: string;
+  correct: boolean;
+}
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setSt?: (fn: (s: any) => any) => void;
+}
+
+function GenderDrillScreen({ goBack, award, setSt }: Props) {
   const { writeDelta } = useStats();
   // ─── Sort by Gender state ──────────────────────────────────────────────────
   // revealedGenders: { [i]: { guess: 'm'|'f'|'n', correct: bool } }
-  const [revealedGenders, setRevealedGenders] = useState({});
-  const [selectedGenderIdx, setSelectedGenderIdx] = useState(null);
+  const [revealedGenders, setRevealedGenders] = useState<Record<number, GenderEntry>>({});
+  const [selectedGenderIdx, setSelectedGenderIdx] = useState<number | null>(null);
 
   // ─── Make it Plural state (multiple choice) ────────────────────────────────
   // pluralAnswered: { [i]: { guess: string, correct: bool } }
-  const [pluralAnswered, setPluralAnswered] = useState({});
+  const [pluralAnswered, setPluralAnswered] = useState<Record<number, GenderEntry>>({});
 
   // ─── Adjective state ───────────────────────────────────────────────────────
   // adjAnswered: { [i]: { guess: string, correct: bool } }
-  const [adjAnswered, setAdjAnswered] = useState({});
+  const [adjAnswered, setAdjAnswered] = useState<Record<number, GenderEntry>>({});
 
   const completionFired = useRef(false);
 
@@ -47,7 +57,8 @@ function GenderDrillScreen({ goBack, award, setSt }) {
     completionFired.current = true;
     if (typeof award === 'function') award(15);
     if (setSt) {
-      setSt((s) => ({ ...s, gc: s.gc + 1 }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setSt((s: any) => ({ ...s, gc: s.gc + 1 }));
       writeDelta({ gc: 1 });
     }
     markQuest('grammar');
@@ -124,7 +135,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
             ?
           </p>
           <div style={{ display: 'flex', gap: 8 }}>
-            {['m', 'f', 'n'].map((g) => (
+            {(['m', 'f', 'n'] as const).map((g) => (
               <button
                 key={g}
                 style={{
@@ -166,10 +177,10 @@ function GenderDrillScreen({ goBack, award, setSt }) {
             bc = '#d6d3d1',
             label = w.word;
           if (revealed) {
-            const c = gColor[w.g];
+            const c = gColor[w.g as 'm' | 'f' | 'n'] ?? gColor['m'];
             bg = revealed.correct ? c.bg : '#fee2e2';
             bc = revealed.correct ? c.bc : '#dc2626';
-            label = w.word + ' (' + gLabel[w.g] + ')';
+            label = w.word + ' (' + (gLabel[w.g as 'm' | 'f' | 'n'] ?? w.g) + ')';
           } else if (isSelected) {
             bg = '#f0f9ff';
             bc = '#0e7490';
@@ -230,7 +241,7 @@ function GenderDrillScreen({ goBack, award, setSt }) {
                 pointerEvents: answered ? 'none' : 'auto',
               }}
             >
-              {pluralOpts[i].map((opt, oi) => {
+              {(pluralOpts[i] ?? []).map((opt, oi) => {
                 let bg = 'white',
                   bc = '#d6d3d1',
                   color = '#1c1917';

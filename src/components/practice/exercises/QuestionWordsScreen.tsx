@@ -1,12 +1,20 @@
-// @ts-nocheck
 import React, { useState, useMemo, useRef } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { QWORDS } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-function QuestionWordsScreen({ goBack, award }) {
-  const questions = useMemo(() => shMemo('qw', QWORDS), []);
-  const shuffledOpts = useMemo(() => questions.map((q) => sh([...q.opts])), [questions]);
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function QuestionWordsScreen({ goBack, award }: Props) {
+  const questions = useMemo(() => shMemo('qw', QWORDS, undefined), []);
+  const shuffledOpts = useMemo(
+    () =>
+      questions.map((q: { q: string; en: string; opts: string[]; a: string }) => sh([...q.opts])),
+    [questions],
+  );
   const total = questions.length;
   const [answers, setAnswers] = useState(() => new Array(total).fill(null));
   const [selected, setSelected] = useState(() => new Array(total).fill(null));
@@ -21,7 +29,11 @@ function QuestionWordsScreen({ goBack, award }) {
     markQuest('grammar');
   }
 
-  function handleAnswer(qi, o, q) {
+  function handleAnswer(
+    qi: number,
+    o: string,
+    q: { q: string; en: string; opts: string[]; a: string },
+  ) {
     if (answers[qi] !== null) return;
     const isCorrect = o === q.a;
     setAnswers((prev) => {
@@ -79,7 +91,10 @@ function QuestionWordsScreen({ goBack, award }) {
         </div>
       )}
 
-      {questions.map(function (q, qi) {
+      {questions.map(function (
+        q: { q: string; en: string; opts: string[]; a: string },
+        qi: number,
+      ) {
         const state = answers[qi];
         const sel = selected[qi];
         return (
@@ -90,7 +105,7 @@ function QuestionWordsScreen({ goBack, award }) {
               <span style={{ color: '#78716c', fontStyle: 'italic' }}>{q.en}</span>
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              {shuffledOpts[qi].map(function (o, oi) {
+              {(shuffledOpts[qi] ?? []).map(function (o: string, oi: number) {
                 let bg = 'white',
                   border = '#d6d3d1';
                 if (state !== null) {

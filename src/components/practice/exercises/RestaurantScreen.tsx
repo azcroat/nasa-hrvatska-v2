@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../../data';
 import { RESTCONV } from '../../../data';
 
-function RestaurantScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function RestaurantScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🍽️ At the Restaurant', 'Practice ordering food in Croatian', goBack)}

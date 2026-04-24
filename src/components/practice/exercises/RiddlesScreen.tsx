@@ -1,24 +1,33 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { RIDDLES } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-function RiddlesScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function RiddlesScreen({ goBack, award }: Props) {
   const riddles = shMemo('rid', RIDDLES, 8);
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleAnswer(e, isCorrect, answer) {
-    e.target.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    e.target.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(
+    e: React.MouseEvent<HTMLButtonElement>,
+    isCorrect: boolean,
+    answer: string,
+  ) {
+    const btn = e.target as HTMLButtonElement;
+    btn.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
+    btn.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     if (isCorrect) {
       if (typeof award === 'function') award(5);
       speak(answer);
     }
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     if (isCorrect) correctRef.current++;
     answeredRef.current++;
     if (answeredRef.current >= riddles.length && !done) {
@@ -30,7 +39,10 @@ function RiddlesScreen({ goBack, award }) {
   return (
     <div className="scr-wrap">
       {H('🧩 Što je to?', 'Read the clues in Croatian, guess the answer!', goBack)}
-      {riddles.map(function (r, ri) {
+      {riddles.map(function (
+        r: { clue: string; opts: string[]; answer: string; en: string },
+        ri: number,
+      ) {
         return (
           <div key={ri} className="c" style={{ marginBottom: 14, padding: '14px 16px' }}>
             <button
