@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { Spk, speakSlow } from '../../data';
 import PronunciationScorer from '../shared/PronunciationScorer';
@@ -23,18 +22,47 @@ const mediaRecSup =
 const scorerCanRun = webSpeechSup || mediaRecSup;
 
 // Score badge helpers — spec thresholds: 90+ excellent, 70+ good, 50+ keep practicing, <50 try again
-function scoreBadgeColor(s) {
+function scoreBadgeColor(s: number) {
   if (s >= 90)
     return { bg: 'var(--success-bg)', border: 'var(--success-b)', text: 'var(--success)' };
   if (s >= 70) return { bg: '#fff7ed', border: '#fed7aa', text: '#c2410c' };
   if (s >= 50) return { bg: '#fff7ed', border: '#fed7aa', text: '#ea580c' };
   return { bg: '#fef2f2', border: '#fecaca', text: 'var(--error)' };
 }
-function scoreBadgeLabel(s) {
+function scoreBadgeLabel(s: number) {
   if (s >= 90) return `🟢 Excellent! ${s}%`;
   if (s >= 70) return `🟡 Good! ${s}%`;
   if (s >= 50) return `🟠 Keep practicing ${s}%`;
   return `🔴 Try again ${s}%`;
+}
+
+interface PronScore {
+  score: number;
+  match_quality?: string;
+  phonetic_tips?: string[];
+  encouragement?: string;
+}
+
+interface SpeakingPracticePanelProps {
+  sw: string[];
+  si: string[][];
+  sx: number;
+  sr: string | null;
+  listening: boolean;
+  recResult: string | null;
+  recMsg: string | null;
+  langIdx: number;
+  currentLang: string;
+  waveform: number[];
+  pronScore: PronScore | null;
+  currentWordScore: { score: number } | null;
+  recordingURL: string | null;
+  onStartMic: () => void;
+  onStopMic: () => void;
+  onSelfAssess: () => void;
+  onAdvanceWord: () => void;
+  onClearRecording: () => void;
+  onScore: (r: { spoken: string; score: number }) => void;
 }
 
 export default function SpeakingPracticePanel({
@@ -57,7 +85,7 @@ export default function SpeakingPracticePanel({
   onAdvanceWord,
   onClearRecording,
   onScore,
-}) {
+}: SpeakingPracticePanelProps) {
   return (
     <div className="c" style={{ textAlign: 'center', marginTop: 16 }}>
       {/* Tutor portrait — Maja guides the session */}
@@ -175,9 +203,9 @@ export default function SpeakingPracticePanel({
           flexWrap: 'wrap',
         }}
       >
-        <Spk text={sw[0]} label="Normal" />
+        <Spk text={sw[0] ?? ''} label="Normal" />
         <button
-          onClick={() => speakSlow(sw[0])}
+          onClick={() => speakSlow(sw[0] ?? '')}
           style={{
             background: 'var(--success-bg)',
             border: '1px solid var(--success-b)',
@@ -197,7 +225,11 @@ export default function SpeakingPracticePanel({
           On Android WebView, it uses the Azure/MediaRecorder path automatically.
           Only falls back to self-assessment tip when BOTH paths are absent. */}
       {scorerCanRun ? (
-        <PronunciationScorer targetText={sw[0]} targetEnglish={sw[1]} onScore={onScore} />
+        <PronunciationScorer
+          targetText={sw[0] ?? ''}
+          targetEnglish={sw[1] ?? ''}
+          onScore={onScore}
+        />
       ) : (
         <div
           style={{
@@ -379,9 +411,9 @@ export default function SpeakingPracticePanel({
                   </div>
                 </div>
               </div>
-              {pronScore.phonetic_tips?.length > 0 && (
+              {(pronScore.phonetic_tips?.length ?? 0) > 0 && (
                 <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
-                  💡 {pronScore.phonetic_tips[0]}
+                  💡 {pronScore.phonetic_tips![0]}
                 </div>
               )}
               {pronScore.encouragement && (

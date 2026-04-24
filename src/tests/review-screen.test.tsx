@@ -275,7 +275,7 @@ describe('ReviewScreen — correct answer', () => {
   it('correct answer: srMark(word, true) called', () => {
     renderScreen();
     clickCorrectOption();
-    expect(mockSrMark).toHaveBeenCalledWith('pisati', true);
+    expect(mockSrMark).toHaveBeenCalledWith('pisati', true, undefined);
   });
 
   it('correct answer does NOT show "✓ The answer was" box', () => {
@@ -310,7 +310,7 @@ describe('ReviewScreen — wrong answer', () => {
   it('wrong answer: srMark(word, false) called', () => {
     renderScreen();
     clickWrongOption();
-    expect(mockSrMark).toHaveBeenCalledWith('pisati', false);
+    expect(mockSrMark).toHaveBeenCalledWith('pisati', false, undefined);
   });
 
   it('wrong answer: logError called', () => {

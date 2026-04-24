@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -187,11 +186,13 @@ const PROMPTS = {
 // ─────────────────────────────────────────────
 const SR_SUPPORTED = isSpeechRecognitionSupported();
 
-function pickPrompt() {
+function pickPrompt(): SprintPrompt {
   const level = localStorage.getItem('nh_level') || 'B1';
-  const levelKey = ['A1', 'A2', 'B1', 'B2'].includes(level) ? level : 'B1';
-  const pool = PROMPTS[levelKey] || PROMPTS.B1;
-  return pool[Math.floor(Math.random() * pool.length)];
+  const levelKey = (
+    ['A1', 'A2', 'B1', 'B2'].includes(level) ? level : 'B1'
+  ) as keyof typeof PROMPTS;
+  const pool = PROMPTS[levelKey] ?? PROMPTS.B1;
+  return pool[Math.floor(Math.random() * pool.length)]!;
 }
 
 function getUserLevel() {
@@ -202,13 +203,24 @@ function getUserLevel() {
 // ─────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
-export default function SpeakingSprintScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number) => void;
+}
+
+interface SprintPrompt {
+  hr: string;
+  en: string;
+  model_response: string;
+}
+
+export default function SpeakingSprintScreen({ goBack, award }: Props) {
   const { isOnline } = useOnlineStatus();
   const [phase, setPhase] = useState('setup');
-  const [currentPrompt, setCurrentPrompt] = useState(null);
+  const [currentPrompt, setCurrentPrompt] = useState<SprintPrompt | null>(null);
   const [userTranscript, setUserTranscript] = useState('');
   const [textInput, setTextInput] = useState('');
-  const [audioUrl, setAudioUrl] = useState(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [rounds, setRounds] = useState(0);
   const [countdown, setCountdown] = useState(3);
   const [isRecording, setIsRecording] = useState(false);
@@ -217,12 +229,13 @@ export default function SpeakingSprintScreen({ goBack, award }) {
   const [micDenied, setMicDenied] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
 
-  const recRef = useRef(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recRef = useRef<any>(null);
   const finishFired = useRef(false);
-  const silenceTimerRef = useRef(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transcriptRef = useRef('');
-  const audioRef = useRef(null);
-  const audioUrlRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
   const phaseRef = useRef('setup');
 
   // Keep phaseRef in sync
@@ -241,7 +254,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
     }
     return () => {
       stopMic();
-      clearTimeout(silenceTimerRef.current);
+      if (silenceTimerRef.current !== null) clearTimeout(silenceTimerRef.current);
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -269,10 +282,11 @@ export default function SpeakingSprintScreen({ goBack, award }) {
     }
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, countdown]);
 
   function stopMic() {
-    clearTimeout(silenceTimerRef.current);
+    if (silenceTimerRef.current !== null) clearTimeout(silenceTimerRef.current);
     setIsRecording(false);
     if (recRef.current) {
       try {
@@ -299,7 +313,7 @@ export default function SpeakingSprintScreen({ goBack, award }) {
     recRef.current = rec;
 
     const resetSilence = () => {
-      clearTimeout(silenceTimerRef.current);
+      if (silenceTimerRef.current !== null) clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = setTimeout(() => {
         const captured = transcriptRef.current.trim();
         if (captured.length > 1 && phaseRef.current === 'speaking') {
@@ -309,7 +323,8 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       }, 3000);
     };
 
-    rec.onresult = (e) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onresult = (e: any) => {
       let full = '';
       for (let i = 0; i < e.results.length; i++) {
         full += e.results[i][0].transcript;
@@ -319,7 +334,8 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       resetSilence();
     };
 
-    rec.onerror = (e) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onerror = (e: any) => {
       if (e.error === 'not-allowed' || e.error === 'permission-denied') {
         setMicDenied(true);
       }
@@ -342,14 +358,14 @@ export default function SpeakingSprintScreen({ goBack, award }) {
     }
   }
 
-  function handleUserDone(transcript) {
+  function handleUserDone(transcript: string) {
     const finalText = transcript || textInput || '';
     setUserTranscript(finalText);
     setPhase('model');
-    loadTTS(currentPrompt.model_response);
+    if (currentPrompt) loadTTS(currentPrompt.model_response);
   }
 
-  async function loadTTS(text) {
+  async function loadTTS(text: string) {
     setTtsLoading(true);
     setTtsError('');
     setAudioUrl(null);
@@ -366,9 +382,9 @@ export default function SpeakingSprintScreen({ goBack, award }) {
       if (!res.ok) throw new Error(`TTS ${res.status}`);
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-      const url = await new Promise((resolve) => {
+      const url = await new Promise<string>((resolve) => {
         const r = new FileReader();
-        r.onload = () => resolve(r.result);
+        r.onload = () => resolve(r.result as string);
         r.readAsDataURL(blob);
       });
       audioUrlRef.current = url;

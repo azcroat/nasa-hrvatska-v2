@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { speak } from '../../data';
 import VideoBackground from '../shared/VideoBackground';
@@ -64,17 +63,55 @@ const TOPICS = [
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
-export default function VideoLessonScreen({ goBack, award }) {
+interface Topic {
+  key: string;
+  emoji: string;
+  hr: string;
+  en: string;
+  scene: string;
+}
+
+interface ContentQuestion {
+  q: string;
+  options: string[];
+  correct: number;
+}
+
+interface VideoContent {
+  title?: string;
+  en_summary?: string;
+  speakers?: { name: string; lines: string[] }[];
+  narrator?: string;
+  vocab?: { hr: string; en: string }[];
+  questions?: ContentQuestion[];
+}
+
+interface DialogueLine {
+  speaker: string;
+  text: string;
+}
+
+interface AnswerRecord {
+  optIdx: number;
+  correct: boolean;
+}
+
+interface VideoLessonProps {
+  goBack: () => void;
+  award: (n: number) => void;
+}
+
+export default function VideoLessonScreen({ goBack, award }: VideoLessonProps) {
   const [phase, setPhase] = useState('setup'); // setup|loading|playing|quiz|result
-  const [topic, setTopic] = useState(null);
+  const [topic, setTopic] = useState<Topic | null>(null);
   const [level, setLevel] = useState(() => localStorage.getItem('nh_level') || 'B1');
-  const [content, setContent] = useState(null);
-  const [sceneVideoUrl, setSceneVideoUrl] = useState(null);
-  const [lines, setLines] = useState([]); // flat array of {speaker, text}
+  const [content, setContent] = useState<VideoContent | null>(null);
+  const [sceneVideoUrl, setSceneVideoUrl] = useState<string | null>(null);
+  const [lines, setLines] = useState<DialogueLine[]>([]); // flat array of {speaker, text}
   const [currentLine, setCurrentLine] = useState(-1);
   const [showTranscript, setShowTranscript] = useState(false);
   const [qIndex, setQIndex] = useState(0);
-  const [answers, setAnswers] = useState([]);
+  const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [score, setScore] = useState(0);
   const xpAwarded = useRef(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -82,12 +119,12 @@ export default function VideoLessonScreen({ goBack, award }) {
   const mountedRef = useRef(true);
   const playingRef = useRef(false);
   const lineIndexRef = useRef(0);
-  const lineTransRef = useRef(null);
+  const lineTransRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(
     () => () => {
       mountedRef.current = false;
-      clearTimeout(lineTransRef.current);
+      if (lineTransRef.current !== null) clearTimeout(lineTransRef.current);
     },
     [],
   );
@@ -98,7 +135,7 @@ export default function VideoLessonScreen({ goBack, award }) {
   useEffect(() => {
     setSceneVideoUrl(null);
     if (!topic) return;
-    const sceneKey = TOPIC_SCENE[topic.key] || 'zagreb';
+    const sceneKey = (TOPIC_SCENE as Record<string, string>)[topic.key] ?? 'zagreb';
     const storageKey = `nh_scene_video_${sceneKey}`;
     const cached = sessionStorage.getItem(storageKey);
     if (cached) {
@@ -140,7 +177,9 @@ export default function VideoLessonScreen({ goBack, award }) {
       const flat = [];
       if (data.speakers) {
         // Interleave lines from both speakers in order
-        const maxLines = Math.max(...data.speakers.map((s) => s.lines?.length ?? 0));
+        const maxLines = Math.max(
+          ...data.speakers.map((s: { name: string; lines: string[] }) => s.lines?.length ?? 0),
+        );
         for (let i = 0; i < maxLines; i++) {
           for (const spk of data.speakers) {
             if (Array.isArray(spk.lines) && i < spk.lines.length)
@@ -151,8 +190,8 @@ export default function VideoLessonScreen({ goBack, award }) {
         // Split narrator into sentences for line-by-line display
         data.narrator
           .split(/[.!?]+/)
-          .filter((s) => s.trim())
-          .forEach((s) => {
+          .filter((s: string) => s.trim())
+          .forEach((s: string) => {
             flat.push({ speaker: 'Narrator', text: s.trim() + '.' });
           });
       }
@@ -162,7 +201,8 @@ export default function VideoLessonScreen({ goBack, award }) {
       setShowTranscript(false);
     } catch (e) {
       if (!mountedRef.current) return;
-      const isNetwork = !navigator.onLine || e.message === 'Failed to fetch';
+      const isNetwork =
+        !navigator.onLine || (e instanceof Error && e.message === 'Failed to fetch');
       setErrorMsg(
         isNetwork
           ? "Couldn't reach the server. Check your connection and try again."
@@ -184,10 +224,10 @@ export default function VideoLessonScreen({ goBack, award }) {
       lineIndexRef.current = i;
       // Scroll active line into view (handled by CSS auto-scroll)
       try {
-        await speak(lines[i].text);
+        await speak(lines[i]!.text);
       } catch {}
       // Brief pause between lines
-      await new Promise((r) => {
+      await new Promise<void>((r) => {
         lineTransRef.current = setTimeout(r, 400);
       });
     }
@@ -204,12 +244,12 @@ export default function VideoLessonScreen({ goBack, award }) {
 
   function skipToQuiz() {
     playingRef.current = false;
-    clearTimeout(lineTransRef.current);
+    if (lineTransRef.current !== null) clearTimeout(lineTransRef.current);
     setCurrentLine(-1);
     setPhase('quiz');
   }
 
-  function answerQuestion(optIdx) {
+  function answerQuestion(optIdx: number) {
     if (!content) return;
     const q = content.questions?.[qIndex];
     if (!q) return;
@@ -217,7 +257,8 @@ export default function VideoLessonScreen({ goBack, award }) {
     const newAnswers = [...answers, { optIdx, correct }];
     setAnswers(newAnswers);
 
-    if (qIndex + 1 < content.questions.length) {
+    const qCount = content.questions?.length ?? 0;
+    if (qIndex + 1 < qCount) {
       setQIndex(qIndex + 1);
     } else {
       const finalScore = newAnswers.filter((a) => a.correct).length;
@@ -225,7 +266,7 @@ export default function VideoLessonScreen({ goBack, award }) {
       setPhase('result');
       if (!xpAwarded.current && award) {
         xpAwarded.current = true;
-        const xp = finalScore >= content.questions.length ? 30 : finalScore > 0 ? 15 : 5;
+        const xp = finalScore >= qCount ? 30 : finalScore > 0 ? 15 : 5;
         award(xp);
         markQuest('speak');
       }
@@ -451,7 +492,7 @@ export default function VideoLessonScreen({ goBack, award }) {
       <div style={{ maxWidth: 480, margin: '0 auto' }}>
         {/* Scene video header */}
         <VideoBackground
-          videoSrc={sceneVideoUrl}
+          videoSrc={sceneVideoUrl ?? undefined}
           imageSrc={topicMeta?.scene || '/images/scenes/zagreb.webp'}
           overlay="linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.2) 60%,rgba(0,0,0,.7) 100%)"
           style={{ minHeight: 180, borderRadius: '0 0 18px 18px', marginBottom: 0 }}
@@ -664,6 +705,7 @@ export default function VideoLessonScreen({ goBack, award }) {
   if (phase === 'quiz' && content?.questions) {
     const q = content.questions[qIndex];
     const answered = answers[qIndex];
+    if (!q) return null;
     return (
       <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
         <div
@@ -697,7 +739,7 @@ export default function VideoLessonScreen({ goBack, award }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {q.options.map((opt, i) => {
+          {q.options.map((opt: string, i: number) => {
             const isSelected = answered?.optIdx === i;
             const isCorrect = i === q.correct;
             let bg = 'var(--card-bg,#f8fafc)';

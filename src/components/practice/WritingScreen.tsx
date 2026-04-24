@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { H } from '../../data';
 import { AIProgressBar } from '../shared/SkeletonLoader';
@@ -133,7 +132,19 @@ const PROMPTS = [
   },
 ];
 
-function HighlightedText({ original, changes }) {
+interface ChangeItem {
+  original: string;
+  corrected?: string;
+  type?: string;
+  note?: string;
+}
+
+interface HighlightedTextProps {
+  original: string;
+  changes: ChangeItem[];
+}
+
+function HighlightedText({ original, changes }: HighlightedTextProps) {
   if (!changes || changes.length === 0) {
     return <span>{original}</span>;
   }
@@ -180,21 +191,35 @@ function HighlightedText({ original, changes }) {
   );
 }
 
-export default function WritingScreen({ goBack, award }) {
+interface WritingResult {
+  score?: number;
+  level_demonstrated?: string;
+  corrected_text?: string;
+  strengths?: string[];
+  changes?: ChangeItem[];
+  encouragement?: string;
+}
+
+interface WritingScreenProps {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+export default function WritingScreen({ goBack, award }: WritingScreenProps) {
   const finishFired = useRef(false);
-  const audioRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const isOnline = useOnlineStatus();
   const { level: userLevel } = useStats();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
   const [text, setText] = useState('');
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<WritingResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [mode, setMode] = useState('guided'); // "guided" | "free"
   const [customTopic, setCustomTopic] = useState('');
   const [ttsLoading, setTtsLoading] = useState(false);
 
-  const prompt = PROMPTS[promptIdx];
+  const prompt = PROMPTS[promptIdx] ?? PROMPTS[0]!;
   const effectivePrompt =
     mode === 'free'
       ? {
@@ -234,8 +259,8 @@ export default function WritingScreen({ goBack, award }) {
       const data = await res.json();
       setResult(data);
       // Log mistakes and add single-word corrections to SRS queue
-      const corrections = data.changes || data.mistakes || [];
-      corrections.forEach((ch) => {
+      const corrections: ChangeItem[] = data.changes || data.mistakes || [];
+      corrections.forEach((ch: ChangeItem) => {
         const orig = ch.original || '';
         const corr = (ch.corrected || '').trim();
         logError(
@@ -280,7 +305,7 @@ export default function WritingScreen({ goBack, award }) {
     };
   }, []);
 
-  async function playTTS(ttsText) {
+  async function playTTS(ttsText: string) {
     setTtsLoading(true);
     try {
       const res = await apiFetch('/api/tts', {
@@ -295,9 +320,9 @@ export default function WritingScreen({ goBack, award }) {
       if (!res.ok) return;
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-      const url = await new Promise((resolve) => {
+      const url = await new Promise<string>((resolve) => {
         const r = new FileReader();
-        r.onload = () => resolve(r.result);
+        r.onload = () => resolve(r.result as string);
         r.readAsDataURL(blob);
       });
       if (audioRef.current) audioRef.current.pause();
@@ -596,7 +621,7 @@ export default function WritingScreen({ goBack, award }) {
           {/* Score header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             <div style={{ fontSize: 40 }}>
-              {result.score >= 80 ? '🌟' : result.score >= 60 ? '🎉' : '💪'}
+              {(result.score ?? 0) >= 80 ? '🌟' : (result.score ?? 0) >= 60 ? '🎉' : '💪'}
             </div>
             <div>
               <p style={{ fontWeight: 800, fontSize: 18, color: 'var(--heading)', margin: 0 }}>
@@ -642,7 +667,7 @@ export default function WritingScreen({ goBack, award }) {
                   gap: 6,
                   marginTop: 8,
                 }}
-                onClick={() => playTTS(result.corrected_text)}
+                onClick={() => playTTS(result.corrected_text ?? '')}
                 disabled={ttsLoading}
               >
                 <span aria-hidden="true">{ttsLoading ? '⟳' : '🔊'}</span>{' '}
@@ -769,8 +794,10 @@ export default function WritingScreen({ goBack, award }) {
               if (finishFired.current) return;
               finishFired.current = true;
               markQuest('write');
-              if (typeof award === 'function')
-                award(result.score > 0 ? Math.round(result.score / 10) + 5 : 5);
+              if (typeof award === 'function') {
+                const sc = result.score ?? 0;
+                award(sc > 0 ? Math.round(sc / 10) + 5 : 5);
+              }
               setText('');
               setResult(null);
             }}

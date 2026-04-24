@@ -1,10 +1,29 @@
-// @ts-nocheck
 import React from 'react';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
 
 // Evaluate once at module load — avoids re-checking on every render.
 // Android WebView returns false here; Chrome desktop and Safari return true.
 const SR_SUPPORTED = isSpeechRecognitionSupported();
+
+interface SprintPrompt {
+  hr: string;
+  en: string;
+  model_response: string;
+}
+
+interface Props {
+  rounds: number;
+  level: string;
+  currentPrompt: SprintPrompt;
+  micDenied: boolean;
+  isRecording: boolean;
+  liveTranscript: string;
+  textInput: string;
+  onTextInputChange: (v: string) => void;
+  onStartListening: () => void;
+  onDoneSpeaking: () => void;
+  onSkip: () => void;
+}
 
 export default function SprintSpeakingPhase({
   rounds,
@@ -18,7 +37,7 @@ export default function SprintSpeakingPhase({
   onStartListening,
   onDoneSpeaking,
   onSkip,
-}) {
+}: Props) {
   return (
     <div className="scr-wrap" style={{ padding: '0 16px 32px', maxWidth: 600, margin: '0 auto' }}>
       {/* Round indicator */}

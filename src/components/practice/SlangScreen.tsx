@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * SlangScreen — Croatian Slang, Psovanje & Street Language
  * Orchestrator: state management + layout composition only.
@@ -13,7 +12,13 @@ import SlangAgeGate from './SlangAgeGate';
 import SlangEntryCard from './SlangEntryCard';
 import SlangQuizPanel from './SlangQuizPanel';
 
-export default function SlangScreen({ goBack, award }) {
+export default function SlangScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [gated, setGated] = useState(() => localStorage.getItem('slangAgeConfirmed') !== 'true');
   const [activeSection, setActiveSection] = useState(() => {
     const init = localStorage.getItem('slangInitSection');
@@ -23,7 +28,7 @@ export default function SlangScreen({ goBack, award }) {
     }
     return 'classics';
   });
-  const [expanded, setExpanded] = useState(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const xpAwarded = useRef(false);
   const [searchQ, setSearchQ] = useState('');
   const [searching, setSearching] = useState(false);
@@ -39,9 +44,11 @@ export default function SlangScreen({ goBack, award }) {
 
   // ── Quiz state ─────────────────────────────────────────────────────────────
   const [quizMode, setQuizMode] = useState(false);
-  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [quizQuestions, setQuizQuestions] = useState<
+    { hr: string; correct: string; opts: string[] }[]
+  >([]);
   const [quizIdx, setQuizIdx] = useState(0);
-  const [quizSelected, setQuizSelected] = useState(null);
+  const [quizSelected, setQuizSelected] = useState<string | null>(null);
   const [quizScore, setQuizScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
   const quizXpGiven = useRef(false);
@@ -55,7 +62,7 @@ export default function SlangScreen({ goBack, award }) {
     }
   }
 
-  function switchSection(id) {
+  function switchSection(id: string) {
     setActiveSection(id);
     setExpanded(null);
     setQuizMode(false);
@@ -67,7 +74,7 @@ export default function SlangScreen({ goBack, award }) {
     }
   }
 
-  function startQuiz(sec) {
+  function startQuiz(sec: { entries: { hr: string; en: string; ph: string }[] }) {
     const allEntries = SECTIONS.flatMap((s) => s.entries);
     const pool = sh(sec.entries.filter((e) => e.en && e.en.length < 60 && e.ph !== '—')).slice(
       0,
@@ -91,10 +98,10 @@ export default function SlangScreen({ goBack, award }) {
     setQuizMode(true);
   }
 
-  function handleQuizAnswer(opt) {
+  function handleQuizAnswer(opt: string) {
     if (quizSelected !== null) return;
     setQuizSelected(opt);
-    const correct = opt === quizQuestions[quizIdx].correct;
+    const correct = opt === quizQuestions[quizIdx]!.correct;
     if (correct) setQuizScore((s) => s + 1);
     setTimeout(() => {
       if (quizIdx + 1 >= quizQuestions.length) {
@@ -146,7 +153,7 @@ export default function SlangScreen({ goBack, award }) {
         )
       : [];
 
-  const section = SECTIONS.find((s) => s.id === activeSection) || SECTIONS[0];
+  const section = (SECTIONS.find((s) => s.id === activeSection) || SECTIONS[0])!;
 
   return (
     <div className="scr-wrap" style={{ paddingBottom: 100 }}>
@@ -378,7 +385,7 @@ export default function SlangScreen({ goBack, award }) {
                 color={section.color}
                 light={section.light}
                 border={section.border}
-                keyId={i}
+                keyId={String(i)}
                 expanded={expanded}
                 setExpanded={setExpanded}
               />

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, Bar, Spk, speakSlow, SHADOWING } from '../../data';
 import PronunciationScorer from '../shared/PronunciationScorer';
@@ -7,7 +6,7 @@ import { markQuest } from '../../lib/quests.js';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-function textToWaveform(text) {
+function textToWaveform(text: string): number[] {
   return text.split(/\s+/).flatMap((word) => {
     const len = word.replace(/[^a-zA-ZčćšžđČĆŠŽĐ]/g, '').length;
     const barCount = Math.max(2, Math.floor(len * 0.8));
@@ -18,12 +17,20 @@ function textToWaveform(text) {
   });
 }
 
-function userWaveform(nativeBars) {
+function userWaveform(nativeBars: number[]): number[] {
   // Simulate a slightly varied recording waveform
   return nativeBars.map((h) => (h <= 5 ? 5 : Math.round(h * (0.75 + Math.random() * 0.45))));
 }
 
-function WaveformSVG({ bars, color, label, width = 260, height = 70 }) {
+interface WaveformSVGProps {
+  bars: number[];
+  color: string;
+  label: string;
+  width?: number;
+  height?: number;
+}
+
+function WaveformSVG({ bars, color, label, width = 260, height = 70 }: WaveformSVGProps) {
   const barW = 3;
   const gap = 2;
   const step = barW + gap;
@@ -60,15 +67,15 @@ function WaveformSVG({ bars, color, label, width = 260, height = 70 }) {
 const MIC_DURATION = 8000; // ms — 8s gives learners enough time to shadow longer phrases
 
 function useRecorder() {
-  const [micAvailable, setMicAvailable] = useState(null); // null=unchecked, true, false
+  const [micAvailable, setMicAvailable] = useState<boolean | null>(null); // null=unchecked, true, false
   const [recordingState, setRecordingState] = useState('idle'); // idle | countdown | recording | done
   const [countdown, setCountdown] = useState(0);
-  const [audioBlob, setAudioBlob] = useState(null);
-  const recorderRef = useRef(null);
-  const chunksRef = useRef([]);
-  const audioUrlRef = useRef(null);
-  const countdownTimerRef = useRef(null);
-  const streamRef = useRef(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const audioUrlRef = useRef<string | null>(null);
+  const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -130,7 +137,7 @@ function useRecorder() {
         if (secs > 0) {
           setCountdown(secs);
         } else {
-          clearInterval(countdownTimerRef.current);
+          clearInterval(countdownTimerRef.current ?? undefined);
           countdownTimerRef.current = null;
           beginCapture(stream);
         }
@@ -140,7 +147,7 @@ function useRecorder() {
     }
   }, []);
 
-  function beginCapture(stream) {
+  function beginCapture(stream: MediaStream) {
     chunksRef.current = [];
     const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
       ? 'audio/webm;codecs=opus'
@@ -163,7 +170,7 @@ function useRecorder() {
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
       const reader = new FileReader();
       reader.onload = () => {
-        audioUrlRef.current = reader.result;
+        audioUrlRef.current = reader.result as string;
         setRecordingState('done');
       };
       reader.readAsDataURL(blob);
@@ -188,11 +195,18 @@ function useRecorder() {
 
 // ── waveform comparison panel ─────────────────────────────────────────────────
 
-function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }) {
+interface WaveformPanelProps {
+  text: string;
+  audioBlob: Blob | null;
+  onTryAgain: () => void;
+  onNailedIt: () => void;
+}
+
+function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }: WaveformPanelProps) {
   const nativeBars = textToWaveform(text);
   // Stable user bars: recompute only when blob changes
-  const userBarsRef = useRef(null);
-  const prevBlobRef = useRef(null);
+  const userBarsRef = useRef<number[] | null>(null);
+  const prevBlobRef = useRef<Blob | null>(null);
   if (audioBlob !== prevBlobRef.current) {
     prevBlobRef.current = audioBlob;
     userBarsRef.current = audioBlob ? userWaveform(nativeBars) : null;
@@ -317,16 +331,24 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }) {
 
 // ── recording UI ──────────────────────────────────────────────────────────────
 
+interface RecordingPanelProps {
+  micAvailable: boolean | null;
+  recordingState: string;
+  countdown: number;
+  audioBlob: Blob | null;
+  onStart: () => void;
+  onPlayBack: () => void;
+  onReset: () => void;
+  onNailedIt: () => void;
+}
+
 function RecordingPanel({
   micAvailable,
   recordingState,
   countdown,
-  audioBlob,
   onStart,
   onPlayBack,
-  onReset,
-  onNailedIt,
-}) {
+}: RecordingPanelProps) {
   if (micAvailable === false) {
     return (
       <div
@@ -440,7 +462,13 @@ function RecordingPanel({
 
 // ── main component ────────────────────────────────────────────────────────────
 
-export default function ShadowingScreen({ goBack, award }) {
+export default function ShadowingScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [said, setSaid] = useState(false);
@@ -554,7 +582,7 @@ export default function ShadowingScreen({ goBack, award }) {
     );
   }
 
-  const item = items[idx];
+  const item = items[idx]!;
 
   function handleNailedIt() {
     setSaid(true);

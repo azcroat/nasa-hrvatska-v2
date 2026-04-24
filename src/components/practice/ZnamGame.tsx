@@ -1,18 +1,23 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { H, Bar, sh, ZNAM, srMark } from '../../data';
 
-export default function ZnamGame({ goBack, award }) {
+export default function ZnamGame({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const [znMode, sZnMode] = useState('menu');
   const [znSec, sZnSec] = useState(0);
   const [znIdx, sZnIdx] = useState(0);
   const [znSc, sZnSc] = useState(0);
   const [znAns, sZnAns] = useState(false);
   const [znSel, sZnSel] = useState(-1);
-  const [znOpts, sZnOpts] = useState([]);
+  const [znOpts, sZnOpts] = useState<string[]>([]);
 
-  function startSection(si) {
-    const s0 = ZNAM.sections[si].sentences[0];
+  function startSection(si: number) {
+    const s0 = ZNAM.sections[si]!.sentences[0]!;
     sZnSec(si);
     sZnIdx(0);
     sZnSc(0);
@@ -68,8 +73,8 @@ export default function ZnamGame({ goBack, award }) {
 
       {znMode === 'quiz' &&
         (() => {
-          const sec = ZNAM.sections[znSec];
-          const sent = sec.sentences[znIdx];
+          const sec = ZNAM.sections[znSec]!;
+          const sent = sec.sentences[znIdx]!;
           const correct = sent.hr;
           return (
             <React.Fragment>
@@ -98,7 +103,7 @@ export default function ZnamGame({ goBack, award }) {
                       sZnSel(oi);
                       sZnAns(true);
                       const isCorrect = o === correct;
-                      srMark(correct, isCorrect);
+                      srMark(correct, isCorrect, 0);
                       if (isCorrect) {
                         sZnSc((s) => s + 1);
                         if (typeof award === 'function') award(5);
@@ -115,7 +120,7 @@ export default function ZnamGame({ goBack, award }) {
                   style={{ width: '100%', marginTop: 16 }}
                   onClick={() => {
                     if (znIdx < sec.sentences.length - 1) {
-                      const nxt = sec.sentences[znIdx + 1];
+                      const nxt = sec.sentences[znIdx + 1]!;
                       sZnIdx((i) => i + 1);
                       sZnAns(false);
                       sZnSel(-1);
@@ -134,7 +139,7 @@ export default function ZnamGame({ goBack, award }) {
 
       {znMode === 'done' &&
         (() => {
-          const sec = ZNAM.sections[znSec];
+          const sec = ZNAM.sections[znSec]!;
           const pct = Math.round((znSc / sec.sentences.length) * 100);
           return (
             <div style={{ textAlign: 'center' }}>

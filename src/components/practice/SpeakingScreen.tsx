@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar } from '../../data';
@@ -30,8 +29,24 @@ const SPEAKING_TIPS = [
 // Language codes to try in order — hr-HR is most accurate but least supported
 const LANG_FALLBACKS = ['hr-HR', 'hr', 'en-US'];
 
+// Browser speech recognition globals
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    webkitSpeechRecognition: any;
+    webkitAudioContext: typeof AudioContext;
+  }
+}
+
+interface PronScore {
+  score: number;
+  match_quality: string;
+  phonetic_tips: string[];
+  encouragement: string;
+}
+
 // Map SpeechRecognition error codes to user-friendly messages
-function srError(code) {
+function srError(code: string) {
   switch (code) {
     case 'not-allowed':
     case 'permission-denied':
@@ -53,6 +68,24 @@ function srError(code) {
   }
 }
 
+interface SpeakingScreenProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sw: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  si: any[];
+  sx: number;
+  sr: string | null;
+  ssc: number;
+  sSr: (v: string | null) => void;
+  sSx: (v: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sSw: (v: any) => void;
+  sSsc: (fn: (s: number) => number) => void;
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setSt: (fn: (s: any) => any) => void;
+}
 export default function SpeakingScreen({
   sw,
   si,
@@ -66,40 +99,46 @@ export default function SpeakingScreen({
   goBack,
   award,
   setSt,
-}) {
+}: SpeakingScreenProps) {
   const { writeDelta } = useStats();
   const { needsRationale, dismissRationale } = useAndroidMicPermission();
   const [listening, setListening] = useState(false);
-  const [recResult, setRecResult] = useState(null);
+  const [recResult, setRecResult] = useState<string | null>(null);
   const [recMsg, setRecMsg] = useState('');
   const [langIdx, setLangIdx] = useState(0);
-  const recRef = useRef(null);
-  const timeoutRef = useRef(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recRef = useRef<any>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const finishFired = useRef(false);
 
   // Voice recording state
-  const mediaRecRef = useRef(null);
-  const chunksRef = useRef([]);
-  const recordStreamRef = useRef(null); // keep track of stream to stop on unmount
-  const recordingURLRef = useRef(null); // keep URL for revoke on unmount
-  const [recordingURL, setRecordingURL] = useState(null);
+  const mediaRecRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const recordStreamRef = useRef<MediaStream | null>(null); // keep track of stream to stop on unmount
+  const recordingURLRef = useRef<string | null>(null); // keep URL for revoke on unmount
+  const [recordingURL, setRecordingURL] = useState<string | null>(null);
   const [_isRecording, setIsRecording] = useState(false);
 
   // Waveform visualization state
-  const [waveform, setWaveform] = useState(new Array(30).fill(0));
-  const analyserRef = useRef(null);
-  const animFrameRef = useRef(null);
-  const streamRef = useRef(null);
-  const audioCtxRef = useRef(null);
+  const [waveform, setWaveform] = useState<number[]>(new Array(30).fill(0));
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   // AI pronunciation feedback state
-  const [pronScore, setPronScore] = useState(null);
+  const [pronScore, setPronScore] = useState<PronScore | null>(null);
 
   // Per-word accuracy score from PronunciationScorer
-  const [currentWordScore, setCurrentWordScore] = useState(null);
+  const [currentWordScore, setCurrentWordScore] = useState<{
+    spoken: string;
+    score: number;
+  } | null>(null);
 
   // Session scores: array of { word: string, score: number }
-  const [wordScores, setWordScores] = useState([]);
+  const [wordScores, setWordScores] = useState<{ word: string; meaning: string; score: number }[]>(
+    [],
+  );
 
   // Results summary screen (shown before goBack after all words done)
   const [showSummary, setShowSummary] = useState(false);
@@ -107,14 +146,14 @@ export default function SpeakingScreen({
   // Knight coaching — entry tip on mount
   useEffect(() => {
     const tip = SPEAKING_TIPS[Math.floor(Math.random() * SPEAKING_TIPS.length)];
-    knightSpeak(tip.mood, tip.text, 1000);
+    if (tip) knightSpeak(tip.mood, tip.text, 1000);
   }, []);
 
   // Cleanup on unmount — must be before early return to satisfy Rules of Hooks
 
   useEffect(() => {
     return () => {
-      clearTimeout(timeoutRef.current);
+      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
       if (recRef.current) {
         try {
           recRef.current.onresult = null;
@@ -167,7 +206,7 @@ export default function SpeakingScreen({
   // Called by PronunciationScorer when it gets a result.
   // If score >= 60, auto-mark the word as done so "Next →" appears immediately —
   // previously users had to also tap "I Said It Correctly!" as a second step.
-  function handleScorerResult({ spoken, score }) {
+  function handleScorerResult({ spoken, score }: { spoken: string; score: number }) {
     setCurrentWordScore({ spoken, score });
     setWordScores((prev) => {
       const existing = prev.find((ws) => ws.word === sw[0]);
@@ -176,12 +215,12 @@ export default function SpeakingScreen({
           ws.word === sw[0] ? { ...ws, score: Math.max(ws.score, score) } : ws,
         );
       }
-      return [...prev, { word: sw[0], meaning: sw[1], score }];
+      return [...prev, { word: sw[0] as string, meaning: sw[1] as string, score }];
     });
     // Auto-advance sr state when pronunciation is good enough (≥60 = close enough)
     if (score >= 60 && sr !== 'ok') {
       sSr('ok');
-      sSsc((s) => s + 1);
+      sSsc((s: number) => s + 1);
     }
   }
 
@@ -211,7 +250,7 @@ export default function SpeakingScreen({
         analyser.getByteFrequencyData(dataArray);
         const bars = Array.from({ length: 30 }, (_, i) => {
           const idx = Math.floor((i * dataArray.length) / 30);
-          return Math.round((dataArray[idx] / 255) * 100);
+          return Math.round(((dataArray[idx] ?? 0) / 255) * 100);
         });
         setWaveform(bars);
         animFrameRef.current = requestAnimationFrame(draw);
@@ -232,7 +271,7 @@ export default function SpeakingScreen({
     setWaveform(new Array(30).fill(0));
   }
 
-  async function analyzePronunciation(transcript, targetWord) {
+  async function analyzePronunciation(transcript: string, targetWord: string) {
     // Fallback score used whenever API is unavailable or returns garbage.
     // pronScore must ALWAYS be set to a non-null value — leaving it null
     // keeps the AIProgressBar visible forever.
@@ -272,7 +311,8 @@ export default function SpeakingScreen({
         setPronScore({
           score: 70,
           match_quality: 'close',
-          phonetic_tips: (data.drills || []).map((d) => d.tip).filter(Boolean),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          phonetic_tips: (data.drills || []).map((d: any) => d.tip).filter(Boolean),
           encouragement: data.feedback,
         });
       } else {
@@ -284,7 +324,7 @@ export default function SpeakingScreen({
     }
   }
 
-  function startRecognition(lIdx) {
+  function startRecognition(lIdx: number) {
     if (recRef.current) {
       try {
         recRef.current.abort();
@@ -320,41 +360,44 @@ export default function SpeakingScreen({
       setRecMsg('No speech detected within 12 seconds. Try again or use self-assessment.');
     }, 12000);
 
-    rec.onresult = (e) => {
-      clearTimeout(timeoutRef.current);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onresult = (e: any) => {
+      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
       stopRecording();
       stopWaveform();
       if (!e.results || !e.results.length) return;
-      const alts = Array.from(e.results[0]).map((r) => r.transcript.toLowerCase().trim());
-      const target = sw[0].toLowerCase().trim();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alts = Array.from(e.results[0]).map((r: any) => r.transcript.toLowerCase().trim());
+      const target = (sw[0] as string).toLowerCase().trim();
       // Generous matching: exact, contains, or at least 60% character overlap
-      const levenshteinClose = (a, b) => {
+      const levenshteinClose = (a: string, b: string) => {
         if (!a || !b) return false;
         const longer = a.length > b.length ? a : b;
         const shorter = a.length > b.length ? b : a;
         if (longer.length === 0) return true;
-        const shared = shorter.split('').filter((c) => longer.includes(c)).length;
+        const shared = shorter.split('').filter((c: string) => longer.includes(c)).length;
         return shared / longer.length >= 0.6;
       };
       const matched = alts.some(
-        (a) =>
+        (a: string) =>
           a === target || a.includes(target) || target.includes(a) || levenshteinClose(a, target),
       );
       setRecResult(matched ? 'match' : 'nomatch');
       setListening(false);
       if (matched) {
         sSr('ok');
-        sSsc((s) => s + 1);
+        sSsc((s: number) => s + 1);
       }
       // Analyze pronunciation with AI using the best transcript
-      analyzePronunciation(alts[0] || '', sw[0]);
+      analyzePronunciation(alts[0] ?? '', sw[0] as string);
     };
 
-    rec.onerror = (e) => {
-      clearTimeout(timeoutRef.current);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onerror = (e: any) => {
+      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
       stopRecording();
       stopWaveform();
-      const code = e.error || e.type || '';
+      const code = e.error || '';
       // If language not supported, try next fallback
       if (
         (code === 'language-not-supported' || code === 'service-not-allowed') &&
@@ -375,7 +418,7 @@ export default function SpeakingScreen({
     };
 
     rec.onend = () => {
-      clearTimeout(timeoutRef.current);
+      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
       stopRecording();
       stopWaveform();
       setListening(false);
@@ -383,8 +426,8 @@ export default function SpeakingScreen({
 
     try {
       rec.start();
-    } catch (e) {
-      clearTimeout(timeoutRef.current);
+    } catch (_e) {
+      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
       stopRecording();
       setListening(false);
       setRecResult('error');
@@ -443,8 +486,8 @@ export default function SpeakingScreen({
         // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
         const reader = new FileReader();
         reader.onload = () => {
-          recordingURLRef.current = reader.result;
-          setRecordingURL(reader.result);
+          recordingURLRef.current = reader.result as string;
+          setRecordingURL(reader.result as string);
         };
         reader.readAsDataURL(blob);
       };
@@ -459,7 +502,7 @@ export default function SpeakingScreen({
   }
 
   function stopMic() {
-    clearTimeout(timeoutRef.current);
+    if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
     if (recRef.current) {
       try {
         recRef.current.stop();
@@ -470,7 +513,7 @@ export default function SpeakingScreen({
     setListening(false);
   }
 
-  const currentLang = LANG_FALLBACKS[langIdx];
+  const currentLang = LANG_FALLBACKS[langIdx] ?? 'hr-HR';
 
   // ── Summary screen ────────────────────────────────────────────────────────
   if (showSummary) {
@@ -551,7 +594,7 @@ export default function SpeakingScreen({
         onStopMic={stopMic}
         onSelfAssess={() => {
           sSr('ok');
-          sSsc((s) => s + 1);
+          sSsc((s: number) => s + 1);
         }}
         onAdvanceWord={advanceWord}
         onClearRecording={() => {

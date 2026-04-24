@@ -1,14 +1,15 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
 import { rnd } from '../../lib/random.js';
-function shLocal(a) {
+function shLocal<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
-    [b[i], b[j]] = [b[j], b[i]];
+    const tmp = b[i] as T;
+    b[i] = b[j] as T;
+    b[j] = tmp;
   }
   return b;
 }
@@ -199,19 +200,25 @@ const DATA = [
   },
 ];
 
-export default function NumbersCasesDrill({ goBack, award }) {
+export default function NumbersCasesDrill({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const finishFired = useRef(false);
   const [q] = useState(() => shLocal(DATA));
   const total = q.length;
   const [idx, setIdx] = useState(0);
-  const [chosen, setChosen] = useState(null);
+  const [chosen, setChosen] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
 
-  const cur = q[idx];
+  const cur = q[idx]!;
   const answered = chosen !== null;
 
-  function pick(opt) {
+  function pick(opt: string) {
     if (answered) return;
     setChosen(opt);
     if (opt === cur.answer) setScore((s) => s + 1);

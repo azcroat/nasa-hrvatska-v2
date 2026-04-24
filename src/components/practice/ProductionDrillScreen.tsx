@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { speak, sh } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -458,8 +457,16 @@ const STYLES = `
 `;
 
 // ─── LEVEL BADGE ─────────────────────────────────────────────────────────────
-function LevelBadge({ level }) {
-  const colors = { A1: '#059669', A2: '#0e7490', B1: '#7c3aed', B2: '#d97706' };
+interface LevelBadgeProps {
+  level: string;
+}
+function LevelBadge({ level }: LevelBadgeProps) {
+  const colors: Record<string, string> = {
+    A1: '#059669',
+    A2: '#0e7490',
+    B1: '#7c3aed',
+    B2: '#d97706',
+  };
   return (
     <span
       style={{
@@ -478,15 +485,20 @@ function LevelBadge({ level }) {
 }
 
 // ─── MODE A: TRANSFORM ───────────────────────────────────────────────────────
-function ModeTransform({ onDone, award }) {
+interface ModeDoneProps {
+  onDone: () => void;
+  award?: (n: number) => void;
+}
+function ModeTransform({ onDone, award }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
   const total = TRANSFORMS.length;
   const item = TRANSFORMS[idx];
+  if (!item) return null;
 
-  function advance(correct) {
+  function advance(correct: boolean) {
     recordTopicResult('production', correct);
     recordTopicResult('grammar', correct);
     if (correct) {
@@ -612,15 +624,16 @@ function ModeTransform({ onDone, award }) {
 }
 
 // ─── MODE B: TRANSLATE ───────────────────────────────────────────────────────
-function ModeTranslate({ onDone, award }) {
+function ModeTranslate({ onDone, award }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
   const total = TRANSLATE_PROD.length;
   const item = TRANSLATE_PROD[idx];
+  if (!item) return null;
 
-  function advance(correct) {
+  function advance(correct: boolean) {
     recordTopicResult('production', correct);
     recordTopicResult('vocabulary', correct);
     if (correct) {
@@ -738,42 +751,57 @@ function ModeTranslate({ onDone, award }) {
 }
 
 // ─── MODE C: BUILD SENTENCE ───────────────────────────────────────────────────
-function ModeBuild({ onDone, award }) {
+interface Tile {
+  w: string;
+  i: number;
+}
+interface BuildItem {
+  words: string[];
+  target: string;
+  en: string;
+}
+function ModeBuild({ onDone, award }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
-  const [feedback, setFeedback] = useState(null); // null | 'correct' | 'wrong'
+  const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [shake, setShake] = useState(false);
   const total = BUILD_SENTENCES.length;
   const item = BUILD_SENTENCES[idx];
+  if (!item) return null;
 
-  const [placed, setPlaced] = useState([]);
-  const [remaining, setRemaining] = useState(() => sh([...item.words]).map((w, i) => ({ w, i })));
+  const [placed, setPlaced] = useState<Tile[]>([]);
+  const [remaining, setRemaining] = useState<Tile[]>(() =>
+    (sh([...item.words]) as string[]).map((w: string, i: number) => ({ w, i })),
+  );
 
-  function resetForItem(newItem) {
-    const arr = sh([...newItem.words]).map((w, i) => ({ w, i: Math.random() }));
+  function resetForItem(newItem: BuildItem) {
+    const arr: Tile[] = (sh([...newItem.words]) as string[]).map((w: string) => ({
+      w,
+      i: Math.random(),
+    }));
     setPlaced([]);
     setRemaining(arr);
     setFeedback(null);
     setShake(false);
   }
 
-  function tapRemaining(tile) {
+  function tapRemaining(tile: Tile) {
     if (feedback) return;
-    setRemaining((r) => r.filter((t) => t !== tile));
-    setPlaced((p) => [...p, tile]);
+    setRemaining((r: Tile[]) => r.filter((t: Tile) => t !== tile));
+    setPlaced((p: Tile[]) => [...p, tile]);
   }
 
-  function tapPlaced(tile) {
+  function tapPlaced(tile: Tile) {
     if (feedback) return;
-    setPlaced((p) => p.filter((t) => t !== tile));
-    setRemaining((r) => [...r, tile]);
+    setPlaced((p: Tile[]) => p.filter((t: Tile) => t !== tile));
+    setRemaining((r: Tile[]) => [...r, tile]);
   }
 
   function check() {
-    const answer = placed.map((t) => t.w).join(' ');
+    const answer = placed.map((t: Tile) => t.w).join(' ');
     const cleanAnswer = answer.replace(/[?.!,]$/, '').trim();
-    const cleanTarget = item.target.replace(/[?.!,]$/, '').trim();
+    const cleanTarget = item!.target.replace(/[?.!,]$/, '').trim();
     const correct = cleanAnswer === cleanTarget;
     recordTopicResult('production', correct);
     recordTopicResult('grammar', correct);
@@ -792,7 +820,7 @@ function ModeBuild({ onDone, award }) {
     if (idx + 1 >= total) {
       setDone(true);
     } else {
-      const nextItem = BUILD_SENTENCES[idx + 1];
+      const nextItem = BUILD_SENTENCES[idx + 1]!;
       setIdx((i) => i + 1);
       resetForItem(nextItem);
     }
@@ -973,18 +1001,19 @@ function ModeBuild({ onDone, award }) {
 }
 
 // ─── MODE D: ERROR CORRECTION ────────────────────────────────────────────────
-function ModeErrorCorrect({ onDone, award }) {
+function ModeErrorCorrect({ onDone, award }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
-  const [chosen, setChosen] = useState(null);
+  const [chosen, setChosen] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
   const total = ERROR_CORRECT.length;
   const item = ERROR_CORRECT[idx];
+  if (!item) return null;
 
-  function pick(opt) {
+  function pick(opt: string) {
     if (chosen !== null) return;
     setChosen(opt);
-    const correct = opt === item.correct;
+    const correct = opt === item!.correct;
     recordTopicResult('production', correct);
     recordTopicResult('grammar', correct);
     if (correct) {
@@ -1159,7 +1188,7 @@ function ModeErrorCorrect({ onDone, award }) {
 }
 
 // ─── SHARED BUTTON STYLE ─────────────────────────────────────────────────────
-function btnStyle(color) {
+function btnStyle(color: string) {
   return {
     width: '100%',
     padding: '14px 16px',
@@ -1220,8 +1249,12 @@ const MODES = [
 ];
 
 // ─── MAIN SCREEN ─────────────────────────────────────────────────────────────
-export default function ProductionDrillScreen({ goBack, award }) {
-  const [mode, setMode] = useState(null);
+interface ProductionDrillProps {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+export default function ProductionDrillScreen({ goBack, award }: ProductionDrillProps) {
+  const [mode, setMode] = useState<string | null>(null);
 
   function handleDone() {
     markQuest('grammar');

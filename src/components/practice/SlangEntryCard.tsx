@@ -1,6 +1,26 @@
-// @ts-nocheck
 import React from 'react';
 import { speak } from '../../data';
+
+interface SlangVariant {
+  hr: string;
+  en: string;
+}
+interface SlangEntry {
+  hr: string;
+  en: string;
+  ph: string;
+  note: string;
+  variants: SlangVariant[];
+}
+interface SlangEntryCardProps {
+  entry: SlangEntry;
+  color: string;
+  light: string;
+  border: string;
+  keyId: string;
+  expanded: string | null;
+  setExpanded: (id: string | null) => void;
+}
 
 export default function SlangEntryCard({
   entry,
@@ -10,7 +30,7 @@ export default function SlangEntryCard({
   keyId,
   expanded,
   setExpanded,
-}) {
+}: SlangEntryCardProps) {
   const isOpen = expanded === keyId;
   return (
     <div
@@ -131,7 +151,7 @@ export default function SlangEntryCard({
               >
                 Variations & Examples
               </div>
-              {entry.variants.map((v, vi) => (
+              {entry.variants.map((v: SlangVariant, vi: number) => (
                 <div
                   key={vi}
                   style={{

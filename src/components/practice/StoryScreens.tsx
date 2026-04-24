@@ -1,12 +1,27 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, speak, STORIES } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { markQuest } from '../../lib/quests.js';
 
+interface StoryChoice {
+  text: string;
+  next: number;
+}
+interface StoryScene {
+  text: string;
+  en: string;
+  choices: StoryChoice[];
+}
+interface Story {
+  title: string;
+  tEn: string;
+  cefr: string;
+  scenes: StoryScene[];
+}
+
 // Fetch AI illustration for a story scene (watercolor style via FLUX)
-const sceneImgCache = {};
-async function fetchSceneIllustration(storyTitle, sceneText, signal) {
+const sceneImgCache: Record<string, string> = {};
+async function fetchSceneIllustration(storyTitle: string, sceneText: string, signal: AbortSignal) {
   const key = `${storyTitle}:${sceneText.slice(0, 40)}`;
   if (sceneImgCache[key]) return sceneImgCache[key];
   try {
@@ -38,8 +53,16 @@ async function fetchSceneIllustration(storyTitle, sceneText, signal) {
 }
 
 // Single component managing both story selection and playback
-export default function StoryScreens({ goBack, award, sCurEx }) {
-  const [stSt, sStSt] = useState(null);
+export default function StoryScreens({
+  goBack,
+  award,
+  sCurEx,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+  sCurEx?: (id: string) => void;
+}) {
+  const [stSt, sStSt] = useState<Story | null>(null);
   const [stSc, sStSc] = useState(0);
   const finishFired = useRef(false);
   const mountedRef = useRef(true);
@@ -297,7 +320,7 @@ export default function StoryScreens({ goBack, award, sCurEx }) {
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0e7490', marginBottom: 8 }}>
                 Što radiš? — What do you do?
               </div>
-              {scene.choices.map((ch, ci) => (
+              {scene.choices.map((ch: { text: string; next: number }, ci: number) => (
                 <button
                   key={ci}
                   className="ob"

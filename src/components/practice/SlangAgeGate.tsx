@@ -1,7 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 
-export default function SlangAgeGate({ onUnlock, onBack }) {
+export default function SlangAgeGate({
+  onUnlock,
+  onBack,
+}: {
+  onUnlock: () => void;
+  onBack: () => void;
+}) {
   return (
     <div className="scr-wrap" style={{ paddingBottom: 100 }}>
       <div

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 import { H, V, LISTEN, getSR, getDueReviews, lvl, getStreak } from '../../data';
 import { localDateStr } from '../../lib/dateUtils.js';
@@ -20,11 +19,24 @@ function getRecentExercises() {
     return [];
   }
 }
-function recordRecentExercise(id) {
+function recordRecentExercise(id: string) {
   try {
-    const prev = getRecentExercises().filter((x) => x !== id);
+    const prev = getRecentExercises().filter((x: string) => x !== id);
     localStorage.setItem(RECENT_KEY, JSON.stringify([id, ...prev].slice(0, 6)));
   } catch {}
+}
+
+interface PracticeTabProps {
+  allCats: string[];
+  sh: <T>(arr: T[]) => T[];
+  sCurEx: (id: string) => void;
+  onLaunchQuiz: (items: unknown[]) => void;
+  onLaunchFlash: (items: unknown[]) => void;
+  onLaunchListen: (items: unknown[]) => void;
+  onLaunchMatch: (items: unknown[]) => void;
+  onLaunchSpeaking: (items?: unknown[]) => void;
+  award: (amt: number, celebrate?: boolean, exerciseId?: string) => void;
+  launchPathItem: (item: unknown) => void;
 }
 
 // Q-4: PracticeTab now receives callbacks instead of raw App.jsx state setters.
@@ -40,16 +52,16 @@ export default function PracticeTab({
   onLaunchSpeaking,
   award,
   launchPathItem,
-}) {
+}: PracticeTabProps) {
   const { setScr, authUser } = useApp();
   const { stats: st } = useStats();
   const lc = st?.lc ?? 0;
 
   // Compute quest completion from localStorage — same logic as HomeTab
-  const streak = useMemo(() => getStreak(), [lc]);
+  const streak = useMemo(() => getStreak(), []);
   const questsDone = useMemo(() => {
     const d = localDateStr();
-    const q = (id) => localStorage.getItem('nh_quest_' + id + '_' + d) === '1';
+    const q = (id: string) => localStorage.getItem('nh_quest_' + id + '_' + d) === '1';
     const hasStreak = streak.count > 0;
     return {
       speak: q('speak'),
@@ -73,14 +85,17 @@ export default function PracticeTab({
   const allQuestsDone = Object.values(questsDone).every(Boolean);
   const [weakMsg, setWeakMsg] = useState('');
   // openCat: which category tile is expanded in the browse grid ('grammar'|'vocab'|'practical'|'advanced'|null)
-  const [openCat, setOpenCat] = useState(null);
+  const [openCat, setOpenCat] = useState<string | null>(null);
   // activeIntent: which intent panel is shown ('review'|'drill'|'challenge')
   // Auto-selects 'review' if the user has SRS items due, otherwise defaults to 'drill'
   const [activeIntent, setActiveIntent] = useState(() => {
     try {
-      const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
+      const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}') as Record<
+        string,
+        { due?: number }
+      >;
       const now = Date.now();
-      return Object.values(sr).some((v) => v.due && v.due <= now) ? 'review' : 'drill';
+      return Object.values(sr).some((v) => v.due != null && v.due <= now) ? 'review' : 'drill';
     } catch {
       return 'drill';
     }
@@ -88,7 +103,10 @@ export default function PracticeTab({
 
   // Memoized so event handlers always get a stable array reference without
   // recomputing the flatMap on every parent render.
-  const pool = useMemo(() => allCats.flatMap((cc) => V[cc] || []), [allCats]);
+  const pool = useMemo(
+    () => allCats.flatMap((cc) => (V as Record<string, string[][]>)[cc] || []),
+    [allCats],
+  );
 
   function startQuiz() {
     const items = sh(pool)
@@ -137,7 +155,7 @@ export default function PracticeTab({
     const weakWords = weak
       .slice(0, 15)
       .map((e) => pool.find((w) => w[0] === e[0]))
-      .filter(Boolean);
+      .filter((w): w is string[] => !!w);
     if (weakWords.length < 3) {
       setWeakMsg('Not enough weak words yet — keep practicing!');
       return;
@@ -145,8 +163,8 @@ export default function PracticeTab({
     const items = weakWords.map((w) => {
       const wr = sh(pool.filter((x) => x[1] !== w[1]))
         .slice(0, 3)
-        .map((x) => x[1]);
-      return { hr: w[0], en: w[1], ph: w[2], opts: sh([w[1]].concat(wr)), correct: w[1] };
+        .map((x) => x[1] ?? '');
+      return { hr: w[0], en: w[1], ph: w[2], opts: sh([w[1] ?? ''].concat(wr)), correct: w[1] };
     });
     onLaunchQuiz(items);
   }
@@ -207,8 +225,8 @@ export default function PracticeTab({
       sCurEx('numtime');
     },
   };
-  const go = (screen, id) => {
-    const exerciseId = id || screen;
+  const go = (screen: string, id?: string) => {
+    const exerciseId = id ?? screen;
     if (screen.startsWith('slang:')) {
       const section = screen.slice(6);
       return () => {
@@ -219,7 +237,7 @@ export default function PracticeTab({
       };
     }
     const base =
-      specialInit[screen] ||
+      (specialInit as Record<string, () => void>)[screen] ??
       (() => {
         setScr(screen);
         sCurEx(screen);
@@ -453,7 +471,9 @@ export default function PracticeTab({
       },
     ],
   };
-  const goalItems = userGoal ? goalRecMap[userGoal] : null;
+  const goalItems = userGoal
+    ? (goalRecMap as Record<string, (typeof goalRecMap)['heritage']>)[userGoal]
+    : null;
   const goalLabels = {
     heritage: 'Your Heritage',
     family: 'Speaking with Family',
@@ -1237,9 +1257,27 @@ export default function PracticeTab({
     return merged.slice(0, 3);
   }, []);
 
-  function ExerciseCard({ id, label, icon, desc, cefr, duration, action, category }) {
+  function ExerciseCard({
+    id,
+    label,
+    icon,
+    desc,
+    cefr,
+    duration,
+    action,
+    category,
+  }: {
+    id: string;
+    label: string;
+    icon: string;
+    desc: string;
+    cefr?: string;
+    duration?: string;
+    action?: () => void;
+    category?: string;
+  }) {
     const isPick = todaysPicks.includes(id);
-    const catColor = CATEGORY_COLORS[category] || 'var(--bar-bg)';
+    const catColor = (CATEGORY_COLORS as Record<string, string>)[category ?? ''] || 'var(--bar-bg)';
     const cefrClass = cefr ? `cefr cefr-${cefr.toLowerCase().replace(/[^a-z]/g, '')}` : '';
     return (
       <button
@@ -1278,7 +1316,7 @@ export default function PracticeTab({
 
   return (
     <div>
-      {H('🎮 Practice', 'Choose your training mode')}
+      {H('🎮 Practice', 'Choose your training mode', undefined)}
 
       {/* ── DAILY QUESTS — moved here from Today tab ── */}
       <QuestTracker
@@ -1286,7 +1324,9 @@ export default function PracticeTab({
         allQuestsDone={allQuestsDone}
         onQuestStart={(questId, screen) => {
           if (questId === 'speak' || questId === 'speak2') {
-            const pool = allCats.flatMap((t) => V[t] || []).filter((w) => w && w[0] && w[1]);
+            const pool = allCats
+              .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
+              .filter((w) => w && w[0] && w[1]);
             const items = sh(pool).slice(0, 6);
             onLaunchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
           } else if (questId === 'grammar' || questId === 'grammar2') {
@@ -1296,7 +1336,9 @@ export default function PracticeTab({
             if (launchPathItem) launchPathItem({ go: 'lesson' });
             else setScr('learnpath');
           } else if (questId === 'perfect') {
-            const pool = allCats.flatMap((t) => V[t] || []).filter((w) => w && w[0] && w[1]);
+            const pool = allCats
+              .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
+              .filter((w) => w && w[0] && w[1]);
             onLaunchFlash(sh(pool).slice(0, 20));
           } else {
             setScr(screen);
@@ -1427,7 +1469,9 @@ export default function PracticeTab({
       </button>
 
       {/* ── DAILY LISTENING — comprehensible input at user's CEFR level ── */}
-      {lc >= 2 && <DailyListeningCard level={lvl(st?.xp || 0)} award={award || (() => {})} />}
+      {lc >= 2 && (
+        <DailyListeningCard level={String(lvl(st?.xp || 0))} award={award || (() => {})} />
+      )}
 
       {/* ── WEAK WORDS — surface vocabulary needing most practice ─────── */}
       {lc >= 3 && <WeakWordsPanel setScr={setScr} />}
@@ -2053,7 +2097,7 @@ export default function PracticeTab({
                       padding: '2px 10px',
                     }}
                   >
-                    {goalLabels[userGoal]}
+                    {userGoal ? (goalLabels as Record<string, string>)[userGoal] : ''}
                   </span>
                 </div>
                 <div className="g3">
@@ -2182,18 +2226,27 @@ export default function PracticeTab({
                   'Speed',
                   'linear-gradient(155deg,#1a0e00 0%,#3d2200 60%,#f59e0b 100%)',
                 ],
-              ].map((/** @type {any[]} */ [fn, icon, label, sub, bg], i) => (
-                <button
-                  key={i}
-                  className="practice-card-dark"
-                  style={{ textAlign: 'center', padding: '16px 10px', background: bg }}
-                  onClick={fn}
-                >
-                  <div className="pc-icon">{icon}</div>
-                  <div className="pc-label">{label}</div>
-                  <div className="pc-desc">{sub}</div>
-                </button>
-              ))}
+              ].map((entry, i) => {
+                const [fn, icon, label, sub, bg] = entry as [
+                  () => void,
+                  string,
+                  string,
+                  string,
+                  string,
+                ];
+                return (
+                  <button
+                    key={i}
+                    className="practice-card-dark"
+                    style={{ textAlign: 'center', padding: '16px 10px', background: bg }}
+                    onClick={fn}
+                  >
+                    <div className="pc-icon">{icon}</div>
+                    <div className="pc-label">{label}</div>
+                    <div className="pc-desc">{sub}</div>
+                  </button>
+                );
+              })}
             </div>
             <div className="section-hdr">
               <div className="section-hdr-icon" style={{ background: 'rgba(124,58,237,.12)' }}>
@@ -2375,10 +2428,14 @@ export default function PracticeTab({
               key={q.key}
               className={
                 'quest-tile ' +
-                (practiceQuestsDone[q.key] ? 'quest-tile--done' : 'quest-tile--pending')
+                ((practiceQuestsDone as Record<string, boolean | number>)[q.key]
+                  ? 'quest-tile--done'
+                  : 'quest-tile--pending')
               }
             >
-              <span className="quest-tile-icon">{practiceQuestsDone[q.key] ? '✅' : q.icon}</span>
+              <span className="quest-tile-icon">
+                {(practiceQuestsDone as Record<string, boolean | number>)[q.key] ? '✅' : q.icon}
+              </span>
               <span className="quest-tile-label">{q.label}</span>
             </div>
           ))}

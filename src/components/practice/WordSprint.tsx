@@ -1,56 +1,81 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, Bar, V, srMark, speak } from '../../data';
 import { rnd } from '../../lib/random.js';
 import { markQuest } from '../../lib/quests.js';
 import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 
-const TimerDisplay = React.memo(
-  /** @param {{ timeLeft: number, color: string }} props */ function TimerDisplay({
-    timeLeft,
-    color,
-  }) {
-    return (
-      <div
-        style={{
-          fontSize: 'var(--text-2xl)',
-          fontWeight: 900,
-          color,
-          fontVariantNumeric: 'tabular-nums',
-          minWidth: 36,
-          textAlign: 'center',
-        }}
-      >
-        {timeLeft}s
-      </div>
-    );
-  },
-);
+interface TimerDisplayProps {
+  timeLeft: number;
+  color: string;
+}
+const TimerDisplay = React.memo(function TimerDisplay({ timeLeft, color }: TimerDisplayProps) {
+  return (
+    <div
+      style={{
+        fontSize: 'var(--text-2xl)',
+        fontWeight: 900,
+        color,
+        fontVariantNumeric: 'tabular-nums',
+        minWidth: 36,
+        textAlign: 'center',
+      }}
+    >
+      {timeLeft}s
+    </div>
+  );
+});
 
 const ROUND_TIME = 30;
 const QUESTIONS_PER_ROUND = 15;
 
-function buildPool(cats, sh) {
-  const all = cats.flatMap((c) => (V[c] || []).map((w) => ({ hr: w[0], en: w[1], cat: c })));
-  return sh(all);
+interface WordItem {
+  hr: string;
+  en: string;
+  cat: string;
+}
+interface Question {
+  prompt: string;
+  answer: string;
+  opts: string[];
+  word: WordItem;
+}
+interface ResultItem {
+  q: Question;
+  chosen: string;
+  correct: boolean;
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ShuffleFn = (a: any[]) => any[];
+
+function buildPool(cats: string[], sh: ShuffleFn): WordItem[] {
+  const all = cats.flatMap((c: string) =>
+    ((V as Record<string, string[][]>)[c] || []).map((w: string[]) => ({
+      hr: w[0]!,
+      en: w[1]!,
+      cat: c,
+    })),
+  );
+  return sh(all) as WordItem[];
 }
 
-function makeQuestion(word, allWords, sh) {
-  const wrong = sh(allWords.filter((w) => w.en !== word.en)).slice(0, 3);
+function makeQuestion(word: WordItem, allWords: WordItem[], sh: ShuffleFn): Question | null {
+  const wrong: WordItem[] = (
+    sh(allWords.filter((w: WordItem) => w.en !== word.en)) as WordItem[]
+  ).slice(0, 3);
   if (wrong.length < 3) return null;
   const dir = rnd() < 0.5;
   if (dir) {
     return {
       prompt: word.hr,
       answer: word.en,
-      opts: sh([word.en, wrong[0].en, wrong[1].en, wrong[2].en]),
+      opts: sh([word.en, wrong[0]!.en, wrong[1]!.en, wrong[2]!.en]) as string[],
       word,
     };
   } else {
     return {
       prompt: word.en,
       answer: word.hr,
-      opts: sh([word.hr, wrong[0].hr, wrong[1].hr, wrong[2].hr]),
+      opts: sh([word.hr, wrong[0]!.hr, wrong[1]!.hr, wrong[2]!.hr]) as string[],
       word,
     };
   }
@@ -98,21 +123,26 @@ const catIcons = {
   'commands at home': '🏡',
 };
 
-export default function WordSprint({ sh, award, goBack }) {
+interface WordSprintProps {
+  sh: ShuffleFn;
+  award: (n: number, celebrate?: boolean) => void;
+  goBack: () => void;
+}
+export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
   const catList = Object.keys(V);
   const [phase, setPhase] = useState('menu');
   const [selectedCats, setSelectedCats] = useState(['greetings', 'food', 'animals']);
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [qi, setQi] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [timeLeft, setTimeLeft] = useState(ROUND_TIME);
-  const [chosen, setChosen] = useState(null);
-  const [feedback, setFeedback] = useState(null);
-  const [results, setResults] = useState([]);
-  const timerRef = useRef(null);
-  const feedbackRef = useRef(null);
+  const [chosen, setChosen] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
+  const [results, setResults] = useState<ResultItem[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const feedbackRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pausedRef = useRef(false);
   const consecCorrectRef = useRef(0);
   const consecWrongRef = useRef(0);
@@ -122,10 +152,10 @@ export default function WordSprint({ sh, award, goBack }) {
     const cats = selectedCats.length > 0 ? selectedCats : catList.slice(0, 5);
     const pool = buildPool(cats, sh);
     if (pool.length < 4) return;
-    const qs = [];
-    const shuffled = sh(pool);
+    const qs: Question[] = [];
+    const shuffled: WordItem[] = sh(pool) as WordItem[];
     for (let i = 0; i < QUESTIONS_PER_ROUND && i < shuffled.length; i++) {
-      const q = makeQuestion(shuffled[i], pool, sh);
+      const q = makeQuestion(shuffled[i]!, pool, sh);
       if (q) qs.push(q);
     }
     setQuestions(qs);
@@ -146,9 +176,9 @@ export default function WordSprint({ sh, award, goBack }) {
   // Speak the Croatian word whenever a new question loads (Croatian prompt only)
   useEffect(() => {
     if (phase !== 'playing' || !questions[qi]) return;
-    const q = questions[qi];
+    const q = questions[qi]!;
     if (q.prompt === q.word.hr) speak(q.word.hr);
-  }, [qi, phase]);
+  }, [qi, phase, questions]);
 
   useEffect(() => {
     if (phase !== 'playing') return undefined;
@@ -156,7 +186,7 @@ export default function WordSprint({ sh, award, goBack }) {
       if (pausedRef.current) return; // paused during answer feedback
       setTimeLeft((t) => {
         if (t <= 1) {
-          clearInterval(timerRef.current);
+          if (timerRef.current !== null) clearInterval(timerRef.current);
           setPhase('result');
           return 0;
         }
@@ -167,7 +197,9 @@ export default function WordSprint({ sh, award, goBack }) {
         return t - 1;
       });
     }, 1000);
-    return () => clearInterval(timerRef.current);
+    return () => {
+      if (timerRef.current !== null) clearInterval(timerRef.current);
+    };
   }, [phase]);
 
   useEffect(() => {
@@ -177,27 +209,30 @@ export default function WordSprint({ sh, award, goBack }) {
       setChosen(null);
       setFeedback(null);
       if (qi + 1 >= questions.length) {
-        clearInterval(timerRef.current);
+        if (timerRef.current !== null) clearInterval(timerRef.current);
         setPhase('result');
       } else {
         setQi((q) => q + 1);
       }
     }, 600);
-    return () => clearTimeout(feedbackRef.current);
+    return () => {
+      if (feedbackRef.current !== null) clearTimeout(feedbackRef.current);
+    };
   }, [feedback, qi, questions.length]);
 
-  function answer(opt) {
+  function answer(opt: string) {
     if (chosen !== null || phase !== 'playing') return;
     const q = questions[qi];
+    if (!q) return;
     pausedRef.current = true; // pause timer during feedback
     setChosen(opt);
     const correct = opt === q.answer;
     if (q && q.word) {
       const word = q.word.hr || '';
-      if (word) srMark(word, correct);
+      if (word) srMark(word, correct, undefined);
     }
     setFeedback(correct ? 'correct' : 'wrong');
-    setResults((r) => [...r, { q, chosen: opt, correct }]);
+    setResults((r: ResultItem[]) => [...r, { q, chosen: opt, correct }]);
     if (correct) {
       consecWrongRef.current = 0;
       consecCorrectRef.current += 1;
@@ -227,7 +262,7 @@ export default function WordSprint({ sh, award, goBack }) {
       if (typeof award === 'function') award(Math.min(score * 2, 50));
       markQuest('vocab');
     }
-  }, [phase]);
+  }, [phase, score, award]);
 
   useEffect(() => {
     if (phase !== 'result') return;
@@ -238,7 +273,7 @@ export default function WordSprint({ sh, award, goBack }) {
     }
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const toggleCat = (c) =>
+  const toggleCat = (c: string) =>
     setSelectedCats((prev) =>
       prev.includes(c) ? (prev.length > 1 ? prev.filter((x) => x !== c) : prev) : [...prev, c],
     );
@@ -295,7 +330,7 @@ export default function WordSprint({ sh, award, goBack }) {
                   transition: 'all .15s',
                 }}
               >
-                {catIcons[c] || '📝'} {c}
+                {(catIcons as Record<string, string>)[c] || '📝'} {c}
               </button>
             ))}
           </div>
@@ -316,7 +351,7 @@ export default function WordSprint({ sh, award, goBack }) {
     if (!q) return null;
     return (
       <div className="scr-wrap">
-        {H('⚡ Word Sprint', null, goBack)}
+        {H('⚡ Word Sprint', undefined, goBack)}
 
         <div
           style={{

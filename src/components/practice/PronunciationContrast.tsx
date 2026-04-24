@@ -1,13 +1,12 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { speak } from '../../lib/audio.js';
 import { rnd } from '../../lib/random.js';
-function shLocal(a) {
+function shLocal<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
-    [b[i], b[j]] = [b[j], b[i]];
+    [b[i], b[j]] = [b[j]!, b[i]!];
   }
   return b;
 }
@@ -191,9 +190,9 @@ const DATA = [
 ];
 
 // Detect which sound contrast is at play in a question's options
-function detectContrast(opts) {
+function detectContrast(opts: string[]): string {
   const joined = opts.join(' ');
-  const hasC = (c) => joined.includes(c);
+  const hasC = (c: string) => joined.includes(c);
   if (hasC('č') && hasC('ć')) return 'c_soft';
   if (hasC('š') && hasC('ž')) return 's_voiced';
   if (hasC('đ') || hasC('dž')) return 'dj';
@@ -231,9 +230,14 @@ const VIZ_KEYFRAMES = `
 }
 `;
 
-function FrequencyViz({ opts }) {
+interface FrequencyVizProps {
+  opts: string[];
+}
+function FrequencyViz({ opts }: FrequencyVizProps) {
   const contrast = detectContrast(opts);
-  const bars = CONTRAST_BARS[contrast];
+  const bars =
+    (CONTRAST_BARS as Record<string, typeof CONTRAST_BARS.generic>)[contrast] ??
+    CONTRAST_BARS.generic;
   return (
     <div
       style={{
@@ -265,14 +269,14 @@ function FrequencyViz({ opts }) {
           <div style={{ height: 10, background: '#e2e8f0', borderRadius: 6, overflow: 'hidden' }}>
             <div
               style={
-                /** @type {any} */ {
+                {
                   height: '100%',
                   width: `${bar.pct}%`,
                   background: bar.color,
                   borderRadius: 6,
                   animation: `barGrow 0.6s ease ${i * 0.15}s both`,
                   '--target-w': `${bar.pct}%`,
-                }
+                } as React.CSSProperties
               }
             />
           </div>
@@ -282,7 +286,11 @@ function FrequencyViz({ opts }) {
   );
 }
 
-export default function PronunciationContrast({ goBack, award }) {
+interface PronunciationContrastProps {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+export default function PronunciationContrast({ goBack, award }: PronunciationContrastProps) {
   const finishFired = useRef(false);
   const [qs] = useState(() => shLocal(DATA));
   const [idx, setIdx] = useState(0);
@@ -321,6 +329,7 @@ export default function PronunciationContrast({ goBack, award }) {
   }
 
   const q = qs[idx];
+  if (!q) return null;
 
   return (
     <div className="scr-wrap">
@@ -338,7 +347,7 @@ export default function PronunciationContrast({ goBack, award }) {
         <div style={{ fontSize: 13, color: '#78716c', marginTop: 4 }}>{q.en}</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 16 }}>
-        {q.opts.map((o, oi) => (
+        {q.opts.map((o: string, oi: number) => (
           <div key={oi} style={{ position: 'relative' }}>
             <button
               className="ob"

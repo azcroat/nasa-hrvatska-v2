@@ -1,5 +1,20 @@
-// @ts-nocheck
 import React from 'react';
+
+interface SprintPrompt {
+  hr: string;
+  en: string;
+  model_response: string;
+}
+
+interface Props {
+  currentPrompt: SprintPrompt;
+  ttsLoading: boolean;
+  ttsError: string | null;
+  audioUrl: string | null;
+  audioRef: React.MutableRefObject<HTMLAudioElement | null>;
+  userTranscript: string;
+  onGetFeedback: () => void;
+}
 
 export default function SprintModelPhase({
   currentPrompt,
@@ -9,7 +24,7 @@ export default function SprintModelPhase({
   audioRef,
   userTranscript,
   onGetFeedback,
-}) {
+}: Props) {
   return (
     <div className="scr-wrap" style={{ padding: '0 16px 32px', maxWidth: 600, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: 20 }}>

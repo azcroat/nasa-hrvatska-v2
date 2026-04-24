@@ -1,14 +1,15 @@
-// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
 import { rnd } from '../../lib/random.js';
-function shLocal(a) {
+function shLocal<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
-    [b[i], b[j]] = [b[j], b[i]];
+    const tmp = b[i] as T;
+    b[i] = b[j] as T;
+    b[j] = tmp;
   }
   return b;
 }
@@ -176,7 +177,13 @@ const DATA = [
   },
 ];
 
-export default function WordFamilies({ goBack, award }) {
+export default function WordFamilies({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number) => void;
+}) {
   const finishFired = useRef(false);
   const [qs] = useState(() => shLocal(DATA));
   const [idx, setIdx] = useState(0);
@@ -218,7 +225,7 @@ export default function WordFamilies({ goBack, award }) {
     );
   }
 
-  const q = qs[idx];
+  const q = qs[idx]!;
 
   return (
     <div className="scr-wrap">
