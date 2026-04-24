@@ -35,7 +35,7 @@ function buildQuiz(profList: ProfItem[]): QuizItem[] {
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function ProfessionGenderScreen({ goBack, award }: Props) {
@@ -52,7 +52,7 @@ function ProfessionGenderScreen({ goBack, award }: Props) {
     const isCorrect = opt === correct;
     setAnswers((prev) => ({ ...prev, [qi]: isCorrect }));
     if (isCorrect) {
-      if (typeof award === 'function') award(3);
+      if (typeof award === 'function') award(3, false, 'grammar');
       speak(opt);
     }
     if (Object.keys(answers).length + 1 >= quiz.length && !questFiredRef.current) {

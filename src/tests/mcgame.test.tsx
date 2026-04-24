@@ -220,7 +220,7 @@ describe('McGame — XP double-award prevention', () => {
     fireEvent.click(screen.getByText('answer0')); // correct — 3 XP
     fireEvent.click(screen.getByText(/See Results/i));
     // XP_PER_CORRECT(3) * 1 correct + XP_COMPLETION_BONUS(5) = 8
-    expect(award).toHaveBeenCalledWith(8, true);
+    expect(award).toHaveBeenCalledWith(8, true, 'vocabulary');
   });
 });
 

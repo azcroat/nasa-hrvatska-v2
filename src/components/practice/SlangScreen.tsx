@@ -17,7 +17,7 @@ export default function SlangScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [gated, setGated] = useState(() => localStorage.getItem('slangAgeConfirmed') !== 'true');
   const [activeSection, setActiveSection] = useState(() => {
@@ -58,7 +58,7 @@ export default function SlangScreen({
     setGated(false);
     if (award && !xpAwarded.current) {
       xpAwarded.current = true;
-      award(15);
+      award(15, false, 'vocabulary');
     }
   }
 
@@ -70,7 +70,7 @@ export default function SlangScreen({
       const next = [...visitedSections, id];
       setVisitedSections(next);
       localStorage.setItem('slangVisited', JSON.stringify(next));
-      if (award) award(5);
+      if (award) award(5, false, 'vocabulary');
     }
   }
 
@@ -118,7 +118,7 @@ export default function SlangScreen({
     markQuest('speak');
     if (award && !quizXpGiven.current && xp > 0) {
       quizXpGiven.current = true;
-      award(xp);
+      award(xp, false, 'vocabulary');
     }
   }
 

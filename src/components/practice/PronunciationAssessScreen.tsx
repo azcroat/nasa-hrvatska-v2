@@ -203,7 +203,7 @@ function ScoreChip({ score }: ScoreChipProps) {
 // ── Main component ────────────────────────────────────────────────────────────
 interface PronunciationAssessProps {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function PronunciationAssessScreen({ goBack, award }: PronunciationAssessProps) {
   const { setScr } = useApp();
@@ -247,7 +247,7 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   const handleFinish = useCallback(() => {
     if (!xpAwarded.current && typeof award === 'function' && completedCount > 0) {
       xpAwarded.current = true;
-      award(20 + Math.round(avgScore / 5)); // 20–40 XP based on quality
+      award(20 + Math.round(avgScore / 5), false, 'speaking'); // 20–40 XP based on quality
       markQuest('speak');
     }
     setStep(totalPhrases + 1);

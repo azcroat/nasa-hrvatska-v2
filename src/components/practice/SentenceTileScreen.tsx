@@ -95,7 +95,7 @@ export default function SentenceTileScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number, celebrate?: boolean) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const haptic = useHaptic();
 
@@ -152,7 +152,7 @@ export default function SentenceTileScreen({
   const handleNext = useCallback(() => {
     const nextIdx = idx + 1;
     if (nextIdx >= questions.length) {
-      if (typeof award === 'function') award(score * 4 + 5, true);
+      if (typeof award === 'function') award(score * 4 + 5, true, 'grammar');
       markQuest('grammar');
       knightSpeak(
         score >= questions.length * 0.8 ? 'victory' : 'encouraging',

@@ -37,7 +37,11 @@ function shuffleTurnOpts(turn: any) {
   return { opts: shuffledOpts, correctIdx };
 }
 
-export default function DialogueSim({ award }: { award?: (xp: number) => void }) {
+export default function DialogueSim({
+  award,
+}: {
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
+}) {
   const { level: userLevel } = useStats();
   const finishFired = useRef(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,7 +136,7 @@ export default function DialogueSim({ award }: { award?: (xp: number) => void })
             : selected === shuffledTurns[turnIdx]?.correctIdx
               ? 1
               : 0;
-          award((score + lastCorrect) * 6);
+          award((score + lastCorrect) * 6, false, 'speaking');
         }
         markQuest('speak');
       }
@@ -307,7 +311,7 @@ export default function DialogueSim({ award }: { award?: (xp: number) => void })
           onFinish={() => {
             if (!finishFired.current) {
               finishFired.current = true;
-              if (award) award(aiTurns * 5);
+              if (award) award(aiTurns * 5, false, 'speaking');
             }
             setAiDone(true);
           }}

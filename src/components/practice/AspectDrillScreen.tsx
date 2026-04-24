@@ -198,7 +198,7 @@ export default function AspectDrillScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
@@ -569,7 +569,7 @@ export default function AspectDrillScreen({
               onClick={() => {
                 if (finishFired.current) return;
                 finishFired.current = true;
-                if (typeof award === 'function') award(score * 4 + 10);
+                if (typeof award === 'function') award(score * 4 + 10, false, 'grammar');
                 markQuest('grammar');
                 // Grant gc credit so LearnPath ck(gc>=5) passes (replaces the 20s dwell timer)
                 if (!stats.vs?.includes('aspect')) {

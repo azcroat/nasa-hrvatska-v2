@@ -6,7 +6,7 @@ export default function PrepDrill({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [ppQ] = useState(() => sh(PREPDRILL));
   const [ppI, sPpI] = useState(0);
@@ -36,7 +36,7 @@ export default function PrepDrill({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(ppS * 5);
+              if (typeof award === 'function') award(ppS * 5, false, 'grammar');
               goBack();
             }}
           >

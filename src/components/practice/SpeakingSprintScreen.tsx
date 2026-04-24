@@ -205,7 +205,7 @@ function getUserLevel() {
 // ─────────────────────────────────────────────
 interface Props {
   goBack: () => void;
-  award: (n: number) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 interface SprintPrompt {
@@ -424,7 +424,7 @@ export default function SpeakingSprintScreen({ goBack, award }: Props) {
     if (!finishFired.current) {
       finishFired.current = true;
       const totalRounds = rounds + (phase === 'feedback' ? 1 : 0);
-      if (award && totalRounds > 0) award(totalRounds * 5);
+      if (award && totalRounds > 0) award(totalRounds * 5, false, 'speaking');
       markQuest('speak');
     }
     goBack();

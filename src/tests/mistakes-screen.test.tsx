@@ -364,7 +364,7 @@ describe('MistakesScreen — "✅ Got It!" behavior', () => {
     renderScreen({ award });
     clickStartReview();
     fireEvent.click(screen.getByText(/✅ Got It!/));
-    expect(award).toHaveBeenCalledWith(5, false);
+    expect(award).toHaveBeenCalledWith(5, false, 'review');
   });
 
   it('"✅ Got It!" on last of 3 cards calls award(15, true) (3 mastered, 3>=3)', () => {
@@ -377,7 +377,7 @@ describe('MistakesScreen — "✅ Got It!" behavior', () => {
     fireEvent.click(screen.getAllByText(/✅ Got It!/)[0]);
     fireEvent.click(screen.getAllByText(/✅ Got It!/)[0]);
     fireEvent.click(screen.getAllByText(/✅ Got It!/)[0]);
-    expect(award).toHaveBeenCalledWith(15, true);
+    expect(award).toHaveBeenCalledWith(15, true, 'review');
   });
 
   it('"✅ Got It!" on last card calls markQuest("master")', () => {

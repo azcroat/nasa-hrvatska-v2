@@ -335,7 +335,7 @@ function Pill({ label, color = '#7c3aed' }: { label: string; color?: string }) {
 // ─── MAIN SCREEN ─────────────────────────────────────────────────────────────
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function AdaptiveReviewScreen({ goBack, award }: Props) {
   useStats(); // keeps provider contract; stats read via sr/mistakes directly
@@ -356,7 +356,7 @@ export default function AdaptiveReviewScreen({ goBack, award }: Props) {
   useEffect(() => {
     if (view === 'session' && session.length > 0 && sessionIdx >= session.length) {
       markQuest('master');
-      if (award) award(correct * 2);
+      if (award) award(correct * 2, false, 'review');
       setView('results');
     }
   }, [view, sessionIdx, session.length, correct, award]);
@@ -612,7 +612,7 @@ export default function AdaptiveReviewScreen({ goBack, award }: Props) {
       if (sessionIdx + 1 >= session.length) {
         const newCorrect = isCorrect ? correct + 1 : correct;
         markQuest('master');
-        if (award) award(newCorrect * 2);
+        if (award) award(newCorrect * 2, false, 'review');
         setView('results');
       } else {
         setSessionIdx((i) => i + 1);

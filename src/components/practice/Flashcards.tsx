@@ -76,7 +76,7 @@ export default function Flashcards({
 }: {
   pool: any[];
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const finishFired = useRef(false);
   const [activePool, setActivePool] = useState(pool);
@@ -301,7 +301,8 @@ export default function Flashcards({
     } catch {
       /* ignore */
     }
-    if (typeof award === 'function') award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS);
+    if (typeof award === 'function')
+      award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS, false, 'vocabulary');
     markQuest('vocab');
     knightSpeak(
       finalKnown === activePool.length

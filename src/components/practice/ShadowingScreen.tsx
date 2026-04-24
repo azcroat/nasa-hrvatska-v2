@@ -467,7 +467,7 @@ export default function ShadowingScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
@@ -569,7 +569,7 @@ export default function ShadowingScreen({
               onClick={() => {
                 if (finishFired.current) return;
                 finishFired.current = true;
-                if (typeof award === 'function') award(items.length * 3 + 5);
+                if (typeof award === 'function') award(items.length * 3 + 5, false, 'speaking');
                 markQuest('speak');
                 goBack();
               }}

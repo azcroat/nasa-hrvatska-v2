@@ -20,7 +20,7 @@ export default function VocativeScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [phase, setPhase] = useState('rules'); // rules | dialogues | quiz | done
   const [quizQ] = useState(() => sh(VOCATIVE.quiz));
@@ -410,7 +410,7 @@ export default function VocativeScreen({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(xpEarned);
+              if (typeof award === 'function') award(xpEarned, false, 'vocabulary');
               markQuest('grammar');
               goBack();
             }}

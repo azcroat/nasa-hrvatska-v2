@@ -274,7 +274,7 @@ describe('TypingScreen — completion + award guard', () => {
     const award = vi.fn();
     completeAllWords(award);
     fireEvent.click(screen.getByText('🏠 Done'));
-    expect(award).toHaveBeenCalledWith(25);
+    expect(award).toHaveBeenCalledWith(25, false, 'vocabulary');
   });
 
   it('award() is NOT called again on rapid double-click (finishFired guard)', () => {

@@ -401,7 +401,7 @@ describe('ReviewScreen — done mode', () => {
     const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
     // 2 correct answers: 2 * 5 + 5 = 15
-    expect(award).toHaveBeenCalledWith(15);
+    expect(award).toHaveBeenCalledWith(15, false, 'review');
   });
 
   it('"Continue →" calls markQuest("master")', () => {
@@ -456,7 +456,7 @@ describe('ReviewScreen — score tracking', () => {
     clickNext(); // Results → done
     const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
-    expect(award).toHaveBeenCalledWith(5); // score=0 → 0*5+5=5
+    expect(award).toHaveBeenCalledWith(5, false, 'review'); // score=0 → 0*5+5=5
   });
 
   it('1/2 correct → award(1 * 5 + 5) = 10', () => {
@@ -468,6 +468,6 @@ describe('ReviewScreen — score tracking', () => {
     clickNext(); // Results → done
     const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
-    expect(award).toHaveBeenCalledWith(10); // score=1 → 1*5+5=10
+    expect(award).toHaveBeenCalledWith(10, false, 'review'); // score=1 → 1*5+5=10
   });
 });

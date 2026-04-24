@@ -11,7 +11,7 @@ interface GenderEntry {
 }
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSt?: (fn: (s: any) => any) => void;
 }
@@ -55,7 +55,7 @@ function GenderDrillScreen({ goBack, award, setSt }: Props) {
   function handleFinish() {
     if (completionFired.current) return;
     completionFired.current = true;
-    if (typeof award === 'function') award(15);
+    if (typeof award === 'function') award(15, false, 'grammar');
     if (setSt) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setSt((s: any) => ({ ...s, gc: s.gc + 1 }));
@@ -158,7 +158,7 @@ function GenderDrillScreen({ goBack, award, setSt }: Props) {
                   }));
                   setSelectedGenderIdx(null);
                   if (correct) {
-                    if (typeof award === 'function') award(3);
+                    if (typeof award === 'function') award(3, false, 'grammar');
                   }
                 }}
               >
@@ -273,7 +273,7 @@ function GenderDrillScreen({ goBack, award, setSt }: Props) {
                       recordTopicResult('grammar', correct);
                       setPluralAnswered((prev) => ({ ...prev, [i]: { guess: opt, correct } }));
                       if (correct) {
-                        if (typeof award === 'function') award(4);
+                        if (typeof award === 'function') award(4, false, 'grammar');
                         speak(p.p);
                       }
                     }}
@@ -359,7 +359,7 @@ function GenderDrillScreen({ goBack, award, setSt }: Props) {
                       recordTopicResult('grammar', correct);
                       setAdjAnswered((prev) => ({ ...prev, [i]: { guess: o, correct } }));
                       if (correct) {
-                        if (typeof award === 'function') award(3);
+                        if (typeof award === 'function') award(3, false, 'grammar');
                         speak(a.adj + ' ' + a.noun);
                       }
                     }}

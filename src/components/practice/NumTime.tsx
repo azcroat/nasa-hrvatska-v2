@@ -6,7 +6,7 @@ export default function NumTime({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   type NTQuestion = { q: string; a: string; al: string[] };
   const finishFired = useRef(false);
@@ -44,7 +44,7 @@ export default function NumTime({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(ntS * 3 + 10);
+              if (typeof award === 'function') award(ntS * 3 + 10, false, 'vocabulary');
               goBack();
             }}
           >

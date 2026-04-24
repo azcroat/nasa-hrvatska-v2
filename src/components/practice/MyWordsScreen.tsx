@@ -665,7 +665,7 @@ export default function MyWordsScreen({
   award,
 }: {
   onBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [view, setView] = useState('list');
   const [words, setWords] = useState(() => loadWords());
@@ -703,7 +703,7 @@ export default function MyWordsScreen({
             words={words}
             setView={setView}
             onComplete={(correct, total) => {
-              if (typeof award === 'function' && correct > 0) award(correct * 5);
+              if (typeof award === 'function' && correct > 0) award(correct * 5, false, 'review');
             }}
           />
         )}

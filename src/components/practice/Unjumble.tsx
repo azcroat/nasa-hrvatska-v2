@@ -7,7 +7,7 @@ export default function Unjumble({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [ujQ] = useState(() => sh(UNJUMBLE).slice(0, 10));
   const [ujI, sUjI] = useState(0);
@@ -40,7 +40,7 @@ export default function Unjumble({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(xp);
+              if (typeof award === 'function') award(xp, false, 'grammar');
               markQuest('grammar');
               goBack();
             }}

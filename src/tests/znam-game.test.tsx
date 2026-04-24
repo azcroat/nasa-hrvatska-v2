@@ -164,7 +164,7 @@ describe('ZnamGame — quiz mechanics', () => {
     enterQuizMode(award);
     fireEvent.click(screen.getByText('Zdravo')); // correct for Q1
     expect(award).toHaveBeenCalledTimes(1);
-    expect(award).toHaveBeenCalledWith(5);
+    expect(award).toHaveBeenCalledWith(5, false, 'vocabulary');
   });
 
   it('clicking a wrong answer does NOT call award', () => {
@@ -243,6 +243,6 @@ describe('ZnamGame — completion + done screen', () => {
     completeSection(award);
     // 2 correct answers → award(5) called twice
     expect(award).toHaveBeenCalledTimes(2);
-    expect(award).toHaveBeenCalledWith(5);
+    expect(award).toHaveBeenCalledWith(5, false, 'vocabulary');
   });
 });

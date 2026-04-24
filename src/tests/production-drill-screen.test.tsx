@@ -199,7 +199,7 @@ describe('ProductionDrillScreen — Transform mode', () => {
     clickMode('Transform');
     clickReveal('Otkrij odgovor');
     clickCorrect();
-    expect(award).toHaveBeenCalledWith(2);
+    expect(award).toHaveBeenCalledWith(2, false, 'grammar');
   });
 
   it('"✓ Točno" calls recordTopicResult("production", true) and recordTopicResult("grammar", true)', () => {
@@ -274,7 +274,7 @@ describe('ProductionDrillScreen — Translate mode', () => {
     clickMode('Translate');
     clickReveal('Otkrij prijevod');
     clickCorrect();
-    expect(award).toHaveBeenCalledWith(3);
+    expect(award).toHaveBeenCalledWith(3, false, 'grammar');
   });
 
   it('"✗ Pogrešno" does NOT call award in Translate mode', () => {
@@ -347,7 +347,7 @@ describe('ProductionDrillScreen — Error Correction mode', () => {
       .getAllByRole('button')
       .find((b) => b.textContent?.trim() === 'lijepu')!;
     fireEvent.click(correctBtn);
-    expect(award).toHaveBeenCalledWith(3);
+    expect(award).toHaveBeenCalledWith(3, false, 'grammar');
   });
 
   it('clicking wrong option shows "✗ Netočno"', () => {
@@ -447,7 +447,7 @@ describe('ProductionDrillScreen — Build Sentence mode', () => {
       .getAllByRole('button')
       .find((b) => b.textContent?.trim() === 'Provjeri')!;
     fireEvent.click(checkBtn);
-    expect(award).toHaveBeenCalledWith(5);
+    expect(award).toHaveBeenCalledWith(5, false, 'grammar');
   });
 
   it('"Provjeri" disabled when no words are placed', () => {

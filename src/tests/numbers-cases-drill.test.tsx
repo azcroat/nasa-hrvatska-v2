@@ -214,7 +214,7 @@ describe('NumbersCasesDrill — completion + award guard', () => {
     const award = vi.fn();
     completeAllQuestions(award);
     // DATA[2] opts[0]="tri djece" ≠ answer="tri djeteta" → 1 wrong; 24-1=23 correct → XP=115
-    expect(award).toHaveBeenCalledWith(115);
+    expect(award).toHaveBeenCalledWith(115, false, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {

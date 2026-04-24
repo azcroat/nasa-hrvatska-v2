@@ -5,7 +5,7 @@ import { markQuest } from '../../../lib/quests.js';
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function LogicQuizScreen({ goBack, award }: Props) {
@@ -22,7 +22,7 @@ function LogicQuizScreen({ goBack, award }: Props) {
     (e.target as HTMLButtonElement).style.background = isRight ? '#dcfce7' : '#fee2e2';
     (e.target as HTMLButtonElement).style.borderColor = isRight ? '#16a34a' : '#dc2626';
     if (isRight) {
-      if (typeof award === 'function') award(3);
+      if (typeof award === 'function') award(3, false, 'grammar');
       speak(o);
     }
     const btn = e.target as HTMLButtonElement;

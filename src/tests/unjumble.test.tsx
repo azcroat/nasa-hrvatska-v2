@@ -237,7 +237,7 @@ describe('Unjumble — completion + award guard', () => {
     completeAllQuestions(award);
     fireEvent.click(screen.getByText('Continue →'));
     // 2 correct × 3 + 10 = 16
-    expect(award).toHaveBeenCalledWith(16);
+    expect(award).toHaveBeenCalledWith(16, false, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {

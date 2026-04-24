@@ -51,7 +51,7 @@ const NEGATION_QUIZ = [
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function NegationScreen({ goBack, award }: Props) {
@@ -75,7 +75,7 @@ function NegationScreen({ goBack, award }: Props) {
     const isCorrect = opt === (shuffledQuiz[qi] ?? { a: '' }).a;
     recordTopicResult('grammar', isCorrect);
     if (isCorrect) {
-      if (typeof award === 'function') award(3);
+      if (typeof award === 'function') award(3, false, 'grammar');
       speak(opt);
     }
     if (answeredCount + 1 >= shuffledQuiz.length && !questFiredRef.current) {

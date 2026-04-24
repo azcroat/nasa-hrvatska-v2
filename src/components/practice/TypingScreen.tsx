@@ -116,7 +116,7 @@ export default function TypingScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const finishFired = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -161,7 +161,7 @@ export default function TypingScreen({
               if (tyS / tyPool.length >= 0.9) {
                 knightSpeak('tearsofjoy', 'Savršeno! Sve napisano točno! ✍️');
               }
-              if (typeof award === 'function') award(xp);
+              if (typeof award === 'function') award(xp, false, 'vocabulary');
               markQuest('vocab');
               goBack();
             }}

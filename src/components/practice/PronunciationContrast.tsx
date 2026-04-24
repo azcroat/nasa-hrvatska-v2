@@ -288,7 +288,7 @@ function FrequencyViz({ opts }: FrequencyVizProps) {
 
 interface PronunciationContrastProps {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function PronunciationContrast({ goBack, award }: PronunciationContrastProps) {
   const finishFired = useRef(false);
@@ -316,7 +316,7 @@ export default function PronunciationContrast({ goBack, award }: PronunciationCo
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(score * 5);
+              if (typeof award === 'function') award(score * 5, false, 'speaking');
               goBack();
             }}
             style={{ width: '100%', marginTop: 16 }}

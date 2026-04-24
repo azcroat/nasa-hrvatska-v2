@@ -43,7 +43,7 @@ function buildQuiz(verbs: VerbEntry[]): QuizQuestion[] {
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 export default function VerbDrillScreen({ goBack, award }: Props) {
@@ -81,7 +81,7 @@ export default function VerbDrillScreen({ goBack, award }: Props) {
       if (!awardFired.current) {
         awardFired.current = true;
         markQuest('grammar');
-        if (typeof award === 'function') award(score * 3 + 10);
+        if (typeof award === 'function') award(score * 3 + 10, false, 'grammar');
       }
       setQuizDone(true);
     }

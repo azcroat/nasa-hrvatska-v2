@@ -212,7 +212,7 @@ describe('ImperativeDrill — completion + award guard', () => {
     const award = vi.fn();
     completeAllQuestions(award);
     // 21/22 opts[0] === answer; DATA[5] is the exception → score=21, XP=105
-    expect(award).toHaveBeenCalledWith(105);
+    expect(award).toHaveBeenCalledWith(105, false, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {

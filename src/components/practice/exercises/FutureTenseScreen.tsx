@@ -6,7 +6,7 @@ import { recordTopicResult } from '../../../lib/adaptive.js';
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function FutureTenseScreen({ goBack, award }: Props) {
@@ -24,7 +24,7 @@ function FutureTenseScreen({ goBack, award }: Props) {
     (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     recordTopicResult('future_tense', isCorrect);
     if (isCorrect) {
-      if (typeof award === 'function') award(3);
+      if (typeof award === 'function') award(3, false, 'grammar');
       speak(spoken);
     }
     const btn = e.target as HTMLButtonElement;

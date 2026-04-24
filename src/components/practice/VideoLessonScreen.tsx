@@ -98,7 +98,7 @@ interface AnswerRecord {
 
 interface VideoLessonProps {
   goBack: () => void;
-  award: (n: number) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 export default function VideoLessonScreen({ goBack, award }: VideoLessonProps) {
@@ -267,7 +267,7 @@ export default function VideoLessonScreen({ goBack, award }: VideoLessonProps) {
       if (!xpAwarded.current && award) {
         xpAwarded.current = true;
         const xp = finalScore >= qCount ? 30 : finalScore > 0 ? 15 : 5;
-        award(xp);
+        award(xp, false, 'lesson');
         markQuest('speak');
       }
     }

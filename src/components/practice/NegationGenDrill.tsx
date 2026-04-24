@@ -182,7 +182,7 @@ export default function NegationGenDrill({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const finishFired = useRef(false);
   const [q] = useState(() => shLocal(DATA));
@@ -205,7 +205,7 @@ export default function NegationGenDrill({
     if (idx + 1 >= total) {
       if (!finishFired.current) {
         finishFired.current = true;
-        if (award) award(score * 5);
+        if (award) award(score * 5, false, 'grammar');
         markQuest('grammar');
       }
       setDone(true);

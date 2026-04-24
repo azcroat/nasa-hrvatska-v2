@@ -39,7 +39,7 @@ export default function PitchAccentScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
@@ -116,7 +116,7 @@ export default function PitchAccentScreen({
               onClick={() => {
                 if (finishFired.current) return;
                 finishFired.current = true;
-                if (typeof award === 'function') award(score * 5 + 5);
+                if (typeof award === 'function') award(score * 5 + 5, false, 'pronunciation');
                 markQuest('grammar');
                 if (!stats.vs?.includes('pitchaccent')) {
                   setStats((prev) => {

@@ -224,7 +224,7 @@ describe('BojeGame — answer mechanics', () => {
     const { container } = render(<BojeGame award={award} goBack={vi.fn()} />);
     await startQuizAndWait();
     fireEvent.click(container.querySelector('button.ob')!);
-    expect(award).toHaveBeenCalledWith(5);
+    expect(award).toHaveBeenCalledWith(5, false, 'vocabulary');
   });
 
   it('options are locked after answering', async () => {
@@ -312,7 +312,7 @@ describe('BojeGame — completion + award guard', () => {
       const nextText = screen.queryByText('Next →') || screen.queryByText('See Results');
       if (nextText) fireEvent.click(nextText);
     }
-    expect(award).toHaveBeenCalledWith(30);
+    expect(award).toHaveBeenCalledWith(30, false, 'vocabulary');
   });
 
   it('🏠 Done does NOT call award — only goBack', async () => {

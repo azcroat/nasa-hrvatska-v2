@@ -272,7 +272,7 @@ export default function MistakesScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number, bonus?: boolean) => void;
+  award?: (xp: number, bonus?: boolean, activityType?: string) => void;
 }) {
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const [mistakes, setMistakes] = useState<any[]>(() =>
@@ -309,7 +309,7 @@ export default function MistakesScreen({
     if (reviewIdx + 1 >= reviewDeck.length) {
       // Session complete
       if (award && newMastered > 0) {
-        award(newMastered * 5, newMastered >= 3);
+        award(newMastered * 5, newMastered >= 3, 'review');
         markQuest('master');
       }
       setMode('done');

@@ -206,7 +206,7 @@ describe('NegationGenDrill — completion + award guard', () => {
     const award = vi.fn();
     completeAllQuestions(award);
     // All 20 opts[0] === answer → score=20, XP=100
-    expect(award).toHaveBeenCalledWith(100);
+    expect(award).toHaveBeenCalledWith(100, false, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {

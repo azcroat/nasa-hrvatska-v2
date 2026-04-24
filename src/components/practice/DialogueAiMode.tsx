@@ -16,7 +16,7 @@ interface Props {
   onFinish: () => void;
   onBack: () => void;
   finishFired: React.MutableRefObject<boolean>;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 export default function DialogueAiMode({

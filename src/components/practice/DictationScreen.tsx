@@ -113,7 +113,7 @@ function stripDiacritics(s: string) {
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function DictationScreen({ goBack, award }: Props) {
   const finishFired = useRef(false);
@@ -200,7 +200,7 @@ export default function DictationScreen({ goBack, award }: Props) {
               if (finishFired.current) return;
               finishFired.current = true;
               markQuest('speak');
-              if (typeof award === 'function') award(xp);
+              if (typeof award === 'function') award(xp, false, 'listening');
               goBack();
             }}
           >
