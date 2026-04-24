@@ -435,7 +435,7 @@ export default function MediaTab() {
       // Track engagement
       if (m.scr || m.web || m.ytId || m.stream) {
         incrementCulture('mediaCnt');
-        if (award) award(3);
+        if (award) award(3, false, 'media_view');
         markMediaUsed(m.name);
         setRecentVersion((v) => v + 1);
       }

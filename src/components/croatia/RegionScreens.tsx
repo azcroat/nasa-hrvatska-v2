@@ -46,7 +46,7 @@ export function RegionScreen({ regionKey, goBack }: RegionProps) {
       } else {
         const finalScore = correct ? quizScore + 1 : quizScore;
         markQuest('culture');
-        if (typeof award === 'function') award(finalScore * 5 + 10);
+        if (typeof award === 'function') award(finalScore * 5 + 10, false, 'culture');
         setQuizDone(true);
       }
     }, 1400);

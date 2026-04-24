@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { H } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
@@ -284,7 +285,7 @@ const CHAPTERS = [
 
 interface BakaSummerProps {
   goBack: () => void;
-  award: (xp: number) => void;
+  award: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }
 
 export default function BakaSummer({ goBack, award }: BakaSummerProps) {
@@ -319,7 +320,7 @@ export default function BakaSummer({ goBack, award }: BakaSummerProps) {
   // Award completion bonus if all done and not yet awarded
   useEffect(() => {
     if (chaptersDone.size === 16 && !bonusAwarded) {
-      if (typeof award === 'function') award(100);
+      if (typeof award === 'function') award(100, false, 'heritage');
       markQuest('culture');
       localStorage.setItem('nh_baka_done_bonus', '1');
       setBonusAwarded(true);
@@ -337,7 +338,7 @@ export default function BakaSummer({ goBack, award }: BakaSummerProps) {
     updated.add(chapter);
     setChaptersDone(updated);
     localStorage.setItem('nh_baka_done', JSON.stringify([...updated]));
-    if (typeof award === 'function') award(20);
+    if (typeof award === 'function') award(20, false, 'heritage');
     markQuest('culture');
     if (chapter < 15) {
       const next = chapter + 1;

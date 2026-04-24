@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -121,7 +122,7 @@ export default function StoryModeScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   const { level: userLevel } = useStats();
   const isOnline = useOnlineStatus();
@@ -180,7 +181,7 @@ export default function StoryModeScreen({
         !awardFired.current
       ) {
         awardFired.current = true;
-        if (typeof award === 'function') award(15);
+        if (typeof award === 'function') award(15, false, 'story');
         markQuest('reading');
       }
     };

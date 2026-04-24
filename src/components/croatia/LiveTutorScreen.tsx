@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getAudioContext } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
@@ -38,7 +39,7 @@ interface DebriefResult {
 }
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }
 // ─────────────────────────────────────────────
 // CONSTANTS
@@ -327,9 +328,9 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
         const newTurn = turnCount + 1;
         setTurnCount(newTurn);
         if (typeof award === 'function') {
-          award(5);
+          award(5, false, 'speaking');
           if (newTurn === 10) {
-            award(20);
+            award(20, false, 'speaking');
             markQuest('speak');
           }
         }

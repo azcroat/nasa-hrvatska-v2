@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 
 interface DebriefData {
   summary?: string;
@@ -13,7 +14,7 @@ interface Props {
   debrief: DebriefData;
   turnCount: number;
   topic: string;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
   onPracticeAgain: () => void;
 }
 
@@ -187,7 +188,7 @@ export default function LiveTutorDebrief({
           onClick={() => {
             if (!awardFired.current) {
               awardFired.current = true;
-              if (award) award(xpEarned);
+              if (award) award(xpEarned, false, 'speaking');
             }
             goBack();
           }}

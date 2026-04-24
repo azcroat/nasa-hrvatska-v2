@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 
 const LEVEL_PALETTES = [
   { grad: 'linear-gradient(135deg,#92400e,#b45309)', accent: '#fcd34d', text: '#92400e' },
@@ -25,7 +26,7 @@ export default function UnitCompleteBanner({
 }: {
   completedLevel: CompletedLevel;
   onClose: () => void;
-  award?: (xp: number, celebrate?: boolean) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   const awardFiredRef = useRef(false);
   const pal = LEVEL_PALETTES[(completedLevel.level - 1) % LEVEL_PALETTES.length]!;
@@ -34,7 +35,7 @@ export default function UnitCompleteBanner({
   useEffect(() => {
     if (awardFiredRef.current) return;
     awardFiredRef.current = true;
-    if (award) setTimeout(() => award(UNIT_BONUS_XP, true), 400);
+    if (award) setTimeout(() => award(UNIT_BONUS_XP, true, 'lesson'), 400);
   }, [award]);
 
   return (

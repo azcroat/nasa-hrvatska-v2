@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H } from '../../data';
@@ -662,7 +663,13 @@ function DetailView({ dialect, onBack }: { dialect: Dialect; onBack: () => void 
   );
 }
 
-function QuizView({ onBack, award }: { onBack: () => void; award?: (xp: number) => void }) {
+function QuizView({
+  onBack,
+  award,
+}: {
+  onBack: () => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
+}) {
   const { stats, setStats, writeDelta } = useStats();
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]); // array of booleans
@@ -708,7 +715,7 @@ function QuizView({ onBack, award }: { onBack: () => void; award?: (xp: number) 
       const alreadyDone = localStorage.getItem(LS_KEY) === '1';
       if (!alreadyDone) {
         localStorage.setItem(LS_KEY, '1');
-        if (typeof award === 'function') award(score * 10);
+        if (typeof award === 'function') award(score * 10, false, 'culture');
         markQuest('culture');
         if (!stats.vs?.includes('dialects')) {
           setStats((prev) => {

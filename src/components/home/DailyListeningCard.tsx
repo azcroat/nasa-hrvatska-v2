@@ -6,6 +6,7 @@
  * questions. Awards 15 XP on completion. Resets once per day.
  */
 import React, { useState, useCallback } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { speak } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
@@ -57,7 +58,7 @@ export default function DailyListeningCard({
   award,
 }: {
   level: string;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   const [phase, setPhase] = useState('idle'); // idle | loading | reading | questions | done
   const [data, setData] = useState<ListeningData | null>(null); // {speakers, questions}
@@ -116,7 +117,7 @@ export default function DailyListeningCard({
     setChecked(true);
     // Award XP proportional to score
     const xp = Math.round(XP_REWARD * (0.5 + (correct / Math.max(data.questions.length, 1)) * 0.5));
-    if (award) award(xp);
+    if (award) award(xp, false, 'listening');
     markQuest('speak');
     try {
       localStorage.setItem(completedKey, '1');

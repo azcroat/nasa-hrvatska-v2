@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { H } from '../../data';
 import { useStats } from '../../context/StatsContext';
 import { apiFetch } from '../../lib/apiFetch.js';
@@ -44,7 +45,7 @@ export default function PostcardScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   const { level: userLevel } = useStats();
 
@@ -294,7 +295,7 @@ export default function PostcardScreen({
     link.click();
     if (!awardFired.current) {
       awardFired.current = true;
-      if (typeof award === 'function') award(15);
+      if (typeof award === 'function') award(15, false, 'culture');
     }
   }
 
@@ -314,7 +315,7 @@ export default function PostcardScreen({
           });
           if (!awardFired.current) {
             awardFired.current = true;
-            if (typeof award === 'function') award(15);
+            if (typeof award === 'function') award(15, false, 'culture');
           }
           return;
         }
@@ -328,7 +329,7 @@ export default function PostcardScreen({
         setTimeout(() => setCopied(false), 2500);
         if (!awardFired.current) {
           awardFired.current = true;
-          if (typeof award === 'function') award(15);
+          if (typeof award === 'function') award(15, false, 'culture');
         }
       } catch (_) {
         setError('Could not copy to clipboard. Try downloading instead.');

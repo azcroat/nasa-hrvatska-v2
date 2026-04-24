@@ -1236,7 +1236,7 @@ function App() {
   useEffect(() => {
     const onImmersionDay = (e: Event) => {
       if (authScreen !== 'app') return;
-      award(5);
+      award(5, false, 'default');
       const count = (e as CustomEvent)?.detail?.count ?? 0;
       // Knight milestone speeches for immersion streaks
       const immersionMilestones: Record<number, string> = {

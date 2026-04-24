@@ -174,7 +174,7 @@ export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }
           return next;
         });
         setTotalEarned((e) => e + xp);
-        if (award) award(xp, xp >= 5);
+        if (award) award(xp, xp >= 5, 'vocabulary');
       } else {
         playWrong();
         haptic([20, 15, 20]);

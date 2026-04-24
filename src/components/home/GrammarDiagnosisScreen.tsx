@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { H, getSR } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
 
@@ -69,7 +70,7 @@ export default function GrammarDiagnosisScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   const [phase, setPhase] = useState('idle');
   const [diagnosis, setDiagnosis] = useState<GrammarDiagnosis | null>(null);
@@ -112,7 +113,7 @@ export default function GrammarDiagnosisScreen({
     });
     if (anyCorrect) {
       setXpAwarded(true);
-      award && award(10);
+      award && award(10, false, 'grammar');
     }
   }, [drillAnswers, diagnosis, xpAwarded, award]);
 

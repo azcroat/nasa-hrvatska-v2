@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { H } from '../../data';
 import { useStats } from '../../context/StatsContext';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -540,7 +541,7 @@ export default function CroatianNewsScreen({
   award,
 }: {
   goBack?: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   const { level: userLevelNum } = useStats();
   const isOnline = useOnlineStatus();
@@ -582,7 +583,7 @@ export default function CroatianNewsScreen({
       next.add(articleIdx);
       if (next.size >= 2 && !awardGiven.current) {
         awardGiven.current = true;
-        award && award(10);
+        award && award(10, false, 'culture');
         markQuest('reading');
       }
       return next;
