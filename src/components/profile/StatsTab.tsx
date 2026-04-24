@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useMemo } from 'react';
 import { getStreak, getSR } from '../../data';
 import { getStyleLabel, getStylePreferences } from '../../lib/learnerStyle.js';
@@ -7,7 +6,7 @@ import { useStats } from '../../context/StatsContext';
 import XPActivityCalendar from './XPActivityCalendar';
 import SkillRadar from './SkillRadar';
 
-function getCEFR(xp, lc, gc) {
+function getCEFR(xp: number, lc: number, gc: number) {
   const total = xp + lc * 15 + gc * 25;
   if (total < 300)
     return { level: 'A1', label: 'Beginner', color: 'var(--success)', next: 'A2', needed: 300 };
@@ -31,7 +30,8 @@ function getCEFR(xp, lc, gc) {
 function getWordsLearned() {
   try {
     const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
-    return Object.values(sr).filter((v) => v && v.r > 0).length;
+    return Object.values(sr as Record<string, { r?: number }>).filter((v) => v && (v.r ?? 0) > 0)
+      .length;
   } catch (_) {
     return 0;
   }
@@ -40,13 +40,21 @@ function getWordsLearned() {
 const STAGE_CEFR = ['A1', 'A2', 'B1', 'B1+', 'B2+', 'C1'];
 const STAGE_NAMES_PROFILE = ['Survivor', 'Settler', 'Communicator', 'Explorer', 'Hrvat!'];
 
-export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
+export default function StatsTab({
+  onShowPrestigeModal,
+  onSyncNow,
+}: {
+  onShowPrestigeModal?: () => void;
+  onSyncNow?: () => void;
+}) {
   const { favs, setScr } = useApp();
   const { stats: st } = useStats();
 
   const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const streak = useMemo(() => getStreak(), [st]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const sr = useMemo(() => getSR(), [st]);
   const mastered = useMemo(
     () => Object.values(sr).filter((v) => v.r > v.w && v.r >= 2).length,
@@ -147,7 +155,8 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
               key={i}
               aria-label={`${s.value} ${s.label}`}
               className="stat-card-v3"
-              style={/** @type {any} */ { background: bgs[i], '--stat-accent': accents[i] }}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              style={{ background: bgs[i], '--stat-accent': accents[i] } as any}
             >
               <span className="stat-icon">{s.icon}</span>
               {s.label === 'Day Streak' ? (
@@ -238,7 +247,14 @@ export default function StatsTab({ onShowPrestigeModal, onSyncNow }) {
           ? Math.min(100, Math.round((cefrScore / cefr.needed) * 100))
           : 100;
         // Derive which Learn Path stage matches the current CEFR level so both displays agree.
-        const CEFR_TO_STAGE_IDX = { A1: 0, A2: 1, B1: 2, B2: 3, C1: 4, C2: 4 };
+        const CEFR_TO_STAGE_IDX: Record<string, number> = {
+          A1: 0,
+          A2: 1,
+          B1: 2,
+          B2: 3,
+          C1: 4,
+          C2: 4,
+        };
         const cefrStageIdx = CEFR_TO_STAGE_IDX[cefr.level] ?? 0;
         return (
           <>

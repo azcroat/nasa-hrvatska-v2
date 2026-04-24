@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { lXP, nXP } from '../../lib/appUtils.js';
 import CroatianKnight from '../shared/CroatianKnight';

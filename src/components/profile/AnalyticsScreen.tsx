@@ -1,9 +1,21 @@
-// @ts-nocheck
 import React, { useMemo } from 'react';
 import { H, getMistakes, getDueReviews, BADGES } from '../../data';
+import type { Stats } from '../../types';
 
 // ── Mini bar chart ─────────────────────────────────────────────────────────────
-function MiniBar({ label, value, max, color, icon }) {
+function MiniBar({
+  label,
+  value,
+  max,
+  color,
+  icon,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  color: string;
+  icon: string;
+}) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
     <div style={{ marginBottom: 14 }}>
@@ -36,7 +48,17 @@ function MiniBar({ label, value, max, color, icon }) {
 }
 
 // ── Stat tile ──────────────────────────────────────────────────────────────────
-function StatTile({ icon, value, label, color }) {
+function StatTile({
+  icon,
+  value,
+  label,
+  color,
+}: {
+  icon: string;
+  value: number;
+  label: string;
+  color: string;
+}) {
   return (
     <div
       style={{
@@ -57,7 +79,13 @@ function StatTile({ icon, value, label, color }) {
 }
 
 // ── Badge row ──────────────────────────────────────────────────────────────────
-function BadgeRow({ badge, earned }) {
+function BadgeRow({
+  badge,
+  earned,
+}: {
+  badge: { i: string; n: string; d: string };
+  earned: boolean;
+}) {
   return (
     <div
       style={{
@@ -98,7 +126,15 @@ function BadgeRow({ badge, earned }) {
 }
 
 // ── Main screen ────────────────────────────────────────────────────────────────
-export default function AnalyticsScreen({ goBack, stats, name }) {
+export default function AnalyticsScreen({
+  goBack,
+  stats,
+  name,
+}: {
+  goBack: () => void;
+  stats: Partial<Stats & { streak?: number; longestStreak?: number; vc?: number }> | null;
+  name?: string;
+}) {
   const s = stats || {};
   // Not memoised — reads localStorage; must reflect current data when stats prop updates
   const mistakes = getMistakes();
@@ -288,7 +324,7 @@ export default function AnalyticsScreen({ goBack, stats, name }) {
           <div style={{ fontSize: 15, fontWeight: 800, color: '#1e293b', marginBottom: 12 }}>
             ⚠️ Most Missed Words
           </div>
-          {mistakes.slice(0, 5).map((m) => (
+          {mistakes.slice(0, 5).map((m: { hr: string; en?: string; count: number }) => (
             <div
               key={m.hr}
               style={{

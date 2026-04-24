@@ -1,7 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 
-export default function PrestigeModal({ onClose, onConfirm }) {
+export default function PrestigeModal({
+  onClose,
+  onConfirm,
+}: {
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
   return (
     <div
       style={{

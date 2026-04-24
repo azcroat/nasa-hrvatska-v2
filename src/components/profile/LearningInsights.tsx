@@ -1,5 +1,19 @@
-// @ts-nocheck
 import React from 'react';
+import type { Stats } from '../../types';
+
+interface WeakWord {
+  word: string;
+  right: number;
+  wrong: number;
+}
+
+interface SREntry {
+  r?: number;
+  w?: number;
+  s?: number;
+  rep?: number;
+  ef?: number;
+}
 
 // Helper to get SRS data
 function getSRData() {
@@ -32,16 +46,16 @@ function getDailyActivity() {
 
 // Analyze SRS vocabulary data
 function analyzeVocab() {
-  const sr = getSRData();
+  const sr = getSRData() as Record<string, SREntry>;
   const words = Object.entries(sr);
   if (words.length === 0)
-    return { total: 0, mastered: 0, learning: 0, avgAccuracy: 0, weakWords: [] };
+    return { total: 0, mastered: 0, learning: 0, avgAccuracy: 0, weakWords: [] as WeakWord[] };
 
   let mastered = 0,
     learning = 0,
     totalRight = 0,
     totalWrong = 0;
-  const weakWords = [];
+  const weakWords: WeakWord[] = [];
 
   words.forEach(([word, data]) => {
     const right = data.r || 0;
@@ -49,7 +63,7 @@ function analyzeVocab() {
     totalRight += right;
     totalWrong += wrong;
     // FSRS: stability ≥ 21 days = mastered; legacy SM-2 fallback: rep ≥ 4 && ef ≥ 2.0
-    if (data.s != null ? data.s >= 21 : data.rep >= 4 && (data.ef || 0) >= 2.0) mastered++;
+    if (data.s != null ? data.s >= 21 : (data.rep ?? 0) >= 4 && (data.ef || 0) >= 2.0) mastered++;
     else learning++;
     if (wrong > right && right + wrong >= 3) weakWords.push({ word, right, wrong });
   });
@@ -75,13 +89,13 @@ function getJourney() {
   }
 }
 
-export default function LearningInsights({ st }) {
+export default function LearningInsights({ st }: { st: Partial<Stats> }) {
   // Not memoised — these read localStorage so they must re-run when st changes to stay current
   const vocab = analyzeVocab();
   const dailyActivity = getDailyActivity();
   const _journey = getJourney().slice(-5).reverse(); // last 5 milestones
 
-  const streak = st?.ss || 0;
+  const streak = st?.str || 0;
   const totalXP = st?.xp || 0;
   const lessonsCompleted = st?.lc || 0;
   const perfectScores = st?.pf || 0;

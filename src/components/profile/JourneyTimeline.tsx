@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { getJourneyMilestones } from '../../data';
 
@@ -50,8 +49,9 @@ export default function JourneyTimeline() {
         }}
       />
 
-      {milestones.map((m, i) => {
-        const def = MILESTONE_ICONS[m.type] || MILESTONE_ICONS.default;
+      {milestones.map((m: { type: string; date: string }, i: number) => {
+        const def =
+          MILESTONE_ICONS[m.type as keyof typeof MILESTONE_ICONS] || MILESTONE_ICONS.default;
         const date = new Date(m.date);
         const dateStr = date.toLocaleDateString('en-US', {
           month: 'short',

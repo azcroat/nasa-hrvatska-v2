@@ -1,7 +1,7 @@
-// @ts-nocheck
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { fbDeleteAccount, fbLeaveFamily, getLocalFamily, V, sh } from '../../data';
 import { fbExportUserData } from '../../lib/firebase.js';
+import type { LogEntry } from '../../lib/debugLog.js';
 import {
   isSoundEnabled,
   setSoundEnabled,
@@ -87,7 +87,13 @@ const GOAL_FOCUS = {
   },
 };
 
-export default function SettingsTab({ syncReady, onSyncNow }) {
+export default function SettingsTab({
+  syncReady,
+  onSyncNow,
+}: {
+  syncReady: boolean;
+  onSyncNow?: () => void | Promise<boolean | void>;
+}) {
   const {
     au,
     darkMode,
@@ -104,9 +110,9 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
 
   const [freezesStored, setFreezesStored] = useState(() => getFreezesStored());
   const [freezeMsg, setFreezeMsg] = useState('');
-  const [audioTestStatus, setAudioTestStatus] = useState(null); // null | 'testing' | 'ok' | 'failed'
+  const [audioTestStatus, setAudioTestStatus] = useState<null | 'testing' | 'ok' | 'failed'>(null);
   const [showAudioDebug, setShowAudioDebug] = useState(false);
-  const [audioDebugLines, setAudioDebugLines] = useState([]);
+  const [audioDebugLines, setAudioDebugLines] = useState<LogEntry[]>([]);
 
   async function handleAudioTest() {
     setAudioTestStatus('testing');
@@ -126,13 +132,14 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
   }
 
   function handleBuyFreeze() {
-    const result = purchaseFreeze(statsCtx.xp || 0, setStats);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = purchaseFreeze(statsCtx.xp || 0, setStats as any);
     if (result.ok) {
-      setFreezesStored(result.stored);
-      setFreezeMsg(`❄️ Freeze purchased! ${result.stored}/2 stored.`);
+      setFreezesStored(result.stored ?? 0);
+      setFreezeMsg(`❄️ Freeze purchased! ${result.stored ?? 0}/2 stored.`);
       setTimeout(() => setFreezeMsg(''), 3000);
     } else {
-      setFreezeMsg(result.reason);
+      setFreezeMsg(result.reason ?? '');
       setTimeout(() => setFreezeMsg(''), 3000);
     }
   }
@@ -157,10 +164,15 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
   const [syncing, setSyncing] = useState(false);
   const [syncDone, setSyncDone] = useState(false);
   const [syncErr, setSyncErr] = useState(false);
-  const doneTimerRef = useRef(null);
+  const doneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Clear doneTimerRef on unmount to avoid setState-after-unmount when user syncs
   // then navigates away within the 4-second feedback window.
-  useEffect(() => () => clearTimeout(doneTimerRef.current), []);
+  useEffect(
+    () => () => {
+      if (doneTimerRef.current !== null) clearTimeout(doneTimerRef.current);
+    },
+    [],
+  );
 
   // Push notification state
   const [notifPermission, setNotifPermission] = useState(() => {
@@ -208,6 +220,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
     } catch {
       return null;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [au, syncDone]);
 
   async function handleSyncNow() {
@@ -242,7 +255,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
     setExporting(true);
     try {
       let data;
-      const uid = au?.u || au?.uid || '';
+      const uid = au?.u || '';
       if (uid) {
         data = await fbExportUserData(uid);
         data.inMemory = {
@@ -304,7 +317,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
       {/* ── GOAL FOCUS ── */}
       {currentGoal &&
         (() => {
-          const gf = GOAL_FOCUS[currentGoal];
+          const gf = GOAL_FOCUS[currentGoal as keyof typeof GOAL_FOCUS];
           if (!gf) return null;
           return (
             <React.Fragment>
@@ -328,48 +341,50 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
                   marginBottom: 20,
                 }}
               >
-                {gf.items.map((it) => {
-                  function handleGoalItem() {
-                    if (it.launch === 'flashcards_family') {
-                      const pool = sh([...(V['family'] || [])]).slice(0, 20);
-                      if (pool.length > 0 && launchFlashcards) launchFlashcards(pool);
-                      else setScr('review');
-                    } else if (it.launch === 'speaking_family') {
-                      const pool = sh([...(V['family'] || [])]).slice(0, 6);
-                      if (pool.length > 0 && launchSpeaking) launchSpeaking(pool);
-                      else setScr('speaking_sprint');
-                    } else {
-                      setScr(it.scr);
+                {gf.items.map(
+                  (it: { icon: string; label: string; scr: string; launch?: string }) => {
+                    function handleGoalItem() {
+                      if (it.launch === 'flashcards_family') {
+                        const pool = sh([...(V['family'] || [])]).slice(0, 20);
+                        if (pool.length > 0 && launchFlashcards) launchFlashcards(pool);
+                        else setScr('review');
+                      } else if (it.launch === 'speaking_family') {
+                        const pool = sh([...(V['family'] || [])]).slice(0, 6);
+                        if (pool.length > 0 && launchSpeaking) launchSpeaking(pool);
+                        else setScr('speaking_sprint');
+                      } else {
+                        setScr(it.scr);
+                      }
                     }
-                  }
-                  return (
-                    <button
-                      key={it.scr}
-                      onClick={handleGoalItem}
-                      className="tc"
-                      style={{
-                        background: gf.bg,
-                        border: `1.5px solid ${gf.border}`,
-                        padding: '14px 8px',
-                        textAlign: 'center',
-                        cursor: 'pointer',
-                        fontFamily: "'Outfit',sans-serif",
-                      }}
-                    >
-                      <div style={{ fontSize: 'var(--text-xl)', marginBottom: 4 }}>{it.icon}</div>
-                      <div
+                    return (
+                      <button
+                        key={it.scr}
+                        onClick={handleGoalItem}
+                        className="tc"
                         style={{
-                          fontSize: 'var(--text-xs)',
-                          fontWeight: 700,
-                          color: gf.color,
-                          lineHeight: 1.2,
+                          background: gf.bg,
+                          border: `1.5px solid ${gf.border}`,
+                          padding: '14px 8px',
+                          textAlign: 'center',
+                          cursor: 'pointer',
+                          fontFamily: "'Outfit',sans-serif",
                         }}
                       >
-                        {it.label}
-                      </div>
-                    </button>
-                  );
-                })}
+                        <div style={{ fontSize: 'var(--text-xl)', marginBottom: 4 }}>{it.icon}</div>
+                        <div
+                          style={{
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 700,
+                            color: gf.color,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {it.label}
+                        </div>
+                      </button>
+                    );
+                  },
+                )}
               </div>
             </React.Fragment>
           );
@@ -736,15 +751,25 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          {[
-            { id: 'beginner', label: 'Beginner', desc: 'A1–A2: basic vocab and simple sentences' },
-            {
-              id: 'intermediate',
-              label: 'Intermediate',
-              desc: 'B1: grammar drills and everyday conversation',
-            },
-            { id: 'advanced', label: 'Advanced', desc: 'B2+: complex grammar, idioms, and nuance' },
-          ].map((d) => {
+          {(
+            [
+              {
+                id: 'beginner' as const,
+                label: 'Beginner',
+                desc: 'A1–A2: basic vocab and simple sentences',
+              },
+              {
+                id: 'intermediate' as const,
+                label: 'Intermediate',
+                desc: 'B1: grammar drills and everyday conversation',
+              },
+              {
+                id: 'advanced' as const,
+                label: 'Advanced',
+                desc: 'B2+: complex grammar, idioms, and nuance',
+              },
+            ] as const
+          ).map((d) => {
             const active = (statsCtx.diff || 'beginner') === d.id;
             return (
               <button
@@ -1254,7 +1279,7 @@ export default function SettingsTab({ syncReady, onSyncNow }) {
                     '21:00',
                     '22:00',
                   ].map((t) => {
-                    const [h] = t.split(':');
+                    const [h = '0'] = t.split(':');
                     const hour = parseInt(h, 10);
                     const label =
                       hour === 0

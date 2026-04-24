@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { getStreak } from '../../data';
 import { getWeakTopics } from '../../lib/adaptive.js';
@@ -60,7 +59,13 @@ const B1_RESOURCES = [
   },
 ];
 
-export default function InsightsTab({ onOpenLeaderboard, onOpenFriends }) {
+export default function InsightsTab({
+  onOpenLeaderboard,
+  onOpenFriends,
+}: {
+  onOpenLeaderboard?: () => void;
+  onOpenFriends?: () => void;
+}) {
   const { setScr } = useApp();
   const { stats: st, level } = useStats();
   const [imdOpen, setImdOpen] = useState(false);
@@ -254,7 +259,7 @@ export default function InsightsTab({ onOpenLeaderboard, onOpenFriends }) {
                         padezi: 'padezi',
                         conjugation: 'conjdrill',
                       };
-                      setScr(topicScreenMap[w.id] || 'dashboard');
+                      setScr(topicScreenMap[w.id as keyof typeof topicScreenMap] || 'dashboard');
                     }}
                     style={{
                       padding: '8px 14px',

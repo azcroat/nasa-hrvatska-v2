@@ -1,8 +1,8 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { Bar, lXP, nXP } from '../../data';
 import { fbDeleteAccount } from '../../lib/firebase.js';
 import { getSubscriptionStatus, cancelFreeAnnual } from '../../hooks/useSubscription';
+import type { Stats, AuthUser } from '../../types';
 
 const AVATAR_EMOJIS = [
   '😊',
@@ -27,7 +27,23 @@ const AVATAR_EMOJIS = [
   '🌺',
 ];
 
-export default function ProfileScreen({ name, level, st, au, goBack, doOut, setScr }) {
+export default function ProfileScreen({
+  name,
+  level,
+  st,
+  au,
+  goBack,
+  doOut,
+  setScr,
+}: {
+  name: string;
+  level: number;
+  st: Partial<Stats> & { diff?: string };
+  au: AuthUser | null;
+  goBack: () => void;
+  doOut: () => void;
+  setScr?: (screen: string) => void;
+}) {
   const [deleteStep, setDeleteStep] = useState(0); // 0=idle, 1=confirm, 2=deleting
   const [deleteError, setDeleteError] = useState('');
   const [cancelStep, setCancelStep] = useState(0); // 0=idle, 1=friction, 2=cancelled
@@ -49,7 +65,7 @@ export default function ProfileScreen({ name, level, st, au, goBack, doOut, setS
     if (deleteStep === 1) {
       setDeleteStep(2);
       setDeleteError('');
-      const uid = au?.u || au?.uid || '';
+      const uid = au?.u || '';
       const res = await fbDeleteAccount(uid);
       if (res.ok) {
         doOut();
@@ -219,9 +235,9 @@ export default function ProfileScreen({ name, level, st, au, goBack, doOut, setS
         <h3 style={{ fontSize: 14, fontWeight: 700, color: '#78716c', marginBottom: 12 }}>
           Next Level
         </h3>
-        <Bar v={st.xp - lXP(level)} mx={nXP(level) - lXP(level)} />
+        <Bar v={(st.xp ?? 0) - lXP(level)} mx={nXP(level) - lXP(level)} />
         <p style={{ fontSize: 12, color: '#a8a29e', marginTop: 8 }}>
-          {nXP(level) - st.xp} XP to Level {level + 1}
+          {nXP(level) - (st.xp ?? 0)} XP to Level {level + 1}
         </p>
       </div>
       {setScr && (
@@ -353,7 +369,7 @@ export default function ProfileScreen({ name, level, st, au, goBack, doOut, setS
             </button>
             <button
               onClick={() => {
-                cancelFreeAnnual(au?.u || au?.uid || '');
+                cancelFreeAnnual(au?.u || '');
                 setCancelStep(2);
               }}
               style={{

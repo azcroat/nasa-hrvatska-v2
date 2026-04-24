@@ -1,6 +1,6 @@
-// @ts-nocheck
 import React, { useRef } from 'react';
 import { lXP, nXP, getStreak } from '../../data';
+import type { Stats } from '../../types';
 
 const LEVEL_LABELS = [
   '',
@@ -14,7 +14,17 @@ const LEVEL_LABELS = [
 ];
 const CEFR_BY_LEVEL = ['', 'A1', 'A1-A2', 'A2-B1', 'B1', 'B1-B2', 'B2-C1', 'C1+'];
 
-export default function CertificateScreen({ name, level, st, goBack }) {
+export default function CertificateScreen({
+  name,
+  level,
+  st,
+  goBack,
+}: {
+  name: string;
+  level: number;
+  st: Stats;
+  goBack: () => void;
+}) {
   const certRef = useRef(null);
   const streak = getStreak();
   const today = new Date().toLocaleDateString('en-GB', {
@@ -39,6 +49,7 @@ export default function CertificateScreen({ name, level, st, goBack }) {
       canvas.width = 800;
       canvas.height = 420;
       const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas 2d context unavailable');
       // Background gradient
       const grad = ctx.createLinearGradient(0, 0, 800, 420);
       grad.addColorStop(0, '#0a1628');
@@ -77,7 +88,8 @@ export default function CertificateScreen({ name, level, st, goBack }) {
       ctx.font = '14px sans-serif';
       ctx.fillText(today + ' · nasahrvatska.com', 60, 390);
       // Share image if Web Share supports files, else fall back to text
-      const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'));
+      const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/png'));
+      if (!blob) throw new Error('toBlob returned null');
       const file = new File([blob], 'nasa-hrvatska-certificate.png', { type: 'image/png' });
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ title: 'My Croatian Progress', files: [file] });

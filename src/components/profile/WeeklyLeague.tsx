@@ -1,6 +1,26 @@
-// @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
+import type { AuthUser, Stats } from '../../types';
+
+interface LeagueMember {
+  uid: string;
+  name: string;
+  xp: number;
+  rank?: number;
+  isMe?: boolean;
+}
+
+interface LeagueData {
+  tier: { id: string };
+  rank: number;
+  total: number;
+  members: LeagueMember[];
+  myMember: LeagueMember;
+  promotionXP: number;
+  demotionXP: number;
+  inPromotionZone: boolean;
+  inDemotionZone: boolean;
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -23,7 +43,7 @@ function getMsUntilMonday() {
   return nextMonday.getTime() - now.getTime();
 }
 
-function formatCountdown(ms) {
+function formatCountdown(ms: number) {
   if (ms <= 0) return '0h 0m';
   const totalSec = Math.floor(ms / 1000);
   const days = Math.floor(totalSec / 86400);
@@ -105,14 +125,24 @@ function Skeleton({ h = 16, w = '100%', r = 8, mb = 8 }) {
 
 // ── Main Component ─────────────────────────────────────────────────────────
 
-export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
+export default function WeeklyLeague({
+  authUser: au,
+  name,
+  stats,
+  goBack,
+}: {
+  authUser: AuthUser | null;
+  name?: string;
+  stats?: Partial<Stats>;
+  goBack: () => void;
+}) {
   const weekKey = getCurrentWeekKey();
   const myWeekXP = parseInt(localStorage.getItem('nh_week_xp_' + weekKey) || '0', 10);
 
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState('');
-  const [data, setData] = useState(null); // null = not joined yet
+  const [data, setData] = useState<LeagueData | null>(null); // null = not joined yet
   const [countdown, setCountdown] = useState(getMsUntilMonday());
   const [showTiers, setShowTiers] = useState(false);
 
@@ -199,7 +229,9 @@ export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
     }
   }, [data, au, myWeekXP, name, weekKey]);
 
-  const tier = data?.tier ? TIER_META[data.tier.id] || TIER_META.bronze : TIER_META.bronze;
+  const tier = data?.tier
+    ? TIER_META[data.tier.id as keyof typeof TIER_META] || TIER_META.bronze
+    : TIER_META.bronze;
   const myRank = data?.rank ?? null;
   const total = data?.total ?? 0;
 
@@ -473,7 +505,7 @@ export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
         )}
 
         {members.map((m, i) => {
-          const isMe = m.uid === au?.u || m.uid === au?.uid || m.uid === au?.uid;
+          const isMe = m.uid === au?.u;
           const rank = m.rank ?? i + 1;
           const rankMedal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
           const inPromo = rank <= 3;
@@ -616,7 +648,7 @@ export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
             </div>
             {(() => {
               const m = data.myMember;
-              const rank = m.rank;
+              const rank = m.rank ?? 0;
               const inDemotion = rank > total - 5 && total >= 5;
               const maxXP = members[0]?.xp || 1;
               return (
@@ -733,7 +765,15 @@ export default function WeeklyLeague({ authUser: au, name, stats, goBack }) {
 
 // ── Tier Explainer (collapsible) ──────────────────────────────────────────
 
-function TierExplainer({ showTiers, setShowTiers, currentTierId = null }) {
+function TierExplainer({
+  showTiers,
+  setShowTiers,
+  currentTierId = null,
+}: {
+  showTiers: boolean;
+  setShowTiers: (v: (prev: boolean) => boolean) => void;
+  currentTierId?: string | null;
+}) {
   return (
     <div style={{ marginTop: 8 }}>
       <button
@@ -782,7 +822,7 @@ function TierExplainer({ showTiers, setShowTiers, currentTierId = null }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {ALL_TIERS.map((t) => {
               const isCurrent = t.id === currentTierId;
-              const tm = TIER_META[t.id];
+              const tm = TIER_META[t.id as keyof typeof TIER_META];
               return (
                 <div
                   key={t.id}

@@ -1,8 +1,23 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../data';
 
-export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
+interface FavItem {
+  hr?: string;
+  en?: string;
+  go?: string;
+}
+
+export default function FavoritesScreen({
+  favs,
+  toggleFav,
+  setScr,
+  goBack,
+}: {
+  favs: FavItem[];
+  toggleFav: (f: FavItem) => void;
+  setScr: (screen: string) => void;
+  goBack: () => void;
+}) {
   return (
     <div className="scr-wrap">
       {H('⭐ My Favorites', 'Saved words, phrases & screens', goBack)}
@@ -14,7 +29,7 @@ export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
           </div>
         </div>
       ) : (
-        favs.map((f, i) => (
+        favs.map((f: FavItem, i: number) => (
           <div
             key={f.hr || `fav-${i}`}
             className="c"
@@ -48,7 +63,7 @@ export default function FavoritesScreen({ favs, toggleFav, setScr, goBack }) {
                 <button
                   aria-label={`Play audio for ${f.hr}`}
                   style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer' }}
-                  onClick={() => speak(f.hr)}
+                  onClick={() => speak(f.hr ?? '')}
                 >
                   <span aria-hidden="true">🔊</span>
                 </button>

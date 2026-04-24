@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { getTopErrors, getErrorsByCategory } from '../../lib/learnerErrors.js';
 import { getWeakTopics } from '../../lib/adaptive.js';
@@ -112,8 +111,8 @@ const CAT_META = {
   },
 };
 
-function CategoryBadge({ category }) {
-  const meta = CAT_META[category] || CAT_META.grammar;
+function CategoryBadge({ category }: { category: string }) {
+  const meta = CAT_META[category as keyof typeof CAT_META] || CAT_META.grammar;
   return (
     <span
       style={{
@@ -136,8 +135,18 @@ function CategoryBadge({ category }) {
   );
 }
 
-function ErrorCard({ error, expanded, onToggle, onPractice }) {
-  const meta = ERROR_META[error.pattern] || {
+function ErrorCard({
+  error,
+  expanded,
+  onToggle,
+  onPractice,
+}: {
+  error: { pattern: string; count: number; category: string };
+  expanded: boolean;
+  onToggle: () => void;
+  onPractice: (screen: string) => void;
+}) {
+  const meta = ERROR_META[error.pattern as keyof typeof ERROR_META] || {
     label: error.pattern.replace(/_/g, ' '),
     desc: `This pattern appeared ${error.count} time(s).`,
     icon: '⚠️',
@@ -311,7 +320,13 @@ function ErrorCard({ error, expanded, onToggle, onPractice }) {
 }
 
 // ── Weak topic card ───────────────────────────────────────────────────────────
-function WeakTopicCard({ topic, onPractice }) {
+function WeakTopicCard({
+  topic,
+  onPractice,
+}: {
+  topic: { id: string; accuracy: number; attempts: number };
+  onPractice: (screen: string) => void;
+}) {
   const TOPIC_SCREEN = {
     grammar: 'conjdrill',
     padezi: 'padezi',
@@ -438,7 +453,7 @@ function EmptyInsights() {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function CroatianErrorInsights() {
   const { setScr } = useApp();
-  const [expandedIdx, setExpandedIdx] = useState(null);
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('errors'); // 'errors' | 'topics'
 
   const topErrors = getTopErrors(8);
@@ -447,7 +462,7 @@ export default function CroatianErrorInsights() {
   const totalErrors = topErrors.length;
   const errorCats = Object.entries(byCategory).filter(([, v]) => v.length > 0);
 
-  function handlePractice(screen) {
+  function handlePractice(screen: string) {
     setScr(screen);
   }
 
@@ -567,7 +582,7 @@ export default function CroatianErrorInsights() {
               {errorCats.length > 1 && (
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
                   {errorCats.map(([cat, errors]) => {
-                    const meta = CAT_META[cat] || CAT_META.grammar;
+                    const meta = CAT_META[cat as keyof typeof CAT_META] || CAT_META.grammar;
                     return (
                       <div
                         key={cat}
