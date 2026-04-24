@@ -1,4 +1,7 @@
 import type { Dispatch } from 'react';
+import type { AwardActivityType } from '../lib/activityXp.js';
+
+export type { AwardActivityType };
 
 // Core stats shape — mirrors DS constant in App.jsx and sanitizeStats field list.
 export interface Stats {
@@ -58,7 +61,7 @@ export interface StatsContextValue {
   stats: Stats;
   setStats: (fn: ((prev: Stats) => Stats) | Stats) => void;
   dispatch: Dispatch<StatsAction>;
-  award: (amt: number, celebrate?: boolean, exerciseId?: string) => void;
+  award: (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
   level: number;
   /** Fire an atomic Firestore increment for this delta — conflict-free across devices. */
   writeDelta: (delta: StatsDelta) => void;
