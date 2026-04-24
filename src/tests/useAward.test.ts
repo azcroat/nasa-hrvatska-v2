@@ -43,8 +43,21 @@ vi.mock('../lib/knightSpeak.js', () => ({
   knightSpeak: vi.fn(),
 }));
 
+vi.mock('../lib/apiFetch.js', () => ({
+  apiFetch: vi.fn(),
+}));
+vi.mock('../lib/offlineAwardQueue.js', () => ({
+  enqueue: vi.fn(),
+}));
+vi.mock('../lib/activityXp.js', () => ({
+  ACTIVITY_XP_MAP: { grammar: 80, lesson: 210, default: 210 },
+  // AwardActivityType is a type — not needed in mock
+}));
+
 // Import AFTER mocks are set up
 import { useAward, canEarnXP, markExerciseDone, resetComebackGuard } from '../hooks/useAward';
+import { apiFetch } from '../lib/apiFetch.js';
+import * as offlineAwardQueue from '../lib/offlineAwardQueue.js';
 
 // ── Minimal Stats object ──────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -511,5 +524,117 @@ describe('useAward — award() behaviour', () => {
       await result.current.award(30);
     });
     expect(writeDelta).toHaveBeenCalledWith(expect.objectContaining({ xp: 30 }));
+  });
+});
+
+describe('award — activityType / online validation', () => {
+  const mockStats = {
+    xp: 0,
+    lc: 0,
+    gc: 0,
+    sp: 0,
+    de: 0,
+    rc: 0,
+    str: 0,
+    pf: 0,
+    mv: 0,
+    hi: 0,
+    authLoading: 0,
+    diff: 'beginner' as const,
+    ct: [],
+    vs: [],
+    rs: [],
+    badges: [],
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
+    (apiFetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ awarded: 25 }),
+    });
+  });
+
+  it('calls /api/award when online and activityType provided', async () => {
+    const writeDelta = vi.fn();
+    const { result } = renderHook(() =>
+      useAward({ curEx: 'test', stats: mockStats, setStats: vi.fn(), writeDelta }),
+    );
+    await act(async () => {
+      await result.current.award(25, false, 'grammar');
+    });
+    expect(apiFetch).toHaveBeenCalledWith(
+      '/api/award',
+      expect.objectContaining({
+        method: 'POST',
+      }),
+    );
+  });
+
+  it('uses awarded from server response for writeDelta', async () => {
+    (apiFetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ awarded: 20 }),
+    });
+    const writeDelta = vi.fn();
+    const { result } = renderHook(() =>
+      useAward({ curEx: 'test', stats: mockStats, setStats: vi.fn(), writeDelta }),
+    );
+    await act(async () => {
+      await result.current.award(25, false, 'grammar');
+    });
+    expect(writeDelta).toHaveBeenCalledWith(expect.objectContaining({ xp: 20 }));
+  });
+
+  it('enqueues to offlineAwardQueue when offline', async () => {
+    Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+    const { result } = renderHook(() =>
+      useAward({ curEx: 'test', stats: mockStats, setStats: vi.fn(), writeDelta: vi.fn() }),
+    );
+    await act(async () => {
+      await result.current.award(25, false, 'grammar');
+    });
+    expect(offlineAwardQueue.enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({ activityType: 'grammar', claimedXp: 25 }),
+    );
+    expect(apiFetch).not.toHaveBeenCalled();
+  });
+
+  it('enqueues and falls back to totalAmt when API returns non-ok', async () => {
+    (apiFetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: false });
+    const writeDelta = vi.fn();
+    const { result } = renderHook(() =>
+      useAward({ curEx: 'test', stats: mockStats, setStats: vi.fn(), writeDelta }),
+    );
+    await act(async () => {
+      await result.current.award(25, false, 'grammar');
+    });
+    expect(offlineAwardQueue.enqueue).toHaveBeenCalled();
+    expect(writeDelta).toHaveBeenCalledWith(expect.objectContaining({ xp: 25 }));
+  });
+
+  it('enqueues and falls back when API throws', async () => {
+    (apiFetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('timeout'));
+    const writeDelta = vi.fn();
+    const { result } = renderHook(() =>
+      useAward({ curEx: 'test', stats: mockStats, setStats: vi.fn(), writeDelta }),
+    );
+    await act(async () => {
+      await result.current.award(25, false, 'grammar');
+    });
+    expect(offlineAwardQueue.enqueue).toHaveBeenCalled();
+    expect(writeDelta).toHaveBeenCalledWith(expect.objectContaining({ xp: 25 }));
+  });
+
+  it('skips API call when no activityType provided (backward compat)', async () => {
+    const { result } = renderHook(() =>
+      useAward({ curEx: 'test', stats: mockStats, setStats: vi.fn(), writeDelta: vi.fn() }),
+    );
+    await act(async () => {
+      await result.current.award(25);
+    });
+    expect(apiFetch).not.toHaveBeenCalled();
+    expect(offlineAwardQueue.enqueue).not.toHaveBeenCalled();
   });
 });

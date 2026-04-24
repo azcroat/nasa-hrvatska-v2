@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import type { AwardActivityType } from '../../lib/activityXp.js';
 import { H, V, LISTEN, getSR, getDueReviews, lvl, getStreak } from '../../data';
 import { localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
@@ -35,7 +36,7 @@ interface PracticeTabProps {
   onLaunchListen: (items: unknown[]) => void;
   onLaunchMatch: (items: unknown[]) => void;
   onLaunchSpeaking: (items?: unknown[]) => void;
-  award: (amt: number, celebrate?: boolean, exerciseId?: string) => void;
+  award: (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
   launchPathItem: (item: unknown) => void;
 }
 

@@ -30,6 +30,9 @@ import {
   getServerDateStr as _getServerDateStr,
 } from '../lib/dateUtils.js';
 import { knightSpeak } from '../lib/knightSpeak.js';
+import { apiFetch } from '../lib/apiFetch.js';
+import * as offlineAwardQueue from '../lib/offlineAwardQueue.js';
+import type { AwardActivityType } from '../lib/activityXp.js';
 import type { Stats } from '../types/index.js';
 
 // ── Badge-specific knight speeches ────────────────────────────────────────────
@@ -167,9 +170,9 @@ export function useAward({
   const [sB, setSB] = useState(false);
 
   const award = useCallback(
-    async (amt: number, celebrate?: boolean, exerciseId?: string) => {
+    async (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => {
       if (!Number.isFinite(amt) || amt === 0) return;
-      const _effectiveEx = exerciseId ?? curEx;
+      const _effectiveEx = curEx;
       if (_effectiveEx && !canEarnXP(_effectiveEx)) {
         setXpA(0);
         setShowXP(false);
@@ -224,11 +227,57 @@ export function useAward({
         }
         return n;
       });
-      // Atomic Firebase increment — fires immediately, conflict-free across devices.
-      // XP: every device's increment is applied additively by the server.
-      // badges: arrayUnion ensures no device can lose a badge earned on another device.
+      // ── Server-side XP validation ─────────────────────────────────────────
+      // Local state always uses totalAmt for immediate visual feedback.
+      // Firestore write uses _serverAwardedXp (validated by Worker for online users).
+      // On failure or offline, falls through to totalAmt (existing behavior).
+      let _serverAwardedXp = totalAmt;
       if (writeDelta && totalAmt > 0) {
-        const _deltaPayload: Record<string, unknown> = { xp: totalAmt };
+        const _isOnline = typeof navigator !== 'undefined' && navigator.onLine;
+        if (_isOnline && activityType) {
+          try {
+            const _vRes = await apiFetch('/api/award', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ activityType, claimedXp: totalAmt }),
+            });
+            if (_vRes.ok) {
+              const _vData = (await _vRes.json()) as { awarded?: number };
+              if (typeof _vData.awarded === 'number' && _vData.awarded >= 0) {
+                _serverAwardedXp = _vData.awarded;
+              } else {
+                offlineAwardQueue.enqueue({
+                  activityType,
+                  claimedXp: totalAmt,
+                  timestamp: Date.now(),
+                });
+              }
+            } else {
+              offlineAwardQueue.enqueue({
+                activityType,
+                claimedXp: totalAmt,
+                timestamp: Date.now(),
+              });
+            }
+          } catch {
+            // Network error or timeout — fall through to totalAmt
+            offlineAwardQueue.enqueue({
+              activityType,
+              claimedXp: totalAmt,
+              timestamp: Date.now(),
+            });
+          }
+        } else if (activityType) {
+          // Offline path: enqueue for audit on reconnect
+          offlineAwardQueue.enqueue({
+            activityType,
+            claimedXp: totalAmt,
+            timestamp: Date.now(),
+          });
+        }
+
+        // Atomic Firebase increment — fires immediately, conflict-free across devices.
+        const _deltaPayload: Record<string, unknown> = { xp: _serverAwardedXp };
         if (_pendingBadge) {
           const _pendingBadgeObj = _pendingBadge as { id: string };
           _deltaPayload.badges = [_pendingBadgeObj.id];

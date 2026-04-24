@@ -8,6 +8,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { trackStart, trackAbandon } from '../lib/learnerStyle.js';
 import { markExerciseDone } from './useAward.js';
 import type { Stats, StatsDelta } from '../types/index.js';
+import type { AwardActivityType } from '../lib/activityXp.js';
 
 // V, GRAM, and LESSONS are only needed when launching exercises — lazy import keeps chunk-data
 // out of the startup bundle. sh is a local Fisher-Yates using Math.random().
@@ -153,7 +154,7 @@ interface ScreenLauncherParams {
   sCurEx: (ex: string) => void;
   currentScreen: string;
   setStats: (fn: (prev: Stats) => Stats) => void;
-  award: (amt: number, celebrate?: boolean, exerciseId?: string) => void;
+  award: (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
   writeDelta: (delta: StatsDelta & Record<string, unknown>) => void;
   allCats: string[];
   gc: number;
@@ -640,7 +641,7 @@ export function useScreenLauncher({
               if (bhStat === 'gc') delta.gc = 1;
               if (Object.keys(delta).length > 0) writeDelta(delta);
             }
-            award(15, undefined, screenId);
+            award(15, undefined, undefined);
           }, 20000);
           lpDwellRef.current = { screen: screenId, statType: bhStat, timer };
         }
