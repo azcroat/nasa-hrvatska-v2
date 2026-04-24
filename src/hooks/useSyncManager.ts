@@ -23,6 +23,7 @@ import {
 } from '../lib/firebase.js';
 import { buildProgressSnapshot } from '../lib/progressSnapshot.js';
 import { mergeStatsFromRemote } from '../lib/mergeStatsFromRemote.js';
+import * as offlineAwardQueue from '../lib/offlineAwardQueue.js';
 import type { Stats, AuthUser } from '../types/index.js';
 
 interface SyncManagerParams {
@@ -337,6 +338,10 @@ export function useSyncManager({
           dchlSl: string[];
         };
         if (!u || as_ !== 'app') return;
+
+        // Flush offline award queue — audit any XP awarded while disconnected
+        offlineAwardQueue.flush(u.u).catch(() => {});
+
         try {
           const snap = buildProgressSnapshot({
             uid: u.u,
