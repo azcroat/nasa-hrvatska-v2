@@ -368,6 +368,7 @@ export function useSyncManager({
       window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('online', onOnline);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- doSyncNow is stable (useCallback) but adding it causes infinite re-renders; intentional omission
   }, [authScreen, authUser, enqueueSnapshot, setSyncReady]);
 
   // ─── Firebase ID token cache ───────────────────────────────────────────────

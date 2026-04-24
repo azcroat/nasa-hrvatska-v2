@@ -47,6 +47,7 @@ vi.mock('../lib/knightSpeak.js', () => ({
 import { useAward, canEarnXP, markExerciseDone, resetComebackGuard } from '../hooks/useAward';
 
 // ── Minimal Stats object ──────────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DS: any = {
   xp: 0,
   lc: 0,
@@ -389,6 +390,7 @@ describe('useAward — state setters', () => {
 
 describe('useAward — award() behaviour', () => {
   it('award(50) calls setStats at least once', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setStats = vi.fn((fn: any) => fn({ ...DS }));
     const { result } = renderHook(() =>
       useAward({
@@ -439,6 +441,7 @@ describe('useAward — award() behaviour', () => {
   });
 
   it('award(50) calls setStats with an updater function', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setStats = vi.fn((fn: any) => fn({ ...DS }));
     const { result } = renderHook(() =>
       useAward({
@@ -456,6 +459,7 @@ describe('useAward — award() behaviour', () => {
 
   it('award() with celebrate=true sets showCelebration to true (via setTimeout)', async () => {
     vi.useFakeTimers();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setStats = vi.fn((fn: any) => fn({ ...DS }));
     const { result } = renderHook(() =>
       useAward({
@@ -475,6 +479,7 @@ describe('useAward — award() behaviour', () => {
   });
 
   it('award() marks the exercise done in xpCooldown after running', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setStats = vi.fn((fn: any) => fn({ ...DS }));
     const { result } = renderHook(() =>
       useAward({
@@ -491,6 +496,7 @@ describe('useAward — award() behaviour', () => {
   });
 
   it('award() with writeDelta calls writeDelta with xp amount', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setStats = vi.fn((fn: any) => fn({ ...DS }));
     const writeDelta = vi.fn();
     const { result } = renderHook(() =>
