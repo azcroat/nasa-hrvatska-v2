@@ -22,7 +22,16 @@
 #   npm run setup:cf
 #
 # Pages KV bindings (production + preview):
-#   NH_CLANS  (title: nasa-hrvatska-clans)   — Study clan cohort data
+#   NH_CLANS      (title: nasa-hrvatska-clans)   — Study clan cohort data
+#   XP_VELOCITY   (title: nasa-hrvatska-xp-velocity) — Per-user XP velocity window
+#
+# To create XP_VELOCITY:
+#   1. node scripts/setup-cf-resources.mjs   (creates + binds automatically)
+#   OR manually:
+#   2. wrangler kv:namespace create nasa-hrvatska-xp-velocity
+#   3. Bind to Pages project in Cloudflare Dashboard →
+#      Pages → nasa-hrvatska-v2 → Settings → Functions → KV namespace bindings
+#      Variable name: XP_VELOCITY
 #
 # Pages env vars required (set in Dashboard → Pages → Settings → Env Vars):
 #   FIREBASE_PROJECT_ID   — Firebase project ID for token verification

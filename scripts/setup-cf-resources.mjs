@@ -32,6 +32,7 @@ const PAGES_PROJECT = 'nasa-hrvatska-v2';
 // title:   the human-readable name in the Cloudflare dashboard
 const REQUIRED_KV = [
   { binding: 'NH_CLANS', title: 'nasa-hrvatska-clans' },
+  { binding: 'XP_VELOCITY', title: 'nasa-hrvatska-xp-velocity' },
 ];
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
