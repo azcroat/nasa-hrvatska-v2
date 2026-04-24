@@ -56,7 +56,8 @@ service cloud.firestore {
       return newXp >= 0
         && newXp == int(newXp)
         && (newXp >= oldXp || newXp == 0)
-        && newXp <= 100000;
+        && newXp <= 100000
+        && (newXp - oldXp) <= 1000;  // per-write backstop; blocks extreme offline manipulation
     }
 
     // User-doc UPDATE: progress blob must be ≤ 200 KB to prevent abuse.
@@ -251,6 +252,15 @@ service cloud.firestore {
       allow create, update: if isOwner(userId)
         && request.resource.data.keys().hasAll(['cards', 'updated']);
       allow delete: if isOwner(userId);
+    }
+
+    // ─── XP audit log — written by offlineAwardQueue.flush() on reconnect ────
+    // Append-only: any authenticated owner may write; nobody may read (admin only).
+    // Suspicious offline XP amounts are flagged here for manual review.
+    match /users/{userId}/xpAudit/{auditId} {
+      allow read: if false;
+      allow write: if isOwner(userId);
+      allow delete: if false;
     }
 
     // ─── Conversation memory — Maja's per-user session summaries ──────────────
