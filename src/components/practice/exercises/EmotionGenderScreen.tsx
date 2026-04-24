@@ -1,10 +1,14 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, sh } from '../../../data';
 import { EMOGENDER } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-function EmotionGenderScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function EmotionGenderScreen({ goBack, award }: Props) {
   const total = EMOGENDER.reduce(function (sum, eg) {
     return sum + eg.pairs.length;
   }, 0);
@@ -12,15 +16,20 @@ function EmotionGenderScreen({ goBack, award }) {
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleAnswer(e, isCorrect, spoken) {
-    e.target.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    e.target.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(
+    e: React.MouseEvent<HTMLButtonElement>,
+    isCorrect: boolean,
+    spoken: string,
+  ) {
+    (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
+    (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     if (isCorrect) {
       if (typeof award === 'function') award(2);
       speak(spoken);
     }
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    const btn = e.target as HTMLButtonElement;
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     if (isCorrect) correctRef.current++;
     answeredRef.current++;
     if (answeredRef.current >= total && !done) {

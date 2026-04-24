@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo, useRef } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { VERBDRILL, VBPERSONS } from '../../../data';
@@ -6,19 +5,35 @@ import { markQuest } from '../../../lib/quests.js';
 import { addWordToSRS } from '../../../lib/srs.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
 
+interface VerbEntry {
+  inf: string;
+  en: string;
+  forms: string[];
+}
+interface QuizQuestion {
+  verb: string;
+  en: string;
+  person: string;
+  correct: string;
+  opts: string[];
+}
+
 // Generate 12 conjugation quiz questions from the verb list
-function buildQuiz(verbs) {
-  const qs = [];
+function buildQuiz(verbs: VerbEntry[]): QuizQuestion[] {
+  const qs: QuizQuestion[] = [];
   const pool = shMemo('vdqz', verbs, 12);
-  pool.forEach((verb, i) => {
+  pool.forEach((verb: VerbEntry, i: number) => {
     const personIdx = i % 6; // cycle through all 6 persons evenly
-    const correct = verb.forms[personIdx];
+    const correct = verb.forms[personIdx] ?? '';
     // Distractors: other forms of the same verb
-    const distractors = sh(verb.forms.filter((_, fi) => fi !== personIdx)).slice(0, 3);
+    const distractors = sh(verb.forms.filter((_: string, fi: number) => fi !== personIdx)).slice(
+      0,
+      3,
+    );
     qs.push({
       verb: verb.inf,
       en: verb.en,
-      person: VBPERSONS[personIdx],
+      person: VBPERSONS[personIdx] ?? '',
       correct,
       opts: sh([correct, ...distractors]),
     });
@@ -26,21 +41,26 @@ function buildQuiz(verbs) {
   return qs;
 }
 
-export default function VerbDrillScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+export default function VerbDrillScreen({ goBack, award }: Props) {
   const [mode, setMode] = useState('reference'); // 'reference' | 'quiz'
 
   // Quiz state
   const questions = useMemo(() => buildQuiz(VERBDRILL), []);
   const [qi, setQi] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
   const awardFired = useRef(false);
 
-  function handleAnswer(opt) {
+  function handleAnswer(opt: string) {
     if (answered) return;
-    const q = questions[qi];
+    const q = questions[qi]!;
     const isCorrect = opt === q.correct;
     setSelected(opt);
     setAnswered(true);
@@ -67,7 +87,7 @@ export default function VerbDrillScreen({ goBack, award }) {
     }
   }
 
-  const verbs = shMemo('vd', VERBDRILL);
+  const verbs = shMemo('vd', VERBDRILL, undefined);
 
   // ── Reference mode ────────────────────────────────────────────────────────────
   if (mode === 'reference') {
@@ -85,7 +105,7 @@ export default function VerbDrillScreen({ goBack, award }) {
         >
           💡 Tap any form to hear it. When you're ready, test yourself below!
         </div>
-        {verbs.map(function (v, vi) {
+        {verbs.map(function (v: VerbEntry, vi: number) {
           return (
             <div
               key={vi}
@@ -112,7 +132,7 @@ export default function VerbDrillScreen({ goBack, award }) {
                 </span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
-                {v.forms.map(function (f, fi) {
+                {v.forms.map(function (f: string, fi: number) {
                   return (
                     <button
                       key={fi}
@@ -134,7 +154,7 @@ export default function VerbDrillScreen({ goBack, award }) {
                       }}
                     >
                       <span style={{ fontWeight: 700, color: '#0e7490', minWidth: 50 }}>
-                        {VBPERSONS[fi]}
+                        {VBPERSONS[fi] ?? ''}
                       </span>
                       <span>{f}</span>
                     </button>
@@ -202,7 +222,7 @@ export default function VerbDrillScreen({ goBack, award }) {
   }
 
   // ── Quiz mode ─────────────────────────────────────────────────────────────────
-  const q = questions[qi];
+  const q = questions[qi]!;
   const pctBar = Math.round(((qi + (answered ? 1 : 0)) / questions.length) * 100);
 
   return (

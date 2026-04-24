@@ -1,26 +1,34 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, shMemo } from '../../../data';
 import { AKUFOOD, AKUCLOTHES } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
 
-function AccusativeDrillScreen({ goBack, award }) {
-  const foodItems = shMemo('af', AKUFOOD);
-  const clothesItems = shMemo('ac', AKUCLOTHES);
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function AccusativeDrillScreen({ goBack, award }: Props) {
+  const foodItems = shMemo('af', AKUFOOD, undefined);
+  const clothesItems = shMemo('ac', AKUCLOTHES, undefined);
   const total = foodItems.length + clothesItems.length;
   const revealedRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleReveal(e, f) {
-    e.target.textContent = f.aku;
-    e.target.style.background = '#dcfce7';
-    e.target.style.borderColor = '#16a34a';
+  function handleReveal(
+    e: React.MouseEvent<HTMLButtonElement>,
+    f: { aku: string; q: string; nom: string },
+  ) {
+    (e.target as HTMLButtonElement).textContent = f.aku;
+    (e.target as HTMLButtonElement).style.background = '#dcfce7';
+    (e.target as HTMLButtonElement).style.borderColor = '#16a34a';
     speak(f.q.replace('_____', f.aku));
     recordTopicResult('cases', true);
     if (typeof award === 'function') award(2);
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    const btn = e.target as HTMLButtonElement;
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     revealedRef.current++;
     if (revealedRef.current >= total && !done) {
       markQuest('grammar');
@@ -44,7 +52,7 @@ function AccusativeDrillScreen({ goBack, award }) {
         stay the same.
       </div>
       <h3 className="sh">🍔 Hrana (Food)</h3>
-      {foodItems.map(function (f, i) {
+      {foodItems.map(function (f: { q: string; nom: string; aku: string }, i: number) {
         return (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <div style={{ flex: 1, fontSize: 12 }}>
@@ -73,7 +81,7 @@ function AccusativeDrillScreen({ goBack, award }) {
       <h3 className="sh" style={{ marginTop: 16 }}>
         👚 Odjeća (Clothes)
       </h3>
-      {clothesItems.map(function (cl, i) {
+      {clothesItems.map(function (cl: { q: string; nom: string; aku: string }, i: number) {
         return (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <div style={{ flex: 1, fontSize: 12 }}>

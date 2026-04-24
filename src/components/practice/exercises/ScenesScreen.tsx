@@ -1,9 +1,12 @@
-// @ts-nocheck
 import React from 'react';
 import { H, speak } from '../../../data';
 import { SCENES } from '../../../data';
 
-function ScenesScreen({ goBack }) {
+interface Props {
+  goBack: () => void;
+}
+
+function ScenesScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🖼️ Describe the Scene', 'Answer questions about everyday situations', goBack)}

@@ -1,33 +1,53 @@
-// @ts-nocheck
 import React, { useState, useRef, useMemo } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { PROFGENDER } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-// Multiple-choice quiz: given the English + gender hint, choose the correct Croatian form
-function buildQuiz(profList) {
-  const items = [];
-  profList.forEach((p) => {
-    // Masculine form question
-    const mWrong = sh(profList.filter((x) => x.m !== p.m).map((x) => x.m)).slice(0, 3);
-    items.push({ en: p.en, gender: 'm', a: p.m, opts: sh([p.m, ...mWrong.slice(0, 2)]) });
-    // Feminine form question
-    const fWrong = sh(profList.filter((x) => x.f !== p.f).map((x) => x.f)).slice(0, 3);
-    items.push({ en: p.en, gender: 'f', a: p.f, opts: sh([p.f, ...fWrong.slice(0, 2)]) });
-  });
-  return sh(items).slice(0, 16);
+interface ProfItem {
+  en: string;
+  m: string;
+  f: string;
+}
+interface QuizItem {
+  en: string;
+  gender: string;
+  a: string;
+  opts: string[];
 }
 
-function ProfessionGenderScreen({ goBack, award }) {
+// Multiple-choice quiz: given the English + gender hint, choose the correct Croatian form
+function buildQuiz(profList: ProfItem[]): QuizItem[] {
+  const items: QuizItem[] = [];
+  profList.forEach((p) => {
+    // Masculine form question
+    const mWrong = sh(
+      profList.filter((x: ProfItem) => x.m !== p.m).map((x: ProfItem) => x.m),
+    ).slice(0, 3);
+    items.push({ en: p.en, gender: 'm', a: p.m, opts: sh([p.m, ...mWrong.slice(0, 2)]) });
+    // Feminine form question
+    const fWrong = sh(
+      profList.filter((x: ProfItem) => x.f !== p.f).map((x: ProfItem) => x.f),
+    ).slice(0, 3);
+    items.push({ en: p.en, gender: 'f', a: p.f, opts: sh([p.f, ...fWrong.slice(0, 2)]) });
+  });
+  return sh(items).slice(0, 16) as QuizItem[];
+}
+
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function ProfessionGenderScreen({ goBack, award }: Props) {
   const [tab, setTab] = useState('learn');
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState<Record<number, boolean>>({});
   const questFiredRef = useRef(false);
   const quiz = useMemo(() => buildQuiz(PROFGENDER), []);
 
   const correctCount = Object.values(answers).filter(Boolean).length;
   const allDone = Object.keys(answers).length === quiz.length;
 
-  function handleAnswer(qi, opt, correct) {
+  function handleAnswer(qi: number, opt: string, correct: string) {
     if (answers[qi] !== undefined) return;
     const isCorrect = opt === correct;
     setAnswers((prev) => ({ ...prev, [qi]: isCorrect }));
@@ -108,7 +128,7 @@ function ProfessionGenderScreen({ goBack, award }) {
               👩 FEMALE
             </div>
           </div>
-          {shMemo('pg', PROFGENDER).map((p, i) => (
+          {shMemo('pg', PROFGENDER, undefined).map((p: ProfItem, i: number) => (
             <div
               key={i}
               className="c"

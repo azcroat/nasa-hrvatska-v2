@@ -1,24 +1,33 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { POSSESS } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-function PossessivesScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function PossessivesScreen({ goBack, award }: Props) {
   const questions = shMemo('pq', POSSESS.quiz, 10);
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleAnswer(e, isCorrect, spoken) {
-    e.target.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    e.target.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(
+    e: React.MouseEvent<HTMLButtonElement>,
+    isCorrect: boolean,
+    spoken: string,
+  ) {
+    (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
+    (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     if (isCorrect) {
       if (typeof award === 'function') award(3);
       speak(spoken);
     }
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    const btn = e.target as HTMLButtonElement;
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     if (isCorrect) correctRef.current++;
     answeredRef.current++;
     if (answeredRef.current >= questions.length && !done) {
@@ -85,7 +94,10 @@ function PossessivesScreen({ goBack, award }) {
         noun = no ending (moj stan)
       </div>
       <h3 className="sh">🎯 Ovo je _____ ...</h3>
-      {questions.map(function (q, qi) {
+      {questions.map(function (
+        q: { person: string; noun: string; opts: string[]; a: string },
+        qi: number,
+      ) {
         return (
           <div key={qi} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <div style={{ flex: 1, fontSize: 13 }}>

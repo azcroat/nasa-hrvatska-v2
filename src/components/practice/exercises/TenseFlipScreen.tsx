@@ -1,22 +1,27 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, shMemo } from '../../../data';
 import { TENSEFLIP } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
 
-function TenseFlipScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function TenseFlipScreen({ goBack, award }: Props) {
   const items = shMemo('tf', TENSEFLIP, 10);
   const total = items.length * 2; // each item has perfekt + negative
   const revealedRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleReveal(e, spoken) {
+  function handleReveal(e: React.MouseEvent<HTMLButtonElement>, spoken: string) {
     speak(spoken);
     recordTopicResult('past_tense', true);
     if (typeof award === 'function') award(3);
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    const btn = e.target as HTMLButtonElement;
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     revealedRef.current++;
     if (revealedRef.current >= total && !done) {
       markQuest('grammar');
@@ -38,7 +43,7 @@ function TenseFlipScreen({ goBack, award }) {
       >
         💡 See the present tense, then tap to reveal the past (perfekt) and negative past forms.
       </div>
-      {items.map(function (t, ti) {
+      {items.map(function (t: { prez: string; perf: string; neg: string }, ti: number) {
         return (
           <div key={ti} className="c" style={{ marginBottom: 10, padding: '10px 14px' }}>
             <button
@@ -74,9 +79,10 @@ function TenseFlipScreen({ goBack, award }) {
                   textAlign: 'left',
                 }}
                 onClick={function (e) {
-                  e.target.textContent = '✅ ' + t.perf;
-                  e.target.style.background = '#dcfce7';
-                  e.target.style.borderColor = '#16a34a';
+                  const btn = e.target as HTMLButtonElement;
+                  btn.textContent = '✅ ' + t.perf;
+                  btn.style.background = '#dcfce7';
+                  btn.style.borderColor = '#16a34a';
                   handleReveal(e, t.perf);
                 }}
               >
@@ -94,9 +100,10 @@ function TenseFlipScreen({ goBack, award }) {
                   textAlign: 'left',
                 }}
                 onClick={function (e) {
-                  e.target.textContent = '❌ ' + t.neg;
-                  e.target.style.background = '#fee2e2';
-                  e.target.style.borderColor = '#dc2626';
+                  const btn = e.target as HTMLButtonElement;
+                  btn.textContent = '❌ ' + t.neg;
+                  btn.style.background = '#fee2e2';
+                  btn.style.borderColor = '#dc2626';
                   handleReveal(e, t.neg);
                 }}
               >

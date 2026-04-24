@@ -1,10 +1,14 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, sh } from '../../../data';
 import { FILL_STORIES } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-function FillStoryScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function FillStoryScreen({ goBack, award }: Props) {
   const total = FILL_STORIES.reduce(function (sum, story) {
     return sum + story.story.length;
   }, 0);
@@ -12,19 +16,20 @@ function FillStoryScreen({ goBack, award }) {
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleAnswer(e, isCorrect) {
-    const btns = e.target.parentNode.children;
+  function handleAnswer(e: React.MouseEvent<HTMLButtonElement>, isCorrect: boolean) {
+    const btn = e.target as HTMLButtonElement;
+    const btns = btn.parentNode ? (btn.parentNode as HTMLElement).children : [];
     for (let i = 0; i < btns.length; i++) {
-      btns[i].style.background = 'white';
-      btns[i].style.borderColor = '#d6d3d1';
+      (btns[i] as HTMLElement).style.background = 'white';
+      (btns[i] as HTMLElement).style.borderColor = '#d6d3d1';
     }
-    e.target.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    e.target.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+    btn.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
+    btn.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     if (isCorrect) {
       if (typeof award === 'function') award(3);
     }
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     if (isCorrect) correctRef.current++;
     answeredRef.current++;
     if (answeredRef.current >= total && !done) {

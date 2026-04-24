@@ -1,24 +1,33 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { ORDINALS, ORDQUIZ } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-function OrdinalsScreen({ goBack, award }) {
-  const questions = shMemo('oq', ORDQUIZ);
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function OrdinalsScreen({ goBack, award }: Props) {
+  const questions = shMemo('oq', ORDQUIZ, undefined);
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleAnswer(e, isCorrect, spoken) {
-    e.target.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    e.target.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(
+    e: React.MouseEvent<HTMLButtonElement>,
+    isCorrect: boolean,
+    spoken: string,
+  ) {
+    (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
+    (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     if (isCorrect) {
       if (typeof award === 'function') award(3);
       speak(spoken);
     }
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    const btn = e.target as HTMLButtonElement;
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     if (isCorrect) correctRef.current++;
     answeredRef.current++;
     if (answeredRef.current >= questions.length && !done) {
@@ -55,7 +64,7 @@ function OrdinalsScreen({ goBack, award }) {
         })}
       </div>
       <h3 className="sh">🏢 Na kojem katu?</h3>
-      {questions.map(function (q, qi) {
+      {questions.map(function (q: { q: string; opts: string[]; a: string }, qi: number) {
         return (
           <div key={qi} className="c" style={{ marginBottom: 8, padding: '10px 14px' }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{q.q}</div>

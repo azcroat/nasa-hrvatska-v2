@@ -1,23 +1,33 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { LOGICQUIZ } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 
-function LogicQuizScreen({ goBack, award }) {
-  const questions = shMemo('lq', LOGICQUIZ);
+interface Props {
+  goBack: () => void;
+  award: (n: number, celebrate?: boolean) => void;
+}
+
+function LogicQuizScreen({ goBack, award }: Props) {
+  const questions = shMemo('lq', LOGICQUIZ, undefined);
   const answeredRef = useRef(0);
   const [done, setDone] = useState(false);
 
-  function handleOptionClick(e, isRight, o, onQuestionDone) {
-    e.target.style.background = isRight ? '#dcfce7' : '#fee2e2';
-    e.target.style.borderColor = isRight ? '#16a34a' : '#dc2626';
+  function handleOptionClick(
+    e: React.MouseEvent<HTMLButtonElement>,
+    isRight: boolean,
+    o: string,
+    onQuestionDone: () => void,
+  ) {
+    (e.target as HTMLButtonElement).style.background = isRight ? '#dcfce7' : '#fee2e2';
+    (e.target as HTMLButtonElement).style.borderColor = isRight ? '#16a34a' : '#dc2626';
     if (isRight) {
       if (typeof award === 'function') award(3);
       speak(o);
     }
-    if (e.target.closest && e.target.closest('div'))
-      e.target.closest('div').style.pointerEvents = 'none';
+    const btn = e.target as HTMLButtonElement;
+    if (btn.closest && btn.closest('div'))
+      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
     onQuestionDone();
   }
 
@@ -44,7 +54,7 @@ function LogicQuizScreen({ goBack, award }) {
         💡 Read the Croatian situation and pick ALL correct answers. Some questions have 2 right
         answers!
       </div>
-      {questions.map(function (lq, li) {
+      {questions.map(function (lq: { q: string; right: string[]; wrong: string[] }, li: number) {
         const allOpts = sh(lq.right.concat(lq.wrong));
         return (
           <div key={li} className="c" style={{ marginBottom: 12, padding: '12px 14px' }}>
