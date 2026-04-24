@@ -452,19 +452,19 @@ function ReflexiveScreen({ goBack, award }: Props) {
           {Object.keys(answers).length === REFLEXIVE.quiz.length && (
             <div className="c" style={{ marginTop: 16, padding: '20px 16px', textAlign: 'center' }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>
-                {Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i]!.a).length /
+                {REFLEXIVE.quiz.filter((q, i) => answers[i] === q.a).length /
                   REFLEXIVE.quiz.length >=
                 0.8
                   ? '🏆'
-                  : Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i]!.a).length /
+                  : REFLEXIVE.quiz.filter((q, i) => answers[i] === q.a).length /
                         REFLEXIVE.quiz.length >=
                       0.6
                     ? '⭐'
                     : '💪'}
               </div>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-                {Object.values(answers).filter((v, i) => v === REFLEXIVE.quiz[i]!.a).length}/
-                {REFLEXIVE.quiz.length} correct
+                {REFLEXIVE.quiz.filter((q, i) => answers[i] === q.a).length}/{REFLEXIVE.quiz.length}{' '}
+                correct
               </div>
               <button className="b bp" style={{ marginTop: 12 }} onClick={goBack}>
                 ✓ Done
