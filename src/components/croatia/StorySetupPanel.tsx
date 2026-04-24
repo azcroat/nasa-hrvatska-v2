@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import React from 'react';
 import { H } from '../../data';
 import { STORY_CITIES, LEVELS } from './StoryModeData.js';
@@ -27,6 +25,34 @@ const SETUP_CSS = `
   .level-btn { transition: transform 0.15s ease; }
 `;
 
+interface GoalMeta {
+  label: string;
+  icon: string;
+  cities: string[];
+  theme: string;
+  tip: string;
+}
+
+interface StoryCity {
+  name: string;
+  icon: string;
+  color: string;
+  region: string;
+}
+
+interface Props {
+  goalMeta: GoalMeta | null;
+  selectedCity: StoryCity | null;
+  setSelectedCity: (city: StoryCity) => void;
+  selectedLevel: string;
+  setSelectedLevel: (level: string) => void;
+  characterName: string;
+  setCharacterName: (name: string) => void;
+  error: string | null;
+  onGenerate: () => void;
+  onBack: () => void;
+}
+
 export default function StorySetupPanel({
   goalMeta,
   selectedCity,
@@ -38,7 +64,7 @@ export default function StorySetupPanel({
   error,
   onGenerate,
   onBack,
-}) {
+}: Props) {
   return (
     <div className="scr-wrap">
       <style>{SETUP_CSS}</style>
@@ -46,6 +72,7 @@ export default function StorySetupPanel({
       {H(
         '📖 Immersive Stories',
         'AI-generated stories set in real Croatian places, tailored to your level',
+        onBack,
       )}
 
       {/* Goal-aware recommendation banner */}
@@ -120,9 +147,9 @@ export default function StorySetupPanel({
                 gap: 4,
                 padding: '10px 14px',
                 borderRadius: 12,
-                border: `2px solid ${selectedCity.name === city.name ? city.color : 'var(--card-b)'}`,
+                border: `2px solid ${selectedCity?.name === city.name ? city.color : 'var(--card-b)'}`,
                 backgroundColor:
-                  selectedCity.name === city.name ? city.color + '18' : 'var(--card)',
+                  selectedCity?.name === city.name ? city.color + '18' : 'var(--card)',
                 cursor: 'pointer',
                 minWidth: 72,
               }}
@@ -132,7 +159,7 @@ export default function StorySetupPanel({
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
-                  color: selectedCity.name === city.name ? city.color : 'var(--heading)',
+                  color: selectedCity?.name === city.name ? city.color : 'var(--heading)',
                 }}
               >
                 {city.name}
@@ -165,8 +192,9 @@ export default function StorySetupPanel({
               style={{
                 padding: '8px 18px',
                 borderRadius: 10,
-                border: `2px solid ${selectedLevel === lvl ? selectedCity.color : 'var(--card-b)'}`,
-                backgroundColor: selectedLevel === lvl ? selectedCity.color : 'var(--card)',
+                border: `2px solid ${selectedLevel === lvl ? (selectedCity?.color ?? '#0e7490') : 'var(--card-b)'}`,
+                backgroundColor:
+                  selectedLevel === lvl ? (selectedCity?.color ?? '#0e7490') : 'var(--card)',
                 color: selectedLevel === lvl ? '#fff' : 'var(--heading)',
                 fontWeight: 700,
                 fontSize: 14,
@@ -243,7 +271,7 @@ export default function StorySetupPanel({
           boxShadow: '0 8px 32px rgba(14,116,144,0.35)',
         }}
       >
-        ✨ Generate Story in {selectedCity.icon} {selectedCity.name}
+        ✨ Generate Story in {selectedCity?.icon} {selectedCity?.name}
       </button>
 
       <button

@@ -1,12 +1,16 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 import { H, speak, sh } from '../../data';
 import { TEXTING } from '../../data';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 
-function buildQuiz(items) {
+interface TextItem {
+  slang: string;
+  means: string;
+  note?: string;
+}
+
+function buildQuiz(items: TextItem[]) {
   return sh([...items]).map((item, _, arr) => {
     const distractors = arr.filter((d) => d.means !== item.means).map((d) => d.means);
     const opts = sh([item.means, ...sh(distractors).slice(0, 3)]);
@@ -14,7 +18,12 @@ function buildQuiz(items) {
   });
 }
 
-function TextingScreen({ goBack, award }) {
+interface Props {
+  goBack: () => void;
+  award: (n: number) => void;
+}
+
+export default function TextingScreen({ goBack, award }: Props) {
   const [phase, setPhase] = useState('browse'); // browse | quiz
   const [qi, setQi] = useState(0);
   const [answered, setAnswered] = useState(false);
@@ -33,11 +42,11 @@ function TextingScreen({ goBack, award }) {
     setDone(false);
   }
 
-  function pick(i) {
+  function pick(i: number) {
     if (answered) return;
     setSelected(i);
     setAnswered(true);
-    const correct = i === questions[qi].c;
+    const correct = i === questions[qi]?.c;
     if (correct) setScore((s) => s + 1);
     recordTopicResult('vocabulary', correct);
   }
@@ -88,6 +97,7 @@ function TextingScreen({ goBack, award }) {
 
   if (phase === 'quiz') {
     const q = questions[qi];
+    if (!q) return null;
     return (
       <div className="scr-wrap">
         <div
@@ -169,5 +179,3 @@ function TextingScreen({ goBack, award }) {
     </div>
   );
 }
-
-export default TextingScreen;
