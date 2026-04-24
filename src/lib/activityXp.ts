@@ -1,4 +1,22 @@
-export const ACTIVITY_XP_MAP: Record<string, number> = {
+export type AwardActivityType =
+  | 'media_view'
+  | 'phrase_of_day'
+  | 'daily_discovery'
+  | 'grammar'
+  | 'vocabulary'
+  | 'pronunciation'
+  | 'listening'
+  | 'reading'
+  | 'speaking'
+  | 'culture'
+  | 'quest'
+  | 'review'
+  | 'lesson'
+  | 'heritage'
+  | 'story'
+  | 'default';
+
+export const ACTIVITY_XP_MAP: Record<AwardActivityType, number> = {
   // Micro rewards
   media_view: 15,
   phrase_of_day: 15,
@@ -23,21 +41,3 @@ export const ACTIVITY_XP_MAP: Record<string, number> = {
   // Catch-all for any unlisted activityType
   default: 210,
 };
-
-export type AwardActivityType =
-  | 'media_view'
-  | 'phrase_of_day'
-  | 'daily_discovery'
-  | 'grammar'
-  | 'vocabulary'
-  | 'pronunciation'
-  | 'listening'
-  | 'reading'
-  | 'speaking'
-  | 'culture'
-  | 'quest'
-  | 'review'
-  | 'lesson'
-  | 'heritage'
-  | 'story'
-  | 'default';
