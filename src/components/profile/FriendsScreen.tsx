@@ -1,5 +1,20 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
+import type { AuthUser } from '../../types';
+
+interface FamilyMember {
+  name?: string;
+  email?: string;
+  uid?: string;
+  xp?: number;
+  streak?: number | null;
+  level?: string;
+}
+
+interface FamilyData {
+  code: string;
+  name?: string;
+  role?: string;
+}
 import {
   fbCreateFamily,
   fbJoinFamily,
@@ -14,7 +29,7 @@ import {
 import { trackFriendAdded, trackFamilyJoined } from '../../lib/analytics.js';
 
 // ─── Shared helpers ────────────────────────────────────────────────────────
-function Avatar({ name, isMe, size = 40 }) {
+function Avatar({ name, isMe, size = 40 }: { name?: string; isMe: boolean; size?: number }) {
   const initials = (name || '?').trim().slice(0, 2).toUpperCase();
   return (
     <div
@@ -37,7 +52,15 @@ function Avatar({ name, isMe, size = 40 }) {
   );
 }
 
-function MemberCard({ m, isMe, onRemove }) {
+function MemberCard({
+  m,
+  isMe,
+  onRemove,
+}: {
+  m: FamilyMember;
+  isMe: boolean;
+  onRemove?: () => void;
+}) {
   return (
     <div
       style={{
@@ -109,9 +132,9 @@ function MemberCard({ m, isMe, onRemove }) {
 }
 
 // ─── Family Group tab ──────────────────────────────────────────────────────
-function FamilyTab({ user }) {
-  const [family, setFamily] = useState(null);
-  const [members, setMembers] = useState([]);
+function FamilyTab({ user }: { user: AuthUser | null }) {
+  const [family, setFamily] = useState<FamilyData | null>(null);
+  const [members, setMembers] = useState<FamilyMember[]>([]);
   const [joinCode, setJoinCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -125,12 +148,12 @@ function FamilyTab({ user }) {
     if (!email) return;
     let mounted = true;
     fbLoadUserFamily(email)
-      .then((fam) => {
+      .then((fam: FamilyData | null) => {
         if (!mounted) return;
         if (fam) {
           setFamily(fam);
           fbGetFamilyMembers(fam.code)
-            .then((m) => {
+            .then((m: FamilyMember[]) => {
               if (mounted) setMembers(m);
             })
             .catch(() => {});
@@ -146,11 +169,16 @@ function FamilyTab({ user }) {
     setLoading(true);
     setError('');
     const familyName = displayName ? `${displayName}'s Family` : 'My Family';
-    const result = await fbCreateFamily(familyName, uid, email, displayName);
+    const result = (await fbCreateFamily(familyName, uid, email, displayName)) as {
+      ok?: boolean;
+      family?: FamilyData;
+      code?: string;
+      err?: string;
+    };
     if (result?.ok) {
-      setFamily(result.family || { name: familyName, code: result.code, role: 'admin' });
-      fbGetFamilyMembers(result.code)
-        .then(setMembers)
+      setFamily(result.family || { name: familyName, code: result.code ?? '', role: 'admin' });
+      fbGetFamilyMembers(result.code ?? '')
+        .then((m: FamilyMember[]) => setMembers(m))
         .catch(() => {});
       trackFamilyJoined();
     } else {
@@ -172,11 +200,15 @@ function FamilyTab({ user }) {
     );
     const _wkKey = `${_wkyear}-W${String(_wknum).padStart(2, '0')}`;
     const _joinWeekXP = parseInt(localStorage.getItem('nh_week_xp_' + _wkKey) || '0', 10);
-    const result = await fbJoinFamily(joinCode.trim(), uid, email, displayName, _joinWeekXP);
+    const result = (await fbJoinFamily(joinCode.trim(), uid, email, displayName, _joinWeekXP)) as {
+      ok?: boolean;
+      family?: FamilyData;
+      err?: string;
+    };
     if (result?.ok) {
       setFamily(result.family || { code: joinCode.trim().toUpperCase(), role: 'member' });
       fbGetFamilyMembers(joinCode.trim().toUpperCase())
-        .then(setMembers)
+        .then((m: FamilyMember[]) => setMembers(m))
         .catch(() => {});
       setJoinCode('');
       trackFamilyJoined();
@@ -195,7 +227,7 @@ function FamilyTab({ user }) {
     setLoading(false);
   }
 
-  function copyCode(code) {
+  function copyCode(code: string) {
     navigator.clipboard?.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -407,8 +439,8 @@ function FamilyTab({ user }) {
 }
 
 // ─── Friends tab ───────────────────────────────────────────────────────────
-function FriendsTab({ user }) {
-  const [friends, setFriends] = useState([]);
+function FriendsTab({ user }: { user: AuthUser | null }) {
+  const [friends, setFriends] = useState<FamilyMember[]>([]);
   const [friendCode, setFriendCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingFriends, setLoadingFriends] = useState(true);
@@ -422,7 +454,7 @@ function FriendsTab({ user }) {
   const loadFriends = useCallback(async () => {
     if (!uid) return;
     setLoadingFriends(true);
-    const list = await fbGetFriends(uid);
+    const list = (await fbGetFriends(uid)) as FamilyMember[];
     setFriends(list);
     setLoadingFriends(false);
   }, [uid]);
@@ -435,7 +467,10 @@ function FriendsTab({ user }) {
     if (!friendCode.trim() || !uid) return;
     setLoading(true);
     setError('');
-    const result = await fbAddFriend(uid, displayName, friendCode.trim());
+    const result = (await fbAddFriend(uid, displayName, friendCode.trim())) as {
+      ok?: boolean;
+      err?: string;
+    };
     if (result?.ok) {
       setFriendCode('');
       trackFriendAdded();
@@ -446,7 +481,7 @@ function FriendsTab({ user }) {
     setLoading(false);
   }
 
-  async function handleRemove(theirUid) {
+  async function handleRemove(theirUid: string) {
     if (!window.confirm('Remove this friend?')) return;
     await fbRemoveFriend(uid, theirUid);
     setFriends((f) => f.filter((fr) => fr.uid !== theirUid));
@@ -606,7 +641,7 @@ function FriendsTab({ user }) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {friends.map((f) => (
-            <MemberCard key={f.uid} m={f} isMe={false} onRemove={() => handleRemove(f.uid)} />
+            <MemberCard key={f.uid} m={f} isMe={false} onRemove={() => handleRemove(f.uid ?? '')} />
           ))}
         </div>
       )}
@@ -615,10 +650,16 @@ function FriendsTab({ user }) {
 }
 
 // ─── Main screen ───────────────────────────────────────────────────────────
-export default function FriendsScreen({ user, goBack }) {
+export default function FriendsScreen({
+  user,
+  goBack,
+}: {
+  user: AuthUser | null;
+  goBack: () => void;
+}) {
   const [activeTab, setActiveTab] = useState('friends');
 
-  const tabStyle = (id) => ({
+  const tabStyle = (id: string) => ({
     flex: 1,
     padding: '10px 0',
     border: 'none',

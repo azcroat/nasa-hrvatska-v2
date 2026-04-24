@@ -1,7 +1,10 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 
-export default function SkillRadar({ st }) {
+export default function SkillRadar({
+  st,
+}: {
+  st: { wl?: number; gc?: number; listen?: number; speak?: number; rc?: number };
+}) {
   const [animated, setAnimated] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 300);
@@ -21,12 +24,12 @@ export default function SkillRadar({ st }) {
     R = 80;
   const angles = [0, 72, 144, 216, 288]; // degrees, top = Vocab
 
-  function polarToXY(angleDeg, r) {
+  function polarToXY(angleDeg: number, r: number) {
     const rad = ((angleDeg - 90) * Math.PI) / 180;
     return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
   }
 
-  function pentagonPoints(r) {
+  function pentagonPoints(r: number) {
     return angles
       .map((a) => {
         const p = polarToXY(a, r);
@@ -36,12 +39,15 @@ export default function SkillRadar({ st }) {
   }
 
   const dataPoints = animated
-    ? skills.map((s, i) => polarToXY(angles[i], (s.score / 100) * R))
-    : skills.map((_, i) => polarToXY(angles[i], 0));
+    ? skills.map((s, i) => polarToXY(angles[i]!, (s.score / 100) * R))
+    : skills.map((_, i) => polarToXY(angles[i]!, 0));
 
   const dataPolygon = dataPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
-  const weakIdx = skills.reduce((minI, s, i, arr) => (s.score < arr[minI].score ? i : minI), 0);
+  const weakIdx = skills.reduce(
+    (minI, s, i, arr) => (s.score < (arr[minI]?.score ?? Infinity) ? i : minI),
+    0,
+  );
 
   const labelOffsets = [
     { dx: 0, dy: -12 }, // top (Vocab)
@@ -122,8 +128,8 @@ export default function SkillRadar({ st }) {
           ))}
           {/* Labels */}
           {skills.map((s, i) => {
-            const vertex = polarToXY(angles[i], R);
-            const off = labelOffsets[i];
+            const vertex = polarToXY(angles[i]!, R);
+            const off = labelOffsets[i] ?? { dx: 0, dy: 0 };
             const lx = vertex.x + off.dx * 2.2;
             const ly = vertex.y + off.dy * 2.2;
             return (

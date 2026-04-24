@@ -1,7 +1,13 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getErrorLog } from '../../hooks/useErrorTracking';
+
+interface InsightsData {
+  todaysFocus?: string;
+  weakAreas?: { severity: string; label: string }[];
+  drillSuggestions?: { icon?: string; label: string; screen: string }[];
+  encouragement?: string;
+}
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const BRAND_TEAL = '#0e7490';
@@ -12,19 +18,19 @@ function _todayKey() {
   return new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
 }
 
-function _cacheKey(uid) {
+function _cacheKey(uid: string) {
   return `nh_insights_cache_${uid}_${_todayKey()}`;
 }
 
-function _loadCache(uid) {
+function _loadCache(uid: string): InsightsData | null {
   try {
-    return JSON.parse(localStorage.getItem(_cacheKey(uid)) || 'null');
+    return JSON.parse(localStorage.getItem(_cacheKey(uid)) || 'null') as InsightsData | null;
   } catch {
     return null;
   }
 }
 
-function _saveCache(uid, data) {
+function _saveCache(uid: string, data: InsightsData) {
   try {
     localStorage.setItem(_cacheKey(uid), JSON.stringify(data));
   } catch {}
@@ -34,13 +40,17 @@ function _loadSRWeakWords() {
   try {
     const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
     // Return words where wrong > right and have at least 3 attempts
-    return Object.entries(sr)
+    return Object.entries(sr as Record<string, { r?: number; w?: number }>)
       .filter(([, v]) => {
-        const r = v.r || 0;
-        const w = v.w || 0;
+        const r = (v as { r?: number }).r || 0;
+        const w = (v as { w?: number }).w || 0;
         return w > r && r + w >= 3;
       })
-      .map(([word, v]) => ({ word, right: v.r || 0, wrong: v.w || 0 }))
+      .map(([word, v]) => ({
+        word,
+        right: (v as { r?: number }).r || 0,
+        wrong: (v as { w?: number }).w || 0,
+      }))
       .sort((a, b) => b.wrong - b.right - (a.wrong - a.right))
       .slice(0, 10);
   } catch {
@@ -49,7 +59,7 @@ function _loadSRWeakWords() {
 }
 
 // ── Severity dot ──────────────────────────────────────────────────────────────
-function SeverityDot({ severity }) {
+function SeverityDot({ severity }: { severity: string }) {
   const color = severity === 'high' ? '#D4002D' : severity === 'medium' ? '#d97706' : '#16a34a';
   return (
     <span
@@ -127,14 +137,21 @@ function EmptyState() {
  *   goToScreen?: (screen: string) => void
  * }} props
  */
+interface Props {
+  uid: string;
+  level?: string;
+  lessonsCompleted?: number;
+  goToScreen?: (screen: string) => void;
+}
+
 export default function AdaptiveInsightsCard({
   uid,
   level = 'A2',
   lessonsCompleted = 0,
   goToScreen,
-}) {
+}: Props) {
   const [phase, setPhase] = useState('loading'); // 'loading' | 'ready' | 'empty'
-  const [insights, setInsights] = useState(null);
+  const [insights, setInsights] = useState<InsightsData | null>(null);
 
   const fetchInsights = useCallback(async () => {
     if (!uid) {
@@ -163,7 +180,7 @@ export default function AdaptiveInsightsCard({
     // 3. Fetch from API
     setPhase('loading');
     try {
-      const data = await apiFetch('/api/adaptive-insights', {
+      const resp = await apiFetch('/api/adaptive-insights', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -174,6 +191,7 @@ export default function AdaptiveInsightsCard({
           weakWords,
         }),
       });
+      const data = (await resp.json()) as InsightsData;
       _saveCache(uid, data);
       setInsights(data);
       setPhase('ready');
@@ -263,31 +281,33 @@ export default function AdaptiveInsightsCard({
                   Areas to strengthen
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {insights.weakAreas.slice(0, 2).map((area, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        background: 'var(--card-b)',
-                        borderRadius: 20,
-                        padding: '5px 12px',
-                        alignSelf: 'flex-start',
-                        maxWidth: '100%',
-                      }}
-                    >
-                      <SeverityDot severity={area.severity} />
-                      <span
+                  {insights.weakAreas
+                    .slice(0, 2)
+                    .map((area: { severity: string; label: string }, i: number) => (
+                      <div
+                        key={i}
                         style={{
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: 'var(--heading)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          background: 'var(--card-b)',
+                          borderRadius: 20,
+                          padding: '5px 12px',
+                          alignSelf: 'flex-start',
+                          maxWidth: '100%',
                         }}
                       >
-                        {area.label}
-                      </span>
-                    </div>
-                  ))}
+                        <SeverityDot severity={area.severity} />
+                        <span
+                          style={{
+                            fontSize: 13,
+                            fontWeight: 600,
+                            color: 'var(--heading)',
+                          }}
+                        >
+                          {area.label}
+                        </span>
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
@@ -308,29 +328,35 @@ export default function AdaptiveInsightsCard({
                   Quick drills
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {insights.drillSuggestions.slice(0, 2).map((suggestion, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goToScreen && goToScreen(suggestion.screen)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        background: BRAND_TEAL_DIM,
-                        border: `1.5px solid ${BRAND_TEAL}`,
-                        borderRadius: 20,
-                        padding: '7px 16px',
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: BRAND_TEAL,
-                        cursor: goToScreen ? 'pointer' : 'default',
-                        fontFamily: "'Outfit', sans-serif",
-                      }}
-                    >
-                      {suggestion.icon && <span style={{ fontSize: 15 }}>{suggestion.icon}</span>}
-                      {suggestion.label}
-                    </button>
-                  ))}
+                  {insights.drillSuggestions
+                    .slice(0, 2)
+                    .map(
+                      (suggestion: { icon?: string; label: string; screen: string }, i: number) => (
+                        <button
+                          key={i}
+                          onClick={() => goToScreen && goToScreen(suggestion.screen)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            background: BRAND_TEAL_DIM,
+                            border: `1.5px solid ${BRAND_TEAL}`,
+                            borderRadius: 20,
+                            padding: '7px 16px',
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: BRAND_TEAL,
+                            cursor: goToScreen ? 'pointer' : 'default',
+                            fontFamily: "'Outfit', sans-serif",
+                          }}
+                        >
+                          {suggestion.icon && (
+                            <span style={{ fontSize: 15 }}>{suggestion.icon}</span>
+                          )}
+                          {suggestion.label}
+                        </button>
+                      ),
+                    )}
                 </div>
               </div>
             )}

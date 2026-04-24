@@ -1,11 +1,19 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import Dexie from 'dexie';
 import { H, speak, srMark, getSR } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
 
+interface JournalWord {
+  id?: number;
+  hr: string;
+  en: string;
+  date: number;
+  examples?: { hr: string; en: string; note?: string }[] | null;
+}
+
 // ── Dexie (IndexedDB) — unlimited offline storage, syncs seamlessly ──────────
-const db = /** @type {any} */ new Dexie('NasaHrvatska');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = new Dexie('NasaHrvatska') as any;
 db.version(1).stores({ journal: '++id,date' });
 // v2 — adds examples column (nullable JSON array of {hr,en,note}).
 // upgrade() preserves all existing rows; new column defaults to undefined.
@@ -42,13 +50,13 @@ function getUserLevel() {
   }
 }
 
-export default function VocabJournal({ goBack }) {
-  const [words, setWords] = useState([]);
+export default function VocabJournal({ goBack }: { goBack: () => void }) {
+  const [words, setWords] = useState<JournalWord[]>([]);
   const [jIn, setJIn] = useState('');
   const [jEn, setJEn] = useState('');
-  const [inSRS, setInSRS] = useState({});
-  const [expandedWord, setExpandedWord] = useState(null); // word id with examples open
-  const [fetchingExamples, setFetchingExamples] = useState({}); // {id: true}
+  const [inSRS, setInSRS] = useState<Record<string, boolean>>({});
+  const [expandedWord, setExpandedWord] = useState<number | null>(null); // word id with examples open
+  const [fetchingExamples, setFetchingExamples] = useState<Record<number, boolean>>({}); // {id: true}
 
   useEffect(() => {
     migrateFromLocalStorage().then(loadWords);
@@ -58,16 +66,16 @@ export default function VocabJournal({ goBack }) {
     const all = await db.journal.orderBy('date').reverse().toArray();
     setWords(all);
     const srData = getSR();
-    const srsMap = {};
-    all.forEach((w) => {
-      srsMap[w.hr] = !!srData[w.hr];
+    const srsMap: Record<string, boolean> = {};
+    (all as JournalWord[]).forEach((w) => {
+      srsMap[w.hr] = !!(srData as Record<string, unknown>)[w.hr];
     });
     setInSRS(srsMap);
   }
 
-  function addToSRS(word) {
-    // srMark(word, correct) — false initializes as "needs review"
-    srMark(word.hr, false);
+  function addToSRS(word: JournalWord) {
+    // srMark(word, correct, timeMs) — false initializes as "needs review"; timeMs defaults to 4000
+    srMark(word.hr, false, undefined);
     setInSRS((prev) => ({ ...prev, [word.hr]: true }));
   }
 
@@ -83,7 +91,7 @@ export default function VocabJournal({ goBack }) {
     fetchAndStoreExamples(id, hr, en);
   }
 
-  async function fetchAndStoreExamples(id, hr, en) {
+  async function fetchAndStoreExamples(id: number, hr: string, en: string) {
     setFetchingExamples((prev) => ({ ...prev, [id]: true }));
     try {
       const res = await apiFetch('/api/vocab-expand', {
@@ -108,7 +116,7 @@ export default function VocabJournal({ goBack }) {
     }
   }
 
-  async function deleteWord(id) {
+  async function deleteWord(id: number) {
     await db.journal.delete(id);
     loadWords();
   }
@@ -144,7 +152,7 @@ export default function VocabJournal({ goBack }) {
           className="b bg"
           style={{ width: '100%', marginBottom: 12, fontSize: 13 }}
           onClick={() => {
-            words.filter((w) => !inSRS[w.hr]).forEach((w) => srMark(w.hr, false));
+            words.filter((w) => !inSRS[w.hr]).forEach((w) => srMark(w.hr, false, undefined));
             const newMap = { ...inSRS };
             words.forEach((w) => {
               newMap[w.hr] = true;
@@ -188,7 +196,7 @@ export default function VocabJournal({ goBack }) {
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               {/* Examples toggle */}
-              {w.examples?.length > 0 && (
+              {(w.examples?.length ?? 0) > 0 && (
                 <button
                   style={{
                     background: expandedWord === w.id ? 'rgba(212,0,45,.1)' : 'rgba(0,0,0,.05)',
@@ -200,12 +208,12 @@ export default function VocabJournal({ goBack }) {
                     padding: '4px 10px',
                     cursor: 'pointer',
                   }}
-                  onClick={() => setExpandedWord(expandedWord === w.id ? null : w.id)}
+                  onClick={() => setExpandedWord(expandedWord === w.id ? null : (w.id ?? null))}
                 >
                   {expandedWord === w.id ? 'Hide' : '💡 Examples'}
                 </button>
               )}
-              {fetchingExamples[w.id] && (
+              {w.id != null && fetchingExamples[w.id] && (
                 <span style={{ fontSize: 11, color: 'var(--subtext)', padding: '4px 8px' }}>
                   ✨ Loading…
                 </span>
@@ -250,7 +258,9 @@ export default function VocabJournal({ goBack }) {
                   color: '#dc2626',
                   padding: 4,
                 }}
-                onClick={() => deleteWord(w.id)}
+                onClick={() => {
+                  if (w.id != null) deleteWord(w.id);
+                }}
               >
                 ✖
               </button>
@@ -258,7 +268,7 @@ export default function VocabJournal({ goBack }) {
           </div>
 
           {/* Inline AI examples */}
-          {expandedWord === w.id && w.examples?.length > 0 && (
+          {expandedWord === w.id && (w.examples?.length ?? 0) > 0 && (
             <div
               style={{
                 borderTop: '1px solid var(--card-b)',
@@ -278,8 +288,8 @@ export default function VocabJournal({ goBack }) {
               >
                 Example Sentences
               </div>
-              {w.examples.map((ex, i) => (
-                <div key={i} style={{ marginBottom: i < w.examples.length - 1 ? 10 : 0 }}>
+              {(w.examples ?? []).map((ex, i) => (
+                <div key={i} style={{ marginBottom: i < (w.examples?.length ?? 0) - 1 ? 10 : 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#D4002D', lineHeight: 1.4 }}>
                     {ex.hr}
                   </div>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import ProfileHeader from './ProfileHeader';
 import StatsTab from './StatsTab';
@@ -8,7 +7,17 @@ import PrestigeModal from './PrestigeModal';
 import ClanCard from '../home/ClanCard';
 import { useApp } from '../../context/AppContext';
 
-export default function ProfileTab({ syncReady, onSyncNow, onOpenLeaderboard, onOpenFriends }) {
+export default function ProfileTab({
+  syncReady,
+  onSyncNow,
+  onOpenLeaderboard,
+  onOpenFriends,
+}: {
+  syncReady: boolean;
+  onSyncNow?: () => void;
+  onOpenLeaderboard?: () => void;
+  onOpenFriends?: () => void;
+}) {
   const { au: authUser } = useApp();
   const [ptab, setPTab] = useState('stats');
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);

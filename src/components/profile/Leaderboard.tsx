@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import {
   H,
@@ -10,10 +9,40 @@ import {
 } from '../../data';
 import { fbSaveReaction, fbWatchReactions } from '../../lib/firebase.js';
 import { subscribeToLeaderboard } from '../../lib/leaderboard.js';
+import type { LeaderboardEntry } from '../../lib/leaderboard.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import WeeklyLeague from './WeeklyLeague';
+import type { AuthUser, Stats } from '../../types';
 
-function getCEFRLevel(weekXP) {
+interface FamilyMemberLocal {
+  name?: string;
+  email: string;
+  role?: string;
+  xp: number;
+  lc: number;
+  weekXP?: number;
+  joined?: number;
+  gen?: string;
+  uid?: string;
+  streak?: number;
+}
+
+interface FamilyData {
+  code: string;
+  name?: string;
+  role?: string;
+}
+
+interface ReactorData {
+  emoji: string;
+  name?: string;
+}
+
+interface ReactionData {
+  reactors?: Record<string, ReactorData>;
+}
+
+function getCEFRLevel(weekXP: number) {
   // Rough weekly XP → CEFR for leaderboard display
   if (weekXP < 50) return null;
   if (weekXP < 150) return 'A1';
@@ -72,13 +101,32 @@ export default function Leaderboard({
   setFamErr,
   famTab,
   setFamTab,
+}: {
+  goBack: () => void;
+  authUser: AuthUser | null;
+  name?: string;
+  stats?: Partial<Stats>;
+  famData: FamilyData | null;
+  setFamData: (d: FamilyData | null) => void;
+  famMembers: FamilyMemberLocal[];
+  setFamMembers: (m: FamilyMemberLocal[]) => void;
+  famLoading: boolean;
+  setFamLoading: (v: boolean) => void;
+  famName: string;
+  setFamName: (v: string) => void;
+  famCode: string;
+  setFamCode: (v: string) => void;
+  famErr: string;
+  setFamErr: (v: string) => void;
+  famTab: string;
+  setFamTab: (v: string) => void;
 }) {
-  const watchRef = useRef(null);
-  const [liveStatus, setLiveStatus] = useState(null); // null | 'connecting' | 'live' | 'offline'
+  const watchRef = useRef<(() => void) | null>(null);
+  const [liveStatus, setLiveStatus] = useState<null | 'connecting' | 'live' | 'offline'>(null);
   const [view, setView] = useState('total'); // 'total' or 'week'
   const [generation, setGeneration] = useState(() => localStorage.getItem('nh_generation') || '');
   const [_reactionTick, setReactionTick] = useState(0);
-  const [firestoreReactions, setFirestoreReactions] = useState({});
+  const [firestoreReactions, setFirestoreReactions] = useState<Record<string, ReactionData>>({});
 
   function getWeekKey() {
     const d = new Date();
@@ -90,7 +138,7 @@ export default function Leaderboard({
   }
   const myWeekXP = parseInt(localStorage.getItem('nh_week_xp_' + getWeekKey()) || '0', 10);
 
-  function getLeagueTier(weekXP) {
+  function getLeagueTier(weekXP: number) {
     if (weekXP >= 600)
       return {
         id: 'platinum',
@@ -140,10 +188,10 @@ export default function Leaderboard({
   };
 
   // ── Global leaderboard ───────────────────────────────────────────────────
-  const [globalUsers, setGlobalUsers] = useState([]);
+  const [globalUsers, setGlobalUsers] = useState<LeaderboardEntry[]>([]);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [globalError, setGlobalError] = useState('');
-  const globalUnsubRef = useRef(null);
+  const globalUnsubRef = useRef<(() => void) | null>(null);
 
   // Real-time subscription using onSnapshot — bypasses Firestore offline cache on Android.
   // getDocs() returns cached empty data on first load in Capacitor; onSnapshot always
@@ -194,7 +242,6 @@ export default function Leaderboard({
         globalUnsubRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [famTab]);
 
   // Real-time listener — starts when user is in a family and on the main tab,
@@ -260,12 +307,14 @@ export default function Leaderboard({
         watchRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [famData, famTab]);
 
   // Watch Firestore reactions for the family so other members' reactions appear live
   useEffect(() => {
     if (!famCode) return undefined;
-    const unsub = fbWatchReactions(famCode, setFirestoreReactions);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const unsub = fbWatchReactions(famCode, setFirestoreReactions as any);
     return unsub;
   }, [famCode]);
 
@@ -288,7 +337,9 @@ export default function Leaderboard({
     <div className="scr-wrap">
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
         <CroatianKnight size={40} mood="celebrating" style={{ flexShrink: 0 }} />
-        <div style={{ flex: 1 }}>{H('🏆 Family Leaderboard', 'Compete with your family!')}</div>
+        <div style={{ flex: 1 }}>
+          {H('🏆 Family Leaderboard', 'Compete with your family!', goBack)}
+        </div>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
         {['main', 'global', 'league', 'create', 'join'].map((t) => (
@@ -788,7 +839,8 @@ export default function Leaderboard({
                             )}
                             {u.gen &&
                               (() => {
-                                const gen = GENERATION_LABELS[u.gen];
+                                const gen =
+                                  GENERATION_LABELS[u.gen as keyof typeof GENERATION_LABELS];
                                 return gen ? (
                                   <span
                                     style={{
@@ -807,7 +859,8 @@ export default function Leaderboard({
                               })()}
                           </div>
                           <div style={{ fontSize: 12, color: '#78716c' }}>
-                            {u.lc} lessons · Joined {new Date(u.joined).toLocaleDateString()}
+                            {u.lc} lessons · Joined{' '}
+                            {u.joined ? new Date(u.joined).toLocaleDateString() : '—'}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -826,21 +879,26 @@ export default function Leaderboard({
                             {view === 'week'
                               ? entryWeekXP + ' XP this week'
                               : u.xp.toLocaleString() + ' XP'}
-                            {view === 'week' && getCEFRLevel(entryWeekXP) && (
-                              <span
-                                style={{
-                                  fontSize: 9,
-                                  fontWeight: 800,
-                                  padding: '2px 5px',
-                                  borderRadius: 4,
-                                  background: CEFR_COLORS[getCEFRLevel(entryWeekXP)],
-                                  color: '#fff',
-                                  marginLeft: 4,
-                                }}
-                              >
-                                {getCEFRLevel(entryWeekXP)}
-                              </span>
-                            )}
+                            {view === 'week' &&
+                              (() => {
+                                const cefrLabel = getCEFRLevel(entryWeekXP);
+                                if (!cefrLabel) return null;
+                                return (
+                                  <span
+                                    style={{
+                                      fontSize: 9,
+                                      fontWeight: 800,
+                                      padding: '2px 5px',
+                                      borderRadius: 4,
+                                      background: CEFR_COLORS[cefrLabel],
+                                      color: '#fff',
+                                      marginLeft: 4,
+                                    }}
+                                  >
+                                    {cefrLabel}
+                                  </span>
+                                );
+                              })()}
                           </div>
                           {view === 'total' && (
                             <>
@@ -1028,7 +1086,7 @@ export default function Leaderboard({
                 }}
                 onClick={() => {
                   if (confirm('Leave this family group? You can rejoin with the code later.')) {
-                    fbLeaveFamily(famData.code, au.e).then((r) => {
+                    fbLeaveFamily(famData.code, au?.e ?? '').then((r) => {
                       if (r.ok) {
                         setFamData(null);
                         setFamMembers([]);
@@ -1286,11 +1344,11 @@ export default function Leaderboard({
               fbCreateFamily(famName.trim(), au.u, au.e, name || au.d).then((r) => {
                 setFamLoading(false);
                 if (r.ok) {
-                  setFamData(r.family);
+                  setFamData(r.family ?? null);
                   setFamTab('main');
                   setFamName('');
                   setFamErr('');
-                } else setFamErr(r.err);
+                } else setFamErr(r.err ?? '');
               });
             }}
           >
@@ -1367,11 +1425,11 @@ export default function Leaderboard({
               fbJoinFamily(famCode.trim(), au.u, au.e, name || au.d, myWeekXP).then((r) => {
                 setFamLoading(false);
                 if (r.ok) {
-                  setFamData(r.family);
+                  setFamData(r.family ?? null);
                   setFamTab('main');
                   setFamCode('');
                   setFamErr('');
-                } else setFamErr(r.err);
+                } else setFamErr(r.err ?? '');
               });
             }}
           >
@@ -1405,108 +1463,112 @@ export default function Leaderboard({
               <div style={{ flex: 1, height: 1, background: 'var(--card-b)' }} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {achievements.slice(0, 5).map((a, i) => {
-                const icon = ACHIEVEMENT_ICONS[a.type] || '🌟';
-                const date = new Date(a.date).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                });
-                const reactionKey = `nh_react_${a.type}_${a.date}`;
-                const localReactions = JSON.parse(localStorage.getItem(reactionKey) || '{}');
-                // Build achievementKey for Firestore: "{safeEmail}_{type}_{date}"
-                const ownerEmail = au ? au.e : '';
-                const achievementKey = `${ownerEmail}_${a.type}_${a.date}`;
-                const safeKey = achievementKey.replace(/[.#$/\[\]]/g, '_');
-                // Merge local reactions with Firestore reactions from other family members
-                const reactionData = firestoreReactions[safeKey];
-                const allFsReactions = reactionData?.reactors
-                  ? Object.values(reactionData.reactors).map((r) => r.emoji)
-                  : [];
-                // Build a summary of who reacted for display
-                const fsReactorNames = reactionData?.reactors
-                  ? Object.values(reactionData.reactors)
-                      .map((r) => r.name)
-                      .filter(Boolean)
-                  : [];
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      background: 'var(--card)',
-                      border: '1px solid var(--card-b)',
-                      borderRadius: 14,
-                      padding: '12px 14px',
-                    }}
-                  >
+              {(achievements as { type: string; date: string | number }[])
+                .slice(0, 5)
+                .map((a, i) => {
+                  const icon = ACHIEVEMENT_ICONS[a.type as keyof typeof ACHIEVEMENT_ICONS] || '🌟';
+                  const date = new Date(a.date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  });
+                  const reactionKey = `nh_react_${a.type}_${a.date}`;
+                  const localReactions = JSON.parse(localStorage.getItem(reactionKey) || '{}');
+                  // Build achievementKey for Firestore: "{safeEmail}_{type}_{date}"
+                  const ownerEmail = au ? au.e : '';
+                  const achievementKey = `${ownerEmail}_${a.type}_${a.date}`;
+                  const safeKey = achievementKey.replace(/[.#$/\[\]]/g, '_');
+                  // Merge local reactions with Firestore reactions from other family members
+                  const reactionData = firestoreReactions[safeKey];
+                  const allFsReactions = reactionData?.reactors
+                    ? Object.values(reactionData.reactors).map((r) => r.emoji)
+                    : [];
+                  // Build a summary of who reacted for display
+                  const fsReactorNames = reactionData?.reactors
+                    ? Object.values(reactionData.reactors)
+                        .map((r) => r.name)
+                        .filter(Boolean)
+                    : [];
+                  return (
                     <div
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
+                      key={i}
+                      style={{
+                        background: 'var(--card)',
+                        border: '1px solid var(--card-b)',
+                        borderRadius: 14,
+                        padding: '12px 14px',
+                      }}
                     >
-                      <span style={{ fontSize: 22 }}>{icon}</span>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
-                          {a.type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                      <div
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
+                      >
+                        <span style={{ fontSize: 22 }}>{icon}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
+                            {a.type
+                              .replace(/_/g, ' ')
+                              .replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>
+                            {date}
+                          </div>
                         </div>
-                        <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>
-                          {date}
-                        </div>
+                        {fsReactorNames.length > 0 && (
+                          <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 600 }}>
+                            {allFsReactions.slice(0, 3).join('')}{' '}
+                            {fsReactorNames.slice(0, 2).join(', ')}
+                          </div>
+                        )}
                       </div>
-                      {fsReactorNames.length > 0 && (
-                        <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 600 }}>
-                          {allFsReactions.slice(0, 3).join('')}{' '}
-                          {fsReactorNames.slice(0, 2).join(', ')}
-                        </div>
-                      )}
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {REACTION_EMOJIS.map((emoji) => {
+                          const localCount = localReactions[emoji] || 0;
+                          // Count how many Firestore reactors used this emoji
+                          const fsCount = allFsReactions.filter((e) => e === emoji).length;
+                          const count = Math.max(localCount, fsCount);
+                          return (
+                            <button
+                              key={emoji}
+                              onClick={() => {
+                                const updated = {
+                                  ...localReactions,
+                                  [emoji]: (localReactions[emoji] || 0) + 1,
+                                };
+                                localStorage.setItem(reactionKey, JSON.stringify(updated));
+                                // Sync to Firestore so other family members see this reaction
+                                if (famCode) {
+                                  const reactorEmail = au?.e || '';
+                                  fbSaveReaction(
+                                    famCode,
+                                    achievementKey,
+                                    emoji,
+                                    name || 'Someone',
+                                    reactorEmail,
+                                  ).catch(() => {});
+                                }
+                                // Force re-render by triggering a state update
+                                setReactionTick((t) => t + 1);
+                              }}
+                              style={{
+                                padding: '4px 8px',
+                                borderRadius: 8,
+                                border: '1px solid var(--card-b)',
+                                background: 'var(--bar-bg)',
+                                cursor: 'pointer',
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: 'var(--heading)',
+                                fontFamily: "'Outfit',sans-serif",
+                              }}
+                            >
+                              {emoji}
+                              {count > 0 ? ` ${count}` : ''}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      {REACTION_EMOJIS.map((emoji) => {
-                        const localCount = localReactions[emoji] || 0;
-                        // Count how many Firestore reactors used this emoji
-                        const fsCount = allFsReactions.filter((e) => e === emoji).length;
-                        const count = Math.max(localCount, fsCount);
-                        return (
-                          <button
-                            key={emoji}
-                            onClick={() => {
-                              const updated = {
-                                ...localReactions,
-                                [emoji]: (localReactions[emoji] || 0) + 1,
-                              };
-                              localStorage.setItem(reactionKey, JSON.stringify(updated));
-                              // Sync to Firestore so other family members see this reaction
-                              if (famCode) {
-                                const reactorEmail = au?.e || '';
-                                fbSaveReaction(
-                                  famCode,
-                                  achievementKey,
-                                  emoji,
-                                  name || 'Someone',
-                                  reactorEmail,
-                                ).catch(() => {});
-                              }
-                              // Force re-render by triggering a state update
-                              setReactionTick((t) => t + 1);
-                            }}
-                            style={{
-                              padding: '4px 8px',
-                              borderRadius: 8,
-                              border: '1px solid var(--card-b)',
-                              background: 'var(--bar-bg)',
-                              cursor: 'pointer',
-                              fontSize: 13,
-                              fontWeight: 600,
-                              color: 'var(--heading)',
-                              fontFamily: "'Outfit',sans-serif",
-                            }}
-                          >
-                            {emoji}
-                            {count > 0 ? ` ${count}` : ''}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </div>
         );

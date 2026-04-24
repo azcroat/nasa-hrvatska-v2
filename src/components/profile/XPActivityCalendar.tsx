@@ -1,27 +1,41 @@
-// @ts-nocheck
 import React, { useState, useMemo } from 'react';
+import type { Stats } from '../../types';
 
-export default function XPActivityCalendar({ st }) {
-  const [tooltip, setTooltip] = useState(null);
+interface TooltipState {
+  label: string;
+  x: number;
+  y: number;
+}
+
+interface MonthMarker {
+  wi: number;
+  label: string;
+}
+
+export default function XPActivityCalendar({ st }: { st?: Partial<Stats> }) {
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   // Collect all active days from every available localStorage source
-  const activeDays = useMemo(() => {
-    const result = {}; // dateStr → xp (or 1 if unknown)
+  const activeDays = useMemo<Record<string, number>>(() => {
+    const result: Record<string, number> = {}; // dateStr → xp (or 1 if unknown)
     try {
       // Source 1: nh_activity_log — most precise, stores dateStr → xp
-      const log = JSON.parse(localStorage.getItem('nh_activity_log') || '{}');
+      const log = JSON.parse(localStorage.getItem('nh_activity_log') || '{}') as Record<
+        string,
+        unknown
+      >;
       Object.entries(log).forEach(([d, xp]) => {
         result[d] = (result[d] || 0) + (typeof xp === 'number' ? xp : 1);
       });
       // Source 2: xpCooldown — { exerciseId: 'YYYY-MM-DD' } — proves activity on that date
-      const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}');
+      const cd = JSON.parse(localStorage.getItem('xpCooldown') || '{}') as Record<string, unknown>;
       Object.values(cd).forEach((dateStr) => {
         if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
           if (!result[dateStr]) result[dateStr] = 1;
         }
       });
       // Source 3: uStreak — { last: 'YYYY-MM-DD' } — at minimum today counts if active
-      const strData = JSON.parse(localStorage.getItem('uStreak') || '{}');
+      const strData = JSON.parse(localStorage.getItem('uStreak') || '{}') as { last?: string };
       if (strData.last && typeof strData.last === 'string') {
         if (!result[strData.last]) result[strData.last] = 1;
       }
@@ -30,7 +44,7 @@ export default function XPActivityCalendar({ st }) {
         const k = localStorage.key(i);
         if (!k) continue;
         const m = k.match(/nh_(?:quest|daily)_\w+_(\d{4}-\d{2}-\d{2})$/);
-        if (m) {
+        if (m && m[1]) {
           if (!result[m[1]]) result[m[1]] = 1;
         }
       }
@@ -38,6 +52,7 @@ export default function XPActivityCalendar({ st }) {
       /* ignore parse errors */
     }
     return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [st]);
 
   // todayStr computed at render time (local date) so it's never stale after midnight
@@ -70,7 +85,7 @@ export default function XPActivityCalendar({ st }) {
       allDays.push(ds);
     }
     // Pad front so week 0 starts on Sunday (align with grid)
-    const firstDow = new Date(allDays[0]).getDay(); // 0=Sun
+    const firstDow = new Date(allDays[0] ?? '').getDay(); // 0=Sun
     const padded = Array(firstDow).fill(null).concat(allDays);
     // Chunk into weeks of 7
     const wks = [];
@@ -78,9 +93,10 @@ export default function XPActivityCalendar({ st }) {
       wks.push(padded.slice(w * 7, (w + 1) * 7));
     }
     return wks;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dayIndex]);
 
-  function cellColor(dateStr) {
+  function cellColor(dateStr: string | null) {
     if (!dateStr) return 'transparent';
     const xp = activeDays[dateStr] || 0;
     if (xp === 0) return 'var(--bar-bg)';
@@ -106,26 +122,27 @@ export default function XPActivityCalendar({ st }) {
   ];
 
   // Month labels: find first cell in each month
-  const monthMarkers = useMemo(() => {
-    const seen = new Set();
-    const markers = [];
+  const monthMarkers = useMemo<MonthMarker[]>(() => {
+    const seen = new Set<string>();
+    const markers: MonthMarker[] = [];
     weeks.forEach((week, wi) => {
       week.forEach((dateStr) => {
         if (!dateStr) return;
         const month = dateStr.slice(5, 7);
         if (!seen.has(month)) {
           seen.add(month);
-          markers.push({ wi, label: MONTH_LABELS[parseInt(month, 10) - 1] });
+          markers.push({ wi, label: MONTH_LABELS[parseInt(month, 10) - 1] ?? '' });
         }
       });
     });
     return markers;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weeks]);
 
-  const activeDayCount = useMemo(
-    () => Object.keys(activeDays).filter((d) => d >= weeks[0]?.[0] && d <= todayStr).length,
-    [activeDays, weeks, todayStr],
-  );
+  const activeDayCount = useMemo(() => {
+    const firstDay = weeks[0]?.find((d) => d !== null) ?? '';
+    return Object.keys(activeDays).filter((d) => d >= firstDay && d <= todayStr).length;
+  }, [activeDays, weeks, todayStr]);
 
   return (
     <div

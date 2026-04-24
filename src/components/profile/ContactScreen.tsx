@@ -1,6 +1,11 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { apiFetch } from '../../lib/apiFetch.js';
+import type { Stats, AuthUser } from '../../types';
+
+interface Ticket {
+  id: string;
+  replyEmail: string | null;
+}
 
 const ISSUE_TYPES = [
   {
@@ -49,7 +54,7 @@ const ISSUE_TYPES = [
 // Only call recordSubmit() AFTER the API confirms ok:true.
 function isRateLimited() {
   try {
-    const raw = JSON.parse(localStorage.getItem('contactSubmits') || '[]');
+    const raw = JSON.parse(localStorage.getItem('contactSubmits') || '[]') as number[];
     const cutoff = Date.now() - 60 * 60 * 1000;
     const recent = raw.filter((t) => t > cutoff);
     return recent.length >= 3;
@@ -59,7 +64,7 @@ function isRateLimited() {
 }
 function recordSubmit() {
   try {
-    const raw = JSON.parse(localStorage.getItem('contactSubmits') || '[]');
+    const raw = JSON.parse(localStorage.getItem('contactSubmits') || '[]') as number[];
     const cutoff = Date.now() - 60 * 60 * 1000;
     const recent = raw.filter((t) => t > cutoff);
     recent.push(Date.now());
@@ -69,7 +74,19 @@ function recordSubmit() {
   }
 }
 
-export default function ContactScreen({ goBack, authUser, name, level, stats }) {
+export default function ContactScreen({
+  goBack,
+  authUser,
+  name,
+  level,
+  stats,
+}: {
+  goBack: () => void;
+  authUser: AuthUser | null;
+  name?: string;
+  level?: number;
+  stats?: Partial<Stats>;
+}) {
   const [type, setType] = useState('');
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
@@ -77,7 +94,7 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   // On success, store both the ticket ID and the confirmed reply email from the server.
-  const [ticket, setTicket] = useState(null); // { id, replyEmail }
+  const [ticket, setTicket] = useState<Ticket | null>(null);
   const [copied, setCopied] = useState(false);
 
   const selected = ISSUE_TYPES.find((t) => t.id === type);
@@ -94,7 +111,7 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
     setError('');
     setLoading(true);
     try {
-      const res = await apiFetch('/api/contact', {
+      const resp = await apiFetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -107,7 +124,12 @@ export default function ContactScreen({ goBack, authUser, name, level, stats }) 
           userXp: stats?.xp || 0,
         }),
       });
-      const data = await res.json().catch(() => ({}));
+      const data = (await (resp as Response).json().catch(() => ({}))) as {
+        ok?: boolean;
+        ticketId?: string;
+        replyEmail?: string;
+        error?: string;
+      };
       if (data.ok) {
         // Record the slot only after the server confirms receipt.
         recordSubmit();

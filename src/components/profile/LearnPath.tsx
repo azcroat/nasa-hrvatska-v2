@@ -1,6 +1,6 @@
-// @ts-nocheck
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { H, LEARN_PATH } from '../../data';
+import type { Stats, LearnPathItem } from '../../types';
 
 // Returns a Set of topic keys whose FSRS words are mostly overdue (skill decay signal).
 // A topic is "decayed" when >40% of its reviewed words are past their due date.
@@ -12,13 +12,18 @@ function getDecayedTopics() {
     LEARN_PATH.forEach((lv) =>
       lv.items.forEach((it) => {
         if (!it.topic) return;
-        const cards = Object.entries(srData).filter(([, v]) => v && typeof v === 'object');
+        const cards = Object.entries(srData).filter(([, v]) => v && typeof v === 'object') as [
+          string,
+          Record<string, unknown>,
+        ][];
         if (cards.length === 0) return;
         // Words belonging to this topic are identified by checking if they exist in srData
         // We use all reviewed words to approximate: count overdue fraction
-        const topicCards = cards.filter(([, v]) => v.topic === it.topic);
+        const topicCards = cards.filter(([, v]) => v['topic'] === it.topic);
         const checkSet = topicCards.length >= 3 ? topicCards : cards;
-        const overdue = checkSet.filter(([, v]) => (v.due || v.nextDue || 0) < now).length;
+        const overdue = checkSet.filter(
+          ([, v]) => ((v['due'] as number) || (v['nextDue'] as number) || 0) < now,
+        ).length;
         if (checkSet.length > 0 && overdue / checkSet.length > 0.4) {
           decayed.add(it.topic);
         }
@@ -111,9 +116,17 @@ export default function LearnPath({
   onLaunchItem,
   onLaunchLegendary,
   onLaunchCheckpoint,
+}: {
+  st: Partial<Stats>;
+  setScr?: (screen: string) => void;
+  goBack: () => void;
+  onLaunchItem?: (item: LearnPathItem) => void;
+  onLaunchLegendary?: (item: LearnPathItem) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onLaunchCheckpoint?: (levelIndex: number, items: any[]) => void;
 }) {
-  const activeRef = useRef(null);
-  const [hovered, setHovered] = useState(null);
+  const activeRef = useRef<HTMLDivElement | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
   const decayedTopics = useMemo(() => getDecayedTopics(), []);
   const passedCheckpoints = useMemo(() => getPassedCheckpoints(), []);
 
@@ -131,8 +144,8 @@ export default function LearnPath({
   let activeLevel = -1,
     activeItem = -1;
   outer: for (let li = 0; li < LEARN_PATH.length; li++) {
-    for (let ii = 0; ii < LEARN_PATH[li].items.length; ii++) {
-      if (!LEARN_PATH[li].items[ii].ck(st)) {
+    for (let ii = 0; ii < LEARN_PATH[li]!.items.length; ii++) {
+      if (!LEARN_PATH[li]!.items[ii]!.ck(st)) {
         activeLevel = li;
         activeItem = ii;
         break outer;
@@ -215,7 +228,7 @@ export default function LearnPath({
             {pct === 100
               ? '🏆 All milestones complete! You are Hrvat!'
               : activeLevel >= 0
-                ? `Currently on: ${LEARN_PATH[activeLevel].title} — ${LEARN_PATH[activeLevel].items[activeItem]?.name}`
+                ? `Currently on: ${LEARN_PATH[activeLevel]!.title} — ${LEARN_PATH[activeLevel]!.items[activeItem]?.name}`
                 : 'Amazing progress!'}
           </div>
         </div>
@@ -224,7 +237,7 @@ export default function LearnPath({
       {/* ── NEXT LESSON CTA — the ONE button the user always taps ──────── */}
       {activeLevel >= 0 && activeItem >= 0 && onLaunchItem && (
         <button
-          onClick={() => onLaunchItem(LEARN_PATH[activeLevel].items[activeItem])}
+          onClick={() => onLaunchItem(LEARN_PATH[activeLevel]!.items[activeItem]!)}
           style={{
             width: '100%',
             marginBottom: 24,
@@ -255,10 +268,10 @@ export default function LearnPath({
               Next Lesson
             </div>
             <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>
-              {LEARN_PATH[activeLevel].items[activeItem].name}
+              {LEARN_PATH[activeLevel]!.items[activeItem]!.name}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 3 }}>
-              Stage {LEARN_PATH[activeLevel].level}: {LEARN_PATH[activeLevel].title}
+              Stage {LEARN_PATH[activeLevel]!.level}: {LEARN_PATH[activeLevel]!.title}
             </div>
           </div>
           <div style={{ fontSize: 32, color: '#fff', flexShrink: 0 }}>▶</div>
@@ -267,14 +280,14 @@ export default function LearnPath({
 
       {/* ── THE WINDING PATH ────────────────────────────────────────────── */}
       {LEARN_PATH.map((lv, li) => {
-        const col = LEVEL_COLORS[li % LEVEL_COLORS.length];
+        const col = LEVEL_COLORS[li % LEVEL_COLORS.length]!;
         const levelDone = lv.items.filter((it) => it.ck(st)).length;
         const levelPct = Math.round((levelDone / lv.items.length) * 100);
         const prevLevelDone =
           li === 0
             ? true
-            : LEARN_PATH[li - 1].items.filter((it) => it.ck(st)).length >=
-              Math.ceil(LEARN_PATH[li - 1].items.length * 0.6);
+            : LEARN_PATH[li - 1]!.items.filter((it) => it.ck(st)).length >=
+              Math.ceil(LEARN_PATH[li - 1]!.items.length * 0.6);
         const isUnlocked = li === 0 || prevLevelDone;
 
         return (

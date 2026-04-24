@@ -1,29 +1,40 @@
-// @ts-nocheck
 import React from 'react';
 import { H, BADGES, getStreak, getSR } from '../../data';
 import BadgeArtwork from '../shared/BadgeArtwork';
+import type { Stats } from '../../types';
+
+interface BadgeDef {
+  id: string;
+  n: string;
+  d: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  r: (stats: any) => boolean;
+  i: string;
+}
+
+type ProgressMap = Record<string, { cur: number; total: number }>;
 
 // Returns { cur, total } for badges that have trackable numeric progress.
 // Returns null for one-shot badges (gram, spk, hist, etc.)
-function getBadgeProgress(b, stats) {
+function getBadgeProgress(b: BadgeDef, stats: Partial<Stats>) {
   const streak = getStreak().count || 0;
-  const sr = getSR();
+  const sr = getSR() as Record<string, { r: number; w: number }>;
   const _mastered = Object.values(sr).filter((v) => v.r > v.w && v.r >= 2).length;
 
-  const map = {
+  const map: ProgressMap = {
     // XP
-    x100: { cur: stats.xp, total: 100 },
-    x500: { cur: stats.xp, total: 500 },
-    x1k: { cur: stats.xp, total: 1000 },
-    x2k: { cur: stats.xp, total: 2000 },
-    x5k: { cur: stats.xp, total: 5000 },
-    x10k: { cur: stats.xp, total: 10000 },
+    x100: { cur: stats.xp ?? 0, total: 100 },
+    x500: { cur: stats.xp ?? 0, total: 500 },
+    x1k: { cur: stats.xp ?? 0, total: 1000 },
+    x2k: { cur: stats.xp ?? 0, total: 2000 },
+    x5k: { cur: stats.xp ?? 0, total: 5000 },
+    x10k: { cur: stats.xp ?? 0, total: 10000 },
     // Lessons
-    first: { cur: stats.lc, total: 1 },
-    ded: { cur: stats.lc, total: 5 },
-    lc20: { cur: stats.lc, total: 20 },
-    lc50: { cur: stats.lc, total: 50 },
-    lc100: { cur: stats.lc, total: 100 },
+    first: { cur: stats.lc ?? 0, total: 1 },
+    ded: { cur: stats.lc ?? 0, total: 5 },
+    lc20: { cur: stats.lc ?? 0, total: 20 },
+    lc50: { cur: stats.lc ?? 0, total: 50 },
+    lc100: { cur: stats.lc ?? 0, total: 100 },
     // Perfection
     perf: { cur: stats.pf || 0, total: 1 },
     perf5: { cur: stats.pf || 0, total: 5 },
@@ -39,12 +50,20 @@ function getBadgeProgress(b, stats) {
     // Reading
     read3: { cur: stats.readingDone || 0, total: 3 },
   };
-  if (!map[b.id]) return null;
-  const { cur, total } = map[b.id];
+  if (!map[b.id as keyof typeof map]) return null;
+  const { cur, total } = map[b.id as keyof typeof map]!;
   return { cur: Math.min(cur, total), total };
 }
 
-export default function BadgesScreen({ badges, stats, goBack }) {
+export default function BadgesScreen({
+  badges,
+  stats,
+  goBack,
+}: {
+  badges: string[];
+  stats: Partial<Stats>;
+  goBack: () => void;
+}) {
   const earned = badges || [];
   const st = stats || {};
 
