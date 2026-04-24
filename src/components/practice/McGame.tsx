@@ -72,7 +72,7 @@ interface McGameProps {
   questions: McQuestion[];
   onComplete: (questions: McQuestion[], score: number) => void;
   goBack: () => void;
-  award: ((xp: number, bonus?: boolean) => void) | undefined;
+  award: ((xp: number, bonus?: boolean, activityType?: string) => void) | undefined;
   challengeMode?: boolean;
 }
 export default function McGame({
@@ -327,7 +327,7 @@ export default function McGame({
 
         const uniqueCleared = clearedIndices.current.size;
         if (typeof award === 'function')
-          award(uniqueCleared * XP_PER_CORRECT + XP_COMPLETION_BONUS, true);
+          award(uniqueCleared * XP_PER_CORRECT + XP_COMPLETION_BONUS, true, 'vocabulary');
         markQuest('vocab');
         onComplete(questions, finalScore);
         return; // don't advance — let onComplete unmount

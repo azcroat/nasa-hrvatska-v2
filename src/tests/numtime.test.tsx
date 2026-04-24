@@ -226,7 +226,7 @@ describe('NumTime — completion + award guard', () => {
     const award = vi.fn();
     completeAndFinish(award);
     // 10/10 correct → ntS=10 → award(10*3+10) = award(40)
-    expect(award).toHaveBeenCalledWith(40);
+    expect(award).toHaveBeenCalledWith(40, false, 'vocabulary');
   });
 
   it('Finish! button calls both award and goBack', () => {

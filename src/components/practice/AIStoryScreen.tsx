@@ -29,7 +29,7 @@ export default function AIStoryScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const isOnline = useOnlineStatus();
   const [loading, setLoading] = useState(false);
@@ -135,7 +135,7 @@ export default function AIStoryScreen({
   }, []);
 
   function handleDone() {
-    if (typeof award === 'function') award(15);
+    if (typeof award === 'function') award(15, false, 'story');
     setDone(true);
     setTimeout(goBack, 400);
   }

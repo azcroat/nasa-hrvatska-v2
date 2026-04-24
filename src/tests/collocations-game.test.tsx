@@ -211,7 +211,7 @@ describe('CollocationsGame — completion + award guard', () => {
     const award = vi.fn();
     completeAndClickDone(award);
     // All 25 opts[0] === answer with identity shuffle → score=25, XP=125
-    expect(award).toHaveBeenCalledWith(125);
+    expect(award).toHaveBeenCalledWith(125, false, 'vocabulary');
   });
 
   it('award() is NOT called a second time if Done is clicked twice', () => {

@@ -33,7 +33,7 @@ export default function ListeningScreen({
 }: {
   questions: any[];
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   /* eslint-enable @typescript-eslint/no-explicit-any */
   const { stats, setStats, writeDelta } = useStats();
@@ -83,7 +83,7 @@ export default function ListeningScreen({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(score * 4 + 10);
+              if (typeof award === 'function') award(score * 4 + 10, false, 'listening');
               if (!stats.vs?.includes('listening')) {
                 setStats((prev) => {
                   if (prev.vs?.includes('listening')) return prev;

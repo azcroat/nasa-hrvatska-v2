@@ -182,7 +182,7 @@ describe('MatchGame — completion + award guard', () => {
       vi.advanceTimersByTime(500);
     }); // completion timeout
     expect(award).toHaveBeenCalledTimes(1);
-    expect(award).toHaveBeenCalledWith(20);
+    expect(award).toHaveBeenCalledWith(20, false, 'vocabulary');
   });
 
   it('markQuest("vocab") is called on completion', async () => {

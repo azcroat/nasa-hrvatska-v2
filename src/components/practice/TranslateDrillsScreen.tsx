@@ -16,7 +16,7 @@ export default function TranslateDrillsScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const drills = useMemo(() => sh([...TRANSLATE_DRILLS]), []);
   const [idx, setIdx] = useState(0);
@@ -38,7 +38,7 @@ export default function TranslateDrillsScreen({
   function next() {
     if (idx + 1 >= drills.length) {
       const xp = Math.round((score / drills.length) * 20);
-      if (xp > 0 && typeof award === 'function') award(xp);
+      if (xp > 0 && typeof award === 'function') award(xp, false, 'grammar');
       markQuest('vocab');
       setDone(true);
     } else {

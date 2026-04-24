@@ -182,7 +182,7 @@ export default function WordFamilies({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const finishFired = useRef(false);
   const [qs] = useState(() => shLocal(DATA));
@@ -212,7 +212,7 @@ export default function WordFamilies({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(score * 5);
+              if (typeof award === 'function') award(score * 5, false, 'vocabulary');
               markQuest('vocab');
               goBack();
             }}

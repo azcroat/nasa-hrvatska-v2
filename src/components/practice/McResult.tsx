@@ -12,7 +12,7 @@ interface McResultProps {
   setScr: (scr: string) => void;
   goBack: () => void;
   onNewGame: (items: any[]) => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 export default function McResult({
@@ -115,7 +115,7 @@ export default function McResult({
     const next = reviewIdx + 1;
     if (next >= mistakes.length) {
       setReviewPhase('done');
-      if (award) award(5);
+      if (award) award(5, false, 'vocabulary');
     } else {
       setReviewIdx(next);
       setReviewFlipped(false);

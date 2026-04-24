@@ -5,7 +5,7 @@ import { markQuest } from '../../../lib/quests.js';
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function SibilarizationScreen({ goBack, award }: Props) {
@@ -23,7 +23,7 @@ function SibilarizationScreen({ goBack, award }: Props) {
     btn.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
     btn.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     if (isCorrect) {
-      if (typeof award === 'function') award(3);
+      if (typeof award === 'function') award(3, false, 'grammar');
       speak(spoken);
     }
     if (btn.closest && btn.closest('div'))

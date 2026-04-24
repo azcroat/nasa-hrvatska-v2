@@ -232,7 +232,7 @@ describe('StoryScreens — completion + award guard', () => {
     await reachFinalScene(award);
     fireEvent.click(screen.getByText('✅ Story Complete!'));
     expect(award).toHaveBeenCalledTimes(1);
-    expect(award).toHaveBeenCalledWith(15);
+    expect(award).toHaveBeenCalledWith(15, false, 'story');
   });
 
   it('markQuest("reading") is called on completion', async () => {

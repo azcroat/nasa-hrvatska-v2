@@ -431,7 +431,7 @@ describe('AspectDrillScreen — completion + award', () => {
     fireEvent.click(screen.getByText('Finish'));
     expect(award).toHaveBeenCalledTimes(1);
     // award(score * 4 + 10); score=4 (all correct) → award(4*4+10) = award(26)
-    expect(award).toHaveBeenCalledWith(26);
+    expect(award).toHaveBeenCalledWith(26, false, 'grammar');
   });
 
   it('markQuest("grammar") called when Finish clicked', () => {

@@ -59,7 +59,7 @@ export default function StoryScreens({
   sCurEx,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
   sCurEx?: (id: string) => void;
 }) {
   const [stSt, sStSt] = useState<Story | null>(null);
@@ -144,7 +144,7 @@ export default function StoryScreens({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(15);
+              if (typeof award === 'function') award(15, false, 'story');
               markQuest('reading');
               sStSt(null);
             }}
@@ -338,7 +338,7 @@ export default function StoryScreens({
               onClick={() => {
                 if (finishFired.current) return;
                 finishFired.current = true;
-                if (typeof award === 'function') award(15);
+                if (typeof award === 'function') award(15, false, 'story');
                 markQuest('reading');
                 sStSt(null);
               }}

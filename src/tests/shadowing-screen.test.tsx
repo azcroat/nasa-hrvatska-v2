@@ -332,7 +332,7 @@ describe('ShadowingScreen — done mode', () => {
       .getAllByRole('button')
       .find((b) => b.textContent?.trim() === 'Finish')!;
     fireEvent.click(finishBtn);
-    expect(award).toHaveBeenCalledWith(2 * 3 + 5);
+    expect(award).toHaveBeenCalledWith(2 * 3 + 5, false, 'speaking');
   });
 
   it('"Finish" button in done mode calls markQuest("speak")', () => {

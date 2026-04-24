@@ -6,7 +6,7 @@ export default function ZnamGame({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [znMode, sZnMode] = useState('menu');
   const [znSec, sZnSec] = useState(0);
@@ -106,7 +106,7 @@ export default function ZnamGame({
                       srMark(correct, isCorrect, 0);
                       if (isCorrect) {
                         sZnSc((s) => s + 1);
-                        if (typeof award === 'function') award(5);
+                        if (typeof award === 'function') award(5, false, 'vocabulary');
                       }
                     }}
                   >

@@ -3,7 +3,7 @@ import { H, Bar, speak, sh, BOJE } from '../../data';
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function BojeGame({ goBack, award }: Props) {
   const finishFired = useRef(false);
@@ -237,7 +237,7 @@ export default function BojeGame({ goBack, award }: Props) {
                       sBjAns(true);
                       if (o === q.answer) {
                         sBjSc((s) => s + 1);
-                        if (typeof award === 'function') award(5);
+                        if (typeof award === 'function') award(5, false, 'vocabulary');
                       }
                     }}
                   >
@@ -259,7 +259,7 @@ export default function BojeGame({ goBack, award }: Props) {
                     } else {
                       if (!finishFired.current) {
                         finishFired.current = true;
-                        if (typeof award === 'function') award(bjSc * 2);
+                        if (typeof award === 'function') award(bjSc * 2, false, 'vocabulary');
                       }
                       sBjIdx(total);
                     }

@@ -286,7 +286,7 @@ describe('VocativeScreen — done screen + award guard', () => {
     const award = vi.fn();
     completeAllQuestions(award);
     fireEvent.click(screen.getByText('✓ Done'));
-    expect(award).toHaveBeenCalledWith(80);
+    expect(award).toHaveBeenCalledWith(80, false, 'vocabulary');
   });
 
   it('award() is NOT called again on rapid double-click (finishFired guard)', () => {

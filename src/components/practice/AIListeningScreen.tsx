@@ -24,7 +24,7 @@ export default function AIListeningScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const isOnline = useOnlineStatus();
   const [phase, setPhase] = useState('setup');
@@ -223,7 +223,7 @@ export default function AIListeningScreen({
     if (phase === 'results' && !xpAwarded.current) {
       xpAwarded.current = true;
       const xp = 10 + score * 5;
-      if (typeof award === 'function') award(xp);
+      if (typeof award === 'function') award(xp, false, 'listening');
       markQuest('speak');
     }
   }, [phase, score, award]);

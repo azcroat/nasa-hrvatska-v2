@@ -173,7 +173,7 @@ const DATA = [
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function CliticDrill({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
@@ -198,7 +198,7 @@ export default function CliticDrill({ goBack, award }: Props) {
     if (idx + 1 >= total) {
       if (!finishFired.current) {
         finishFired.current = true;
-        if (award) award(score * 5);
+        if (award) award(score * 5, false, 'grammar');
         markQuest('grammar');
         if (!stats.vs?.includes('clitic')) {
           setStats((prev) => {

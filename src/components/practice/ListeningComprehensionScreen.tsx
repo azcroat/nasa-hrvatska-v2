@@ -1750,7 +1750,7 @@ export default function ListeningComprehensionScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   useApp();
 
@@ -1869,7 +1869,7 @@ export default function ListeningComprehensionScreen({
       // `score` already includes the last answer (handleAnswer incremented it before Next was clickable).
       const finalScore = score;
       const xp = Math.round((finalScore / qs.length) * 15) + 5;
-      if (award) award(xp);
+      if (award) award(xp, false, 'listening');
     } else {
       setQuestionIdx((i) => i + 1);
       setChosen(null);

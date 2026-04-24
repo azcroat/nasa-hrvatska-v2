@@ -13,7 +13,7 @@ export default function MatchGame({
 }: {
   initPool: any[];
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [mp] = useState<any[]>(initPool || []);
 
@@ -96,7 +96,7 @@ export default function MatchGame({
                   sMsl([]);
                   if (mm.length + 1 === mp.length / 2)
                     setTimeout(() => {
-                      if (typeof award === 'function') award(20);
+                      if (typeof award === 'function') award(20, false, 'vocabulary');
                       markQuest('vocab');
                       sGph('done');
                       knightSpeak(
@@ -134,7 +134,7 @@ export default function MatchGame({
                     sMsl([]);
                     if (mm.length + 1 === mp.length / 2)
                       setTimeout(() => {
-                        if (typeof award === 'function') award(20);
+                        if (typeof award === 'function') award(20, false, 'vocabulary');
                         markQuest('vocab');
                         sGph('done');
                         knightSpeak(

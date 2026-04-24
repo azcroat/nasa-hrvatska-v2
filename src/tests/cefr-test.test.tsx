@@ -267,7 +267,7 @@ describe('CefrTest — completion + award guard', () => {
   it('award() receives XP = finalScore * 7 (15 correct → 105 XP)', () => {
     const award = vi.fn();
     completeA1(award);
-    expect(award).toHaveBeenCalledWith(105);
+    expect(award).toHaveBeenCalledWith(105, false, 'default');
   });
 
   it('markQuest("grammar") is called on completion', () => {

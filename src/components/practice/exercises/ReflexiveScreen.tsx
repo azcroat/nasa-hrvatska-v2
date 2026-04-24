@@ -6,7 +6,7 @@ import { markQuest } from '../../../lib/quests.js';
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function ReflexiveScreen({ goBack, award }: Props) {
@@ -34,7 +34,7 @@ function ReflexiveScreen({ goBack, award }: Props) {
     const newAnswers = { ...answers, [qi]: o };
     setAnswers(newAnswers);
     if (o === a) {
-      if (typeof award === 'function') award(5);
+      if (typeof award === 'function') award(5, false, 'grammar');
     }
     if (Object.keys(newAnswers).length === REFLEXIVE.quiz.length && !questFiredRef.current) {
       questFiredRef.current = true;

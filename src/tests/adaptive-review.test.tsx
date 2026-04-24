@@ -285,7 +285,7 @@ describe('AdaptiveReviewScreen — mistake card session', () => {
     fireEvent.click(screen.getByText(/Počni sesiju/));
     fireEvent.click(screen.getByText('Otkrij značenje'));
     fireEvent.click(screen.getByText(/✓ Znam/));
-    expect(props.award).toHaveBeenCalledWith(2);
+    expect(props.award).toHaveBeenCalledWith(2, false, 'review');
   });
 
   it('correct answer: markQuest("master") called on completion', () => {
@@ -323,7 +323,7 @@ describe('AdaptiveReviewScreen — mistake card session', () => {
     fireEvent.click(screen.getByText(/Počni sesiju/));
     fireEvent.click(screen.getByText('Otkrij značenje'));
     fireEvent.click(screen.getByText(/✗ Ne znam/));
-    expect(props.award).toHaveBeenCalledWith(0);
+    expect(props.award).toHaveBeenCalledWith(0, false, 'review');
   });
 
   it('back button in session view returns to dashboard', () => {
@@ -386,7 +386,7 @@ describe('AdaptiveReviewScreen — SRS card session', () => {
     fireEvent.click(screen.getByText(/Otkrij/));
     fireEvent.click(screen.getByText(/✓ Znam/));
     expect(screen.getByText('Sesija završena')).toBeTruthy();
-    expect(props.award).toHaveBeenCalledWith(2);
+    expect(props.award).toHaveBeenCalledWith(2, false, 'review');
   });
 
   it('wrong SRS answer: calls recordMistake(id, empty, id, adaptive)', () => {
@@ -472,7 +472,7 @@ describe('AdaptiveReviewScreen — results screen', () => {
     fireEvent.click(screen.getByText('Otkrij značenje'));
     fireEvent.click(screen.getByText(/✓ Znam/));
     expect(screen.getByText(/Great session!/)).toBeTruthy();
-    expect(props.award).toHaveBeenCalledWith(2);
+    expect(props.award).toHaveBeenCalledWith(2, false, 'review');
   });
 
   it('shows "Review missed words" when wrong and no grammar weakness', () => {

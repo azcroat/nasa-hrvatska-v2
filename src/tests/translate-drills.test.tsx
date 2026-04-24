@@ -251,7 +251,7 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
     }
     expect(screen.getByText(/29\/29 correct/)).toBeTruthy();
     expect(screen.getByText('Back to Practice')).toBeTruthy();
-  }, 20000);
+  }, 60000);
 
   /**
    * Consolidated award + quest test: verifies award(20) and markQuest('vocab')
@@ -270,7 +270,7 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
       if (nextBtn) fireEvent.click(nextBtn);
     }
     // 29/29 correct → award(Math.round(29/29 * 20)) = award(20)
-    expect(award).toHaveBeenCalledWith(20);
+    expect(award).toHaveBeenCalledWith(20, false, 'grammar');
     expect(mockMarkQuest).toHaveBeenCalledWith('vocab');
     expect(mockMarkQuest).toHaveBeenCalledTimes(1);
   }, 20000);

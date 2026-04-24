@@ -192,7 +192,7 @@ const DATA = [
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function CollocationsGame({ goBack, award }: Props) {
   const finishFired = useRef(false);
@@ -223,7 +223,7 @@ export default function CollocationsGame({ goBack, award }: Props) {
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(score * 5);
+              if (typeof award === 'function') award(score * 5, false, 'vocabulary');
               goBack();
             }}
             style={{ width: '100%', marginTop: 16 }}

@@ -6,7 +6,7 @@ import { recordTopicResult } from '../../../lib/adaptive.js';
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function SentenceBuilderScreen({ goBack, award }: Props) {
@@ -22,7 +22,7 @@ function SentenceBuilderScreen({ goBack, award }: Props) {
     btn.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     recordTopicResult('grammar', isCorrect);
     if (isCorrect) {
-      if (typeof award === 'function') award(5);
+      if (typeof award === 'function') award(5, false, 'grammar');
     }
     if (btn.closest && btn.closest('div'))
       (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';

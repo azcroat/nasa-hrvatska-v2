@@ -125,7 +125,7 @@ const catIcons = {
 
 interface WordSprintProps {
   sh: ShuffleFn;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
   goBack: () => void;
 }
 export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
@@ -242,7 +242,7 @@ export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
       const pts = newStreak >= 5 ? 3 : newStreak >= 3 ? 2 : 1;
       setScore((s) => s + pts);
       if (newStreak % 5 === 0) {
-        if (typeof award === 'function') award(15);
+        if (typeof award === 'function') award(15, false, 'vocabulary');
       }
       if (consecCorrectRef.current >= 3) knightFlash('onfire', 2000);
       else if (rnd() < 0.2) knightFlash('winking', 1500);
@@ -259,7 +259,7 @@ export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
 
   useEffect(() => {
     if (phase === 'result' && score > 0) {
-      if (typeof award === 'function') award(Math.min(score * 2, 50));
+      if (typeof award === 'function') award(Math.min(score * 2, 50), false, 'vocabulary');
       markQuest('vocab');
     }
   }, [phase, score, award]);

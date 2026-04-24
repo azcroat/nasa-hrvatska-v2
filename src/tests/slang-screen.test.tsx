@@ -145,7 +145,7 @@ describe('SlangScreen — age gate', () => {
     const award = vi.fn();
     render(<SlangScreen goBack={vi.fn()} award={award} />);
     fireEvent.click(screen.getByText('Yes, continue'));
-    expect(award).toHaveBeenCalledWith(15);
+    expect(award).toHaveBeenCalledWith(15, false, 'vocabulary');
   });
 
   it('"Yes, continue" shows main content', () => {
@@ -261,7 +261,7 @@ describe('SlangScreen — section switching', () => {
     const secondTab = tabs.find((b) => !b.textContent?.toLowerCase().includes('classic'));
     if (!secondTab) throw new Error('Could not find a non-classics section tab');
     fireEvent.click(secondTab);
-    expect(award).toHaveBeenCalledWith(5);
+    expect(award).toHaveBeenCalledWith(5, false, 'vocabulary');
   });
 
   it('switching to the same section twice does NOT call award twice', () => {

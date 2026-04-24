@@ -252,7 +252,7 @@ describe('SentenceTileScreen — completion + award', () => {
     const award = vi.fn();
     completeAllQuestions(award);
     // 2 correct × 4 + 5 = 13, plus true for "show celebratory banner" flag
-    expect(award).toHaveBeenCalledWith(13, true);
+    expect(award).toHaveBeenCalledWith(13, true, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {

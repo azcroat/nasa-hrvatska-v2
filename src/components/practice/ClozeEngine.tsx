@@ -215,7 +215,7 @@ function shuffle(arr: any[]) {
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function ClozeEngine({ goBack, award }: Props) {
   const { level } = useStats();
@@ -296,7 +296,7 @@ export default function ClozeEngine({ goBack, award }: Props) {
     stopAudio();
     if (qi + 1 >= questions.length) {
       const earned = Math.round((score / questions.length) * 30) + 10;
-      if (award) award(earned);
+      if (award) award(earned, false, 'grammar');
       markQuest('grammar');
       setDone(true);
     } else {

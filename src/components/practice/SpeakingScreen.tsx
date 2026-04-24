@@ -82,7 +82,7 @@ interface SpeakingScreenProps {
   sSw: (v: any) => void;
   sSsc: (fn: (s: number) => number) => void;
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSt: (fn: (s: any) => any) => void;
 }
@@ -195,7 +195,7 @@ export default function SpeakingScreen({
       // All words done — show summary before awarding
       if (finishFired.current) return;
       finishFired.current = true;
-      if (typeof award === 'function') award(ssc * 5 + 5);
+      if (typeof award === 'function') award(ssc * 5 + 5, false, 'speaking');
       markQuest('speak');
       setSt((s) => ({ ...s, sp: s.sp + 1 }));
       writeDelta({ sp: 1 });

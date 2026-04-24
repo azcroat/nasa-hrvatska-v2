@@ -232,7 +232,7 @@ describe('CliticDrill — completion + award guard', () => {
     const award = vi.fn();
     completeAllQuestions(award);
     // DATA[6/7/9] opts[0] ≠ answer → 3 wrong; 22 - 3 = 19 correct → XP = 95
-    expect(award).toHaveBeenCalledWith(95);
+    expect(award).toHaveBeenCalledWith(95, false, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {

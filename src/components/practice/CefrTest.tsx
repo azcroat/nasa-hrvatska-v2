@@ -581,7 +581,11 @@ function shuffleLevel(levelKey: string) {
   });
 }
 
-export default function CefrTest({ award }: { award?: (xp: number) => void }) {
+export default function CefrTest({
+  award,
+}: {
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
+}) {
   const finishFired = useRef(false);
   const [levelKey, setLevelKey] = useState<string | null>(null);
   // Shuffled questions for the active level — rebuilt each time a level is started
@@ -626,7 +630,7 @@ export default function CefrTest({ award }: { award?: (xp: number) => void }) {
     if (nextIdx >= total) {
       if (!finishFired.current) {
         finishFired.current = true;
-        if (award) award(score * 7);
+        if (award) award(score * 7, false, 'default');
         markQuest('grammar');
       }
       setDone(true);

@@ -679,7 +679,7 @@ describe('MyWordsScreen — drill completion', () => {
     clickDrillMyWords();
     flipDrillCard();
     fireEvent.click(screen.getByText('Got it ✓'));
-    expect(award).toHaveBeenCalledWith(5);
+    expect(award).toHaveBeenCalledWith(5, false, 'review');
   });
 
   it('award NOT called when 0 correct (Try again on only card)', () => {
@@ -704,6 +704,6 @@ describe('MyWordsScreen — drill completion', () => {
     // Card 2 is now shown — flip and Got it
     flipDrillCard();
     fireEvent.click(screen.getByText('Got it ✓'));
-    expect(award).toHaveBeenCalledWith(10);
+    expect(award).toHaveBeenCalledWith(10, false, 'review');
   });
 });

@@ -8,7 +8,7 @@ import { markQuest } from '../../lib/quests.js';
 type AnyFn = (s: any) => any;
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
   setSt: (fn: AnyFn) => void;
 }
 export default function ConjugationDrill({ goBack, award, setSt }: Props) {
@@ -137,7 +137,7 @@ export default function ConjugationDrill({ goBack, award, setSt }: Props) {
                     onClick={() => {
                       if (finishFired.current) return;
                       finishFired.current = true;
-                      if (typeof award === 'function') award(cjS * 2 + 10);
+                      if (typeof award === 'function') award(cjS * 2 + 10, false, 'grammar');
                       markQuest('grammar');
                       setSt((s) => ({ ...s, gc: s.gc + 1 }));
                       writeDelta({ gc: 1 });
@@ -197,7 +197,7 @@ export default function ConjugationDrill({ goBack, award, setSt }: Props) {
                         const correct = oi === ci;
                         if (correct) {
                           sCjS((s) => s + 1);
-                          if (typeof award === 'function') award(3);
+                          if (typeof award === 'function') award(3, false, 'grammar');
                         }
                         recordTopicResult('grammar', correct);
                       }

@@ -5,7 +5,7 @@ import { markQuest } from '../../../lib/quests.js';
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function ConvMatchScreen({ goBack, award }: Props) {
@@ -24,7 +24,7 @@ function ConvMatchScreen({ goBack, award }: Props) {
     (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
     (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
     if (isCorrect) {
-      if (typeof award === 'function') award(5);
+      if (typeof award === 'function') award(5, false, 'grammar');
       speak(answer);
     }
     const btn = e.target as HTMLButtonElement;

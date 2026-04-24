@@ -487,7 +487,7 @@ function LevelBadge({ level }: LevelBadgeProps) {
 // ─── MODE A: TRANSFORM ───────────────────────────────────────────────────────
 interface ModeDoneProps {
   onDone: () => void;
-  award?: (n: number) => void;
+  award?: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 function ModeTransform({ onDone, award }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
@@ -503,7 +503,7 @@ function ModeTransform({ onDone, award }: ModeDoneProps) {
     recordTopicResult('grammar', correct);
     if (correct) {
       setScore((s) => s + 1);
-      if (award) award(2);
+      if (award) award(2, false, 'grammar');
     }
     if (idx + 1 >= total) {
       setDone(true);
@@ -638,7 +638,7 @@ function ModeTranslate({ onDone, award }: ModeDoneProps) {
     recordTopicResult('vocabulary', correct);
     if (correct) {
       setScore((s) => s + 1);
-      if (award) award(3);
+      if (award) award(3, false, 'grammar');
     }
     if (idx + 1 >= total) {
       setDone(true);
@@ -808,7 +808,7 @@ function ModeBuild({ onDone, award }: ModeDoneProps) {
     if (correct) {
       setFeedback('correct');
       setScore((s) => s + 1);
-      if (award) award(5);
+      if (award) award(5, false, 'grammar');
     } else {
       setShake(true);
       setFeedback('wrong');
@@ -1018,7 +1018,7 @@ function ModeErrorCorrect({ onDone, award }: ModeDoneProps) {
     recordTopicResult('grammar', correct);
     if (correct) {
       setScore((s) => s + 1);
-      if (award) award(3);
+      if (award) award(3, false, 'grammar');
     }
   }
 
@@ -1251,7 +1251,7 @@ const MODES = [
 // ─── MAIN SCREEN ─────────────────────────────────────────────────────────────
 interface ProductionDrillProps {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function ProductionDrillScreen({ goBack, award }: ProductionDrillProps) {
   const [mode, setMode] = useState<string | null>(null);

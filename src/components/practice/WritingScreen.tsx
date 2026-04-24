@@ -202,7 +202,7 @@ interface WritingResult {
 
 interface WritingScreenProps {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 export default function WritingScreen({ goBack, award }: WritingScreenProps) {
@@ -796,7 +796,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
               markQuest('write');
               if (typeof award === 'function') {
                 const sc = result.score ?? 0;
-                award(sc > 0 ? Math.round(sc / 10) + 5 : 5);
+                award(sc > 0 ? Math.round(sc / 10) + 5 : 5, false, 'grammar');
               }
               setText('');
               setResult(null);

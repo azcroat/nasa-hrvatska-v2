@@ -261,7 +261,7 @@ describe('ConjugationDrill — answer mechanics', () => {
     fireEvent.click(screen.getByText('All Tenses'));
     // First .ob is always correct (answer prepended, identity shuffle)
     fireEvent.click(container.querySelector('button.ob')!);
-    expect(award).toHaveBeenCalledWith(3);
+    expect(award).toHaveBeenCalledWith(3, false, 'grammar');
   });
 
   it('advances to next question after clicking Next →', () => {
@@ -352,7 +352,7 @@ describe('ConjugationDrill — completion + award guard', () => {
     const award = vi.fn();
     completeAllAndFinish(award);
     // Last award call on Finish: cjS=20 → award(20 * 2 + 10) = award(50)
-    expect(award).toHaveBeenLastCalledWith(50);
+    expect(award).toHaveBeenLastCalledWith(50, false, 'grammar');
   });
 
   it('markQuest("grammar") called on Finish', () => {

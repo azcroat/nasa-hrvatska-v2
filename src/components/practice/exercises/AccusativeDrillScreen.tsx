@@ -6,7 +6,7 @@ import { recordTopicResult } from '../../../lib/adaptive.js';
 
 interface Props {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function AccusativeDrillScreen({ goBack, award }: Props) {
@@ -25,7 +25,7 @@ function AccusativeDrillScreen({ goBack, award }: Props) {
     (e.target as HTMLButtonElement).style.borderColor = '#16a34a';
     speak(f.q.replace('_____', f.aku));
     recordTopicResult('cases', true);
-    if (typeof award === 'function') award(2);
+    if (typeof award === 'function') award(2, false, 'grammar');
     const btn = e.target as HTMLButtonElement;
     if (btn.closest && btn.closest('div'))
       (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';

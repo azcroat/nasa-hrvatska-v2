@@ -232,7 +232,7 @@ describe('PrepDrill — completion + award guard', () => {
     const award = vi.fn();
     completeAndClickDone(award);
     // All 15 opts[0] === answer with identity shuffle → score=15, XP=75
-    expect(award).toHaveBeenCalledWith(75);
+    expect(award).toHaveBeenCalledWith(75, false, 'grammar');
   });
 
   it('shows XP amount on done screen', () => {

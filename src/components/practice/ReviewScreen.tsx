@@ -19,7 +19,7 @@ interface AiExplanation {
 
 interface ReviewScreenProps {
   goBack: () => void;
-  award: (n: number, celebrate?: boolean) => void;
+  award: (n: number, celebrate?: boolean, activityType?: string) => void;
   allCats?: string[];
 }
 
@@ -308,7 +308,7 @@ export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenPro
               finishFired.current = true;
               markPracticed();
               haptic.award();
-              if (typeof award === 'function') award(score * 5 + 5);
+              if (typeof award === 'function') award(score * 5 + 5, false, 'review');
               markQuest('master');
               goBack();
             }}
