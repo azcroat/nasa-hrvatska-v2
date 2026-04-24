@@ -16,7 +16,7 @@ export default function PadeziScreen({
   setSt,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
   setSt?: (fn: (s: Record<string, number>) => Record<string, number>) => void;
 }) {
   const { writeDelta } = useStats();
@@ -177,7 +177,7 @@ export default function PadeziScreen({
                       if (finishFired.current) return;
                       finishFired.current = true;
                       markQuest('grammar');
-                      if (typeof award === 'function') award(czS * 3 + 15);
+                      if (typeof award === 'function') award(czS * 3 + 15, false, 'grammar');
                       if (setSt) setSt((s) => ({ ...s, gc: (s.gc || 0) + 1 }));
                       writeDelta({ gc: 1 });
                       goBack();
@@ -209,7 +209,7 @@ export default function PadeziScreen({
                         const correct = oi === ci;
                         if (correct) {
                           sCzS((s) => s + 1);
-                          if (typeof award === 'function') award(4);
+                          if (typeof award === 'function') award(4, false, 'grammar');
                         }
                         recordTopicResult('cases', correct);
                       }

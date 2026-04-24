@@ -15,7 +15,7 @@ function QuizBlock({
   award,
 }: {
   questions: QuizQuestion[];
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -32,7 +32,7 @@ function QuizBlock({
       ).length;
       setScore(pts);
       if (award) {
-        award(pts * 5);
+        award(pts * 5, false, 'grammar');
         markQuest('grammar');
       }
       if (!stats.vs?.includes('impersonal')) {
@@ -146,7 +146,7 @@ function ImpersonalScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [tab, setTab] = useState('constructions');
   const tabs = [

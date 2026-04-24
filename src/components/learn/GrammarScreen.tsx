@@ -30,7 +30,7 @@ interface GrammarScreenProps {
   sGa: (v: boolean) => void;
   sGsl: (v: number) => void;
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
   setSt: (fn: (s: { gc: number }) => { gc: number }) => void;
 }
 
@@ -227,7 +227,8 @@ export default function GrammarScreen({
                   } else {
                     if (resultFired.current) return;
                     resultFired.current = true;
-                    if (typeof award === 'function') award(Math.round((gs / qs.length) * 25) + 10);
+                    if (typeof award === 'function')
+                      award(Math.round((gs / qs.length) * 25) + 10, false, 'grammar');
                     markQuest('grammar');
                     if (gs === qs.length) markQuest('perfect');
                     setSt((s) => ({ ...s, gc: s.gc + 1 }));

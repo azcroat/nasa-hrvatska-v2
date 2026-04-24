@@ -38,7 +38,7 @@ export default function ReadingScreen({
   sHw: (v: string | null) => void;
   goBack: () => void;
   setScr: (v: string) => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSt: (fn: (s: Record<string, any>) => Record<string, any>) => void;
 }) {
@@ -212,7 +212,7 @@ export default function ReadingScreen({
                     const readKey = 'reading_' + (rp.title || 'passage').replace(/\s+/g, '_');
                     const alreadyDone = stats.vs?.includes(readKey);
                     if (typeof award === 'function')
-                      award(Math.round((rsc / rp.qs.length) * 35) + 10);
+                      award(Math.round((rsc / rp.qs.length) * 35) + 10, false, 'reading');
                     markQuest('reading');
                     if (rsc === rp.qs.length) markQuest('perfect');
                     setSt((s) => {

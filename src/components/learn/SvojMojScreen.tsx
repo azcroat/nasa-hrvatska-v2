@@ -7,13 +7,19 @@ interface QuizAnswer {
   note: string;
 }
 
-function SvojMojScreen({ goBack, award }: { goBack: () => void; award?: (pts: number) => void }) {
+function SvojMojScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
+}) {
   const [quizAnswers, setQuizAnswers] = useState<Record<number, QuizAnswer>>({});
 
   function handleQuiz(qi: number, o: string, correct: string, note: string): void {
     if (quizAnswers[qi] !== undefined) return;
     setQuizAnswers((prev) => ({ ...prev, [qi]: { chosen: o, note } }));
-    if (o === correct && award) award(5);
+    if (o === correct && award) award(5, false, 'grammar');
   }
 
   return (

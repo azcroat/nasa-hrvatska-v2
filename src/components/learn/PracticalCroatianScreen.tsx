@@ -814,7 +814,7 @@ function QuizView({ scenario, onBack }: { scenario: Scenario; onBack: () => void
       const correct = updated.filter((a, i) => a === questions[i]!.ans).length;
       if (!awardFired.current) {
         awardFired.current = true;
-        if (typeof award === 'function') award(correct * 5);
+        if (typeof award === 'function') award(correct * 5, false, 'grammar');
       }
       setAnswers(updated);
       setDone(true);
@@ -1175,7 +1175,7 @@ export default function PracticalCroatianScreen({ goBack, stats }: PCSProps) {
     // Award 10 XP for studying — once per scenario
     const studied = getStudied();
     if (scenario && !studied.has(scenario.id)) {
-      if (typeof award === 'function') award(10);
+      if (typeof award === 'function') award(10, false, 'grammar');
       markStudied(scenario.id);
     }
     if (scenario) setView('quiz');

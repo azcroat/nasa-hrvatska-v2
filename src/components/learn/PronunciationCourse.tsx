@@ -571,7 +571,7 @@ export default function PronunciationCourse({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [selected, setSelected] = useState<PronLetter | null>(null);
   const [completedThis, setCompletedThis] = useState(new Set());
@@ -583,7 +583,7 @@ export default function PronunciationCourse({
     const next = new Set(completedThis);
     next.add(selected.letter);
     setCompletedThis(next);
-    if (typeof award === 'function') award(10);
+    if (typeof award === 'function') award(10, false, 'pronunciation');
     setSelected(null);
   }
 

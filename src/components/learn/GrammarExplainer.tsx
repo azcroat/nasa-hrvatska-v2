@@ -250,7 +250,7 @@ export default function GrammarExplainer({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [phase, setPhase] = useState('pick');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
@@ -310,7 +310,7 @@ export default function GrammarExplainer({
     setQuizSubmitted(true);
     if (!xpAwarded.current && typeof award === 'function') {
       xpAwarded.current = true;
-      award(20);
+      award(20, false, 'grammar');
       markQuest('grammar');
       setPhase('done');
       setTimeout(() => setPhase('lesson'), 1800);

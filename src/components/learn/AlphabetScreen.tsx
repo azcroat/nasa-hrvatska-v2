@@ -29,7 +29,7 @@ function buildAlphaQuiz(alpha: string[][]): AlphaQuizQuestion[] {
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 export default function AlphabetScreen({ goBack, award }: Props) {
@@ -205,7 +205,7 @@ export default function AlphabetScreen({ goBack, award }: Props) {
               onClick={() => {
                 if (!awardFired.current) {
                   awardFired.current = true;
-                  if (typeof award === 'function') award(20);
+                  if (typeof award === 'function') award(20, false, 'vocabulary');
                 }
                 if (!stats.vs?.includes('alphabet')) {
                   setStats((prev) => {

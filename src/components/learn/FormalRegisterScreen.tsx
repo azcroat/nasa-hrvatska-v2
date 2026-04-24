@@ -11,7 +11,7 @@ interface QuizQuestion {
 }
 interface QuizBlockProps {
   questions: QuizQuestion[];
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function QuizBlock({ questions, award }: QuizBlockProps) {
   const { stats, setStats, writeDelta } = useStats();
@@ -26,7 +26,7 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
       const pts = Object.entries(updated).filter(([i, v]) => v === questions[Number(i)]?.a).length;
       setScore(pts);
       if (award) {
-        award(pts * 5);
+        award(pts * 5, false, 'grammar');
         markQuest('grammar');
       }
       if (!stats.vs?.includes('formalregister')) {
@@ -137,7 +137,7 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
 
 interface ScreenProps {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function FormalRegisterScreen({ goBack, award }: ScreenProps) {
   const [tab, setTab] = useState('rules');

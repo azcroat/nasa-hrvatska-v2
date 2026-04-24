@@ -54,7 +54,7 @@ function buildDeclQuiz(nouns: DeclNoun[], caseNames: string[]): DeclQuestion[] {
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function DeclensionScreen({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
@@ -96,7 +96,7 @@ export default function DeclensionScreen({ goBack, award }: Props) {
       if (!awardFired.current) {
         awardFired.current = true;
         markQuest('grammar');
-        if (award) award(score * 4 + 10);
+        if (award) award(score * 4 + 10, false, 'grammar');
       }
       setQuizDone(true);
     }

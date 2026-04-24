@@ -867,7 +867,7 @@ export default function GradedInputScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [view, setView] = useState('list'); // 'list' | 'reader' | 'quiz'
   const [story, setStory] = useState<GradedStory | null>(null);
@@ -883,7 +883,7 @@ export default function GradedInputScreen({
 
   function complete(xp: number) {
     if (story) markDone(story.id);
-    if (typeof award === 'function') award(xp);
+    if (typeof award === 'function') award(xp, false, 'reading');
     markQuest('reading');
     goBack();
   }

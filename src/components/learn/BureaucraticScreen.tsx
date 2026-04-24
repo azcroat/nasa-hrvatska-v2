@@ -10,7 +10,7 @@ interface QuizQuestion {
 }
 interface QuizBlockProps {
   questions: QuizQuestion[];
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function QuizBlock({ questions, award }: QuizBlockProps) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -26,7 +26,7 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
       ).length;
       setScore(pts);
       if (award) {
-        award(pts * 5);
+        award(pts * 5, false, 'grammar');
         markQuest('grammar');
       }
     }
@@ -130,7 +130,7 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
 
 interface ScreenProps {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function BureaucraticScreen({ goBack, award }: ScreenProps) {
   const [catIdx, setCatIdx] = useState(0);
