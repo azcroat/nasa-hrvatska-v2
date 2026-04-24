@@ -23,7 +23,7 @@ function saveLearned(set: Set<string>) {
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 export default function AdvancedVocabScreen({ goBack, award }: Props) {
@@ -68,7 +68,7 @@ export default function AdvancedVocabScreen({ goBack, award }: Props) {
       if (next.has(word)) next.delete(word);
       else {
         next.add(word);
-        if (award) award(5);
+        if (award) award(5, false, 'vocabulary');
       }
       saveLearned(next);
       return next;

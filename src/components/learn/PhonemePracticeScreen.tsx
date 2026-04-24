@@ -129,7 +129,7 @@ export default function PhonemePracticeScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number, bonus?: boolean) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [mastered, setMastered] = useState<Set<string>>(() => loadMastered() as Set<string>);
   const [active, setActive] = useState<number | null>(null);
@@ -148,12 +148,12 @@ export default function PhonemePracticeScreen({
     next.add(key);
     setMastered(next);
     saveMastered(next);
-    if (typeof award === 'function') award(15, false);
+    if (typeof award === 'function') award(15, false, 'pronunciation');
     setActive(null);
 
     if (next.size === PHONEMES.length && !celebrated) {
       setCelebrated(true);
-      if (typeof award === 'function') award(100, true);
+      if (typeof award === 'function') award(100, true, 'pronunciation');
       markQuest('grammar');
       setTimeout(() => {
         knightSpeak(

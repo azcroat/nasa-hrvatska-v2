@@ -409,7 +409,7 @@ export function SvojMojScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [quizAnswers, setQuizAnswers] = useState<Record<number, { chosen: string; note: string }>>(
     {},
@@ -418,7 +418,7 @@ export function SvojMojScreen({
   function handleQuiz(qi: number, o: string, correct: string, note: string) {
     if (quizAnswers[qi] !== undefined) return;
     setQuizAnswers((prev) => ({ ...prev, [qi]: { chosen: o, note } }));
-    if (o === correct && award) award(5);
+    if (o === correct && award) award(5, false, 'grammar');
   }
 
   return (

@@ -16,7 +16,7 @@ export default function PadezifullScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
@@ -269,7 +269,7 @@ export default function PadezifullScreen({
                   onClick={() => {
                     if (finishFired.current) return;
                     finishFired.current = true;
-                    if (typeof award === 'function') award(pfS * 5);
+                    if (typeof award === 'function') award(pfS * 5, false, 'grammar');
                     if (!stats.vs?.includes('padezifull')) {
                       setStats((prev) => {
                         if (prev.vs?.includes('padezifull')) return prev;

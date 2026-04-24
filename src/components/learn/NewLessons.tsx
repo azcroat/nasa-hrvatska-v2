@@ -14,7 +14,7 @@ function QuizBlock({
   award,
 }: {
   questions: QuizQuestion[];
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [score, setScore] = useState<number | null>(null);
@@ -29,7 +29,7 @@ function QuizBlock({
         ([i, v]) => v === (questions[Number(i)] as QuizQuestion).a,
       ).length;
       setScore(pts);
-      if (award) award(pts * 5);
+      if (award) award(pts * 5, false, 'lesson');
     }
   }
 
@@ -135,7 +135,7 @@ export function ConditionalScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [tab, setTab] = useState('forms');
   const tabs = [
@@ -398,7 +398,7 @@ export function FormalRegisterScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [tab, setTab] = useState('rules');
   const tabs = [
@@ -692,7 +692,7 @@ export function ImpersonalScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [tab, setTab] = useState('constructions');
   const tabs = [
@@ -851,7 +851,7 @@ export function TechVocScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
@@ -970,7 +970,7 @@ export function BureaucraticScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');

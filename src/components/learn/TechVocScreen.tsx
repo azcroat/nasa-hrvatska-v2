@@ -15,7 +15,7 @@ function QuizBlock({
   award,
 }: {
   questions: TechQuizQ[];
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -32,7 +32,7 @@ function QuizBlock({
       ).length;
       setScore(pts);
       if (award) {
-        award(pts * 5);
+        award(pts * 5, false, 'vocabulary');
         markQuest('vocab');
       }
       if (!stats.vs?.includes('techvoc')) {
@@ -141,7 +141,13 @@ function QuizBlock({
   );
 }
 
-function TechVocScreen({ goBack, award }: { goBack: () => void; award?: (pts: number) => void }) {
+function TechVocScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
+}) {
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
   const cat = TECH_VOC.categories[catIdx]!;

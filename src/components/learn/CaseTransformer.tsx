@@ -24,7 +24,7 @@ interface QuizQuestion {
 }
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 export default function CaseTransformer({ goBack, award }: Props) {
@@ -124,7 +124,7 @@ export default function CaseTransformer({ goBack, award }: Props) {
         xpAwardedRef.current = true;
         setXpAwarded(true);
         markQuest('grammar');
-        award(10);
+        award(10, false, 'grammar');
       }
     }
   }

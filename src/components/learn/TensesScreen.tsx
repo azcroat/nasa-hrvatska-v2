@@ -20,7 +20,7 @@ export default function TensesScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
@@ -412,7 +412,7 @@ export default function TensesScreen({
                     if (finishFired.current) return;
                     finishFired.current = true;
                     markQuest('grammar');
-                    if (typeof award === 'function') award(tnS * 5);
+                    if (typeof award === 'function') award(tnS * 5, false, 'grammar');
                     if (!stats.vs?.includes('tenses')) {
                       setStats((prev) => {
                         if (prev.vs?.includes('tenses')) return prev;

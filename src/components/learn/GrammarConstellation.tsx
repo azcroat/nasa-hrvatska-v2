@@ -13,7 +13,7 @@ export default function GrammarConstellation({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('explore');
@@ -60,7 +60,7 @@ export default function GrammarConstellation({
       setMode('done');
       if (!awardCalled.current) {
         awardCalled.current = true;
-        if (typeof award === 'function') award(fs * 10);
+        if (typeof award === 'function') award(fs * 10, false, 'grammar');
         markQuest('grammar');
         if (!stats.vs?.includes('grammarmap')) {
           setStats((prev) => {

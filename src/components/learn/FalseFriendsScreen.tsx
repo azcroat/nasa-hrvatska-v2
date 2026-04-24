@@ -6,7 +6,7 @@ import { markQuest } from '../../lib/quests.js';
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function FalseFriendsScreen({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
@@ -15,7 +15,7 @@ function FalseFriendsScreen({ goBack, award }: Props) {
   function handleComplete() {
     if (completed.current) return;
     completed.current = true;
-    if (award) award(30);
+    if (award) award(30, false, 'vocabulary');
     markQuest('vocab');
     // Replicate what the 20s dwell timer would do — grant LC credit so
     // the LearnPath ck(s.lc>=20) check can pass without waiting for dwell.

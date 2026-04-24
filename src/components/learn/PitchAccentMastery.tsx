@@ -398,7 +398,7 @@ export default function PitchAccentMastery({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [phase, setPhase] = useState('intro'); // intro | lesson | practical | done
   const [accentIdx, setAccentIdx] = useState(0);
@@ -463,7 +463,7 @@ export default function PitchAccentMastery({
   function finishCourse() {
     if (!awardFired.current) {
       awardFired.current = true;
-      if (typeof award === 'function') award(40);
+      if (typeof award === 'function') award(40, false, 'pronunciation');
       markQuest('grammar');
       knightSpeak(
         'victory',

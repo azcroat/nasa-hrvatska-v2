@@ -11,7 +11,7 @@ interface QuizQuestion {
 }
 interface QuizBlockProps {
   questions: QuizQuestion[];
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 function QuizBlock({ questions, award }: QuizBlockProps) {
@@ -29,7 +29,7 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
       ).length;
       setScore(pts);
       if (award) {
-        award(pts * 5);
+        award(pts * 5, false, 'grammar');
         markQuest('grammar');
       }
       if (!stats.vs?.includes('conditional')) {
@@ -140,7 +140,7 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
 
 interface ScreenProps {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function ConditionalScreen({ goBack, award }: ScreenProps) {
   const [tab, setTab] = useState('forms');

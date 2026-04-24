@@ -66,7 +66,7 @@ interface LessonData {
 interface Props {
   lesson: LessonData | null;
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 
 export default function AnimatedLesson({ lesson, goBack, award }: Props) {
@@ -110,7 +110,7 @@ export default function AnimatedLesson({ lesson, goBack, award }: Props) {
     if (currentSlide.type === 'summary' && !xpAwarded.current) {
       xpAwarded.current = true;
       if (typeof award === 'function') {
-        award(25);
+        award(25, false, 'lesson');
         markQuest('grammar');
       }
     }

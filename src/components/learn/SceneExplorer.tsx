@@ -50,7 +50,7 @@ export default function SceneExplorer({
   scene: Scene;
   onBack: () => void;
   onNextScene: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [discovered, setDiscovered] = useState(() => loadDiscovered(scene.id));
   const [activeItem, setActiveItem] = useState<SceneItem | null>(null);
@@ -73,7 +73,7 @@ export default function SceneExplorer({
       setShowComplete(true);
       if (!awardFired.current) {
         awardFired.current = true;
-        if (typeof award === 'function') award(15);
+        if (typeof award === 'function') award(15, false, 'vocabulary');
       }
     }
   }, [discCount, total, completeFired, award]);

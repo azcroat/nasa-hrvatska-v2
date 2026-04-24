@@ -431,7 +431,7 @@ export default function FrequencyTrackScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const [learnedArr, setLearnedArr] = useState<number[]>(() => getLearnedFrequencyWords());
   const [posFilter, setPosFilter] = useState('all');
@@ -451,7 +451,7 @@ export default function FrequencyTrackScreen({
       if (learnedSet.has(rank)) return;
       markFrequencyWordLearned(rank);
       setLearnedArr(getLearnedFrequencyWords());
-      if (typeof award === 'function') award(5);
+      if (typeof award === 'function') award(5, false, 'vocabulary');
     },
     [learnedSet, award],
   );
@@ -465,7 +465,7 @@ export default function FrequencyTrackScreen({
   function handleQuizMarkLearned(rank: number) {
     markFrequencyWordLearned(rank);
     setLearnedArr(getLearnedFrequencyWords());
-    if (typeof award === 'function') award(5);
+    if (typeof award === 'function') award(5, false, 'vocabulary');
   }
 
   function handleQuizClose() {

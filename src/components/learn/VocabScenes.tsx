@@ -23,7 +23,7 @@ export default function VocabScenes({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   void goBack; // goBack passed to children via SceneExplorer
   ensureCSS();

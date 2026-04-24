@@ -216,7 +216,7 @@ export default function HeritageModeScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { setScr } = useApp();
 
@@ -280,7 +280,7 @@ export default function HeritageModeScreen({
   function handleComplete() {
     if (!awardFired.current) {
       awardFired.current = true;
-      if (typeof award === 'function') award(75);
+      if (typeof award === 'function') award(75, false, 'heritage');
       markQuest('reading');
     }
     setSection('done');

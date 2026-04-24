@@ -98,7 +98,7 @@ export default function MicroLessonScreen({
   goFlashcards,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
   goFlashcards?: () => void;
 }) {
   const { level } = useStats();

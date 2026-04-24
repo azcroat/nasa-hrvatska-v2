@@ -16,7 +16,7 @@ export default function ModalScreen({
   setSt,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
   setSt?: (fn: (s: Record<string, number>) => Record<string, number>) => void;
 }) {
   const { writeDelta } = useStats();
@@ -322,7 +322,7 @@ export default function ModalScreen({
                         sM7a(true);
                         if (oi === ci) {
                           sM7s((s) => s + 1);
-                          if (typeof award === 'function') award(5);
+                          if (typeof award === 'function') award(5, false, 'grammar');
                         }
                       }
                     }}
@@ -343,7 +343,7 @@ export default function ModalScreen({
                       sM7a(false);
                       sM7sl(-1);
                     } else {
-                      if (typeof award === 'function') award(m7s * 3);
+                      if (typeof award === 'function') award(m7s * 3, false, 'grammar');
                       sM7i(total);
                     }
                   }}
@@ -412,7 +412,7 @@ export default function ModalScreen({
                       finishFired.current = true;
                       if (setSt) setSt((s) => ({ ...s, mv: (s.mv || 0) + 1, gc: (s.gc || 0) + 1 }));
                       writeDelta({ mv: 1, gc: 1 });
-                      if (typeof award === 'function') award(m7s * 3 + 20);
+                      if (typeof award === 'function') award(m7s * 3 + 20, false, 'grammar');
                       goBack();
                     }}
                   >
@@ -447,7 +447,7 @@ export default function ModalScreen({
                         sM7a(true);
                         if (oi === ci) {
                           sM7s((s) => s + 1);
-                          if (typeof award === 'function') award(5);
+                          if (typeof award === 'function') award(5, false, 'grammar');
                         }
                       }
                     }}

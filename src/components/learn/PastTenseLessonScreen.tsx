@@ -169,7 +169,7 @@ export default function PastTenseLessonScreen({
   award,
 }: {
   goBack: () => void;
-  award?: (pts: number) => void;
+  award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
@@ -650,7 +650,7 @@ export default function PastTenseLessonScreen({
                   onClick={() => {
                     if (finishFired.current) return;
                     finishFired.current = true;
-                    if (typeof award === 'function') award(score * 5);
+                    if (typeof award === 'function') award(score * 5, false, 'grammar');
                     if (pass) {
                       markQuest('grammar');
                       writeDelta && writeDelta({ gc: 1 });
