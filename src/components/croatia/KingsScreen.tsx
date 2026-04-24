@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 import { H, speak } from '../../data';
@@ -11,7 +12,7 @@ interface KingsSt {
 
 interface Props {
   goBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
   setSt: React.Dispatch<React.SetStateAction<KingsSt>>;
 }
 
@@ -308,7 +309,7 @@ export default function KingsScreen({ goBack, award, setSt }: Props) {
                 return Object.assign({}, s, { hi: (s.hi || 0) + 1 });
               });
               writeDelta({ hi: 1 });
-              if (typeof award === 'function') award(25);
+              if (typeof award === 'function') award(25, false, 'culture');
               markQuest('culture');
               goBack();
             }}

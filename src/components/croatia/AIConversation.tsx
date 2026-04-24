@@ -890,7 +890,7 @@ export default function AIConversation({
       if (ev && !evalXpFired.current && typeof award === 'function') {
         evalXpFired.current = true;
         const xp = ev.score >= 80 ? 20 : ev.score >= 60 ? 15 : 10;
-        award(xp + Math.min(userMsgs.length, 5) * 2, false);
+        award(xp + Math.min(userMsgs.length, 5) * 2, false, 'speaking');
         markPracticed();
         markQuest('speak');
       }
@@ -952,7 +952,7 @@ export default function AIConversation({
       if (typeof award === 'function' && !writeXpFired.current) {
         writeXpFired.current = true;
         const xp = result.score >= 80 ? 18 : result.score >= 60 ? 13 : 8;
-        award(xp, false);
+        award(xp, false, 'speaking');
         markPracticed();
         const today = new Date().toISOString().slice(0, 10);
         localStorage.setItem('nh_quest_grammar_' + today, '1');

@@ -374,7 +374,7 @@ export default function HomeTab({
   useEffect(() => {
     if (allQuestsDone && !localStorage.getItem(masteryKey)) {
       localStorage.setItem(masteryKey, '1');
-      if (award) award(50);
+      if (award) award(50, false, 'daily_discovery');
     }
   }, [allQuestsDone, masteryKey, award]);
 

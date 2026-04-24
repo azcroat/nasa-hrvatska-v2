@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { H } from '../../data';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { markQuest } from '../../lib/quests.js';
@@ -352,7 +353,7 @@ export default function HeritageStoryScreen({
   award,
 }: {
   goBack?: () => void;
-  award?: (amt: number) => void;
+  award?: (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   const isOnline = useOnlineStatus();
 
@@ -380,7 +381,7 @@ export default function HeritageStoryScreen({
       readParts.current.add(index);
       if (readParts.current.size >= 3 && !awardFired.current) {
         awardFired.current = true;
-        if (typeof award === 'function') award(20);
+        if (typeof award === 'function') award(20, false, 'heritage');
         markQuest('culture');
       }
     },

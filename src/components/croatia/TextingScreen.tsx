@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { H, speak, sh } from '../../data';
 import { TEXTING } from '../../data';
 import { recordTopicResult } from '../../lib/adaptive.js';
@@ -20,7 +21,7 @@ function buildQuiz(items: TextItem[]) {
 
 interface Props {
   goBack: () => void;
-  award: (n: number) => void;
+  award: (n: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }
 
 export default function TextingScreen({ goBack, award }: Props) {
@@ -58,7 +59,7 @@ export default function TextingScreen({ goBack, award }: Props) {
       setSelected(-1);
     } else {
       const xp = Math.round((score / questions.length) * 20) + 5;
-      if (award) award(xp);
+      if (award) award(xp, false, 'culture');
       markQuest('culture');
       setDone(true);
     }

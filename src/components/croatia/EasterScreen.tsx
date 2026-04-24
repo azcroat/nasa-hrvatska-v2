@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { V, speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 
@@ -199,7 +200,7 @@ export default function EasterScreen({
   award,
 }: {
   onBack: () => void;
-  award?: (xp: number) => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   // Persist completion across sessions — once done, quiz is locked
   const [kvizPermanentlyDone] = useState(() => {
@@ -255,7 +256,7 @@ export default function EasterScreen({
           const correctCount = newAnswers.filter(Boolean).length;
           const xpEarned = correctCount * 10;
           markQuest('reading');
-          if (xpEarned > 0 && award) award(xpEarned);
+          if (xpEarned > 0 && award) award(xpEarned, false, 'culture');
           try {
             localStorage.setItem(KVIZ_DONE_KEY, '1');
             if (!localStorage.getItem(CQ_KVIZ_KEY)) {

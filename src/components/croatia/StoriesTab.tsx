@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { incrementCulture } from '../../data';
 import { useApp } from '../../context/AppContext';
 import CroatianKnight from '../shared/CroatianKnight';
@@ -426,7 +427,7 @@ Tvoja familia 💙🇭🇷`,
 
 interface WordTileProps {
   w: { hr: string; en: string };
-  award?: ((xp: number) => void) | null;
+  award?: ((xp: number, celebrate?: boolean, activityType?: AwardActivityType) => void) | null;
 }
 
 function WordTile({ w, award }: WordTileProps) {
@@ -471,7 +472,7 @@ function WordTile({ w, award }: WordTileProps) {
             /* ignore */
           }
           setSaved(true);
-          if (award) award(1);
+          if (award) award(1, false, 'story');
           knightSpeak('happy', `"${w.hr}" saved to My Words! 📚`);
         }}
         style={{
@@ -567,7 +568,7 @@ export default function StoriesTab() {
                   setOpenLetter(opening ? (letter.id as string) : null);
                   if (opening) {
                     incrementCulture('bakaCnt');
-                    if (award) award(5);
+                    if (award) award(5, false, 'story');
                   }
                 }}
                 style={{

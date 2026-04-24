@@ -6,6 +6,7 @@
  * This track focuses on activating what's already there, not starting from zero.
  */
 import React, { useState, useEffect, useRef } from 'react';
+import type { AwardActivityType } from '../../types/index.js';
 import { speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
@@ -366,7 +367,7 @@ export default function HeritagePathScreen({
   award,
 }: {
   goBack?: () => void;
-  award?: (amt: number) => void;
+  award?: (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
 }) {
   const [section, setSection] = useState('home'); // home | dialects | passive | grammar | diaspora | done
   const [activeModule, setActiveModule] = useState(0);
@@ -397,7 +398,7 @@ export default function HeritagePathScreen({
   function awardOnce(amt: number) {
     if (!awardFired.current) {
       awardFired.current = true;
-      if (typeof award === 'function') award(amt);
+      if (typeof award === 'function') award(amt, false, 'heritage');
       markQuest('reading');
     }
   }

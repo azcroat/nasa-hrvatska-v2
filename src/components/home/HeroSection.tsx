@@ -1911,7 +1911,7 @@ export default function HeroSection({
                 <div style={{ marginTop: 8 }}>
                   <button
                     onClick={() => {
-                      award && award(-200, false);
+                      award && award(-200, false, 'default');
                       localStorage.setItem('nh_streak_restored_' + today, '1');
                       // Write streak back to 1 using the uStreak key (same format as getStreak in data.jsx)
                       localStorage.setItem('uStreak', JSON.stringify({ count: 1, last: today }));
