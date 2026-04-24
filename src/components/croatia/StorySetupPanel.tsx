@@ -42,7 +42,7 @@ interface StoryCity {
 
 interface Props {
   goalMeta: GoalMeta | null;
-  selectedCity: StoryCity | null;
+  selectedCity: StoryCity;
   setSelectedCity: (city: StoryCity) => void;
   selectedLevel: string;
   setSelectedLevel: (level: string) => void;
@@ -147,9 +147,9 @@ export default function StorySetupPanel({
                 gap: 4,
                 padding: '10px 14px',
                 borderRadius: 12,
-                border: `2px solid ${selectedCity?.name === city.name ? city.color : 'var(--card-b)'}`,
+                border: `2px solid ${selectedCity.name === city.name ? city.color : 'var(--card-b)'}`,
                 backgroundColor:
-                  selectedCity?.name === city.name ? city.color + '18' : 'var(--card)',
+                  selectedCity.name === city.name ? city.color + '18' : 'var(--card)',
                 cursor: 'pointer',
                 minWidth: 72,
               }}
@@ -159,7 +159,7 @@ export default function StorySetupPanel({
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
-                  color: selectedCity?.name === city.name ? city.color : 'var(--heading)',
+                  color: selectedCity.name === city.name ? city.color : 'var(--heading)',
                 }}
               >
                 {city.name}
@@ -192,9 +192,8 @@ export default function StorySetupPanel({
               style={{
                 padding: '8px 18px',
                 borderRadius: 10,
-                border: `2px solid ${selectedLevel === lvl ? (selectedCity?.color ?? '#0e7490') : 'var(--card-b)'}`,
-                backgroundColor:
-                  selectedLevel === lvl ? (selectedCity?.color ?? '#0e7490') : 'var(--card)',
+                border: `2px solid ${selectedLevel === lvl ? selectedCity.color : 'var(--card-b)'}`,
+                backgroundColor: selectedLevel === lvl ? selectedCity.color : 'var(--card)',
                 color: selectedLevel === lvl ? '#fff' : 'var(--heading)',
                 fontWeight: 700,
                 fontSize: 14,
@@ -271,7 +270,7 @@ export default function StorySetupPanel({
           boxShadow: '0 8px 32px rgba(14,116,144,0.35)',
         }}
       >
-        ✨ Generate Story in {selectedCity?.icon} {selectedCity?.name}
+        ✨ Generate Story in {selectedCity.icon} {selectedCity.name}
       </button>
 
       <button

@@ -7,7 +7,7 @@ import { markQuest } from '../../lib/quests.js';
 interface TextItem {
   slang: string;
   means: string;
-  note?: string;
+  ctx: string;
 }
 
 function buildQuiz(items: TextItem[]) {
