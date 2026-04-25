@@ -15,28 +15,89 @@ import { recordTopicResult } from '../../lib/adaptive.js';
 export const QUESTION_RESPONSE_PROMPTS: string[][] = [
   ['Što si radio/radila prošlog vikenda?', 'What did you do last weekend?', 'question-response'],
   ['Kako provodiš slobodno vrijeme?', 'How do you spend your free time?', 'question-response'],
-  ['Koji je tvoj omiljeni godišnji odmor i zašto?', 'What is your favorite holiday and why?', 'question-response'],
+  [
+    'Koji je tvoj omiljeni godišnji odmor i zašto?',
+    'What is your favorite holiday and why?',
+    'question-response',
+  ],
   ['Opiši svoju idealnu karijeru.', 'Describe your ideal career.', 'question-response'],
-  ['Što misliš o klimatskim promjenama?', 'What do you think about climate change?', 'question-response'],
+  [
+    'Što misliš o klimatskim promjenama?',
+    'What do you think about climate change?',
+    'question-response',
+  ],
   ['Opišite grad u kojemu živite.', 'Describe the city where you live.', 'question-response'],
-  ['Koja je tvoja najdraža knjiga i zašto?', 'What is your favorite book and why?', 'question-response'],
-  ['Kako bi opisao/opisala svog najboljeg prijatelja?', 'How would you describe your best friend?', 'question-response'],
+  [
+    'Koja je tvoja najdraža knjiga i zašto?',
+    'What is your favorite book and why?',
+    'question-response',
+  ],
+  [
+    'Kako bi opisao/opisala svog najboljeg prijatelja?',
+    'How would you describe your best friend?',
+    'question-response',
+  ],
 ];
 
 export const PICTURE_DESCRIPTION_PROMPTS: string[][] = [
-  ['Opišite ovu sliku na hrvatskom. Što vidite?', 'Describe this image in Croatian. What do you see?', 'picture-description', 'dubrovnik-ai'],
-  ['Što se događa na ovoj slici? Opišite detaljno.', 'What is happening in this image? Describe in detail.', 'picture-description', 'dalmatian-coast'],
-  ['Opišite prirodu na ovoj fotografiji.', 'Describe the nature in this photograph.', 'picture-description', 'plitvice'],
-  ['Što vidite u ovom gradu? Koji detalji vam privlače pažnju?', 'What do you see in this city? What details catch your attention?', 'picture-description', 'zagreb'],
-  ['Opišite hranu na ovoj slici. Što prepoznajete?', 'Describe the food in this image. What do you recognize?', 'picture-description', 'croatian-food'],
+  [
+    'Opišite ovu sliku na hrvatskom. Što vidite?',
+    'Describe this image in Croatian. What do you see?',
+    'picture-description',
+    'dubrovnik-ai',
+  ],
+  [
+    'Što se događa na ovoj slici? Opišite detaljno.',
+    'What is happening in this image? Describe in detail.',
+    'picture-description',
+    'dalmatian-coast',
+  ],
+  [
+    'Opišite prirodu na ovoj fotografiji.',
+    'Describe the nature in this photograph.',
+    'picture-description',
+    'plitvice',
+  ],
+  [
+    'Što vidite u ovom gradu? Koji detalji vam privlače pažnju?',
+    'What do you see in this city? What details catch your attention?',
+    'picture-description',
+    'zagreb',
+  ],
+  [
+    'Opišite hranu na ovoj slici. Što prepoznajete?',
+    'Describe the food in this image. What do you recognize?',
+    'picture-description',
+    'croatian-food',
+  ],
 ];
 
 export const DIALOGUE_COMPLETION_PROMPTS: string[][] = [
-  ['A: "Hej, kako si?" B: "Super, hvala. A ti?"', 'Continue: A asks "Hey, how are you?" B responds "Great, thanks. And you?"', 'dialogue-completion'],
-  ['A: "Što ćeš raditi ovog vikenda?" B: "Idem na more. A ti?"', 'Continue: A asks about weekend plans, B says going to the sea.', 'dialogue-completion'],
-  ['A: "Jesi li gledao/gledala taj film?" B: "Da, bio je odličan! Što ti misliš?"', 'Continue: A asks about a film, B says it was great.', 'dialogue-completion'],
-  ['A: "Gdje si bio/bila na odmoru?" B: "U Splitu. Predivno je tamo!"', 'Continue: A asks about vacation, B says Split was wonderful.', 'dialogue-completion'],
-  ['A: "Kako ti se sviđa ovaj restoran?" B: "Hrana je izvrsna, ali malo skupo."', 'Continue: A asks about the restaurant, B says food is great but expensive.', 'dialogue-completion'],
+  [
+    'A: "Hej, kako si?"\nB: "Super, hvala. A ti?"',
+    'Continue: A asks "Hey, how are you?" B responds "Great, thanks. And you?"',
+    'dialogue-completion',
+  ],
+  [
+    'A: "Što ćeš raditi ovog vikenda?"\nB: "Idem na more. A ti?"',
+    'Continue: A asks about weekend plans, B says going to the sea.',
+    'dialogue-completion',
+  ],
+  [
+    'A: "Jesi li gledao/gledala taj film?"\nB: "Da, bio je odličan! Što ti misliš?"',
+    'Continue: A asks about a film, B says it was great.',
+    'dialogue-completion',
+  ],
+  [
+    'A: "Gdje si bio/bila na odmoru?"\nB: "U Splitu. Predivno je tamo!"',
+    'Continue: A asks about vacation, B says Split was wonderful.',
+    'dialogue-completion',
+  ],
+  [
+    'A: "Kako ti se sviđa ovaj restoran?"\nB: "Hrana je izvrsna, ali malo skupo."',
+    'Continue: A asks about the restaurant, B says food is great but expensive.',
+    'dialogue-completion',
+  ],
 ];
 
 // All open-ended prompt type identifiers
@@ -243,7 +304,9 @@ export default function SpeakingScreen({
     const promptType = sw[2] as string | undefined;
     const isOE = OPEN_ENDED_TYPES.includes(promptType ?? '');
     const effectiveScore = isOE
-      ? spoken.split(/\s+/).filter(Boolean).length >= 5 ? 88 : 55
+      ? spoken.split(/\s+/).filter(Boolean).length >= 5
+        ? 88
+        : 55
       : score;
 
     setCurrentWordScore({ spoken, score: effectiveScore });
