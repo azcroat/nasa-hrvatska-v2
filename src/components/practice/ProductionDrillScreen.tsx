@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { speak, sh } from '../../data';
 import { markQuest } from '../../lib/quests.js';
-import { recordTopicResult } from '../../lib/adaptive.ts';
+import { recordTopicResult, rateCategorySession } from '../../lib/adaptive.ts';
+import { useAdaptiveSession } from '../../hooks/useAdaptiveSession';
 
 // ─── TRANSFORM DATA ─────────────────────────────────────────────────────────
 const TRANSFORMS = [
@@ -488,8 +489,10 @@ function LevelBadge({ level }: LevelBadgeProps) {
 interface ModeDoneProps {
   onDone: () => void;
   award?: (n: number, celebrate?: boolean, activityType?: string) => void;
+  onCorrect?: () => void;
+  onWrong?: () => void;
 }
-function ModeTransform({ onDone, award }: ModeDoneProps) {
+function ModeTransform({ onDone, award, onCorrect, onWrong }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState(0);
@@ -504,6 +507,9 @@ function ModeTransform({ onDone, award }: ModeDoneProps) {
     if (correct) {
       setScore((s) => s + 1);
       if (award) award(2, false, 'grammar');
+      if (onCorrect) onCorrect();
+    } else {
+      if (onWrong) onWrong();
     }
     if (idx + 1 >= total) {
       setDone(true);
@@ -624,7 +630,7 @@ function ModeTransform({ onDone, award }: ModeDoneProps) {
 }
 
 // ─── MODE B: TRANSLATE ───────────────────────────────────────────────────────
-function ModeTranslate({ onDone, award }: ModeDoneProps) {
+function ModeTranslate({ onDone, award, onCorrect, onWrong }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState(0);
@@ -639,6 +645,9 @@ function ModeTranslate({ onDone, award }: ModeDoneProps) {
     if (correct) {
       setScore((s) => s + 1);
       if (award) award(3, false, 'grammar');
+      if (onCorrect) onCorrect();
+    } else {
+      if (onWrong) onWrong();
     }
     if (idx + 1 >= total) {
       setDone(true);
@@ -760,7 +769,7 @@ interface BuildItem {
   target: string;
   en: string;
 }
-function ModeBuild({ onDone, award }: ModeDoneProps) {
+function ModeBuild({ onDone, award, onCorrect, onWrong }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
@@ -809,10 +818,12 @@ function ModeBuild({ onDone, award }: ModeDoneProps) {
       setFeedback('correct');
       setScore((s) => s + 1);
       if (award) award(5, false, 'grammar');
+      if (onCorrect) onCorrect();
     } else {
       setShake(true);
       setFeedback('wrong');
       setTimeout(() => setShake(false), 600);
+      if (onWrong) onWrong();
     }
   }
 
@@ -1001,7 +1012,7 @@ function ModeBuild({ onDone, award }: ModeDoneProps) {
 }
 
 // ─── MODE D: ERROR CORRECTION ────────────────────────────────────────────────
-function ModeErrorCorrect({ onDone, award }: ModeDoneProps) {
+function ModeErrorCorrect({ onDone, award, onCorrect, onWrong }: ModeDoneProps) {
   const [idx, setIdx] = useState(0);
   const [chosen, setChosen] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -1019,6 +1030,9 @@ function ModeErrorCorrect({ onDone, award }: ModeDoneProps) {
     if (correct) {
       setScore((s) => s + 1);
       if (award) award(3, false, 'grammar');
+      if (onCorrect) onCorrect();
+    } else {
+      if (onWrong) onWrong();
     }
   }
 
@@ -1256,9 +1270,40 @@ interface ProductionDrillProps {
 export default function ProductionDrillScreen({ goBack, award }: ProductionDrillProps) {
   const [mode, setMode] = useState<string | null>(null);
 
+  // Adaptive session tracking — difficulty starts at 4 (free production exercises)
+  const { onCorrect, onWrong, sessionSummary, reset } = useAdaptiveSession(4);
+
+  // Category per mode: each production mode maps to a SkillCategory
+  const MODE_CATEGORY = {
+    transform: 'vocab-b1',
+    translate: 'vocab-b2',
+    build: 'vocab-b1',
+    error: 'vocab-b1',
+  } as const;
+
   function handleDone() {
     markQuest('grammar');
+    // Rate each category based on session accuracy
+    const summary = sessionSummary();
+    for (const [cat, accuracy] of Object.entries(summary) as Array<[string, number]>) {
+      rateCategorySession(cat as Parameters<typeof rateCategorySession>[0], accuracy);
+    }
+    reset();
     setMode(null);
+  }
+
+  // Callbacks bound to the current mode's category
+  function makeOnCorrect() {
+    const cat = mode
+      ? (MODE_CATEGORY[mode as keyof typeof MODE_CATEGORY] ?? 'vocab-b1')
+      : 'vocab-b1';
+    return () => onCorrect(cat);
+  }
+  function makeOnWrong() {
+    const cat = mode
+      ? (MODE_CATEGORY[mode as keyof typeof MODE_CATEGORY] ?? 'vocab-b1')
+      : 'vocab-b1';
+    return () => onWrong(cat);
   }
 
   return (
@@ -1379,10 +1424,38 @@ export default function ProductionDrillScreen({ goBack, award }: ProductionDrill
           </div>
         )}
 
-        {mode === 'transform' && <ModeTransform onDone={handleDone} award={award} />}
-        {mode === 'translate' && <ModeTranslate onDone={handleDone} award={award} />}
-        {mode === 'build' && <ModeBuild onDone={handleDone} award={award} />}
-        {mode === 'error' && <ModeErrorCorrect onDone={handleDone} award={award} />}
+        {mode === 'transform' && (
+          <ModeTransform
+            onDone={handleDone}
+            award={award}
+            onCorrect={makeOnCorrect()}
+            onWrong={makeOnWrong()}
+          />
+        )}
+        {mode === 'translate' && (
+          <ModeTranslate
+            onDone={handleDone}
+            award={award}
+            onCorrect={makeOnCorrect()}
+            onWrong={makeOnWrong()}
+          />
+        )}
+        {mode === 'build' && (
+          <ModeBuild
+            onDone={handleDone}
+            award={award}
+            onCorrect={makeOnCorrect()}
+            onWrong={makeOnWrong()}
+          />
+        )}
+        {mode === 'error' && (
+          <ModeErrorCorrect
+            onDone={handleDone}
+            award={award}
+            onCorrect={makeOnCorrect()}
+            onWrong={makeOnWrong()}
+          />
+        )}
       </div>
     </div>
   );
