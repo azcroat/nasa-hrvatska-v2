@@ -11,6 +11,7 @@ export default defineConfig({
     '**/production-auth-flow.spec.js', // production URL test — run manually only
     '**/offline.spec.js',              // requires pre-cached service worker — run against production build only
     '**/cross-device-sync.spec.js',   // uses live Firebase credentials — run manually against production only
+    '**/screenshots.spec.js',         // visual sign-off tool (no assertions) — run manually only
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
