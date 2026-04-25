@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { ROLEPLAY } from '../../data';
+import { CefrSoftHint } from '../shared/CefrSoftHint';
 
 interface Props {
   goBack: () => void;
@@ -14,6 +15,7 @@ function RoleplayScreen({ goBack }: Props) {
   return (
     <div className="scr-wrap">
       {H('🎭 Conversation Role-Play', 'Practice real-life dialogues', goBack)}
+      <CefrSoftHint level="B1+" />
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
         {ROLEPLAY.map(function (rp, i) {
           return (

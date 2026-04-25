@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { H, speak, sh } from '../../data';
 import { TEXTING } from '../../data';
+import { CefrSoftHint } from '../shared/CefrSoftHint';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 
@@ -153,6 +154,7 @@ export default function TextingScreen({ goBack, award }: Props) {
   return (
     <div className="scr-wrap">
       {H('📱 Texting & Slang', 'How Croatian kids actually text', goBack)}
+      <CefrSoftHint level="B1+" />
       {TEXTING.map(function (t, i) {
         return (
           <button
