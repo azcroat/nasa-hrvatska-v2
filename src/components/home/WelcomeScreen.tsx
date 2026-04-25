@@ -248,7 +248,7 @@ export default function WelcomeScreen({
                   fontWeight: 600,
                 }}
               >
-                Family leaderboard — compete with cousins, siblings, and Baka
+                Family groups — track progress with cousins, siblings, and Baka
               </span>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>

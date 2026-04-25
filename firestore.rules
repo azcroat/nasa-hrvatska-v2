@@ -68,36 +68,6 @@ service cloud.firestore {
       return prog == '' || prog.size() <= 204800;
     }
 
-    // Leaderboard CREATE: caps match UPDATE caps — a user syncing accumulated offline
-    // XP on their first leaderboard write must not be blocked by an artificial low cap.
-    function validLbXpCreate() {
-      return request.resource.data.xp >= 0
-        && request.resource.data.xp <= 100000;
-    }
-    function validLbLcCreate() {
-      return request.resource.data.lc >= 0
-        && request.resource.data.lc <= 10000;
-    }
-
-    // Leaderboard UPDATE: XP must never decrease (except reset to 0); no per-write cap.
-    // Removing the +500/+10 increment caps — same reasoning as validXpUpdate above:
-    // offline sync can accumulate large increments that must be written in one batch.
-    function validLbXpUpdate() {
-      let oldXp = resource.data.get('xp', 0);
-      let newXp = request.resource.data.xp;
-      return newXp >= 0
-        && newXp == int(newXp)
-        && (newXp >= oldXp || newXp == 0)
-        && newXp <= 100000;
-    }
-    function validLbLcUpdate() {
-      let oldLc = resource.data.get('lc', 0);
-      let newLc = request.resource.data.lc;
-      return newLc >= 0
-        && newLc >= oldLc
-        && newLc <= 10000;
-    }
-
     // ─── User documents ────────────────────────────────────────────────────
     // Owner reads/writes their own document only.
     // UPDATE validates the top-level xp field to prevent client-side XP inflation.
@@ -115,7 +85,7 @@ service cloud.firestore {
     }
 
     // ─── Public profiles ───────────────────────────────────────────────────
-    // Lightweight public stats used by the friend leaderboard.
+    // Lightweight public stats used by the friends feature.
     // Written by fbSaveProgress alongside /users/{uid} (owner-only).
     // Readable by all authenticated users so friends can see each other's stats.
     // Schema: { name, xp, lc, streak, level, lastActive }
@@ -161,26 +131,6 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // ─── Leaderboard ──────────────────────────────────────────────────────
-    // Split into create/update so resource.data (old doc) is only accessed on UPDATE.
-    // Schema: { name(string), xp(int), lc(int), updated(number/ms) }
-    // hasAll enforced on both create and update to prevent incomplete documents.
-    // name is string guards against null injection; updated is number guards against
-    // serverTimestamp injection (which would bypass XP monotonicity ordering).
-    match /leaderboard/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isOwner(userId)
-        && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'updated'])
-        && request.resource.data.name is string
-        && request.resource.data.updated is number
-        && validLbXpCreate()
-        && validLbLcCreate();
-      allow update: if isOwner(userId)
-        && request.resource.data.keys().hasAll(['name', 'xp', 'lc', 'updated'])
-        && validLbXpUpdate()
-        && validLbLcUpdate();
-    }
-
     // ─── Family groups ─────────────────────────────────────────────────────
     match /families/{familyCode} {
       // get: any authenticated user can fetch a specific family doc by code.
@@ -221,26 +171,6 @@ service cloud.firestore {
           && isFamilyMember(get(/databases/$(database)/documents/families/$(familyCode)).data.memberEmails);
         allow delete: if false;
       }
-    }
-
-    // ─── Weekly leaderboard subcollection ────────────────────────────────
-    // /leaderboard/{weekKey}/entries/{uid} — per-week XP entries.
-    // Only the owner may write their own entry; any authenticated user may read.
-    // Schema: { uid, displayName, xp, updatedAt } — no lc field (XP-only weekly ranking).
-    // validLbLcCreate/Update deliberately excluded: submitWeeklyXP never writes lc,
-    // and including the check caused all weekly leaderboard writes to fail (lc was null).
-    // uid == userId enforces that the uid field matches the document path segment,
-    // preventing a user from writing another user's uid into their own entry.
-    match /leaderboard/{weekKey}/entries/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isOwner(userId)
-        && request.resource.data.keys().hasAll(['uid', 'displayName', 'xp', 'updatedAt'])
-        && request.resource.data.uid == userId
-        && validLbXpCreate();
-      allow update: if isOwner(userId)
-        && request.resource.data.keys().hasAll(['uid', 'displayName', 'xp', 'updatedAt'])
-        && request.resource.data.uid == userId
-        && validLbXpUpdate();
     }
 
     // ─── SRS (Spaced Repetition) — separate collection to avoid 200KB blob limit ─

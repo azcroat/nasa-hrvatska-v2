@@ -38,7 +38,7 @@ export default function TermsOfService({ goBack }: { goBack?: () => void }) {
         },
         {
           title: '3. Accounts',
-          body: 'You are responsible for maintaining the security of your account credentials. You must provide a valid email address. Accounts found to be used for abuse, spam, or leaderboard manipulation will be terminated.',
+          body: 'You are responsible for maintaining the security of your account credentials. You must provide a valid email address. Accounts found to be used for abuse, spam, or data manipulation will be terminated.',
         },
         {
           title: '4. Content',

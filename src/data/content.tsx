@@ -2832,7 +2832,6 @@ function buildSearchIndex() {
     { n: 'Typing', s: 'typing' },
     { n: 'Idioms', s: 'idioms' },
     { n: 'Proverbs', s: 'proverbs' },
-    { n: 'Leaderboard', s: 'leaderboard' },
     { n: 'Badges', s: 'badges' },
     { n: 'Domovinski Rat', s: 'history' },
     { n: 'Kings', s: 'kings' },

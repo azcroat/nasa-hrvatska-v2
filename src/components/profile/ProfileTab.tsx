@@ -10,12 +10,10 @@ import { useApp } from '../../context/AppContext';
 export default function ProfileTab({
   syncReady,
   onSyncNow,
-  onOpenLeaderboard,
   onOpenFriends,
 }: {
   syncReady: boolean;
   onSyncNow?: () => void;
-  onOpenLeaderboard?: () => void;
   onOpenFriends?: () => void;
 }) {
   const { au: authUser } = useApp();
@@ -80,9 +78,7 @@ export default function ProfileTab({
       )}
 
       {/* ── INSIGHTS TAB ── */}
-      {ptab === 'insights' && (
-        <InsightsTab onOpenLeaderboard={onOpenLeaderboard} onOpenFriends={onOpenFriends} />
-      )}
+      {ptab === 'insights' && <InsightsTab onOpenFriends={onOpenFriends} />}
 
       {/* ── SETTINGS TAB ── */}
       {ptab === 'settings' && <SettingsTab syncReady={syncReady} onSyncNow={onSyncNow} />}

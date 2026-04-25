@@ -235,8 +235,6 @@ const PronunciationContrast = lazyWithReload(() => import('./practice/Pronunciat
 const DialogueSim = lazyWithReload(() => import('./practice/DialogueSim'));
 const CefrTest = lazyWithReload(() => import('./practice/CefrTest'));
 const MyWordsScreen = lazyWithReload(() => import('./practice/MyWordsScreen'));
-const Leaderboard = lazyWithReload(() => import('./profile/Leaderboard'));
-const LeaderboardScreen = lazyWithReload(() => import('./shared/LeaderboardScreen'));
 const ProfileFriendsScreen = lazyWithReload(() => import('./profile/FriendsScreen'));
 const CertificateScreen = lazyWithReload(() => import('./profile/CertificateScreen'));
 const MistakesScreen = lazyWithReload(() => import('./practice/MistakesScreen'));
@@ -381,8 +379,8 @@ export default function AppRouter(props: Record<string, any>) {
     sCurEx,
     jWords: _jWords,
     setJWords,
-    famData,
-    setFamData,
+    famData: _famData,
+    setFamData: _setFamData,
     isPremium,
     refreshSub,
     requirePremium: _requirePremium,
@@ -393,18 +391,18 @@ export default function AppRouter(props: Record<string, any>) {
     setSrchOpen,
     doSearch,
 
-    famMembers,
-    setFamMembers,
-    famLoading,
-    setFamLoading,
-    famName,
-    setFamName,
-    famCode,
-    setFamCode,
-    famErr,
-    setFamErr,
-    famTab,
-    setFamTab,
+    famMembers: _famMembers,
+    setFamMembers: _setFamMembers,
+    famLoading: _famLoading,
+    setFamLoading: _setFamLoading,
+    famName: _famName,
+    setFamName: _setFamName,
+    famCode: _famCode,
+    setFamCode: _setFamCode,
+    famErr: _famErr,
+    setFamErr: _setFamErr,
+    famTab: _famTab,
+    setFamTab: _setFamTab,
     dchlA,
     sDchlA,
     dchlSl,
@@ -868,7 +866,6 @@ export default function AppRouter(props: Record<string, any>) {
                         <ProfileTab
                           syncReady={_syncReady}
                           onSyncNow={doSyncNow}
-                          onOpenLeaderboard={() => setScr('leaderboard_weekly')}
                           onOpenFriends={() => setScr('family_group')}
                         />
                       </ScreenErrorBoundary>
@@ -1001,35 +998,6 @@ export default function AppRouter(props: Record<string, any>) {
               level={level}
               stats={stats}
             />
-          </ScreenErrorBoundary>
-        )}
-        {currentScreen === 'leaderboard' && (
-          <ScreenErrorBoundary key="leaderboard" name="leaderboard">
-            <Leaderboard
-              goBack={goBack}
-              authUser={authUser}
-              name={name}
-              stats={stats}
-              famData={famData}
-              setFamData={setFamData}
-              famMembers={famMembers}
-              setFamMembers={setFamMembers}
-              famLoading={famLoading}
-              setFamLoading={setFamLoading}
-              famName={famName}
-              setFamName={setFamName}
-              famCode={famCode}
-              setFamCode={setFamCode}
-              famErr={famErr}
-              setFamErr={setFamErr}
-              famTab={famTab}
-              setFamTab={setFamTab}
-            />
-          </ScreenErrorBoundary>
-        )}
-        {currentScreen === 'leaderboard_weekly' && (
-          <ScreenErrorBoundary key="leaderboard_weekly" name="leaderboard_weekly">
-            <LeaderboardScreen db={null} user={authUser} weekXP={_weeklyXP} goBack={goBack} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'family_group' && (
