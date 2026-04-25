@@ -188,11 +188,12 @@ export default function SpeakingPracticePanel({
       >
         {sw[0]}
       </p>
-      {sw[2] && !['question-response', 'picture-description', 'dialogue-completion'].includes(sw[2]) && (
-        <p style={{ fontSize: 'var(--text-base)', color: 'var(--subtext)', marginBottom: 4 }}>
-          /{sw[2]}/
-        </p>
-      )}
+      {sw[2] &&
+        !['question-response', 'picture-description', 'dialogue-completion'].includes(sw[2]) && (
+          <p style={{ fontSize: 'var(--text-base)', color: 'var(--subtext)', marginBottom: 4 }}>
+            /{sw[2]}/
+          </p>
+        )}
       <p style={{ fontSize: 'var(--text-lg)', color: 'var(--body)', marginBottom: 16 }}>{sw[1]}</p>
       <div
         style={{
