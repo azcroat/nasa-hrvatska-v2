@@ -38,7 +38,7 @@ describe('rateCategorySession', () => {
     rateCategorySession('future-tense', 0.95);
     const raw = JSON.parse(localStorage.getItem('nh_cat_sr') ?? '{}');
     const card = raw['future-tense'];
-    // Default stability=1, grade 4 → min(60, round(1*2.5))=2 days
+    // Default stability=1, grade 4 → max(10, min(60, round(1*2.5))) = max(10, 3) = 10 days
     expect(card.due).toBeGreaterThan(Date.now() + 86400000 * 1.9);
   });
 
