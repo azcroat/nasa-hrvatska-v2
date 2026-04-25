@@ -4937,3 +4937,115 @@ export const PAST_EXERCISES_XFORM = [
     note: "Plural masculine → pili; auxiliary 'su'",
   },
 ];
+
+// ── Future tense exercises (Multiple choice) ────────────────────────
+export const FUTURE_EXERCISES_MC = [
+  {
+    q: 'Sutra ću _____ (ići) u grad.',
+    a: 'ići',
+    opts: ['idem', 'ići', 'išao', 'idu'],
+  },
+  {
+    q: 'Ona će _____ (pisati) pismo.',
+    a: 'pisati',
+    opts: ['piše', 'pisati', 'pisala', 'pisanje'],
+  },
+  {
+    q: 'Mi ćemo _____ (jesti) zajedno.',
+    a: 'jesti',
+    opts: ['jedemo', 'jesti', 'jeli', 'jede'],
+  },
+  {
+    q: 'Oni će _____ (raditi) do večeri.',
+    a: 'raditi',
+    opts: ['rade', 'raditi', 'radili', 'radit'],
+  },
+  {
+    q: 'Ti ćeš _____ (govoriti) na konferenciji.',
+    a: 'govoriti',
+    opts: ['govoriš', 'govoriti', 'govorio', 'govori'],
+  },
+  {
+    q: 'Ja neću _____ (kupiti) to.',
+    a: 'kupiti',
+    opts: ['kupim', 'kupiti', 'kupio', 'kupujem'],
+  },
+  {
+    q: 'Vi ćete _____ (putovati) u Dubrovnik.',
+    a: 'putovati',
+    opts: ['putujete', 'putovati', 'putovali', 'putovanje'],
+  },
+  {
+    q: 'On će _____ (doći) kasno.',
+    a: 'doći',
+    opts: ['dolazi', 'doći', 'došao', 'dolaziti'],
+  },
+];
+
+// ── Future tense exercises (Fill in blank) ────────────────────────
+export const FUTURE_EXERCISES_FILL = [
+  {
+    q: 'Sutra _____ (ja/ići) na more.',
+    a: 'ću ići',
+    hint: '1st person singular future: ću + infinitive',
+  },
+  {
+    q: 'Ana _____ (pisati) referat idući tjedan.',
+    a: 'će pisati',
+    hint: '3rd person singular future: će + infinitive',
+  },
+  {
+    q: 'Mi _____ (putovati) u Split ovog ljeta.',
+    a: 'ćemo putovati',
+    hint: '1st person plural future: ćemo + infinitive',
+  },
+  {
+    q: 'Djeca _____ (igrati se) u parku.',
+    a: 'će se igrati',
+    hint: '3rd person plural future + reflexive: će se + infinitive',
+  },
+  {
+    q: 'Ja _____ (ne/čitati) tu knjigu.',
+    a: 'neću čitati',
+    hint: 'negative future 1st person: neću + infinitive',
+  },
+  {
+    q: 'Ona _____ (vidjeti) prijatelje sutra.',
+    a: 'će vidjeti',
+    hint: '3rd person singular future: će + infinitive',
+  },
+  {
+    q: 'Vi _____ (doći) na zabavu?',
+    a: 'ćete doći',
+    hint: '2nd person plural future: ćete + infinitive',
+  },
+  {
+    q: 'On _____ (ne/raditi) ovaj vikend.',
+    a: 'neće raditi',
+    hint: 'negative future 3rd person: neće + infinitive',
+  },
+];
+
+// ── Future tense exercises (Sentence transformation) ────────────────────────
+export const FUTURE_EXERCISES_XFORM = [
+  {
+    q: "Transform to future tense: 'Idem u školu svaki dan.'",
+    a: 'Ići ću u školu svaki dan.',
+    note: 'Short future with monosyllabic verb: ići + ću; word order flipped',
+  },
+  {
+    q: "Transform to future tense: 'Ona piše roman.'",
+    a: 'Ona će pisati roman.',
+    note: '3rd person: će + infinitive; present piše → future će pisati',
+  },
+  {
+    q: "Transform to negative future: 'Mi jedemo zajedno.'",
+    a: 'Mi nećemo jesti zajedno.',
+    note: 'negative future: nećemo + infinitive',
+  },
+  {
+    q: "Transform to future tense: 'Govore na konferenciji.'",
+    a: 'Govorit će na konferenciji.',
+    note: 'Short future (colloquial): govorit + će (enclitic follows truncated infinitive)',
+  },
+];
