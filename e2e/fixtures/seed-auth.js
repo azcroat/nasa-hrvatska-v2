@@ -10,20 +10,29 @@ export const TEST_NAME = 'Test Učenik';
 /**
  * Inject localStorage keys before the page loads to simulate a valid logged-in session.
  * Call this with page.addInitScript before page.goto().
+ *
+ * @param {object} [statOverrides] - Optional overrides for the `st` stats block.
+ *   CEFR formula: total = xp + lc*15 + gc*25
+ *   A1 (<300) | A2 (<1200) | B1 (<3500) | B2 (<8000) | C1 (<18000) | C2
+ *   Examples:
+ *     seedAuth(page)              → A2 (250+150+125 = 525)
+ *     seedAuth(page, {xp:1500})  → B1 (1500+150+125 = 1775)
+ *     seedAuth(page, {xp:5000})  → B2 (5000+150+125 = 5275)
  */
-export function seedAuth(page) {
-  return page.addInitScript(({ email, name, now, today }) => {
+export function seedAuth(page, statOverrides = {}) {
+  return page.addInitScript(({ email, name, now, today, statOverrides }) => {
+    const baseStats = {
+      xp: 250, lc: 10, gc: 5, sp: 3, de: 2,
+      rc: 1, pf: 2, al: 1, mv: 0, hi: 0, rs: [], ct: ['greetings','numbers','restaurant','transport','family'],
+      vs: ['listening','alphabet','tenses','grammar'],
+      badges: [],
+    };
     localStorage.setItem('uS', JSON.stringify({ u: email, lastActive: now }));
     localStorage.setItem('uA', JSON.stringify({ [email]: { d: name, e: email } }));
     localStorage.setItem('uP_' + email, JSON.stringify({
       name,
       cp: true,
-      st: {
-        xp: 250, lc: 10, gc: 5, sp: 3, de: 2,
-        rc: 1, pf: 2, al: 1, mv: 0, hi: 0, rs: [], ct: ['greetings','numbers','restaurant','transport','family'],
-        vs: ['listening','alphabet','tenses','grammar'],
-        badges: [],
-      },
+      st: { ...baseStats, ...statOverrides },
       sr: {},
       streak: { count: 5, last: today },
       favs: [],
@@ -47,6 +56,7 @@ export function seedAuth(page) {
     name: TEST_NAME,
     now: Date.now(),
     today: new Date().toISOString().slice(0, 10),
+    statOverrides,
   });
 }
 

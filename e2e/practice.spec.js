@@ -297,7 +297,9 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
 
 test.describe('DictationScreen', () => {
   test.beforeEach(async ({ page }) => {
-    await seedAuth(page);
+    // Dictation requires B1. Default seed is A2 (xp:250 → total 525).
+    // xp:1500 → total 1775 → B1, so the Dictation card appears in Available exercises.
+    await seedAuth(page, { xp: 1500 });
     await blockFirebase(page);
     await mockTTS(page);
     await page.route('**/api/explain-error', route => route.fulfill({

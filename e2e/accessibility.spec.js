@@ -70,7 +70,10 @@ async function waitForSettle(page) {
 
 test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
   test.beforeEach(async ({ page }) => {
-    await seedAuth(page);
+    // Use B2-level stats (xp:5000 → total 5275) so all CEFR-gated exercises unlock.
+    // Without this, the locked-exercise cards render with opacity:0.55 wrapper which
+    // reduces effective foreground contrast below 4.5:1 and fails axe color-contrast.
+    await seedAuth(page, { xp: 5000 });
     await blockFirebase(page);
     await mockTTS(page);
   });
