@@ -175,5 +175,47 @@ export function buildProgressSnapshot({
       }
     })(),
     nh_used_free_repair: localStorage.getItem('nh_used_free_repair') === '1',
+    // ── Earn-back streak data ─────────────────────────────────────────────────
+    nh_earn_back: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('nh_earn_back') || 'null');
+      } catch {
+        return null;
+      }
+    })(),
+    // ── XP boost state (premium) ──────────────────────────────────────────────
+    nh_xp_boost_expires: parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10) || 0,
+    nh_xp_boost_last_activated:
+      parseInt(localStorage.getItem('nh_xp_boost_last_activated') || '0', 10) || 0,
+    // ── Today's daily XP — for daily-goal UI on fresh devices ────────────────
+    // Stored as a value+date pair so applyRemoteProgress can write the correct key.
+    nh_daily_xp_today: parseInt(localStorage.getItem('nh_daily_xp_' + _todayStr()) || '0', 10),
+    nh_daily_xp_date: _todayStr(),
+    // ── Lesson resume state ───────────────────────────────────────────────────
+    nh_lesson_resume: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('nh_lesson_resume') || 'null');
+      } catch {
+        return null;
+      }
+    })(),
+    // ── Last exercise tracking ────────────────────────────────────────────────
+    nh_last_ex: localStorage.getItem('nh_last_ex') || '',
+    nh_last_ex_label: localStorage.getItem('nh_last_ex_label') || '',
+    // ── Journey milestone flags ───────────────────────────────────────────────
+    nh_journey_first_speaking: localStorage.getItem('nh_journey_first_speaking') === '1',
+    nh_journey_first_lesson: localStorage.getItem('nh_journey_first_lesson') === '1',
+    // ── Ceremony flags — packed into one object to avoid 13 top-level keys ───
+    // Additive: once true, always true across devices.
+    nh_ceremonies: (() => {
+      const obj: Record<string, boolean> = {};
+      [7, 14, 21, 30, 50, 60, 100, 365].forEach((c) => {
+        if (localStorage.getItem(`nh_ceremony_streak_${c}`) === '1') obj[`streak_${c}`] = true;
+      });
+      [5, 11, 22, 34, 45].forEach((s) => {
+        if (localStorage.getItem(`nh_stage${s}_ceremony`) === '1') obj[`stage${s}`] = true;
+      });
+      return obj;
+    })(),
   };
 }
