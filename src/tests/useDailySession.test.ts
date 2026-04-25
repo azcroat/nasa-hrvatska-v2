@@ -1,5 +1,5 @@
 // src/tests/useDailySession.test.ts
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   buildSessionActivities,
   markDoneInSession,
@@ -8,7 +8,19 @@ import {
 import type { DailySession } from '../hooks/useDailySession';
 import { localDateStr } from '../lib/dateUtils';
 
-beforeEach(() => localStorage.clear());
+// Mock external dependencies to test different branches
+vi.mock('../lib/srs', () => ({
+  getDueReviews: vi.fn(() => []),
+}));
+
+vi.mock('../lib/adaptive', () => ({
+  getDueCategoryQueue: vi.fn(() => []),
+}));
+
+beforeEach(() => {
+  localStorage.clear();
+  vi.clearAllMocks();
+});
 
 describe('buildSessionActivities', () => {
   it('returns 4–6 activities for new user (no FSRS, no category SR)', () => {
@@ -120,6 +132,26 @@ describe('buildSessionActivities', () => {
     // Should not throw; returns full exercise pool instead
     const acts = buildSessionActivities('A1');
     expect(acts.length).toBeGreaterThanOrEqual(4); // Should have normal session size
+  });
+
+  it('includes FSRS review activity when getDueReviews returns items', async () => {
+    // Import the mocked function and configure it
+    const srs = await import('../lib/srs');
+    const getDueReviews = vi.mocked(srs.getDueReviews);
+    getDueReviews.mockReturnValue([{ word: 'test' }]);
+    const acts = buildSessionActivities('A1');
+    // Should include 'srsreview' activity from Priority 1
+    expect(acts.find((a) => a.id === 'srsreview')).toBeTruthy();
+  });
+
+  it('includes adaptive category activity when getDueCategoryQueue returns items', async () => {
+    // Import the mocked function and configure it
+    const adaptive = await import('../lib/adaptive');
+    const getDueCategoryQueue = vi.mocked(adaptive.getDueCategoryQueue);
+    getDueCategoryQueue.mockReturnValue([{ category: 'genitive', difficulty: 3 }]);
+    const acts = buildSessionActivities('A1');
+    // genitive maps to 'prepdrill' screen
+    expect(acts.find((a) => a.screen === 'prepdrill')).toBeTruthy();
   });
 });
 
