@@ -2,6 +2,7 @@ import React from 'react';
 import SpeakingAvatar, { portraitSrc } from './SpeakingAvatar';
 import TappableMessage from './TappableMessage';
 import WaveformVisualizer from '../shared/WaveformVisualizer';
+import { CefrSoftHint } from '../shared/CefrSoftHint';
 import { STARTERS, sceneForCat } from './ConversationScenarios.js';
 import type { ConversationMessage } from '../../hooks/useConversationSession';
 
@@ -245,6 +246,10 @@ export default function AIConversationChat({
         >
           End & Evaluate
         </button>
+      </div>
+
+      <div style={{ padding: '0 16px' }}>
+        <CefrSoftHint level="B1+" />
       </div>
 
       {/* Messages */}
