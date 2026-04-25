@@ -51,6 +51,7 @@ interface SyncManagerResult {
   syncError: boolean;
   setSyncError: React.Dispatch<React.SetStateAction<boolean>>;
   syncErrorCode: string;
+  lastSyncedAt: number;
 }
 
 export function useSyncManager({
@@ -73,6 +74,7 @@ export function useSyncManager({
   const [showBackupBanner, setShowBackupBanner] = useState(false);
   const [syncError, setSyncError] = useState(false);
   const [syncErrorCode, setSyncErrorCode] = useState('');
+  const [lastSyncedAt, setLastSyncedAt] = useState<number>(0);
   const _syncFailCount = useRef(0);
   const _isSavingRef = useRef(false); // mutex: prevents concurrent doSyncNow calls
   const _watcherUnsubRef = useRef<(() => void) | null>(null);
@@ -213,11 +215,13 @@ export function useSyncManager({
       const result = (await fbSaveProgress(u.u, snap).catch(() => ({ ok: false }))) as {
         ok?: boolean;
       };
-      return result && result.ok !== false;
+      const success = result && result.ok !== false;
+      if (success) setLastSyncedAt(Date.now());
+      return success;
     } finally {
       _isSavingRef.current = false;
     }
-  }, []); // stable — all state is read from _unloadRef.current, no closure deps needed
+  }, [setLastSyncedAt]); // setLastSyncedAt is stable (useState setter) — safe dep
 
   // Keep caller ref current so onBeforeSignOut always calls latest doSyncNow
   if (syncNowRef) syncNowRef.current = doSyncNow;
@@ -405,7 +409,6 @@ export function useSyncManager({
         jWords: jw,
         dchlA: da,
         dchlSl: dsl,
-        syncReady: sr,
       } = _unloadRef.current as {
         authUser: AuthUser | null;
         stats: Stats;
@@ -415,10 +418,8 @@ export function useSyncManager({
         jWords: unknown[];
         dchlA: boolean[];
         dchlSl: string[];
-        syncReady: boolean;
       };
       if (!u || as_ !== 'app') return;
-      if (!sr) return;
       const snap = buildProgressSnapshot({
         uid: u.u,
         name: nm,
@@ -436,6 +437,7 @@ export function useSyncManager({
         _syncFailCount.current = 0;
         setSyncError(false);
         setSyncErrorCode('');
+        setLastSyncedAt(Date.now());
       } else {
         _syncFailCount.current += 1;
         if (_syncFailCount.current >= 2) {
@@ -445,7 +447,7 @@ export function useSyncManager({
       }
     }, 60 * 1000);
     return () => clearInterval(iv);
-  }, [authUser, authScreen]);
+  }, [authUser, authScreen, setLastSyncedAt]);
 
   // ─── Periodic pull every 3 min ─────────────────────────────────────────────
   useEffect(() => {
@@ -571,5 +573,6 @@ export function useSyncManager({
     syncError,
     setSyncError,
     syncErrorCode,
+    lastSyncedAt,
   };
 }

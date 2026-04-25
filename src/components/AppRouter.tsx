@@ -420,6 +420,7 @@ export default function AppRouter(props: Record<string, any>) {
     launchSpeaking,
     _syncReady,
     doSyncNow,
+    lastSyncedAt,
     icons,
     allCats,
     getWeekStats,
@@ -867,6 +868,7 @@ export default function AppRouter(props: Record<string, any>) {
                           syncReady={_syncReady}
                           onSyncNow={doSyncNow}
                           onOpenFriends={() => setScr('family_group')}
+                          lastSyncedAt={lastSyncedAt as number}
                         />
                       </ScreenErrorBoundary>
                     </React.Suspense>
