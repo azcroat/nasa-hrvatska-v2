@@ -40,6 +40,46 @@ function getWordsLearned() {
 const STAGE_CEFR = ['A1', 'A2', 'B1', 'B1+', 'B2+', 'C1'];
 const STAGE_NAMES_PROFILE = ['Survivor', 'Settler', 'Communicator', 'Explorer', 'Hrvat!'];
 
+function getSessionStreak(): number {
+  try {
+    const history = JSON.parse(localStorage.getItem('nh_session_history') || '{}') as Record<
+      string,
+      boolean
+    >;
+    let streak = 0;
+    const d = new Date();
+    while (true) {
+      const key = d.toISOString().slice(0, 10);
+      if (!history[key]) break;
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  } catch {
+    return 0;
+  }
+}
+
+function getLast7SessionDays(): Array<{ date: string; done: boolean }> {
+  try {
+    const history = JSON.parse(localStorage.getItem('nh_session_history') || '{}') as Record<
+      string,
+      boolean
+    >;
+    const days = [];
+    const d = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const dd = new Date(d);
+      dd.setDate(d.getDate() - i);
+      const key = dd.toISOString().slice(0, 10);
+      days.push({ date: key, done: !!history[key] });
+    }
+    return days;
+  } catch {
+    return [];
+  }
+}
+
 export default function StatsTab({
   onShowPrestigeModal,
   onSyncNow,
@@ -212,6 +252,76 @@ export default function StatsTab({
           );
         })}
       </div>
+
+      {/* ── SESSION STREAK WIDGET ── */}
+      {(() => {
+        const sessionStreak = getSessionStreak();
+        const sessionDays = getLast7SessionDays();
+        const today = new Date().toISOString().slice(0, 10);
+        return (
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1.5px solid var(--card-b)',
+              borderRadius: 16,
+              padding: '14px 16px',
+              marginBottom: 16,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 10,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--heading)' }}>
+                  {sessionStreak > 0
+                    ? `${sessionStreak}-day session streak`
+                    : 'Start your session streak'}
+                </div>
+                <div
+                  style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500, marginTop: 2 }}
+                >
+                  Complete today's session to keep the streak going
+                </div>
+              </div>
+              <span style={{ fontSize: 24 }}>🗓️</span>
+            </div>
+            {/* 7-dot calendar */}
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+              {sessionDays.map((day) => (
+                <div
+                  key={day.date}
+                  title={day.date}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    background: day.done
+                      ? day.date === today
+                        ? '#16a34a'
+                        : 'var(--success,#16a34a)'
+                      : 'var(--card-b)',
+                    border:
+                      day.date === today && !day.done
+                        ? '2px solid var(--info,#0284c7)'
+                        : '2px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 12,
+                  }}
+                >
+                  {day.done ? '✓' : ''}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── LEARNING STYLE ── */}
       {styleLabel && (

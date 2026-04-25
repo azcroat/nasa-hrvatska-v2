@@ -246,29 +246,6 @@ export default function InsightsTab({ onOpenFriends }: { onOpenFriends?: () => v
                       </span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      const topicScreenMap = {
-                        grammar: 'grammar',
-                        padezi: 'padezi',
-                        conjugation: 'conjdrill',
-                      };
-                      setScr(topicScreenMap[w.id as keyof typeof topicScreenMap] || 'dashboard');
-                    }}
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: 10,
-                      border: 'none',
-                      cursor: 'pointer',
-                      background: 'linear-gradient(135deg,var(--error),#b91c1c)',
-                      color: 'var(--card)',
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 700,
-                      fontFamily: "'Outfit',sans-serif",
-                    }}
-                  >
-                    Review
-                  </button>
                 </div>
               ))}
             </div>
