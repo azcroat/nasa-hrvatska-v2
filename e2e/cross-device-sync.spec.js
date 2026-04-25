@@ -17,13 +17,22 @@ const PASSWORD = 'ClaudeTest2026!';
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 async function readStats(page, label) {
+  // Navigate to profile tab for reliable stats (not dependent on HomeTab layout)
+  try {
+    const meBtn = page.locator('[aria-label="Main navigation"] button', { hasText: 'Me' });
+    if (await meBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await meBtn.click();
+      await page.waitForTimeout(2000);
+    }
+  } catch (_) {}
+
   const txt = await page.locator('#root').innerText().catch(() => '');
-  const xpM = txt.match(/(\d+)\s*XP/);
-  const lcM = txt.match(/(\d+)\s*lessons?/i);
-  const streakM = txt.match(/(\d+)[- ]?day streak|streak[:\s]+(\d+)/i);
+  const xpM = txt.match(/(\d+)\s*XP/i) || txt.match(/XP[:\s]+(\d+)/i);
+  const lcM = txt.match(/(\d+)\s*lessons?/i) || txt.match(/Lessons[:\s]+(\d+)/i);
+  const streakM = txt.match(/(\d+)[- ]?day streak/i) || txt.match(/Streak[:\s]+(\d+)/i) || txt.match(/(\d+)\s*🔥/);
   const xp = xpM ? parseInt(xpM[1]) : null;
   const lc = lcM ? parseInt(lcM[1]) : null;
-  const streak = streakM ? parseInt(streakM[1] || streakM[2]) : null;
+  const streak = streakM ? parseInt(streakM[1]) : null;
   console.log(`  [${label}] XP=${xp ?? '?'}  Lessons=${lc ?? '?'}  Streak=${streak ?? '?'}`);
   return { xp, lc, streak, txt };
 }
@@ -57,11 +66,9 @@ async function loginFresh(ctx, label) {
     console.log(`  Already logged in (session persisted)`);
   }
 
-  // Wait for sidebar (Home + Path = app loaded)
-  await page.waitForFunction(
-    () => { const t = document.getElementById('root')?.innerText || ''; return t.includes('Home') && t.includes('Path'); },
-    { timeout: 25000 }
-  ).catch(() => console.log(`  WARNING: app didn't show sidebar within 25s`));
+  // Wait for the main navigation bar — reliable signal that the app has loaded
+  await page.locator('[aria-label="Main navigation"]').waitFor({ state: 'visible', timeout: 25000 })
+    .catch(() => console.log(`  WARNING: nav bar not visible within 25s`));
 
   const loginMs = Date.now() - t0;
   console.log(`  Login→app: ${loginMs}ms`);
@@ -119,7 +126,7 @@ test.describe('Cross-device sync — nasahrvatska.com', () => {
 
     // ── Logout + re-login on Device B ──
     console.log(`\n  ── Re-login: sign out then back in on Device B ──`);
-    const profileNav = pageB.locator('text=Profile').first();
+    const profileNav = pageB.locator('[aria-label="Main navigation"] button', { hasText: 'Me' });
     if (await profileNav.isVisible({ timeout: 2000 }).catch(() => false)) {
       await profileNav.click();
       await pageB.waitForTimeout(500);
@@ -140,10 +147,8 @@ test.describe('Cross-device sync — nasahrvatska.com', () => {
       await emailEl2.fill(EMAIL);
       await pageB.locator('input[type="password"]').first().fill(PASSWORD);
       await pageB.locator('input[type="password"]').first().press('Enter');
-      await pageB.waitForFunction(
-        () => { const t = document.getElementById('root')?.innerText || ''; return t.includes('Home') && t.includes('Path'); },
-        { timeout: 25000 }
-      ).catch(() => {});
+      await pageB.locator('[aria-label="Main navigation"]').waitFor({ state: 'visible', timeout: 25000 })
+        .catch(() => {});
       await pageB.waitForTimeout(6000);
     }
     relogin_stats = await readStats(pageB, 'Device B after re-login');
