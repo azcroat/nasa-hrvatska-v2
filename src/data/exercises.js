@@ -4825,3 +4825,115 @@ export const TRANSLATE_DRILLS = [
     level: 'B2',
   },
 ];
+
+// ── Past tense exercises (Multiple choice) ─────────────────────────────────
+export const PAST_EXERCISES_MC = [
+  {
+    q: 'Jučer sam _____ (čitati) knjigu.',
+    a: 'čitao/čitala',
+    opts: ['čitam', 'čitao/čitala', 'čitati', 'budem čitao'],
+  },
+  {
+    q: 'Ona je _____ (ići) u školu.',
+    a: 'išla',
+    opts: ['ide', 'ići', 'išla', 'iđe'],
+  },
+  {
+    q: 'Mi smo _____ (jesti) ručak.',
+    a: 'jeli',
+    opts: ['jedemo', 'jeli', 'jesti', 'jedući'],
+  },
+  {
+    q: 'Oni su _____ (gledati) film.',
+    a: 'gledali',
+    opts: ['gledaju', 'gledati', 'gledali', 'pogledali'],
+  },
+  {
+    q: 'Marija je _____ (pisati) pismo.',
+    a: 'pisala',
+    opts: ['piše', 'pisati', 'pisao', 'pisala'],
+  },
+  {
+    q: 'Ti si _____ (kupiti) kruh.',
+    a: 'kupio/kupila',
+    opts: ['kupuješ', 'kupiti', 'kupio/kupila', 'kupit će'],
+  },
+  {
+    q: 'On je _____ (piti) kavu.',
+    a: 'pio',
+    opts: ['pije', 'pio', 'piti', 'pijan'],
+  },
+  {
+    q: 'Vi ste _____ (raditi) cijeli dan.',
+    a: 'radili',
+    opts: ['radite', 'raditi', 'radili', 'rade'],
+  },
+];
+
+// ── Past tense exercises (Fill in blank) ───────────────────────────────────
+export const PAST_EXERCISES_FILL = [
+  {
+    q: 'Juče sam _____ (raditi) u vrtu.',
+    a: 'radio/radila',
+    hint: 'past participle of raditi',
+  },
+  {
+    q: 'Ana je _____ (doći) kasno.',
+    a: 'došla',
+    hint: 'past participle of doći (f)',
+  },
+  {
+    q: 'Djeca su _____ (igrati se) vani.',
+    a: 'igrala se',
+    hint: 'past participle of igrati se (n.pl)',
+  },
+  {
+    q: 'Mi smo _____ (putovati) u Zagreb.',
+    a: 'putovali',
+    hint: 'past participle of putovati (m.pl)',
+  },
+  {
+    q: 'Petar je _____ (spavati) dugo.',
+    a: 'spavao',
+    hint: 'past participle of spavati (m)',
+  },
+  {
+    q: 'One su _____ (pjevati) pjesmu.',
+    a: 'pjevale',
+    hint: 'past participle of pjevati (f.pl)',
+  },
+  {
+    q: 'Ja sam _____ (vidjeti) taj film.',
+    a: 'vidio/vidjela',
+    hint: 'past participle of vidjeti',
+  },
+  {
+    q: 'On je _____ (uzeti) knjigu sa stola.',
+    a: 'uzeo',
+    hint: 'past participle of uzeti (m)',
+  },
+];
+
+// ── Past tense exercises (Sentence transformation) ────────────────────────
+export const PAST_EXERCISES_XFORM = [
+  {
+    q: "Transform to past tense: 'Svaki dan idem u park.'",
+    a: 'Svaki dan sam išao/išla u park.',
+    note: "Present → past tense; auxiliary 'sam' + past participle",
+  },
+  {
+    q: "Transform to past tense: 'Ona piše roman.'",
+    a: 'Ona je pisala roman.',
+    note: "'je' placed before participle; feminine → pisala",
+  },
+  {
+    q: "Transform to past tense: 'Mi jedemo zajedno.'",
+    a: 'Mi smo jeli zajedno.',
+    note: "Plural masculine → jeli; auxiliary 'smo'",
+  },
+  {
+    q: "Transform to past tense: 'Oni piju čaj svako jutro.'",
+    a: 'Oni su pili čaj svako jutro.',
+    note: "Plural masculine → pili; auxiliary 'su'",
+  },
+];
