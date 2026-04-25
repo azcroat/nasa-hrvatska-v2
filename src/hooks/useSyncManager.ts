@@ -79,6 +79,10 @@ export function useSyncManager({
   const _isSavingRef = useRef(false); // mutex: prevents concurrent doSyncNow calls
   const _watcherUnsubRef = useRef<(() => void) | null>(null);
   const _idTokenRef = useRef('');
+  // Sticky user ref: authUser can momentarily become null during Firebase token refresh.
+  // This ref retains the last confirmed authenticated user so unload saves (pagehide /
+  // visibilitychange) are never silently skipped due to a brief null window at tab close.
+  const _lastKnownUserRef = useRef<AuthUser | null>(null);
 
   // Keeps latest state available to unload handlers without stale deps
   const _unloadRef = useRef<Record<string, unknown>>({});
@@ -107,6 +111,9 @@ export function useSyncManager({
     dchlSl,
     syncReady,
   };
+  // Keep _lastKnownUserRef current while user is authenticated in the app.
+  // This survives any brief authUser=null window during Firebase token refresh.
+  if (authUser && authScreen === 'app') _lastKnownUserRef.current = authUser;
   _setStatsRef.current = setStats;
   _setNameRef.current = setName;
   _applyRef.current = applyRemoteProgress;
@@ -476,7 +483,7 @@ export function useSyncManager({
   useEffect(() => {
     const saveSnapshot = (pushToFirebase: boolean): void => {
       const {
-        authUser: u,
+        authUser: u_raw,
         stats: st,
         name: nm,
         authScreen: as_,
@@ -494,6 +501,10 @@ export function useSyncManager({
         dchlA: boolean[];
         dchlSl: string[];
       };
+      // authUser can be momentarily null during Firebase token refresh at tab-close.
+      // Fall back to _lastKnownUserRef (updated every render while authenticated) so
+      // pagehide / visibilitychange saves are never silently skipped in that narrow window.
+      const u = u_raw || (as_ === 'app' ? _lastKnownUserRef.current : null);
       if (!u || as_ !== 'app') return;
       try {
         const snap = buildProgressSnapshot({

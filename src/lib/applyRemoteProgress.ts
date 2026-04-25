@@ -217,8 +217,12 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   if (fp.nh_culture) localStorage.setItem('nh_culture', fp.nh_culture);
   if (fp.nh_daily_goal_xp > 0) {
     const lDgx = parseInt(localStorage.getItem('nh_daily_goal_xp') || '0', 10);
-    // Remote wins when it has a value and local has none; otherwise keep local (most recent edit)
-    if (!lDgx) localStorage.setItem('nh_daily_goal_xp', String(fp.nh_daily_goal_xp));
+    // Math.max: whichever device set the higher daily-goal XP target wins.
+    // Prevents a stale lower value from one device silently overwriting a higher goal
+    // the user explicitly chose on another device.
+    try {
+      localStorage.setItem('nh_daily_goal_xp', String(Math.max(lDgx, fp.nh_daily_goal_xp)));
+    } catch (_) {}
   }
   if (fp.nh_placement_done) {
     localStorage.setItem('nh_placement_done', 'true');
@@ -391,5 +395,101 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
     try {
       localStorage.setItem('nh_session_history', JSON.stringify(merged));
     } catch (_) {}
+  }
+
+  // ── Earn-back streak data — remote wins if for a more recent date ────────────
+  if (fp.nh_earn_back !== null && fp.nh_earn_back !== undefined) {
+    try {
+      const lEB = JSON.parse(localStorage.getItem('nh_earn_back') || 'null');
+      if (
+        !lEB ||
+        ((fp.nh_earn_back as Record<string, unknown>).date as string) > (lEB.date as string)
+      ) {
+        localStorage.setItem('nh_earn_back', JSON.stringify(fp.nh_earn_back));
+      }
+    } catch (_) {}
+  }
+
+  // ── XP boost — Math.max for both timestamps ───────────────────────────────────
+  if (fp.nh_xp_boost_expires > 0) {
+    const lExp = parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10);
+    try {
+      localStorage.setItem(
+        'nh_xp_boost_expires',
+        String(Math.max(lExp, fp.nh_xp_boost_expires as number)),
+      );
+    } catch (_) {}
+  }
+  if (fp.nh_xp_boost_last_activated > 0) {
+    const lAct = parseInt(localStorage.getItem('nh_xp_boost_last_activated') || '0', 10);
+    try {
+      localStorage.setItem(
+        'nh_xp_boost_last_activated',
+        String(Math.max(lAct, fp.nh_xp_boost_last_activated as number)),
+      );
+    } catch (_) {}
+  }
+
+  // ── Daily XP — write today's XP value to the correct date-keyed slot ────────
+  if ((fp.nh_daily_xp_today as number) > 0 && fp.nh_daily_xp_date === today) {
+    const lDX = parseInt(localStorage.getItem('nh_daily_xp_' + today) || '0', 10);
+    try {
+      localStorage.setItem(
+        'nh_daily_xp_' + today,
+        String(Math.max(lDX, fp.nh_daily_xp_today as number)),
+      );
+    } catch (_) {}
+  }
+
+  // ── Lesson resume — remote fills a gap when local is absent ─────────────────
+  if (fp.nh_lesson_resume !== null && fp.nh_lesson_resume !== undefined) {
+    try {
+      const raw = localStorage.getItem('nh_lesson_resume');
+      if (!raw || raw === 'null') {
+        localStorage.setItem('nh_lesson_resume', JSON.stringify(fp.nh_lesson_resume));
+      }
+    } catch (_) {}
+  }
+
+  // ── Last exercise — remote fills a gap in local ──────────────────────────────
+  if (fp.nh_last_ex && !localStorage.getItem('nh_last_ex')) {
+    try {
+      localStorage.setItem('nh_last_ex', fp.nh_last_ex as string);
+    } catch (_) {}
+  }
+  if (fp.nh_last_ex_label && !localStorage.getItem('nh_last_ex_label')) {
+    try {
+      localStorage.setItem('nh_last_ex_label', fp.nh_last_ex_label as string);
+    } catch (_) {}
+  }
+
+  // ── Journey milestone flags — additive: once true, always true ───────────────
+  if (fp.nh_journey_first_speaking === true)
+    try {
+      localStorage.setItem('nh_journey_first_speaking', '1');
+    } catch (_) {}
+  if (fp.nh_journey_first_lesson === true)
+    try {
+      localStorage.setItem('nh_journey_first_lesson', '1');
+    } catch (_) {}
+
+  // ── Ceremony flags — additive union (packed object → individual keys) ────────
+  // progressSnapshot packs ceremony keys into `nh_ceremonies: { streak_7: true, stage5: true }`.
+  // applyRemoteProgress unpacks them back to individual localStorage keys so the
+  // rest of the app (CelebrationModal, ceremony guards) can read them as expected.
+  if (fp.nh_ceremonies && typeof fp.nh_ceremonies === 'object') {
+    const cerMap = fp.nh_ceremonies as Record<string, boolean>;
+    for (const key in cerMap) {
+      if (cerMap[key] !== true) continue;
+      try {
+        if (key.startsWith('streak_')) {
+          // e.g. streak_7 → nh_ceremony_streak_7
+          localStorage.setItem(`nh_ceremony_${key}`, '1');
+        } else if (key.startsWith('stage')) {
+          // e.g. stage5 → nh_stage5_ceremony
+          localStorage.setItem(`nh_${key}_ceremony`, '1');
+        }
+      } catch (_) {}
+    }
   }
 }
