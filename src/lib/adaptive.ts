@@ -314,7 +314,7 @@ function _gradeInterval(grade: 1 | 2 | 3 | 4, stability: number): number {
     case 3:
       return Math.max(7, Math.round(stability * 1.5));
     case 4:
-      return Math.min(60, Math.round(stability * 2.5));
+      return Math.max(10, Math.min(60, Math.round(stability * 2.5)));
   }
 }
 
