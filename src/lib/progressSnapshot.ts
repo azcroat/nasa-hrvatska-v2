@@ -167,6 +167,13 @@ export function buildProgressSnapshot({
         return {};
       }
     })(),
+    nh_session_history: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('nh_session_history') || '{}');
+      } catch {
+        return {};
+      }
+    })(),
     nh_used_free_repair: localStorage.getItem('nh_used_free_repair') === '1',
   };
 }

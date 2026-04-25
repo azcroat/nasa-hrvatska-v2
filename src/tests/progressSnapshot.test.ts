@@ -168,4 +168,15 @@ describe('buildProgressSnapshot', () => {
     expect(typeof snap.freezes).toBe('number');
     expect(snap.freezes).toBe(2);
   });
+
+  it('includes nh_session_history from localStorage', () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    localStorage.setItem(
+      'nh_session_history',
+      JSON.stringify({ [today]: true, [yesterday]: true }),
+    );
+    const snap = buildProgressSnapshot(BASE_PARAMS);
+    expect(snap.nh_session_history).toEqual({ [today]: true, [yesterday]: true });
+  });
 });

@@ -380,4 +380,16 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
       localStorage.setItem('nh_media_done', JSON.stringify({ ...fp.nh_media_done, ...lMD }));
     } catch (_) {}
   }
+
+  // ── Session history — additive union (never remove completed days) ──────────────
+  if (fp.nh_session_history && typeof fp.nh_session_history === 'object') {
+    let lSH: Record<string, boolean> = {};
+    try {
+      lSH = JSON.parse(localStorage.getItem('nh_session_history') || '{}');
+    } catch (_) {}
+    const merged = { ...(fp.nh_session_history as Record<string, boolean>), ...lSH }; // local wins for shared keys
+    try {
+      localStorage.setItem('nh_session_history', JSON.stringify(merged));
+    } catch (_) {}
+  }
 }
