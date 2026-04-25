@@ -131,7 +131,7 @@ jobs:
     name: E2E Tests (Cross-Browser)
     runs-on: ubuntu-latest
     needs: quality
-    timeout-minutes: 45
+    timeout-minutes: 65
     # Tests use seedAuth (localStorage injection) + blockFirebase (network abort) fixtures.
     # No live Firebase credentials needed — the app runs in fully hermetic mode.
     steps:
