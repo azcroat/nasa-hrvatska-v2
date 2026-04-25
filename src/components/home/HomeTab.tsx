@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import type { Stats, AuthUser } from '../../types';
 
 interface LearnPathItem {
@@ -55,130 +54,25 @@ interface HomeTabProps {
   resumeLesson?: (() => void) | null;
 }
 
-// On Android WebView (Capacitor), Framer Motion entry animations can stall
-// leaving elements permanently at opacity:0. Skip entry animation on native.
-// Use hostname === 'localhost' (reliable) not window.Capacitor (async bridge injection).
-// Capacitor Android: https://localhost with NO port.
-// Dev/CI server: http://localhost:PORT — always has a port number.
-const _isNative =
-  typeof window !== 'undefined' &&
-  window.location.hostname === 'localhost' &&
-  !window.location.port;
 import {
   LEARN_PATH,
   getStreak,
   getDailyChallenge,
-  speak,
   preloadAudio,
   DAILY_QUESTS,
   getActiveCampaign,
-  V,
 } from '../../data';
 import { getWordOfDay } from '../../lib/wordOfDay.js';
-import { addWordToSRS } from '../../lib/srs.js';
-import { PHRASE_OF_DAY_POOL as PHRASES_365 } from '../../data/daily-content.js';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import { safeGetItem } from '../../hooks/useLocalStorage';
-import { getWeakTopics } from '../../lib/adaptive.ts';
-
-// Screens that require launch-time initialization — direct navigation to them
-// without proper state setup produces a blank ScreenGuard or empty screen.
-// Vocab lessons use curEx 'vocab_topicname' (not a real screen ID) and are
-// covered by the dedicated "Resume lesson" button in PathProgressCard.
-const _NO_DIRECT_RESUME = new Set([
-  'vocab_',
-  'mcgame',
-  'flashcards',
-  'listening',
-  'match',
-  'speaking',
-  'lesson',
-]);
-
-// Read last activity saved by App.jsx when exercises are launched
-function getLastActivity(): { ex: string; label: string } | null {
-  const ex = safeGetItem('nh_last_ex') as string | null;
-  const label = safeGetItem('nh_last_ex_label') as string | null;
-  if (!ex || !label) return null;
-  // Skip exercises that can't be navigated to directly without init data
-  if (ex.startsWith('vocab_') || _NO_DIRECT_RESUME.has(ex)) return null;
-  return { ex, label };
-}
-import HeroSection from './HeroSection';
-import PathProgressCard from './PathProgressCard';
-import ReviewTabContent from './ReviewTabContent';
-import CampaignBanner from './CampaignBanner';
-import DailyCroatianSection from './DailyCroatianSection';
-import ProgressTabContent from './ProgressTabContent';
-import WelcomeBackBanners from './WelcomeBackBanners';
 import GoalSetterModal from '../shared/GoalSetterModal';
-import WeeklyRecapModal, { markRecapShown } from './WeeklyRecapModal';
-import UnitCompleteBanner from './UnitCompleteBanner';
 import StreakMilestoneToast, { checkAndMarkMilestone } from '../shared/StreakMilestoneToast';
-// DalmatianCoast SVG replaced with real AI/CC photography
-// import { DalmatianCoast } from '../illustrations';
-
-const PHRASE_OF_DAY_POOL = [
-  { hr: 'Kako si?', en: 'How are you?', note: 'Informal — use with friends and family' },
-  { hr: 'Hvala lijepa!', en: 'Thank you very much!', note: 'Warmer than plain "hvala"' },
-  { hr: 'Gdje je more?', en: 'Where is the sea?', note: 'Essential for any trip to Dalmatia' },
-  { hr: 'Koliko košta?', en: 'How much does it cost?', note: 'Markets, restaurants, everywhere' },
-  {
-    hr: 'Jedna kava, molim.',
-    en: 'One coffee, please.',
-    note: 'The most Croatian sentence there is',
-  },
-  {
-    hr: 'Lijepo je ovdje.',
-    en: "It's beautiful here.",
-    note: "You'll say this constantly in Croatia",
-  },
-  { hr: 'Idemo na plažu!', en: "Let's go to the beach!", note: 'Summer vocabulary — critical' },
-  { hr: 'Dobar tek!', en: 'Enjoy your meal!', note: 'Said before eating — like "bon appétit"' },
-  { hr: 'Živjeli!', en: 'Cheers!', note: 'For rakija, wine, or pivo (beer)' },
-  { hr: 'Nema problema.', en: 'No problem.', note: 'The Croatian spirit in two words' },
-  { hr: 'Polako, ali sigurno.', en: 'Slowly but surely.', note: 'A saying — and a way of life' },
-  {
-    hr: 'Učim hrvatski.',
-    en: 'I am learning Croatian.',
-    note: 'Guaranteed to make any Croatian smile',
-  },
-  { hr: 'Gdje stanujete?', en: 'Where do you live?', note: 'Formal — for new acquaintances' },
-  { hr: 'Stvarno lijepo.', en: 'Truly beautiful.', note: 'Genuine appreciation, not just polite' },
-];
-
-const DAILY_PHRASES = [
-  { hr: 'Dobar dan!', en: 'Good day!', cat: 'Greetings' },
-  { hr: 'Kako ste?', en: 'How are you?', cat: 'Greetings' },
-  { hr: 'Hvala lijepo.', en: 'Thank you very much.', cat: 'Courtesy' },
-  { hr: 'Molim vas.', en: "Please / You're welcome.", cat: 'Courtesy' },
-  { hr: 'Gdje je plaža?', en: 'Where is the beach?', cat: 'Travel' },
-  { hr: 'Koliko košta?', en: 'How much does it cost?', cat: 'Shopping' },
-  { hr: 'Govorite li engleski?', en: 'Do you speak English?', cat: 'Communication' },
-  { hr: 'Jedno kava, molim.', en: 'One coffee, please.', cat: 'Food & Drink' },
-  { hr: 'Uživam u Hrvatskoj.', en: "I'm enjoying Croatia.", cat: 'Travel' },
-  { hr: 'Sretan put!', en: 'Have a good trip!', cat: 'Farewells' },
-  { hr: 'Vidimo se!', en: 'See you!', cat: 'Farewells' },
-  { hr: 'Ne razumijem.', en: "I don't understand.", cat: 'Communication' },
-  { hr: 'Možete li ponoviti?', en: 'Can you repeat that?', cat: 'Communication' },
-  { hr: 'Gdje je WC?', en: 'Where is the bathroom?', cat: 'Travel' },
-  { hr: 'Volim Hrvatsku!', en: 'I love Croatia!', cat: 'Feelings' },
-  { hr: 'Lijepo jutro!', en: 'Beautiful morning!', cat: 'Greetings' },
-  { hr: 'Što imate za jesti?', en: 'What do you have to eat?', cat: 'Food & Drink' },
-  { hr: 'Račun, molim.', en: 'The bill, please.', cat: 'Food & Drink' },
-  { hr: 'Živjeli!', en: 'Cheers!', cat: 'Social' },
-  { hr: 'Sretno!', en: 'Good luck!', cat: 'Social' },
-  { hr: 'Sve je u redu.', en: 'Everything is fine.', cat: 'Feelings' },
-  { hr: 'Volim te.', en: 'I love you.', cat: 'Feelings' },
-  { hr: 'Oprostite.', en: 'Excuse me / Sorry.', cat: 'Courtesy' },
-  { hr: 'Gdje je hotel?', en: 'Where is the hotel?', cat: 'Travel' },
-  { hr: 'Trebam pomoć.', en: 'I need help.', cat: 'Communication' },
-  { hr: 'Lijepo je ovdje.', en: "It's beautiful here.", cat: 'Appreciation' },
-  { hr: 'Kakvo je vrijeme?', en: "What's the weather like?", cat: 'Small Talk' },
-  { hr: 'Govorim malo hrvatski.', en: 'I speak a little Croatian.', cat: 'Communication' },
-];
+import { useDailySession } from '../../hooks/useDailySession';
+import { getUserCefr } from '../../lib/cefr';
+import SessionCard from './SessionCard';
+import { getDueReviews } from '../../lib/srs';
 
 const LEVEL_PALETTE = [
   {
@@ -216,13 +110,13 @@ const LEVEL_PALETTE = [
     light: '#ccfbf1',
     text: '#134e4a',
     border: '#5eead4',
-  }, // Virtuoz — deep teal
+  },
   {
     grad: 'linear-gradient(135deg,#1e1b4b,#3730a3)',
     light: '#e0e7ff',
     text: '#1e1b4b',
     border: '#a5b4fc',
-  }, // Majstor — indigo
+  },
 ];
 
 function getWeekXP() {
@@ -249,7 +143,7 @@ export default function HomeTab({
   daysSinceJoin = null,
   resumeLesson = null,
 }: HomeTabProps) {
-  const { setScr, doSignUp, launchSpeaking } = useApp();
+  const { setScr, doSignUp, currentScreen } = useApp();
   const { stats: st, award } = useStats();
   const dc = useMemo(() => getDailyChallenge(), []);
 
@@ -270,10 +164,6 @@ export default function HomeTab({
     return { ...s, count: Math.max(s.count || 0, st.str || 0) };
   }, [st]);
 
-  // getLastActivity() reads nh_last_ex/nh_last_ex_label from localStorage.
-  // These only change when the user navigates to an exercise (at which point
-  // HomeTab unmounts). Reading on every stats change (every XP gain) is wasteful.
-  const lastActivity = useMemo(() => getLastActivity(), []);
   // Track the current calendar day — updates when the app regains visibility so
   // word-of-day and phrase-of-day refresh automatically after midnight.
   const [currentDayIdx, setCurrentDayIdx] = useState(() => Math.floor(Date.now() / 86400000));
@@ -305,19 +195,13 @@ export default function HomeTab({
       }
     })() ||
     'fluent';
+
   // st.lc signals lesson completion; force campaign recompute when it changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeCampaign = useMemo(() => getActiveCampaign(), [st.lc]);
 
-  // Goal-setter modal: show for new users who haven't set a goal yet
-  // Show goal modal for ANY user who hasn't set a goal yet — not just lc === 0.
-  // The lc check was wrong: post-placement users have lc > 0 but still need goal-setting.
+  // Goal-setter modal: show for any user who hasn't set a goal yet
   const [showGoalModal, setShowGoalModal] = useState(() => !localStorage.getItem('nh_goal_set'));
-
-  // Weekly recap modal — DuoLingo best practice: show weekly report on Monday mornings
-  const [showWeeklyRecap, setShowWeeklyRecap] = useState(false);
-
-  const [htab, setHTab] = useState('today');
 
   // Streak milestone celebration — fires once per milestone level
   const [streakMilestone, setStreakMilestone] = useState<number | null>(null);
@@ -350,11 +234,12 @@ export default function HomeTab({
       perfect: q('perfect'),
     };
   }, [streak]);
-  // Exclude streak/streak_alive from the "all done" check: new users (streak=0) would
-  // never qualify since they haven't built a streak yet, blocking the Daily Mastery bonus.
+
+  // Exclude streak/streak_alive from the "all done" check
   const allQuestsDone = Object.entries(questsDone)
     .filter(([k]) => k !== 'streak' && k !== 'streak_alive')
     .every(([, v]) => v);
+
   const _questXP = DAILY_QUESTS.filter((q) => (questsDone as Record<string, boolean>)[q.id]).reduce(
     (s, q) => s + q.xp,
     0,
@@ -362,7 +247,6 @@ export default function HomeTab({
   void _questXP;
 
   // Award Daily Mastery +50 XP bonus the first time all quests are done today
-  // Use local calendar date — UTC ISO string gives wrong date for UTC+ timezones
   const _td = new Date();
   const today =
     _td.getFullYear() +
@@ -378,70 +262,10 @@ export default function HomeTab({
     }
   }, [allQuestsDone, masteryKey, award]);
 
-  const _allOpts = useMemo(
-    () =>
-      dc.challenges?.map(
-        (ch: Record<string, unknown>) => (ch.opts as unknown[] | undefined) || [ch.a],
-      ) || [],
-    [dc.challenges],
-  );
-  void _allOpts;
   const doneCount = dchlA.filter(Boolean).length;
-  const _allDone = doneCount === 3;
-  void _allDone;
-
   const [_dcOpen, _setDcOpen] = useState(doneCount === 0);
   void _dcOpen;
   void _setDcOpen;
-  const [campaignDismissed, setCampaignDismissed] = useState(false);
-  const [nudgeDismissed, setNudgeDismissed] = useState(false);
-  const [wodSRSAdded, setWodSRSAdded] = useState(false);
-  const [anchorDismissed, setAnchorDismissed] = useState(() => {
-    try {
-      return localStorage.getItem('nh_anchor_dismissed_' + localDateStr()) === '1';
-    } catch {
-      return false;
-    }
-  });
-
-  function _readCampaignQuestsDone(
-    campaign: { id?: string; quests?: { id: string }[] } | null | undefined,
-  ) {
-    if (!campaign?.quests?.length) return {};
-    const result: Record<string, boolean> = {};
-    for (const q of campaign.quests) {
-      result[q.id] = localStorage.getItem(`nh_cq_${campaign.id}_${q.id}`) === '1';
-    }
-    return result;
-  }
-  // campaignQuestsDone is derived directly from localStorage on every render.
-  // This eliminates every race condition: no stale React state, no dependency on
-  // when Firebase restoration finishes or when event listeners are attached.
-  // Any render — from any cause — always reads the current localStorage value.
-  const campaignQuestsDone = _readCampaignQuestsDone(activeCampaign);
-
-  // _forceQuestRender exists solely to trigger a re-render when quest state changes.
-  // The actual data is read above from localStorage — not from this state.
-  const [, _forceQuestRender] = useState(0);
-  useEffect(() => {
-    const resync = () => _forceQuestRender((t) => t + 1);
-    window.addEventListener('focus', resync);
-    document.addEventListener('visibilitychange', resync);
-    window.addEventListener('nh-campaign-quest-done', resync);
-    return () => {
-      window.removeEventListener('focus', resync);
-      document.removeEventListener('visibilitychange', resync);
-      window.removeEventListener('nh-campaign-quest-done', resync);
-    };
-  }, []);
-
-  function markCampaignQuestDone(questId: string) {
-    if (!activeCampaign) return;
-    try {
-      localStorage.setItem(`nh_cq_${activeCampaign.id}_${questId}`, '1');
-    } catch (_) {}
-    _forceQuestRender((t) => t + 1);
-  }
 
   const longAbsence = useMemo(() => {
     const ls = localStorage.getItem('nh_last_seen');
@@ -449,7 +273,7 @@ export default function HomeTab({
     const parsed = parseInt(ls, 10);
     if (isNaN(parsed)) return false;
     const diff = Date.now() - parsed;
-    return diff > 7 * 86400000; // more than 7 days
+    return diff > 7 * 86400000;
   }, []);
 
   const pathData: PathData = useMemo(() => {
@@ -499,64 +323,61 @@ export default function HomeTab({
   const activePalette: Palette =
     LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length]!;
 
-  // ── Unit completion detection — show banner when user advances to next level ──
-  const prevLvRef = React.useRef(pathData.activeLv);
-  const [completedLevel, setCompletedLevel] = useState<PathLevel | null>(null);
-  useEffect(() => {
-    const prev = prevLvRef.current;
-    if (pathData.activeLv.level > prev.level) {
-      const shownKey = 'nh_unit_banner_L' + prev.level;
-      if (!localStorage.getItem(shownKey)) {
-        localStorage.setItem(shownKey, '1');
-        setCompletedLevel(prev);
-      }
+  // ── Daily Session Hub ──────────────────────────────────────────────────────
+  const userCefr = getUserCefr(st.xp, st.lc, st.gc);
+  const { session, isComplete, progress, markDone, nextActivity, tomorrowLabel } =
+    useDailySession(userCefr);
+  const dueCount = getDueReviews().length;
+  const xpThisWeek = (() => {
+    try {
+      return parseInt(localStorage.getItem('nh_week_xp_' + weekKey()) || '0', 10);
+    } catch {
+      return 0;
     }
-    prevLvRef.current = pathData.activeLv;
-  }, [pathData.activeLv]);
+  })();
 
-  // Daily rotating phrases — uses 365-entry curated pool so every day of the year is unique
-  const phraseOfDay = useMemo(() => {
-    const pool = PHRASES_365?.length ? PHRASES_365 : PHRASE_OF_DAY_POOL;
-    return pool[currentDayIdx % pool.length] ?? null;
-  }, [currentDayIdx]);
+  // markDone wiring: when user returns to 'dashboard' from an exercise screen
+  const prevScreenRef = React.useRef(currentScreen);
+  React.useEffect(() => {
+    const prev = prevScreenRef.current;
+    prevScreenRef.current = currentScreen;
+    if (currentScreen === 'dashboard' && prev !== 'dashboard' && prev !== 'welcome') {
+      markDone(prev);
+    }
+  }, [currentScreen, markDone]);
 
-  const todayPhrases = useMemo(() => {
-    const start = (currentDayIdx * 4) % DAILY_PHRASES.length;
-    return [0, 1, 2, 3].map((i) => DAILY_PHRASES[(start + i) % DAILY_PHRASES.length]!);
-  }, [currentDayIdx]);
+  // Suppress unused variable warnings for props kept for API compatibility
+  void dc;
+  void ws;
+  void weekXP;
+  void wod;
+  void userGoal;
+  void activeCampaign;
+  void longAbsence;
+  void activePalette;
+  void pathData;
+  void syncReady;
+  void onSyncNow;
+  void comebackBonus;
+  void isNewUserWindow;
+  void daysSinceJoin;
+  void resumeLesson;
+  void _allCats;
+  void _sh;
+  void launchPathItem;
+  void currentDayIdx;
+  void allQuestsDone;
 
   return (
     <React.Fragment>
       {/* ── GOAL SETTER MODAL (new users only) ── */}
       {showGoalModal && <GoalSetterModal onComplete={() => setShowGoalModal(false)} />}
 
-      {/* ── WEEKLY RECAP MODAL (Monday mornings — DuoLingo best practice) ── */}
-      {showWeeklyRecap && (
-        // markRecapShown() called immediately on display (not just close) so tab-switching
-        // doesn't re-show the modal before the user has a chance to close it.
-        <WeeklyRecapModal
-          onClose={() => {
-            markRecapShown();
-            setShowWeeklyRecap(false);
-          }}
-          onMount={() => markRecapShown()}
-        />
-      )}
-
       {/* ── STREAK MILESTONE CELEBRATION ── */}
       {streakMilestone && (
         <StreakMilestoneToast
           streakCount={streakMilestone}
           onDismiss={() => setStreakMilestone(null)}
-        />
-      )}
-
-      {/* ── UNIT COMPLETE BANNER (fires once when user finishes a learning path level) ── */}
-      {completedLevel && (
-        <UnitCompleteBanner
-          completedLevel={completedLevel}
-          award={award}
-          onClose={() => setCompletedLevel(null)}
         />
       )}
 
@@ -617,992 +438,39 @@ export default function HomeTab({
         </div>
       )}
 
-      <WelcomeBackBanners
-        comebackBonus={comebackBonus}
-        longAbsence={longAbsence}
-        isNewUserWindow={isNewUserWindow}
-        daysSinceJoin={daysSinceJoin}
+      {/* ── KNIGHT GREETING ── */}
+      {authUser && (
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 700,
+            color: 'var(--subtext)',
+            marginBottom: 12,
+            paddingLeft: 2,
+          }}
+        >
+          Dobro jutro, {authUser.d || 'Learner'}! 👋
+        </div>
+      )}
+
+      {/* ── DAILY SESSION CARD ── */}
+      <SessionCard
+        session={session}
+        isComplete={isComplete}
+        progress={progress}
+        nextActivity={nextActivity}
+        tomorrowLabel={tomorrowLabel}
+        onStart={() => {
+          if (nextActivity) {
+            setScr(nextActivity.screen);
+            if (sCurEx) sCurEx(nextActivity.screen);
+          }
+        }}
+        onKeepPracticing={() => setTab('practice')}
+        streak={streak.count}
+        xpThisWeek={xpThisWeek}
+        wordsdue={dueCount}
       />
-
-      {/* ── CONTINUE LEARNING — primary CTA first ── */}
-      <PathProgressCard
-        activePalette={activePalette as Parameters<typeof PathProgressCard>[0]['activePalette']}
-        pathData={pathData as Parameters<typeof PathProgressCard>[0]['pathData']}
-        syncReady={syncReady ?? false}
-        launchPathItem={launchPathItem as Parameters<typeof PathProgressCard>[0]['launchPathItem']}
-        setTab={setTab}
-        resumeLesson={resumeLesson}
-        lastActivity={lastActivity}
-        sCurEx={sCurEx}
-      />
-
-      {/* ── HERO ── */}
-      <HeroSection
-        streak={streak}
-        pathData={pathData as Parameters<typeof HeroSection>[0]['pathData']}
-        allQuestsDone={allQuestsDone}
-        userGoal={userGoal}
-        comebackBonus={comebackBonus}
-        lastActivity={lastActivity}
-        sCurEx={sCurEx}
-        onSyncNow={onSyncNow}
-        wsMastered={ws.strong}
-        launchPathItem={launchPathItem as Parameters<typeof HeroSection>[0]['launchPathItem']}
-      />
-
-      {/* ── DAILY CROATIAN PHRASES — always visible, above sub-tabs ── */}
-      {/* Landmark photo + 4 tappable phrases = the #1 daily habit trigger.      */}
-      {/* Lives above the sub-tab selector so it's the first interactive element */}
-      {/* users see on every app open, regardless of which sub-tab they used last.*/}
-      <DailyCroatianSection todayPhrases={todayPhrases} />
-
-      {/* ── SUB-TAB PILL SELECTOR ── */}
-      <div className="sub-tab-row">
-        {[
-          { id: 'today', label: '⚡ Today' },
-          { id: 'progress', label: '📈 Progress' },
-          { id: 'review', label: '🔄 Review' },
-        ].map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setHTab(t.id)}
-            className={`sub-tab-pill${htab === t.id ? ' sub-tab--active' : ''}`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ══════════════════════════════════════════
-          TAB CONTENT — AnimatePresence fades between panels
-      ══════════════════════════════════════════ */}
-      <AnimatePresence mode="wait">
-        {htab === 'today' && (
-          <motion.div
-            key="today"
-            initial={_isNative ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={_isNative ? undefined : { opacity: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-          >
-            <React.Fragment>
-              {/* ── TODAY'S MISSION — one bold primary CTA when day is fresh ── */}
-              {!allQuestsDone &&
-                !anchorDismissed &&
-                (() => {
-                  // Find the highest-XP incomplete tier-1 quest
-                  const incomplete = DAILY_QUESTS.filter(
-                    (q) => q.tier === 1 && !(questsDone as Record<string, boolean>)[q.id],
-                  );
-                  const mission = incomplete.sort((a, b) => b.xp - a.xp)[0];
-                  if (!mission) return null;
-                  const missionActions = {
-                    speak: {
-                      label: 'Start Speaking →',
-                      action: () => {
-                        const pool = (_allCats || [])
-                          .flatMap((t: string) => (V as Record<string, unknown[][]>)[t] || [])
-                          .filter((w: unknown[]) => w && w[0] && w[1]);
-                        if (_sh) launchSpeaking(_sh(pool).slice(0, 6));
-                      },
-                    },
-                    grammar: {
-                      label: 'Open Grammar →',
-                      action: () => launchPathItem({ go: 'grammar' }),
-                    },
-                    master: { label: 'Review Words →', action: () => setScr('review') },
-                    reading: { label: 'Read Now →', action: () => setScr('readinglist') },
-                    culture: { label: 'Explore Culture →', action: () => setScr('croatia') },
-                    vocab: {
-                      label: 'Learn Vocab →',
-                      action: () => launchPathItem({ go: 'lesson' }),
-                    },
-                    write: { label: 'Write Something →', action: () => setScr('writing') },
-                    streak: {
-                      label: 'Start Practicing →',
-                      action: () => launchPathItem({ go: 'lesson' }),
-                    },
-                    streak_alive: {
-                      label: 'Keep Streak →',
-                      action: () => launchPathItem({ go: 'lesson' }),
-                    },
-                  };
-                  const act = (
-                    missionActions as Record<string, { label: string; action: () => void }>
-                  )[mission.id] || { label: 'Start →', action: () => {} };
-                  return (
-                    <motion.div
-                      initial={_isNative ? false : { opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={_isNative ? { scale: 0.95 } : { opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                      style={{ marginBottom: 12 }}
-                    >
-                      <div
-                        style={{
-                          background:
-                            'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #3730a3 100%)',
-                          borderRadius: 18,
-                          padding: '16px 18px',
-                          boxShadow: '0 8px 28px rgba(55,48,163,0.35)',
-                          border: '1px solid rgba(129,140,248,0.2)',
-                          position: 'relative',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {/* Subtle glow */}
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: -30,
-                            right: -20,
-                            width: 100,
-                            height: 100,
-                            background:
-                              'radial-gradient(circle, rgba(165,180,252,0.15) 0%, transparent 70%)',
-                            pointerEvents: 'none',
-                          }}
-                        />
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            marginBottom: 10,
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 900,
-                              color: 'rgba(199,210,254,0.8)',
-                              textTransform: 'uppercase',
-                              letterSpacing: '.1em',
-                            }}
-                          >
-                            ⚡ Today's Mission
-                          </div>
-                          <button
-                            onClick={() => {
-                              localStorage.setItem('nh_anchor_dismissed_' + localDateStr(), '1');
-                              setAnchorDismissed(true);
-                            }}
-                            aria-label="Dismiss"
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: 'rgba(199,210,254,0.5)',
-                              fontSize: 16,
-                              cursor: 'pointer',
-                              padding: '0 2px',
-                              lineHeight: 1,
-                            }}
-                          >
-                            ×
-                          </button>
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 20,
-                            fontWeight: 900,
-                            color: '#e0e7ff',
-                            marginBottom: 4,
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          {mission.icon} {mission.name}
-                        </div>
-                        <div
-                          style={{ fontSize: 13, color: 'rgba(199,210,254,0.7)', marginBottom: 14 }}
-                        >
-                          {mission.desc} ·{' '}
-                          <span style={{ color: '#a5b4fc', fontWeight: 700 }}>
-                            +{mission.xp} XP
-                          </span>
-                        </div>
-                        <button
-                          onClick={act.action}
-                          style={{
-                            width: '100%',
-                            height: 44,
-                            background: 'linear-gradient(135deg, #6366f1, #818cf8)',
-                            border: 'none',
-                            borderRadius: 12,
-                            fontSize: 14,
-                            fontWeight: 800,
-                            color: '#fff',
-                            cursor: 'pointer',
-                            letterSpacing: '.01em',
-                            boxShadow: '0 4px 14px rgba(99,102,241,0.5)',
-                            fontFamily: "'Outfit',sans-serif",
-                          }}
-                        >
-                          {act.label}
-                        </button>
-                      </div>
-                    </motion.div>
-                  );
-                })()}
-
-              {/* ── DAILY DISCOVERY — Word of Day + Phrase of Day only ── */}
-              {/* Condensed from 5 rows (Word + Phrase + City + Proverb + Fact) to 2.    */}
-              {/* City of Day, Proverb, Did You Know removed to reduce scroll depth.       */}
-              {(() => {
-                return (
-                  <motion.div
-                    initial={_isNative ? false : { opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}
-                  >
-                    <div
-                      style={{
-                        borderRadius: 20,
-                        overflow: 'hidden',
-                        marginBottom: 12,
-                        border: '1px solid var(--card-b)',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
-                      }}
-                    >
-                      {/* Header */}
-                      <div
-                        style={{
-                          background: 'linear-gradient(90deg, #0e7490, #0c4a6e)',
-                          padding: '8px 16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 14 }}>🇭🇷</span>
-                          <span
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 900,
-                              color: 'rgba(255,255,255,0.95)',
-                              textTransform: 'uppercase',
-                              letterSpacing: '.08em',
-                            }}
-                          >
-                            Daily Discovery
-                          </span>
-                        </div>
-                        <span
-                          style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}
-                        >
-                          {new Date().toLocaleDateString('en-US', {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </span>
-                      </div>
-
-                      {/* ── Word of the Day section ── */}
-                      {wod && (
-                        <div
-                          style={{
-                            background: 'var(--card)',
-                            padding: '14px 16px',
-                            borderBottom: '1px solid var(--card-b)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: 12,
-                          }}
-                        >
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div
-                              style={{
-                                fontSize: 10,
-                                fontWeight: 800,
-                                color: '#0e7490',
-                                textTransform: 'uppercase',
-                                letterSpacing: '.08em',
-                                marginBottom: 4,
-                              }}
-                            >
-                              Word of the Day
-                            </div>
-                            <div
-                              style={{
-                                fontSize: 24,
-                                fontWeight: 900,
-                                color: 'var(--heading)',
-                                fontFamily: "'Playfair Display',serif",
-                                lineHeight: 1.1,
-                              }}
-                            >
-                              {wod[0]}
-                            </div>
-                            {wod[2] && (
-                              <div
-                                style={{
-                                  fontSize: 11,
-                                  color: 'var(--subtext)',
-                                  marginTop: 2,
-                                  fontStyle: 'italic',
-                                }}
-                              >
-                                {wod[2]}
-                              </div>
-                            )}
-                            <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 3 }}>
-                              {wod[1]}
-                            </div>
-                          </div>
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: 6,
-                              flexShrink: 0,
-                            }}
-                          >
-                            <button
-                              onClick={() => speak(wod[0])}
-                              aria-label="Hear pronunciation"
-                              style={{
-                                background: 'linear-gradient(135deg,#0e7490,#0c4a6e)',
-                                border: 'none',
-                                borderRadius: '50%',
-                                width: 44,
-                                height: 44,
-                                fontSize: 18,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: '0 2px 10px rgba(14,116,144,0.35)',
-                              }}
-                            >
-                              🔊
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (!wodSRSAdded) {
-                                  try {
-                                    addWordToSRS(wod[0]);
-                                  } catch {}
-                                  setWodSRSAdded(true);
-                                }
-                              }}
-                              aria-label={
-                                wodSRSAdded
-                                  ? 'Added to review queue'
-                                  : 'Add to spaced repetition review'
-                              }
-                              title={
-                                wodSRSAdded ? 'In your review queue' : 'Add to SRS review queue'
-                              }
-                              style={{
-                                background: wodSRSAdded
-                                  ? 'rgba(22,163,74,0.12)'
-                                  : 'rgba(14,116,144,0.1)',
-                                border: wodSRSAdded
-                                  ? '1.5px solid #16a34a'
-                                  : '1.5px solid rgba(14,116,144,0.3)',
-                                borderRadius: 10,
-                                width: 44,
-                                height: 28,
-                                fontSize: 11,
-                                cursor: wodSRSAdded ? 'default' : 'pointer',
-                                color: wodSRSAdded ? '#16a34a' : '#0e7490',
-                                fontWeight: 800,
-                                fontFamily: "'Outfit',sans-serif",
-                                transition: 'all .2s ease',
-                              }}
-                            >
-                              {wodSRSAdded ? '✓ SRS' : '+ SRS'}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── Phrase of the Day section ── */}
-                      <div
-                        style={{
-                          background: 'var(--card)',
-                          padding: '12px 16px',
-                          borderTop: '1px solid var(--card-b)',
-                          borderRadius: '0 0 20px 20px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: 12,
-                        }}
-                      >
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div
-                            style={{
-                              fontSize: 10,
-                              fontWeight: 800,
-                              color: '#b45309',
-                              textTransform: 'uppercase',
-                              letterSpacing: '.08em',
-                              marginBottom: 4,
-                            }}
-                          >
-                            🗓️ Phrase of the Day
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 18,
-                              fontWeight: 900,
-                              color: 'var(--heading)',
-                              fontFamily: "'Playfair Display',serif",
-                              lineHeight: 1.2,
-                            }}
-                          >
-                            &ldquo;{phraseOfDay?.hr}&rdquo;
-                          </div>
-                          <div style={{ fontSize: 13, color: 'var(--subtext)', marginTop: 3 }}>
-                            {phraseOfDay?.en}
-                          </div>
-                          {phraseOfDay?.note && (
-                            <div
-                              style={{
-                                fontSize: 11,
-                                color: 'var(--subtext)',
-                                marginTop: 2,
-                                fontStyle: 'italic',
-                              }}
-                            >
-                              {phraseOfDay.note}
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => phraseOfDay && speak(phraseOfDay.hr)}
-                          aria-label="Hear pronunciation"
-                          style={{
-                            background: 'linear-gradient(135deg,#b45309,#92400e)',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: 44,
-                            height: 44,
-                            fontSize: 18,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                            boxShadow: '0 2px 10px rgba(180,83,9,0.35)',
-                          }}
-                        >
-                          🔊
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })()}
-
-              {/* ── GOAL-PERSONALIZED SHORTCUTS — based on user's chosen learning goal ── */}
-              {(() => {
-                type GoalPathItem = {
-                  icon: string;
-                  label: string;
-                  sub: string;
-                  action: () => void;
-                };
-                type GoalPath = { label: string; color: string; items: GoalPathItem[] };
-                const GOAL_PATHS: Record<string, GoalPath> = {
-                  heritage: {
-                    label: 'Heritage path',
-                    color: '#dc2626',
-                    items: [
-                      {
-                        icon: '📐',
-                        label: 'Croatian Grammar',
-                        sub: 'Cases & structures',
-                        action: () => launchPathItem({ go: 'grammar' }),
-                      },
-                      {
-                        icon: '📚',
-                        label: 'Vocabulary Lesson',
-                        sub: 'Build your roots vocab',
-                        action: () => launchPathItem({ go: 'lesson' }),
-                      },
-                      {
-                        icon: '🇭🇷',
-                        label: 'Croatian History',
-                        sub: 'Culture & tradition',
-                        action: () => setScr('croatia'),
-                      },
-                    ],
-                  },
-                  fluent: {
-                    label: 'Fluency path',
-                    color: '#0e7490',
-                    items: [
-                      {
-                        icon: '📐',
-                        label: 'Grammar Drill',
-                        sub: 'Advance your structures',
-                        action: () => launchPathItem({ go: 'grammar' }),
-                      },
-                      {
-                        icon: '🎙️',
-                        label: 'AI Conversation',
-                        sub: 'Real-time dialogue',
-                        action: () => setScr('aiconvo'),
-                      },
-                      {
-                        icon: '⌨️',
-                        label: 'Typing Practice',
-                        sub: 'Diacritics & spelling',
-                        action: () => {
-                          setScr('typing');
-                          if (sCurEx) sCurEx('typing');
-                        },
-                      },
-                    ],
-                  },
-                  travel: {
-                    label: 'Travel path',
-                    color: '#7c3aed',
-                    items: [
-                      {
-                        icon: '🏙️',
-                        label: 'City of the Day',
-                        sub: 'Explore Croatian cities',
-                        action: () => setScr('croatia'),
-                      },
-                      {
-                        icon: '💬',
-                        label: 'Phrase Practice',
-                        sub: 'Essential travel phrases',
-                        action: () => launchPathItem({ go: 'lesson' }),
-                      },
-                      {
-                        icon: '🔄',
-                        label: 'Review Words',
-                        sub: 'Lock in your vocabulary',
-                        action: () => setScr('review'),
-                      },
-                    ],
-                  },
-                  culture: {
-                    label: 'Culture path',
-                    color: '#b45309',
-                    items: [
-                      {
-                        icon: '🇭🇷',
-                        label: 'Cultural Spotlight',
-                        sub: 'History & traditions',
-                        action: () => setScr('croatia'),
-                      },
-                      {
-                        icon: '📖',
-                        label: 'Graded Reading',
-                        sub: 'Croatian texts',
-                        action: () => setScr('readinglist'),
-                      },
-                      {
-                        icon: '📚',
-                        label: 'Vocabulary Lesson',
-                        sub: 'Cultural vocabulary',
-                        action: () => launchPathItem({ go: 'lesson' }),
-                      },
-                    ],
-                  },
-                };
-                const path = GOAL_PATHS[userGoal] ?? GOAL_PATHS['fluent']!;
-                return (
-                  <div style={{ marginBottom: 14 }}>
-                    <div
-                      style={{
-                        fontSize: 10,
-                        fontWeight: 800,
-                        color: 'var(--subtext)',
-                        letterSpacing: '.08em',
-                        textTransform: 'uppercase',
-                        marginBottom: 8,
-                      }}
-                    >
-                      {path.label}
-                    </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      {path.items.map((item, i) => (
-                        <button
-                          key={i}
-                          onClick={item.action}
-                          style={{
-                            flex: 1,
-                            cursor: 'pointer',
-                            padding: '10px 8px',
-                            borderRadius: 14,
-                            background: 'var(--card)',
-                            border: '1px solid var(--card-b)',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                            fontFamily: "'Outfit',sans-serif",
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
-                            gap: 4,
-                          }}
-                        >
-                          <span style={{ fontSize: 20, lineHeight: 1 }}>{item.icon}</span>
-                          <div
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 800,
-                              color: path.color,
-                              lineHeight: 1.2,
-                              textAlign: 'left',
-                            }}
-                          >
-                            {item.label}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 9,
-                              color: 'var(--subtext)',
-                              fontWeight: 600,
-                              textAlign: 'left',
-                              lineHeight: 1.3,
-                            }}
-                          >
-                            {item.sub}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* ── AI TOOLS — flagship shortcuts, right after Daily Discovery ── */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: 10,
-                  marginBottom: 20,
-                }}
-              >
-                <button
-                  onClick={() => setScr('aiconvo')}
-                  style={{
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    borderRadius: 16,
-                    overflow: 'hidden',
-                    background: 'linear-gradient(135deg,#0f0c29,#3730a3)',
-                    boxShadow: '0 4px 16px rgba(55,48,163,.35)',
-                  }}
-                >
-                  <div style={{ padding: '16px 12px' }}>
-                    <div style={{ fontSize: 28, marginBottom: 6 }}>🎙️</div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 900,
-                        color: '#fff',
-                        marginBottom: 2,
-                        textAlign: 'left',
-                      }}
-                    >
-                      AI Conversation
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 10,
-                        color: 'rgba(255,255,255,.7)',
-                        textAlign: 'left',
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      47 scenarios · live feedback
-                    </div>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setScr('live_tutor')}
-                  style={{
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    borderRadius: 16,
-                    overflow: 'hidden',
-                    background: 'linear-gradient(135deg,#7f1d1d,#D4002D)',
-                    boxShadow: '0 4px 16px rgba(212,0,45,.3)',
-                  }}
-                >
-                  <div style={{ padding: '16px 12px' }}>
-                    <div style={{ fontSize: 28, marginBottom: 6 }}>🎤</div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 900,
-                        color: '#fff',
-                        marginBottom: 2,
-                        textAlign: 'left',
-                      }}
-                    >
-                      Live AI Tutor
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 10,
-                        color: 'rgba(255,255,255,.7)',
-                        textAlign: 'left',
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      Adapts to your level
-                    </div>
-                  </div>
-                </button>
-              </div>
-
-              {/* ── ADAPTIVE FOCUS AREAS — personalised weak-topic radar ── */}
-              {(() => {
-                const weakTopics = getWeakTopics(60);
-                if (!weakTopics || weakTopics.length === 0) return null;
-                const TOPIC_META: Record<
-                  string,
-                  { label: string; icon: string; action: () => void }
-                > = {
-                  vocabulary: {
-                    label: 'Vocabulary',
-                    icon: '📚',
-                    action: () => launchPathItem({ go: 'lesson', topic: 'family' }),
-                  },
-                  grammar: {
-                    label: 'Grammar',
-                    icon: '📝',
-                    action: () => launchPathItem({ go: 'grammar' }),
-                  },
-                  past_tense: {
-                    label: 'Past Tense',
-                    icon: '⏮️',
-                    action: () => launchPathItem({ go: 'past_tense_lesson' }),
-                  },
-                  future_tense: {
-                    label: 'Future Tense',
-                    icon: '⏭️',
-                    action: () => launchPathItem({ go: 'future_tense_lesson' }),
-                  },
-                  cases: {
-                    label: 'Cases (Padeži)',
-                    icon: '🔤',
-                    action: () => launchPathItem({ go: 'padezi' }),
-                  },
-                  aspect: {
-                    label: 'Verb Aspect',
-                    icon: '⚡',
-                    action: () => launchPathItem({ go: 'aspect' }),
-                  },
-                  listening: {
-                    label: 'Listening',
-                    icon: '🎧',
-                    action: () => launchPathItem({ go: 'listening' }),
-                  },
-                  speaking: {
-                    label: 'Speaking',
-                    icon: '🗣️',
-                    action: () => launchPathItem({ go: 'speaking' }),
-                  },
-                  production: {
-                    label: 'Production',
-                    icon: '✍️',
-                    action: () => launchPathItem({ go: 'production_drill' }),
-                  },
-                };
-                const shown = weakTopics
-                  .slice(0, 3)
-                  .map((topic) => ({ id: topic.id, ...TOPIC_META[topic.id] }))
-                  .filter((t) => t.label);
-                if (shown.length === 0) return null;
-                return (
-                  <motion.div
-                    initial={_isNative ? false : { opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeOut', delay: 0.08 }}
-                    style={{ marginBottom: 12 }}
-                  >
-                    <div
-                      style={{
-                        background: 'var(--card)',
-                        borderRadius: 18,
-                        padding: '14px 16px',
-                        border: '1px solid var(--card-b)',
-                        boxShadow: '0 3px 14px rgba(0,0,0,0.07)',
-                      }}
-                    >
-                      <div
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}
-                      >
-                        <span style={{ fontSize: 13 }}>🎯</span>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 900,
-                            color: 'var(--subtext)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '.08em',
-                          }}
-                        >
-                          Focus Areas
-                        </span>
-                        <span
-                          style={{
-                            fontSize: 10,
-                            color: 'var(--subtext)',
-                            marginLeft: 4,
-                            fontStyle: 'italic',
-                          }}
-                        >
-                          · based on your recent sessions
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {shown.map((topic) => (
-                          <button
-                            key={topic.id}
-                            onClick={topic.action}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 12,
-                              background: 'rgba(220,38,38,0.06)',
-                              border: '1px solid rgba(220,38,38,0.18)',
-                              borderRadius: 12,
-                              padding: '10px 14px',
-                              cursor: 'pointer',
-                              fontFamily: "'Outfit',sans-serif",
-                              textAlign: 'left',
-                              width: '100%',
-                            }}
-                          >
-                            <span style={{ fontSize: 20, flexShrink: 0 }}>{topic.icon}</span>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div
-                                style={{
-                                  fontSize: 13,
-                                  fontWeight: 800,
-                                  color: 'var(--heading)',
-                                  lineHeight: 1.2,
-                                }}
-                              >
-                                {topic.label}
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: 11,
-                                  color: '#dc2626',
-                                  fontWeight: 600,
-                                  marginTop: 1,
-                                }}
-                              >
-                                Needs practice
-                              </div>
-                            </div>
-                            <span style={{ fontSize: 13, color: 'var(--subtext)', flexShrink: 0 }}>
-                              Practice →
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })()}
-
-              {/* ── CAMPAIGN BANNER — lowest priority, at bottom ── */}
-              <CampaignBanner
-                activeCampaign={activeCampaign}
-                campaignDismissed={campaignDismissed}
-                setCampaignDismissed={setCampaignDismissed}
-                campaignQuestsDone={campaignQuestsDone}
-                setTab={setTab}
-                onQuestTap={(quest) => {
-                  if (quest.screen === 'flashcards') {
-                    markCampaignQuestDone(quest.id);
-                    launchPathItem({ go: 'lesson', topic: quest.vocab || 'family' });
-                  } else if (quest.screen === 'lesson') {
-                    // Lesson screen requires initialized state — launch via launchPathItem
-                    launchPathItem({ go: 'lesson', topic: quest.vocab || 'family' });
-                  } else if (quest.screen === 'mcgame') {
-                    // McGame requires initialized questions — launch via launchPathItem
-                    launchPathItem({ go: 'mcgame' });
-                  } else if (quest.screen === 'speaking') {
-                    // Speaking requires initialized items — build pool and launch
-                    const pool = (_allCats || [])
-                      .flatMap((t) => (V as Record<string, unknown[][]>)[t] || [])
-                      .filter((w) => w && w[0] && w[1]);
-                    const items = _sh ? _sh(pool).slice(0, 6) : [];
-                    launchSpeaking(
-                      items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']],
-                    );
-                  } else {
-                    setScr(quest.screen);
-                  }
-                }}
-                onCtaTap={(screen) => {
-                  // CTA "Start Campaign" uses the same safe-launch logic as quest items
-                  if (screen === 'lesson') {
-                    launchPathItem({ go: 'lesson', topic: 'family' });
-                  } else if (screen === 'mcgame') {
-                    launchPathItem({ go: 'mcgame' });
-                  } else if (screen === 'speaking') {
-                    const pool = (_allCats || [])
-                      .flatMap((t) => (V as Record<string, unknown[][]>)[t] || [])
-                      .filter((w) => w && w[0] && w[1]);
-                    const items = _sh ? _sh(pool).slice(0, 6) : [];
-                    launchSpeaking(
-                      items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']],
-                    );
-                  } else {
-                    setScr(screen);
-                  }
-                }}
-              />
-            </React.Fragment>
-          </motion.div>
-        )}
-
-        {/* ══════════════════════════════════════════
-          📈 PROGRESS TAB
-      ══════════════════════════════════════════ */}
-        {htab === 'progress' && (
-          <motion.div
-            key="progress"
-            initial={_isNative ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={_isNative ? undefined : { opacity: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-          >
-            <ProgressTabContent
-              streak={streak}
-              st={st}
-              ws={ws}
-              weekXP={weekXP ?? 0}
-              nudgeDismissed={nudgeDismissed}
-              setNudgeDismissed={setNudgeDismissed}
-              setScr={setScr}
-            />
-          </motion.div>
-        )}
-
-        {/* ══════════════════════════════════════════
-          🔄 REVIEW TAB
-      ══════════════════════════════════════════ */}
-        {htab === 'review' && (
-          <motion.div
-            key="review"
-            initial={_isNative ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={_isNative ? undefined : { opacity: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-          >
-            <ReviewTabContent />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </React.Fragment>
   );
 }
