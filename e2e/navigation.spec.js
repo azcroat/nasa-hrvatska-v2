@@ -54,9 +54,11 @@ test.describe('Tab navigation', () => {
     await clickTab(page, 'Practice');
     // Confirm URL changed before checking content/active class
     await page.waitForURL('/practice', { timeout: 20_000 });
-    // Wait for the heading — confirms the tab content has rendered before checking nav state.
+    // Wait for the emoji-prefixed heading — confirms the tab content has rendered.
+    // getByRole('heading') would match both the CEFR-badge h2 AND the page h2, so use
+    // the specific text that PracticeTab renders via its H() helper: '🎮 Practice'.
     // 20s for lazy-chunk load on Firefox/WebKit in parallel CI.
-    await expect(page.getByRole('heading', { name: /Practice/i })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('🎮 Practice')).toBeVisible({ timeout: 20_000 });
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
   });
