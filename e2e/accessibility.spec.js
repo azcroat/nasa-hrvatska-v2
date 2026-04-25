@@ -156,6 +156,16 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
     // Explicit 900ms wait covers the last card's full animation (700ms) with a 200ms margin.
     // This is more reliable than getAnimations() which cannot detect delay-phase animations.
     await page.waitForTimeout(900);
+    // Wait for auth hydration to complete: stats must be loaded from localStorage before
+    // axe runs. The app seeds B2-level stats (xp:5000 → total 5275) so every exercise in
+    // PracticeTab unlocks. The locked section (opacity:0.55) only appears on the first
+    // React render before the earlyRestore useEffect fires — once stats load it disappears.
+    // Waiting for the absence of 'Unlocks at' text ensures we scan the hydrated state, not
+    // the initial A1 skeleton that would fail WCAG AA contrast on locked card text.
+    await page.waitForFunction(
+      () => !document.body.textContent?.includes('Unlocks at'),
+      { timeout: 5_000 },
+    ).catch(() => {});
     await waitForSettle(page);
 
     const violations = await runAxe(page, 'Practice /practice');
