@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { getAudioContext } from '../../lib/audio.js';
+import { getAudioContext, unlockAudio } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -411,6 +411,7 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
 
   // ── TTS: streaming playback ────────────────
   const playTTSStreaming = async (text: string): Promise<void> => {
+    unlockAudio(); // must be synchronous before any await — iOS activation
     setPlaying(true);
     setPhase('speaking');
     let mseUrl = null;

@@ -6,6 +6,7 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { markQuest } from '../../lib/quests.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
+import { unlockAudio } from '../../lib/audio.js';
 import { LEVEL_COLORS } from './MediaPlayerUtils';
 
 // ── Fallback articles shown when the live API is unavailable ─────────────────
@@ -256,6 +257,7 @@ function ArticleCard({
 
   async function playArticle() {
     if (playing) return;
+    unlockAudio(); // must be synchronous before any await — iOS activation
     setPlaying(true);
     try {
       const res = await apiFetch('/api/tts', {
@@ -276,6 +278,7 @@ function ArticleCard({
         r.readAsDataURL(blob);
       });
       const audio = new Audio(url);
+      audio.volume = 1.0; // required: low volume blocks activation on some WebViews
       audio.onended = () => {
         setPlaying(false);
       };

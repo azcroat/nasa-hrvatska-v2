@@ -5,6 +5,7 @@ import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
+import { unlockAudio } from '../../lib/audio.js';
 
 const TOPICS = [
   { key: 'cafe', emoji: '☕', hr: 'U kafiću', en: 'At the Café' },
@@ -170,6 +171,7 @@ export default function AIListeningScreen({
   }
 
   function togglePlay() {
+    unlockAudio(); // must be synchronous before any await — iOS activation
     const a = getAudio();
     if (!a) return;
     if (isPlaying) {
@@ -182,6 +184,7 @@ export default function AIListeningScreen({
   }
 
   function replayAudio() {
+    unlockAudio(); // must be synchronous before any await — iOS activation
     const a = getAudio();
     if (!a) return;
     a.currentTime = 0;

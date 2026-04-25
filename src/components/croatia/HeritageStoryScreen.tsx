@@ -4,7 +4,7 @@ import { H } from '../../data';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { markQuest } from '../../lib/quests.js';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { getAudioContext } from '../../lib/audio.js';
+import { getAudioContext, unlockAudio } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -103,6 +103,7 @@ const _iosDevice =
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 async function playTTS(text: string) {
+  unlockAudio(); // must be synchronous before any await — iOS activation
   const res = await apiFetch('/api/tts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -145,6 +146,7 @@ async function playTTS(text: string) {
     r.readAsDataURL(blob);
   });
   const audio = new Audio(url);
+  audio.volume = 1.0; // required: low volume blocks activation on some WebViews
   try {
     await audio.play();
   } catch {

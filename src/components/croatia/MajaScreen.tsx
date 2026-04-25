@@ -4,6 +4,7 @@ import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
+import { unlockAudio } from '../../lib/audio.js';
 import MajaOrb from './MajaOrb';
 import ConversationBubble from './ConversationBubble';
 import DebriefScreen from './MajaDebrief';
@@ -213,6 +214,7 @@ export default function MajaScreen() {
 
   // ── TTS helper ─────────────────────────────
   const playTTS = useCallback(async (text: string): Promise<void> => {
+    unlockAudio(); // must be synchronous before any await — iOS activation
     try {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -239,6 +241,7 @@ export default function MajaScreen() {
       });
       audioUrlRef.current = url;
       const audio = new Audio(url);
+      audio.volume = 1.0; // required: low volume blocks activation on some WebViews
       audioRef.current = audio;
 
       return new Promise((resolve) => {

@@ -266,6 +266,13 @@ function uA(): void {
   );
 });
 
+/** Call this synchronously at the entry of every async audio handler (before any await).
+ *  iOS/Android WebView require the user-gesture activation to be in the same call stack.
+ *  This is idempotent — safe to call multiple times. */
+export function unlockAudio(): void {
+  uA();
+}
+
 export function loadVoices(): void {
   if (window.speechSynthesis) {
     _voices = window.speechSynthesis.getVoices();
