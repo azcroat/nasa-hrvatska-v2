@@ -4861,7 +4861,7 @@ export const PAST_EXERCISES_MC = [
   {
     q: 'On je _____ (piti) kavu.',
     a: 'pio',
-    opts: ['pije', 'pio', 'piti', 'pijan'],
+    opts: ['pije', 'pio', 'piti', 'popio'],
   },
   {
     q: 'Vi ste _____ (raditi) cijeli dan.',
@@ -4873,7 +4873,7 @@ export const PAST_EXERCISES_MC = [
 // ── Past tense exercises (Fill in blank) ───────────────────────────────────
 export const PAST_EXERCISES_FILL = [
   {
-    q: 'Juče sam _____ (raditi) u vrtu.',
+    q: 'Jučer sam _____ (raditi) u vrtu.',
     a: 'radio/radila',
     hint: 'past participle of raditi',
   },
@@ -4883,9 +4883,9 @@ export const PAST_EXERCISES_FILL = [
     hint: 'past participle of doći (f)',
   },
   {
-    q: 'Djeca su _____ (igrati se) vani.',
-    a: 'igrala se',
-    hint: 'past participle of igrati se (n.pl)',
+    q: 'Djeca su se _____ (igrati) vani.',
+    a: 'igrala',
+    hint: 'past participle of igrati se (n.pl); se is already placed',
   },
   {
     q: 'Mi smo _____ (putovati) u Zagreb.',
