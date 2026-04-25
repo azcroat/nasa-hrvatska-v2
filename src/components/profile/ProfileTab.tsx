@@ -18,7 +18,6 @@ export default function ProfileTab({
   onOpenFriends?: () => void;
   lastSyncedAt?: number;
 }) {
-  void lastSyncedAt; // consumed by Task 3 UI; accepted here to wire the prop chain
   const { au: authUser } = useApp();
   const [ptab, setPTab] = useState('stats');
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
@@ -41,6 +40,34 @@ export default function ProfileTab({
     <React.Fragment>
       {/* ── PROFILE HEADER ── */}
       <ProfileHeader />
+
+      {/* ── SYNC STATUS INDICATOR ── */}
+      {authUser && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 11,
+            color: lastSyncedAt > 0 ? 'var(--success, #16a34a)' : 'var(--subtext)',
+            fontWeight: 600,
+            marginBottom: 12,
+            paddingLeft: 2,
+          }}
+        >
+          <span style={{ fontSize: 13 }}>{lastSyncedAt > 0 ? '☁️' : '⏳'}</span>
+          <span>
+            {lastSyncedAt > 0
+              ? (() => {
+                  const diff = Math.round((Date.now() - lastSyncedAt) / 60000);
+                  if (diff < 1) return 'Synced just now';
+                  if (diff === 1) return 'Synced 1 min ago';
+                  return `Synced ${diff} min ago`;
+                })()
+              : 'Syncing…'}
+          </span>
+        </div>
+      )}
 
       {/* ── SUB-TAB PILL SELECTOR ── */}
       <div className="seg-bar">
