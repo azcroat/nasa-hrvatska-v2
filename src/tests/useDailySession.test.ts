@@ -79,6 +79,48 @@ describe('buildSessionActivities', () => {
       }
     }
   });
+
+  it('falls back to all unlocked exercises when all are in nh_recent_exercises', () => {
+    // Mark every known screen as recent to trigger the fallback branch
+    const allScreens = [
+      'flashcards',
+      'mcgame',
+      'match',
+      'review',
+      'znam',
+      'qwords',
+      'genderdrill',
+      'cloze',
+      'unjumble',
+      'prepdrill',
+      'negation',
+      'sentbuild',
+      'sentencetiles',
+      'typing',
+      'speaking_sprint',
+      'aspectdrill',
+      'akudrill',
+      'future',
+      'comparatives',
+      'clitic',
+      'writing',
+      'dictation',
+    ];
+    localStorage.setItem('nh_recent_exercises', JSON.stringify(allScreens));
+    // A1 user — only A1/A2 exercises are unlocked, but all are "recent"
+    // The fallback branch fires, returning full unlocked pool ignoring recency
+    const acts = buildSessionActivities('A1');
+    // Croatia slot always included, so we get at least 2 activities (fill + croatia)
+    expect(acts.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('handles corrupt nh_recent_exercises JSON gracefully', () => {
+    // Store invalid JSON to trigger the catch branch
+    localStorage.setItem('nh_recent_exercises', '{invalid json}');
+    // Should not throw; returns full exercise pool instead
+    const acts = buildSessionActivities('A1');
+    expect(acts.length).toBeGreaterThanOrEqual(4); // Should have normal session size
+  });
 });
 
 describe('markDoneInSession', () => {
@@ -111,5 +153,30 @@ describe('recordSessionComplete', () => {
     recordSessionComplete(today);
     const history = JSON.parse(localStorage.getItem('nh_session_history') || '{}');
     expect(history[today]).toBe(true);
+  });
+
+  it('merges with existing nh_session_history entries', () => {
+    const today = localDateStr();
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    const yesterday = d.toISOString().slice(0, 10);
+    localStorage.setItem('nh_session_history', JSON.stringify({ [yesterday]: true }));
+    recordSessionComplete(today);
+    const history = JSON.parse(localStorage.getItem('nh_session_history') || '{}') as Record<
+      string,
+      boolean
+    >;
+    expect(history[today]).toBe(true);
+    expect(history[yesterday]).toBe(true); // prior entry preserved
+  });
+
+  it('handles corrupt nh_session_history JSON gracefully', () => {
+    // Store invalid JSON to trigger the catch branch
+    localStorage.setItem('nh_session_history', '{bad json}');
+    const today = localDateStr();
+    // Should not throw; silently fails and skips writing
+    recordSessionComplete(today);
+    // localStorage should still contain the bad data (nothing changed)
+    expect(localStorage.getItem('nh_session_history')).toBe('{bad json}');
   });
 });
