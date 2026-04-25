@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { AwardActivityType } from '../../lib/activityXp.js';
+import { isUnlocked, getUserCefr } from '../../lib/cefr';
 import { H, V, LISTEN, getSR, getDueReviews, lvl, getStreak } from '../../data';
 import { localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
@@ -59,6 +60,19 @@ export default function PracticeTab({
   const { setScr, authUser } = useApp();
   const { stats: st } = useStats();
   const lc = st?.lc ?? 0;
+
+  const userCefr = getUserCefr(st?.xp ?? 0, st?.lc ?? 0, st?.gc ?? 0);
+  const nextCefrTier = (() => {
+    const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const idx = order.indexOf(userCefr);
+    return idx >= 0 && idx < order.length - 1 ? order[idx + 1] : null;
+  })();
+  const [lockedToast, setLockedToast] = useState<string | null>(null);
+
+  function showLockedToast(requiredCefr: string) {
+    setLockedToast(`Available at ${requiredCefr} — keep learning to unlock`);
+    setTimeout(() => setLockedToast(null), 2000);
+  }
 
   // Compute quest completion from localStorage — same logic as HomeTab
   const streak = useMemo(() => getStreak(), []);
@@ -1454,6 +1468,9 @@ export default function PracticeTab({
     );
   }
 
+  const availableExercises = EXERCISES.filter((ex) => isUnlocked(ex.cefr, userCefr));
+  const lockedExercises = EXERCISES.filter((ex) => !isUnlocked(ex.cefr, userCefr));
+
   // Daily quest progress for Practice tab header
   const practiceQuestsDone = (() => {
     const d = new Date().toISOString().slice(0, 10);
@@ -1467,6 +1484,82 @@ export default function PracticeTab({
 
   return (
     <div>
+      {/* ── CEFR BADGE HEADER ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 16,
+        }}
+      >
+        <h2
+          style={{
+            fontSize: 20,
+            fontWeight: 900,
+            color: 'var(--heading)',
+            margin: 0,
+            fontFamily: "'Playfair Display',serif",
+          }}
+        >
+          Practice
+        </h2>
+        <div
+          style={{
+            background: 'linear-gradient(135deg,rgba(14,116,144,.12),rgba(6,182,212,.07))',
+            border: '1.5px solid rgba(14,116,144,.3)',
+            borderRadius: 20,
+            padding: '4px 12px',
+            fontSize: 12,
+            fontWeight: 800,
+            color: 'var(--info,#0284c7)',
+          }}
+        >
+          {userCefr} · Your Level
+        </div>
+      </div>
+
+      {/* ── PROGRESS NUDGE BAR ── */}
+      {nextCefrTier && (
+        <div
+          style={{
+            background: 'rgba(14,116,144,.05)',
+            border: '1px solid rgba(14,116,144,.15)',
+            borderRadius: 10,
+            padding: '8px 12px',
+            marginBottom: 12,
+            fontSize: 12,
+            color: 'var(--subtext)',
+            fontWeight: 600,
+          }}
+        >
+          🚀 Keep going to unlock {nextCefrTier} exercises
+        </div>
+      )}
+
+      {/* ── LOCKED TILE TOAST ── */}
+      {lockedToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 80,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'rgba(30,30,40,.92)',
+            color: '#fff',
+            borderRadius: 12,
+            padding: '10px 18px',
+            fontSize: 13,
+            fontWeight: 700,
+            zIndex: 9999,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {lockedToast}
+        </div>
+      )}
+
       {H('🎮 Practice', 'Choose your training mode', undefined)}
 
       {/* ── DAILY QUESTS — moved here from Today tab ── */}
@@ -2142,7 +2235,7 @@ export default function PracticeTab({
               <div className="section-hdr-text">
                 <div className="section-hdr-title">Browse Exercises</div>
                 <div className="section-hdr-sub">
-                  {EXERCISES.length} exercises across 4 categories
+                  {availableExercises.length} exercises available at your level
                 </div>
               </div>
             </div>
@@ -2180,7 +2273,7 @@ export default function PracticeTab({
                 border: 'rgba(217,119,6,.25)',
               },
             ].map((cat) => {
-              const catExercises = EXERCISES.filter((e) => e.category === cat.id);
+              const catExercises = availableExercises.filter((e) => e.category === cat.id);
               const isOpen = openCat === cat.id;
               return (
                 <div key={cat.id} style={{ marginBottom: 8 }}>
@@ -2335,6 +2428,71 @@ export default function PracticeTab({
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* ── LOCKED EXERCISES ── */}
+            {lockedExercises.length > 0 && (
+              <>
+                <h3
+                  className="sh"
+                  style={{
+                    marginBottom: 8,
+                    marginTop: 20,
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: 'var(--subtext)',
+                  }}
+                >
+                  Unlock at {nextCefrTier ?? 'higher level'} 🔒
+                </h3>
+                {lockedExercises.map((ex) => (
+                  <div
+                    key={ex.id}
+                    onClick={() => showLockedToast(ex.cefr)}
+                    style={{
+                      opacity: 0.55,
+                      filter: 'grayscale(0.6)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div
+                      style={{
+                        background: 'var(--card)',
+                        border: '1px solid var(--card-b)',
+                        borderRadius: 14,
+                        padding: '12px 14px',
+                        marginBottom: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                      }}
+                    >
+                      <span style={{ fontSize: 24 }}>{ex.icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
+                          {ex.label}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
+                          {ex.desc} · Unlocks at {ex.cefr}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 14 }}>🔒</span>
+                    </div>
+                  </div>
+                ))}
+                <div
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 11,
+                    color: 'var(--subtext)',
+                    fontWeight: 600,
+                    padding: '8px 0 16px',
+                  }}
+                >
+                  + {lockedExercises.length} more unlock at {nextCefrTier ?? 'higher level'} · Keep
+                  going →
+                </div>
+              </>
             )}
           </div>
         )}
