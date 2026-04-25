@@ -425,6 +425,66 @@ export default function DiscoverTab() {
 
   return (
     <div style={{ paddingBottom: 16 }}>
+      {/* ── DAILY IMMERSION SESSION SLOT ── */}
+      {(() => {
+        const today = new Date().toISOString().slice(0, 10);
+        const cityVisited = localStorage.getItem('nh_cityofday_date') === today;
+        if (cityVisited) return null;
+        return (
+          <div
+            style={{
+              background: 'linear-gradient(135deg,rgba(14,116,144,.1),rgba(6,182,212,.05))',
+              border: '1.5px solid rgba(14,116,144,.3)',
+              borderRadius: 14,
+              padding: '12px 14px',
+              marginBottom: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <span style={{ fontSize: 24, flexShrink: 0 }}>🗺️</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 800,
+                  color: 'var(--info,#0284c7)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.08em',
+                  marginBottom: 2,
+                }}
+              >
+                Today's Immersion · In your session
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--heading)' }}>
+                City of the Day
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
+                1 fact + 3 Croatian phrases
+              </div>
+            </div>
+            <button
+              onClick={() => setScr('cityofday')}
+              style={{
+                flexShrink: 0,
+                background: 'linear-gradient(135deg,#0e7490,#164e63)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 10,
+                padding: '8px 12px',
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+                whiteSpace: 'nowrap',
+              }}
+            >
+              ▶ Open →
+            </button>
+          </div>
+        );
+      })()}
       {/* ── HERO — Daily rotating city photo ── */}
       <div
         style={{
