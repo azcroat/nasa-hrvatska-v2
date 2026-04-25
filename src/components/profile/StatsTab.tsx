@@ -669,12 +669,6 @@ export default function StatsTab({
             desc: 'Progress charts & stats',
           },
           { icon: '❌', label: 'Mistakes Review', screen: 'mistakes', desc: 'Words you got wrong' },
-          {
-            icon: '🏆',
-            label: 'Leaderboard',
-            screen: 'leaderboard',
-            desc: 'Family & friends ranking',
-          },
         ].map((item) => (
           <button
             key={item.screen}

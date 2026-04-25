@@ -26,14 +26,13 @@ export default function PrivacyScreen({ goBack }: { goBack?: () => void }) {
         </p>
 
         <p style={{ fontSize: 13, color: 'var(--rt-c)', lineHeight: 1.7, marginBottom: 10 }}>
-          <strong>Family groups (parent-managed):</strong> The family leaderboard feature is
-          designed to be created and managed by a parent or legal guardian. By creating a family
-          group that includes minor children, the parent or guardian confirms they have authority to
-          enroll those children and consents to their display name and learning progress (XP, lesson
-          count) being shared within the family group. Member email addresses are visible to other
-          members of the same family group in order to support the invite and management flow.
-          Family data is stored in Firebase Firestore and is not accessible to users outside the
-          group.
+          <strong>Family groups (parent-managed):</strong> The family group feature is designed to
+          be created and managed by a parent or legal guardian. By creating a family group that
+          includes minor children, the parent or guardian confirms they have authority to enroll
+          those children and consents to their display name and learning progress (XP, lesson count)
+          being shared within the family group. Member email addresses are visible to other members
+          of the same family group in order to support the invite and management flow. Family data
+          is stored in Firebase Firestore and is not accessible to users outside the group.
         </p>
 
         <p style={{ fontSize: 13, color: 'var(--rt-c)', lineHeight: 1.7, marginBottom: 10 }}>
@@ -88,7 +87,7 @@ export default function PrivacyScreen({ goBack }: { goBack?: () => void }) {
         <p style={{ fontSize: 13, color: 'var(--rt-c)', lineHeight: 1.7, marginBottom: 10 }}>
           <strong>Data retention:</strong> Your account data is retained until you request deletion.
           Local device data (localStorage) persists until you clear your browser storage or
-          uninstall the app. Cached family leaderboard data is stored locally for offline access and
+          uninstall the app. Cached family group data is stored locally for offline access and
           refreshed automatically.
         </p>
 
@@ -168,11 +167,11 @@ export default function PrivacyScreen({ goBack }: { goBack?: () => void }) {
 
         <p style={{ fontSize: 13, color: 'var(--rt-c)', lineHeight: 1.7 }}>
           <strong>Children and family accounts:</strong> The app is designed for use by families
-          under parental supervision. The family leaderboard is a parent-managed feature — a parent
-          or guardian must create the group and is responsible for enrolling minor members. We do
-          not knowingly collect data from children under 13 outside of a parent-managed family
-          group. If you believe a child under 13 has registered independently without parental
-          consent, contact us at{' '}
+          under parental supervision. The family group is a parent-managed feature — a parent or
+          guardian must create the group and is responsible for enrolling minor members. We do not
+          knowingly collect data from children under 13 outside of a parent-managed family group. If
+          you believe a child under 13 has registered independently without parental consent,
+          contact us at{' '}
           <a href="mailto:privacy@nasahrvatska.com" style={{ color: '#0e7490' }}>
             privacy@nasahrvatska.com
           </a>{' '}

@@ -657,35 +657,6 @@ export default function Sidebar({
               Mistakes
             </span>
           </button>
-          <button
-            onClick={() => setScr('leaderboard')}
-            style={{
-              flex: 1,
-              padding: '8px 6px',
-              borderRadius: 10,
-              border: '1.5px solid var(--inp-b)',
-              background: 'var(--bar-bg)',
-              cursor: 'pointer',
-              fontFamily: "'Outfit',sans-serif",
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            <span style={{ fontSize: 16 }}>🏆</span>
-            <span
-              style={{
-                fontSize: 9,
-                fontWeight: 700,
-                color: 'var(--subtext)',
-                textTransform: 'uppercase',
-                letterSpacing: '.04em',
-              }}
-            >
-              Family
-            </span>
-          </button>
         </div>
       </div>
 

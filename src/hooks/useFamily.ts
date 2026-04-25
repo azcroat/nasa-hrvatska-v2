@@ -1,5 +1,5 @@
 /**
- * useFamily — family/leaderboard group state.
+ * useFamily — family group state.
  * Extracted from App.jsx. All family-related state lives here.
  */
 import { useState } from 'react';

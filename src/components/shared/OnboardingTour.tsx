@@ -42,7 +42,7 @@ const DIASPORA_STEPS = [
   {
     icon: '🔥',
     title: 'Your family is learning too',
-    body: "Add family members to your leaderboard. When Baka sees you learning Croatian, she'll want to join. Build a streak together.",
+    body: "Add family members to your group. When Baka sees you learning Croatian, she'll want to join. Build a streak together.",
   },
 ];
 

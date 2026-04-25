@@ -288,7 +288,6 @@ export async function fbSaveProgress(
   // Exclude SRS from the progress blob (it now lives in srs/{id})
   const { sr: _sr, ...dataWithoutSRS } = data;
   const _progressJson = JSON.stringify(dataWithoutSRS);
-  const lbEntry = { name: (data.name as string) || '', xp: _bestXP, lc: _bestLC, updated: _nowMs };
   const profileEntry = {
     name: (data.name as string) || '',
     xp: _bestXP,
@@ -318,10 +317,10 @@ export async function fbSaveProgress(
   };
   // Resolve family code up front so the family XP write can join the same batch.
   // This eliminates the previous race condition where a fire-and-forget updateDoc
-  // could fail silently while the leaderboard batch succeeded, causing divergence.
+  // could fail silently while the main batch succeeded, causing divergence.
   const localFam = getLocalFamily();
   let _famCode: string | null = localFam?.code || null;
-  if (!_famCode && lbEntry.xp > 0) {
+  if (!_famCode && _bestXP > 0) {
     try {
       const uSnap = await getDoc(fsDoc(_fbDb, 'users', id));
       if (uSnap.exists()) {
@@ -339,15 +338,14 @@ export async function fbSaveProgress(
     await _withRetry(async () => {
       const b = writeBatch(_fbDb!);
       b.set(fsDoc(_fbDb!, 'users', id), userEntry, { merge: true });
-      b.set(fsDoc(_fbDb!, 'leaderboard', id), lbEntry, { merge: true });
       b.set(fsDoc(_fbDb!, 'profiles', id), profileEntry, { merge: true });
       // Include family XP in the same atomic batch — both succeed or both fail together.
       if (_famCode) {
         b.update(fsDoc(_fbDb!, 'families', _famCode), {
           ['memberXP.' + id]: {
-            xp: lbEntry.xp,
-            lc: lbEntry.lc,
-            name: lbEntry.name,
+            xp: _bestXP,
+            lc: _bestLC,
+            name: (data.name as string) || '',
             weekXP: _famWeekXP,
             updated: _nowMs,
           },
@@ -366,14 +364,13 @@ export async function fbSaveProgress(
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
     // If the batch failed because the family document was deleted, retry without it.
-    // This keeps leaderboard/user/profile writes reliable even when a family is gone.
+    // This keeps user/profile writes reliable even when a family is gone.
     // _withRetry already handled transient errors; this catch only sees non-retryable codes.
     if (err?.code === 'not-found' && _famCode) {
       try {
         await _withRetry(async () => {
           const b2 = writeBatch(_fbDb!);
           b2.set(fsDoc(_fbDb!, 'users', id), userEntry, { merge: true });
-          b2.set(fsDoc(_fbDb!, 'leaderboard', id), lbEntry, { merge: true });
           b2.set(fsDoc(_fbDb!, 'profiles', id), profileEntry, { merge: true });
           await b2.commit();
         }, 'fbSaveProgress_nofam');
@@ -813,36 +810,19 @@ export async function fbJoinFamily(
     (function () {
       const jid = toDocId(uid);
       const jcode = (resultFam as FamilyData).code;
-      getDoc(fsDoc(_fbDb!, 'leaderboard', jid))
-        .then(function (lbs) {
-          const lbd = lbs.exists() ? (lbs.data() as Record<string, unknown>) : null;
-          if (lbd && ((lbd.xp as number) || 0) > 0) {
+      getDoc(fsDoc(_fbDb!, 'users', jid))
+        .then(function (us) {
+          const ud = us.exists() ? (us.data() as Record<string, unknown>) : null;
+          if (ud && ((ud.xp as number) || 0) > 0) {
             updateDoc(fsDoc(_fbDb!, 'families', jcode), {
               ['memberXP.' + jid]: {
-                xp: lbd.xp || 0,
-                lc: lbd.lc || 0,
+                xp: ud.xp || 0,
+                lc: 0,
                 weekXP: weekXP || 0,
-                name: lbd.name || name,
+                name: name || uid,
                 updated: Date.now(),
               },
             }).catch(function () {});
-          } else {
-            getDoc(fsDoc(_fbDb!, 'users', jid))
-              .then(function (us) {
-                const ud = us.exists() ? (us.data() as Record<string, unknown>) : null;
-                if (ud && ((ud.xp as number) || 0) > 0) {
-                  updateDoc(fsDoc(_fbDb!, 'families', jcode), {
-                    ['memberXP.' + jid]: {
-                      xp: ud.xp || 0,
-                      lc: 0,
-                      weekXP: weekXP || 0,
-                      name: name || uid,
-                      updated: Date.now(),
-                    },
-                  }).catch(function () {});
-                }
-              })
-              .catch(function () {});
           }
         })
         .catch(function () {});
@@ -1047,7 +1027,6 @@ export async function fbDeleteAccount(userId: string): Promise<{ ok: boolean; er
     const id = toDocId(userId);
     await Promise.allSettled([
       deleteDoc(fsDoc(_fbDb!, 'users', id)),
-      deleteDoc(fsDoc(_fbDb!, 'leaderboard', id)),
       deleteDoc(fsDoc(_fbDb!, 'profiles', id)),
       deleteDoc(fsDoc(_fbDb!, 'srs', id)),
     ]);
@@ -1061,9 +1040,8 @@ export async function fbDeleteAccount(userId: string): Promise<{ ok: boolean; er
 export async function fbExportUserData(uid: string): Promise<Record<string, unknown>> {
   try {
     const id = toDocId(uid);
-    const [userDoc, lbDoc, profileDoc] = await Promise.all([
+    const [userDoc, profileDoc] = await Promise.all([
       getDoc(fsDoc(_fbDb!, 'users', id)),
-      getDoc(fsDoc(_fbDb!, 'leaderboard', id)),
       getDoc(fsDoc(_fbDb!, 'profiles', id)),
     ]);
     const localData: Record<string, unknown> = {};
@@ -1111,13 +1089,12 @@ export async function fbExportUserData(uid: string): Promise<Record<string, unkn
     const fsProgress = userDoc.exists()
       ? (userDoc.data({ serverTimestamps: 'estimate' }) as Record<string, unknown>)
       : null;
-    const fsLeaderboard = lbDoc.exists() ? lbDoc.data() : null;
     const fsProfile = profileDoc.exists() ? profileDoc.data() : null;
     if (fsProgress) delete fsProgress.password;
     return {
       exportDate: new Date().toISOString(),
       account: { uid: id },
-      firestore: { progress: fsProgress, leaderboard: fsLeaderboard, profile: fsProfile },
+      firestore: { progress: fsProgress, profile: fsProfile },
       localStorage: localData,
     };
   } catch (err) {

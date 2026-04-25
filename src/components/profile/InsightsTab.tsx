@@ -59,13 +59,7 @@ const B1_RESOURCES = [
   },
 ];
 
-export default function InsightsTab({
-  onOpenLeaderboard,
-  onOpenFriends,
-}: {
-  onOpenLeaderboard?: () => void;
-  onOpenFriends?: () => void;
-}) {
+export default function InsightsTab({ onOpenFriends }: { onOpenFriends?: () => void }) {
   const { setScr } = useApp();
   const { stats: st, level } = useStats();
   const [imdOpen, setImdOpen] = useState(false);

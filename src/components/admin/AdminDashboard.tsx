@@ -30,7 +30,7 @@ export default function AdminDashboard({ authUser, goBack }: AdminDashboardProps
         const { getFirestore, collection, getDocs, orderBy, query, limit } =
           await import('firebase/firestore');
         const db = getFirestore();
-        const q = query(collection(db, 'leaderboard'), orderBy('xp', 'desc'), limit(100));
+        const q = query(collection(db, 'profiles'), orderBy('xp', 'desc'), limit(100));
         const snap = await getDocs(q);
         const users = snap.docs.map((d) => ({
           id: d.id,
