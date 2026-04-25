@@ -6,6 +6,7 @@ import {
   recordSessionComplete,
 } from '../hooks/useDailySession';
 import type { DailySession } from '../hooks/useDailySession';
+import { localDateStr } from '../lib/dateUtils';
 
 beforeEach(() => localStorage.clear());
 
@@ -39,7 +40,7 @@ describe('buildSessionActivities', () => {
   });
 
   it('excludes cityofday when already visited today, rotates instead', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateStr();
     localStorage.setItem('nh_cityofday_date', today);
     const acts = buildSessionActivities('A2');
     expect(acts.find((a) => a.id === 'cityofday')).toBeFalsy();
@@ -83,7 +84,7 @@ describe('buildSessionActivities', () => {
 describe('markDoneInSession', () => {
   it('adds id to completedIds', () => {
     const session: DailySession = {
-      date: new Date().toISOString().slice(0, 10),
+      date: localDateStr(),
       activities: [{ id: 'cloze', label: 'Sentence Cloze', screen: 'cloze', category: 'genitive' }],
       completedIds: [],
       estimatedMinutes: 5,
@@ -94,7 +95,7 @@ describe('markDoneInSession', () => {
 
   it('is idempotent — double-call does not duplicate', () => {
     const session: DailySession = {
-      date: new Date().toISOString().slice(0, 10),
+      date: localDateStr(),
       activities: [{ id: 'cloze', label: 'Sentence Cloze', screen: 'cloze', category: 'genitive' }],
       completedIds: ['cloze'],
       estimatedMinutes: 5,
@@ -106,7 +107,7 @@ describe('markDoneInSession', () => {
 
 describe('recordSessionComplete', () => {
   it('writes to nh_session_history with today as key', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateStr();
     recordSessionComplete(today);
     const history = JSON.parse(localStorage.getItem('nh_session_history') || '{}');
     expect(history[today]).toBe(true);

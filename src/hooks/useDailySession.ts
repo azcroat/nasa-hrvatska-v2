@@ -1,5 +1,5 @@
 // src/hooks/useDailySession.ts
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { getDueReviews } from '../lib/srs';
 import { getDueCategoryQueue } from '../lib/adaptive';
 import type { SkillCategory } from '../lib/adaptive';
@@ -249,8 +249,6 @@ function persistSession(session: DailySession): void {
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useDailySession(userCefr: string): UseDailySessionReturn {
-  const builtRef = useRef(false);
-
   const [session, setSession] = useState<DailySession>(() => {
     const persisted = loadPersistedSession();
     if (persisted) return persisted;
@@ -265,19 +263,21 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
     return fresh;
   });
 
-  // Guard: if date rolled over since last render, rebuild
-  if (!builtRef.current && session.date !== localDateStr()) {
-    const activities = buildSessionActivities(userCefr);
-    const fresh: DailySession = {
-      date: localDateStr(),
-      activities,
-      completedIds: [],
-      estimatedMinutes: activities.length * MINUTES_PER_ACTIVITY,
-    };
-    persistSession(fresh);
-    setSession(fresh);
-  }
-  builtRef.current = true;
+  // Handle date rollover on mount
+  useEffect(() => {
+    if (session.date !== localDateStr()) {
+      const activities = buildSessionActivities(userCefr);
+      const fresh: DailySession = {
+        date: localDateStr(),
+        activities,
+        completedIds: [],
+        estimatedMinutes: activities.length * MINUTES_PER_ACTIVITY,
+      };
+      persistSession(fresh);
+      setSession(fresh);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const markDone = useCallback((screenOrId: string) => {
     setSession((prev) => {
