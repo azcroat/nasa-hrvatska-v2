@@ -10,6 +10,38 @@ import { isNative } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
 
+// ── Open-ended speaking prompt pools ──────────────────────────────────────────
+// Format: [Croatian text, English instruction, type, ?imageKey]
+export const QUESTION_RESPONSE_PROMPTS: string[][] = [
+  ['Što si radio/radila prošlog vikenda?', 'What did you do last weekend?', 'question-response'],
+  ['Kako provodiš slobodno vrijeme?', 'How do you spend your free time?', 'question-response'],
+  ['Koji je tvoj omiljeni godišnji odmor i zašto?', 'What is your favorite holiday and why?', 'question-response'],
+  ['Opiši svoju idealnu karijeru.', 'Describe your ideal career.', 'question-response'],
+  ['Što misliš o klimatskim promjenama?', 'What do you think about climate change?', 'question-response'],
+  ['Opišite grad u kojemu živite.', 'Describe the city where you live.', 'question-response'],
+  ['Koja je tvoja najdraža knjiga i zašto?', 'What is your favorite book and why?', 'question-response'],
+  ['Kako bi opisao/opisala svog najboljeg prijatelja?', 'How would you describe your best friend?', 'question-response'],
+];
+
+export const PICTURE_DESCRIPTION_PROMPTS: string[][] = [
+  ['Opišite ovu sliku na hrvatskom. Što vidite?', 'Describe this image in Croatian. What do you see?', 'picture-description', 'dubrovnik-ai'],
+  ['Što se događa na ovoj slici? Opišite detaljno.', 'What is happening in this image? Describe in detail.', 'picture-description', 'dalmatian-coast'],
+  ['Opišite prirodu na ovoj fotografiji.', 'Describe the nature in this photograph.', 'picture-description', 'plitvice'],
+  ['Što vidite u ovom gradu? Koji detalji vam privlače pažnju?', 'What do you see in this city? What details catch your attention?', 'picture-description', 'zagreb'],
+  ['Opišite hranu na ovoj slici. Što prepoznajete?', 'Describe the food in this image. What do you recognize?', 'picture-description', 'croatian-food'],
+];
+
+export const DIALOGUE_COMPLETION_PROMPTS: string[][] = [
+  ['A: "Hej, kako si?" B: "Super, hvala. A ti?"', 'Continue: A asks "Hey, how are you?" B responds "Great, thanks. And you?"', 'dialogue-completion'],
+  ['A: "Što ćeš raditi ovog vikenda?" B: "Idem na more. A ti?"', 'Continue: A asks about weekend plans, B says going to the sea.', 'dialogue-completion'],
+  ['A: "Jesi li gledao/gledala taj film?" B: "Da, bio je odličan! Što ti misliš?"', 'Continue: A asks about a film, B says it was great.', 'dialogue-completion'],
+  ['A: "Gdje si bio/bila na odmoru?" B: "U Splitu. Predivno je tamo!"', 'Continue: A asks about vacation, B says Split was wonderful.', 'dialogue-completion'],
+  ['A: "Kako ti se sviđa ovaj restoran?" B: "Hrana je izvrsna, ali malo skupo."', 'Continue: A asks about the restaurant, B says food is great but expensive.', 'dialogue-completion'],
+];
+
+// All open-ended prompt type identifiers
+const OPEN_ENDED_TYPES = ['question-response', 'picture-description', 'dialogue-completion'];
+
 const SPEAKING_TIPS = [
   {
     mood: 'encouraging',
@@ -207,18 +239,25 @@ export default function SpeakingScreen({
   // If score >= 60, auto-mark the word as done so "Next →" appears immediately —
   // previously users had to also tap "I Said It Correctly!" as a second step.
   function handleScorerResult({ spoken, score }: { spoken: string; score: number }) {
-    setCurrentWordScore({ spoken, score });
+    // For open-ended prompts, any response (any spoken words) counts as a pass
+    const promptType = sw[2] as string | undefined;
+    const isOE = OPEN_ENDED_TYPES.includes(promptType ?? '');
+    const effectiveScore = isOE
+      ? spoken.split(/\s+/).filter(Boolean).length >= 5 ? 88 : 55
+      : score;
+
+    setCurrentWordScore({ spoken, score: effectiveScore });
     setWordScores((prev) => {
       const existing = prev.find((ws) => ws.word === sw[0]);
       if (existing) {
         return prev.map((ws) =>
-          ws.word === sw[0] ? { ...ws, score: Math.max(ws.score, score) } : ws,
+          ws.word === sw[0] ? { ...ws, score: Math.max(ws.score, effectiveScore) } : ws,
         );
       }
-      return [...prev, { word: sw[0] as string, meaning: sw[1] as string, score }];
+      return [...prev, { word: sw[0] as string, meaning: sw[1] as string, score: effectiveScore }];
     });
     // Auto-advance sr state when pronunciation is good enough (≥60 = close enough)
-    if (score >= 60 && sr !== 'ok') {
+    if (effectiveScore >= 60 && sr !== 'ok') {
       sSr('ok');
       sSsc((s: number) => s + 1);
     }
@@ -368,6 +407,27 @@ export default function SpeakingScreen({
       if (!e.results || !e.results.length) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const alts = Array.from(e.results[0]).map((r: any) => r.transcript.toLowerCase().trim());
+      const isOpenEnded = OPEN_ENDED_TYPES.includes(sw[2] as string);
+      if (isOpenEnded) {
+        // Open-ended prompts: any response of 5+ words counts as success
+        const wordCount = (alts[0] ?? '').split(/\s+/).filter(Boolean).length;
+        const matched = wordCount >= 5;
+        setRecResult(matched ? 'match' : 'nomatch');
+        setListening(false);
+        if (matched) {
+          sSr('ok');
+          sSsc((s: number) => s + 1);
+        }
+        setPronScore({
+          score: matched ? 85 : 45,
+          match_quality: matched ? 'close' : 'off',
+          phonetic_tips: [],
+          encouragement: matched
+            ? 'Odlično! Great response! / Izvrsno!'
+            : 'Try to say more — at least a full sentence.',
+        });
+        return;
+      }
       const target = (sw[0] as string).toLowerCase().trim();
       // Generous matching: exact, contains, or at least 60% character overlap
       const levenshteinClose = (a: string, b: string) => {
@@ -571,11 +631,185 @@ export default function SpeakingScreen({
     );
   }
 
+  // ── Prompt-type context card ───────────────────────────────────────────────
+  const promptType = sw[2] as string | undefined;
+  const isOpenEnded = OPEN_ENDED_TYPES.includes(promptType ?? '');
+
+  function renderPromptContext() {
+    if (!isOpenEnded) return null;
+
+    if (promptType === 'question-response') {
+      return (
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1.5px solid var(--inp-b)',
+            borderRadius: 14,
+            padding: '14px 16px',
+            marginBottom: 16,
+            textAlign: 'left',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 'var(--text-xs)',
+              fontWeight: 800,
+              color: 'var(--subtext)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              marginBottom: 6,
+            }}
+          >
+            💬 Answer this question:
+          </div>
+          <div
+            style={{
+              fontSize: 'var(--text-xl)',
+              fontWeight: 800,
+              color: 'var(--heading)',
+              fontFamily: "'Playfair Display',serif",
+              lineHeight: 1.4,
+              marginBottom: 6,
+            }}
+          >
+            {sw[0]}
+          </div>
+          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)' }}>{sw[1]}</div>
+        </div>
+      );
+    }
+
+    if (promptType === 'picture-description') {
+      const imageKey = sw[3] as string | undefined;
+      const imageSrc = imageKey ? `/images/scenes/${imageKey}.webp` : null;
+      return (
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1.5px solid var(--inp-b)',
+            borderRadius: 14,
+            padding: '14px 16px',
+            marginBottom: 16,
+            textAlign: 'left',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 'var(--text-xs)',
+              fontWeight: 800,
+              color: 'var(--subtext)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              marginBottom: 8,
+            }}
+          >
+            🖼️ Describe this picture:
+          </div>
+          {imageSrc ? (
+            <img
+              src={imageSrc}
+              alt={imageKey ?? 'scene'}
+              loading="lazy"
+              style={{
+                width: '100%',
+                maxHeight: 200,
+                objectFit: 'cover',
+                borderRadius: 10,
+                marginBottom: 8,
+                display: 'block',
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                if (fallback) fallback.style.display = 'block';
+              }}
+            />
+          ) : null}
+          <div
+            style={{
+              display: 'none',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--subtext)',
+              fontStyle: 'italic',
+              marginBottom: 8,
+            }}
+          >
+            Scene: {imageKey ?? 'Croatia'}
+          </div>
+          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)' }}>{sw[1]}</div>
+        </div>
+      );
+    }
+
+    if (promptType === 'dialogue-completion') {
+      const lines = (sw[0] as string).split('\n');
+      return (
+        <div
+          style={{
+            background: 'var(--card)',
+            border: '1.5px solid var(--inp-b)',
+            borderRadius: 14,
+            padding: '14px 16px',
+            marginBottom: 16,
+            textAlign: 'left',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 'var(--text-xs)',
+              fontWeight: 800,
+              color: 'var(--subtext)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              marginBottom: 8,
+            }}
+          >
+            🗣️ Complete this dialogue:
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
+            {lines.map((line, i) => (
+              <div
+                key={i}
+                style={{
+                  fontSize: 'var(--text-base)',
+                  fontWeight: 700,
+                  color: 'var(--heading)',
+                  fontFamily: "'Playfair Display',serif",
+                  lineHeight: 1.5,
+                }}
+              >
+                {line}
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              fontSize: 'var(--text-sm)',
+              color: 'var(--info)',
+              fontWeight: 700,
+              borderTop: '1px solid var(--card-b)',
+              paddingTop: 8,
+              marginTop: 4,
+            }}
+          >
+            Your turn → speak the next line in Croatian
+          </div>
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 4 }}>
+            {sw[1]}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   // ── Main speaking screen ───────────────────────────────────────────────────
   return (
     <div className="scr-wrap">
-      {H('🎤 Pronunciation Practice', '', goBack)}
+      {H(isOpenEnded ? '🗣️ Speaking Practice' : '🎤 Pronunciation Practice', '', goBack)}
       <Bar v={sx + 1} mx={si.length} color="var(--success)" h={6} />
+      {renderPromptContext()}
       <SpeakingPracticePanel
         sw={sw}
         si={si}
