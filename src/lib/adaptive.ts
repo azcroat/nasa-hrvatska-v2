@@ -233,3 +233,161 @@ export function getPersonalizedPath(cefrLevel: string, stats?: { diff?: string }
 
   return path;
 }
+
+// ─── Skill categories ─────────────────────────────────────────────────────────
+
+export type SkillCategory =
+  | 'genitive'
+  | 'accusative'
+  | 'dative-locative'
+  | 'instrumental'
+  | 'vocative'
+  | 'past-tense'
+  | 'future-tense'
+  | 'aspect-imperfective'
+  | 'aspect-perfective'
+  | 'aspect-negation'
+  | 'conditional'
+  | 'clitics'
+  | 'vocab-a2'
+  | 'vocab-b1'
+  | 'vocab-b2'
+  | 'speaking';
+
+const ALL_CATEGORIES: SkillCategory[] = [
+  'genitive',
+  'accusative',
+  'dative-locative',
+  'instrumental',
+  'vocative',
+  'past-tense',
+  'future-tense',
+  'aspect-imperfective',
+  'aspect-perfective',
+  'aspect-negation',
+  'conditional',
+  'clitics',
+  'vocab-a2',
+  'vocab-b1',
+  'vocab-b2',
+  'speaking',
+];
+
+// ─── Category card schema ──────────────────────────────────────────────────────
+
+interface CategoryCard {
+  stability: number; // interval in days (starts at 1)
+  recentAccuracy: number; // EWMA 0.0–1.0 (α=0.3, starts at 0.5)
+  due: number; // Unix ms timestamp for next scheduled review
+  lastSeen: number; // Unix ms timestamp of last session
+}
+
+type CategoryMap = Partial<Record<SkillCategory, CategoryCard>>;
+
+const CAT_KEY = 'nh_cat_sr';
+
+function _loadCats(): CategoryMap {
+  try {
+    return JSON.parse(localStorage.getItem(CAT_KEY) || '{}') as CategoryMap;
+  } catch {
+    return {};
+  }
+}
+
+function _saveCats(data: CategoryMap): void {
+  try {
+    localStorage.setItem(CAT_KEY, JSON.stringify(data));
+  } catch {}
+}
+
+function _defaultCard(): CategoryCard {
+  return { stability: 1, recentAccuracy: 0.5, due: Date.now(), lastSeen: 0 };
+}
+
+// Grade → interval in days. Stability grows on repeated Good/Easy ratings.
+function _gradeInterval(grade: 1 | 2 | 3 | 4, stability: number): number {
+  switch (grade) {
+    case 1:
+      return 1;
+    case 2:
+      return 3;
+    case 3:
+      return Math.max(7, Math.round(stability * 1.5));
+    case 4:
+      return Math.min(60, Math.round(stability * 2.5));
+  }
+}
+
+// Map category FSRS stability → difficulty tier 1–5
+function _stabilityToDifficulty(stability: number): 1 | 2 | 3 | 4 | 5 {
+  if (stability <= 1) return 1;
+  if (stability <= 3) return 2;
+  if (stability <= 7) return 3;
+  if (stability <= 14) return 4;
+  return 5;
+}
+
+// ─── Public category API ───────────────────────────────────────────────────────
+
+/**
+ * Rate a category after a practice session.
+ * accuracy: 0.0–1.0 (correct answers / total questions for that session).
+ * Updates EWMA recentAccuracy and schedules the next due date.
+ */
+export function rateCategorySession(category: SkillCategory, accuracy: number): void {
+  const data = _loadCats();
+  const card = data[category] ?? _defaultCard();
+
+  // EWMA: weight recent session at 30%, history at 70%
+  const newAccuracy = 0.3 * accuracy + 0.7 * card.recentAccuracy;
+
+  // Map accuracy → FSRS grade
+  const grade: 1 | 2 | 3 | 4 = accuracy >= 0.9 ? 4 : accuracy >= 0.7 ? 3 : accuracy >= 0.5 ? 2 : 1;
+
+  const interval = _gradeInterval(grade, card.stability);
+  // Stability grows on Good/Easy; halves on Hard/Again (floor at 1)
+  const newStability = grade >= 3 ? interval : Math.max(1, card.stability * 0.5);
+
+  data[category] = {
+    stability: newStability,
+    recentAccuracy: newAccuracy,
+    due: Date.now() + interval * 86400000,
+    lastSeen: Date.now(),
+  };
+
+  _saveCats(data);
+}
+
+/**
+ * Build a prioritised practice queue.
+ * Priority: FSRS-due categories first → lowest recentAccuracy next → balanced fill.
+ * Returns up to maxSlots items, each with the user's current difficulty tier.
+ */
+export function getDueCategoryQueue(
+  maxSlots = 6,
+): Array<{ category: SkillCategory; difficulty: 1 | 2 | 3 | 4 | 5 }> {
+  const data = _loadCats();
+  const now = Date.now();
+
+  const due = ALL_CATEGORIES.filter((c) => (data[c]?.due ?? 0) <= now);
+  const weak = ALL_CATEGORIES.filter((c) => !due.includes(c)).sort(
+    (a, b) => (data[a]?.recentAccuracy ?? 0.5) - (data[b]?.recentAccuracy ?? 0.5),
+  );
+  const balanced = ALL_CATEGORIES.filter((c) => !due.includes(c) && !weak.slice(0, 3).includes(c));
+
+  const queue = [...due, ...weak.slice(0, 3), ...balanced].slice(0, maxSlots);
+
+  return queue.map((category) => ({
+    category,
+    difficulty: _stabilityToDifficulty(data[category]?.stability ?? 1),
+  }));
+}
+
+/**
+ * Returns the recommended difficulty tier (1–5) for a given category.
+ * Used by exercise screens to filter content to the appropriate level.
+ */
+export function getCategoryDifficulty(category: SkillCategory): 1 | 2 | 3 | 4 | 5 {
+  const data = _loadCats();
+  return _stabilityToDifficulty(data[category]?.stability ?? 1);
+}
