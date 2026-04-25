@@ -5002,7 +5002,7 @@ export const FUTURE_EXERCISES_FILL = [
   {
     q: 'Djeca _____ (igrati se) u parku.',
     a: 'će se igrati',
-    hint: '3rd person plural future + reflexive: će se + infinitive',
+    hint: 'Future reflexive: će + se + infinitive; se (clitic) clusters after će, before infinitive. Djeca takes plural agreement.',
   },
   {
     q: 'Ja _____ (ne/čitati) tu knjigu.',
@@ -5031,7 +5031,7 @@ export const FUTURE_EXERCISES_XFORM = [
   {
     q: "Transform to future tense: 'Idem u školu svaki dan.'",
     a: 'Ići ću u školu svaki dan.',
-    note: 'Short future with monosyllabic verb: ići + ću; word order flipped',
+    note: 'Future I: infinitive ići fronted so clitic ću is not sentence-initial; Wackernagel constraint. Alt: Svaki dan ću ići u školu.',
   },
   {
     q: "Transform to future tense: 'Ona piše roman.'",
@@ -5046,6 +5046,6 @@ export const FUTURE_EXERCISES_XFORM = [
   {
     q: "Transform to future tense: 'Govore na konferenciji.'",
     a: 'Govorit će na konferenciji.',
-    note: 'Short future (colloquial): govorit + će (enclitic follows truncated infinitive)',
+    note: 'Short future (standard Croatian): infinitive govoriti truncated to govorit + enclitic će; used in both written and spoken registers.',
   },
 ];
