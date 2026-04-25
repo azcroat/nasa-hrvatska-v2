@@ -678,6 +678,29 @@ describe('applyRemoteProgress — checkpoints and custom words', () => {
   });
 });
 
+describe('nh_session_history', () => {
+  beforeEach(clearLS);
+  afterEach(clearLS);
+
+  it('merges remote session history additively into localStorage', () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    localStorage.setItem('nh_session_history', JSON.stringify({ [yesterday]: true }));
+    applyRemoteProgress({ nh_session_history: { [today]: true } }, makeSetters());
+    const stored = JSON.parse(localStorage.getItem('nh_session_history') || '{}');
+    expect(stored[today]).toBe(true);
+    expect(stored[yesterday]).toBe(true);
+  });
+
+  it('does not remove local entries absent from remote', () => {
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    localStorage.setItem('nh_session_history', JSON.stringify({ [yesterday]: true }));
+    applyRemoteProgress({}, makeSetters());
+    const stored = JSON.parse(localStorage.getItem('nh_session_history') || '{}');
+    expect(stored[yesterday]).toBe(true);
+  });
+});
+
 // ── XP cooldown merge ─────────────────────────────────────────────────────────
 
 describe('applyRemoteProgress — XP cooldown merge', () => {
