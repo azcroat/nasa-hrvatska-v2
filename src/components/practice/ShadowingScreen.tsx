@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, Bar, Spk, speakSlow, SHADOWING } from '../../data';
+import { unlockAudio } from '../../lib/audio.js';
 import PronunciationScorer from '../shared/PronunciationScorer';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
@@ -185,8 +186,10 @@ function useRecorder() {
   }
 
   const playBack = useCallback(() => {
+    unlockAudio(); // must be synchronous — iOS activation
     if (!audioUrlRef.current) return;
     const audio = new Audio(audioUrlRef.current);
+    audio.volume = 1.0; // required: low volume blocks activation on some WebViews
     audio.play().catch(() => {});
   }, []);
 

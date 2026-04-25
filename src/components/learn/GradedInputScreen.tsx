@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { speak } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { unlockAudio } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { GRADED_STORIES } from '../../data/gradedStories.js';
 import { markQuest } from '../../lib/quests.js';
@@ -82,6 +83,7 @@ const LevelBadge = ({ level }: { level: string }) => (
 
 // ─── TTS audio helper ─────────────────────────────────────────────────────────
 async function playTTS(text: string, audioRef: React.MutableRefObject<HTMLAudioElement | null>) {
+  unlockAudio(); // must be synchronous before any await — iOS activation
   // Stop any previous audio
   if (audioRef.current) {
     audioRef.current.pause();
@@ -98,6 +100,7 @@ async function playTTS(text: string, audioRef: React.MutableRefObject<HTMLAudioE
     const res = (rawRes.ok ? await rawRes.json() : null) as { audioUrl?: string } | null;
     if (res?.audioUrl) {
       const a = new Audio(res.audioUrl);
+      a.volume = 1.0; // required: low volume blocks activation on some WebViews
       audioRef.current = a;
       a.play().catch(() => speak(text));
       return;
