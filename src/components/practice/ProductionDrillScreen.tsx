@@ -1273,13 +1273,18 @@ export default function ProductionDrillScreen({ goBack, award }: ProductionDrill
   // Adaptive session tracking — difficulty starts at 4 (free production exercises)
   const { onCorrect, onWrong, sessionSummary, reset } = useAdaptiveSession(4);
 
-  // Category per mode: each production mode maps to a SkillCategory
+  // Category per mode: each production mode maps to its SkillCategory
   const MODE_CATEGORY = {
-    transform: 'vocab-b1',
+    transform: 'aspect-imperfective',
     translate: 'vocab-b2',
-    build: 'vocab-b1',
-    error: 'vocab-b1',
+    build: 'clitics',
+    error: 'past-tense',
   } as const;
+
+  // Derive category once per render — stable while mode doesn't change
+  const currentCategory: Parameters<typeof onCorrect>[0] = mode
+    ? (MODE_CATEGORY[mode as keyof typeof MODE_CATEGORY] ?? 'vocab-b1')
+    : 'vocab-b1';
 
   function handleDone() {
     markQuest('grammar');
@@ -1292,20 +1297,6 @@ export default function ProductionDrillScreen({ goBack, award }: ProductionDrill
     setMode(null);
   }
 
-  // Callbacks bound to the current mode's category
-  function makeOnCorrect() {
-    const cat = mode
-      ? (MODE_CATEGORY[mode as keyof typeof MODE_CATEGORY] ?? 'vocab-b1')
-      : 'vocab-b1';
-    return () => onCorrect(cat);
-  }
-  function makeOnWrong() {
-    const cat = mode
-      ? (MODE_CATEGORY[mode as keyof typeof MODE_CATEGORY] ?? 'vocab-b1')
-      : 'vocab-b1';
-    return () => onWrong(cat);
-  }
-
   return (
     <div style={{ padding: '0 0 32px', fontFamily: "'Outfit',sans-serif" }}>
       <style>{STYLES}</style>
@@ -1313,7 +1304,14 @@ export default function ProductionDrillScreen({ goBack, award }: ProductionDrill
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 8px' }}>
         <button
-          onClick={mode ? () => setMode(null) : goBack}
+          onClick={
+            mode
+              ? () => {
+                  reset();
+                  setMode(null);
+                }
+              : goBack
+          }
           style={{
             background: 'none',
             border: 'none',
@@ -1428,32 +1426,32 @@ export default function ProductionDrillScreen({ goBack, award }: ProductionDrill
           <ModeTransform
             onDone={handleDone}
             award={award}
-            onCorrect={makeOnCorrect()}
-            onWrong={makeOnWrong()}
+            onCorrect={() => onCorrect(currentCategory)}
+            onWrong={() => onWrong(currentCategory)}
           />
         )}
         {mode === 'translate' && (
           <ModeTranslate
             onDone={handleDone}
             award={award}
-            onCorrect={makeOnCorrect()}
-            onWrong={makeOnWrong()}
+            onCorrect={() => onCorrect(currentCategory)}
+            onWrong={() => onWrong(currentCategory)}
           />
         )}
         {mode === 'build' && (
           <ModeBuild
             onDone={handleDone}
             award={award}
-            onCorrect={makeOnCorrect()}
-            onWrong={makeOnWrong()}
+            onCorrect={() => onCorrect(currentCategory)}
+            onWrong={() => onWrong(currentCategory)}
           />
         )}
         {mode === 'error' && (
           <ModeErrorCorrect
             onDone={handleDone}
             award={award}
-            onCorrect={makeOnCorrect()}
-            onWrong={makeOnWrong()}
+            onCorrect={() => onCorrect(currentCategory)}
+            onWrong={() => onWrong(currentCategory)}
           />
         )}
       </div>
