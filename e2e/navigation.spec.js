@@ -22,6 +22,8 @@ test.describe('Tab navigation', () => {
     // On Firefox/WebKit these deferred effects take longer; clicking a tab before they complete
     // can result in the router overriding the tab click and resetting to Today.
     await page.waitForLoadState('networkidle', { timeout: 8_000 }).catch(() => {});
+    // Wait for the session card — reliable ready signal for the new HomeTab
+    await page.getByText("Today's Session").first().waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
     await page.waitForTimeout(300);
   });
 

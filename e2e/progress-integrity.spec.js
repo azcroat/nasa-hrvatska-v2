@@ -25,12 +25,12 @@ test.describe('Progress integrity', () => {
       timeout: 15_000,
     });
 
-    // The hero section shows "X day streak" — the number 5 must appear in body text
+    // The Streak stat pill shows the seeded value of 5
     const bodyText = await page.locator('body').textContent({ timeout: 5_000 });
     expect(bodyText).toMatch(/(?<!\d)5(?!\d)/);
 
-    // Look for streak-related label text as a sanity check
-    await expect(page.getByText(/day streak/i).first()).toBeVisible({ timeout: 5_000 });
+    // The stat pill renders a "Streak" label — confirm it is visible
+    await expect(page.getByText(/streak/i).first()).toBeVisible({ timeout: 5_000 });
   });
 
   // ── 2. XP shown on profile ────────────────────────────────────────────────
