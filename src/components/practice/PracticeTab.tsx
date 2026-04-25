@@ -9,6 +9,8 @@ import WeakWordsPanel from '../home/WeakWordsPanel';
 import QuestTracker from '../home/QuestTracker';
 import SpeedChallenge from '../home/SpeedChallenge';
 import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard';
+import { useAdaptivePractice } from '../../hooks/useAdaptivePractice';
+import type { SkillCategory } from '../../lib/adaptive';
 
 // ── Recently-played tracking ─────────────────────────────────────────────────
 // Saved as a JSON array of exercise IDs in localStorage (max 6 entries, newest first).
@@ -101,6 +103,8 @@ export default function PracticeTab({
       return 'drill';
     }
   });
+
+  const { practiceQueue } = useAdaptivePractice();
 
   // Memoized so event handlers always get a stable array reference without
   // recomputing the flatMap on every parent render.
@@ -1238,6 +1242,152 @@ export default function PracticeTab({
     advanced: '#d97706',
   };
 
+  const ADAPTIVE_CATEGORY_MAP: Partial<
+    Record<SkillCategory, { label: string; icon: string; desc: string; action: () => void }>
+  > = {
+    genitive: {
+      label: 'Genitive Case',
+      icon: '🔤',
+      desc: 'od/bez/iz drills',
+      action: () => {
+        setScr('grammar');
+        sCurEx('grammar');
+      },
+    },
+    accusative: {
+      label: 'Accusative Case',
+      icon: '🔤',
+      desc: 'Direct object drills',
+      action: () => {
+        setScr('grammar');
+        sCurEx('grammar');
+      },
+    },
+    'dative-locative': {
+      label: 'Dative / Locative',
+      icon: '🔤',
+      desc: 'Location & recipient drills',
+      action: () => {
+        setScr('grammar');
+        sCurEx('grammar');
+      },
+    },
+    instrumental: {
+      label: 'Instrumental Case',
+      icon: '🔤',
+      desc: 'With/by means of drills',
+      action: () => {
+        setScr('grammar');
+        sCurEx('grammar');
+      },
+    },
+    vocative: {
+      label: 'Vocative Case',
+      icon: '🔤',
+      desc: 'Direct address drills',
+      action: () => {
+        setScr('grammar');
+        sCurEx('grammar');
+      },
+    },
+    'past-tense': {
+      label: 'Past Tense',
+      icon: '⏮️',
+      desc: 'Perfect tense practice',
+      action: () => {
+        setScr('aspectdrill');
+        sCurEx('aspectdrill');
+      },
+    },
+    'future-tense': {
+      label: 'Future Tense',
+      icon: '⏭️',
+      desc: 'Future I practice',
+      action: () => {
+        setScr('aspectdrill');
+        sCurEx('aspectdrill');
+      },
+    },
+    'aspect-imperfective': {
+      label: 'Imperfective Aspect',
+      icon: '🔄',
+      desc: 'Ongoing action drills',
+      action: () => {
+        setScr('aspectdrill');
+        sCurEx('aspectdrill');
+      },
+    },
+    'aspect-perfective': {
+      label: 'Perfective Aspect',
+      icon: '✅',
+      desc: 'Completed action drills',
+      action: () => {
+        setScr('aspectdrill');
+        sCurEx('aspectdrill');
+      },
+    },
+    'aspect-negation': {
+      label: 'Aspect + Negation',
+      icon: '❌',
+      desc: 'Negate & flip aspect',
+      action: () => {
+        setScr('aspectdrill');
+        sCurEx('aspectdrill');
+      },
+    },
+    conditional: {
+      label: 'Conditional',
+      icon: '🤔',
+      desc: 'Bi + conditional drills',
+      action: () => {
+        setScr('grammar');
+        sCurEx('grammar');
+      },
+    },
+    clitics: {
+      label: 'Clitics',
+      icon: '🔗',
+      desc: 'Clitic placement drills',
+      action: () => {
+        setScr('aspectdrill');
+        sCurEx('aspectdrill');
+      },
+    },
+    'vocab-a2': {
+      label: 'A2 Vocabulary',
+      icon: '📚',
+      desc: 'Core A2 words review',
+      action: () =>
+        onLaunchFlash(
+          sh(allCats.flatMap((c) => (V as Record<string, string[][]>)[c] || [])).slice(0, 20),
+        ),
+    },
+    'vocab-b1': {
+      label: 'B1 Vocabulary',
+      icon: '📚',
+      desc: 'B1 words in context',
+      action: () =>
+        onLaunchFlash(
+          sh(allCats.flatMap((c) => (V as Record<string, string[][]>)[c] || [])).slice(0, 20),
+        ),
+    },
+    'vocab-b2': {
+      label: 'B2 Vocabulary',
+      icon: '📖',
+      desc: 'Advanced B2 terms',
+      action: () =>
+        onLaunchFlash(
+          sh(allCats.flatMap((c) => (V as Record<string, string[][]>)[c] || [])).slice(0, 20),
+        ),
+    },
+    speaking: {
+      label: 'Speaking',
+      icon: '🎤',
+      desc: 'Say it out loud',
+      action: startSpeaking,
+    },
+  };
+
   // Today's Pick — show recently played first (max 2), then time-based defaults.
   // This means returning users see exercises they actually use, not static picks.
   const todaysPicks = useMemo(() => {
@@ -1368,6 +1518,37 @@ export default function PracticeTab({
           lessonsCompleted={lc}
           goToScreen={setScr}
         />
+      )}
+
+      {/* ── ADAPTIVE PRACTICE — smart queue for due categories ─────────────────── */}
+      {practiceQueue.length > 0 && (
+        <>
+          <div className="section-hdr" style={{ marginTop: 4 }}>
+            <div className="section-hdr-icon" style={{ background: 'rgba(14,116,144,.12)' }}>
+              🎯
+            </div>
+            <div className="section-hdr-text">
+              <div className="section-hdr-title">Practice Now</div>
+              <div className="section-hdr-sub">Your weakest areas — due for review</div>
+            </div>
+          </div>
+          <div className="todays-picks-grid" style={{ marginBottom: 20 }}>
+            {practiceQueue.slice(0, 3).map((item) => {
+              const cfg = ADAPTIVE_CATEGORY_MAP[item.category];
+              if (!cfg) return null;
+              return (
+                <ExerciseCard
+                  key={item.category}
+                  id={`adaptive-${item.category}`}
+                  label={cfg.label}
+                  icon={cfg.icon}
+                  desc={cfg.desc}
+                  action={cfg.action}
+                />
+              );
+            })}
+          </div>
+        </>
       )}
 
       {/* ── TODAY'S PICK — always visible, always first ──────────────────── */}
