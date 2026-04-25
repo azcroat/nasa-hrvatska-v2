@@ -11,11 +11,14 @@ export default function ProfileTab({
   syncReady,
   onSyncNow,
   onOpenFriends,
+  lastSyncedAt = 0,
 }: {
   syncReady: boolean;
   onSyncNow?: () => void;
   onOpenFriends?: () => void;
+  lastSyncedAt?: number;
 }) {
+  void lastSyncedAt; // consumed by Task 3 UI; accepted here to wire the prop chain
   const { au: authUser } = useApp();
   const [ptab, setPTab] = useState('stats');
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);

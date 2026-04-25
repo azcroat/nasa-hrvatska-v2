@@ -728,6 +728,7 @@ function App() {
     syncError,
     setSyncError,
     syncErrorCode,
+    lastSyncedAt,
   } = useSyncManager({
     authUser,
     authScreen,
@@ -1592,6 +1593,7 @@ function App() {
       // Sync
       _syncReady,
       doSyncNow,
+      lastSyncedAt,
       // Misc
       icons: ICONS,
       allCats,
@@ -1662,6 +1664,7 @@ function App() {
       launchCheckpoint,
       _syncReady,
       doSyncNow,
+      lastSyncedAt,
       allCats,
       getWeekStats,
       isNewUserWindow,
