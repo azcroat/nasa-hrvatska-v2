@@ -6,6 +6,11 @@ import type { PhraseOfDay } from '../../lib/wordOfDay';
 // Croatian identity palette
 const CROATIAN_BLUE = '#002868';
 
+function todayLabel(): string {
+  const d = new Date();
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
+}
+
 interface PhraseOfDayCardProps {
   phrase: PhraseOfDay;
 }
@@ -24,8 +29,8 @@ export default function PhraseOfDayCard({ phrase }: PhraseOfDayCardProps) {
       style={{
         borderRadius: 16,
         overflow: 'hidden',
-        background: '#fff',
-        border: '1.5px solid #e8edf2',
+        background: 'var(--card)',
+        border: '1.5px solid var(--card-b)',
         boxShadow: '0 2px 12px rgba(0,0,0,.06)',
         marginBottom: 10,
         display: 'flex',
@@ -50,17 +55,29 @@ export default function PhraseOfDayCard({ phrase }: PhraseOfDayCardProps) {
             marginBottom: 10,
           }}
         >
-          <span
-            style={{
-              fontSize: 9,
-              fontWeight: 900,
-              color: CROATIAN_BLUE,
-              textTransform: 'uppercase',
-              letterSpacing: '.14em',
-            }}
-          >
-            💬 Phrase of the Day
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 900,
+                color: CROATIAN_BLUE,
+                textTransform: 'uppercase',
+                letterSpacing: '.14em',
+              }}
+            >
+              💬 Phrase of the Day
+            </span>
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 600,
+                color: 'var(--subtext)',
+                letterSpacing: '.02em',
+              }}
+            >
+              {todayLabel()}
+            </span>
+          </div>
 
           {/* Audio button */}
           <button
@@ -89,7 +106,7 @@ export default function PhraseOfDayCard({ phrase }: PhraseOfDayCardProps) {
           style={{
             fontSize: 19,
             fontWeight: 700,
-            color: '#0f172a',
+            color: 'var(--heading)',
             fontFamily: "'Playfair Display', serif",
             fontStyle: 'italic',
             lineHeight: 1.25,
@@ -104,7 +121,7 @@ export default function PhraseOfDayCard({ phrase }: PhraseOfDayCardProps) {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: '#334155',
+            color: 'var(--subtext)',
             lineHeight: 1.4,
             marginBottom: phrase.note ? 10 : 0,
           }}

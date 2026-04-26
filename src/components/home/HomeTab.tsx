@@ -71,6 +71,7 @@ import { useStats } from '../../context/StatsContext';
 import { safeGetItem } from '../../hooks/useLocalStorage';
 import GoalSetterModal from '../shared/GoalSetterModal';
 import StreakMilestoneToast, { checkAndMarkMilestone } from '../shared/StreakMilestoneToast';
+import WelcomeBackBanners from './WelcomeBackBanners';
 import { useDailySession } from '../../hooks/useDailySession';
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
@@ -356,12 +357,10 @@ export default function HomeTab({
   void weekXP;
   void userGoal;
   void activeCampaign;
-  void longAbsence;
   void activePalette;
   void pathData;
   void syncReady;
   void onSyncNow;
-  void comebackBonus;
   void isNewUserWindow;
   void daysSinceJoin;
   void resumeLesson;
@@ -383,6 +382,9 @@ export default function HomeTab({
           onDismiss={() => setStreakMilestone(null)}
         />
       )}
+
+      {/* ── WELCOME BACK / COMEBACK BANNERS ── */}
+      <WelcomeBackBanners comebackBonus={comebackBonus ?? false} longAbsence={longAbsence} />
 
       {/* ── GUEST SAVE-PROGRESS BANNER ── */}
       {!authUser && st.xp > 0 && (

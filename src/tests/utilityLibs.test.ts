@@ -149,14 +149,14 @@ describe('getMemoryHook', () => {
 import { getWordOfDay } from '../lib/wordOfDay';
 
 describe('getWordOfDay', () => {
-  it('returns a tuple [string, string, string] or null', () => {
+  it('returns an object { hr, en, ph, cat } or null', () => {
     const word = getWordOfDay();
     if (word !== null) {
-      expect(Array.isArray(word)).toBe(true);
-      expect(word).toHaveLength(3);
-      expect(typeof word[0]).toBe('string'); // hr
-      expect(typeof word[1]).toBe('string'); // en
-      expect(typeof word[2]).toBe('string'); // note or pos or ''
+      expect(typeof word).toBe('object');
+      expect(typeof word.hr).toBe('string'); // Croatian word
+      expect(typeof word.en).toBe('string'); // English translation
+      expect(typeof word.ph).toBe('string'); // phonetic (may be empty)
+      expect(typeof word.cat).toBe('string'); // category (may be empty)
     } else {
       // null is acceptable if pool is unavailable
       expect(word).toBeNull();
@@ -172,8 +172,8 @@ describe('getWordOfDay', () => {
   it('hr and en fields are non-empty strings (if pool available)', () => {
     const word = getWordOfDay();
     if (word) {
-      expect(word[0].length).toBeGreaterThan(0);
-      expect(word[1].length).toBeGreaterThan(0);
+      expect(word.hr.length).toBeGreaterThan(0);
+      expect(word.en.length).toBeGreaterThan(0);
     }
   });
 });

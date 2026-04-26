@@ -19,7 +19,7 @@ const GENERIC_STEPS = [
   {
     icon: '🔥',
     title: 'Build your streak',
-    body: 'Come back daily to maintain your streak. Set a weekly XP goal in the Profile tab and track your progress.',
+    body: 'Come back daily to maintain your streak. Complete your daily session and earn XP to level up your Croatian.',
   },
 ];
 

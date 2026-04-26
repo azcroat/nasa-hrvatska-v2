@@ -62,7 +62,7 @@ function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillPr
     <div
       style={{
         flex: 1,
-        background: '#fff',
+        background: 'var(--card)',
         borderRadius: 14,
         padding: '11px 8px 10px',
         textAlign: 'center',
@@ -70,7 +70,7 @@ function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillPr
         flexDirection: 'column',
         alignItems: 'center',
         gap: 4,
-        border: '1.5px solid #e8edf2',
+        border: '1.5px solid var(--card-b)',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -107,7 +107,7 @@ function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillPr
         style={{
           fontSize: 20,
           fontWeight: 900,
-          color: '#0f172a',
+          color: 'var(--heading)',
           lineHeight: 1,
           fontVariantNumeric: 'tabular-nums',
         }}
@@ -118,7 +118,7 @@ function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillPr
         style={{
           fontSize: 9,
           fontWeight: 600,
-          color: '#64748b',
+          color: 'var(--subtext)',
           lineHeight: 1,
           letterSpacing: '.01em',
         }}
@@ -166,25 +166,33 @@ export default function SessionCard({
             style={{
               fontSize: 18,
               fontWeight: 900,
-              color: '#0f172a',
+              color: 'var(--heading)',
               marginBottom: 4,
             }}
           >
             Session Complete!
           </div>
-          <div style={{ fontSize: 13, color: '#475569', marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
             {completedCount} of {totalCount} activities done
+            {wordsdue > 0 && (
+              <span
+                style={{ display: 'block', marginTop: 4, color: CROATIAN_BLUE, fontWeight: 700 }}
+              >
+                {wordsdue} word{wordsdue !== 1 ? 's' : ''} still due for review
+              </span>
+            )}
           </div>
           <button
             onClick={onKeepPracticing}
             style={{
-              background: 'none',
-              border: '1.5px solid #e2e8f0',
+              background:
+                wordsdue > 0 ? `linear-gradient(135deg, ${CROATIAN_BLUE}, #0052cc)` : 'none',
+              border: wordsdue > 0 ? 'none' : '1.5px solid #e2e8f0',
               borderRadius: 10,
-              padding: '8px 20px',
+              padding: '10px 20px',
               fontSize: 13,
               fontWeight: 700,
-              color: '#475569',
+              color: wordsdue > 0 ? '#fff' : 'var(--subtext)',
               cursor: 'pointer',
               fontFamily: "'Outfit',sans-serif",
               display: 'block',
@@ -192,9 +200,13 @@ export default function SessionCard({
               marginBottom: 8,
             }}
           >
-            Keep practicing →
+            {wordsdue > 0
+              ? `📚 Review ${wordsdue} word${wordsdue !== 1 ? 's' : ''} →`
+              : 'Practice more →'}
           </button>
-          <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>{tomorrowLabel}</div>
+          <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
+            {tomorrowLabel}
+          </div>
         </div>
       ) : (
         /* ── STATE A (fresh) + STATE B (in-progress) ── */
@@ -419,7 +431,7 @@ export default function SessionCard({
         <StatPill
           icon="📚"
           value={wordsdue}
-          label="Words Due"
+          label="Reviews Due"
           accentColor={CROATIAN_BLUE}
           badgeGradient={`linear-gradient(135deg,${CROATIAN_BLUE},#0052cc)`}
         />
