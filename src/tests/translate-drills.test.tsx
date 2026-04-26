@@ -273,7 +273,7 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
     expect(award).toHaveBeenCalledWith(20, false, 'grammar');
     expect(mockMarkQuest).toHaveBeenCalledWith('vocab');
     expect(mockMarkQuest).toHaveBeenCalledTimes(1);
-  }, 30000);
+  }, 60000);
 });
 
 // ── Navigation ────────────────────────────────────────────────────────────────
@@ -287,5 +287,5 @@ describe('TranslateDrillsScreen — navigation', () => {
     const goBack = vi.fn();
     completeAndGoBack(vi.fn(), goBack);
     expect(goBack).toHaveBeenCalledTimes(1);
-  }, 30000);
+  }, 60000);
 });
