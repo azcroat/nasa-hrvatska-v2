@@ -721,15 +721,7 @@ function App() {
     deferredInstallPrompt,
     setDeferredInstallPrompt: _setDeferredInstallPrompt,
   } = usePwaInstall({ authScreen });
-  const {
-    doSyncNow,
-    showBackupBanner,
-    setShowBackupBanner,
-    syncError,
-    setSyncError,
-    syncErrorCode,
-    lastSyncedAt,
-  } = useSyncManager({
+  const { doSyncNow, showBackupBanner, setShowBackupBanner, lastSyncedAt } = useSyncManager({
     authUser,
     authScreen,
     name,
@@ -1956,9 +1948,6 @@ function App() {
                 setShowPwaInstall={setShowPwaInstall}
                 showBackupBanner={showBackupBanner}
                 setShowBackupBanner={setShowBackupBanner}
-                syncError={syncError}
-                setSyncError={setSyncError}
-                syncErrorCode={syncErrorCode}
                 isFreeAnnual={isFreeAnnual}
                 daysLeft={daysLeft}
                 setShowPaywall={setShowPaywall}
