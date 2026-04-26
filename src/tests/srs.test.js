@@ -9,6 +9,7 @@ import {
   srQualityFromResult,
   addWordToSRS,
   getPrioritizedReviewQueue,
+  sm2,
 } from '../lib/srs.js';
 
 function clearLS() {
@@ -946,6 +947,24 @@ describe('getPrioritizedReviewQueue', () => {
     const pool = [['jabuka', 'apple', '']];
     expect(() => getPrioritizedReviewQueue(pool)).not.toThrow();
   });
+
+  it('includes words due today (dueMs <= now, daysOverdue < 1) and shuffles them', () => {
+    // Use due = now - 1 second → daysOverdue ≈ 0.0000116, hits the dueToday branch
+    const justDue = Date.now() - 1000;
+    saveSR({
+      jabuka: { s: 2, d: 5, r: 3, w: 0, l: 0, b: 2, due: justDue, nextDue: justDue },
+      kruh: { s: 2, d: 5, r: 3, w: 0, l: 0, b: 2, due: justDue, nextDue: justDue },
+    });
+    const pool = [
+      ['jabuka', 'apple', 'ya-boo-ka'],
+      ['kruh', 'bread', 'krooh'],
+    ];
+    const result = getPrioritizedReviewQueue(pool);
+    const resultWords = result.map((e) => e[0]);
+    // Both words are due today — both must appear in the result
+    expect(resultWords).toContain('jabuka');
+    expect(resultWords).toContain('kruh');
+  });
 });
 
 // ── FSRS math properties ──────────────────────────────────────────────────────
@@ -1002,5 +1021,48 @@ describe('FSRS scheduling math invariants', () => {
     expect(afterCard.s).toBeGreaterThan(0); // valid stability
     expect(afterCard.d).toBeGreaterThan(beforeCard.d); // difficulty increases
     expect(afterCard.l).toBeGreaterThan(beforeCard.l ?? 0); // lapse counter increments
+  });
+});
+
+// ── sm2 (deprecated legacy wrapper) ─────────────────────────────────────────
+describe('sm2 (deprecated SM-2 wrapper)', () => {
+  it('returns a new card when card is null (quality 5 = perfect)', () => {
+    const result = sm2(null, 5);
+    expect(result.s).toBeGreaterThan(0);
+    expect(result.d).toBeGreaterThan(0);
+    expect(result.r).toBe(1);
+    expect(result.w).toBe(0);
+    expect(result.due).toBeGreaterThan(Date.now());
+    expect(result.ease).toBe(2.5);
+    expect(result.lastQuality).toBe(5);
+  });
+
+  it('returns a new card when card is null (quality 3 = correct, slow)', () => {
+    const result = sm2(null, 3);
+    expect(result.r).toBe(1);
+    expect(result.w).toBe(0);
+    expect(result.lastQuality).toBe(3);
+  });
+
+  it('returns a new card when card is null (quality 1 = wrong)', () => {
+    const result = sm2(null, 1);
+    expect(result.r).toBe(0);
+    expect(result.w).toBe(1);
+    expect(result.lastQuality).toBe(1);
+  });
+
+  it('updates an existing card (quality 4)', () => {
+    const existing = sm2(null, 5);
+    const updated = sm2(existing, 4);
+    expect(updated.s).toBeGreaterThan(0);
+    expect(updated.lastQuality).toBe(4);
+    expect(updated.due).toBeGreaterThan(Date.now());
+  });
+
+  it('returns a new card when card.s is undefined', () => {
+    const cardNoS = { r: 1, w: 0, l: 0, b: 1, d: 5, due: Date.now() };
+    const result = sm2(cardNoS, 5);
+    expect(result.s).toBeGreaterThan(0);
+    expect(result.ease).toBe(2.5);
   });
 });

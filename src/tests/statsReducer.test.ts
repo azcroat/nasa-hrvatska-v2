@@ -136,3 +136,12 @@ describe('statsReducer — MERGE_REMOTE', () => {
     expect(result.lc).toBe(7);
   });
 });
+
+describe('statsReducer — unknown action', () => {
+  it('returns current state unchanged for unrecognised action type', () => {
+    const state = makeState({ xp: 42, lc: 3 });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = statsReducer(state, { type: 'UNKNOWN_ACTION' } as any);
+    expect(result).toBe(state);
+  });
+});
