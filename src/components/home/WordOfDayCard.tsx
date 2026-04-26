@@ -35,6 +35,11 @@ interface WordOfDayCardProps {
   word: WordOfDay;
 }
 
+function todayLabel(): string {
+  const d = new Date();
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
+}
+
 export default function WordOfDayCard({ word }: WordOfDayCardProps) {
   const [playing, setPlaying] = useState(false);
   const catEmoji = CAT_EMOJI[word.cat.toLowerCase()] ?? '📖';
@@ -51,8 +56,8 @@ export default function WordOfDayCard({ word }: WordOfDayCardProps) {
       style={{
         borderRadius: 16,
         overflow: 'hidden',
-        background: '#fff',
-        border: '1.5px solid #e8edf2',
+        background: 'var(--card)',
+        border: '1.5px solid var(--card-b)',
         boxShadow: '0 2px 12px rgba(0,0,0,.06)',
         marginBottom: 10,
         display: 'flex',
@@ -77,17 +82,29 @@ export default function WordOfDayCard({ word }: WordOfDayCardProps) {
             marginBottom: 10,
           }}
         >
-          <span
-            style={{
-              fontSize: 9,
-              fontWeight: 900,
-              color: CROATIAN_RED,
-              textTransform: 'uppercase',
-              letterSpacing: '.14em',
-            }}
-          >
-            📖 Word of the Day
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 900,
+                color: CROATIAN_RED,
+                textTransform: 'uppercase',
+                letterSpacing: '.14em',
+              }}
+            >
+              📖 Word of the Day
+            </span>
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 600,
+                color: 'var(--subtext)',
+                letterSpacing: '.02em',
+              }}
+            >
+              {todayLabel()}
+            </span>
+          </div>
 
           {/* Audio button */}
           <button
@@ -116,7 +133,7 @@ export default function WordOfDayCard({ word }: WordOfDayCardProps) {
           style={{
             fontSize: 26,
             fontWeight: 900,
-            color: '#0f172a',
+            color: 'var(--heading)',
             fontFamily: "'Playfair Display', serif",
             lineHeight: 1.1,
             marginBottom: 4,
@@ -175,7 +192,7 @@ export default function WordOfDayCard({ word }: WordOfDayCardProps) {
           style={{
             fontSize: 14,
             fontWeight: 700,
-            color: '#334155',
+            color: 'var(--subtext)',
             lineHeight: 1.4,
           }}
         >

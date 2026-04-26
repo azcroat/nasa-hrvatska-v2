@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { lXP, nXP, getStreak } from '../../lib/appUtils.js';
 import CroatianGrb from './CroatianGrb';
 import CroatianKnight from './CroatianKnight';
@@ -172,38 +172,6 @@ function NavIcon({ id, active }: { id: string; active: boolean }) {
   return null;
 }
 
-const WEEKLY_OPTIONS = [
-  { xp: 50, label: 'Light', desc: '50 XP / week' },
-  { xp: 150, label: 'Regular', desc: '150 XP / week' },
-  { xp: 300, label: 'Serious', desc: '300 XP / week' },
-  { xp: 600, label: 'Intense', desc: '600 XP / week' },
-];
-
-function getWeeklyGoal() {
-  return parseInt(localStorage.getItem('wkGoal') || '0');
-}
-function saveWeeklyGoal(v: number) {
-  localStorage.setItem('wkGoal', String(v));
-}
-
-function getWeeklyXP(currentXP: number) {
-  try {
-    const now = new Date();
-    const monday = new Date(now);
-    monday.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
-    monday.setHours(0, 0, 0, 0);
-    const weekKey = monday.toISOString().split('T')[0];
-    const stored = JSON.parse(localStorage.getItem('wkXP') || '{"key":"","base":0}');
-    if (stored.key !== weekKey) {
-      localStorage.setItem('wkXP', JSON.stringify({ key: weekKey, base: currentXP }));
-      return 0;
-    }
-    return Math.max(0, currentXP - stored.base);
-  } catch {
-    return 0;
-  }
-}
-
 export default function Sidebar({
   tab,
   setTab,
@@ -233,26 +201,14 @@ export default function Sidebar({
   onSearch?: () => void;
   doOut?: () => void;
 }) {
-  const [goalOpen, setGoalOpen] = useState(false);
-  const [goal, setGoalState] = useState(getWeeklyGoal());
-
   const streak = getStreak();
   const xpCur = st.xp - lXP(level);
   const xpNeeded = nXP(level) - lXP(level);
   const xpPct = Math.min(Math.round((xpCur / xpNeeded) * 100), 100);
-  const weeklyXP = getWeeklyXP(st.xp);
-  const weeklyGoal = goal;
-  const weeklyPct = weeklyGoal > 0 ? Math.min(Math.round((weeklyXP / weeklyGoal) * 100), 100) : 0;
 
   const nameInitial = (name || 'U')[0]!.toUpperCase();
   const LEVEL_PALETTE = ['#b45309', '#059669', '#1d4ed8', '#6d28d9', '#dc2626'];
   const levelColor = LEVEL_PALETTE[(level - 1) % LEVEL_PALETTE.length] ?? '#0e7490';
-
-  function handleGoalPick(xp: number) {
-    setGoalState(xp);
-    saveWeeklyGoal(xp);
-    setGoalOpen(false);
-  }
 
   const _isDark = darkMode;
 
@@ -402,135 +358,6 @@ export default function Sidebar({
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Weekly Goal */}
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--nav-b)' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 6,
-          }}
-        >
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 800,
-              color: 'var(--subtext)',
-              letterSpacing: '.06em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Weekly Goal
-          </span>
-          <button
-            onClick={() => setGoalOpen((o) => !o)}
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              color: '#0e7490',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: "'Outfit',sans-serif",
-              padding: 0,
-            }}
-          >
-            {goalOpen ? 'Done' : 'Set'}
-          </button>
-        </div>
-        {goalOpen ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {WEEKLY_OPTIONS.map((o) => (
-              <button
-                key={o.xp}
-                onClick={() => handleGoalPick(o.xp)}
-                style={{
-                  padding: '7px 10px',
-                  borderRadius: 9,
-                  border: `1.5px solid ${goal === o.xp ? '#0e7490' : 'var(--inp-b)'}`,
-                  background: goal === o.xp ? 'rgba(14,116,144,.1)' : 'none',
-                  cursor: 'pointer',
-                  fontFamily: "'Outfit',sans-serif",
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--heading)' }}>
-                  {o.label}
-                </span>
-                <span style={{ fontSize: 11, color: 'var(--subtext)' }}>{o.desc}</span>
-              </button>
-            ))}
-          </div>
-        ) : weeklyGoal > 0 ? (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 11, color: 'var(--heading)', fontWeight: 700 }}>
-                {weeklyXP} / {weeklyGoal} XP
-              </span>
-              <span
-                style={{
-                  fontSize: 11,
-                  color: weeklyPct >= 100 ? '#16a34a' : '#0e7490',
-                  fontWeight: 700,
-                }}
-              >
-                {weeklyPct}%
-              </span>
-            </div>
-            <div
-              className="prog-track"
-              role="progressbar"
-              aria-valuenow={weeklyPct}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={`Weekly XP goal: ${weeklyXP} of ${weeklyGoal} XP (${weeklyPct}%)`}
-              style={{ height: 6 }}
-            >
-              <div
-                className="prog-fill"
-                style={{
-                  width: weeklyPct + '%',
-                  background:
-                    weeklyPct >= 100
-                      ? 'linear-gradient(90deg,#16a34a,#22c55e)'
-                      : 'linear-gradient(90deg,#0e7490,#38bdf8)',
-                }}
-              />
-            </div>
-            {weeklyPct >= 100 && (
-              <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 4 }}>
-                🏆 Goal reached!
-              </div>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={() => setGoalOpen(true)}
-            style={{
-              width: '100%',
-              padding: '8px 10px',
-              borderRadius: 9,
-              border: '1.5px dashed rgba(14,116,144,.45)',
-              background: 'rgba(14,116,144,.06)',
-              cursor: 'pointer',
-              fontFamily: "'Outfit',sans-serif",
-              textAlign: 'left',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 7,
-            }}
-          >
-            <span style={{ fontSize: 14 }}>🎯</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#0e7490' }}>
-              Set a weekly XP goal
-            </span>
-          </button>
-        )}
       </div>
 
       {/* Search */}

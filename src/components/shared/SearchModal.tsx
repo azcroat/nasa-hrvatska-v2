@@ -8,7 +8,12 @@ const SEARCH_INDEX = [
   { tab: 'home', label: 'Achievements', icon: '🏆', desc: 'Next badge and milestone progress' },
   { tab: 'home', label: 'SRS Review', icon: '📅', desc: 'Spaced repetition words due for review' },
   { tab: 'home', label: 'Mistake Review', icon: '🎯', desc: 'Practice your most-missed words' },
-  { tab: 'home', label: 'Weekly Goal', icon: '📊', desc: 'Weekly XP target and progress' },
+  {
+    tab: 'home',
+    label: 'Reviews Due',
+    icon: '📚',
+    desc: 'Spaced repetition words awaiting review',
+  },
   // Learn tab items
   { tab: 'learn', label: 'Greetings & Introductions', icon: '👋', desc: 'Core vocabulary lesson' },
   { tab: 'learn', label: 'Family & Relationships', icon: '👨‍👩‍👧', desc: 'Core vocabulary lesson' },
