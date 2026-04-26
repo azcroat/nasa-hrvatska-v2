@@ -118,7 +118,7 @@ function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillPr
         style={{
           fontSize: 9,
           fontWeight: 600,
-          color: '#94a3b8',
+          color: '#64748b',
           lineHeight: 1,
           letterSpacing: '.01em',
         }}
