@@ -88,6 +88,11 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
   const webSpeechRef = useRef(null);
   const pendingVoiceRef = useRef('');
 
+  // Ref-based guard against double-tap race: React state (isListening) is async and
+  // may still read false on a second tap that arrives before the first render cycle.
+  // This ref is set synchronously before any await, so the guard is always current.
+  const isActivatingRef = useRef(false);
+
   // Stable refs for callbacks/state used inside intervals and async fns
   const onResultRef = useRef(onResult);
   const onInterruptRef = useRef(onInterrupt);
@@ -341,8 +346,9 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       stop();
       return;
     }
-    // Whisper is mid-request → ignore tap
-    if (isProcessing) return;
+    // Mid-request or mid-setup → ignore tap (isActivatingRef guards the async setup
+    // window before setIsListening(true) is committed to React state)
+    if (isProcessing || isActivatingRef.current) return;
 
     // Whisper known unavailable, or browser lacks MediaRecorder → Web Speech
     if (!SUPPORTS_VAD || whisperAvailRef.current === false) {
@@ -351,6 +357,18 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
     }
 
     // ── Whisper + VAD path ────────────────────────────────────────────────
+    // Set the activating guard synchronously — before any await — so a second tap
+    // that arrives before the first render cycle sees isListening=true is rejected.
+    isActivatingRef.current = true;
+
+    // CRITICAL: AudioContext must be created synchronously within the user gesture
+    // call stack — before any await. iOS and Android WebView close the "gesture
+    // active" window after the first await, so a context created afterwards is
+    // immediately suspended and the AnalyserNode receives no audio data.
+    const AudioCtxCtor = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtxCtor();
+    audioCtxRef.current = ctx;
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -363,9 +381,6 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       });
       streamRef.current = stream;
 
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      const ctx = new AudioCtx();
-      audioCtxRef.current = ctx;
       if (ctx.state === 'suspended') await ctx.resume();
 
       const source = ctx.createMediaStreamSource(stream);
@@ -385,6 +400,15 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       // Poll the analyser at POLL_INTERVAL_MS — drives the entire VAD state machine
       pollRef.current = setInterval(vadTick, POLL_INTERVAL_MS);
     } catch (e) {
+      // Setup failed — close the AudioContext we created above to avoid leaking it
+      if (audioCtxRef.current) {
+        try {
+          audioCtxRef.current.close();
+        } catch {
+          /* ignore */
+        }
+        audioCtxRef.current = null;
+      }
       if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
         onErrorRef.current?.(
           isNative()
@@ -395,6 +419,8 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
         // MediaDevices not available (e.g. older iOS) — fall through to Web Speech
         startWebSpeech();
       }
+    } finally {
+      isActivatingRef.current = false;
     }
   }, [isListening, isProcessing, vadTick, startWebSpeech, stop]);
 
