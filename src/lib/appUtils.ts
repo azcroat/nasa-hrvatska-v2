@@ -394,6 +394,7 @@ export function updateStreak(
       ? Math.round((_todayDate.getTime() - _lastDate.getTime()) / 86400000)
       : 0;
     if (_daysBetween === 2 && spendFreeze()) {
+      s.count++; // the bridged day counts toward the streak
       s.last = today;
       s.frozeOn = today;
       freezeUsed = true;
