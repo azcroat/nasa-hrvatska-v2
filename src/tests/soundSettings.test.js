@@ -403,3 +403,33 @@ describe('soundSettings — AudioContext error resilience', () => {
     expect(() => playStreak()).not.toThrow();
   });
 });
+
+// ── haptic error resilience ───────────────────────────────────────────────────
+
+describe('soundSettings — haptic error resilience', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    setHapticEnabled(true); // ensure haptic is on so the try block is entered
+  });
+  afterEach(() => {
+    localStorage.clear();
+    vi.restoreAllMocks();
+    // Restore navigator.vibrate to undefined (jsdom default)
+    Object.defineProperty(navigator, 'vibrate', {
+      value: undefined,
+      configurable: true,
+      writable: true,
+    });
+  });
+
+  it('haptic does not throw when navigator.vibrate throws', () => {
+    Object.defineProperty(navigator, 'vibrate', {
+      value: () => {
+        throw new Error('vibrate not permitted');
+      },
+      configurable: true,
+      writable: true,
+    });
+    expect(() => haptic(100)).not.toThrow();
+  });
+});
