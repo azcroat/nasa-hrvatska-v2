@@ -398,6 +398,7 @@ export function updateStreak(
       s.last = today;
       s.frozeOn = today;
       freezeUsed = true;
+      if (STREAK_MILESTONES.includes(s.count)) milestone = s.count;
     } else {
       if (s.count >= 2) {
         try {
