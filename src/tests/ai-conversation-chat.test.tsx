@@ -134,22 +134,26 @@ function makeProps(overrides: Record<string, unknown> = {}) {
 }
 
 function getSendButton() {
-  return screen.getAllByRole('button').find(
-    (b) =>
-      b.getAttribute('aria-label')?.toLowerCase().includes('send') ||
-      b.getAttribute('aria-label')?.toLowerCase().includes('waiting'),
-  );
+  return screen
+    .getAllByRole('button')
+    .find(
+      (b) =>
+        b.getAttribute('aria-label')?.toLowerCase().includes('send') ||
+        b.getAttribute('aria-label')?.toLowerCase().includes('waiting'),
+    );
 }
 function getMicButton() {
   // When isVoiceProcessing=true the icon switches from 🎤 to ⏳ — match the title instead
-  return screen.getAllByRole('button').find(
-    (b) =>
-      b.textContent?.includes('🎤') ||
-      b.textContent?.includes('⏳') ||
-      b.getAttribute('title')?.includes('Transcribing') ||
-      b.getAttribute('title')?.includes('Speak in Croatian') ||
-      b.getAttribute('title')?.includes('Stop listening'),
-  );
+  return screen
+    .getAllByRole('button')
+    .find(
+      (b) =>
+        b.textContent?.includes('🎤') ||
+        b.textContent?.includes('⏳') ||
+        b.getAttribute('title')?.includes('Transcribing') ||
+        b.getAttribute('title')?.includes('Speak in Croatian') ||
+        b.getAttribute('title')?.includes('Stop listening'),
+    );
 }
 function getInput() {
   return screen.getByRole('textbox');
@@ -296,9 +300,7 @@ describe('AIConversationChat — Enter key pacing fix', () => {
 
   it('does NOT call onSend on Enter when isSpeaking=true', () => {
     const onSend = vi.fn();
-    render(
-      <AIConversationChat {...makeProps({ isSpeaking: true, input: 'Dobar dan', onSend })} />,
-    );
+    render(<AIConversationChat {...makeProps({ isSpeaking: true, input: 'Dobar dan', onSend })} />);
     fireEvent.keyDown(getInput(), { key: 'Enter', shiftKey: false });
     expect(onSend).not.toHaveBeenCalled();
   });
@@ -314,9 +316,7 @@ describe('AIConversationChat — Enter key pacing fix', () => {
 
   it('does NOT call onSend on Shift+Enter (new line intent)', () => {
     const onSend = vi.fn();
-    render(
-      <AIConversationChat {...makeProps({ isSpeaking: false, input: 'Test', onSend })} />,
-    );
+    render(<AIConversationChat {...makeProps({ isSpeaking: false, input: 'Test', onSend })} />);
     fireEvent.keyDown(getInput(), { key: 'Enter', shiftKey: true });
     expect(onSend).not.toHaveBeenCalled();
   });
@@ -332,9 +332,7 @@ describe('AIConversationChat — mic button state', () => {
   });
 
   it('mic button disabled when isVoiceProcessing=true', () => {
-    render(
-      <AIConversationChat {...makeProps({ isVoiceProcessing: true, hasSpeechAPI: true })} />,
-    );
+    render(<AIConversationChat {...makeProps({ isVoiceProcessing: true, hasSpeechAPI: true })} />);
     const mic = getMicButton();
     expect((mic as HTMLButtonElement).disabled).toBe(true);
   });
@@ -420,9 +418,7 @@ describe('AIConversationChat — starter phrases', () => {
 
   it('clicking a starter sets the input', () => {
     const setInput = vi.fn();
-    render(
-      <AIConversationChat {...makeProps({ showStarters: true, level: 'B1', setInput })} />,
-    );
+    render(<AIConversationChat {...makeProps({ showStarters: true, level: 'B1', setInput })} />);
     fireEvent.click(screen.getByText('Možete li mi pomoći?'));
     expect(setInput).toHaveBeenCalledWith('Možete li mi pomoći?');
   });

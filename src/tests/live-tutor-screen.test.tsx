@@ -112,9 +112,7 @@ vi.mock('../components/croatia/LiveTutorSetup', () => ({
           value: level,
           onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setLevel(e.target.value),
         },
-        ['A1', 'A2', 'B1', 'B2'].map((l) =>
-          React.createElement('option', { key: l, value: l }, l),
-        ),
+        ['A1', 'A2', 'B1', 'B2'].map((l) => React.createElement('option', { key: l, value: l }, l)),
       ),
       React.createElement(
         'select',
@@ -131,11 +129,7 @@ vi.mock('../components/croatia/LiveTutorSetup', () => ({
 }));
 
 vi.mock('../components/croatia/LiveTutorControls', () => ({
-  default: ({
-    onEndSession,
-  }: {
-    onEndSession: () => void;
-  }) =>
+  default: ({ onEndSession }: { onEndSession: () => void }) =>
     React.createElement(
       'div',
       { 'data-testid': 'live-tutor-controls' },
