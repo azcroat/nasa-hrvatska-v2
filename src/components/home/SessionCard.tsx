@@ -15,30 +15,112 @@ interface SessionCardProps {
   wordsdue: number;
 }
 
-function StatPill({ icon, value, label }: { icon: string; value: number | string; label: string }) {
+// ── Šahovnica Croatian coat of arms crest ──
+function SahovnicaCrest() {
+  const cells = Array.from({ length: 25 }, (_, i) => {
+    const row = Math.floor(i / 5);
+    const col = i % 5;
+    return (row + col) % 2 === 0 ? 'w' : 'r';
+  });
+  return (
+    <div
+      style={{
+        width: 50,
+        height: 50,
+        borderRadius: 13,
+        overflow: 'hidden',
+        flexShrink: 0,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(5, 1fr)',
+        gridTemplateRows: 'repeat(5, 1fr)',
+        boxShadow:
+          '0 0 0 1.5px rgba(255,255,255,.15), 0 0 0 3px rgba(185,148,62,.45), 0 6px 20px rgba(0,0,0,.45)',
+      }}
+    >
+      {cells.map((type, i) => (
+        <div key={i} style={{ background: type === 'w' ? '#f8f8f8' : '#CC0000' }} />
+      ))}
+    </div>
+  );
+}
+
+// ── Stat pill ──
+interface StatPillProps {
+  icon: string;
+  value: number | string;
+  label: string;
+  accentColor: string;
+  badgeGradient: string;
+}
+
+function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillProps) {
   return (
     <div
       style={{
         flex: 1,
-        background: 'var(--card)',
-        border: '1px solid var(--card-b)',
-        borderRadius: 12,
-        padding: '8px 4px',
+        background: '#fff',
+        borderRadius: 14,
+        padding: '11px 8px 10px',
         textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 4,
+        border: '1.5px solid #e8edf2',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ fontSize: 18, lineHeight: 1 }}>{icon}</div>
+      {/* Top accent bar */}
       <div
         style={{
-          fontSize: 16,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: accentColor,
+          borderRadius: '14px 14px 0 0',
+        }}
+      />
+      {/* Icon badge */}
+      <div
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: 10,
+          background: badgeGradient,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 17,
+          boxShadow: '0 2px 8px rgba(0,0,0,.15)',
+        }}
+      >
+        {icon}
+      </div>
+      <div
+        style={{
+          fontSize: 20,
           fontWeight: 900,
-          color: 'var(--heading)',
+          color: '#0f172a',
+          lineHeight: 1,
           fontVariantNumeric: 'tabular-nums',
         }}
       >
         {value}
       </div>
-      <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>{label}</div>
+      <div
+        style={{
+          fontSize: 9,
+          fontWeight: 600,
+          color: '#94a3b8',
+          lineHeight: 1,
+          letterSpacing: '.01em',
+        }}
+      >
+        {label}
+      </div>
     </div>
   );
 }
@@ -62,173 +144,281 @@ export default function SessionCard({
   return (
     <div>
       {/* ── SESSION CARD ── */}
-      <div
-        style={{
-          background: isComplete
-            ? 'linear-gradient(135deg,rgba(22,163,74,.1),rgba(22,163,74,.04))'
-            : 'var(--card)',
-          border: isComplete ? '1.5px solid rgba(22,163,74,.3)' : '1.5px solid var(--card-b)',
-          borderRadius: 18,
-          padding: '18px 16px',
-          marginBottom: 12,
-        }}
-      >
-        {isComplete ? (
-          /* ── STATE C: COMPLETE ── */
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 36, marginBottom: 6 }}>🎉</div>
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 900,
-                color: 'var(--heading)',
-                marginBottom: 4,
-              }}
-            >
-              Session Complete!
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
-              {completedCount} of {totalCount} activities done
-            </div>
-            <button
-              onClick={onKeepPracticing}
-              style={{
-                background: 'none',
-                border: '1.5px solid var(--card-b)',
-                borderRadius: 10,
-                padding: '8px 20px',
-                fontSize: 13,
-                fontWeight: 700,
-                color: 'var(--subtext)',
-                cursor: 'pointer',
-                fontFamily: "'Outfit',sans-serif",
-                display: 'block',
-                width: '100%',
-                marginBottom: 8,
-              }}
-            >
-              Keep practicing →
-            </button>
-            <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
-              {tomorrowLabel}
-            </div>
+      {isComplete ? (
+        /* ── STATE C: COMPLETE ── */
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(22,163,74,.12), rgba(22,163,74,.05))',
+            border: '1.5px solid rgba(22,163,74,.25)',
+            borderRadius: 20,
+            padding: '20px 18px',
+            marginBottom: 12,
+            boxShadow: '0 4px 16px rgba(0,0,0,.08)',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: 36, marginBottom: 6 }}>🎉</div>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              color: '#0f172a',
+              marginBottom: 4,
+            }}
+          >
+            Session Complete!
           </div>
-        ) : (
-          /* ── STATE A (fresh) + STATE B (in-progress) ── */
-          <div>
+          <div style={{ fontSize: 13, color: '#475569', marginBottom: 16 }}>
+            {completedCount} of {totalCount} activities done
+          </div>
+          <button
+            onClick={onKeepPracticing}
+            style={{
+              background: 'none',
+              border: '1.5px solid #e2e8f0',
+              borderRadius: 10,
+              padding: '8px 20px',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif",
+              display: 'block',
+              width: '100%',
+              marginBottom: 8,
+            }}
+          >
+            Keep practicing →
+          </button>
+          <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>{tomorrowLabel}</div>
+        </div>
+      ) : (
+        /* ── STATE A (fresh) + STATE B (in-progress) ── */
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 20,
+            marginBottom: 12,
+            background:
+              'linear-gradient(148deg, #001640 0%, #002868 45%, #003fa0 80%, #0052cc 100%)',
+            boxShadow:
+              '0 16px 48px rgba(0,24,80,.5), 0 4px 16px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.1)',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Radial ambient glow overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background:
+                'radial-gradient(ellipse at 18% 18%, rgba(100,160,255,.12) 0%, transparent 65%)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Inner content: header + chips */}
+          <div style={{ padding: '18px 18px 0', position: 'relative' }}>
+            {/* Card header */}
             <div
               style={{
-                fontSize: 11,
-                fontWeight: 800,
-                color: 'var(--info,#0284c7)',
-                textTransform: 'uppercase',
-                letterSpacing: '.08em',
-                marginBottom: 6,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 13,
+                marginBottom: 15,
               }}
             >
-              {inProgress ? 'Continue Session' : "Today's Session"}
-            </div>
+              <SahovnicaCrest />
 
-            {/* Progress bar — only shown in-progress */}
-            {inProgress && (
-              <div
-                style={{
-                  height: 4,
-                  background: 'var(--card-b)',
-                  borderRadius: 2,
-                  marginBottom: 10,
-                  overflow: 'hidden',
-                }}
-              >
+              {/* Title block */}
+              <div style={{ flex: 1 }}>
                 <div
                   style={{
-                    height: '100%',
-                    width: `${Math.round(progress * 100)}%`,
-                    background: 'linear-gradient(90deg,#0e7490,#06b6d4)',
-                    borderRadius: 2,
-                    transition: 'width 0.4s ease',
+                    fontSize: 9,
+                    fontWeight: 900,
+                    letterSpacing: '.15em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,.45)',
+                    marginBottom: 4,
                   }}
-                />
+                >
+                  TODAY&apos;S SESSION
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: 18,
+                    fontWeight: 900,
+                    color: '#fff',
+                    lineHeight: 1.1,
+                    marginBottom: 4,
+                  }}
+                >
+                  Dnevna Vježba
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 500,
+                    color: 'rgba(255,255,255,.48)',
+                  }}
+                >
+                  ~{session.estimatedMinutes} min · {totalCount} activities
+                </div>
               </div>
-            )}
 
-            {/* Activity list preview — only shown fresh */}
-            {!inProgress && (
-              <div style={{ marginBottom: 12 }}>
-                {session.activities.map((act) => (
+              {/* Count badge */}
+              <div
+                style={{
+                  background: 'rgba(255,255,255,.1)',
+                  border: '1px solid rgba(255,255,255,.18)',
+                  borderRadius: 8,
+                  padding: '5px 9px',
+                  fontSize: 10,
+                  fontWeight: 800,
+                  color: 'rgba(255,255,255,.8)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  marginTop: 2,
+                }}
+              >
+                {totalCount} acts
+              </div>
+            </div>
+
+            {/* Activity chips — always shown in States A and B */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18 }}>
+              {session.activities.map((act) => {
+                const isDone = session.completedIds.includes(act.id);
+                const isNext = act.id === nextActivity?.id;
+
+                let chipStyle: React.CSSProperties;
+                let chipLabel: string;
+
+                if (!inProgress) {
+                  // State A: all future chips
+                  chipStyle = {
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,.3)',
+                    border: '1px solid rgba(255,255,255,.1)',
+                  };
+                  chipLabel = `○ ${act.label}`;
+                } else if (isDone) {
+                  // Done chip
+                  chipStyle = {
+                    background: 'rgba(255,255,255,.14)',
+                    color: 'rgba(255,255,255,.65)',
+                    border: '1px solid rgba(255,255,255,.1)',
+                  };
+                  chipLabel = `✓ ${act.label}`;
+                } else if (isNext) {
+                  // Next chip (Croatian red)
+                  chipStyle = {
+                    background: '#CC0000',
+                    color: '#fff',
+                    border: '1px solid transparent',
+                    fontWeight: 900,
+                  };
+                  chipLabel = `▶ ${act.label}`;
+                } else {
+                  // Future chip
+                  chipStyle = {
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,.3)',
+                    border: '1px solid rgba(255,255,255,.1)',
+                  };
+                  chipLabel = `○ ${act.label}`;
+                }
+
+                return (
                   <div
                     key={act.id}
                     style={{
-                      fontSize: 12,
-                      color: 'var(--subtext)',
-                      fontWeight: 600,
-                      padding: '3px 0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
+                      padding: '5px 12px',
+                      borderRadius: 100,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: '.01em',
+                      ...chipStyle,
                     }}
                   >
-                    <span style={{ fontSize: 8, color: 'var(--info,#0284c7)' }}>●</span>
-                    {act.label}
+                    {chipLabel}
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              })}
+            </div>
+          </div>
 
-            {inProgress && (
-              <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 12 }}>
-                {completedCount} of {totalCount} done
-                {nextActivity && (
-                  <span style={{ color: 'var(--heading)', fontWeight: 700 }}>
-                    {' · Next: '}
-                    {nextActivity.label}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {!inProgress && (
+          {/* Progress bar — full-width flush, only in-progress */}
+          {inProgress && (
+            <div
+              style={{
+                height: 4,
+                background: 'rgba(0,0,0,.25)',
+                position: 'relative',
+              }}
+            >
               <div
                 style={{
-                  fontSize: 11,
-                  color: 'var(--subtext)',
-                  marginBottom: 14,
-                  fontWeight: 500,
+                  height: '100%',
+                  width: `${Math.round(progress * 100)}%`,
+                  background: 'linear-gradient(90deg, rgba(255,255,255,.4), rgba(255,255,255,.75))',
+                  borderRadius: '0 2px 2px 0',
+                  transition: 'width 0.4s ease',
                 }}
-              >
-                ~{session.estimatedMinutes} min · {totalCount} activities
-              </div>
-            )}
+              />
+            </div>
+          )}
 
+          {/* CTA button wrapper */}
+          <div style={{ padding: '14px 18px 18px', position: 'relative' }}>
             <button
               onClick={onStart}
               disabled={!nextActivity}
               style={{
                 width: '100%',
-                padding: '12px 0',
-                borderRadius: 12,
-                border: 'none',
-                background: nextActivity
-                  ? 'linear-gradient(135deg,#0e7490,#164e63)'
-                  : 'var(--card-b)',
-                color: nextActivity ? '#fff' : 'var(--subtext)',
+                padding: '13px 0',
+                borderRadius: 13,
+                border: '1px solid rgba(255,255,255,.2)',
+                background: 'rgba(255,255,255,.1)',
+                color: '#fff',
                 fontSize: 14,
-                fontWeight: 800,
-                cursor: nextActivity ? 'pointer' : 'not-allowed',
+                fontWeight: 900,
                 fontFamily: "'Outfit',sans-serif",
+                cursor: nextActivity ? 'pointer' : 'not-allowed',
+                letterSpacing: '.025em',
+                opacity: nextActivity ? 1 : 0.5,
               }}
             >
-              {inProgress ? 'Continue →' : '▶ Begin Session →'}
+              {inProgress ? 'Continue Session →' : '▶ Begin Session →'}
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ── 3 STAT PILLS ── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        <StatPill icon="🔥" value={streak} label="Streak" />
-        <StatPill icon="⭐" value={xpThisWeek} label="Week XP" />
-        <StatPill icon="📚" value={wordsdue} label="Due" />
+        <StatPill
+          icon="🔥"
+          value={streak}
+          label="Day Streak"
+          accentColor="#CC0000"
+          badgeGradient="linear-gradient(135deg,#cc0000,#991a00)"
+        />
+        <StatPill
+          icon="⭐"
+          value={xpThisWeek}
+          label="Week XP"
+          accentColor="#b45309"
+          badgeGradient="linear-gradient(135deg,#d97706,#92400e)"
+        />
+        <StatPill
+          icon="📚"
+          value={wordsdue}
+          label="Words Due"
+          accentColor="#002868"
+          badgeGradient="linear-gradient(135deg,#002868,#0052cc)"
+        />
       </div>
     </div>
   );
