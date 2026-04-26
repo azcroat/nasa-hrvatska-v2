@@ -62,7 +62,9 @@ import {
   DAILY_QUESTS,
   getActiveCampaign,
 } from '../../data';
-import { getWordOfDay } from '../../lib/wordOfDay.js';
+import { getWordOfDay, getPhraseOfDay } from '../../lib/wordOfDay.js';
+import WordOfDayCard from './WordOfDayCard';
+import PhraseOfDayCard from './PhraseOfDayCard';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
@@ -179,10 +181,12 @@ export default function HomeTab({
   // currentDayIdx signals a calendar day change; force recompute even though getWordOfDay uses Date internally
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const wod = useMemo(() => getWordOfDay(), [currentDayIdx]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const pod = useMemo(() => getPhraseOfDay(), [currentDayIdx]);
 
   // Preload word-of-the-day audio on mount so first tap plays instantly
   useEffect(() => {
-    if (wod?.[0]) preloadAudio(wod[0]);
+    if (wod?.hr) preloadAudio(wod.hr);
   }, [wod]);
 
   const userGoal =
@@ -350,7 +354,6 @@ export default function HomeTab({
   void dc;
   void ws;
   void weekXP;
-  void wod;
   void userGoal;
   void activeCampaign;
   void longAbsence;
@@ -471,6 +474,12 @@ export default function HomeTab({
         xpThisWeek={xpThisWeek}
         wordsdue={dueCount}
       />
+
+      {/* ── WORD OF THE DAY ── */}
+      {wod && <WordOfDayCard word={wod} />}
+
+      {/* ── PHRASE OF THE DAY ── */}
+      {pod && <PhraseOfDayCard phrase={pod} />}
     </React.Fragment>
   );
 }

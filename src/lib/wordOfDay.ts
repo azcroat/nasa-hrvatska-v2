@@ -1,32 +1,75 @@
 /**
- * wordOfDay.ts — Daily Word of the Day, consistent for all users on the same date.
+ * wordOfDay.ts — Daily Word of the Day and Phrase of the Day.
+ * Both are consistent for all users on the same calendar date.
  *
- * Uses WORD_OF_DAY_POOL (365 curated entries) for a full year of unique words.
- * Falls back to V vocabulary pool if the curated pool is unavailable.
- * Word format: { hr, en, pos, note } from curated pool, or [hr, en, example] from V.
+ * Word format returned: { hr, en, ph, cat }
+ * Phrase format returned: { hr, en, note }
  */
-import { WORD_OF_DAY_POOL } from '../data/daily-content.js';
+import { WORD_OF_DAY_POOL, PHRASE_OF_DAY_POOL } from '../data/daily-content.js';
 
-export function getWordOfDay(): [string, string, string] | null {
+/** Returns the day-of-year index (0-based, UTC-safe). */
+function dayOfYear(): number {
+  const now = new Date();
+  return Math.floor(
+    (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) -
+      Date.UTC(now.getFullYear(), 0, 1)) /
+      86400000,
+  );
+}
+
+export interface WordOfDay {
+  hr: string;
+  en: string;
+  /** Phonetic pronunciation guide, e.g. "YAH-boo-kah" */
+  ph: string;
+  /** Thematic category, e.g. "food", "family", "nature" */
+  cat: string;
+}
+
+export interface PhraseOfDay {
+  hr: string;
+  en: string;
+  /** Usage/context note, e.g. "Informal — use with friends" */
+  note: string;
+}
+
+export function getWordOfDay(): WordOfDay | null {
   try {
-    // Day-of-year as seed for consistent daily word across all users.
-    // Use Date.UTC for both endpoints so DST transitions (which shorten/lengthen a day
-    // by 1 hour) cannot cause Math.floor to return the same value on two consecutive days.
-    const now = new Date();
-    const dayOfYear = Math.floor(
-      (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) -
-        Date.UTC(now.getFullYear(), 0, 1)) /
-        86400000,
-    );
-
-    if (WORD_OF_DAY_POOL?.length) {
-      const entry = WORD_OF_DAY_POOL[dayOfYear % WORD_OF_DAY_POOL.length] as
-        | { hr: string; en: string; pos?: string; note?: string }
-        | undefined;
-      // Normalize to [hr, en, note] array format used by HomeTab
-      if (entry) return [entry.hr, entry.en, entry.note || entry.pos || ''];
-    }
+    const pool = WORD_OF_DAY_POOL as Array<{
+      hr: string;
+      en: string;
+      ph?: string;
+      cat?: string;
+    }>;
+    if (!pool?.length) return null;
+    const entry = pool[dayOfYear() % pool.length];
+    if (!entry) return null;
+    return {
+      hr: entry.hr,
+      en: entry.en,
+      ph: entry.ph || '',
+      cat: entry.cat || '',
+    };
+  } catch {
     return null;
+  }
+}
+
+export function getPhraseOfDay(): PhraseOfDay | null {
+  try {
+    const pool = PHRASE_OF_DAY_POOL as Array<{
+      hr: string;
+      en: string;
+      note?: string;
+    }>;
+    if (!pool?.length) return null;
+    const entry = pool[dayOfYear() % pool.length];
+    if (!entry) return null;
+    return {
+      hr: entry.hr,
+      en: entry.en,
+      note: entry.note || '',
+    };
   } catch {
     return null;
   }
