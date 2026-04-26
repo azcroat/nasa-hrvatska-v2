@@ -322,3 +322,42 @@ describe('soundSettings — localStorage error resilience (getters)', () => {
     expect(isHapticEnabled()).toBe(true);
   });
 });
+
+// ── localStorage error resilience (setter catch blocks) ──────────────────────
+
+describe('soundSettings — localStorage error resilience (setters)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    localStorage.clear();
+  });
+
+  it('setVoicePreference does not throw when localStorage.setItem throws (charlotte path)', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    // 'charlotte' path calls localStorage.setItem — must be swallowed
+    expect(() => setVoicePreference('charlotte')).not.toThrow();
+  });
+
+  it('setVoicePreference does not throw when localStorage.removeItem throws (gabrijela path)', () => {
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    // non-charlotte path calls localStorage.removeItem — must be swallowed
+    expect(() => setVoicePreference('gabrijela')).not.toThrow();
+  });
+
+  it('setSoundEnabled does not throw when localStorage.setItem throws', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    expect(() => setSoundEnabled(false)).not.toThrow();
+  });
+
+  it('setHapticEnabled does not throw when localStorage.setItem throws', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    expect(() => setHapticEnabled(false)).not.toThrow();
+  });
+});
