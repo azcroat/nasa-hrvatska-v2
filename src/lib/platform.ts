@@ -28,9 +28,14 @@ export function isAndroid(): boolean {
 }
 
 export function isIos(): boolean {
-  if (!isNative()) return false;
+  // Detect iOS on ALL contexts: native Capacitor, iOS Safari PWA, and iOS Safari browser.
+  // Do NOT gate on isNative() — iOS Safari is not a "native" Capacitor app but still
+  // needs iOS-specific audio workarounds.
   if (/ipad|iphone|ipod/i.test(navigator.userAgent)) return true;
-  return (window as unknown as CapacitorWindow).Capacitor?.getPlatform?.() === 'ios';
+  // iPadOS 13+ reports as 'MacIntel' but has touch support
+  if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return true;
+  // Capacitor native bridge — checked last as it may not be injected at module load
+  return isNative() && (window as unknown as CapacitorWindow).Capacitor?.getPlatform?.() === 'ios';
 }
 
 export function isSpeechRecognitionSupported(): boolean {

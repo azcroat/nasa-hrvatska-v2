@@ -341,7 +341,26 @@ export default function HomeTab({
     }
   })();
 
-  // markDone wiring: when user returns to 'dashboard' from an exercise screen
+  // markDone wiring — two-path approach to handle both architectures:
+  //
+  // PATH A (sessionStorage — primary): HomeTab unmounts when an exercise screen is shown
+  // because AppRouter only renders HomeTab when currentScreen === 'dashboard'. The
+  // prevScreenRef approach below can never fire in this case (HomeTab is gone). Instead,
+  // onStart() writes the launched screen to sessionStorage; on the next mount (when user
+  // returns), we read it back and call markDone.
+  React.useEffect(() => {
+    try {
+      const pending = sessionStorage.getItem('nh_session_started');
+      if (pending) {
+        sessionStorage.removeItem('nh_session_started');
+        markDone(pending);
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally empty — runs once on mount only
+
+  // PATH B (prevScreenRef — secondary safety net): fires if HomeTab ever stays mounted
+  // while currentScreen transitions (e.g., if the architecture changes).
   const prevScreenRef = React.useRef(currentScreen);
   React.useEffect(() => {
     const prev = prevScreenRef.current;
@@ -467,6 +486,13 @@ export default function HomeTab({
         tomorrowLabel={tomorrowLabel}
         onStart={() => {
           if (nextActivity) {
+            // Record the launched screen before navigation causes HomeTab to unmount.
+            // HomeTab is only rendered when currentScreen === 'dashboard', so navigating
+            // to an exercise screen unmounts it. On the next mount (when user returns),
+            // the mount effect above reads this key and calls markDone().
+            try {
+              sessionStorage.setItem('nh_session_started', nextActivity.screen);
+            } catch {}
             setScr(nextActivity.screen);
             if (sCurEx) sCurEx(nextActivity.screen);
           }
