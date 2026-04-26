@@ -2,6 +2,10 @@
 import React from 'react';
 import type { DailySession, SessionActivity } from '../../hooks/useDailySession';
 
+// Croatian identity palette — single source of truth for brand colors used in this card
+const CROATIAN_RED = '#CC0000';
+const CROATIAN_BLUE = '#002868';
+
 interface SessionCardProps {
   session: DailySession;
   isComplete: boolean;
@@ -16,7 +20,7 @@ interface SessionCardProps {
 }
 
 // ── Šahovnica Croatian coat of arms crest ──
-function SahovnicaCrest() {
+const SahovnicaCrest = React.memo(function SahovnicaCrest() {
   const cells = Array.from({ length: 25 }, (_, i) => {
     const row = Math.floor(i / 5);
     const col = i % 5;
@@ -38,11 +42,11 @@ function SahovnicaCrest() {
       }}
     >
       {cells.map((type, i) => (
-        <div key={i} style={{ background: type === 'w' ? '#f8f8f8' : '#CC0000' }} />
+        <div key={i} style={{ background: type === 'w' ? '#f8f8f8' : CROATIAN_RED }} />
       ))}
     </div>
   );
-}
+});
 
 // ── Stat pill ──
 interface StatPillProps {
@@ -314,7 +318,7 @@ export default function SessionCard({
                 } else if (isNext) {
                   // Next chip (Croatian red)
                   chipStyle = {
-                    background: '#CC0000',
+                    background: CROATIAN_RED,
                     color: '#fff',
                     border: '1px solid transparent',
                     fontWeight: 900,
@@ -402,8 +406,8 @@ export default function SessionCard({
           icon="🔥"
           value={streak}
           label="Day Streak"
-          accentColor="#CC0000"
-          badgeGradient="linear-gradient(135deg,#cc0000,#991a00)"
+          accentColor={CROATIAN_RED}
+          badgeGradient={`linear-gradient(135deg,${CROATIAN_RED},#991a00)`}
         />
         <StatPill
           icon="⭐"
@@ -416,8 +420,8 @@ export default function SessionCard({
           icon="📚"
           value={wordsdue}
           label="Words Due"
-          accentColor="#002868"
-          badgeGradient="linear-gradient(135deg,#002868,#0052cc)"
+          accentColor={CROATIAN_BLUE}
+          badgeGradient={`linear-gradient(135deg,${CROATIAN_BLUE},#0052cc)`}
         />
       </div>
     </div>
