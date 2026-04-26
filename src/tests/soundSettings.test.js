@@ -361,3 +361,45 @@ describe('soundSettings — localStorage error resilience (setters)', () => {
     expect(() => setHapticEnabled(false)).not.toThrow();
   });
 });
+
+// ── AudioContext error resilience (audio function catch blocks) ───────────────
+
+describe('soundSettings — AudioContext error resilience', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    setSoundEnabled(true); // ensure sound is on so the try block is entered
+    setupAudioContextMock(); // stubs window.AudioContext + resets _audioCtx cache
+  });
+  afterEach(() => {
+    localStorage.clear();
+    teardownAudioContextMock(); // vi.unstubAllGlobals() + vi.clearAllMocks()
+  });
+
+  it('playTone does not throw when AudioContext.createOscillator throws', () => {
+    mockAudioCtxInstance.createOscillator.mockImplementation(() => {
+      throw new Error('AudioContext: createOscillator failed');
+    });
+    expect(() => playTone({ freq: 440 })).not.toThrow();
+  });
+
+  it('playFanfare does not throw when AudioContext.createOscillator throws', () => {
+    mockAudioCtxInstance.createOscillator.mockImplementation(() => {
+      throw new Error('AudioContext: createOscillator failed');
+    });
+    expect(() => playFanfare()).not.toThrow();
+  });
+
+  it('playLevelUp does not throw when AudioContext.createOscillator throws', () => {
+    mockAudioCtxInstance.createOscillator.mockImplementation(() => {
+      throw new Error('AudioContext: createOscillator failed');
+    });
+    expect(() => playLevelUp()).not.toThrow();
+  });
+
+  it('playStreak does not throw when AudioContext.createOscillator throws', () => {
+    mockAudioCtxInstance.createOscillator.mockImplementation(() => {
+      throw new Error('AudioContext: createOscillator failed');
+    });
+    expect(() => playStreak()).not.toThrow();
+  });
+});
