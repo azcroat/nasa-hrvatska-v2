@@ -346,7 +346,9 @@ export function useScreenLauncher({
           .slice(0, 3)
           .map((x) => x[1]);
         if (wr.length < 3) return []; // skip if not enough distractors (tiny vocabulary pool)
-        return [{ hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] }] as McQuestion[];
+        return [
+          { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] },
+        ] as McQuestion[];
       });
       sessionStorage.setItem('nh_checkpoint_level', String(levelIndex));
       returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
@@ -380,7 +382,9 @@ export function useScreenLauncher({
           .slice(0, 4)
           .map((x) => x[1]);
         if (wr.length < 3) return [];
-        return [{ hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] }] as McQuestion[];
+        return [
+          { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] },
+        ] as McQuestion[];
       });
       returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
       setMcInitQ(qs);

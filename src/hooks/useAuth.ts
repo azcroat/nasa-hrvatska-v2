@@ -613,17 +613,28 @@ export function useAuth({
     // Clear per-user progress blob before cS() so no stale early-restore fires
     const _outUser = authUser;
     if (_outUser?.u) {
-      try { localStorage.removeItem('uP_' + _outUser.u); } catch {}
+      try {
+        localStorage.removeItem('uP_' + _outUser.u);
+      } catch {}
     }
     cS();
     // Clear all per-user state so a different user on the same device starts clean.
     // Without this, the early-restore path in useAuth reads the previous user's data
     // (streak, XP, CEFR level) for up to 14 seconds after sign-out.
     const _nhKeys = Object.keys(localStorage).filter((k) => k.startsWith('nh_'));
-    _nhKeys.forEach((k) => { try { localStorage.removeItem(k); } catch {} });
-    ['nh_lesson_resume', 'nh_checkpoints', 'login_attempts', 'uStreak', 'uFreeze', 'xpCooldown'].forEach((k) =>
-      localStorage.removeItem(k),
-    );
+    _nhKeys.forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch {}
+    });
+    [
+      'nh_lesson_resume',
+      'nh_checkpoints',
+      'login_attempts',
+      'uStreak',
+      'uFreeze',
+      'xpCooldown',
+    ].forEach((k) => localStorage.removeItem(k));
     ['nh_ex_start', 'nh_checkpoint_level', 'nh_readlist_filter'].forEach((k) =>
       sessionStorage.removeItem(k),
     );
