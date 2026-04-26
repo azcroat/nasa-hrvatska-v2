@@ -43,8 +43,9 @@ export default defineConfig({
         'src/hooks/useOnlineStatus.ts',
         'src/hooks/useHaptic.ts',
         'src/hooks/useWhisperSTT.js',           // MediaRecorder + AudioContext + SpeechRecognition
-        // Capacitor-native Android hooks — require @capacitor/app plugin + native bridge;
-        // only the "not Android" guard branch is reachable in jsdom
+        // Capacitor-native hooks — require native bridge / platform APIs;
+        // isNative() always returns false in jsdom so Android/iOS branches are unreachable
+        'src/lib/platform.ts',
         'src/hooks/useAndroidBackButton.ts',
         'src/hooks/useAndroidMicPermission.ts',
         // Pure React state (useState only, no business logic to assert)

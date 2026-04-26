@@ -148,4 +148,22 @@ describe('repairStreak', () => {
     // already repaired today → cannot repair again
     expect(second.ok).toBe(false);
   });
+
+  it('restores previous streak count from nh_earn_back token when present', () => {
+    setStreak(0, yesterdayStr());
+    localStorage.setItem('nh_earn_back', JSON.stringify({ prev: 7 }));
+    const result = repairStreak(0);
+    expect(result.ok).toBe(true);
+    expect(result.restoredCount).toBe(7);
+  });
+});
+
+describe('streak — error/corrupt data paths', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it('canRepairStreak returns false when uStreak JSON is corrupt', () => {
+    localStorage.setItem('uStreak', 'INVALID{{{JSON');
+    expect(canRepairStreak()).toBe(false);
+  });
 });
