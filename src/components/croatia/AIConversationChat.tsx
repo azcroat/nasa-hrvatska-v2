@@ -766,7 +766,7 @@ export default function AIConversationChat({
               {hasSpeechAPI && (
                 <button
                   onClick={onToggleVoice}
-                  disabled={loading || !isOnline || isVoiceProcessing}
+                  disabled={loading || !isOnline || isVoiceProcessing || isSpeaking}
                   title={
                     isVoiceProcessing
                       ? 'Transcribing speech…'
