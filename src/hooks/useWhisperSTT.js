@@ -20,7 +20,7 @@
 
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { apiFetch } from '../lib/apiFetch.js';
-import { stopAudio } from '../lib/audio.ts';
+import { stopAudio, getAudioContext, unlockAudio } from '../lib/audio.ts';
 import { isNative } from '../lib/platform.js';
 
 // ── VAD tuning constants ──────────────────────────────────────────────────────
@@ -93,6 +93,12 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
   // This ref is set synchronously before any await, so the guard is always current.
   const isActivatingRef = useRef(false);
 
+  // AudioContext ownership: true = we created a private ctx and must close it in cleanup;
+  // false = we borrowed the shared ctx from audio.ts — TTS still needs it, never close it.
+  const ctxIsOwnedRef = useRef(false);
+  // MediaStreamSource node — must be explicitly disconnected on cleanup even when ctx is borrowed.
+  const sourceRef = useRef(null);
+
   // Stable refs for callbacks/state used inside intervals and async fns
   const onResultRef = useRef(onResult);
   const onInterruptRef = useRef(onInterrupt);
@@ -126,13 +132,28 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
     }
     recorderRef.current = null;
     chunksRef.current = [];
-    if (audioCtxRef.current) {
+    // Disconnect the MediaStreamSource from the graph — always required to release the mic
+    // back to the OS and stop audio flowing through the analyser.
+    if (sourceRef.current) {
       try {
-        audioCtxRef.current.close();
+        sourceRef.current.disconnect();
       } catch {
         /* ignore */
       }
+      sourceRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      if (ctxIsOwnedRef.current) {
+        // We created this context — close it to free OS resources.
+        try {
+          audioCtxRef.current.close();
+        } catch {
+          /* ignore */
+        }
+      }
+      // Never close the shared context from audio.ts — TTS depends on it surviving.
       audioCtxRef.current = null;
+      ctxIsOwnedRef.current = false;
     }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
@@ -357,16 +378,31 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
     }
 
     // ── Whisper + VAD path ────────────────────────────────────────────────
+    // Unlock the shared audio pipeline synchronously — BEFORE any await.
+    // This ensures the shared AudioContext (_ctx) from audio.ts exists and is resumed
+    // within the user-gesture call stack. iOS/Android close the gesture window after
+    // the first await, so any context created afterwards is immediately suspended.
+    unlockAudio();
+
     // Set the activating guard synchronously — before any await — so a second tap
     // that arrives before the first render cycle sees isListening=true is rejected.
     isActivatingRef.current = true;
 
-    // CRITICAL: AudioContext must be created synchronously within the user gesture
-    // call stack — before any await. iOS and Android WebView close the "gesture
-    // active" window after the first await, so a context created afterwards is
-    // immediately suspended and the AnalyserNode receives no audio data.
-    const AudioCtxCtor = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioCtxCtor();
+    // Prefer the shared AudioContext that audio.ts already created and unlocked.
+    // This avoids creating a second context (iOS allows only one active context per page),
+    // and ensures TTS playback continues to work after the VAD session ends (we never
+    // close a context we don't own).
+    // Fall back to a private context only if the shared one is unavailable or closed.
+    const sharedCtx = getAudioContext();
+    let ctx;
+    if (sharedCtx && sharedCtx.state !== 'closed') {
+      ctx = sharedCtx;
+      ctxIsOwnedRef.current = false;
+    } else {
+      const AudioCtxCtor = window.AudioContext || window.webkitAudioContext;
+      ctx = new AudioCtxCtor();
+      ctxIsOwnedRef.current = true;
+    }
     audioCtxRef.current = ctx;
 
     try {
@@ -384,6 +420,7 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       if (ctx.state === 'suspended') await ctx.resume();
 
       const source = ctx.createMediaStreamSource(stream);
+      sourceRef.current = source; // tracked for disconnect in cleanup
       const analyser = ctx.createAnalyser();
       analyser.fftSize = FFT_SIZE;
       analyser.smoothingTimeConstant = 0.4;
@@ -400,15 +437,16 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       // Poll the analyser at POLL_INTERVAL_MS — drives the entire VAD state machine
       pollRef.current = setInterval(vadTick, POLL_INTERVAL_MS);
     } catch (e) {
-      // Setup failed — close the AudioContext we created above to avoid leaking it
-      if (audioCtxRef.current) {
+      // Setup failed — only close the AudioContext if we own it (not the shared one from audio.ts)
+      if (audioCtxRef.current && ctxIsOwnedRef.current) {
         try {
           audioCtxRef.current.close();
         } catch {
           /* ignore */
         }
-        audioCtxRef.current = null;
       }
+      audioCtxRef.current = null;
+      ctxIsOwnedRef.current = false;
       if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
         onErrorRef.current?.(
           isNative()
