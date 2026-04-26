@@ -57,7 +57,7 @@ export function loseHeart(): number {
   // When date has changed (returning user on a new day), reset lastRegen to now.
   // Using the old lastRegen from a previous day causes getHearts() to immediately
   // regen all hearts (20+ hours elapsed), breaking the lives system for returning users.
-  const lastRegen = s && s.date === today ? (s.lastRegen || Date.now()) : Date.now();
+  const lastRegen = s && s.date === today ? s.lastRegen || Date.now() : Date.now();
   saveState({ date: today, hearts: newHearts, lastRegen });
   return newHearts;
 }

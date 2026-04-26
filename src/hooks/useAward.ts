@@ -345,7 +345,11 @@ export function useAward({
         BADGES as unknown as Array<{ id: string; r: (s: Stats) => boolean }>
       ).filter((b) => {
         if (!STREAK_BADGE_IDS.includes(b.id) || _currentBadges.includes(b.id)) return false;
-        try { return b.r(_streakPreview); } catch { return false; }
+        try {
+          return b.r(_streakPreview);
+        } catch {
+          return false;
+        }
       });
       const _pendingStreakBadge: unknown = _earnedStreakBadges.length
         ? _earnedStreakBadges[0]
