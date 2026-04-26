@@ -537,6 +537,43 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
     setPhase('none');
   };
 
+  // ── STT: send audio blob to /api/stt ────────
+  // Declared before startRecording so startRecording can include it in its dep array.
+  const transcribeAudio = useCallback(
+    async (blob: Blob, mimeType: string) => {
+      setPhase('thinking'); // show loading state
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 15000); // 15s max
+      try {
+        const res = await apiFetch('/api/stt', {
+          method: 'POST',
+          headers: { 'Content-Type': mimeType },
+          body: blob,
+          signal: controller.signal,
+        });
+        clearTimeout(tid);
+        // Non-2xx (e.g. 503 when STT keys not configured) → fall back to text input
+        if (!res.ok) {
+          setUseFallbackInput(true);
+          setPhase('none');
+          return;
+        }
+        const data = await res.json();
+        // API returns { text: "..." } — NOT { transcript: "..." }
+        const transcript = data.text?.trim();
+        if (transcript) {
+          await sendToTutor(transcript, breakdownCount, sessionHistory);
+        } else {
+          setPhase('none'); // no speech detected, re-enable mic
+        }
+      } catch {
+        clearTimeout(tid);
+        setPhase('none');
+      }
+    },
+    [breakdownCount, sessionHistory, sendToTutor],
+  );
+
   // ── STT: start recording via MediaRecorder ─
   const startRecording = useCallback(async () => {
     // Don't start if already busy
@@ -585,8 +622,7 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
       }
       setUseFallbackInput(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRecording, thinking, playing]);
+  }, [isRecording, thinking, playing, transcribeAudio]);
 
   // ── STT: stop recording ────────────────────
   const stopRecording = useCallback(() => {
@@ -598,41 +634,6 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
       setIsRecording(false);
     }
   }, []);
-
-  // ── STT: send audio blob to Deepgram /api/stt ─
-  const transcribeAudio = useCallback(
-    async (blob: Blob, mimeType: string) => {
-      setPhase('thinking'); // show loading state
-      const controller = new AbortController();
-      const tid = setTimeout(() => controller.abort(), 15000); // 15s max
-      try {
-        const res = await apiFetch('/api/stt', {
-          method: 'POST',
-          headers: { 'Content-Type': mimeType },
-          body: blob,
-          signal: controller.signal,
-        });
-        clearTimeout(tid);
-        const data = await res.json();
-        if (data.fallback) {
-          // Deepgram not configured, fall back to text input
-          setUseFallbackInput(true);
-          setPhase('none');
-          return;
-        }
-        const transcript = data.transcript?.trim();
-        if (transcript) {
-          await sendToTutor(transcript, breakdownCount, sessionHistory);
-        } else {
-          setPhase('none'); // no speech detected, re-enable mic
-        }
-      } catch {
-        clearTimeout(tid);
-        setPhase('none');
-      }
-    },
-    [breakdownCount, sessionHistory, sendToTutor],
-  );
 
   // ── End session → fetch debrief from Marija ─
   const endSession = useCallback(async () => {
