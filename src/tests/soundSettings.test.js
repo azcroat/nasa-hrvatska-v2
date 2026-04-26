@@ -292,3 +292,33 @@ describe('soundSettings — haptic', () => {
     expect(() => haptic(100)).not.toThrow();
   });
 });
+
+// ── localStorage error resilience (getter catch blocks) ──────────────────────
+
+describe('soundSettings — localStorage error resilience (getters)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    localStorage.clear();
+  });
+
+  it('getVoicePreference returns gabrijela when localStorage.getItem throws', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    expect(getVoicePreference()).toBe('gabrijela');
+  });
+
+  it('isSoundEnabled returns true when localStorage.getItem throws', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    expect(isSoundEnabled()).toBe(true);
+  });
+
+  it('isHapticEnabled returns true when localStorage.getItem throws', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    expect(isHapticEnabled()).toBe(true);
+  });
+});
