@@ -80,10 +80,7 @@ const capturedSttCallbacks = vi.hoisted(() => ({
   onError: null as ((msg: string) => void) | null,
 }));
 vi.mock('../hooks/useWhisperSTT.js', () => ({
-  default: (opts: {
-    onResult?: (text: string) => void;
-    onError?: (msg: string) => void;
-  }) => {
+  default: (opts: { onResult?: (text: string) => void; onError?: (msg: string) => void }) => {
     // Capture callbacks so tests can trigger them
     if (opts?.onResult) capturedSttCallbacks.onResult = opts.onResult;
     if (opts?.onError) capturedSttCallbacks.onError = opts.onError;
@@ -133,7 +130,9 @@ vi.mock('../lib/learnerErrors.js', () => ({
   getErrorsForAPI: vi.fn(() => []),
 }));
 vi.mock('../lib/apiFetch.js', () => ({
-  apiFetch: vi.fn(() => Promise.resolve({ ok: false, status: 503, json: () => Promise.resolve({}) })),
+  apiFetch: vi.fn(() =>
+    Promise.resolve({ ok: false, status: 503, json: () => Promise.resolve({}) }),
+  ),
 }));
 vi.mock('../lib/audio.ts', () => ({
   stopAudio: vi.fn(),
@@ -158,11 +157,7 @@ vi.mock('../components/croatia/AIConversationResult', () => ({
 vi.mock('../components/croatia/AIConversationWriteSetup', () => ({
   // Render the Header prop so mode tabs remain visible in write mode
   default: ({ Header }: { Header?: React.ReactNode }) =>
-    React.createElement(
-      'div',
-      { 'data-testid': 'ai-write-setup' },
-      Header ?? null,
-    ),
+    React.createElement('div', { 'data-testid': 'ai-write-setup' }, Header ?? null),
 }));
 vi.mock('../components/croatia/AIConversationWriteResult', () => ({
   default: () => React.createElement('div', { 'data-testid': 'ai-write-result' }),
