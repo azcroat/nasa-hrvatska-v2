@@ -53,6 +53,11 @@ export async function flush(uid: string): Promise<void> {
   }
   if (queue.length === 0) return;
 
+  // Clear the queue immediately after reading it into memory — this always happens
+  // regardless of whether suspicious entries are found or whether the Firestore write
+  // succeeds. The audit write below is best-effort; we do not block queue clearance on it.
+  clearQueue();
+
   const suspicious = queue.filter((entry) => {
     const cap =
       (ACTIVITY_XP_MAP as Record<string, number>)[entry.activityType] ?? ACTIVITY_XP_MAP.default;
@@ -73,10 +78,9 @@ export async function flush(uid: string): Promise<void> {
       totalSuspiciousXp: suspicious.reduce((sum, e) => sum + e.claimedXp, 0),
       flaggedAt: Date.now(),
     });
-    // Only clear AFTER successful write — if Firestore fails, queue stays for next flush()
-    clearQueue();
   } catch (e) {
-    // Audit write failed — log but don't crash the app. Queue is preserved for retry.
+    // Audit write failed — log but don't crash. Queue was already cleared;
+    // suspicious entries are lost for this flush cycle (audit is best-effort).
     console.warn('[offlineAwardQueue] Firestore audit write failed:', (e as Error)?.message);
   }
 }
