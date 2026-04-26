@@ -670,7 +670,7 @@ export default function AIConversationChat({
                 <span style={{ fontSize: 18 }}>✋</span>
                 Interrupt Maja
                 <span style={{ opacity: 0.65, fontWeight: 500, fontSize: 'var(--text-xs)' }}>
-                  — tap to stop &amp; type
+                  {input.trim() ? '— tap to send now' : '— tap to stop'}
                 </span>
               </button>
             )}
@@ -737,7 +737,8 @@ export default function AIConversationChat({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    onSend();
+                    // Block send while Maja is speaking — user can compose but not send yet
+                    if (!isSpeaking) onSend();
                   }
                 }}
                 placeholder={
@@ -745,9 +746,11 @@ export default function AIConversationChat({
                     ? 'Transcribing…'
                     : !isOnline
                       ? 'Offline — reconnect to continue…'
-                      : listening
-                        ? 'Listening — speak in Croatian…'
-                        : 'Piši na hrvatskom…'
+                      : isSpeaking
+                        ? 'Compose your reply — send when Maja finishes…'
+                        : listening
+                          ? 'Listening — speak in Croatian…'
+                          : 'Piši na hrvatskom…'
                 }
                 disabled={loading || !isOnline || !!(chatError && messages.length === 0)}
                 style={{
@@ -801,9 +804,10 @@ export default function AIConversationChat({
                 </button>
               )}
               <button
-                aria-label="Send"
+                aria-label={isSpeaking ? 'Waiting for Maja to finish speaking' : 'Send'}
+                title={isSpeaking ? 'Interrupt Maja first, or wait for her to finish' : undefined}
                 onClick={onSend}
-                disabled={loading || !input.trim() || !isOnline}
+                disabled={loading || !input.trim() || !isOnline || isSpeaking}
                 style={{
                   width: 44,
                   height: 44,
@@ -811,16 +815,16 @@ export default function AIConversationChat({
                   border: 'none',
                   flexShrink: 0,
                   fontSize: 18,
-                  cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
+                  cursor: input.trim() && !loading && !isSpeaking ? 'pointer' : 'not-allowed',
                   transition: 'all .15s',
                   background:
-                    input.trim() && !loading
+                    input.trim() && !loading && !isSpeaking
                       ? 'linear-gradient(135deg,var(--info),#0c4a6e)'
                       : 'var(--bar-bg)',
-                  color: input.trim() && !loading ? 'var(--card)' : 'var(--subtext)',
+                  color: input.trim() && !loading && !isSpeaking ? 'var(--card)' : 'var(--subtext)',
                 }}
               >
-                ➤
+                {isSpeaking && input.trim() ? '⏸' : '➤'}
               </button>
             </div>
 
