@@ -8,8 +8,8 @@ const ANCHORS = [
   { id: 'section-discover', label: 'Discover', icon: '🗓️', cefr: null },
   { id: 'section-history', label: 'History', icon: '🏰', cefr: 'A2+' },
   { id: 'section-life', label: 'Life', icon: '🏘️', cefr: 'A1+' },
-  { id: 'section-media', label: 'Media', icon: '🎵', cefr: 'A2–B1' },
   { id: 'section-stories', label: 'Stories', icon: '📖', cefr: 'A1–B2' },
+  { id: 'section-media', label: 'Media', icon: '🎵', cefr: 'A2–B1' },
 ];
 
 interface CroatiaTabProps {
@@ -169,8 +169,8 @@ export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
             {[
               { label: '🏰 History', anchor: 'section-history', bg: 'rgba(212,0,48,.5)' },
               { label: '🏘️ Life', anchor: 'section-life', bg: 'rgba(0,61,165,.5)' },
-              { label: '🎵 Media', anchor: 'section-media', bg: 'rgba(124,58,237,.45)' },
               { label: '📖 Stories', anchor: 'section-stories', bg: 'rgba(22,163,74,.4)' },
+              { label: '🎵 Media', anchor: 'section-media', bg: 'rgba(124,58,237,.45)' },
             ].map((t) => (
               <button
                 key={t.label}
@@ -300,48 +300,6 @@ export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
       {/* ── HISTORY & LIFE — CultureTab renders both with in-page anchor IDs ── */}
       <CultureTab sCurEx={sCurEx as ((ex: string) => void) | undefined} />
 
-      {/* ── MEDIA ─────────────────────────────────────────────────────────── */}
-      <div id="section-media">
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '20px 0 14px',
-            borderTop: '1.5px solid var(--card-b)',
-            marginTop: 8,
-          }}
-        >
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              flexShrink: 0,
-              background: 'linear-gradient(135deg,rgba(124,58,237,.15),rgba(91,33,182,.1))',
-              border: '1.5px solid rgba(124,58,237,.25)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 20,
-            }}
-          >
-            🎵
-          </div>
-          <div>
-            <div
-              style={{ fontSize: 17, fontWeight: 900, color: 'var(--heading)', lineHeight: 1.1 }}
-            >
-              Media
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
-              TV, music, film, sport &amp; podcasts
-            </div>
-          </div>
-        </div>
-        <MediaTab />
-      </div>
-
       {/* ── STORIES ───────────────────────────────────────────────────────── */}
       <div id="section-stories">
         <div
@@ -382,6 +340,48 @@ export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
           </div>
         </div>
         <StoriesTab />
+      </div>
+
+      {/* ── MEDIA ─────────────────────────────────────────────────────────── */}
+      <div id="section-media">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '20px 0 14px',
+            borderTop: '1.5px solid var(--card-b)',
+            marginTop: 8,
+          }}
+        >
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              flexShrink: 0,
+              background: 'linear-gradient(135deg,rgba(124,58,237,.15),rgba(91,33,182,.1))',
+              border: '1.5px solid rgba(124,58,237,.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 20,
+            }}
+          >
+            🎵
+          </div>
+          <div>
+            <div
+              style={{ fontSize: 17, fontWeight: 900, color: 'var(--heading)', lineHeight: 1.1 }}
+            >
+              Media
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
+              TV, music, film, sport &amp; podcasts
+            </div>
+          </div>
+        </div>
+        <MediaTab />
       </div>
     </React.Fragment>
   );
