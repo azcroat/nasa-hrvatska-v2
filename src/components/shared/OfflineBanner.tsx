@@ -31,9 +31,7 @@ export default function OfflineBanner() {
         transition: 'background .3s',
       }}
     >
-      {isBack
-        ? '✓ Back online — progress syncing'
-        : '📵 Offline — progress saves locally and syncs when reconnected'}
+      {isBack ? '✓ Back online' : '📵 Offline — progress saves locally and syncs when reconnected'}
     </div>
   );
 }

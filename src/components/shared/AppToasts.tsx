@@ -30,9 +30,6 @@ interface AppToastsProps {
   setShowPwaInstall: (v: boolean) => void;
   showBackupBanner: boolean;
   setShowBackupBanner: (v: boolean) => void;
-  syncError: boolean;
-  setSyncError: (v: boolean) => void;
-  syncErrorCode: string | null;
   // Subscription
   isFreeAnnual: boolean;
   daysLeft: number | null;
@@ -61,9 +58,6 @@ export function AppToasts({
   setShowPwaInstall,
   showBackupBanner,
   setShowBackupBanner,
-  syncError,
-  setSyncError,
-  syncErrorCode,
   // Subscription
   isFreeAnnual,
   daysLeft,
@@ -556,63 +550,6 @@ export function AppToasts({
                 localStorage.setItem('nh_pwa_install_dismissed', 'true');
                 setShowPwaInstall(false);
               }}
-              aria-label="Dismiss"
-              style={{
-                background: 'rgba(255,255,255,.2)',
-                border: 'none',
-                color: '#fff',
-                borderRadius: 10,
-                width: 44,
-                height: 44,
-                fontSize: 18,
-                cursor: 'pointer',
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: 1,
-              }}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Sync error warning — shown when Firestore saves fail 2+ consecutive times */}
-      {syncError && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          style={{
-            position: 'fixed',
-            top: 16,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 9700,
-            width: 'calc(100% - 32px)',
-            maxWidth: 420,
-            background: 'linear-gradient(135deg,#dc2626,#991b1b)',
-            color: '#fff',
-            borderRadius: 20,
-            padding: '16px 20px',
-            boxShadow: '0 8px 40px rgba(220,38,38,.5)',
-            animation: 'slideUp .4s cubic-bezier(.34,1.56,.64,1)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-            <div style={{ fontSize: 30, flexShrink: 0, lineHeight: 1 }}>⚠️</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 4, lineHeight: 1.2 }}>
-                Progress not saving to cloud
-              </div>
-              <div style={{ fontSize: 12, opacity: 0.9, lineHeight: 1.5, fontWeight: 500 }}>
-                Your progress is saved on this device. Check your connection — cloud sync will
-                resume automatically when you&apos;re back online.
-              </div>
-            </div>
-            <button
-              onClick={() => setSyncError(false)}
               aria-label="Dismiss"
               style={{
                 background: 'rgba(255,255,255,.2)',

@@ -48,9 +48,6 @@ interface SyncManagerResult {
   doSyncNow: () => Promise<boolean>;
   showBackupBanner: boolean;
   setShowBackupBanner: React.Dispatch<React.SetStateAction<boolean>>;
-  syncError: boolean;
-  setSyncError: React.Dispatch<React.SetStateAction<boolean>>;
-  syncErrorCode: string;
   lastSyncedAt: number;
 }
 
@@ -72,8 +69,6 @@ export function useSyncManager({
   syncReady,
 }: SyncManagerParams): SyncManagerResult {
   const [showBackupBanner, setShowBackupBanner] = useState(false);
-  const [syncError, setSyncError] = useState(false);
-  const [syncErrorCode, setSyncErrorCode] = useState('');
   const [lastSyncedAt, setLastSyncedAt] = useState<number>(0);
   const _syncFailCount = useRef(0);
   const _isSavingRef = useRef(false); // mutex: prevents concurrent doSyncNow calls
@@ -268,8 +263,6 @@ export function useSyncManager({
           _reconnectAttempts = 0; // reset on success
           if (setSyncReady) setSyncReady(true);
           _syncFailCount.current = 0;
-          setSyncError(false);
-          setSyncErrorCode('');
           if (!_initialPushDone) {
             _initialPushDone = true;
             // Guard: only push local data if it is STRICTLY NEWER than what Firebase just
@@ -294,11 +287,9 @@ export function useSyncManager({
           enqueueSnapshot(fp, fpTs, uid);
         },
         (err: Error) => {
-          // Watcher errored — schedule a reconnect with exponential backoff
+          // Watcher errored — reconnect silently with exponential backoff (no UI banner)
           console.warn('[sync] Firestore watcher error — scheduling reconnect:', err?.message);
           _syncFailCount.current++;
-          setSyncError(true);
-          setSyncErrorCode((err as { code?: string })?.code || 'WATCHER_ERROR');
           _reconnectAttempts++;
           const delay = Math.min(5000 * Math.pow(2, _reconnectAttempts - 1), 60000);
           if (_reconnectTimer) clearTimeout(_reconnectTimer);
@@ -442,14 +433,12 @@ export function useSyncManager({
       })) as { ok?: boolean; code?: string; err?: string };
       if (result && result.ok !== false) {
         _syncFailCount.current = 0;
-        setSyncError(false);
-        setSyncErrorCode('');
         setLastSyncedAt(Date.now());
       } else {
         _syncFailCount.current += 1;
+        // Sync failures are handled silently — reconnect happens automatically
         if (_syncFailCount.current >= 2) {
-          setSyncError(true);
-          setSyncErrorCode(result?.code || result?.err || 'unknown');
+          console.warn('[sync] periodic push failed', _syncFailCount.current, 'times');
         }
       }
     }, 60 * 1000);
@@ -581,9 +570,6 @@ export function useSyncManager({
     doSyncNow,
     showBackupBanner,
     setShowBackupBanner,
-    syncError,
-    setSyncError,
-    syncErrorCode,
     lastSyncedAt,
   };
 }

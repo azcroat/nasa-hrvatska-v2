@@ -41,30 +41,28 @@ export default function ProfileTab({
       {/* ── PROFILE HEADER ── */}
       <ProfileHeader />
 
-      {/* ── SYNC STATUS INDICATOR ── */}
-      {authUser && (
+      {/* ── SYNC STATUS INDICATOR — only shown after first successful sync ── */}
+      {authUser && lastSyncedAt > 0 && (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: 6,
             fontSize: 11,
-            color: lastSyncedAt > 0 ? 'var(--success, #16a34a)' : 'var(--subtext)',
+            color: 'var(--success, #16a34a)',
             fontWeight: 600,
             marginBottom: 12,
             paddingLeft: 2,
           }}
         >
-          <span style={{ fontSize: 13 }}>{lastSyncedAt > 0 ? '☁️' : '⏳'}</span>
+          <span style={{ fontSize: 13 }}>☁️</span>
           <span>
-            {lastSyncedAt > 0
-              ? (() => {
-                  const diff = Math.round((Date.now() - lastSyncedAt) / 60000);
-                  if (diff < 1) return 'Synced just now';
-                  if (diff === 1) return 'Synced 1 min ago';
-                  return `Synced ${diff} min ago`;
-                })()
-              : 'Syncing…'}
+            {(() => {
+              const diff = Math.round((Date.now() - lastSyncedAt) / 60000);
+              if (diff < 1) return 'Synced just now';
+              if (diff === 1) return 'Synced 1 min ago';
+              return `Synced ${diff} min ago`;
+            })()}
           </span>
         </div>
       )}
