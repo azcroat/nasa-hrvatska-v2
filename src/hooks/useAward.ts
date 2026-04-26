@@ -334,14 +334,24 @@ export function useAward({
       const _serverToday = await _getServerDateStr();
       const sr = updateStreak(_serverToday);
 
-      // Second setStats: update streak count AND evaluate streak-specific badges.
-      // The first setStats() above evaluated ALL badges but read getStreak() BEFORE
-      // updateStreak() ran, so the streak value was the OLD count. Streak badges
-      // (str3, str7, str14, str21, str30, str60, str100) are re-evaluated here
-      // against the now-authoritative sr.count. Non-streak badges are already in
-      // s.badges and the filter prevents double-awarding.
+      // Evaluate streak badges SYNCHRONOUSLY before calling setStats.
+      // If we set _pendingStreakBadge inside the setStats updater, it remains null
+      // when read immediately after (React updaters run asynchronously on next render).
+      // Using the current `stats` closure + sr.count gives us the correct preview state.
       const STREAK_BADGE_IDS = ['str3', 'str7', 'str14', 'str21', 'str30', 'str60', 'str100'];
-      let _pendingStreakBadge: unknown = null;
+      const _streakPreview = { ...stats, streak: sr.count };
+      const _currentBadges = Array.isArray(stats.badges) ? stats.badges : [];
+      const _earnedStreakBadges = (
+        BADGES as unknown as Array<{ id: string; r: (s: Stats) => boolean }>
+      ).filter((b) => {
+        if (!STREAK_BADGE_IDS.includes(b.id) || _currentBadges.includes(b.id)) return false;
+        try { return b.r(_streakPreview); } catch { return false; }
+      });
+      const _pendingStreakBadge: unknown = _earnedStreakBadges.length
+        ? _earnedStreakBadges[0]
+        : null;
+
+      // Second setStats: update streak count AND apply streak badge to state
       setStats((s: Stats) => {
         const n = { ...s, streak: sr.count };
         const badges = Array.isArray(n.badges) ? n.badges : [];
@@ -357,7 +367,6 @@ export function useAward({
         });
         if (newStreakBadges.length) {
           n.badges = [...badges, ...newStreakBadges.map((b: { id: string }) => b.id)];
-          _pendingStreakBadge = newStreakBadges[0];
           newStreakBadges.forEach((b: { id: string }) => trackBadgeEarned(b.id));
         }
         return n;
@@ -541,7 +550,7 @@ export function useAward({
         }
       }
     },
-    [curEx, comebackBonus, setStats, stats.lc, writeDelta],
+    [curEx, comebackBonus, setStats, stats, writeDelta],
   );
 
   return {

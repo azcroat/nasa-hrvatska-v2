@@ -22,7 +22,6 @@ export function sanitizeStats(raw: unknown): Partial<Stats> {
     'mv',
     'hi',
     'str',
-    'authLoading',
   ] as const) {
     const v = r[k];
     if (typeof v === 'number' && isFinite(v) && v >= 0) {

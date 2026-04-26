@@ -110,8 +110,9 @@ export async function onRequestPost(context) {
       const awarded = Math.min(claimedXp, maxXp, remaining);
       entry.total += awarded;
 
-      // Write-back KV asynchronously — don't block the response
-      context.waitUntil(kv.put(key, JSON.stringify(entry), { expirationTtl: VELOCITY_TTL_S }));
+      // Write-back KV synchronously before returning — prevents concurrent requests from
+      // reading the same pre-update state and each being awarded up to VELOCITY_BUDGET.
+      await kv.put(key, JSON.stringify(entry), { expirationTtl: VELOCITY_TTL_S });
 
       return new Response(JSON.stringify({ awarded, activityType }), {
         status: 200,

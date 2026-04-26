@@ -3,6 +3,7 @@
 // Client falls back to Web Speech API when this endpoint returns 503.
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 // ── Azure TTS ─────────────────────────────────────────────────────────────────
 // hr-HR-GabrijelaNeural: native Croatian Neural voice.
@@ -313,8 +314,8 @@ function isAllowedOrigin(origin, isDev) {
 
 function corsHeaders(origin) {
   // Echo the request origin so the browser's CORS check passes for any allowed origin.
-  // Fall back to wildcard for null-origin / no-origin requests (PWA standalone).
-  const allowOrigin = origin || '*';
+  // Fall back to the production domain for null-origin (PWA standalone, Capacitor native).
+  const allowOrigin = origin || 'https://nasahrvatska.com';
   return {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -347,6 +348,19 @@ export async function onRequestPost(context) {
       status: 429,
       headers: corsHeaders(origin),
     });
+  }
+
+  // Require Firebase auth to prevent unbounded Azure/Google TTS billing.
+  // Unauthenticated callers (including rotating-IP attackers) are rejected before any API call.
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  if (FIREBASE_PROJECT_ID) {
+    const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!uid) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: corsHeaders(origin),
+      });
+    }
   }
 
   const AZURE_KEY = env.AZURE_TTS_KEY;

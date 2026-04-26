@@ -34,6 +34,7 @@ import {
   type FamilyData,
 } from '../lib/firebase.js';
 import { updateStreak } from '../lib/appUtils.js';
+import { getSR } from '../lib/srs.js';
 import type { AuthUser } from '../types/index.js';
 
 interface AuthCallbacks {
@@ -328,12 +329,17 @@ export function useAuth({
             });
             cb.current.applyRemoteProgress(fp);
             if (lpXP > fpXP) {
-              fbSaveProgress(k, { ...fp, stats: mergedStats }).catch(function () {});
+              // Include local SRS data so any offline reviews done before sign-in are
+              // uploaded here. Without this, fp.sr (Firestore SRS) would be re-saved,
+              // overwriting newer local cards until the next doSyncNow() fires.
+              fbSaveProgress(k, { ...fp, stats: mergedStats, sr: getSR() }).catch(function () {});
             }
           } else {
             _origLocalSavedAt = 0;
             _origLocalFbUpdated = 0;
             if (lpXP > 0 && lp) {
+              // lp is from gP(k) = localStorage snapshot (buildProgressSnapshot includes sr: getSR())
+              // so local SRS is already embedded — no additional getSR() call needed here.
               fbSaveProgress(k, lp).catch(function () {});
             }
           }
@@ -604,9 +610,18 @@ export function useAuth({
       watchRef.current = null;
     }
     fbLogout();
+    // Clear per-user progress blob before cS() so no stale early-restore fires
+    const _outUser = authUser;
+    if (_outUser?.u) {
+      try { localStorage.removeItem('uP_' + _outUser.u); } catch {}
+    }
     cS();
-    // Clear all per-user state so a different user on the same device starts clean
-    ['nh_lesson_resume', 'nh_checkpoints', 'login_attempts'].forEach((k) =>
+    // Clear all per-user state so a different user on the same device starts clean.
+    // Without this, the early-restore path in useAuth reads the previous user's data
+    // (streak, XP, CEFR level) for up to 14 seconds after sign-out.
+    const _nhKeys = Object.keys(localStorage).filter((k) => k.startsWith('nh_'));
+    _nhKeys.forEach((k) => { try { localStorage.removeItem(k); } catch {} });
+    ['nh_lesson_resume', 'nh_checkpoints', 'login_attempts', 'uStreak', 'uFreeze', 'xpCooldown'].forEach((k) =>
       localStorage.removeItem(k),
     );
     ['nh_ex_start', 'nh_checkpoint_level', 'nh_readlist_filter'].forEach((k) =>

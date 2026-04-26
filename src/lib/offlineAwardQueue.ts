@@ -53,9 +53,6 @@ export async function flush(uid: string): Promise<void> {
   }
   if (queue.length === 0) return;
 
-  // Always clear the queue first — prevents re-processing if Firestore write fails
-  clearQueue();
-
   const suspicious = queue.filter((entry) => {
     const cap =
       (ACTIVITY_XP_MAP as Record<string, number>)[entry.activityType] ?? ACTIVITY_XP_MAP.default;
@@ -76,8 +73,10 @@ export async function flush(uid: string): Promise<void> {
       totalSuspiciousXp: suspicious.reduce((sum, e) => sum + e.claimedXp, 0),
       flaggedAt: Date.now(),
     });
+    // Only clear AFTER successful write — if Firestore fails, queue stays for next flush()
+    clearQueue();
   } catch (e) {
-    // Audit write failed — log but don't crash the app
+    // Audit write failed — log but don't crash the app. Queue is preserved for retry.
     console.warn('[offlineAwardQueue] Firestore audit write failed:', (e as Error)?.message);
   }
 }

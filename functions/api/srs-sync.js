@@ -16,7 +16,11 @@ function sanitizeParam(value, maxLen = 200) {
   return String(value)
     .replace(/[\r\n]/g, ' ')
     .replace(/[`\\]/g, '')
-    .replace(/\bignore\b.*\binstruction/gi, '')
+    .replace(/<[^>]*>/g, '') // strip HTML tags — output rendered in UI
+    .replace(
+      /\b(ignore|disregard|override|forget|bypass|jailbreak|system\s*prompt|act\s+as|pretend|you\s+are\s+now)\b/gi,
+      '',
+    )
     .trim()
     .slice(0, maxLen);
 }
@@ -102,8 +106,14 @@ export async function onRequestPost(context) {
 
   // Require valid Firebase auth token
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-  if (FIREBASE_PROJECT_ID && !uid) {
+  if (!FIREBASE_PROJECT_ID) {
+    return new Response(JSON.stringify({ error: 'server_misconfigured' }), {
+      status: 500,
+      headers: corsHeaders(origin),
+    });
+  }
+  const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+  if (!uid) {
     return new Response(JSON.stringify({ error: 'unauthorized' }), {
       status: 401,
       headers: corsHeaders(origin),
