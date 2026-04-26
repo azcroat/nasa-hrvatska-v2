@@ -346,6 +346,10 @@ export default function AIConversation({
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+  const phaseRef = useRef(phase); // always-current ref — endAndEvaluate may run in a setTimeout
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
   const memorySummaryRef = useRef<string | null>(null); // cached memory summary for this session
   const evalXpFired = useRef(false);
   const writeXpFired = useRef(false);
@@ -422,6 +426,8 @@ export default function AIConversation({
     setIsSpeaking(true);
     try {
       await speak(text);
+    } catch {
+      // TTS failures are non-fatal — conversation continues without audio
     } finally {
       // Only clear if we're still the current speaker (no newer speakWithAnim fired)
       if (isMountedRef.current && speakGenRef.current === myGen) {
@@ -662,7 +668,7 @@ export default function AIConversation({
           emotion: result.emotion,
         },
       ]);
-      if (!muted) speakWithAnim(result.croatian);
+      if (!muted) await speakWithAnim(result.croatian);
     } catch (e) {
       const msg = (e as Error).message || '';
       setChatError(msg.startsWith('setup_error:') ? msg.slice(12) : msg);
@@ -714,7 +720,7 @@ export default function AIConversation({
         }
       }
 
-      if (!muted) speakWithAnim(result.croatian);
+      if (!muted) await speakWithAnim(result.croatian);
 
       // Session naturally ended — auto-trigger evaluation after Maja's closing message
       if (result.is_session_end) {
@@ -840,7 +846,7 @@ export default function AIConversation({
           emotion: result.emotion,
         },
       ]);
-      if (!muted) speakWithAnim(result.croatian);
+      if (!muted) await speakWithAnim(result.croatian);
     } catch (e) {
       const msg = (e as Error).message || '';
       setChatError(msg.startsWith('setup_error:') ? msg.slice(12) : msg);
@@ -851,7 +857,9 @@ export default function AIConversation({
   async function endAndEvaluate() {
     // Guard: skip if already evaluating or showing result (handles race between manual button
     // and auto-triggered setTimeout when is_session_end fires at the same time).
-    const currentPhase = phase;
+    // Use phaseRef.current — this function may run inside a setTimeout where the `phase`
+    // closure captured at scheduling time would already be stale.
+    const currentPhase = phaseRef.current;
     if (currentPhase === 'evaluating' || currentPhase === 'result') return;
     // Use messagesRef.current so that auto-triggered evaluations (via setTimeout)
     // always see the latest messages rather than a stale closure snapshot.
