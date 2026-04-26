@@ -60,9 +60,12 @@ describe('sanitizeStats — numeric fields', () => {
     expect(result.srsTotal).toBeUndefined();
   });
 
-  it('authLoading is treated as a numeric field', () => {
-    expect(sanitizeStats({ authLoading: 1 }).authLoading).toBe(1);
+  it('authLoading is not a recognized stat field and is dropped', () => {
+    // authLoading is a UI-state flag, not a persisted stat — sanitizeStats must drop it
+    // regardless of value to prevent numeric corruption of boolean state.
+    expect(sanitizeStats({ authLoading: 1 }).authLoading).toBeUndefined();
     expect(sanitizeStats({ authLoading: -1 }).authLoading).toBeUndefined();
+    expect(sanitizeStats({ authLoading: true }).authLoading).toBeUndefined();
   });
 });
 
