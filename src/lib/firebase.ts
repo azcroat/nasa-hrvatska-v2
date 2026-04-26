@@ -136,7 +136,7 @@ export function gP(u: string): unknown {
 }
 export function sP(u: string, p: unknown): void {
   localStorage.setItem('uP_' + u, JSON.stringify(p));
-  fbSaveProgress(u, p as Record<string, unknown>);
+  fbSaveProgress(u, p as Record<string, unknown>).catch(() => {});
 }
 export function lP(u: string, p: unknown): void {
   localStorage.setItem('uP_' + u, JSON.stringify(p));
@@ -244,7 +244,7 @@ export async function fbSaveProgress(
   uid: string,
   data: Record<string, unknown>,
 ): Promise<{ ok: boolean; err?: string; code?: string }> {
-  if (!_fbReady || !_fbDb) return { ok: true };
+  if (!_fbReady || !_fbDb) return { ok: false, err: 'Firebase not initialized' };
   const id = toDocId(uid);
   const _st = (data.stats || data.st || {}) as Record<string, unknown>;
   const _strk =
@@ -1017,7 +1017,12 @@ export async function fbLoadUserFamily(email: string): Promise<FamilyData | null
 }
 
 export function fbOnAuthStateChanged(cb: (user: User | null) => void): () => void {
-  if (!_fbReady || !_fbAuth) return () => {};
+  if (!_fbReady || !_fbAuth) {
+    // Firebase not ready (e.g. missing config) — signal "no user" so auth flow completes
+    // rather than leaving syncReady permanently false on the caller side.
+    setTimeout(() => cb(null), 0);
+    return () => {};
+  }
   return onAuthStateChanged(_fbAuth, cb);
 }
 
@@ -1178,16 +1183,10 @@ export function fbWatchProgress(
                 _bk.add(_f.hr || _f.name);
               }
             }
-            if (_lts > _bts) {
-              const _lk = new Set(
-                _lf.map(function (f) {
-                  return f.hr || f.name;
-                }),
-              );
-              p.favs = ((p.favs as Array<Record<string, string>>) || []).filter(function (f) {
-                return _lk.has(f.hr || f.name);
-              });
-            }
+            // NOTE: Previously this block used intersection (filter) to prune favs based on
+            // favs_live timestamp. This silently dropped offline-added favourites when
+            // another device's toggle was more recent. Removed: favourites are additive-only
+            // via the union above; explicit removal requires fbToggleFavorite (tombstoning).
           } catch (_) {}
         }
         callback(p, p._fbUpdated as number);

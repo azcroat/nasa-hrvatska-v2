@@ -126,6 +126,7 @@ export function useSyncManager({
     const pSt = (fp.stats || fp.st || {}) as Record<string, unknown>;
     const lpSt = lp ? ((lp.stats || lp.st || {}) as Record<string, unknown>) : {};
 
+    const _diffOrder: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
     const mergedStats = {
       ...pSt,
       xp: Math.max((lpSt.xp as number) || 0, (pSt.xp as number) || 0),
@@ -138,6 +139,12 @@ export function useSyncManager({
       pf: Math.max((lpSt.pf as number) || 0, (pSt.pf as number) || 0),
       mv: Math.max((lpSt.mv as number) || 0, (pSt.mv as number) || 0),
       hi: Math.max((lpSt.hi as number) || 0, (pSt.hi as number) || 0),
+      // diff: take the higher CEFR level — never regress even on stale remote snapshot
+      diff: (() => {
+        const lo = _diffOrder[lpSt.diff as string] ?? -1;
+        const po = _diffOrder[pSt.diff as string] ?? -1;
+        return lo >= po ? lpSt.diff : pSt.diff;
+      })(),
       ct: [...new Set([...((lpSt.ct as string[]) || []), ...((pSt.ct as string[]) || [])])],
       vs: [...new Set([...((lpSt.vs as string[]) || []), ...((pSt.vs as string[]) || [])])],
       badges: [
@@ -539,10 +546,12 @@ export function useSyncManager({
       _hideFired = true;
       saveSnapshot(true);
       sendBeacon(u, (_unloadRef.current as Record<string, unknown>)._lastSaved);
-      // Reset after 200ms so a second genuine hide (e.g. re-focus then re-hide) works.
+      // Reset after 5000ms — fbSaveProgress uses _withRetry (600+1200+2400ms total).
+      // 200ms was too short: a retrying write could complete AFTER the guard reset,
+      // causing a concurrent second write to race and potentially overwrite the newer snapshot.
       setTimeout(() => {
         _hideFired = false;
-      }, 200);
+      }, 5000);
     };
     const onUnload = (): void => saveSnapshot(false);
     const onPageHide = (e: PageTransitionEvent): void => {

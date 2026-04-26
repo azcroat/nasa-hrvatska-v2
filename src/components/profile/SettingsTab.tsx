@@ -138,6 +138,10 @@ export default function SettingsTab({
       setFreezesStored(result.stored ?? 0);
       setFreezeMsg(`❄️ Freeze purchased! ${result.stored ?? 0}/2 stored.`);
       setTimeout(() => setFreezeMsg(''), 3000);
+      // Persist XP deduction to Firebase immediately — without this, the deduction
+      // lives only in React state and localStorage. If the app closes before the next
+      // periodic sync, the old (pre-purchase) XP is restored from Firestore on next open.
+      if (onSyncNow) setTimeout(() => { onSyncNow?.(); }, 300);
     } else {
       setFreezeMsg(result.reason ?? '');
       setTimeout(() => setFreezeMsg(''), 3000);

@@ -20,6 +20,7 @@ export interface SessionActivity {
 
 export interface DailySession {
   date: string; // 'YYYY-MM-DD'
+  cefrLevel?: string; // CEFR level when session was built — invalidate on level-up
   activities: SessionActivity[];
   completedIds: string[];
   estimatedMinutes: number;
@@ -251,10 +252,14 @@ function persistSession(session: DailySession): void {
 export function useDailySession(userCefr: string): UseDailySessionReturn {
   const [session, setSession] = useState<DailySession>(() => {
     const persisted = loadPersistedSession();
-    if (persisted) return persisted;
+    // Invalidate if date changed OR CEFR level changed (new exercises unlocked)
+    if (persisted && persisted.date === localDateStr() && persisted.cefrLevel === userCefr) {
+      return persisted;
+    }
     const activities = buildSessionActivities(userCefr);
     const fresh: DailySession = {
       date: localDateStr(),
+      cefrLevel: userCefr,
       activities,
       completedIds: [],
       estimatedMinutes: activities.length * MINUTES_PER_ACTIVITY,
@@ -263,12 +268,13 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
     return fresh;
   });
 
-  // Handle date rollover on mount
+  // Handle date rollover or CEFR level-up after mount
   useEffect(() => {
-    if (session.date !== localDateStr()) {
+    if (session.date !== localDateStr() || session.cefrLevel !== userCefr) {
       const activities = buildSessionActivities(userCefr);
       const fresh: DailySession = {
         date: localDateStr(),
+        cefrLevel: userCefr,
         activities,
         completedIds: [],
         estimatedMinutes: activities.length * MINUTES_PER_ACTIVITY,
@@ -277,7 +283,7 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
       setSession(fresh);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userCefr]);
 
   const markDone = useCallback((screenOrId: string) => {
     setSession((prev) => {

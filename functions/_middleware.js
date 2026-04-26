@@ -64,10 +64,8 @@ export async function onRequest(context) {
   // Only apply to API routes
   if (!pathname.startsWith('/api/')) return next();
 
-  const ip =
-    request.headers.get('cf-connecting-ip') ||
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    'unknown';
+  // Use only cf-connecting-ip — x-forwarded-for is client-controlled and spoofable.
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
 
   const isAI = AI_ENDPOINTS.some((ep) => pathname.startsWith(ep));
   const limit = isAI ? AI_RATE_LIMIT : GENERAL_RATE_LIMIT;

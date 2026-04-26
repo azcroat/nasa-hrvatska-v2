@@ -262,7 +262,9 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  // Auth check
+  // Auth check — accept either CRON_SECRET (server-to-server) or Firebase user token
+  const cronSecret = request.headers.get('x-cron-secret') || '';
+  const isCron = env.CRON_SECRET && timingSafeEqual(cronSecret, env.CRON_SECRET);
   const authorized = await isAuthorized(request, env);
   if (!authorized) {
     return new Response(JSON.stringify({ error: 'unauthorized' }), {
@@ -294,6 +296,18 @@ export async function onRequestPost({ request, env }) {
 
   if (!userId || typeof userId !== 'string') {
     return err(400, 'Missing or invalid userId', origin);
+  }
+
+  // Non-cron callers: enforce that the Firebase-authenticated UID matches the target userId.
+  // This prevents any authenticated user from sending push notifications to other users.
+  if (!isCron) {
+    const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+    const callerUid = FIREBASE_PROJECT_ID
+      ? await getFirebaseUid(request, FIREBASE_PROJECT_ID)
+      : null;
+    if (!callerUid || callerUid !== userId) {
+      return err(403, 'forbidden', origin);
+    }
   }
 
   // Sanitize the KV key the same way push-subscribe.js does

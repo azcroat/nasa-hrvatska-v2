@@ -6,11 +6,15 @@
  * to the /api/report-error Cloudflare Worker which logs to the dashboard.
  */
 
-const _nativeApiBase = (
-  window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }
-).Capacitor?.isNativePlatform?.()
-  ? 'https://nasahrvatska.com'
-  : '';
+// Evaluated at call time — Capacitor bridge is async-injected; module-load evaluation
+// always returns '' on Android because the bridge isn't ready yet.
+function _getNativeApiBase(): string {
+  if (typeof window === 'undefined') return '';
+  // Capacitor Android serves from https://localhost with no port
+  if (window.location.hostname === 'localhost' && !window.location.port)
+    return 'https://nasahrvatska.com';
+  return '';
+}
 
 export function reportError(error: unknown, context?: string): void {
   if (import.meta.env.DEV) {
@@ -28,11 +32,11 @@ export function reportError(error: unknown, context?: string): void {
     };
     if (navigator.sendBeacon) {
       navigator.sendBeacon(
-        `${_nativeApiBase}/api/report-error`,
+        `${_getNativeApiBase()}/api/report-error`,
         new Blob([JSON.stringify(payload)], { type: 'application/json' }),
       );
     } else {
-      fetch(`${_nativeApiBase}/api/report-error`, {
+      fetch(`${_getNativeApiBase()}/api/report-error`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

@@ -39,6 +39,9 @@ function loadCachedPlan() {
     if (!raw) return null;
     const cached = JSON.parse(raw);
     if (!cached?.generatedAt || !Array.isArray(cached?.activities)) return null;
+    // Enforce the same 3-activity count as fetchPlan validation — a cached plan with a
+    // different count (stale API version, partial write) can trigger a false "All Done" state.
+    if (cached.activities.length !== 3) return null;
     if (Date.now() - cached.generatedAt > CACHE_TTL_MS) return null;
     return cached;
   } catch {

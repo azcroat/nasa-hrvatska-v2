@@ -309,17 +309,19 @@ export function activateXPBoost(): number {
 }
 
 export function lXPgain(xp: number): number {
-  let result = xp;
+  if (xp <= 0) return xp;
+  // Take the higher of campaign or boost multiplier — do NOT multiply them together.
+  // Stacking both (e.g. 2.0× campaign × 2.0× boost = 4.0×) breaks the XP economy.
+  let multiplier = 1;
   const campaign = getActiveCampaign();
-  if (campaign && campaign.multiplier && campaign.multiplier > 1)
-    result = Math.round(result * campaign.multiplier);
-  if (xp > 0) {
-    try {
-      const boostExp = parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10);
-      if (boostExp > Date.now()) result = Math.round(result * XP_BOOST_MULTIPLIER);
-    } catch {}
+  if (campaign && campaign.multiplier && campaign.multiplier > 1) {
+    multiplier = campaign.multiplier;
   }
-  return result;
+  try {
+    const boostExp = parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10);
+    if (boostExp > Date.now()) multiplier = Math.max(multiplier, XP_BOOST_MULTIPLIER);
+  } catch {}
+  return Math.round(xp * multiplier);
 }
 
 // ─── Streak & freeze ─────────────────────────────────────────────────────────

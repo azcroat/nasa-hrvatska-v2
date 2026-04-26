@@ -341,11 +341,12 @@ export function useScreenLauncher({
         return true;
       });
       const globalPool = allCats.flatMap((t) => V[t] || []).filter((w) => w && w[0] && w[1]);
-      const qs: McQuestion[] = deduped.slice(0, 15).map((w) => {
+      const qs: McQuestion[] = deduped.slice(0, 15).flatMap((w) => {
         const wr = _sh(globalPool.filter((x) => x[1] !== w[1]))
           .slice(0, 3)
           .map((x) => x[1]);
-        return { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] };
+        if (wr.length < 3) return []; // skip if not enough distractors (tiny vocabulary pool)
+        return [{ hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] }] as McQuestion[];
       });
       sessionStorage.setItem('nh_checkpoint_level', String(levelIndex));
       returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
@@ -374,11 +375,12 @@ export function useScreenLauncher({
         seen.add(w[0]);
         return true;
       });
-      const qs: McQuestion[] = deduped.slice(0, 15).map((w) => {
+      const qs: McQuestion[] = deduped.slice(0, 15).flatMap((w) => {
         const wr = _sh(globalPool.filter((x) => x[1] !== w[1]))
           .slice(0, 4)
           .map((x) => x[1]);
-        return { hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] };
+        if (wr.length < 3) return [];
+        return [{ hr: w[0], en: w[1], ph: w[2], opts: _sh([w[1]].concat(wr)), correct: w[1] }] as McQuestion[];
       });
       returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
       setMcInitQ(qs);
@@ -693,9 +695,13 @@ export function useScreenLauncher({
   );
 
   const goBack = useCallback((): void => {
-    if (curEx) markExerciseDone(curEx);
     const startTs = parseInt(sessionStorage.getItem('nh_ex_start') || '0');
     const dur = startTs ? Date.now() - startTs : 0;
+    // Only mark the exercise as XP-cooldown-done if the user spent meaningful time (≥30s).
+    // Calling markExerciseDone unconditionally on back-press consumed the daily XP slot
+    // before award() ran, silently blocking re-entry XP for users who accidentally opened
+    // and immediately exited an exercise. award() already calls markExerciseDone() on real completion.
+    if (curEx && dur >= 30000) markExerciseDone(curEx);
     if (curEx && dur > 5000) {
       const typeMap: Record<string, string> = {
         flash: 'flashcards',
