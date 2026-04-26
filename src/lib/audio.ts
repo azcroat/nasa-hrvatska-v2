@@ -2,7 +2,7 @@
 // Audio Engine — Native Croatian Pronunciation
 // ═══════════════════════════════════════════════════════════
 import { getVoicePreference } from './soundSettings';
-import { isNative } from './platform';
+import { isNative, isIos } from './platform';
 import { dbgInfo, dbgWarn, dbgError } from './debugLog';
 
 // In Capacitor native builds, relative URLs resolve to the bundled WebView server
@@ -194,9 +194,9 @@ function _cacheSet(key: string, url: string): void {
 const _SILENT_WAV =
   'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 
-const _iOS =
-  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+// Use the shared isIos() helper — covers native Capacitor, iOS Safari PWA, and iOS Safari browser.
+// The inline UA check was left here in previous versions but isIos() now handles all cases.
+const _iOS = isIos();
 
 dbgInfo(
   `[Audio] module loaded | isNative=${isNative()} | iOS=${_iOS} | UA="${navigator.userAgent.slice(0, 80)}"`,
@@ -264,6 +264,16 @@ function uA(): void {
     },
     { passive: true, once: true },
   );
+});
+
+// iOS Safari suspends the AudioContext whenever the page goes to background (phone call,
+// home button press, switching apps, screen lock). Without this listener, the context
+// stays 'suspended' indefinitely and all subsequent TTS fails silently.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && _ctx && _ctx.state === 'suspended') {
+    _ctx.resume().catch(() => {});
+    dbgInfo('[Audio] visibilitychange — resumed suspended AudioContext');
+  }
 });
 
 /** Call this synchronously at the entry of every async audio handler (before any await).
@@ -388,10 +398,15 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       _cacheSet(cacheKey, url);
     }
 
-    // Try AudioContext first on ALL platforms — including Android.
-    // If decodeAudioData fails (older Android WebViews), we catch and fall through to HTMLAudio.
-    // AudioContext.createBufferSource() plays synchronously and bypasses autoplay restrictions.
-    if (_ctx) {
+    // On iOS (Safari, PWA, Capacitor), skip AudioContext for TTS playback and go straight to
+    // HTMLAudio. iOS WebKit's AudioContext is unreliable for streaming TTS:
+    //   1. decodeAudioData() fails when AudioContext is in 'interrupted' or 'suspended' state
+    //      (e.g., after a phone call, screen lock, or background transition)
+    //   2. The HTMLAudio element plays data: URLs natively and is the more stable path
+    //   3. iOS AudioContext needs to be created AND resumed within the SAME user-gesture
+    //      call stack, which is not always guaranteed across async boundaries
+    // AudioContext IS still created for iOS in uA() — for unlock purposes only. Playback uses HTMLAudio.
+    if (_ctx && !_iOS) {
       dbgInfo(`[TTS] trying AudioContext path — state="${_ctx.state}"`);
       try {
         await _ctx.resume();
