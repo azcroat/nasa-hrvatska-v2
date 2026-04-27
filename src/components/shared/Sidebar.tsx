@@ -1,7 +1,6 @@
 import React from 'react';
 import { lXP, nXP, getStreak } from '../../lib/appUtils.js';
 import CroatianGrb from './CroatianGrb';
-import CroatianKnight from './CroatianKnight';
 
 const TABS = [
   { id: 'home', label: 'Today' },
@@ -210,7 +209,11 @@ export default function Sidebar({
   const LEVEL_PALETTE = ['#b45309', '#059669', '#1d4ed8', '#6d28d9', '#dc2626'];
   const levelColor = LEVEL_PALETTE[(level - 1) % LEVEL_PALETTE.length] ?? '#0e7490';
 
-  const _isDark = darkMode;
+  // setScr, darkMode, setDarkMode kept in interface for parent API compatibility;
+  // dark mode toggle + bug report moved to SettingsTab.
+  void setScr;
+  void darkMode;
+  void setDarkMode;
 
   return (
     <nav className="sidebar" aria-label="Main navigation">
@@ -252,22 +255,6 @@ export default function Sidebar({
               Learn Croatian
             </div>
           </div>
-          <CroatianKnight
-            size={48}
-            mood={
-              streak.count >= 30
-                ? 'victory'
-                : streak.count >= 14
-                  ? 'celebrating'
-                  : streak.count >= 7
-                    ? 'encouraged'
-                    : streak.count >= 3
-                      ? 'happy'
-                      : 'ready'
-            }
-            key={tab}
-            style={{ flexShrink: 0 }}
-          />
         </div>
       </div>
 
@@ -340,28 +327,61 @@ export default function Sidebar({
             {xpPct}% to Level {level + 1}
           </div>
         </div>
-        {/* Streak + stat row */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-          {[
-            { icon: '🔥', val: streak.count, label: 'streak' },
-            { icon: '📚', val: st.lc, label: 'lessons' },
-          ].map((s, i) => (
-            <div
-              key={i}
-              style={{
-                flex: 1,
-                padding: '6px 8px',
-                background: 'var(--bar-bg)',
-                borderRadius: 8,
-                textAlign: 'center',
-              }}
+        {/* Streak + lessons — inline stat line */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 6 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: 12,
+              color: 'var(--subtext)',
+              fontWeight: 600,
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#e85d04"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              aria-hidden="true"
             >
-              <div style={{ fontSize: 11, fontWeight: 900, color: 'var(--heading)' }}>
-                {s.icon} {s.val}
-              </div>
-              <div style={{ fontSize: 9, color: 'var(--subtext)', fontWeight: 600 }}>{s.label}</div>
-            </div>
-          ))}
+              <path d="M12 2c0 6-6 8-6 14a6 6 0 0012 0C18 10 12 8 12 2z" />
+            </svg>
+            <span style={{ color: 'var(--heading)', fontWeight: 800 }}>{streak.count}</span>
+            <span>day streak</span>
+          </div>
+          <div style={{ width: 1, height: 14, background: 'var(--card-b)', flexShrink: 0 }} />
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: 12,
+              color: 'var(--subtext)',
+              fontWeight: 600,
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#002868"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+            </svg>
+            <span style={{ color: 'var(--heading)', fontWeight: 800 }}>{st.lc ?? 0}</span>
+            <span>lessons</span>
+          </div>
         </div>
       </div>
 
@@ -405,7 +425,11 @@ export default function Sidebar({
         {TABS.map((t) => (
           <button
             key={t.id}
-            className={'sb-btn' + (tab === t.id ? ' active' : '')}
+            className={
+              'sb-btn' +
+              (tab === t.id ? ' active' : '') +
+              (t.id === 'croatia' ? ' croatia-tab' : '')
+            }
             onClick={() => {
               setTab(t.id);
             }}
@@ -416,7 +440,7 @@ export default function Sidebar({
                 display: 'flex',
                 alignItems: 'center',
                 color:
-                  tab === t.id ? (t.id === 'croatia' ? '#D40030' : '#0e7490') : 'var(--nav-lbl)',
+                  tab === t.id ? (t.id === 'croatia' ? '#D40030' : '#002868') : 'var(--nav-lbl)',
                 flexShrink: 0,
               }}
             >
@@ -428,77 +452,53 @@ export default function Sidebar({
         ))}
       </nav>
 
-      {/* Bottom: report bug + dark mode toggle + sign out */}
-      <div
-        style={{
-          padding: '12px 16px',
-          borderTop: '1px solid var(--nav-b)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-        }}
-      >
-        <button
-          onClick={() => setScr('contact')}
+      {/* Bottom: sign out only — dark mode + bug report live in Settings */}
+      {doOut && (
+        <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            width: '100%',
-            padding: '9px 10px',
-            borderRadius: 10,
-            border: 'none',
-            background: 'var(--bar-bg)',
-            cursor: 'pointer',
-            fontFamily: "'Outfit',sans-serif",
+            padding: '12px 16px',
+            borderTop: '1px solid var(--nav-b)',
           }}
         >
-          <span style={{ fontSize: 16 }}>🐛</span>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--subtext)' }}>
-            Report a Bug
-          </span>
-        </button>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            width: '100%',
-            padding: '9px 10px',
-            borderRadius: 10,
-            border: 'none',
-            background: 'var(--bar-bg)',
-            cursor: 'pointer',
-            fontFamily: "'Outfit',sans-serif",
-          }}
-        >
-          <span style={{ fontSize: 16 }}>{darkMode ? '☀️' : '🌙'}</span>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--subtext)' }}>
-            {darkMode ? 'Light mode' : 'Dark mode'}
-          </span>
-        </button>
-        {doOut && (
           <button
             onClick={doOut}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 10,
+              justifyContent: 'center',
+              gap: 8,
               width: '100%',
-              padding: '9px 10px',
+              padding: '10px 14px',
               borderRadius: 10,
-              border: '1px solid rgba(194,65,12,.2)',
-              background: 'rgba(194,65,12,.05)',
+              border: '1px solid rgba(194,65,12,.25)',
+              background: 'rgba(194,65,12,.04)',
               cursor: 'pointer',
               fontFamily: "'Outfit',sans-serif",
             }}
           >
-            <span style={{ fontSize: 16 }}>🚪</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#c2410c' }}>Sign Out</span>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#b45309"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span
+              style={{ fontSize: 12, fontWeight: 700, color: '#b45309', letterSpacing: '.01em' }}
+            >
+              Sign Out
+            </span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </nav>
   );
 }

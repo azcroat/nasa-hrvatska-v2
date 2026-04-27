@@ -1043,19 +1043,21 @@ input::placeholder,textarea::placeholder{color:#6b7280;font-weight:400} /* WCAG 
 .sb-btn{
   display:flex;align-items:center;gap:10px;
   width:100%;padding:10px 14px;
-  border-radius:14px;border:none;background:none;
+  border-radius:10px;border:none;background:none;
   cursor:pointer;
-  transition:background .15s,transform .15s;
+  transition:background .15s;
   font-family:'Outfit',sans-serif;
-  color:var(--heading);font-size:14px;font-weight:600;
+  color:var(--nav-lbl);font-size:14px;font-weight:600;
   margin-bottom:2px;text-align:left;
 }
-.sb-btn:hover{background:var(--bar-bg);transform:translateX(2px)}
+.sb-btn:hover{background:var(--bar-bg)}
 .sb-btn.active{
-  background:linear-gradient(135deg,rgba(14,116,144,.15),rgba(14,116,144,.08));
-  color:#0e7490;font-weight:700;
-  border-left:3px solid #0e7490;
-  padding-left:11px;
+  background:rgba(0,40,104,.08);
+  color:#002868;font-weight:700;
+}
+.sb-btn.active.croatia-tab{
+  background:rgba(204,0,0,.07);
+  color:#CC0000;
 }
 .sb-badge{
   background:linear-gradient(135deg,#e11d48,#be123c);
