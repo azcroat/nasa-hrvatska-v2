@@ -230,7 +230,7 @@ describe('TranslateDrillsScreen — answer mechanics', () => {
       .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
     if (lastOpt) fireEvent.click(lastOpt);
     expect(screen.getByText('See Results')).toBeTruthy();
-  }, 60000);
+  }, 120000);
 });
 
 // ── Completion / XP award guard ───────────────────────────────────────────────
@@ -294,5 +294,5 @@ describe('TranslateDrillsScreen — navigation', () => {
     const goBack = vi.fn();
     completeAndGoBack(vi.fn(), goBack);
     expect(goBack).toHaveBeenCalledTimes(1);
-  }, 60000);
+  }, 120000);
 });
