@@ -51,7 +51,9 @@ self.addEventListener('activate', (event) => {
 });
 
 // Allow the app to trigger activation of a waiting SW (Path 3 in main.jsx).
+// Only act on messages from a known WindowClient (same-origin pages within SW scope).
 self.addEventListener('message', (event) => {
+  if (!event.source) return;
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 

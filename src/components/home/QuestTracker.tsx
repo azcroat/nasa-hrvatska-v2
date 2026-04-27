@@ -336,7 +336,7 @@ export default function QuestTracker({
                 background: done
                   ? 'linear-gradient(135deg, var(--success-bg) 0%, #dcfce7 100%)'
                   : isUpgraded
-                    ? `linear-gradient(135deg, ${qc.border.replace('rgba(', 'rgba(').replace(', .22)', ', .08)')}, var(--card))`
+                    ? `linear-gradient(135deg, ${qc.border.replace(', .22)', ', .08)')}, var(--card))`
                     : 'var(--card)',
                 border: `1.5px solid ${done ? 'var(--success-b)' : isUpgraded ? qc.border.replace('.22', '.4') : qc.border}`,
                 borderRadius: 'var(--radius-lg)',

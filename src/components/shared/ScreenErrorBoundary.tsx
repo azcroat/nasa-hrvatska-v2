@@ -35,7 +35,7 @@ export default class ScreenErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     const screenName = String(this.props.name || 'Screen');
-    console.error('[' + screenName + '] crashed:', error, info);
+    console.error('Screen crashed:', screenName, error, info);
     reportError(error, screenName);
   }
 
