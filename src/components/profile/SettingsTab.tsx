@@ -1633,7 +1633,7 @@ export default function SettingsTab({
           Privacy Policy & Terms
         </div>
       </button>
-      {au && au.u === 'jschreiner75@gmail.com' && (
+      {au && au.u === (import.meta.env.VITE_ADMIN_EMAIL || '') && (
         <button
           className="tc"
           style={{
@@ -1672,7 +1672,9 @@ export default function SettingsTab({
           <div style={{ fontSize: 'var(--text-xl)', color: 'var(--subtext)', opacity: 0.8 }}>›</div>
         </button>
       )}
-      {!(au && au.u === 'jschreiner75@gmail.com') && <div style={{ marginBottom: 24 }} />}
+      {!(au && au.u === (import.meta.env.VITE_ADMIN_EMAIL || '')) && (
+        <div style={{ marginBottom: 24 }} />
+      )}
 
       {/* ── GDPR DATA EXPORT ── */}
       <h3 className="sh">Your Data</h3>

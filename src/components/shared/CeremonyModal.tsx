@@ -169,7 +169,7 @@ function CeremonyModal({ type, stats, name, onClose }: CeremonyModalProps) {
   const lc = stats?.lc || 0;
   const streak = stats?.str || 0;
 
-  const APP_URL = 'https://nasahrvatska.com';
+  const APP_URL = window.location.origin;
   const shareText = `${cfg.emoji} ${cfg.title} — ${cfg.titleHr}\n\nI've been learning Croatian with Naša Hrvatska!\n${lc} lessons · ${xp} XP · ${streak}-day streak\n\n${APP_URL}`;
   const shareTextShort = `${cfg.emoji} ${cfg.title} — learning Croatian with Naša Hrvatska! ${lc} lessons · ${xp} XP · ${streak}-day streak`;
 

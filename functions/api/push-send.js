@@ -138,7 +138,7 @@ async function encryptPayload(plaintextBytes, subscription) {
 async function sendWebPush(subscription, payload, env) {
   const VAPID_PRIVATE = env.VAPID_PRIVATE_KEY;
   const VAPID_PUBLIC = env.VAPID_PUBLIC_KEY;
-  const VAPID_SUBJECT = 'mailto:support@nasahrvatska.com';
+  const VAPID_SUBJECT = 'mailto:' + (env.ADMIN_EMAIL || 'support@nasahrvatska.com');
 
   if (!VAPID_PRIVATE || !VAPID_PUBLIC) {
     throw new Error('VAPID keys not configured');

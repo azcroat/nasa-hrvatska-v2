@@ -356,7 +356,7 @@ export function spendFreeze(): boolean {
   return true;
 }
 
-const STREAK_MILESTONES = [7, 14, 21, 30, 50, 100, 365];
+const STREAK_MILESTONES = [7, 14, 21, 30, 50, 60, 100, 365];
 
 export function updateStreak(
   todayOverride?: string,
@@ -411,7 +411,7 @@ export function updateStreak(
         } catch {}
       }
       const _prevCount = s.count;
-      [7, 14, 21, 30, 50, 60, 100, 365].forEach((m) => {
+      STREAK_MILESTONES.forEach((m) => {
         if (_prevCount >= m) localStorage.removeItem('nh_ceremony_streak_' + m);
       });
       s.count = 1;

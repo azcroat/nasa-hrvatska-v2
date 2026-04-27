@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { H } from '../../data';
 import type { AuthUser } from '../../types/index.js';
 
-const ADMIN_EMAILS = ['jschreiner75@gmail.com'];
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
 
 interface AdminStats {
   users: Array<{ id: string; name?: string; xp?: number; lc?: number; gc?: number }>;
@@ -21,7 +21,7 @@ export default function AdminDashboard({ authUser, goBack }: AdminDashboardProps
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = authUser && ADMIN_EMAILS.includes(authUser.u);
+  const isAdmin = authUser && ADMIN_EMAIL !== '' && authUser.u === ADMIN_EMAIL;
 
   useEffect(() => {
     if (!isAdmin) return;

@@ -210,7 +210,7 @@ export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }
     const text = `⚡ Speed Croatian: ${score} correct in 60 seconds! 🇭🇷 Beat me on Naša Hrvatska`;
     if (navigator.share) {
       navigator
-        .share({ title: 'Naša Hrvatska Speed Challenge', text, url: 'https://nasahrvatska.com' })
+        .share({ title: 'Naša Hrvatska Speed Challenge', text, url: window.location.origin })
         .catch(() => {});
     } else {
       navigator.clipboard?.writeText(text).catch(() => {});
