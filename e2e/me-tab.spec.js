@@ -16,10 +16,10 @@ async function clickNavTab(page, label) {
   await nav.getByRole('button', { name: label, exact: true }).click();
 }
 
-/** Click a seg-bar pill by label (Stats / Insights / Settings). */
+/** Click a profile tab pill by label (Stats / Insights / Settings). */
 async function clickSegPill(page, label) {
-  // The seg-bar pills use emoji-prefixed labels; match by text substring
-  await page.locator('.seg-bar .seg-pill').filter({ hasText: label }).click();
+  // The profile tab pills match by text substring
+  await page.locator('.profile-tab-pill').filter({ hasText: label }).click();
 }
 
 // ── Setup ─────────────────────────────────────────────────────────────────────
@@ -53,8 +53,8 @@ test.describe('Me tab (Profile)', () => {
 
   // ── 4. Stats tab active by default ───────────────────────────────────────
   test('Stats tab is active by default and shows stat cards', async ({ page }) => {
-    // The seg-bar should show Stats as selected (solid background pill)
-    await expect(page.locator('.seg-bar .seg-pill').filter({ hasText: 'Stats' })).toBeVisible();
+    // The profile tab strip should show Stats as selected
+    await expect(page.locator('.profile-tab-pill').filter({ hasText: 'Stats' })).toBeVisible();
 
     // Stats content: at least Total XP, Day Streak, and Lessons labels
     await expect(page.getByText('Total XP').first()).toBeVisible({ timeout: 5_000 });
@@ -86,8 +86,8 @@ test.describe('Me tab (Profile)', () => {
     expect(found, 'Insights tab should render some content').toBe(true);
 
     // Stats-specific content should no longer be the primary view
-    // (seg-pill visual selection has changed)
-    await expect(page.locator('.seg-bar .seg-pill').filter({ hasText: 'Insights' })).toBeVisible();
+    // (profile tab pill visual selection has changed)
+    await expect(page.locator('.profile-tab-pill').filter({ hasText: 'Insights' })).toBeVisible();
   });
 
   // ── 6. Switching to Settings tab ─────────────────────────────────────────
@@ -160,14 +160,14 @@ test.describe('Me tab (Profile)', () => {
     await expect(page.locator('[aria-label="5 Day Streak"]')).toBeVisible({ timeout: 8_000 });
   });
 
-  // ── 11. Seg-bar has all three pills ──────────────────────────────────────
+  // ── 11. Profile tab strip has all three pills ────────────────────────────
   test('seg-bar renders Stats, Insights, and Settings pills', async ({ page }) => {
-    const segBar = page.locator('.seg-bar');
-    await expect(segBar).toBeVisible({ timeout: 5_000 });
+    const tabStrip = page.locator('.profile-tab-strip');
+    await expect(tabStrip).toBeVisible({ timeout: 5_000 });
 
-    await expect(segBar.locator('.seg-pill').filter({ hasText: 'Stats' })).toBeVisible();
-    await expect(segBar.locator('.seg-pill').filter({ hasText: 'Insights' })).toBeVisible();
-    await expect(segBar.locator('.seg-pill').filter({ hasText: 'Settings' })).toBeVisible();
+    await expect(tabStrip.locator('.profile-tab-pill').filter({ hasText: 'Stats' })).toBeVisible();
+    await expect(tabStrip.locator('.profile-tab-pill').filter({ hasText: 'Insights' })).toBeVisible();
+    await expect(tabStrip.locator('.profile-tab-pill').filter({ hasText: 'Settings' })).toBeVisible();
   });
 
   // ── 12. Rapid seg-pill switching does not crash ───────────────────────────

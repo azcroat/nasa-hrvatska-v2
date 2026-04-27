@@ -669,8 +669,11 @@ test.describe('SpeedChallenge — Practice tab', () => {
       localStorage.removeItem('nh_speed_challenge_played');
     });
     await gotoPractice(page);
-    // Wait for SpeedChallenge to render (it's below QuestTracker on Practice tab)
+    // Wait for SpeedChallenge collapsed card to render (it's below QuestTracker on Practice tab)
     await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 20_000 });
+    // Expand the collapsed SpeedChallenge card to reveal inner content
+    await page.getByText('Speed Challenge').first().click();
+    await page.waitForTimeout(300);
   });
 
   test('SpeedChallenge container shows "Speed Challenge" text', async ({ page }) => {

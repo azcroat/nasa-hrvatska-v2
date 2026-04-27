@@ -106,7 +106,7 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
     });
     // Wait for lazy-loaded content (learning path) before axe scan
     await page.waitForFunction(
-      () => document.body.textContent?.includes('My Path'),
+      () => document.body.textContent?.includes('Your Path'),
       { timeout: 20_000 },
     ).catch(() => {});
     await waitForSettle(page);
@@ -276,7 +276,7 @@ test.describe('Accessibility — keyboard navigation', () => {
     // Use toBeFocused() instead of page.evaluate() — the latter throws
     // "Execution context was destroyed" if any async re-render/SW update
     // causes a navigation between focus() and evaluate().
-    const firstPill = page.locator('.seg-bar .seg-pill').first();
+    const firstPill = page.locator('.profile-tab-pill').first();
     await expect(firstPill).toBeVisible({ timeout: 5_000 });
     await firstPill.focus();
     await expect(firstPill).toBeFocused();

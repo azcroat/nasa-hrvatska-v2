@@ -104,7 +104,7 @@ test.describe('Progress integrity', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
     });
-    await expect(page.getByText('My Path')).toBeVisible({ timeout: 25_000 });
+    await expect(page.getByText('Your Path')).toBeVisible({ timeout: 25_000 });
 
     // Open the first vocab category
     await page.locator('button.vocab-pill').first().click();

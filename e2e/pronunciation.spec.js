@@ -992,7 +992,7 @@ test.describe('LearnPath sequential flow', () => {
   });
 
   test('My Path section is visible', async ({ page }) => {
-    await expect(page.getByText('My Path')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Your Path')).toBeVisible({ timeout: 10_000 });
   });
 
   test('path items render without crashing', async ({ page }) => {
@@ -1026,7 +1026,7 @@ test.describe('LearnPath sequential flow', () => {
     });
     await page.reload();
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText('My Path')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Your Path')).toBeVisible({ timeout: 10_000 });
 
     // Listening item should NOT be locked
     const lockedListening = page.getByText(/Listening.*locked|locked.*Listening/i);

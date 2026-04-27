@@ -43,6 +43,7 @@ export default function ProfileTab({
 
       {/* ── SUB-TAB STRIP ── */}
       <div
+        className="profile-tab-strip"
         style={{
           display: 'flex',
           borderBottom: '1.5px solid var(--card-b)',
@@ -59,6 +60,7 @@ export default function ProfileTab({
         ].map((t) => (
           <button
             key={t.id}
+            className="profile-tab-pill"
             onClick={() => setPTab(t.id)}
             style={{
               flex: 1,
@@ -72,8 +74,8 @@ export default function ProfileTab({
               border: 'none',
               background: 'transparent',
               cursor: 'pointer',
-              color: ptab === t.id ? '#059669' : 'var(--subtext)',
-              borderBottom: ptab === t.id ? '3px solid #059669' : '3px solid transparent',
+              color: ptab === t.id ? '#047857' : 'var(--subtext)',
+              borderBottom: ptab === t.id ? '3px solid #047857' : '3px solid transparent',
               transition: 'color .15s, border-color .15s',
               fontFamily: "'Outfit',sans-serif",
             }}

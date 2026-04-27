@@ -212,11 +212,11 @@ test.describe('ScreenErrorBoundary — smoke tests (no boundary on healthy rende
       timeout: 15_000,
     });
 
-    const segBar = page.locator('.seg-bar');
+    const segBar = page.locator('.profile-tab-strip');
     await expect(segBar).toBeVisible({ timeout: 5_000 });
 
     for (const label of ['Insights', 'Settings', 'Stats', 'Insights', 'Stats']) {
-      await segBar.locator('.seg-pill').filter({ hasText: label }).click();
+      await segBar.locator('.profile-tab-pill').filter({ hasText: label }).click();
       await page.waitForTimeout(300);
       await assertNoBoundaryAlert(page);
     }
