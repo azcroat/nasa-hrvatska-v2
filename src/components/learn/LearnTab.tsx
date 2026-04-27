@@ -113,7 +113,6 @@ export default function LearnTab({
   const { stats: st } = useStats();
   const [showBrowse, setShowBrowse] = useState(false);
   const [pendingLesson, setPendingLesson] = useState<PendingLesson | null>(null);
-  const [showMoreContent, setShowMoreContent] = useState(false);
 
   // ── PATH PROGRESS ──────────────────────────────────────────────────────
   let totalDone = 0,
@@ -229,39 +228,116 @@ export default function LearnTab({
 
   return (
     <React.Fragment>
+      {/* ── LEARN TAB HERO ──────────────────────────────────────────────── */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 16,
+          background: 'linear-gradient(150deg,#4f46e5 0%,#6366f1 45%,#7c3aed 100%)',
+          borderRadius: 20,
+          overflow: 'hidden',
+          marginBottom: 20,
+          position: 'relative',
+          boxShadow: '0 8px 32px rgba(99,102,241,.35)',
         }}
       >
-        <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--heading)' }}>
-          🗺️ My Path
+        <div style={{ height: 3, background: 'linear-gradient(90deg,#6366f1,#4f46e5)' }} />
+        <div className="tab-hero-body">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                flexShrink: 0,
+                background: 'rgba(255,255,255,.14)',
+                border: '1.5px solid rgba(255,255,255,.28)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 24,
+              }}
+            >
+              📚
+            </div>
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 9,
+                  fontWeight: 900,
+                  color: 'rgba(255,255,255,.65)',
+                  letterSpacing: '.15em',
+                  textTransform: 'uppercase',
+                  marginBottom: 3,
+                }}
+              >
+                Learn
+              </div>
+              <div
+                style={{
+                  fontSize: 20,
+                  fontWeight: 900,
+                  color: '#fff',
+                  lineHeight: 1.1,
+                  fontFamily: "'Playfair Display',serif",
+                }}
+              >
+                {currentStage ? currentStage.title : 'My Path'}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.65)', marginTop: 3 }}>
+                {totalDone} of {totalItems} lessons complete · {cefrLevel}
+              </div>
+            </div>
+            <button
+              onClick={() => setScr('grammar-ref')}
+              style={{
+                background: 'rgba(255,255,255,.15)',
+                border: '1px solid rgba(255,255,255,.25)',
+                borderRadius: 10,
+                padding: '6px 10px',
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#fff',
+                cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+                flexShrink: 0,
+              }}
+            >
+              📖 Ref
+            </button>
+          </div>
+          {/* CEFR progress bar */}
+          <div
+            style={{
+              height: 4,
+              borderRadius: 2,
+              background: 'rgba(255,255,255,.15)',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                height: '100%',
+                borderRadius: 2,
+                background: 'rgba(255,255,255,.6)',
+                width: `${overallPct}%`,
+                transition: 'width .6s',
+              }}
+            />
+          </div>
         </div>
-        {/* Grammar reference is a secondary action — text link keeps the primary CTA dominant */}
-        <button
-          onClick={() => setScr('grammar-ref')}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--info)',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 700,
-            fontFamily: "'Outfit',sans-serif",
-            padding: '8px 4px',
-            textDecoration: 'underline',
-            textUnderlineOffset: 3,
-          }}
-        >
-          📖 Grammar reference
-        </button>
       </div>
 
-      {/* ── CONTINUE LEARNING — jump straight to next item ───────────── */}
-      {/* Always the first interactive element so returning users tap once and go */}
+      {/* ── CONTINUE LEARNING ───────────────────────────────────────────── */}
+      {nextItem && (
+        <div className="section-hdr" style={{ marginBottom: 10 }}>
+          <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
+            ⭐
+          </div>
+          <div className="section-hdr-text">
+            <div className="section-hdr-title">Continue Learning</div>
+            <div className="section-hdr-sub">Tap to resume where you left off</div>
+          </div>
+        </div>
+      )}
       {nextItem && (
         <button
           onClick={() => handleLaunchPathItem(nextItem)}
@@ -346,31 +422,68 @@ export default function LearnTab({
         </button>
       )}
 
-      {/* ── AI MICRO-LESSON CARD ──────────────────────────────────────── */}
+      {/* ── YOUR PATH ───────────────────────────────────────────────────── */}
+      <div className="section-hdr" style={{ marginTop: 20 }}>
+        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
+          🗺️
+        </div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Your Path</div>
+          <div className="section-hdr-sub">A1 → C1 · {totalItems} lessons</div>
+        </div>
+      </div>
+      <LearnPathWidget
+        sc={sc}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        currentStage={currentStage as any}
+        currentStageDone={currentStageDone}
+        overallPct={overallPct}
+        stagePct={stagePct}
+        totalDone={totalDone}
+        totalItems={totalItems}
+        nextItem={nextItem}
+        cefrLevel={cefrLevel}
+        cefrPct={cefrPct}
+        setScr={setScr}
+        setTab={setTab}
+        st={st}
+        handleLaunchPathItem={handleLaunchPathItem}
+      />
+
+      {/* ── TODAY'S RECOMMENDATION ──────────────────────────────────── */}
+      <div className="section-hdr" style={{ marginTop: 8 }}>
+        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
+          🎯
+        </div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Today's Recommendation</div>
+          <div className="section-hdr-sub">Personalized for your weak spots</div>
+        </div>
+      </div>
       <button
         onClick={() => setScr('micro_lesson')}
         className="feature-card"
         style={{
           marginBottom: 20,
-          border: '1.5px solid #bae6fd',
-          background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
+          border: '1.5px solid #c7d2fe',
+          background: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
         }}
       >
         <div
           className="feature-card-icon"
-          style={{ background: 'linear-gradient(135deg,#0e7490,#0369a1)' }}
+          style={{ background: 'linear-gradient(135deg,#6366f1,#4f46e5)' }}
         >
           🎯
         </div>
         <div style={{ flex: 1 }}>
-          <div className="feature-card-title" style={{ color: '#0c4a6e' }}>
+          <div className="feature-card-title" style={{ color: '#312e81' }}>
             AI Micro-Lesson
           </div>
-          <div className="feature-card-desc" style={{ color: '#0369a1' }}>
+          <div className="feature-card-desc" style={{ color: '#4f46e5' }}>
             Personalized 5-min lesson from your weak words
           </div>
         </div>
-        <div style={{ fontSize: 18, color: '#0369a1' }}>→</div>
+        <div style={{ fontSize: 18, color: '#4f46e5' }}>→</div>
       </button>
 
       {/* ── ANIMATED LESSONS: PAST + FUTURE TENSE ─────────────────── */}
@@ -500,237 +613,183 @@ export default function LearnTab({
         </button>
       </div>
 
-      {/* ── BROWSE MORE — progressive disclosure ────────────────────── */}
-      {!showMoreContent && (
+      {/* ── PITCH ACCENT, HERITAGE, PHONEME, PRACTICAL, TOP500 ─────────── */}
+      <>
+        {/* ── PITCH ACCENT + HERITAGE PATH ────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+          <button
+            onClick={() => setScr('pitch_accent')}
+            className="feature-card feature-card--col"
+            style={{
+              background: 'linear-gradient(135deg,#4c1d95,#7c3aed)',
+              boxShadow: '0 4px 14px rgba(124,58,237,.3)',
+            }}
+          >
+            <div style={{ fontSize: 28 }}>🎵</div>
+            <div>
+              <div className="feature-card-title" style={{ color: '#fff' }}>
+                Pitch Accent
+              </div>
+              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+                4 accents · What no other app teaches
+              </div>
+            </div>
+          </button>
+          <button
+            onClick={() => setScr('heritage_path')}
+            className="feature-card feature-card--col"
+            style={{
+              background: 'linear-gradient(135deg,#7c2d12,#c2410c)',
+              boxShadow: '0 4px 14px rgba(194,65,12,.3)',
+            }}
+          >
+            <div style={{ fontSize: 28 }}>🧬</div>
+            <div>
+              <div className="feature-card-title" style={{ color: '#fff' }}>
+                Heritage Path
+              </div>
+              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+                Grew up hearing Croatian? Start here.
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {/* ── PHONEME TRAINER + HERITAGE MODE ─────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+          <button
+            onClick={() => setScr('phoneme_practice')}
+            className="feature-card feature-card--col"
+            style={{
+              background: 'linear-gradient(135deg,#0e7490,#0891b2)',
+              boxShadow: '0 4px 14px rgba(14,116,144,.3)',
+            }}
+          >
+            <div style={{ fontSize: 28 }}>🔤</div>
+            <div>
+              <div className="feature-card-title" style={{ color: '#fff' }}>
+                Phoneme Trainer
+              </div>
+              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+                Č vs Ć · Š Ž LJ NJ · Sound right
+              </div>
+            </div>
+          </button>
+          <button
+            onClick={() => setScr('heritage_mode')}
+            className="feature-card feature-card--col"
+            style={{
+              background: 'linear-gradient(135deg,#1e3a5f,#2563eb)',
+              boxShadow: '0 4px 14px rgba(37,99,235,.3)',
+            }}
+          >
+            <div style={{ fontSize: 28 }}>🌍</div>
+            <div>
+              <div className="feature-card-title" style={{ color: '#fff' }}>
+                Heritage Mode
+              </div>
+              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+                Diaspora learner? Identify your gaps
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {/* ── PRACTICAL CROATIAN ──────────────────────────────────────────── */}
         <button
-          onClick={() => setShowMoreContent(true)}
+          onClick={() => setScr('practical_croatian')}
+          className="feature-card"
           style={{
-            width: '100%',
-            border: '1.5px dashed var(--card-b)',
-            background: 'var(--card)',
-            borderRadius: 14,
-            padding: '14px 20px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            color: 'var(--subtext)',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 700,
-            fontFamily: "'Outfit',sans-serif",
+            background: 'linear-gradient(135deg,#065f46,#059669)',
+            boxShadow: '0 4px 14px rgba(5,150,105,.3)',
             marginBottom: 20,
           }}
         >
-          <span style={{ fontSize: 18 }}>✨</span>
-          Browse more learning content
-          <span style={{ fontSize: 12, color: 'var(--subtext)' }}>(7 more topics)</span>
-          <span style={{ fontSize: 14 }}>›</span>
+          <div style={{ fontSize: 32, flexShrink: 0 }}>🗺️</div>
+          <div style={{ flex: 1 }}>
+            <div className="feature-card-title" style={{ color: '#fff' }}>
+              Practical Croatian
+            </div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+              Shop · Doctor · Immigration office · Family visit — 4 real scenarios
+            </div>
+          </div>
+          <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
         </button>
-      )}
 
-      {/* ── PITCH ACCENT, HERITAGE, PHONEME, PRACTICAL, TOP500 ── hidden until "Browse More" ── */}
-      {showMoreContent && (
-        <>
-          {/* ── PITCH ACCENT + HERITAGE PATH ────────────────────────────── */}
-          <div
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}
-          >
-            <button
-              onClick={() => setScr('pitch_accent')}
-              className="feature-card feature-card--col"
-              style={{
-                background: 'linear-gradient(135deg,#4c1d95,#7c3aed)',
-                boxShadow: '0 4px 14px rgba(124,58,237,.3)',
-              }}
-            >
-              <div style={{ fontSize: 28 }}>🎵</div>
-              <div>
-                <div className="feature-card-title" style={{ color: '#fff' }}>
-                  Pitch Accent
-                </div>
-                <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                  4 accents · What no other app teaches
-                </div>
-              </div>
-            </button>
-            <button
-              onClick={() => setScr('heritage_path')}
-              className="feature-card feature-card--col"
-              style={{
-                background: 'linear-gradient(135deg,#7c2d12,#c2410c)',
-                boxShadow: '0 4px 14px rgba(194,65,12,.3)',
-              }}
-            >
-              <div style={{ fontSize: 28 }}>🧬</div>
-              <div>
-                <div className="feature-card-title" style={{ color: '#fff' }}>
-                  Heritage Path
-                </div>
-                <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                  Grew up hearing Croatian? Start here.
-                </div>
-              </div>
-            </button>
+        {/* ── TOP 500 WORDS ───────────────────────────────────────────────── */}
+        <button
+          onClick={() => setScr('frequency_track')}
+          className="feature-card"
+          style={{
+            background: 'linear-gradient(135deg,#1e3a5f,#0e7490)',
+            boxShadow: '0 4px 14px rgba(14,116,144,.3)',
+            marginBottom: 20,
+          }}
+        >
+          <div style={{ fontSize: 32, flexShrink: 0 }}>📊</div>
+          <div style={{ flex: 1 }}>
+            <div className="feature-card-title" style={{ color: '#fff' }}>
+              Top 500 Croatian Words
+            </div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+              Master the words that make up 80% of everyday speech
+            </div>
           </div>
+          <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
+        </button>
 
-          {/* ── PHONEME TRAINER + HERITAGE MODE ─────────────────────────── */}
+        {/* ── B2 UNLOCK BANNER — shown only when user reaches B2 ──────────── */}
+        {cefrLevel === 'B2' && (
           <div
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}
+            style={{
+              background: 'linear-gradient(135deg,rgba(124,58,237,.12),rgba(91,33,182,.08))',
+              border: '1.5px solid rgba(124,58,237,.35)',
+              borderRadius: 14,
+              padding: '12px 16px',
+              marginBottom: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+            }}
           >
-            <button
-              onClick={() => setScr('phoneme_practice')}
-              className="feature-card feature-card--col"
-              style={{
-                background: 'linear-gradient(135deg,#0e7490,#0891b2)',
-                boxShadow: '0 4px 14px rgba(14,116,144,.3)',
-              }}
-            >
-              <div style={{ fontSize: 28 }}>🔤</div>
-              <div>
-                <div className="feature-card-title" style={{ color: '#fff' }}>
-                  Phoneme Trainer
-                </div>
-                <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                  Č vs Ć · Š Ž LJ NJ · Sound right
-                </div>
+            <span style={{ fontSize: 22 }}>🎓</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#5b21b6' }}>
+                Advanced vocabulary unlocked!
               </div>
-            </button>
-            <button
-              onClick={() => setScr('heritage_mode')}
-              className="feature-card feature-card--col"
-              style={{
-                background: 'linear-gradient(135deg,#1e3a5f,#2563eb)',
-                boxShadow: '0 4px 14px rgba(37,99,235,.3)',
-              }}
-            >
-              <div style={{ fontSize: 28 }}>🌍</div>
-              <div>
-                <div className="feature-card-title" style={{ color: '#fff' }}>
-                  Heritage Mode
-                </div>
-                <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                  Diaspora learner? Identify your gaps
-                </div>
+              <div style={{ fontSize: 11, color: '#7c3aed', marginTop: 2 }}>
+                You have reached B2 level. Explore 146 new words across politics, tech, environment
+                &amp; idioms below.
               </div>
-            </button>
+            </div>
           </div>
+        )}
 
-          {/* ── PRACTICAL CROATIAN ──────────────────────────────────────────── */}
-          <button
-            onClick={() => setScr('practical_croatian')}
-            className="feature-card"
-            style={{
-              background: 'linear-gradient(135deg,#065f46,#059669)',
-              boxShadow: '0 4px 14px rgba(5,150,105,.3)',
-              marginBottom: 20,
-            }}
-          >
-            <div style={{ fontSize: 32, flexShrink: 0 }}>🗺️</div>
-            <div style={{ flex: 1 }}>
-              <div className="feature-card-title" style={{ color: '#fff' }}>
-                Practical Croatian
-              </div>
-              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                Shop · Doctor · Immigration office · Family visit — 4 real scenarios
-              </div>
+        {/* ── B2+ ADVANCED VOCABULARY ─────────────────────────────────────── */}
+        <button
+          onClick={() => setScr('advanced_vocab')}
+          className="feature-card"
+          style={{
+            background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+            boxShadow: '0 4px 14px rgba(124,58,237,.35)',
+            marginBottom: 20,
+            color: 'white',
+            border: 'none',
+          }}
+        >
+          <div style={{ fontSize: 32, flexShrink: 0 }}>🎓</div>
+          <div style={{ flex: 1 }}>
+            <div className="feature-card-title" style={{ color: '#fff' }}>
+              B2+ Vocabulary
             </div>
-            <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
-          </button>
-
-          {/* ── TOP 500 WORDS ───────────────────────────────────────────────── */}
-          <button
-            onClick={() => setScr('frequency_track')}
-            className="feature-card"
-            style={{
-              background: 'linear-gradient(135deg,#1e3a5f,#0e7490)',
-              boxShadow: '0 4px 14px rgba(14,116,144,.3)',
-              marginBottom: 20,
-            }}
-          >
-            <div style={{ fontSize: 32, flexShrink: 0 }}>📊</div>
-            <div style={{ flex: 1 }}>
-              <div className="feature-card-title" style={{ color: '#fff' }}>
-                Top 500 Croatian Words
-              </div>
-              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                Master the words that make up 80% of everyday speech
-              </div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+              Advanced themes: politics, tech, environment, idioms
             </div>
-            <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
-          </button>
-
-          {/* ── B2 UNLOCK BANNER — shown only when user reaches B2 ──────────── */}
-          {cefrLevel === 'B2' && (
-            <div
-              style={{
-                background: 'linear-gradient(135deg,rgba(124,58,237,.12),rgba(91,33,182,.08))',
-                border: '1.5px solid rgba(124,58,237,.35)',
-                borderRadius: 14,
-                padding: '12px 16px',
-                marginBottom: 12,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-              }}
-            >
-              <span style={{ fontSize: 22 }}>🎓</span>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#5b21b6' }}>
-                  Advanced vocabulary unlocked!
-                </div>
-                <div style={{ fontSize: 11, color: '#7c3aed', marginTop: 2 }}>
-                  You have reached B2 level. Explore 146 new words across politics, tech,
-                  environment &amp; idioms below.
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── B2+ ADVANCED VOCABULARY ─────────────────────────────────────── */}
-          <button
-            onClick={() => setScr('advanced_vocab')}
-            className="feature-card"
-            style={{
-              background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
-              boxShadow: '0 4px 14px rgba(124,58,237,.35)',
-              marginBottom: 20,
-              color: 'white',
-              border: 'none',
-            }}
-          >
-            <div style={{ fontSize: 32, flexShrink: 0 }}>🎓</div>
-            <div style={{ flex: 1 }}>
-              <div className="feature-card-title" style={{ color: '#fff' }}>
-                B2+ Vocabulary
-              </div>
-              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                Advanced themes: politics, tech, environment, idioms
-              </div>
-            </div>
-            <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
-          </button>
-        </>
-      )}
-
-      {/* ── PATH WIDGET ─────────────────────────────────────────────────── */}
-      <LearnPathWidget
-        sc={sc}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        currentStage={currentStage as any}
-        currentStageDone={currentStageDone}
-        overallPct={overallPct}
-        stagePct={stagePct}
-        totalDone={totalDone}
-        totalItems={totalItems}
-        nextItem={nextItem}
-        cefrLevel={cefrLevel}
-        cefrPct={cefrPct}
-        setScr={setScr}
-        setTab={setTab}
-        st={st}
-        handleLaunchPathItem={handleLaunchPathItem}
-      />
+          </div>
+          <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
+        </button>
+      </>
 
       {/* ── VOCABULARY QUICK ACCESS ─────────────────────────────────────── */}
       <div style={{ marginBottom: 20 }}>
