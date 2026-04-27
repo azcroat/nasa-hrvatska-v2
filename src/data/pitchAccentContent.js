@@ -9,6 +9,7 @@
 export const PITCH_ACCENT_LESSONS = [
   {
     id: 'intro',
+    cefr: 'B1',
     title: 'What Is Pitch Accent?',
     subtitle: 'Why Croatian sounds like music',
     icon: '🎵',
@@ -73,6 +74,7 @@ The good news: you do not need perfect pitch accent production to be understood 
   },
   {
     id: 'short_falling',
+    cefr: 'B1',
     title: 'Short-Falling Accent (`)',
     subtitle: 'The heavy, quick drop',
     icon: '⬇️',
@@ -182,6 +184,7 @@ In everyday speech you will hear the short-falling accent constantly — it appe
   },
   {
     id: 'short_rising',
+    cefr: 'B1',
     title: 'Short-Rising Accent (´)',
     subtitle: 'The quick, bright lift',
     icon: '⬆️',
@@ -300,6 +303,7 @@ In the standard IPA-based linguistic notation, the short-rising is marked with a
   },
   {
     id: 'long_falling',
+    cefr: 'B2',
     title: 'Long-Falling Accent (¯)',
     subtitle: 'The sustained drop',
     icon: '📉',
@@ -400,6 +404,7 @@ You will encounter the long-falling accent in many extremely common Croatian wor
   },
   {
     id: 'long_rising',
+    cefr: 'B2',
     title: 'Long-Rising Accent (ˆ)',
     subtitle: 'The sustained lift',
     icon: '📈',
@@ -514,6 +519,7 @@ The long-rising accent is particularly characteristic of the standard broadcasti
   },
   {
     id: 'practice',
+    cefr: 'B1',
     title: 'Pitch Accent in Real Speech',
     subtitle: 'How native speakers actually use it',
     icon: '🗣️',
@@ -604,6 +610,7 @@ For production, focus your energy first on vowel length. The short/long distinct
 ];
 
 export const PITCH_ACCENT_QUICK_REFERENCE = {
+  cefr: 'B1',
   accents: [
     {
       symbol: '`',

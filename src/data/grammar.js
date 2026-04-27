@@ -1,6 +1,7 @@
 // grammar.js — pure data, no imports needed
 export const PADEZI = {
   title: 'Pade\u017ei \u2014 Croatian Cases',
+  cefr: 'A1',
   cases: [
     {
       name: 'Nominativ',
@@ -139,6 +140,7 @@ export const PADEZI = {
 };
 export const PADEZI_FULL = {
   title: 'Pade\u017ei \u2014 Jednina i Mno\u017eina',
+  cefr: 'A2',
   subtitle: 'Singular & Plural Noun Endings Across All 7 Cases',
   singEndings: {
     f: {
@@ -590,6 +592,7 @@ export const PADEZI_FULL = {
 export const GRAM = {
   beginner: [
     {
+      cefr: 'A1',
       title: 'Noun Genders & Plurals',
       desc: '3 genders: Feminine (-A: žena, knjiga), Neuter (-O/-E: selo, sunce), Masculine (consonant: grad). Plurals: Fem -A→-E, Neut -O→-A, Masc add -I/-OVI.',
       exs: [
@@ -624,6 +627,7 @@ export const GRAM = {
       ],
     },
     {
+      cefr: 'A1',
       title: "Verb 'Biti' (To Be)",
       desc: 'Ja sam, Ti si, On/Ona je, Mi smo, Vi ste, Oni su. Negative: nisam, nisi, nije, nismo, niste, nisu.',
       exs: [
@@ -648,6 +652,7 @@ export const GRAM = {
       ],
     },
     {
+      cefr: 'A1',
       title: 'Basic Negation',
       desc: "Add 'ne' before the verb. For 'biti': nisam, nisi, nije... For others: ne + verb.",
       exs: [
@@ -698,6 +703,7 @@ export const GRAM = {
   ],
   intermediate: [
     {
+      cefr: 'A2',
       title: 'Present Tense',
       desc: '-ati verbs: -am,-aš,-a,-amo,-ate,-aju. -iti verbs: -im,-iš,-i,-imo,-ite,-e.',
       exs: [
@@ -727,6 +733,7 @@ export const GRAM = {
       ],
     },
     {
+      cefr: 'A2',
       title: 'Accusative Case',
       desc: 'Direct object. Fem: -a→-u. Masc animate: add -a. Inanimate/neuter: no change.',
       exs: [
@@ -787,6 +794,7 @@ export const GRAM = {
       ],
     },
     {
+      cefr: 'A2',
       title: 'Past Tense',
       desc: "Past participle + 'biti'. Masc: -o, Fem: -la, Neut: -lo.",
       exs: [
@@ -843,6 +851,7 @@ export const GRAM = {
       ],
     },
     {
+      cefr: 'A2',
       title: 'Future Tense',
       desc: 'ću/ćeš/će/ćemo/ćete/će + infinitive. Neg: neću/nećeš/neće...',
       exs: [
@@ -877,6 +886,7 @@ export const GRAM = {
   ],
   advanced: [
     {
+      cefr: 'B1',
       title: 'All Seven Cases',
       desc: 'Nominativ (who?), Genitiv (whose?), Dativ (to whom?), Akuzativ (what?), Vokativ (hey!), Lokativ (where?), Instrumental (with what?).',
       exs: [['žena: žena,žene,ženi,ženu,ženo,ženi,ženom', 'all 7 cases']],
@@ -943,6 +953,7 @@ export const GRAM = {
       ],
     },
     {
+      cefr: 'B1',
       title: 'Conditional Mood',
       desc: 'bih/bi/bi/bismo/biste/bi + past participle. Wishes, polite requests.',
       exs: [
@@ -995,6 +1006,7 @@ export const GRAM = {
       ],
     },
     {
+      cefr: 'B1',
       title: 'da + Present Clause',
       desc: "Croatian uses 'da + present tense' in subordinate clauses — after impersonal expressions (važno je, moguće je), verbs of thinking, fearing, and hoping. After verbs of wanting (htjeti, željeti) and needing (trebati, morati), use the infinitive — NOT 'da + present'. That pattern is a Serbism.",
       exs: [
@@ -1077,6 +1089,7 @@ export const GRAM = {
       ],
     },
     {
+      cefr: 'B1',
       title: 'Clitic Pronouns (me/te/ga/je)',
       desc: "Short unstressed pronouns. Accusative: me, te, ga (m.) / je/ju (f.), nas, vas, ih. Dative: mi, ti, mu/joj, nam, vam, im. Chain order: [auxiliary] [dative] [accusative] [se]. Note: je (3rd sg past auxiliary) may appear sentence-finally — 'Dao mi ga je' is standard spoken Croatian.",
       exs: [
@@ -1118,6 +1131,7 @@ export const GRAM = {
   ],
 };
 export const CONJ = {
+  cefr: 'A1',
   verbs: [
     {
       inf: '\u010ditati',
@@ -1305,6 +1319,7 @@ export const CONJ = {
   persons: ['ja', 'ti', 'on/ona', 'mi', 'vi', 'oni/one'],
 };
 export const MODAL = {
+  cefr: 'A2',
   verbs: [
     {
       inf: 'željeti',
@@ -1507,6 +1522,7 @@ export const MODAL = {
   ],
 };
 export const TENSES = {
+  cefr: 'A2',
   persons: ['ja', 'ti', 'on', 'ona', 'mi', 'vi', 'oni', 'one'],
   personsEn: ['I', 'you', 'he', 'she', 'we', 'you (pl.)', 'they (m)', 'they (f)'],
   verbs: [
@@ -1993,6 +2009,7 @@ export const TENSES = {
 export const ASPECT = {
   title: 'Glagolski vid \u2014 Verb Aspect',
   minLevel: 'B1', // production quiz gated — recognition (pairs) visible from A2
+  cefr: 'B1',
   intro:
     'Croatian verbs come in pairs: imperfective (views the action as an ongoing process or repeated habit) and perfective (views the action as a completed whole). Aspect is about the speaker\u0027s viewpoint of the action, not whether it actually finished. This is the most important concept English doesn\u0027t have.',
   pairs: [
@@ -2173,6 +2190,7 @@ export const ASPECT = {
 export const ASPECT_PAIRS = [
   {
     impf: 'pisati',
+    cefr: 'B1',
     pf: 'napisati',
     en: 'to write',
     rule: 'na- prefix marks completion',
@@ -2180,6 +2198,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'čitati',
+    cefr: 'B1',
     pf: 'pročitati',
     en: 'to read',
     rule: 'pro- prefix for completing a read',
@@ -2187,6 +2206,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'jesti',
+    cefr: 'B1',
     pf: 'pojesti',
     en: 'to eat',
     rule: 'po- prefix marks eating completely',
@@ -2194,6 +2214,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'piti',
+    cefr: 'B1',
     pf: 'popiti',
     en: 'to drink',
     rule: 'po- prefix marks drinking up',
@@ -2201,6 +2222,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'gledati',
+    cefr: 'B1',
     pf: 'pogledati',
     en: 'to watch/look',
     rule: 'po- prefix for a single glance or viewing',
@@ -2208,6 +2230,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'učiti',
+    cefr: 'B1',
     pf: 'naučiti',
     en: 'to learn/study',
     rule: 'na- prefix marks mastery achieved',
@@ -2215,6 +2238,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'govoriti',
+    cefr: 'B1',
     pf: 'reći',
     en: 'to speak/say',
     rule: 'Different root: reći for one-time saying',
@@ -2222,6 +2246,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'praviti',
+    cefr: 'B1',
     pf: 'napraviti',
     en: 'to make/build',
     rule: 'na- prefix marks completing the making',
@@ -2229,6 +2254,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'kupovati',
+    cefr: 'B1',
     pf: 'kupiti',
     en: 'to buy',
     rule: '-ovati→-iti suffix change for completion',
@@ -2236,6 +2262,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'davati',
+    cefr: 'B1',
     pf: 'dati',
     en: 'to give',
     rule: 'davati = habitual giving; dati = single act',
@@ -2243,6 +2270,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'uzimati',
+    cefr: 'B1',
     pf: 'uzeti',
     en: 'to take',
     rule: 'uzimati = repeated; uzeti = one completed act',
@@ -2250,6 +2278,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'dolaziti',
+    cefr: 'B1',
     pf: 'doći',
     en: 'to come/arrive',
     rule: 'Different root: doći marks completed arrival',
@@ -2257,6 +2286,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'odlaziti',
+    cefr: 'B1',
     pf: 'otići',
     en: 'to leave/go away',
     rule: 'Different root: otići marks completed departure',
@@ -2264,6 +2294,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'otvarati',
+    cefr: 'B1',
     pf: 'otvoriti',
     en: 'to open',
     rule: '-ati→-iti suffix change',
@@ -2271,6 +2302,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'zatvarati',
+    cefr: 'B1',
     pf: 'zatvoriti',
     en: 'to close',
     rule: 'Same pattern as otvarati/otvoriti',
@@ -2278,6 +2310,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'tražiti',
+    cefr: 'B1',
     pf: 'naći / pronaći',
     en: 'to look for / find',
     rule: 'Finding is the completed result of searching',
@@ -2285,6 +2318,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'pomagati',
+    cefr: 'B1',
     pf: 'pomoći',
     en: 'to help',
     rule: 'Different root: pomoći for one act of helping',
@@ -2292,6 +2326,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'sjećati se',
+    cefr: 'B1',
     pf: 'sjetiti se',
     en: 'to remember',
     rule: '-ati→-iti for sudden recollection',
@@ -2299,6 +2334,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'zaboravljati',
+    cefr: 'B1',
     pf: 'zaboraviti',
     en: 'to forget',
     rule: '-jati→-iti for moment of forgetting',
@@ -2306,6 +2342,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'plaćati',
+    cefr: 'B1',
     pf: 'platiti',
     en: 'to pay',
     rule: '-ati→-iti for completing payment',
@@ -2313,6 +2350,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'vraćati',
+    cefr: 'B1',
     pf: 'vratiti',
     en: 'to return',
     rule: '-ati→-iti suffix change',
@@ -2320,6 +2358,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'počinjati',
+    cefr: 'B1',
     pf: 'početi',
     en: 'to begin/start',
     rule: 'Different root: početi for the moment of starting',
@@ -2327,6 +2366,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'završavati',
+    cefr: 'B1',
     pf: 'završiti',
     en: 'to finish/end',
     rule: '-avati→-iti for completing',
@@ -2334,6 +2374,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'pričati',
+    cefr: 'B1',
     pf: 'ispričati',
     en: 'to tell/narrate',
     rule: 'is- prefix for completing a narration',
@@ -2341,6 +2382,7 @@ export const ASPECT_PAIRS = [
   },
   {
     impf: 'slušati',
+    cefr: 'B1',
     pf: 'poslušati',
     en: 'to listen',
     rule: 'po- prefix for completing a listen',
@@ -2349,6 +2391,7 @@ export const ASPECT_PAIRS = [
 ];
 export const CONDITIONAL = {
   title: 'Kondicionalni — Would/Could/Should',
+  cefr: 'B1',
   intro:
     'The conditional expresses what would happen. Formed with: bih/bi/bi/bismo/biste/bi + past participle (e.g. volio, radila, mogao). It is also the polite way to ask for things — far more natural than the present tense.',
   forms: [
@@ -2531,6 +2574,7 @@ export const CONDITIONAL = {
 };
 export const FORMAL_REGISTER = {
   title: 'Vi ili ti? — Formal vs. Informal',
+  cefr: 'A2',
   intro:
     "Croatian has two ways to address someone: 'ti' (informal) and 'Vi' (formal, always capital V). Getting this wrong is one of the most noticeable foreigner errors in Croatia.",
   rules: [
@@ -2698,6 +2742,7 @@ export const FORMAL_REGISTER = {
 };
 export const IMPERSONAL = {
   title: 'Bezlične konstrukcije — Impersonal Expressions',
+  cefr: 'B1',
   intro:
     'Impersonal constructions use verbs in the 3rd person singular with NO named subject. They appear on signs, in instructions, and everyday conversation — but are rarely taught to learners.',
   constructions: [
@@ -2901,6 +2946,7 @@ export const IMPERSONAL = {
 };
 export const PHONOLOGY = {
   title: 'Izgovor — Croatian Pronunciation',
+  cefr: 'A1',
   intro:
     'Croatian spelling is almost perfectly phonetic — one letter, one sound, always. Once you learn the sounds, you can read any Croatian word correctly. This guide covers the letters that differ most from English.',
   tip: "The Croatian alphabet has 30 letters. Every letter is always pronounced the same way — there are no silent letters and no 'magic e'. If you see it, you say it!",
@@ -3147,6 +3193,7 @@ export const PHONOLOGY = {
 export const PITCH_ACCENT = [
   {
     hr: 'vino',
+    cefr: 'B1',
     en: 'wine',
     type: 'kratkosilazni',
     mark: 'vìno',
@@ -3154,6 +3201,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'žena',
+    cefr: 'B1',
     en: 'woman',
     type: 'kratkosilazni',
     mark: 'žèna',
@@ -3161,6 +3209,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'ruka',
+    cefr: 'B1',
     en: 'hand/arm',
     type: 'kratkosilazni',
     mark: 'rùka',
@@ -3168,6 +3217,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'voda',
+    cefr: 'B1',
     en: 'water',
     type: 'kratkosilazni',
     mark: 'vòda',
@@ -3175,6 +3225,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'glava',
+    cefr: 'B1',
     en: 'head',
     type: 'kratkouzlazni',
     mark: 'gláva',
@@ -3182,6 +3233,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'noga',
+    cefr: 'B1',
     en: 'leg/foot',
     type: 'kratkouzlazni',
     mark: 'nóga',
@@ -3189,6 +3241,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'kuća',
+    cefr: 'B1',
     en: 'house',
     type: 'dugouzlazni',
     mark: 'kúća',
@@ -3196,6 +3249,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'more',
+    cefr: 'B1',
     en: 'sea',
     type: 'kratkouzlazni',
     mark: 'mòre',
@@ -3203,6 +3257,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'rijeka',
+    cefr: 'B1',
     en: 'river',
     type: 'dugosilazni',
     mark: 'rijêka',
@@ -3210,6 +3265,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'zvijezda',
+    cefr: 'B1',
     en: 'star',
     type: 'dugouzlazni',
     mark: 'zvijézda',
@@ -3217,6 +3273,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'prijatelj',
+    cefr: 'B1',
     en: 'friend',
     type: 'kratkosilazni',
     mark: 'prijàtelj',
@@ -3224,6 +3281,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'zemlja',
+    cefr: 'B1',
     en: 'earth/land',
     type: 'kratkosilazni',
     mark: 'zèmlja',
@@ -3231,6 +3289,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'srce',
+    cefr: 'B1',
     en: 'heart',
     type: 'kratkosilazni',
     mark: 'sȑce',
@@ -3238,6 +3297,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'grad',
+    cefr: 'B1',
     en: 'city',
     type: 'dugosilazni',
     mark: 'grȃd',
@@ -3245,6 +3305,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'brat',
+    cefr: 'B1',
     en: 'brother',
     type: 'kratkosilazni',
     mark: 'brȁt',
@@ -3252,6 +3313,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'majka',
+    cefr: 'B1',
     en: 'mother',
     type: 'kratkosilazni',
     mark: 'mȁjka',
@@ -3260,6 +3322,7 @@ export const PITCH_ACCENT = [
   { hr: 'koža', en: 'skin/leather', type: 'kratkosilazni', mark: 'kȍža', tip: 'Short falling' },
   {
     hr: 'jezik',
+    cefr: 'B1',
     en: 'language/tongue',
     type: 'kratkosilazni',
     mark: 'jèzik',
@@ -3267,6 +3330,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'učiti',
+    cefr: 'B1',
     en: 'to learn',
     type: 'dugouzlazni',
     mark: 'učíti',
@@ -3274,6 +3338,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'grad',
+    cefr: 'B1',
     en: 'city/town',
     type: 'dugosilazni',
     mark: 'grȃd',
