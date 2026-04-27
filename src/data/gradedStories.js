@@ -1933,4 +1933,381 @@ export const GRADED_STORIES = [
       },
     ],
   },
+
+  // ═══════════════════════════════════════════════════════
+  // B2 — Complex grammar, passive, conditional, formal register
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 'gs_b2_5',
+    level: 'B2',
+    levelColor: '#1d4ed8',
+    levelBg: '#dbeafe',
+    icon: '🏛️',
+    title: 'Reforma Obrazovnog Sustava',
+    titleEn: 'Reform of the Education System',
+    duration: 10,
+    focus: 'Passive voice • Conditional mood • Formal written register • Nominalisations',
+    intro:
+      'A newspaper editorial examines a proposed Croatian education reform. Practise understanding formal argumentation and the passive constructions common in written Croatian.',
+    paragraphs: [
+      {
+        hr: 'Obrazovni sustav u Hrvatskoj suočava se s dubokim strukturnim problemima koji su se nakupljali desetljećima. Nedavno je Ministarstvo obrazovanja predstavilo prijedlog sveobuhvatne reforme koji bi, prema najavama, trebao biti proveden do 2027. godine. Kritičari, međutim, tvrde da je reforma zamišljena bez dovoljnog savjetovanja s nastavnicima i roditeljima.',
+        en: 'The education system in Croatia is facing deep structural problems that have been accumulating for decades. Recently, the Ministry of Education presented a proposal for a comprehensive reform which, according to announcements, should be implemented by 2027. Critics, however, claim that the reform was conceived without sufficient consultation with teachers and parents.',
+      },
+      {
+        hr: 'Prijedlog uključuje smanjenje broja obveznih predmeta u osnovnoj školi, uvođenje projektne nastave i veću autonomiju ravnatelja. Nastavnici su podijeljeni: jedni tvrde da bi reforme bile korisne kad bi bile praćene odgovarajućom podrškom i ulaganjima u infrastrukturu; drugi strahuju da bi smanjenje sati matematike i znanosti moglo oslabiti kompetencije učenika.',
+        en: 'The proposal includes reducing the number of compulsory subjects in primary school, introducing project-based learning and greater autonomy for headteachers. Teachers are divided: some argue that the reforms would be useful if accompanied by appropriate support and investment in infrastructure; others fear that reducing mathematics and science hours could weaken pupil competencies.',
+      },
+      {
+        hr: 'Reforma je bila podvrgnuta javnoj raspravi u kojoj je prikupljeno više od deset tisuća komentara. Analiza je pokazala da roditelji najčešće izražavaju zabrinutost zbog preopterećenosti djece, dok nastavnici uglavnom traže bolje plaće i manje administrativnih obveza. Mnogi stručnjaci ističu da bez sustavnog ulaganja u obrazovanje promjena kurikuluma sama po sebi neće donijeti željene rezultate.',
+        en: 'The reform was subjected to a public consultation in which more than ten thousand comments were collected. The analysis showed that parents most frequently express concern about the overloading of children, while teachers mainly demand better pay and fewer administrative obligations. Many experts point out that without systematic investment in education, a curriculum change alone will not deliver the desired results.',
+      },
+      {
+        hr: 'Bez obzira na ishod parlamentarnog glasanja koje se očekuje do kraja godine, jasno je da obrazovni sustav ne može ostati nepromijenjen. Pitanje je samo hoće li reforme biti provedene postupno, uz suglasnost svih dionika, ili će biti nametnute odozgo bez potrebnog konsenzusa.',
+        en: "Regardless of the outcome of the parliamentary vote expected by year's end, it is clear that the education system cannot remain unchanged. The only question is whether the reforms will be implemented gradually, with the agreement of all stakeholders, or whether they will be imposed from above without the necessary consensus.",
+      },
+    ],
+    vocabulary: [
+      {
+        hr: 'strukturni problemi',
+        en: 'structural problems',
+        ex: 'Sustav ima strukturne probleme.',
+      },
+      { hr: 'sveobuhvatan', en: 'comprehensive', ex: 'Sveobuhvatna reforma je potrebna.' },
+      { hr: 'savjetovanje', en: 'consultation', ex: 'Savjetovanje s dionicima je važno.' },
+      { hr: 'autonomija', en: 'autonomy', ex: 'Ravnatelji traže veću autonomiju.' },
+      { hr: 'podvrgnut', en: 'subjected to', ex: 'Prijedlog je bio podvrgnut raspravi.' },
+      {
+        hr: 'preopterećenost',
+        en: 'overload / being overburdened',
+        ex: 'Djeca pate od preopterećenosti.',
+      },
+      { hr: 'dionici', en: 'stakeholders', ex: 'Svi dionici trebaju biti uključeni.' },
+      { hr: 'nametnut', en: 'imposed', ex: 'Odluka je bila nametnuta odozgo.' },
+      { hr: 'konsenzus', en: 'consensus', ex: 'Konsenzus je teško postići.' },
+      { hr: 'kurikulum', en: 'curriculum', ex: 'Novi kurikulum uvodi projektnu nastavu.' },
+    ],
+    quiz: [
+      {
+        q: 'Koji je jedan od ciljeva predložene reforme?',
+        qEn: 'What is one of the goals of the proposed reform?',
+        opts: [
+          'Povećanje broja obveznih predmeta',
+          'Centralizacija upravljanja školama',
+          'Uvođenje projektne nastave',
+          'Ukidanje autonomije ravnatelja',
+        ],
+        correct: 2,
+      },
+      {
+        q: 'Što roditelji najčešće ističu u javnoj raspravi?',
+        qEn: 'What do parents most frequently raise in the public consultation?',
+        opts: [
+          'Potrebu za boljim plaćama nastavnika',
+          'Zabrinutost zbog preopterećenosti djece',
+          'Podršku smanjenju sati matematike',
+          'Zahtjev za smanjenom autonomijom ravnatelja',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što stručnjaci ističu kao nužan uvjet za uspjeh reforme?',
+        qEn: 'What do experts highlight as a necessary condition for the success of the reform?',
+        opts: [
+          'Brzo provođenje bez javne rasprave',
+          'Sustavno ulaganje u obrazovanje',
+          'Smanjenje broja nastavnika',
+          'Ukidanje javnog obrazovanja',
+        ],
+        correct: 1,
+      },
+    ],
+  },
+  {
+    id: 'gs_b2_6',
+    level: 'B2',
+    levelColor: '#1d4ed8',
+    levelBg: '#dbeafe',
+    icon: '🧑‍⚖️',
+    title: 'Potrošačka Prava',
+    titleEn: 'Consumer Rights',
+    duration: 9,
+    focus: 'Conditional sentences • Passive constructions • Legal vocabulary • Formal letters',
+    intro:
+      'Ivan bought a faulty laptop and must navigate Croatian consumer rights law. This text introduces legal Croatian and the conditional constructions needed when making formal complaints.',
+    paragraphs: [
+      {
+        hr: 'Ivan je kupio prijenosno računalo u jednoj od većih trgovina elektroničke robe. Dva tjedna nakon kupnje uređaj se počeo pregrijavati i iznenada isključivati. Kad bi se to ponovilo više puta, odlučio je potraži zaštitu svojih potrošačkih prava.',
+        en: 'Ivan bought a laptop in one of the larger electronics stores. Two weeks after the purchase the device started overheating and switching off unexpectedly. When this repeated itself several times, he decided to seek protection of his consumer rights.',
+      },
+      {
+        hr: 'Prema Zakonu o zaštiti potrošača, svaki kupac ima pravo na reklamaciju u roku od dvije godine od kupnje. Prodavač je dužan primiti reklamaciju i odgovoriti na nju u roku od petnaest dana. Ako bi prodavač odbio reklamaciju bez valjanog razloga, potrošač se može obratiti Državnom inspektoratu ili tražiti posredovanje putem europske platforme za rješavanje sporova.',
+        en: 'According to the Consumer Protection Act, every buyer has the right to make a complaint within two years of purchase. The seller is obliged to accept the complaint and respond within fifteen days. If the seller were to refuse the complaint without valid reason, the consumer may contact the State Inspectorate or seek mediation through the European online dispute resolution platform.',
+      },
+      {
+        hr: 'Ivan je napisao formalnu reklamaciju u kojoj je opisao kvar, priložio račun i fotografije zaslona s porukama o grešci. U pismu je naveo da zahtijeva popravak ili zamjenu uređaja, a u slučaju da nijedna opcija nije izvediva — povrat novca. Prodavač je odgovorio da će uređaj biti pregledan u ovlaštenom servisu te da će Ivan biti obaviješten o ishodu u roku od sedam radnih dana.',
+        en: 'Ivan wrote a formal complaint in which he described the fault, attached the receipt and photographs of the screen with error messages. In the letter he stated that he was requesting repair or replacement of the device, and in the event that neither option was feasible — a refund. The seller responded that the device would be examined in an authorised service centre and that Ivan would be notified of the outcome within seven working days.',
+      },
+      {
+        hr: 'Slučaj je na kraju riješen u Ivanovu korist — uređaj je zamijenjen novim modelom. Iskustvo ga je potaknulo da istraži svoja potrošačka prava podrobnije. Kako je sažeo: "Da sam znao svoja prava od početka, bio bih sigurniji u cijelom procesu."',
+        en: 'The case was ultimately resolved in Ivan\'s favour — the device was replaced with a new model. The experience motivated him to explore his consumer rights more thoroughly. As he summarised: "If I had known my rights from the start, I would have been more confident throughout the whole process."',
+      },
+    ],
+    vocabulary: [
+      {
+        hr: 'reklamacija',
+        en: 'complaint (about defective goods)',
+        ex: 'Predao je reklamaciju u trgovini.',
+      },
+      { hr: 'kvar', en: 'fault / breakdown', ex: 'Uređaj ima ozbiljan kvar.' },
+      { hr: 'priložiti', en: 'to attach / enclose', ex: 'Priložio je račun uz reklamaciju.' },
+      {
+        hr: 'ovlašteni servis',
+        en: 'authorised service centre',
+        ex: 'Uređaj je poslan u ovlašteni servis.',
+      },
+      { hr: 'povrat novca', en: 'refund', ex: 'Tražio je povrat novca.' },
+      {
+        hr: 'Državni inspektorat',
+        en: 'State Inspectorate',
+        ex: 'Prijava je podnesena Državnom inspektoratu.',
+      },
+      { hr: 'posredovanje', en: 'mediation', ex: 'Posredovanje je brže od suda.' },
+      {
+        hr: 'valjani razlog',
+        en: 'valid reason',
+        ex: 'Odbijanje bez valjanog razloga je nezakonito.',
+      },
+      { hr: 'rok', en: 'deadline / time limit', ex: 'Rok za reklamaciju je dvije godine.' },
+      { hr: 'izvediv', en: 'feasible', ex: 'Je li popravak izvediv?' },
+    ],
+    quiz: [
+      {
+        q: 'Koji je zakonski rok za reklamaciju u Hrvatskoj?',
+        qEn: 'What is the legal deadline for a complaint in Croatia?',
+        opts: ['Trideset dana', 'Šest mjeseci', 'Dvije godine', 'Pet godina'],
+        correct: 2,
+      },
+      {
+        q: 'Što je Ivan zatražio u formalnoj reklamaciji?',
+        qEn: 'What did Ivan request in his formal complaint?',
+        opts: [
+          'Isključivo povrat novca',
+          'Popravak, zamjenu ili povrat novca',
+          'Besplatno produljenje jamstva',
+          'Novi model uz nadoplatu',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Čemu je Ivanovo iskustvo potaknulo druge?',
+        qEn: "What did Ivan's experience motivate?",
+        opts: [
+          'Da izbjegavaju kupnju elektronike',
+          'Da uvijek plaćaju gotovinom',
+          'Da istraže svoja potrošačka prava',
+          'Da kupuju isključivo online',
+        ],
+        correct: 2,
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // C1 — Literary & academic Croatian, complex syntax
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 'gs_c1_5',
+    level: 'C1',
+    levelColor: '#7c3aed',
+    levelBg: '#f5f3ff',
+    icon: '⚖️',
+    title: 'Demokratski Deficit',
+    titleEn: 'Democratic Deficit',
+    duration: 13,
+    focus: 'Complex argument structure • Nominalisation • Academic register • Concessive clauses',
+    intro:
+      'A political science essay examines the concept of democratic deficit in the European Union. Practise reading dense academic Croatian with sophisticated argument structures.',
+    paragraphs: [
+      {
+        hr: 'Pojam demokratskog deficita u Europskoj uniji odnosi se na strukturnu napetost između nadnacionalne naravi njezina upravljanja i demokratskih mehanizama koji ostaju, u velikoj mjeri, ukorijenjenima na razini nacionalnih država. Dok je Europski parlament ojačavao svoju ulogu Lisabonskim ugovorom, izvršna ovlast i dalje je disproporcionalno koncentrirana u Vijeću i Europskoj komisiji — tijelima čija je demokratska odgovornost neizravna ili posredovana.',
+        en: 'The concept of democratic deficit in the European Union refers to the structural tension between the supranational nature of its governance and the democratic mechanisms that remain, to a large degree, rooted at the level of nation states. While the European Parliament strengthened its role through the Lisbon Treaty, executive power continues to be disproportionately concentrated in the Council and the European Commission — bodies whose democratic accountability is indirect or mediated.',
+      },
+      {
+        hr: 'Teoričari poput Andrewa Moravcsika tvrde da se demokratski deficit preuveličava — da je EU zapravo usporediva s regulatornim agencijama unutar nacionalnih sustava i da njezina legitimnost proizlazi iz učinkovitosti i vladavine prava, a ne iz neposrednog mandata birača. Nasuprot tome, Jürgen Habermas argumentira da legitimnost kompleksnih pluralnih demokracija zahtijeva razvoj transeuropske javne sfere u kojoj bi se formirala istinska politička volja nadnacionalnog opsega.',
+        en: 'Theorists such as Andrew Moravcsik argue that the democratic deficit is overstated — that the EU is actually comparable to regulatory agencies within national systems and that its legitimacy derives from effectiveness and the rule of law rather than from a direct electoral mandate. In contrast, Jürgen Habermas argues that the legitimacy of complex plural democracies requires the development of a trans-European public sphere in which genuine political will of a supranational scope would be formed.',
+      },
+      {
+        hr: 'Hrvatska je u prvim godinama članstva u EU prolazila kroz intenzivan proces prilagodbe u kojemu su norme i procedure propisane iz Bruxellesa nerijetko dolazile u koliziju s ustaljenim domaćim administrativnim praksama. Ovaj je proces, paradoksalno, ojačao svjesnost o demokratskim deficitima i unutar samog nacionalnog sustava: transparentnost postupaka, neovisnost pravosuđa i uključenost civilnog društva postali su predmeti javnih rasprava koji ranije nisu imali institucionalnu rezonancu.',
+        en: 'Croatia in its first years of EU membership went through an intensive process of adaptation in which the norms and procedures prescribed from Brussels often came into collision with established domestic administrative practices. This process, paradoxically, strengthened awareness of democratic deficits within the national system itself: transparency of procedures, judicial independence and the involvement of civil society became subjects of public debate that previously lacked institutional resonance.',
+      },
+      {
+        hr: 'Rasprave o demokratskom deficitu nisu samo akademske — one impliciraju praktična pitanja o tome tko donosi odluke, u čije ime i uz kakvu odgovornost. Ostaje otvorenim pitanjem može li EU razviti oblike participativne demokracije koji bi nadišli formalne glasačke mehanizme i ponudili građanima osjećaj stvarnog sudjelovanja u oblikovanju zajedničke budućnosti.',
+        en: 'Debates about democratic deficit are not merely academic — they imply practical questions about who makes decisions, in whose name and with what accountability. It remains an open question whether the EU can develop forms of participatory democracy that would transcend formal voting mechanisms and offer citizens a sense of genuine participation in shaping a common future.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'nadnacionalan', en: 'supranational', ex: 'EU je nadnacionalna organizacija.' },
+      {
+        hr: 'disproporcionalno',
+        en: 'disproportionately',
+        ex: 'Moć je disproporcionalno raspodijeljena.',
+      },
+      { hr: 'posredovan', en: 'mediated / indirect', ex: 'Legitimnost je posredovana izborima.' },
+      { hr: 'vladavina prava', en: 'rule of law', ex: 'Vladavina prava je temelj demokracije.' },
+      { hr: 'javna sfera', en: 'public sphere', ex: 'Debate se vode u javnoj sferi.' },
+      { hr: 'kolizija', en: 'collision / conflict', ex: 'Norme su došle u koliziju s praksama.' },
+      { hr: 'transparentnost', en: 'transparency', ex: 'Transparentnost postupaka je ključna.' },
+      { hr: 'rezonanca', en: 'resonance', ex: 'Tema nije imala institucionalnu rezonancu.' },
+      {
+        hr: 'participativna demokracija',
+        en: 'participatory democracy',
+        ex: 'Traže oblike participativne demokracije.',
+      },
+      { hr: 'implicirati', en: 'to imply / entail', ex: 'Ovo implicira ozbiljne posljedice.' },
+    ],
+    quiz: [
+      {
+        q: 'Što Moravcsik tvrdi o demokratskom deficitu EU?',
+        qEn: "What does Moravcsik claim about the EU's democratic deficit?",
+        opts: [
+          'Da je to stvaran i ozbiljan problem',
+          'Da je preuveličan i da EU podsjeća na regulatorne agencije',
+          'Da EU nema nikakve demokratske mehanizme',
+          'Da Europski parlament treba biti ukinut',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što je, prema tekstu, paradoksalno potaknulo demokratska pitanja u Hrvatskoj?',
+        qEn: 'What, according to the text, paradoxically stimulated democratic questions in Croatia?',
+        opts: [
+          'Negativno iskustvo s EU fondovima',
+          'Prilagodba normama EU-a',
+          'Jačanje nacionalnog parlamenta',
+          'Istraživanja akademskog sektora',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Koje otvoreno pitanje tekst ističe na kraju?',
+        qEn: 'Which open question does the text highlight at the end?',
+        opts: [
+          'Može li EU preživjeti bez Lisabonskog ugovora?',
+          'Može li EU razviti participativnu demokraciju izvan formalnih glasačkih mehanizama?',
+          'Treba li Hrvatska napustiti EU?',
+          'Je li Europska komisija transparentnija od Vijeća?',
+        ],
+        correct: 1,
+      },
+    ],
+  },
+  {
+    id: 'gs_c1_6',
+    level: 'C1',
+    levelColor: '#7c3aed',
+    levelBg: '#f5f3ff',
+    icon: '🎭',
+    title: 'Uloga Kulture u Izgradnji Identiteta',
+    titleEn: 'The Role of Culture in Identity Construction',
+    duration: 12,
+    focus: 'Abstract argumentation • Relative clauses • Gerunds & verbal nouns • Cultural register',
+    intro:
+      'A cultural studies essay explores how culture constructs and constrains individual identity. This text uses the full range of C1 grammatical structures and cultivated literary Croatian.',
+    paragraphs: [
+      {
+        hr: 'Kultura nije puka pozadina na kojoj se odvija individualni život — ona je aktivna sila koja oblikuje percepciju, usmjerava vrijednosti i određuje obrasce razumijevanja sebe i drugoga. Svaka zajednica nosi nasljedstvo simboličkih sustava — jezika, rituala, narativa — koji, prenošeni kroz generacije, konstituiraju ono što Anthony Giddens naziva "ontološkom sigurnošću": temeljnim osjećajem stalnosti i smislenosti koji nam omogućuje snalaženje u složenosti svakodnevnog iskustva.',
+        en: "Culture is not merely a backdrop against which individual life unfolds — it is an active force that shapes perception, directs values and determines patterns of understanding oneself and others. Every community carries the inheritance of symbolic systems — language, rituals, narratives — which, transmitted across generations, constitute what Anthony Giddens calls 'ontological security': the fundamental sense of continuity and meaningfulness that enables us to navigate the complexity of everyday experience.",
+      },
+      {
+        hr: 'Međutim, kultura nije monolitna ni nepromjenjiva. Identiteti koji se formiraju unutar kulturnih okvira nisu jednoznačni: oni su uvijek ispresjecani klasom, rodom, generacijskim iskustvima i migracijskim putanjama. Dijasporski identiteti, primjerice, svjedoče o tome kako kulturna memorija može biti istovremeno čvrst oslonac i teška obveza — ovisno o kontekstu u kojemu se priziva.',
+        en: 'However, culture is neither monolithic nor unchanging. Identities formed within cultural frameworks are never unambiguous: they are always intersected by class, gender, generational experiences and migratory trajectories. Diasporic identities, for example, testify to how cultural memory can simultaneously be a firm anchor and a heavy obligation — depending on the context in which it is invoked.',
+      },
+      {
+        hr: 'U hrvatskom kontekstu, rasprave o kulturnom identitetu nerijetko se odvijaju u sjeni traumatske povijesti 20. stoljeća i relativno kratke tradicije samostalne državnosti. Pitanje što "biti Hrvat" znači nije ni kulturno ni politički neutralno: ono je prepuno napetosti između regionalnih raznolikosti (slavonske, dalmatinske, zagorske, primorske tradicije), između urbano-ruralnih podjela i između naraštaja koji su živjeli bitno različite socijalizacijske prakse.',
+        en: 'In the Croatian context, debates about cultural identity often unfold in the shadow of the traumatic history of the 20th century and a relatively short tradition of independent statehood. The question of what it means "to be Croatian" is neither culturally nor politically neutral: it is charged with tensions between regional diversities (Slavonian, Dalmatian, Zagorje, Primorje traditions), between urban-rural divisions and between generations that have lived through substantially different socialisation practices.',
+      },
+      {
+        hr: 'Upravo ta višeslojnost čini kulturu i izazovnom i dragocjenom kategorijom za razumijevanje identiteta. Umjesto da kulturu promatramo kao statičan inventar navika i vrijednosti, produktivnije ju je konceptualizirati kao dinamičan prostor pregovaranja — prostor u kojemu se tradicija i inovacija neprestano dogovaraju, sukobljavaju i rekonstituiraju. U tom smislu, kulturna kompetencija nije poznavanje fiksiranih kulturnih sadržaja nego sposobnost navigiranja tim stalno promjenjivim prostorom.',
+        en: 'It is precisely this multilayered quality that makes culture both a challenging and a precious category for understanding identity. Rather than viewing culture as a static inventory of habits and values, it is more productive to conceptualise it as a dynamic space of negotiation — a space in which tradition and innovation are constantly negotiating, colliding and reconstituting themselves. In this sense, cultural competence is not the knowledge of fixed cultural contents but the ability to navigate this continuously changing space.',
+      },
+    ],
+    vocabulary: [
+      {
+        hr: 'konstituirati',
+        en: 'to constitute / form',
+        ex: 'Rituali konstituiraju zajednički identitet.',
+      },
+      {
+        hr: 'ontološka sigurnost',
+        en: 'ontological security',
+        ex: 'Kultura nudi ontološku sigurnost.',
+      },
+      { hr: 'monolitan', en: 'monolithic', ex: 'Kultura nije monolitna.' },
+      {
+        hr: 'ispresjecan',
+        en: 'intersected / cross-cut',
+        ex: 'Identitet je ispresjecan rodom i klasom.',
+      },
+      { hr: 'dijasporski', en: 'diasporic', ex: 'Dijasporski identitet je složen.' },
+      {
+        hr: 'prizivati',
+        en: 'to invoke / summon',
+        ex: 'Pamćenje se priziva u posebnim trenucima.',
+      },
+      { hr: 'pregovaranje', en: 'negotiation', ex: 'Identitet nastaje kroz pregovaranje.' },
+      {
+        hr: 'rekonstituirati se',
+        en: 'to reconstitute itself',
+        ex: 'Tradicija se stalno rekonstituira.',
+      },
+      {
+        hr: 'navigiranje',
+        en: 'navigating',
+        ex: 'Kulturna kompetencija je navigiranje složenošću.',
+      },
+      {
+        hr: 'višeslojnost',
+        en: 'multilayeredness / complexity',
+        ex: 'Višeslojnost kulture je njena snaga.',
+      },
+    ],
+    quiz: [
+      {
+        q: 'Što Giddens naziva "ontološkom sigurnošću"?',
+        qEn: 'What does Giddens call "ontological security"?',
+        opts: [
+          'Ekonomsku stabilnost pojedinca',
+          'Temeljni osjećaj stalnosti i smislenosti koji omogućuje snalaženje u iskustvu',
+          'Politički konsenzus unutar zajednice',
+          'Poznavanje kulturnih sadržaja i tradicija',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Kako tekst opisuje dijasporske identitete?',
+        qEn: 'How does the text describe diasporic identities?',
+        opts: [
+          'Kao stabilan i jednoznačan izvor ponosa',
+          'Kao istovremeni čvrst oslonac i teška obveza',
+          'Kao beznačajne za razumijevanje kulture',
+          'Kao prevladane kategorije u globalnom dobu',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što, prema tekstu, znači kulturna kompetencija?',
+        qEn: 'According to the text, what does cultural competence mean?',
+        opts: [
+          'Poznavanje fiksiranih kulturnih sadržaja',
+          'Sposobnost navigiranja stalno promjenjivim kulturnim prostorom',
+          'Vladanje svim dijalektima jednog jezika',
+          'Prihvaćanje dominantnih kulturnih normi',
+        ],
+        correct: 1,
+      },
+    ],
+  },
 ];
