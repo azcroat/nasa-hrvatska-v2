@@ -164,45 +164,6 @@ export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
           >
             Culture, history, daily life &amp; immersion
           </div>
-          {/* Clickable pills — scroll to the matching section */}
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {[
-              { label: '🏰 History', anchor: 'section-history', bg: 'rgba(212,0,48,.5)' },
-              { label: '🏘️ Life', anchor: 'section-life', bg: 'rgba(0,61,165,.5)' },
-              { label: '📖 Stories', anchor: 'section-stories', bg: 'rgba(22,163,74,.4)' },
-              { label: '🎵 Media', anchor: 'section-media', bg: 'rgba(124,58,237,.45)' },
-            ].map((t) => (
-              <button
-                key={t.label}
-                onClick={() => scrollTo(t.anchor)}
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: 'rgba(255,255,255,.9)',
-                  background: t.bg,
-                  border: '1px solid rgba(255,255,255,.2)',
-                  borderRadius: 20,
-                  padding: '5px 13px',
-                  backdropFilter: 'blur(4px)',
-                  cursor: 'pointer',
-                  fontFamily: "'Outfit',sans-serif",
-                  transition: 'background .15s,transform .1s',
-                  WebkitTapHighlightColor: 'transparent',
-                }}
-                onPointerDown={(e) => {
-                  e.currentTarget.style.transform = 'scale(0.95)';
-                }}
-                onPointerUp={(e) => {
-                  e.currentTarget.style.transform = '';
-                }}
-                onPointerLeave={(e) => {
-                  e.currentTarget.style.transform = '';
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -247,8 +208,8 @@ export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
                 fontFamily: "'Outfit',sans-serif",
                 fontSize: 12,
                 fontWeight: isActive ? 800 : 600,
-                color: isActive ? 'var(--info)' : 'var(--subtext)',
-                borderBottom: isActive ? '2px solid var(--info)' : '2px solid transparent',
+                color: isActive ? '#B80020' : 'var(--subtext)',
+                borderBottom: isActive ? '2px solid #B80020' : '2px solid transparent',
                 transition: 'color .18s, border-color .18s',
                 whiteSpace: 'nowrap',
                 position: 'relative',
@@ -264,7 +225,7 @@ export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
                     fontSize: 9,
                     fontWeight: 700,
                     letterSpacing: '.03em',
-                    color: isActive ? 'var(--info)' : 'var(--subtext)',
+                    color: isActive ? '#B80020' : 'var(--subtext)',
                     opacity: isActive ? 0.9 : 0.6,
                     marginTop: 1,
                   }}
