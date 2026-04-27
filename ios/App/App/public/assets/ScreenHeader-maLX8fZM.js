@@ -1,1 +1,0 @@
-import{j as e}from"./vendor-react-CuTtwRqO.js";function n({title:a,goBack:s,pill:r}){return e.jsxs("div",{className:"screen-header",children:[s&&e.jsx("button",{className:"screen-header__back",onClick:s,"aria-label":"Go back",children:"‹"}),e.jsx("h1",{className:"screen-header__title",children:a}),r&&e.jsx("span",{className:"screen-header__pill",children:r})]})}export{n as S};
