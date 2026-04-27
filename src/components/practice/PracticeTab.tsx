@@ -118,6 +118,9 @@ export default function PracticeTab({
     }
   });
 
+  const [questsExpanded, setQuestsExpanded] = useState(false);
+  const [speedExpanded, setSpeedExpanded] = useState(false);
+
   const { practiceQueue } = useAdaptivePractice();
 
   // Memoized so event handlers always get a stable array reference without
@@ -1667,36 +1670,179 @@ export default function PracticeTab({
         </div>
       )}
 
-      {/* ── DAILY QUESTS — moved here from Today tab ── */}
-      <QuestTracker
-        questsDone={questsDone}
-        allQuestsDone={allQuestsDone}
-        onQuestStart={(questId, screen) => {
-          if (questId === 'speak' || questId === 'speak2') {
-            const pool = allCats
-              .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
-              .filter((w) => w && w[0] && w[1]);
-            const items = sh(pool).slice(0, 6);
-            onLaunchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
-          } else if (questId === 'grammar' || questId === 'grammar2') {
-            if (launchPathItem) launchPathItem({ go: 'grammar' });
-            else setScr('grammar');
-          } else if (questId === 'vocab' || questId === 'vocab2') {
-            if (launchPathItem) launchPathItem({ go: 'lesson' });
-            else setScr('learnpath');
-          } else if (questId === 'perfect') {
-            const pool = allCats
-              .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
-              .filter((w) => w && w[0] && w[1]);
-            onLaunchFlash(sh(pool).slice(0, 20));
-          } else {
-            setScr(screen);
-          }
-        }}
-      />
+      {/* ── DAILY QUESTS ─────────────────────────────────────────────────── */}
+      {!questsExpanded ? (
+        <button
+          onClick={() => setQuestsExpanded(true)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '12px 14px',
+            background: 'var(--card)',
+            border: '1.5px solid var(--card-b)',
+            borderRadius: 14,
+            cursor: 'pointer',
+            marginBottom: 14,
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              fontSize: 18,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(14,116,144,.12)',
+              flexShrink: 0,
+            }}
+          >
+            🏆
+          </div>
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>Quests</div>
+            <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 1 }}>
+              {practiceQuestsDone.done} of {practiceQuestsDone.total} complete
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+            {[
+              practiceQuestsDone.speak,
+              practiceQuestsDone.grammar,
+              practiceQuestsDone.master,
+              practiceQuestsDone.reading,
+            ].map((done, i) => (
+              <div
+                key={i}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: done ? '#0e7490' : 'var(--card-b)',
+                  border: done ? 'none' : '1.5px solid var(--card-b)',
+                }}
+              />
+            ))}
+          </div>
+          <div style={{ fontSize: 14, color: 'var(--subtext)' }}>›</div>
+        </button>
+      ) : (
+        <>
+          <button
+            onClick={() => setQuestsExpanded(false)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--subtext)',
+              fontSize: 11,
+              fontWeight: 700,
+              marginBottom: 6,
+              padding: '4px 0',
+              fontFamily: "'Outfit',sans-serif",
+            }}
+          >
+            ‹ Collapse quests
+          </button>
+          <QuestTracker
+            questsDone={questsDone}
+            allQuestsDone={allQuestsDone}
+            onQuestStart={(questId, screen) => {
+              if (questId === 'speak' || questId === 'speak2') {
+                const pool = allCats
+                  .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
+                  .filter((w) => w && w[0] && w[1]);
+                const items = sh(pool).slice(0, 6);
+                onLaunchSpeaking(
+                  items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']],
+                );
+              } else if (questId === 'grammar' || questId === 'grammar2') {
+                if (launchPathItem) launchPathItem({ go: 'grammar' });
+                else setScr('grammar');
+              } else if (questId === 'vocab' || questId === 'vocab2') {
+                if (launchPathItem) launchPathItem({ go: 'lesson' });
+                else setScr('learnpath');
+              } else if (questId === 'perfect') {
+                const pool = allCats
+                  .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
+                  .filter((w) => w && w[0] && w[1]);
+                onLaunchFlash(sh(pool).slice(0, 20));
+              } else {
+                setScr(screen);
+              }
+            }}
+          />
+        </>
+      )}
 
-      {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
-      <SpeedChallenge />
+      {/* ── SPEED CHALLENGE ──────────────────────────────────────────────── */}
+      {!speedExpanded ? (
+        <button
+          onClick={() => setSpeedExpanded(true)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '12px 14px',
+            background: 'var(--card)',
+            border: '1.5px solid var(--card-b)',
+            borderRadius: 14,
+            cursor: 'pointer',
+            marginBottom: 14,
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              fontSize: 18,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(217,119,6,.12)',
+              flexShrink: 0,
+            }}
+          >
+            ⚡
+          </div>
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
+              Speed Challenge
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 1 }}>
+              Beat your best time — tap to play
+            </div>
+          </div>
+          <div style={{ fontSize: 14, color: 'var(--subtext)' }}>›</div>
+        </button>
+      ) : (
+        <>
+          <button
+            onClick={() => setSpeedExpanded(false)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--subtext)',
+              fontSize: 11,
+              fontWeight: 700,
+              marginBottom: 6,
+              padding: '4px 0',
+              fontFamily: "'Outfit',sans-serif",
+            }}
+          >
+            ‹ Collapse
+          </button>
+          <SpeedChallenge />
+        </>
+      )}
 
       {/* ── AI DAILY INSIGHTS — personalized focus based on error patterns ── */}
       {authUser && lc >= 3 && (
