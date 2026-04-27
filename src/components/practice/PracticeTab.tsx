@@ -1405,26 +1405,6 @@ export default function PracticeTab({
     },
   };
 
-  // Today's Pick — show recently played first (max 2), then time-based defaults.
-  // This means returning users see exercises they actually use, not static picks.
-  const todaysPicks = useMemo(() => {
-    const recent = getRecentExercises().slice(0, 2);
-    const hr = new Date().getHours();
-    const defaults =
-      hr < 12
-        ? ['znam', 'srsreview', 'genderdrill']
-        : hr < 18
-          ? ['cloze', 'verbdrill', 'srsreview']
-          : ['verbdrill', 'prepdrill', 'znam'];
-    // recent exercises first, then fill up to 3 with defaults (no duplicates)
-    const merged = [...recent];
-    for (const d of defaults) {
-      if (merged.length >= 3) break;
-      if (!merged.includes(d)) merged.push(d);
-    }
-    return merged.slice(0, 3);
-  }, []);
-
   function ExerciseCard({
     id,
     label,
@@ -1444,16 +1424,10 @@ export default function PracticeTab({
     action?: () => void;
     category?: string;
   }) {
-    const isPick = todaysPicks.includes(id);
     const catColor = (CATEGORY_COLORS as Record<string, string>)[category ?? ''] || 'var(--bar-bg)';
     const cefrClass = cefr ? `cefr cefr-${cefr.toLowerCase().replace(/[^a-z]/g, '')}` : '';
     return (
-      <button
-        onClick={action}
-        className={'exercise-card' + (isPick ? ' exercise-card--today' : '')}
-        style={{ borderLeftColor: isPick ? 'var(--info)' : catColor }}
-      >
-        {isPick && <div className="exercise-card-today-badge">⭐ Today</div>}
+      <button onClick={action} className="exercise-card" style={{ borderLeftColor: catColor }}>
         <div className="exercise-card-icon">{icon}</div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="exercise-card-label">{label}</div>
@@ -1844,26 +1818,6 @@ export default function PracticeTab({
         </>
       )}
 
-      {/* ── AI DAILY INSIGHTS — personalized focus based on error patterns ── */}
-      {authUser && lc >= 3 && (
-        <AdaptiveInsightsCard
-          uid={authUser.uid}
-          level={
-            st?.xp
-              ? st.xp >= 3000
-                ? 'B2'
-                : st.xp >= 1500
-                  ? 'B1'
-                  : st.xp >= 600
-                    ? 'A2'
-                    : 'A1'
-              : 'A1'
-          }
-          lessonsCompleted={lc}
-          goToScreen={setScr}
-        />
-      )}
-
       {/* ── ADAPTIVE PRACTICE — smart queue for due categories ─────────────────── */}
       {practiceQueue.length > 0 && (
         <>
@@ -1903,94 +1857,63 @@ export default function PracticeTab({
       {/* ── WEAK WORDS — surface vocabulary needing most practice ─────── */}
       {lc >= 3 && <WeakWordsPanel setScr={setScr} />}
 
-      {/* ── INTENT TILES ─────────────────────────────────────────────────── */}
+      {/* ── INTENT STRIP ─────────────────────────────────────────────────── */}
       <div
-        style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}
+        style={{
+          display: 'flex',
+          overflowX: 'auto',
+          gap: 8,
+          marginBottom: 16,
+          scrollbarWidth: 'none',
+          padding: '2px 0 6px',
+        }}
       >
         {[
           {
             id: 'review',
-            icon: '🔁',
-            label: 'Review',
-            color: '#0e7490',
-            activeBg: 'linear-gradient(135deg,#0e7490,#0c4a6e)',
-            inactiveBg: 'rgba(14,116,144,.08)',
-            inactiveBorder: 'rgba(14,116,144,.25)',
+            label: 'Weakest Areas',
             badge: dueReviews.length > 0 ? dueReviews.length : null,
           },
-          {
-            id: 'drill',
-            icon: '🎯',
-            label: 'Drill',
-            color: '#7c3aed',
-            activeBg: 'linear-gradient(135deg,#7c3aed,#5b21b6)',
-            inactiveBg: 'rgba(124,58,237,.08)',
-            inactiveBorder: 'rgba(124,58,237,.25)',
-            badge: null,
-          },
-          {
-            id: 'challenge',
-            icon: '⚡',
-            label: 'Challenge',
-            color: '#d97706',
-            activeBg: 'linear-gradient(135deg,#d97706,#b45309)',
-            inactiveBg: 'rgba(217,119,6,.08)',
-            inactiveBorder: 'rgba(217,119,6,.25)',
-            badge: null,
-          },
-        ].map((tile) => {
-          const isActive = activeIntent === tile.id;
+          { id: 'drill', label: 'Drill', badge: null },
+          { id: 'challenge', label: 'Quick Game', badge: null },
+          { id: 'all', label: 'All Exercises', badge: null },
+        ].map((pill) => {
+          const isActive = activeIntent === pill.id;
           return (
             <button
-              key={tile.id}
-              onClick={() => setActiveIntent(tile.id)}
+              key={pill.id}
+              onClick={() => setActiveIntent(pill.id)}
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '14px 8px',
-                borderRadius: 16,
-                cursor: 'pointer',
-                background: isActive ? tile.activeBg : tile.inactiveBg,
-                border: isActive ? '2px solid transparent' : `1.5px solid ${tile.inactiveBorder}`,
-                position: 'relative',
+                flexShrink: 0,
+                padding: '8px 16px',
+                borderRadius: 20,
+                border: isActive ? '1.5px solid #0e7490' : '1.5px solid rgba(14,116,144,.3)',
+                background: isActive ? '#0e7490' : 'rgba(14,116,144,.06)',
+                color: isActive ? '#fff' : '#0e7490',
                 fontFamily: "'Outfit',sans-serif",
-                boxShadow: isActive ? '0 4px 16px rgba(0,0,0,.18)' : 'none',
-                transform: isActive ? 'translateY(-2px)' : 'none',
-                transition: 'all .18s ease',
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all .15s ease',
+                whiteSpace: 'nowrap',
               }}
             >
-              {tile.badge && (
-                <div
+              {pill.label}
+              {pill.badge && (
+                <span
                   style={{
-                    position: 'absolute',
-                    top: 6,
-                    right: 8,
-                    background: '#ef4444',
+                    marginLeft: 6,
+                    background: isActive ? 'rgba(255,255,255,.3)' : '#0e7490',
                     color: '#fff',
                     fontSize: 10,
                     fontWeight: 800,
                     borderRadius: 99,
-                    padding: '1px 5px',
-                    minWidth: 16,
-                    textAlign: 'center',
+                    padding: '0px 5px',
                   }}
                 >
-                  {tile.badge}
-                </div>
+                  {pill.badge}
+                </span>
               )}
-              <div style={{ fontSize: 24, marginBottom: 4 }}>{tile.icon}</div>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: isActive ? '#fff' : tile.color,
-                  textTransform: 'uppercase',
-                  letterSpacing: '.06em',
-                }}
-              >
-                {tile.label}
-              </div>
             </button>
           );
         })}
@@ -2868,7 +2791,48 @@ export default function PracticeTab({
             </div>
           </div>
         )}
+        {/* ── ALL EXERCISES PANEL ─────────────────────────────────────────── */}
+        {activeIntent === 'all' && (
+          <div>
+            <div className="section-hdr">
+              <div className="section-hdr-icon" style={{ background: 'rgba(14,116,144,.12)' }}>
+                🗂️
+              </div>
+              <div className="section-hdr-text">
+                <div className="section-hdr-title">All Exercises</div>
+                <div className="section-hdr-sub">
+                  {availableExercises.length} available at your level
+                </div>
+              </div>
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              {availableExercises.map((ex) => (
+                <ExerciseCard key={ex.id} {...ex} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* ── AI DAILY INSIGHTS — below category content per design spec ── */}
+      {authUser && lc >= 3 && (
+        <AdaptiveInsightsCard
+          uid={authUser.uid}
+          level={
+            st?.xp
+              ? st.xp >= 3000
+                ? 'B2'
+                : st.xp >= 1500
+                  ? 'B1'
+                  : st.xp >= 600
+                    ? 'A2'
+                    : 'A1'
+              : 'A1'
+          }
+          lessonsCompleted={lc}
+          goToScreen={setScr}
+        />
+      )}
 
       {/* ── DAILY QUESTS STRIP (always visible) ─────────────────────────── */}
       <div
