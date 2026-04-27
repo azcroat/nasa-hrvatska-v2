@@ -64,7 +64,7 @@ function PronunciationChips({ ph }: { ph: string }) {
                     padding: '2px 5px',
                     borderRadius: 5,
                     background: stressed ? 'rgba(204,0,0,.08)' : '#f1f5f9',
-                    color: stressed ? CROATIAN_RED : '#94a3b8',
+                    color: stressed ? CROATIAN_RED : '#5f6b7a',
                     border: stressed ? '1px solid rgba(204,0,0,.2)' : '1px solid #e2e8f0',
                     letterSpacing: '.04em',
                     textTransform: 'uppercase',
@@ -133,7 +133,6 @@ export default function WordOfDayCard({ word }: WordOfDayCardProps) {
                 letterSpacing: '.22em',
                 textTransform: 'uppercase',
                 fontFamily: "'Outfit', sans-serif",
-                opacity: 0.75,
               }}
             >
               Word of the Day
@@ -143,7 +142,7 @@ export default function WordOfDayCard({ word }: WordOfDayCardProps) {
                 style={{
                   fontSize: 8,
                   fontWeight: 700,
-                  color: '#94a3b8',
+                  color: '#5f6b7a',
                   letterSpacing: '.1em',
                   textTransform: 'uppercase',
                   fontFamily: "'Outfit', sans-serif",

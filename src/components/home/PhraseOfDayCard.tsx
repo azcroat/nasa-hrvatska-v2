@@ -40,7 +40,7 @@ function PronunciationChips({ ph }: { ph: string }) {
                     padding: '2px 5px',
                     borderRadius: 5,
                     background: stressed ? 'rgba(0,40,104,.08)' : '#f1f5f9',
-                    color: stressed ? CROATIAN_BLUE : '#94a3b8',
+                    color: stressed ? CROATIAN_BLUE : '#5f6b7a',
                     border: stressed ? '1px solid rgba(0,40,104,.2)' : '1px solid #e2e8f0',
                     letterSpacing: '.04em',
                     textTransform: 'uppercase',
@@ -100,7 +100,6 @@ export default function PhraseOfDayCard({ phrase }: PhraseOfDayCardProps) {
                 letterSpacing: '.22em',
                 textTransform: 'uppercase',
                 fontFamily: "'Outfit', sans-serif",
-                opacity: 0.75,
               }}
             >
               Phrase of the Day
@@ -146,7 +145,7 @@ export default function PhraseOfDayCard({ phrase }: PhraseOfDayCardProps) {
               style={{
                 fontSize: 10,
                 fontWeight: 500,
-                color: '#94a3b8',
+                color: '#5f6b7a',
                 fontStyle: 'italic',
                 lineHeight: 1.4,
                 marginBottom: 10,
