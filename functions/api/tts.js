@@ -1,5 +1,7 @@
 // Cloudflare Pages Function — TTS Proxy
-// Azure hr-HR-GabrijelaNeural (primary) → Google hr-HR-Wavenet-B (backup)
+// Two voice paths:
+//   gabrijela (default): Azure hr-HR-GabrijelaNeural → Google Translate → Edge TTS → Google Cloud
+//   charlotte (opt-in):  ElevenLabs Charlotte eleven_multilingual_v2 → Azure hr-HR-GabrijelaNeural
 // Client falls back to Web Speech API when this endpoint returns 503.
 
 import { checkRateLimit } from './_rateLimit.js';
@@ -67,6 +69,46 @@ async function tryAzure(text, slow, azureKey, primaryRegion) {
     }
   }
   return null;
+}
+
+// ── ElevenLabs TTS ───────────────────────────────────────────────────────────
+// Charlotte voice (XB0fDUnXU5powFXDhCwa) via eleven_multilingual_v2 model.
+// Supports Croatian (hr) natively. More emotive prosody than Azure; slight
+// non-native accent on Croatian diacritics — offered as an explicit opt-in.
+// Slow mode: speed=0.75 (ElevenLabs native speed control, range 0.7–1.2).
+async function tryElevenLabs(text, slow, apiKey) {
+  if (!apiKey) return null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
+  try {
+    const res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/XB0fDUnXU5powFXDhCwa', {
+      method: 'POST',
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'audio/mpeg',
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        language_code: 'hr',
+        voice_settings: {
+          stability: slow ? 0.65 : 0.5,
+          similarity_boost: 0.75,
+          style: 0.0,
+          use_speaker_boost: true,
+          speed: slow ? 0.75 : 1.0,
+        },
+      }),
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    return await res.arrayBuffer();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 // ── Google Translate TTS ──────────────────────────────────────────────────────
@@ -365,13 +407,20 @@ export async function onRequestPost(context) {
 
   const AZURE_KEY = env.AZURE_TTS_KEY;
   const PRIMARY_REGION = env.AZURE_TTS_REGION || 'westeurope';
+  const ELEVENLABS_KEY = env.ELEVENLABS_API_KEY || null;
   // Google TTS uses the Firebase service account already in Cloudflare — no separate key required.
   const GOOGLE_SA_JSON = env.FIREBASE_SERVICE_ACCOUNT_JSON || env.GOOGLE_TTS_KEY || null;
 
   // Diagnostic header — tells the client exactly which backends are available.
   // Visible in the debug overlay via the [TTS] log entries.
   const diagBackends =
-    [AZURE_KEY ? 'azure' : null, 'gtranslate', 'edge', GOOGLE_SA_JSON ? 'google' : null]
+    [
+      AZURE_KEY ? 'azure' : null,
+      ELEVENLABS_KEY ? 'elevenlabs' : null,
+      'gtranslate',
+      'edge',
+      GOOGLE_SA_JSON ? 'google' : null,
+    ]
       .filter(Boolean)
       .join(',') || 'none';
 
@@ -383,14 +432,17 @@ export async function onRequestPost(context) {
     const body = await request.json();
     const text = body.text;
     const slow = body.slow === true;
+    // 'charlotte' = ElevenLabs Charlotte voice; anything else = Azure Gabriela (default)
+    const voice = body.voice === 'charlotte' ? 'charlotte' : 'gabrijela';
 
     if (typeof text !== 'string' || !text.trim() || text.length > 500) {
       return new Response('Invalid text', { status: 400, headers: corsHeaders(origin) });
     }
 
     // ── Edge cache (POST responses aren't auto-cached by Cloudflare) ──────────
+    // Voice is included in the key so Gabriela and Charlotte audio never collide.
     const cacheKey = new Request(
-      `https://tts-cache.internal/v2/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}`,
+      `https://tts-cache.internal/v3/${voice}/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}`,
       { method: 'GET' },
     );
     let edgeCache;
@@ -404,50 +456,75 @@ export async function onRequestPost(context) {
 
     let buffer = null;
 
-    // ── 1. Azure hr-HR-GabrijelaNeural (primary) ──────────────────────────────
-    if (AZURE_KEY) {
-      try {
-        buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
-      } catch {
-        /* fall through */
+    if (voice === 'charlotte') {
+      // ── Charlotte path: ElevenLabs first, Azure Gabriela as fallback ────────
+      if (ELEVENLABS_KEY) {
+        try {
+          buffer = await tryElevenLabs(text, slow, ELEVENLABS_KEY);
+        } catch {
+          /* fall through to Azure */
+        }
       }
-    }
-
-    // ── 2. Google Translate TTS hr (free, HTTP, no key required) ─────────────
-    if (!buffer) {
-      try {
-        buffer = await tryGoogleTranslateTTS(text, slow);
-      } catch {
-        /* fall through */
+      if (!buffer && AZURE_KEY) {
+        try {
+          buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
+        } catch {
+          /* fall through */
+        }
       }
-    }
-
-    // ── 3. Microsoft Edge hr-HR-GabrijelaNeural (WebSocket backup) ───────────
-    if (!buffer) {
-      try {
-        buffer = await tryEdgeTTS(text, slow, env.EDGE_TTS_TOKEN || null);
-      } catch {
-        /* fall through */
+    } else {
+      // ── Gabriela path (default): Azure → Google Translate → Edge → Google ───
+      // ── 1. Azure hr-HR-GabrijelaNeural (primary) ────────────────────────────
+      if (AZURE_KEY) {
+        try {
+          buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
+        } catch {
+          /* fall through */
+        }
       }
-    }
 
-    // ── 4. Google hr-HR-Wavenet-B (backup if service account configured) ─────
-    if (!buffer && GOOGLE_SA_JSON) {
-      try {
-        buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON);
-      } catch {
-        /* fall through */
+      // ── 2. Google Translate TTS hr (free, HTTP, no key required) ───────────
+      if (!buffer) {
+        try {
+          buffer = await tryGoogleTranslateTTS(text, slow);
+        } catch {
+          /* fall through */
+        }
+      }
+
+      // ── 3. Microsoft Edge hr-HR-GabrijelaNeural (WebSocket backup) ──────────
+      if (!buffer) {
+        try {
+          buffer = await tryEdgeTTS(text, slow, env.EDGE_TTS_TOKEN || null);
+        } catch {
+          /* fall through */
+        }
+      }
+
+      // ── 4. Google hr-HR-Wavenet-B (backup if service account configured) ────
+      if (!buffer && GOOGLE_SA_JSON) {
+        try {
+          buffer = await tryGoogle(text, slow, GOOGLE_SA_JSON);
+        } catch {
+          /* fall through */
+        }
       }
     }
 
     // ── 503 → client falls back to Web Speech API ────────────────────────────
     if (!buffer) {
-      const whyFailed = [
-        AZURE_KEY ? 'azure-failed' : 'azure-not-configured',
-        'gtranslate-failed',
-        'edge-failed',
-        GOOGLE_SA_JSON ? 'google-failed' : 'google-not-configured',
-      ].join(',');
+      const whyFailed =
+        voice === 'charlotte'
+          ? [
+              ELEVENLABS_KEY ? 'elevenlabs-failed' : 'elevenlabs-not-configured',
+              AZURE_KEY ? 'azure-failed' : 'azure-not-configured',
+            ].join(',')
+          : [
+              AZURE_KEY ? 'azure-failed' : 'azure-not-configured',
+              'gtranslate-failed',
+              'edge-failed',
+              GOOGLE_SA_JSON ? 'google-failed' : 'google-not-configured',
+            ].join(',');
       return new Response(`TTS unavailable — ${whyFailed}`, {
         status: 503,
         headers: { ...corsHeaders(origin), 'X-TTS-Backends': diagBackends },
