@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { AwardActivityType } from '../../lib/activityXp.js';
 import { isUnlocked, getUserCefr } from '../../lib/cefr';
-import { H, V, LISTEN, getSR, getDueReviews, lvl, getStreak } from '../../data';
+import { V, LISTEN, getSR, getDueReviews, lvl, getStreak } from '../../data';
 import { localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
@@ -1484,181 +1484,82 @@ export default function PracticeTab({
 
   return (
     <div>
-      {/* ── CEFR BADGE HEADER ── */}
+      {/* ── PRACTICE TAB HERO ───────────────────────────────────────────── */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 16,
+          background: 'linear-gradient(150deg,#0369a1 0%,#0e7490 45%,#0891b2 100%)',
+          borderRadius: 20,
+          overflow: 'hidden',
+          marginBottom: 20,
+          position: 'relative',
+          boxShadow: '0 8px 32px rgba(14,116,144,.35)',
         }}
       >
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 900,
-            color: 'var(--heading)',
-            margin: 0,
-            fontFamily: "'Playfair Display',serif",
-          }}
-        >
-          Practice
-        </h2>
-        <div
-          style={{
-            background: 'linear-gradient(135deg,rgba(14,116,144,.12),rgba(6,182,212,.07))',
-            border: '1.5px solid rgba(14,116,144,.3)',
-            borderRadius: 20,
-            padding: '4px 12px',
-            fontSize: 12,
-            fontWeight: 800,
-            color: 'var(--info,#0284c7)',
-          }}
-        >
-          {userCefr} · Your Level
-        </div>
-      </div>
-
-      {/* ── PROGRESS NUDGE BAR ── */}
-      {nextCefrTier && (
-        <div
-          style={{
-            background: 'rgba(14,116,144,.05)',
-            border: '1px solid rgba(14,116,144,.15)',
-            borderRadius: 10,
-            padding: '8px 12px',
-            marginBottom: 12,
-            fontSize: 12,
-            color: 'var(--subtext)',
-            fontWeight: 600,
-          }}
-        >
-          🚀 Keep going to unlock {nextCefrTier} exercises
-        </div>
-      )}
-
-      {/* ── LOCKED TILE TOAST ── */}
-      {lockedToast && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 80,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'rgba(30,30,40,.92)',
-            color: '#fff',
-            borderRadius: 12,
-            padding: '10px 18px',
-            fontSize: 13,
-            fontWeight: 700,
-            zIndex: 9999,
-            pointerEvents: 'none',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {lockedToast}
-        </div>
-      )}
-
-      {H('🎮 Practice', 'Choose your training mode', undefined)}
-
-      {/* ── DAILY QUESTS — moved here from Today tab ── */}
-      <QuestTracker
-        questsDone={questsDone}
-        allQuestsDone={allQuestsDone}
-        onQuestStart={(questId, screen) => {
-          if (questId === 'speak' || questId === 'speak2') {
-            const pool = allCats
-              .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
-              .filter((w) => w && w[0] && w[1]);
-            const items = sh(pool).slice(0, 6);
-            onLaunchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
-          } else if (questId === 'grammar' || questId === 'grammar2') {
-            if (launchPathItem) launchPathItem({ go: 'grammar' });
-            else setScr('grammar');
-          } else if (questId === 'vocab' || questId === 'vocab2') {
-            if (launchPathItem) launchPathItem({ go: 'lesson' });
-            else setScr('learnpath');
-          } else if (questId === 'perfect') {
-            const pool = allCats
-              .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
-              .filter((w) => w && w[0] && w[1]);
-            onLaunchFlash(sh(pool).slice(0, 20));
-          } else {
-            setScr(screen);
-          }
-        }}
-      />
-
-      {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
-      <SpeedChallenge />
-
-      {/* ── AI DAILY INSIGHTS — personalized focus based on error patterns ── */}
-      {authUser && lc >= 3 && (
-        <AdaptiveInsightsCard
-          uid={authUser.uid}
-          level={
-            st?.xp
-              ? st.xp >= 3000
-                ? 'B2'
-                : st.xp >= 1500
-                  ? 'B1'
-                  : st.xp >= 600
-                    ? 'A2'
-                    : 'A1'
-              : 'A1'
-          }
-          lessonsCompleted={lc}
-          goToScreen={setScr}
-        />
-      )}
-
-      {/* ── ADAPTIVE PRACTICE — smart queue for due categories ─────────────────── */}
-      {practiceQueue.length > 0 && (
-        <>
-          <div className="section-hdr" style={{ marginTop: 4 }}>
-            <div className="section-hdr-icon" style={{ background: 'rgba(14,116,144,.12)' }}>
-              🎯
+        <div style={{ height: 3, background: 'linear-gradient(90deg,#0e7490,#0369a1)' }} />
+        <div className="tab-hero-body">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                flexShrink: 0,
+                background: 'rgba(255,255,255,.14)',
+                border: '1.5px solid rgba(255,255,255,.28)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 24,
+              }}
+            >
+              🎮
             </div>
-            <div className="section-hdr-text">
-              <div className="section-hdr-title">Practice Now</div>
-              <div className="section-hdr-sub">Your weakest areas — due for review</div>
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 9,
+                  fontWeight: 900,
+                  color: 'rgba(255,255,255,.65)',
+                  letterSpacing: '.15em',
+                  textTransform: 'uppercase',
+                  marginBottom: 3,
+                }}
+              >
+                Practice
+              </div>
+              <div
+                style={{
+                  fontSize: 20,
+                  fontWeight: 900,
+                  color: '#fff',
+                  lineHeight: 1.1,
+                  fontFamily: "'Playfair Display',serif",
+                }}
+              >
+                {userCefr} Level
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.65)', marginTop: 3 }}>
+                {practiceQuestsDone.done} of {practiceQuestsDone.total} quests done today
+              </div>
             </div>
+            {nextCefrTier && (
+              <div
+                style={{
+                  background: 'rgba(255,255,255,.15)',
+                  border: '1px solid rgba(255,255,255,.25)',
+                  borderRadius: 10,
+                  padding: '5px 9px',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: '#fff',
+                  flexShrink: 0,
+                }}
+              >
+                → {nextCefrTier}
+              </div>
+            )}
           </div>
-          <div className="todays-picks-grid" style={{ marginBottom: 20 }}>
-            {practiceQueue.slice(0, 3).map((item) => {
-              const cfg = ADAPTIVE_CATEGORY_MAP[item.category];
-              if (!cfg) return null;
-              return (
-                <ExerciseCard
-                  key={item.category}
-                  id={`adaptive-${item.category}`}
-                  label={cfg.label}
-                  icon={cfg.icon}
-                  desc={cfg.desc}
-                  action={cfg.action}
-                />
-              );
-            })}
-          </div>
-        </>
-      )}
-
-      {/* ── TODAY'S PICK — always visible, always first ──────────────────── */}
-      {/* Personalized picks lead the screen so returning users jump straight in */}
-      <div className="section-hdr" style={{ marginTop: 4 }}>
-        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
-          ⭐
         </div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Today's Pick</div>
-          <div className="section-hdr-sub">Chosen for right now — tap to start</div>
-        </div>
-      </div>
-      <div className="todays-picks-grid" style={{ marginBottom: 20 }}>
-        {EXERCISES.filter((e) => todaysPicks.includes(e.id)).map((e) => (
-          <ExerciseCard key={e.id} {...e} />
-        ))}
       </div>
 
       {/* ── AI VOICE CONVERSATION — signature feature hero ───────────────── */}
@@ -1742,6 +1643,111 @@ export default function PracticeTab({
           </div>
         </div>
       </button>
+
+      {/* ── LOCKED TILE TOAST ── */}
+      {lockedToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 80,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'rgba(30,30,40,.92)',
+            color: '#fff',
+            borderRadius: 12,
+            padding: '10px 18px',
+            fontSize: 13,
+            fontWeight: 700,
+            zIndex: 9999,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {lockedToast}
+        </div>
+      )}
+
+      {/* ── DAILY QUESTS — moved here from Today tab ── */}
+      <QuestTracker
+        questsDone={questsDone}
+        allQuestsDone={allQuestsDone}
+        onQuestStart={(questId, screen) => {
+          if (questId === 'speak' || questId === 'speak2') {
+            const pool = allCats
+              .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
+              .filter((w) => w && w[0] && w[1]);
+            const items = sh(pool).slice(0, 6);
+            onLaunchSpeaking(items.length ? items : [['Dobar dan', 'Good day', 'DOH-bar dahn']]);
+          } else if (questId === 'grammar' || questId === 'grammar2') {
+            if (launchPathItem) launchPathItem({ go: 'grammar' });
+            else setScr('grammar');
+          } else if (questId === 'vocab' || questId === 'vocab2') {
+            if (launchPathItem) launchPathItem({ go: 'lesson' });
+            else setScr('learnpath');
+          } else if (questId === 'perfect') {
+            const pool = allCats
+              .flatMap((t) => (V as Record<string, string[][]>)[t] || [])
+              .filter((w) => w && w[0] && w[1]);
+            onLaunchFlash(sh(pool).slice(0, 20));
+          } else {
+            setScr(screen);
+          }
+        }}
+      />
+
+      {/* ── SPEED CHALLENGE — daily timed vocabulary quiz ── */}
+      <SpeedChallenge />
+
+      {/* ── AI DAILY INSIGHTS — personalized focus based on error patterns ── */}
+      {authUser && lc >= 3 && (
+        <AdaptiveInsightsCard
+          uid={authUser.uid}
+          level={
+            st?.xp
+              ? st.xp >= 3000
+                ? 'B2'
+                : st.xp >= 1500
+                  ? 'B1'
+                  : st.xp >= 600
+                    ? 'A2'
+                    : 'A1'
+              : 'A1'
+          }
+          lessonsCompleted={lc}
+          goToScreen={setScr}
+        />
+      )}
+
+      {/* ── ADAPTIVE PRACTICE — smart queue for due categories ─────────────────── */}
+      {practiceQueue.length > 0 && (
+        <>
+          <div className="section-hdr" style={{ marginTop: 4 }}>
+            <div className="section-hdr-icon" style={{ background: 'rgba(14,116,144,.12)' }}>
+              🎯
+            </div>
+            <div className="section-hdr-text">
+              <div className="section-hdr-title">Practice Now</div>
+              <div className="section-hdr-sub">Your weakest areas — due for review</div>
+            </div>
+          </div>
+          <div className="todays-picks-grid" style={{ marginBottom: 20 }}>
+            {practiceQueue.slice(0, 3).map((item) => {
+              const cfg = ADAPTIVE_CATEGORY_MAP[item.category];
+              if (!cfg) return null;
+              return (
+                <ExerciseCard
+                  key={item.category}
+                  id={`adaptive-${item.category}`}
+                  label={cfg.label}
+                  icon={cfg.icon}
+                  desc={cfg.desc}
+                  action={cfg.action}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* ── DAILY LISTENING — comprehensible input at user's CEFR level ── */}
       {lc >= 2 && (
