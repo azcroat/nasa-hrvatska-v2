@@ -9,12 +9,12 @@ test.describe('Learn tab', () => {
     // Navigate directly to /learn to avoid post-auth navigate('/') race on tab click.
     await page.goto('/learn');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText('My Path')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('Your Path')).toBeVisible({ timeout: 20_000 });
   });
 
   test.describe('Learning Path', () => {
     test('renders My Path heading', async ({ page }) => {
-      await expect(page.getByText('My Path')).toBeVisible();
+      await expect(page.getByText('Your Path')).toBeVisible();
     });
 
     test('shows AI Micro-Lesson card', async ({ page }) => {

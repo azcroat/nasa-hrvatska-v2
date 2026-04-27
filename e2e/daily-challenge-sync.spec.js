@@ -32,16 +32,23 @@ test.describe('Home screen — authenticated', () => {
   });
 
   test('Practice tab shows EARN BONUS XP label', async ({ page }) => {
-    // QuestTracker moved from Home tab to Practice tab
+    // QuestTracker moved from Home tab to Practice tab; card is collapsed by default — expand first
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true }).click();
+    await expect(page.getByText('Quests').first()).toBeVisible({ timeout: 10_000 });
+    await page.getByText('Quests').first().click(); // expand collapsed QuestTracker
+    await page.waitForTimeout(300);
     await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('Practice tab shows quest count or all-complete message', async ({ page }) => {
-    // QuestTracker moved from Home tab to Practice tab
+    // QuestTracker moved from Home tab to Practice tab; card is collapsed by default — expand first
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true }).click();
+    // Expand the QuestTracker collapsed card before checking inner content
+    await expect(page.getByText('Quests').first()).toBeVisible({ timeout: 10_000 });
+    await page.getByText('Quests').first().click();
+    await page.waitForTimeout(300);
     // Wait for QuestTracker header to confirm it's rendered
     await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
     // Verify the quest count/completion line is in the rendered body
