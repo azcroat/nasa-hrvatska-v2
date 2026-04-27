@@ -486,6 +486,17 @@ export default function LearnTab({
         <div style={{ fontSize: 18, color: '#4f46e5' }}>→</div>
       </button>
 
+      {/* ── GRAMMAR ─────────────────────────────────────────────────────── */}
+      <div className="section-hdr" style={{ marginTop: 8 }}>
+        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
+          📖
+        </div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Grammar</div>
+          <div className="section-hdr-sub">Cases, tenses, aspect</div>
+        </div>
+      </div>
+
       {/* ── ANIMATED LESSONS: PAST + FUTURE TENSE ─────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
@@ -563,31 +574,56 @@ export default function LearnTab({
         <div style={{ fontSize: 18, color: '#d97706' }}>→</div>
       </button>
 
-      {/* ── GRADED STORIES + PRONUNCIATION COURSE ───────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-        <button
-          onClick={() => setScr('graded_input')}
-          className="feature-card feature-card--col"
-          style={{
-            border: '1.5px solid #bbf7d0',
-            background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
-          }}
+      {/* ── READING & STORIES ───────────────────────────────────────────── */}
+      <div className="section-hdr" style={{ marginTop: 8 }}>
+        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
+          📚
+        </div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Reading &amp; Stories</div>
+          <div className="section-hdr-sub">Authentic Croatian text</div>
+        </div>
+      </div>
+
+      <button
+        onClick={() => setScr('graded_input')}
+        className="feature-card"
+        style={{
+          marginBottom: 10,
+          border: '1.5px solid #bbf7d0',
+          background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
+        }}
+      >
+        <div
+          className="feature-card-icon"
+          style={{ background: 'linear-gradient(135deg,#059669,#065f46)' }}
         >
-          <div
-            className="feature-card-icon"
-            style={{ background: 'linear-gradient(135deg,#059669,#065f46)' }}
-          >
-            📖
+          📖
+        </div>
+        <div style={{ flex: 1 }}>
+          <div className="feature-card-title" style={{ color: '#065f46' }}>
+            Graded Stories
           </div>
-          <div>
-            <div className="feature-card-title" style={{ color: '#065f46' }}>
-              Graded Stories
-            </div>
-            <div className="feature-card-desc" style={{ color: '#059669' }}>
-              A1–B2 Croatian texts with audio &amp; quiz
-            </div>
+          <div className="feature-card-desc" style={{ color: '#059669' }}>
+            A1–B2 Croatian texts with audio &amp; quiz
           </div>
-        </button>
+        </div>
+        <div style={{ fontSize: 18, color: '#059669' }}>→</div>
+      </button>
+
+      {/* ── PRONUNCIATION ───────────────────────────────────────────────── */}
+      <div className="section-hdr" style={{ marginTop: 8 }}>
+        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
+          🎙️
+        </div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Pronunciation</div>
+          <div className="section-hdr-sub">Sounds &amp; accents</div>
+        </div>
+      </div>
+
+      {/* ── PRONUNCIATION COURSE + PITCH ACCENT ─────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <button
           onClick={() => setScr('pronunciation_course')}
           className="feature-card feature-card--col"
@@ -611,30 +647,80 @@ export default function LearnTab({
             </div>
           </div>
         </button>
+        <button
+          onClick={() => setScr('pitch_accent')}
+          className="feature-card feature-card--col"
+          style={{
+            background: 'linear-gradient(135deg,#4c1d95,#7c3aed)',
+            boxShadow: '0 4px 14px rgba(124,58,237,.3)',
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🎵</div>
+          <div>
+            <div className="feature-card-title" style={{ color: '#fff' }}>
+              Pitch Accent
+            </div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+              4 accents · What no other app teaches
+            </div>
+          </div>
+        </button>
       </div>
 
-      {/* ── PITCH ACCENT, HERITAGE, PHONEME, PRACTICAL, TOP500 ─────────── */}
-      <>
-        {/* ── PITCH ACCENT + HERITAGE PATH ────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-          <button
-            onClick={() => setScr('pitch_accent')}
-            className="feature-card feature-card--col"
-            style={{
-              background: 'linear-gradient(135deg,#4c1d95,#7c3aed)',
-              boxShadow: '0 4px 14px rgba(124,58,237,.3)',
-            }}
-          >
-            <div style={{ fontSize: 28 }}>🎵</div>
-            <div>
-              <div className="feature-card-title" style={{ color: '#fff' }}>
-                Pitch Accent
-              </div>
-              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                4 accents · What no other app teaches
-              </div>
+      {/* ── PHONEME TRAINER + HERITAGE MODE ─────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+        <button
+          onClick={() => setScr('phoneme_practice')}
+          className="feature-card feature-card--col"
+          style={{
+            background: 'linear-gradient(135deg,#0e7490,#0891b2)',
+            boxShadow: '0 4px 14px rgba(14,116,144,.3)',
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🔤</div>
+          <div>
+            <div className="feature-card-title" style={{ color: '#fff' }}>
+              Phoneme Trainer
             </div>
-          </button>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+              Č vs Ć · Š Ž LJ NJ · Sound right
+            </div>
+          </div>
+        </button>
+        <button
+          onClick={() => setScr('heritage_mode')}
+          className="feature-card feature-card--col"
+          style={{
+            background: 'linear-gradient(135deg,#1e3a5f,#2563eb)',
+            boxShadow: '0 4px 14px rgba(37,99,235,.3)',
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🌍</div>
+          <div>
+            <div className="feature-card-title" style={{ color: '#fff' }}>
+              Heritage Mode
+            </div>
+            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
+              Diaspora learner? Identify your gaps
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* ── SPECIAL PATHS ───────────────────────────────────────────────── */}
+      <div className="section-hdr" style={{ marginTop: 8 }}>
+        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
+          🧬
+        </div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Special Paths</div>
+          <div className="section-hdr-sub">Heritage, practical &amp; advanced tracks</div>
+        </div>
+      </div>
+
+      <>
+        {/* ── HERITAGE PATH + PRACTICAL CROATIAN ──────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
           <button
             onClick={() => setScr('heritage_path')}
             className="feature-card feature-card--col"
@@ -653,69 +739,25 @@ export default function LearnTab({
               </div>
             </div>
           </button>
-        </div>
-
-        {/* ── PHONEME TRAINER + HERITAGE MODE ─────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
           <button
-            onClick={() => setScr('phoneme_practice')}
+            onClick={() => setScr('practical_croatian')}
             className="feature-card feature-card--col"
             style={{
-              background: 'linear-gradient(135deg,#0e7490,#0891b2)',
-              boxShadow: '0 4px 14px rgba(14,116,144,.3)',
+              background: 'linear-gradient(135deg,#065f46,#059669)',
+              boxShadow: '0 4px 14px rgba(5,150,105,.3)',
             }}
           >
-            <div style={{ fontSize: 28 }}>🔤</div>
+            <div style={{ fontSize: 28 }}>🗺️</div>
             <div>
               <div className="feature-card-title" style={{ color: '#fff' }}>
-                Phoneme Trainer
+                Practical Croatian
               </div>
               <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                Č vs Ć · Š Ž LJ NJ · Sound right
-              </div>
-            </div>
-          </button>
-          <button
-            onClick={() => setScr('heritage_mode')}
-            className="feature-card feature-card--col"
-            style={{
-              background: 'linear-gradient(135deg,#1e3a5f,#2563eb)',
-              boxShadow: '0 4px 14px rgba(37,99,235,.3)',
-            }}
-          >
-            <div style={{ fontSize: 28 }}>🌍</div>
-            <div>
-              <div className="feature-card-title" style={{ color: '#fff' }}>
-                Heritage Mode
-              </div>
-              <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-                Diaspora learner? Identify your gaps
+                Shop · Doctor · Immigration &amp; more
               </div>
             </div>
           </button>
         </div>
-
-        {/* ── PRACTICAL CROATIAN ──────────────────────────────────────────── */}
-        <button
-          onClick={() => setScr('practical_croatian')}
-          className="feature-card"
-          style={{
-            background: 'linear-gradient(135deg,#065f46,#059669)',
-            boxShadow: '0 4px 14px rgba(5,150,105,.3)',
-            marginBottom: 20,
-          }}
-        >
-          <div style={{ fontSize: 32, flexShrink: 0 }}>🗺️</div>
-          <div style={{ flex: 1 }}>
-            <div className="feature-card-title" style={{ color: '#fff' }}>
-              Practical Croatian
-            </div>
-            <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.8)' }}>
-              Shop · Doctor · Immigration office · Family visit — 4 real scenarios
-            </div>
-          </div>
-          <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.7)', fontSize: 18 }}>›</div>
-        </button>
 
         {/* ── TOP 500 WORDS ───────────────────────────────────────────────── */}
         <button
@@ -791,20 +833,19 @@ export default function LearnTab({
         </button>
       </>
 
+      {/* ── QUICK VOCAB ──────────────────────────────────────────────────── */}
+      <div className="section-hdr" style={{ marginTop: 8 }}>
+        <div className="section-hdr-icon" style={{ background: 'rgba(99,102,241,.12)' }}>
+          ⚡
+        </div>
+        <div className="section-hdr-text">
+          <div className="section-hdr-title">Quick Vocab</div>
+          <div className="section-hdr-sub">Tap a topic to start</div>
+        </div>
+      </div>
+
       {/* ── VOCABULARY QUICK ACCESS ─────────────────────────────────────── */}
       <div style={{ marginBottom: 20 }}>
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 800,
-            color: 'var(--subtext)',
-            textTransform: 'uppercase',
-            letterSpacing: '.08em',
-            marginBottom: 8,
-          }}
-        >
-          Quick Vocab — Tap to start
-        </div>
         <div className="scroll-fade-wrap">
           <div
             style={{
