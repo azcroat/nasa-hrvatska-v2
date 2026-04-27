@@ -5,11 +5,11 @@ import MediaTab from './MediaTab';
 import StoriesTab from './StoriesTab';
 
 const ANCHORS = [
-  { id: 'section-discover', label: 'Discover', icon: '🗓️', cefr: null },
+  { id: 'section-discover', label: 'Discover', icon: '🌊', cefr: null },
   { id: 'section-history', label: 'History', icon: '🏰', cefr: 'A2+' },
-  { id: 'section-life', label: 'Life', icon: '🏘️', cefr: 'A1+' },
+  { id: 'section-life', label: 'Life', icon: '🥘', cefr: 'A1+' },
   { id: 'section-stories', label: 'Stories', icon: '📖', cefr: 'A1–B2' },
-  { id: 'section-media', label: 'Media', icon: '🎵', cefr: 'A2–B1' },
+  { id: 'section-media', label: 'Media', icon: '🎬', cefr: 'A2–B1' },
 ];
 
 interface CroatiaTabProps {
@@ -201,33 +201,41 @@ export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
               onClick={() => scrollTo(a.id)}
               style={{
                 flexShrink: 0,
-                padding: '10px 12px 8px',
+                padding: '8px 14px 7px',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
                 fontFamily: "'Outfit',sans-serif",
-                fontSize: 12,
-                fontWeight: isActive ? 800 : 600,
-                color: isActive ? '#B80020' : 'var(--subtext)',
-                borderBottom: isActive ? '2px solid #B80020' : '2px solid transparent',
+                borderBottom: isActive ? '3px solid #B80020' : '3px solid transparent',
                 transition: 'color .18s, border-color .18s',
                 whiteSpace: 'nowrap',
                 position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 2,
               }}
             >
-              <span>
-                {a.icon} {a.label}
+              <span style={{ fontSize: 16, lineHeight: 1 }}>{a.icon}</span>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: isActive ? '#B80020' : 'var(--subtext)',
+                  letterSpacing: '.01em',
+                }}
+              >
+                {a.label}
               </span>
               {a.cefr && (
                 <span
                   style={{
-                    display: 'block',
                     fontSize: 9,
                     fontWeight: 700,
                     letterSpacing: '.03em',
                     color: isActive ? '#B80020' : 'var(--subtext)',
                     opacity: isActive ? 0.9 : 0.6,
-                    marginTop: 1,
+                    marginTop: -1,
                   }}
                 >
                   {a.cefr}
