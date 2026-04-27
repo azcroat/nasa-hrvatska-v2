@@ -9,6 +9,9 @@ test-results/
 .claude/
 !.claude/commands/
 !.claude/commands/*.md
+!.claude/skills/
+!.claude/skills/*/
+!.claude/skills/*/SKILL.md
 coverage/
 UsersjschrAppDataLocalGoogleChromeUser Data/
 
