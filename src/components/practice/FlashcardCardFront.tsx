@@ -8,7 +8,9 @@ interface Props {
 export default function FlashcardCardFront({ card, cardImg, cardImgLoading }: Props) {
   const word = card[0];
   const example = card[3];
-  const blankedExample = example && word ? example.replace(new RegExp(word, 'gi'), '___') : null;
+  const escapedWord = word ? word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+  const blankedExample =
+    example && word ? example.replace(new RegExp(escapedWord, 'gi'), '___') : null;
 
   return (
     <div
