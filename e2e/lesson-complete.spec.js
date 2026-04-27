@@ -19,7 +19,7 @@ test.describe('Full lesson completion flow', () => {
     // Navigate directly to /learn to avoid post-auth navigate('/') race on tab click.
     await page.goto('/learn');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText('My Path')).toBeVisible({ timeout: 25_000 });
+    await expect(page.getByText('Your Path')).toBeVisible({ timeout: 25_000 });
   });
 
   test('lesson screen opens from vocabulary category', async ({ page }) => {

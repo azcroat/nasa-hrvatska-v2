@@ -42,8 +42,10 @@ async function openCategory(page, categoryLabel) {
   // The Drill tile button's textContent is "🎯Drill" (icon div + label div concatenated),
   // so we target via the inner label div that has exact text "Drill".
   const drillBtn = page.locator('button').filter({ has: page.locator('div').filter({ hasText: /^Drill$/ }) });
-  if (await drillBtn.isVisible({ timeout: 2_000 })) await drillBtn.click();
+  // Use click() with timeout — Playwright retries until visible/clickable; silently no-ops if already in Drill panel.
+  await drillBtn.click({ timeout: 8_000 }).catch(() => {});
   const catBtn = page.locator('button.cat-tile').filter({ hasText: categoryLabel });
+  await expect(catBtn).toBeVisible({ timeout: 5_000 });
   await catBtn.scrollIntoViewIfNeeded();
   await catBtn.click();
   await page.waitForTimeout(200);
