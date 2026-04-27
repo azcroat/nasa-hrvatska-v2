@@ -31,6 +31,8 @@ export interface PhraseOfDay {
   en: string;
   /** Usage/context note, e.g. "Informal — use with friends" */
   note: string;
+  /** Phonetic pronunciation guide, e.g. "KAH-koh SEE" (space = word break, hyphen = syllable, UPPERCASE = stressed) */
+  ph?: string;
 }
 
 export function getWordOfDay(): WordOfDay | null {
@@ -69,6 +71,7 @@ export function getPhraseOfDay(): PhraseOfDay | null {
       hr: entry.hr,
       en: entry.en,
       note: entry.note || '',
+      ph: (entry as { ph?: string }).ph || '',
     };
   } catch {
     return null;

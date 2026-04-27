@@ -5,9 +5,6 @@ import type { WordOfDay } from '../../lib/wordOfDay';
 
 const CROATIAN_RED = '#CC0000';
 
-// Šahovnica micro-pattern — alternating white squares, very subtle
-const SAHOVNICA_PATTERN = `url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='5' height='5' fill='rgba(255,255,255,0.07)'/%3E%3Crect x='5' y='5' width='5' height='5' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E")`;
-
 const CAT_EMOJI: Record<string, string> = {
   food: '🍽️',
   family: '👨‍👩‍👧',
@@ -36,41 +33,50 @@ interface WordOfDayCardProps {
   word: WordOfDay;
 }
 
-function todayLabel(): string {
-  const d = new Date();
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
+/** ph format: "KAH-koh YOO-troh" — space=word boundary, hyphen=syllable, UPPERCASE=stressed */
+function parsePh(ph: string): string[][] {
+  return ph.split(' ').map((group) => group.split('-'));
 }
 
-// Decorative 4×4 šahovnica grid — watermark in corner
-function SahovnicaWatermark({ opacity = 0.2 }: { opacity?: number }) {
+function isStressed(syl: string): boolean {
+  return syl === syl.toUpperCase() && /[A-Z]/.test(syl);
+}
+
+function PronunciationChips({ ph }: { ph: string }) {
+  const groups = parsePh(ph);
   return (
     <div
-      style={{
-        position: 'absolute',
-        right: 16,
-        bottom: 14,
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gridTemplateRows: 'repeat(4, 1fr)',
-        gap: 2.5,
-        width: 38,
-        height: 38,
-        opacity,
-      }}
+      style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4, marginBottom: 10 }}
     >
-      {Array.from({ length: 16 }, (_, i) => {
-        const r = Math.floor(i / 4);
-        const c = i % 4;
-        return (
-          <div
-            key={i}
-            style={{
-              background: (r + c) % 2 === 0 ? '#fff' : 'transparent',
-              borderRadius: 1.5,
-            }}
-          />
-        );
-      })}
+      {groups.map((syls, gi) => (
+        <React.Fragment key={gi}>
+          {gi > 0 && <span style={{ color: '#cbd5e1', fontSize: 8, userSelect: 'none' }}>·</span>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {syls.map((syl, si) => {
+              const stressed = isStressed(syl);
+              return (
+                <span
+                  key={si}
+                  style={{
+                    fontFamily: "'Outfit', sans-serif",
+                    fontSize: 9,
+                    fontWeight: stressed ? 800 : 600,
+                    padding: '2px 5px',
+                    borderRadius: 5,
+                    background: stressed ? 'rgba(204,0,0,.08)' : '#f1f5f9',
+                    color: stressed ? CROATIAN_RED : '#94a3b8',
+                    border: stressed ? '1px solid rgba(204,0,0,.2)' : '1px solid #e2e8f0',
+                    letterSpacing: '.04em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {syl}
+                </span>
+              );
+            })}
+          </div>
+        </React.Fragment>
+      ))}
     </div>
   );
 }
@@ -89,172 +95,127 @@ export default function WordOfDayCard({ word }: WordOfDayCardProps) {
   return (
     <div
       style={{
-        borderRadius: 20,
-        overflow: 'hidden',
+        borderRadius: 14,
+        background: 'var(--card)',
+        border: '1.5px solid #e8ecf2',
+        boxShadow: '0 2px 8px rgba(0,0,0,.05)',
         marginBottom: 12,
-        border: '1px solid var(--card-b)',
-        boxShadow: '0 12px 40px rgba(204,0,0,.14), 0 2px 8px rgba(0,0,0,.07)',
+        overflow: 'hidden',
       }}
     >
-      {/* ── RED HERO PANEL ── */}
-      <div
-        style={{
-          background: `${SAHOVNICA_PATTERN}, linear-gradient(148deg, #CC0000 0%, #991a00 55%, #7a1400 100%)`,
-          padding: '15px 18px 20px',
-          position: 'relative',
-        }}
-      >
-        {/* Overline row: label + date */}
+      <div style={{ padding: '11px 13px 12px', display: 'flex', alignItems: 'stretch', gap: 11 }}>
+        {/* 3px red left accent bar */}
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 12,
+            width: 3,
+            borderRadius: 3,
+            background: `linear-gradient(to bottom, ${CROATIAN_RED}, #991a00)`,
+            flexShrink: 0,
+            alignSelf: 'stretch',
           }}
-        >
-          <span
-            style={{
-              fontSize: 8,
-              fontWeight: 900,
-              color: 'rgba(255,255,255,.5)',
-              letterSpacing: '.22em',
-              textTransform: 'uppercase',
-              fontFamily: "'Outfit', sans-serif",
-            }}
-          >
-            Word of the Day
-          </span>
-          <span
-            style={{
-              fontSize: 8,
-              fontWeight: 600,
-              color: 'rgba(255,255,255,.32)',
-              fontFamily: "'Outfit', sans-serif",
-              letterSpacing: '.05em',
-            }}
-          >
-            {todayLabel()}
-          </span>
-        </div>
+        />
 
-        {/* Category label — small, above the word */}
-        {catLabel && (
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Overline: label + category */}
           <div
             style={{
-              fontSize: 9,
-              fontWeight: 700,
-              color: 'rgba(255,255,255,.48)',
-              textTransform: 'uppercase',
-              letterSpacing: '.14em',
-              fontFamily: "'Outfit', sans-serif",
-              marginBottom: 5,
-            }}
-          >
-            {catEmoji} {catLabel}
-          </div>
-        )}
-
-        {/* Croatian word — the hero */}
-        <div
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: 44,
-            fontWeight: 900,
-            color: '#fff',
-            lineHeight: 1,
-            letterSpacing: '-.02em',
-            textShadow: '0 2px 24px rgba(0,0,0,.22)',
-            marginBottom: 11,
-          }}
-        >
-          {word.hr}
-        </div>
-
-        {/* Phonetic pill — frosted-glass style */}
-        {word.ph && (
-          <div
-            style={{
-              display: 'inline-flex',
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'rgba(255,255,255,.13)',
-              border: '1px solid rgba(255,255,255,.2)',
-              borderRadius: 100,
-              padding: '4px 12px',
-              fontSize: 10,
-              fontWeight: 700,
-              color: 'rgba(255,255,255,.85)',
-              fontFamily: "'Outfit', sans-serif",
-              letterSpacing: '.06em',
+              marginBottom: 6,
             }}
           >
-            {word.ph}
+            <span
+              style={{
+                fontSize: 8,
+                fontWeight: 900,
+                color: CROATIAN_RED,
+                letterSpacing: '.22em',
+                textTransform: 'uppercase',
+                fontFamily: "'Outfit', sans-serif",
+                opacity: 0.75,
+              }}
+            >
+              Word of the Day
+            </span>
+            {catLabel && (
+              <span
+                style={{
+                  fontSize: 8,
+                  fontWeight: 700,
+                  color: '#94a3b8',
+                  letterSpacing: '.1em',
+                  textTransform: 'uppercase',
+                  fontFamily: "'Outfit', sans-serif",
+                }}
+              >
+                {catEmoji} {catLabel}
+              </span>
+            )}
           </div>
-        )}
 
-        {/* Šahovnica watermark — bottom right corner */}
-        <SahovnicaWatermark opacity={0.18} />
-      </div>
+          {/* Croatian word — 22px/900 Playfair upright */}
+          <div
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 22,
+              fontWeight: 900,
+              color: 'var(--heading)',
+              lineHeight: 1.15,
+              letterSpacing: '-.02em',
+              marginBottom: 4,
+            }}
+          >
+            {word.hr}
+          </div>
 
-      {/* ── GOLD EDITORIAL RULE ── */}
-      <div
-        style={{
-          height: 2,
-          background:
-            'linear-gradient(90deg, rgba(185,148,62,.9) 0%, rgba(185,148,62,.5) 50%, transparent 100%)',
-        }}
-      />
+          {/* English translation — italic */}
+          <div
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 13,
+              fontWeight: 700,
+              fontStyle: 'italic',
+              color: 'var(--subtext)',
+              lineHeight: 1.3,
+              marginBottom: word.ph ? 8 : 10,
+            }}
+          >
+            {word.en}
+          </div>
 
-      {/* ── TRANSLATION PANEL ── */}
-      <div
-        style={{
-          background: 'var(--card)',
-          padding: '14px 18px 16px',
-        }}
-      >
-        {/* English — Playfair italic with typographic quotes */}
-        <div
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: 16,
-            fontWeight: 700,
-            fontStyle: 'italic',
-            color: 'var(--heading)',
-            lineHeight: 1.35,
-            marginBottom: 13,
-          }}
-        >
-          &ldquo;{word.en}&rdquo;
+          {/* Pronunciation chips — shown only when ph data is present */}
+          {word.ph && <PronunciationChips ph={word.ph} />}
+
+          {/* Compact Slušaj button */}
+          <button
+            onClick={handleSpeak}
+            aria-label={`Pronounce ${word.hr}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              background: playing
+                ? `linear-gradient(135deg, ${CROATIAN_RED}, #991a00)`
+                : 'rgba(204,0,0,.05)',
+              border: `1px solid ${playing ? 'transparent' : 'rgba(204,0,0,.2)'}`,
+              borderRadius: 8,
+              padding: '5px 10px',
+              fontSize: 9,
+              fontWeight: 900,
+              color: playing ? '#fff' : CROATIAN_RED,
+              cursor: 'pointer',
+              fontFamily: "'Outfit', sans-serif",
+              letterSpacing: '.1em',
+              textTransform: 'uppercase',
+              transition: 'all .18s ease',
+              boxShadow: playing ? '0 2px 10px rgba(204,0,0,.25)' : 'none',
+            }}
+          >
+            <span style={{ fontSize: 11 }}>{playing ? '▶' : '🔊'}</span>
+            {playing ? 'Playing…' : 'Slušaj'}
+          </button>
         </div>
-
-        {/* Slušaj — full-width CTA */}
-        <button
-          onClick={handleSpeak}
-          aria-label={`Pronounce ${word.hr}`}
-          style={{
-            width: '100%',
-            background: playing ? 'linear-gradient(135deg, #CC0000, #991a00)' : 'transparent',
-            border: `2px solid ${playing ? 'transparent' : 'rgba(204,0,0,.28)'}`,
-            borderRadius: 12,
-            padding: '11px 0',
-            fontSize: 12,
-            fontWeight: 900,
-            color: playing ? '#fff' : CROATIAN_RED,
-            cursor: 'pointer',
-            fontFamily: "'Outfit', sans-serif",
-            letterSpacing: '.12em',
-            textTransform: 'uppercase',
-            transition: 'all .18s ease',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            boxShadow: playing ? '0 4px 18px rgba(204,0,0,.28)' : 'none',
-          }}
-        >
-          <span style={{ fontSize: 14 }}>{playing ? '▶' : '🔊'}</span>
-          {playing ? 'Playing…' : 'Slušaj'}
-        </button>
       </div>
     </div>
   );
