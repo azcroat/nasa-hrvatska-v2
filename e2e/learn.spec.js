@@ -9,12 +9,12 @@ test.describe('Learn tab', () => {
     // Navigate directly to /learn to avoid post-auth navigate('/') race on tab click.
     await page.goto('/learn');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText('🗺️ My Path')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('My Path')).toBeVisible({ timeout: 20_000 });
   });
 
   test.describe('Learning Path', () => {
     test('renders My Path heading', async ({ page }) => {
-      await expect(page.getByText('🗺️ My Path')).toBeVisible();
+      await expect(page.getByText('My Path')).toBeVisible();
     });
 
     test('shows AI Micro-Lesson card', async ({ page }) => {
@@ -25,8 +25,8 @@ test.describe('Learn tab', () => {
       await expect(page.getByText('Grammar Track A1→B2')).toBeVisible();
     });
 
-    test('shows Grammar button in header', async ({ page }) => {
-      await expect(page.getByText('📖 Grammar')).toBeVisible();
+    test('shows Grammar Ref button in hero', async ({ page }) => {
+      await expect(page.getByText('📖 Ref')).toBeVisible();
     });
 
     test('shows Past Tense animated lesson', async ({ page }) => {
@@ -63,8 +63,8 @@ test.describe('Learn tab', () => {
 
   test.describe('Back navigation', () => {
     test('clicking Grammar button navigates to grammar reference', async ({ page }) => {
-      await page.getByText('📖 Grammar').waitFor({ state: 'visible', timeout: 8_000 });
-      await page.getByText('📖 Grammar').click();
+      await page.getByText('📖 Ref').waitFor({ state: 'visible', timeout: 8_000 });
+      await page.getByText('📖 Ref').click();
       await expect(page.getByText(/Grammar/i).first()).toBeVisible({ timeout: 10_000 });
     });
   });

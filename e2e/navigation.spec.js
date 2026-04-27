@@ -45,7 +45,7 @@ test.describe('Tab navigation', () => {
     // 20s allows for lazy-chunk load on Firefox/WebKit in parallel CI.
     await page.waitForURL('/learn', { timeout: 20_000 });
     // Tab content visible confirms React rendered the tab
-    await expect(page.getByText('🗺️ My Path')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('My Path')).toBeVisible({ timeout: 10_000 });
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
   });
@@ -54,11 +54,11 @@ test.describe('Tab navigation', () => {
     await clickTab(page, 'Practice');
     // Confirm URL changed before checking content/active class
     await page.waitForURL('/practice', { timeout: 20_000 });
-    // Wait for the emoji-prefixed heading — confirms the tab content has rendered.
-    // getByRole('heading') would match both the CEFR-badge h2 AND the page h2, so use
-    // the specific text that PracticeTab renders via its H() helper: '🎮 Practice'.
+    // Wait for the Practice hero overline text — confirms the tab content has rendered.
+    // The teal hero renders emoji 🎮 and text 'Practice' in separate sibling divs,
+    // so we match the overline div text with locator('text=Practice').first().
     // 20s for lazy-chunk load on Firefox/WebKit in parallel CI.
-    await expect(page.getByText('🎮 Practice')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('text=Practice').first()).toBeVisible({ timeout: 20_000 });
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
   });

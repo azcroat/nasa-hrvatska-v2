@@ -58,7 +58,7 @@ async function gotoPractice(page) {
   // Wait for the nav bar as a proxy that the app shell has hydrated
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   // Confirm the Practice tab content is present via the page heading
-  await expect(page.getByText('🎮 Practice')).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator('text=Practice').first()).toBeVisible({ timeout: 10_000 });
 }
 
 // ===========================================================================
@@ -74,15 +74,16 @@ test.describe('Practice tab structure', () => {
   });
 
   test('renders the Practice heading', async ({ page }) => {
-    await expect(page.getByText('🎮 Practice')).toBeVisible();
+    await expect(page.locator('text=Practice').first()).toBeVisible();
   });
 
-  test("renders Today's Pick section with 3 exercise cards", async ({ page }) => {
-    await expect(page.getByText("Today's Pick")).toBeVisible();
-    // Today's Pick section always shows exactly 3 exercise-card buttons
-    const picks = page.locator('.todays-picks-grid .exercise-card');
-    await expect(picks).toHaveCount(3, { timeout: 5_000 });
-  });
+  // Removed in UX redesign 2026-04-27: Today's Pick section deleted
+  // test("renders Today's Pick section with 3 exercise cards", async ({ page }) => {
+  //   await expect(page.getByText("Today's Pick")).toBeVisible();
+  //   // Today's Pick section always shows exactly 3 exercise-card buttons
+  //   const picks = page.locator('.todays-picks-grid .exercise-card');
+  //   await expect(picks).toHaveCount(3, { timeout: 5_000 });
+  // });
 
   test('renders the three intent tiles: Review, Drill, Challenge', async ({ page }) => {
     // Each intent tile button has the label text in a child div (separate from the icon div).
