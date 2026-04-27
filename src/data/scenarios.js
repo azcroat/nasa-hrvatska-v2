@@ -1337,6 +1337,541 @@ export const STORIES = [
       },
     ],
   },
+  // ── A2 Scenarios ────────────────────────────────────────────────────────────
+  {
+    title: 'Na Pošti',
+    tEn: 'At the Post Office',
+    cefr: 'A2',
+    scenes: [
+      {
+        text: 'Ulaziš na poštu. Ima red — čekaš. Konačno si na šalteru. Djelatnik pita: "Izvolite?"',
+        en: 'You enter the post office. There is a queue — you wait. Finally you are at the counter. The clerk asks: "How can I help?"',
+        choices: [
+          { text: 'Želim poslati paket.', next: 1 },
+          { text: 'Trebam kupiti marke.', next: 2 },
+        ],
+      },
+      {
+        text: 'Djelatnik kaže: "Kamo šaljete?" Odgovaraš: "U Njemačku." On mjeri paket i kaže: "To je petnaest eura."',
+        en: 'The clerk says: "Where are you sending it?" You reply: "To Germany." He weighs the package and says: "That is fifteen euros."',
+        choices: [
+          { text: 'Platit ću karticom, molim.', next: 3 },
+          { text: 'Imam li opciju za hitnu dostavu?', next: 3 },
+        ],
+      },
+      {
+        text: 'Djelatnik donosi marke. "Koliko komada?" pita. Odgovaraš: "Pet maraka, molim."',
+        en: 'The clerk brings the stamps. "How many?" he asks. You reply: "Five stamps, please."',
+        choices: [
+          { text: 'Koliko stoje sve zajedno?', next: 3 },
+          { text: 'Hvala, to je sve.', next: 3 },
+        ],
+      },
+      {
+        text: 'Završavaš na pošti. Djelatnik ti daje potvrdu i kaže: "Paket stiže za tri do pet radnih dana." Zahvaljuješ se i izlaziš.',
+        en: 'You finish at the post office. The clerk gives you a receipt and says: "The package arrives in three to five business days." You thank him and leave.',
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Kod Liječnika',
+    tEn: "At the Doctor's",
+    cefr: 'A2',
+    scenes: [
+      {
+        text: 'Ne osjećaš se dobro. Nazivaš ordinaciju i dogovaraš termin. Stijedeći dan sjediš u čekaonici.',
+        en: "You don't feel well. You call the clinic and arrange an appointment. The next day you are sitting in the waiting room.",
+        choices: [
+          { text: 'Ulaziš k liječniku kada te pozovu.', next: 1 },
+          { text: 'Pitaš medicinsku sestru: "Koliko dugo ću čekati?"', next: 2 },
+        ],
+      },
+      {
+        text: 'Liječnik te pita: "Što vas boli?" Odgovaraš: "Boli me grlo i malo mi je muka."',
+        en: 'The doctor asks: "What is hurting you?" You reply: "My throat hurts and I feel a little nauseous."',
+        choices: [
+          { text: 'I glava me boli već dva dana.', next: 3 },
+          { text: 'Imam i temperaturu — 38 stupnjeva.', next: 3 },
+        ],
+      },
+      {
+        text: 'Sestra odgovara: "Još oko dvadeset minuta." Sjedaš i čitaš časopis.',
+        en: 'The nurse replies: "About twenty more minutes." You sit down and read a magazine.',
+        choices: [
+          { text: 'Hvala. Čekat ću.', next: 1 },
+          { text: 'U redu, pričekat ću vani.', next: 1 },
+        ],
+      },
+      {
+        text: 'Liječnik pregledava grlo i kaže: "Upala grla. Propisujem antibiotik. Pijte puno tekućine i odmarajte se." Daje ti recept.',
+        en: 'The doctor examines your throat and says: "Throat infection. I am prescribing an antibiotic. Drink plenty of fluids and rest." He gives you a prescription.',
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Kupnja Karte',
+    tEn: 'Buying a Ticket',
+    cefr: 'A2',
+    scenes: [
+      {
+        text: 'Stojiš pred blagajnom autobusnog kolodvora u Splitu. Trebaš kartu za Dubrovnik.',
+        en: 'You are standing at the ticket window of the bus station in Split. You need a ticket to Dubrovnik.',
+        choices: [
+          { text: 'Jednu kartu za Dubrovnik, molim.', next: 1 },
+          { text: 'Kada ide sljedeći autobus za Dubrovnik?', next: 2 },
+        ],
+      },
+      {
+        text: '"U jednom smjeru ili povratna?" pita blagajnik. Ti odgovaraš: "U jednom smjeru, molim." "Polazak je u 14:30. Cijena je dvanaest eura."',
+        en: '"Single or return?" asks the clerk. You reply: "Single, please." "Departure is at 14:30. The price is twelve euros."',
+        choices: [
+          { text: 'Uzimam kartu. Evo dvadeset eura.', next: 3 },
+          { text: 'Ima li raniji autobus?', next: 3 },
+        ],
+      },
+      {
+        text: '"Sljedeći ide u 13:15, ali to je direktni. Ovaj u 14:30 ima jednu postaju." Odabiraš...',
+        en: '"The next one goes at 13:15, but it is direct. The 14:30 has one stop." You choose...',
+        choices: [
+          { text: 'Uzimam onaj u 13:15 — direktni je bolji.', next: 3 },
+          { text: 'U redu, uzet ću onaj u 14:30.', next: 3 },
+        ],
+      },
+      {
+        text: 'Uzeo/Uzela si kartu. Blagajnik ti daje kusur i kaže: "Peron 4, sretno putovanje!"',
+        en: 'You have your ticket. The clerk gives you change and says: "Platform 4, have a good journey!"',
+        choices: [],
+      },
+    ],
+  },
+  // ── B1 Scenarios ────────────────────────────────────────────────────────────
+  {
+    title: 'Razgovor s Agentom za Nekretnine',
+    tEn: 'Talking to a Real Estate Agent',
+    cefr: 'B1',
+    scenes: [
+      {
+        text: "Zoveš agenciju za nekretnine. Agent se javlja: 'Dobar dan, agencija Sunce, izvolite?' Tražiš stan za iznajmljivanje u centru grada.",
+        en: "You call a real estate agency. An agent answers: 'Good day, Sunce Agency, how can I help?' You are looking for a rental apartment in the city centre.",
+        choices: [
+          { text: 'Tražim jednosobni stan, do 500 eura.', next: 1 },
+          { text: 'Zanima me dvosobni stan, po mogućnosti namješten.', next: 2 },
+        ],
+      },
+      {
+        text: "'Odlično, imamo nekoliko opcija. Jedan stan u Donjem gradu — 45m², namješten, 480 eura s komunalijama. Zanima li vas termin za razgledavanje?'",
+        en: "'Excellent, we have a few options. One apartment in Donji grad — 45m², furnished, 480 euros including utilities. Would you like to schedule a viewing?'",
+        choices: [
+          { text: 'Da, možemo li u srijedu poslijepodne?', next: 3 },
+          { text: 'Je li dozvoljeno imati mačku?', next: 3 },
+        ],
+      },
+      {
+        text: "'Imamo dvosobni u Maksimiru — 65m², djelomično namješten, 620 eura bez komunalija. Stan je tek renoviran.'",
+        en: "'We have a two-bedroom in Maksimir — 65m², partly furnished, 620 euros without utilities. The apartment was recently renovated.'",
+        choices: [
+          { text: 'Može li se pregovarati o cijeni?', next: 3 },
+          { text: 'Kada bi se moglo uselit?', next: 3 },
+        ],
+      },
+      {
+        text: "Agent dogovara termin i kaže: 'Možemo vam pokazati oba stana u srijedu od 16 sati. Samo trebamo kopiju vašeg dokumenta za identifikaciju.' Prihvaćaš.",
+        en: "The agent arranges a viewing and says: 'We can show you both apartments on Wednesday from 4 pm. We just need a copy of your ID.' You agree.",
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Na Bankovnom Šalteru',
+    tEn: 'At the Bank Counter',
+    cefr: 'B1',
+    scenes: [
+      {
+        text: 'Ulaziš u banku i uzimeš broj na čekaonici. Broj 47 — tvoj. Na šalteru sjedi referentica.',
+        en: 'You enter the bank and take a number from the queue dispenser. Number 47 — yours. At the counter sits a bank clerk.',
+        choices: [
+          { text: 'Dobar dan. Želim otvoriti tekući račun.', next: 1 },
+          { text: 'Trebam napraviti međunarodni transfer.', next: 2 },
+        ],
+      },
+      {
+        text: "'Naravno. Trebat ćemo osobnu iskaznicu, OIB i potvrdu o zaposlenju ili stalne adrese.' Imaš sve s tobom.",
+        en: "'Of course. We will need your ID, OIB (tax number) and proof of employment or fixed address.' You have everything with you.",
+        choices: [
+          { text: 'Evo dokumenti. Koliko traje postupak?', next: 3 },
+          { text: 'Koji su troškovi vođenja računa?', next: 3 },
+        ],
+      },
+      {
+        text: "'Transfer zahtijeva IBAN primatelja i svrhu doznake. Naknada je 5 eura za europske zemlje.' Imaš IBAN.",
+        en: "'The transfer requires the recipient's IBAN and the purpose of payment. The fee is 5 euros for European countries.' You have the IBAN.",
+        choices: [
+          { text: 'U redu, šaljem 200 eura za stanarinu.', next: 3 },
+          { text: 'Može li se obaviti putem internetskog bankarstva?', next: 3 },
+        ],
+      },
+      {
+        text: "Referentica završava transakciju i kaže: 'Sve je u redu. Potvrda stize na vašu e-mail adresu.' Zahvaljuješ se i odlaziš.",
+        en: "The clerk completes the transaction and says: 'Everything is in order. A confirmation will arrive to your email address.' You thank her and leave.",
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Žalba Stanodavcu',
+    tEn: 'Complaint to the Landlord',
+    cefr: 'B1',
+    scenes: [
+      {
+        text: 'U stanu koji iznajmljuješ pokvarila se perilica rublja. Naziveš stanodavca Mirka.',
+        en: 'The washing machine in your rented apartment has broken down. You call your landlord Mirko.',
+        choices: [
+          { text: 'Mirko, pokvarila se perilica — ne radi već tri dana.', next: 1 },
+          { text: 'Mirko, trebam razgovarati s vama o problemu u stanu.', next: 2 },
+        ],
+      },
+      {
+        text: "Mirko odgovara: 'Aha, hvala što ste javili. Je li donosila neku poruku o grešci?' Ti opišeš što si vidio/vidjela.",
+        en: "Mirko replies: 'Ah, thanks for letting me know. Did it show any error message?' You describe what you saw.",
+        choices: [
+          { text: 'Da, trepćuće je crveno svjetlo i ne odvodi vodu.', next: 3 },
+          { text: 'Nema posebne poruke, ali se stroj uopće ne pali.', next: 3 },
+        ],
+      },
+      {
+        text: "Mirko pita: 'I u redu, koji je problem?' Objasniš mu s detaljima.",
+        en: "Mirko asks: 'Alright, what's the problem exactly?' You explain with details.",
+        choices: [
+          { text: 'Perilica ne pali i u njoj je mokro rublje.', next: 3 },
+          { text: 'Curi voda ispod perilice svaki put kad je pokrenemo.', next: 3 },
+        ],
+      },
+      {
+        text: "Mirko kaže: 'Dogovorit ću servisera za prekosutra između 10 i 12 sati. Hoće li vam to odgovarati?' Prihvaćate dogovor.",
+        en: "Mirko says: 'I'll arrange a repairman for the day after tomorrow between 10 and 12. Will that work for you?' You accept the arrangement.",
+        choices: [],
+      },
+    ],
+  },
+  // ── B2 Scenarios ────────────────────────────────────────────────────────────
+  {
+    title: 'Razgovor o Karijeri',
+    tEn: 'Career Discussion',
+    cefr: 'B2',
+    scenes: [
+      {
+        text: "Tvoj mentor Ana kaže: 'Vidjela sam oglas za menadžersku poziciju u tvrtki Nexus. Misliš li da si spreman/a?' Razgovarate o opcijama.",
+        en: "Your mentor Ana says: 'I saw an ad for a managerial position at Nexus. Do you think you are ready?' You discuss the options.",
+        choices: [
+          { text: 'Mislim da imam potrebno iskustvo, ali nije mi sigurno.', next: 1 },
+          { text: 'Da, upravo sam razmišljao/la o toj opciji.', next: 2 },
+        ],
+      },
+      {
+        text: "'Razumljivo. Što te najviše zabrinjava?' Ana sluša pažljivo. Ti odgovaraš...",
+        en: "'Understandable. What worries you most?' Ana listens carefully. You reply...",
+        choices: [
+          { text: 'Nisam siguran/a mogu li upravljati timom od petnaest ljudi.', next: 3 },
+          { text: 'Brine me što nemam iskustva s proračunom odjela.', next: 3 },
+        ],
+      },
+      {
+        text: "Ana odgovara: 'Dobar instinkt. Preporučujem da razgovaraš s HR-om neformalno, antes nego apliciraš. Koji su ti dugoročni ciljevi?'",
+        en: "Ana replies: 'Good instinct. I recommend talking to HR informally before you apply. What are your long-term goals?'",
+        choices: [
+          { text: 'Za pet godina bih volio/htjela voditi vlastiti projekt.', next: 3 },
+          { text: 'Zanima me menadžment, ali i ostajanje u struci.', next: 3 },
+        ],
+      },
+      {
+        text: "Ana zaključuje: 'Neovisno o ovom oglasu, vrijedi se prijaviti — čak i ako ne dobiješ posao, razgovor za posao je dragocjeno iskustvo.' Zahvaljuješ se na savjetu.",
+        en: "Ana concludes: 'Regardless of this ad, it is worth applying — even if you don't get the job, the interview is a valuable experience.' You thank her for the advice.",
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Medicinska Konzultacija',
+    tEn: 'Medical Consultation',
+    cefr: 'B2',
+    scenes: [
+      {
+        text: "Sjediš pred specijalistom — kardiologom dr. Horvat. On pregledava nalaze i kaže: 'Vaši EKG rezultati su uredni, ali krvni tlak mi je malo uznemirujući.'",
+        en: "You are sitting in front of a specialist — cardiologist Dr. Horvat. He reviews the findings and says: 'Your ECG results are normal, but your blood pressure concerns me a little.'",
+        choices: [
+          { text: 'Što to točno znači za moje zdravlje?', next: 1 },
+          { text: 'Imam li povišeni krvni tlak ili je to granično?', next: 2 },
+        ],
+      },
+      {
+        text: "'To znači da biste trebali pratiti tjedan dana i doći na kontrolu. Uzimate li ikakve lijekove?' Odgovaraš...",
+        en: "'That means you should monitor for a week and come back for a check-up. Are you taking any medication?' You reply...",
+        choices: [
+          { text: 'Uzimam samo vitamin D i magnezij.', next: 3 },
+          { text: 'Ne uzimam ništa, ali imam obiteljsku povijest hipertenzije.', next: 3 },
+        ],
+      },
+      {
+        text: "'Granično je — 145/90. Nije hitno, ali nije ni idealno.' Doktor nastavlja s pitanjima o stilu života.",
+        en: "'It is borderline — 145/90. Not urgent, but not ideal either.' The doctor continues with questions about your lifestyle.",
+        choices: [
+          { text: 'Radim puno, spavam malo i vježbam rijetko.', next: 3 },
+          { text: 'Imam dosta stresa na poslu zadnjih par mjeseci.', next: 3 },
+        ],
+      },
+      {
+        text: "Doktor kaže: 'Preporučujem aerobnu aktivnost trideset minuta dnevno i smanjenje soli. Ako se tlak ne normalizira za miesec dana, razgovarat ćemo o terapiji.' Prihvaćaš preporuke.",
+        en: "The doctor says: 'I recommend thirty minutes of aerobic activity daily and reducing salt intake. If the blood pressure does not normalise in a month, we will discuss medication.' You accept the recommendations.",
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Pregovaranje o Uvjetima Rada',
+    tEn: 'Negotiating Work Conditions',
+    cefr: 'B2',
+    scenes: [
+      {
+        text: "Tvoj šef te pozvao na razgovor o tvojim uvjetima rada. Kaže: 'Tvoj rad u protekloj godini bio je izvanredan. Razmišljamo o promjenama.'",
+        en: "Your boss has invited you for a conversation about your work conditions. He says: 'Your work over the past year has been outstanding. We are thinking about changes.'",
+        choices: [
+          { text: 'Hvala. I ja sam htio/htjela razgovarati o plaći.', next: 1 },
+          { text: 'Drago mi je to čuti. Razmišljam i o fleksibilnom radnom vremenu.', next: 2 },
+        ],
+      },
+      {
+        text: "'Naravno, to je na stolu. Što smatraš pravednim, s obzirom na tržišne uvjete?' Odgovaraš...",
+        en: "'Of course, that is on the table. What do you consider fair, given the market conditions?' You reply...",
+        choices: [
+          {
+            text: 'Na temelju istraživanja tržišta, mislim da je povećanje od 15% opravdano.',
+            next: 3,
+          },
+          {
+            text: 'Bila bi mi važnija kombinacija povećanja i dva dodatna slobodna tjedna.',
+            next: 3,
+          },
+        ],
+      },
+      {
+        text: "'To je razumno. Ako bismo omogućili rad od kuće dva dana tjedno, bi li to zadovoljilo tvoje potrebe?' Razmišljaš...",
+        en: "'That is understandable. If we enabled working from home two days a week, would that meet your needs?' You think...",
+        choices: [
+          { text: 'Da, to bi mi jako odgovaralo uz malu korekciju plaće.', next: 3 },
+          { text: 'Hvala na ponudi — mogu li dobiti tjedan dana da razmislim?', next: 3 },
+        ],
+      },
+      {
+        text: "Šef kaže: 'Naravno. Pripremi nam pisani sažetak svojih prioriteta do sljedećeg ponedjeljka i formalizirat ćemo dogovor.' Zadovoljan/Zadovoljna si ishodom razgovora.",
+        en: "Your boss says: 'Of course. Prepare a written summary of your priorities by next Monday and we will formalise the agreement.' You are satisfied with the outcome of the conversation.",
+        choices: [],
+      },
+    ],
+  },
+  // ── C1 Scenarios ────────────────────────────────────────────────────────────
+  {
+    title: 'Akademska Obrana',
+    tEn: 'Academic Defence',
+    cefr: 'C1',
+    scenes: [
+      {
+        text: "Stojiš pred povjerenstvom. Predsjednica komisije prof. dr. Kovač kaže: 'Molim vas da ukratko izložite ključne doprinose vašeg rada.'",
+        en: "You stand before the committee. The committee chairwoman Prof. Dr. Kovač says: 'Please briefly present the key contributions of your work.'",
+        choices: [
+          {
+            text: 'Središnja teza mog rada jest da institucionalni faktori nadilaze makroekonomske u objašnjenju konvergencije.',
+            next: 1,
+          },
+          {
+            text: 'Moj rad nudi trostruki okvir za analizu fiskalnih nesrazmjera unutar federalnih sustava.',
+            next: 2,
+          },
+        ],
+      },
+      {
+        text: "Drugi član komisije prof. Marić pita: 'Kako odgovarate na kritiku da vaš metodološki pristup zanemaruje endogenost varijabli?'",
+        en: "The second committee member Prof. Marić asks: 'How do you respond to the criticism that your methodological approach neglects the endogeneity of variables?'",
+        choices: [
+          {
+            text: 'Upotrijebio/Upotrijebila sam instrumentalne varijable kako bih riješio/riješila taj problem u poglavlju četiri.',
+            next: 3,
+          },
+          {
+            text: 'Svjestan/Svjesna sam tog ograničenja — eksplicitno ga navodim u odjeljku o ograničenjima rada.',
+            next: 3,
+          },
+        ],
+      },
+      {
+        text: "Prof. Marić sluša i nastavlja: 'A što s generalabilnošću nalaza izvan europskog konteksta?' Obrazlažeš...",
+        en: "Prof. Marić listens and continues: 'And what about the generalisability of findings beyond the European context?' You explain...",
+        choices: [
+          {
+            text: 'Uzorak je ograničen, ali teorijski okvir je primjenjiv uz primjerene prilagodbe.',
+            next: 3,
+          },
+          {
+            text: 'Buduća istraživanja mogla bi testirati hipotezu u kontekstu razvijajućih ekonomija.',
+            next: 3,
+          },
+        ],
+      },
+      {
+        text: "Predsjednica zahvaljuje i kaže: 'Povjerenstvo se povlači na kratko vijećanje.' Pet minuta kasnije: 'Čestitamo — rad je prihvaćen s pohvalom!'",
+        en: "The chairwoman thanks you and says: 'The committee withdraws for a brief deliberation.' Five minutes later: 'Congratulations — the thesis is accepted with distinction!'",
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Kulturna Razmjena Mišljenja',
+    tEn: 'Cultural Exchange of Opinions',
+    cefr: 'C1',
+    scenes: [
+      {
+        text: "Na književnoj večeri u Zagrebu razgovaraš s književnicom Anom Šimić. Pita te: 'Što misliš o utjecaju globalizacije na regionalnu književnost?'",
+        en: "At a literary evening in Zagreb you are talking to author Ana Šimić. She asks you: 'What do you think about the impact of globalisation on regional literature?'",
+        choices: [
+          {
+            text: 'Mislim da globalizacija paradoksalno potiče regionalne identitete jer ih stavlja u kontrast s globalnim.',
+            next: 1,
+          },
+          {
+            text: 'Postoji opasnost od standardizacije narativa koji brišu lokalne specifičnosti.',
+            next: 2,
+          },
+        ],
+      },
+      {
+        text: "Ana se namrštila zamišljeno. 'Zanimljivo stajalište. No, nije li regionalna književnost uvijek crpila snagu iz dijaloga s vanjskim utjecajima?'",
+        en: "Ana frowns thoughtfully. 'Interesting stance. But hasn't regional literature always drawn strength from dialogue with external influences?'",
+        choices: [
+          {
+            text: 'Svakako — dijalog je nužan, ali postoji razlika između dijaloga i asimilacije.',
+            next: 3,
+          },
+          {
+            text: 'Složio/Složila bih se, ali samo dok lokalna kultura zadržava kontrolu nad narativom.',
+            next: 3,
+          },
+        ],
+      },
+      {
+        text: "Ana nastavlja: 'Misliš li da književnost može odolijevati ekonomskim pritiscima i ostati relevantna?'",
+        en: "Ana continues: 'Do you think literature can withstand economic pressures and remain relevant?'",
+        choices: [
+          { text: 'Relevantnost nije pitanje tržišta nego rezonancije s čitateljem.', next: 3 },
+          {
+            text: 'Sve dok postoje pisci koji odbijaju kompromise, hoće — bez obzira na ekonomske pritiske.',
+            next: 3,
+          },
+        ],
+      },
+      {
+        text: "Ana se smiješi. 'Potpisala bih svaku tvoju rečenicu. Ima li sličnih razmišljanja u tvojoj matičnoj kulturi?' Razgovor prelazi u dublje razmatranje kulturnih razlika.",
+        en: "Ana smiles. 'I would sign every sentence of yours. Are there similar ideas in your home culture?' The conversation moves into a deeper consideration of cultural differences.",
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Etička Dilema na Poslu',
+    tEn: 'Ethical Dilemma at Work',
+    cefr: 'C1',
+    scenes: [
+      {
+        text: "Kolegica ti se povjerava: 'Slučajno sam vidjela da je direktor lažno prikazao troškove projekta u izvještaju prema financijeru. Ne znam što napraviti.'",
+        en: "A colleague confides in you: 'I accidentally saw that the director falsely reported project costs in the report to the funder. I don't know what to do.'",
+        choices: [
+          {
+            text: 'To je ozbiljno. Trebala bi to prijaviti compliance officeru ili internoj reviziji.',
+            next: 1,
+          },
+          { text: 'Razumijem tvoju zabrinutost. Jesi li sigurna u ono što si vidjela?', next: 2 },
+        ],
+      },
+      {
+        text: "'Razumijem, ali bojim se posljedica — direktoru sam izravno podređena.' Što savjetuješ?",
+        en: "'I understand, but I am afraid of the consequences — I report directly to the director.' What do you advise?",
+        choices: [
+          {
+            text: 'Postoji li u tvrtki mehanizam anonimne prijave? To bi ti dalo zaštitu.',
+            next: 3,
+          },
+          { text: 'Možeš li dokumentirati što si vidjela, za slučaj da bude potrebno?', next: 3 },
+        ],
+      },
+      {
+        text: "'Bila sam prisutna kad je donesena odluka.' Nastaviš ispitivati...",
+        en: "'I was present when the decision was made.' You continue to probe...",
+        choices: [
+          { text: 'Jesi li jedina koja to zna, ili postoje drugi svjedoci?', next: 3 },
+          { text: 'Je li to bio jednokratni incident ili se to ponavlja?', next: 3 },
+        ],
+      },
+      {
+        text: "Kolegica zahvali i kaže: 'Nisam bila sigurna kojim putem ići — hvala ti što si razmotrio/razmotrila sa mnom. Razmislit ću o anonimnoj prijavi.' Savjet je pomogao.",
+        en: "Your colleague thanks you and says: 'I was not sure which route to take — thank you for thinking it through with me. I will consider the anonymous report.' The advice helped.",
+        choices: [],
+      },
+    ],
+  },
+  {
+    title: 'Politički Diskurs',
+    tEn: 'Political Discourse',
+    cefr: 'C1',
+    scenes: [
+      {
+        text: "Na panel diskusiji o EU politici moderator te pita: 'Kako biste ocijenili doprinos malih država poput Hrvatske oblikovanju europske agende?'",
+        en: "At a panel discussion on EU policy the moderator asks you: 'How would you assess the contribution of small states like Croatia in shaping the European agenda?'",
+        choices: [
+          {
+            text: 'Mali akteri imaju nerazmjeran utjecaj kada strateški koriste predsjedanje Vijećem.',
+            next: 1,
+          },
+          {
+            text: 'Hrvatska je u kratkom roku od ulaska pokazala sposobnost koalicijskog djelovanja unutar EU.',
+            next: 2,
+          },
+        ],
+      },
+      {
+        text: "Drugi panelist dodaje: 'No, strukturalni odnosi moći unutar EU-a i dalje favoriziraju veće ekonomije.' Repliciraš...",
+        en: "Another panelist adds: 'But structural power relations within the EU still favour larger economies.' You reply...",
+        choices: [
+          {
+            text: 'Slažem se, ali soft power diplomacija i tematska stručnost mogu kompenzirati veličinu.',
+            next: 3,
+          },
+          {
+            text: 'Asimetrija postoji, ali EU mehanizmi konsenzusa daju legitimitet i manjim glasovima.',
+            next: 3,
+          },
+        ],
+      },
+      {
+        text: "Moderator pita: 'Što bi trebala biti strateška odrednica Hrvatske u narednoj dekadi?'",
+        en: "The moderator asks: 'What should be Croatia's strategic priority in the coming decade?'",
+        choices: [
+          {
+            text: 'Pozicioniranje kao regionalni hub za energetsku tranziciju uz Jadran i koridor prema Balkanu.',
+            next: 3,
+          },
+          {
+            text: 'Jačanje obrazovnih i inovacijskih kapaciteta kako bi se smanjila emigracija stručnjaka.',
+            next: 3,
+          },
+        ],
+      },
+      {
+        text: "Moderator zahvaljuje panelistima. Nakon diskusije kolega ti kaže: 'Vaše izlaganje bilo je argumentirano i precizno. Jeste li razmišljali o objavljivanju članka?'",
+        en: "The moderator thanks the panelists. After the discussion a colleague tells you: 'Your presentation was well-argued and precise. Have you considered publishing an article?'",
+        choices: [],
+      },
+    ],
+  },
 ];
 export const CITYLOC = {
   cities: [

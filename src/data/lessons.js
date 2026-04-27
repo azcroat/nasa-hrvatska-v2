@@ -3040,4 +3040,622 @@ export const LESSONS = [
       },
     ],
   },
+  // ─────────────────────────────────────────────────────────
+  // LESSON A1-X1: Greetings & Farewells
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'greetings-farewells',
+    title: 'Greetings & Farewells',
+    subtitle: 'Say hello, goodbye, and ask how someone is doing',
+    icon: '👋',
+    level: 'A1',
+    duration: '~4 min',
+    color: '#059669',
+    bg: '#ecfdf5',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Greetings in Croatian',
+        body: "Croatian greetings change based on time of day and formality. The key distinction: 'ti' (informal, one person you know) vs 'Vi' (formal or plural). Get this right from day one.",
+        icon: '👋',
+      },
+      {
+        type: 'table',
+        title: 'Time-of-Day Greetings',
+        headers: ['Croatian', 'English', 'Use when'],
+        rows: [
+          ['Dobro jutro', 'Good morning', 'Until ~11 am'],
+          ['Dobar dan', 'Good day', '11 am–6 pm'],
+          ['Dobra večer', 'Good evening', 'After 6 pm'],
+          ['Laku noć', 'Good night', 'Parting at night'],
+          ['Bog / Bok', 'Hi / Bye', 'Casual, any time'],
+          ['Ćao', 'Hi / Bye (very casual)', 'Friends only'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Asking "How Are You?"',
+        body: "Use 'Kako si?' with friends (ti-form). Use 'Kako ste?' with strangers, elders, or groups (Vi-form). Both mean 'How are you?' — the ending changes, not the meaning.",
+        highlight: 'Kako si? / Kako ste?',
+      },
+      {
+        type: 'example',
+        title: 'Standard Replies',
+        items: [
+          { hr: 'Dobro, hvala.', en: 'Good, thanks.', note: 'Most common reply' },
+          { hr: 'Odlično!', en: 'Excellent!', note: 'Very positive' },
+          { hr: 'Tako-tako.', en: 'So-so.', note: 'Neutral / tired' },
+          { hr: 'Moglo bi i bolje.', en: 'Could be better.', note: 'Honest / slightly negative' },
+          { hr: 'A ti?', en: 'And you?', note: 'Always return the question' },
+        ],
+      },
+      {
+        type: 'table',
+        title: 'Farewells',
+        headers: ['Croatian', 'English', 'Register'],
+        rows: [
+          ['Doviđenja', 'Goodbye', 'Formal / neutral'],
+          ['Bog / Bok', 'Bye', 'Casual'],
+          ['Ćao', 'Ciao / Bye', 'Informal — borrowed from Italian'],
+          ['Vidimo se', 'See you', 'Implies you will meet again'],
+          ['Čujemo se', 'Talk soon', 'Phone/text context'],
+          ['Sretno!', 'Good luck!', 'Before an event'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Introducing Yourself',
+        body: "Say 'Zovem se [name].' (My name is…) or simply '[Name], drago mi je.' (Nice to meet you). 'Drago mi je' literally means 'It is pleasant to me' — use it every time you meet someone new.",
+        highlight: 'Drago mi je.',
+      },
+      {
+        type: 'quiz',
+        title: 'Quick Check',
+        q: 'Your new teacher enters the room at 9 am. You say:',
+        opts: ['Ćao!', 'Dobro jutro!', 'Laku noć!'],
+        correct: 1,
+        explanation:
+          "'Dobro jutro' is the correct formal morning greeting. 'Ćao' is too casual for a teacher. 'Laku noć' is only used at night.",
+      },
+      {
+        type: 'summary',
+        title: 'Greetings — Key Takeaways',
+        points: [
+          'Dobro jutro / Dobar dan / Dobra večer — match the time of day',
+          'Kako si? (informal) vs Kako ste? (formal/plural)',
+          'Drago mi je — say it every time you meet someone new',
+          'Doviđenja = formal goodbye; Bog/Ćao = casual',
+          'Always return the question: A ti? / A Vi?',
+        ],
+      },
+    ],
+  },
+  // ─────────────────────────────────────────────────────────
+  // LESSON A1-X2: Pronouns & Biti (to be)
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'pronouns-biti',
+    title: 'Pronouns & Biti',
+    subtitle: 'Master personal pronouns and the verb "to be"',
+    icon: '🔵',
+    level: 'A1',
+    duration: '~5 min',
+    color: '#2563eb',
+    bg: '#eff6ff',
+    slides: [
+      {
+        type: 'intro',
+        title: 'The Building Blocks: Pronouns',
+        body: "Before you can say anything in Croatian, you need pronouns. Croatian has all the same pronouns as English — but the verb 'biti' (to be) changes form for each one. Learn both together.",
+        icon: '🔵',
+      },
+      {
+        type: 'table',
+        title: 'Personal Pronouns',
+        headers: ['Croatian', 'English', 'Note'],
+        rows: [
+          ['ja', 'I', 'Often dropped — verb ending is enough'],
+          ['ti', 'you (singular informal)', 'Use with friends, peers, children'],
+          ['on', 'he', ''],
+          ['ona', 'she', ''],
+          ['ono', 'it', 'Also: gender-neutral singular'],
+          ['mi', 'we', ''],
+          ['vi', 'you (plural or formal sing.)', 'Capital Vi = formal politeness'],
+          ['oni / one / ona', 'they (m. / f. / n.)', ''],
+        ],
+      },
+      {
+        type: 'table',
+        title: 'Biti (to be) — Present Tense',
+        headers: ['Pronoun', 'Full form', 'Short clitic', 'Negative'],
+        rows: [
+          ['ja', 'jesam', 'sam', 'nisam'],
+          ['ti', 'jesi', 'si', 'nisi'],
+          ['on/ona/ono', 'jest', 'je', 'nije'],
+          ['mi', 'jesmo', 'smo', 'nismo'],
+          ['vi', 'jeste', 'ste', 'niste'],
+          ['oni/one/ona', 'jesu', 'su', 'nisu'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Full vs Clitic (Short) Form',
+        body: "The full form ('jesam') is used for emphasis or yes/no answers. The clitic ('sam') attaches to the second position in a sentence and is used in everyday speech. In practice you will hear the clitic 90% of the time.",
+        highlight: 'Jesam li? vs Ja sam tu.',
+      },
+      {
+        type: 'example',
+        title: 'Biti in Action',
+        items: [
+          { hr: 'Ja sam student.', en: 'I am a student.', note: 'Clitic — everyday' },
+          { hr: 'On je Hrvat.', en: 'He is Croatian.', note: 'Masculine nationality' },
+          { hr: 'Ona nije ovdje.', en: 'She is not here.', note: 'Negation: nije' },
+          { hr: 'Mi smo u Zagrebu.', en: 'We are in Zagreb.', note: 'Location' },
+          { hr: 'Jeste li gladni?', en: 'Are you hungry?', note: 'Full form in question' },
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Dropping Pronouns',
+        body: "Croatian is a pro-drop language — pronouns are often omitted because the verb ending already tells you who is doing the action. 'Jesam Hrvat.' means 'I am Croatian' — 'ja' (I) is not needed. Add the pronoun only for contrast or emphasis.",
+        highlight: 'pro-drop',
+      },
+      {
+        type: 'quiz',
+        title: 'Quick Check',
+        q: "How do you say 'We are not tired.' in Croatian?",
+        opts: ['Mi su umorni.', 'Mi nismo umorni.', 'Mi nije umorni.'],
+        correct: 1,
+        explanation:
+          "'Nismo' is the negative plural 'we' form of biti. 'Su' is 3rd person plural (they). 'Nije' is 3rd person singular (he/she/it).",
+      },
+      {
+        type: 'summary',
+        title: 'Pronouns & Biti — Key Takeaways',
+        points: [
+          '8 pronouns: ja, ti, on, ona, ono, mi, vi, oni/one/ona',
+          'Biti has full forms (jesam) and short clitics (sam) — clitics are used in everyday speech',
+          'Negation: nisam, nisi, nije, nismo, niste, nisu',
+          'Pronouns are often dropped — the verb ending is enough',
+          'Capital Vi = formal singular address',
+        ],
+      },
+    ],
+  },
+  // ─────────────────────────────────────────────────────────
+  // LESSON A1-X3: Numbers & Telling Time
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'numbers-time',
+    title: 'Numbers & Telling Time',
+    subtitle: 'Count to 100 and tell the time in Croatian',
+    icon: '🕐',
+    level: 'A1',
+    duration: '~5 min',
+    color: '#7c3aed',
+    bg: '#f5f3ff',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Numbers: The Foundation of Everything',
+        body: 'You need numbers for prices, addresses, phone numbers, and time. Croatian numbers 1–10 must be memorised. From 11 onwards, patterns emerge that make them much easier.',
+        icon: '🕐',
+      },
+      {
+        type: 'table',
+        title: '1–20: Memorise These',
+        headers: ['Number', 'Croatian', 'Number', 'Croatian'],
+        rows: [
+          ['1', 'jedan / jedna / jedno', '11', 'jedanaest'],
+          ['2', 'dva / dvije', '12', 'dvanaest'],
+          ['3', 'tri', '13', 'trinaest'],
+          ['4', 'četiri', '14', 'četrnaest'],
+          ['5', 'pet', '15', 'petnaest'],
+          ['6', 'šest', '16', 'šesnaest'],
+          ['7', 'sedam', '17', 'sedamnaest'],
+          ['8', 'osam', '18', 'osamnaest'],
+          ['9', 'devet', '19', 'devetnaest'],
+          ['10', 'deset', '20', 'dvadeset'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Pattern: Tens & Hundreds',
+        body: "Tens: add '-deset' after the base: tri+deset = trideset (30), četr+deset = četrdeset (40). Compounds: dvadeset jedan (21), trideset pet (35). Hundreds: sto (100), dvjesta (200), tristo (300), četiristo (400), petsto (500), tisuću (1000).",
+        highlight: '-deset',
+      },
+      {
+        type: 'rule',
+        title: 'Genitive with Numbers',
+        body: 'Croatian numbers trigger case changes on nouns. 1 → Nominative (jedan sat). 2/3/4 → Genitive singular (dva sata). 5+ → Genitive plural (pet sati). This is one of the trickiest early patterns — just memorise the three noun forms for common words.',
+        highlight: 'jedan sat / dva sata / pet sati',
+      },
+      {
+        type: 'table',
+        title: 'Telling Time — Koliko je sati?',
+        headers: ['Time', 'Croatian', 'Literal meaning'],
+        rows: [
+          ['1:00', 'Jedan sat.', 'One hour.'],
+          ['2:00', 'Dva sata.', 'Two hours.'],
+          ['5:00', 'Pet sati.', 'Five hours.'],
+          ['8:15', 'Osam i petnaest.', 'Eight and fifteen.'],
+          ['10:30', 'Deset i trideset. / Pola jedanaest.', 'Ten thirty / Half past ten.'],
+          ['11:45', 'Dvanaest bez četvrt.', 'Quarter to twelve.'],
+          ['12:00', 'Podne.', 'Noon.'],
+          ['00:00', 'Ponoć.', 'Midnight.'],
+        ],
+      },
+      {
+        type: 'example',
+        title: 'Practical Time Phrases',
+        items: [
+          { hr: 'Koliko je sati?', en: 'What time is it?', note: 'The standard question' },
+          { hr: 'Imate li sat?', en: 'Do you have a watch?', note: 'Alternative question' },
+          { hr: 'U koliko sati?', en: 'At what time?', note: 'Asking when something happens' },
+          { hr: 'U sedam sati.', en: "At seven o'clock.", note: 'Stating a time (u + Genitive)' },
+          { hr: 'Kasnim pet minuta.', en: 'I am five minutes late.', note: 'Very useful phrase' },
+        ],
+      },
+      {
+        type: 'quiz',
+        title: 'Quick Check',
+        q: "How do you say 'quarter to twelve' in Croatian?",
+        opts: ['Dvanaest i četvrt.', 'Dvanaest bez četvrt.', 'Pola dvanaest.'],
+        correct: 1,
+        explanation:
+          "'Bez četvrt' means 'without a quarter' — subtract 15 minutes from the next hour. 'I četvrt' means 'and a quarter' (quarter past). 'Pola' means 'half past'.",
+      },
+      {
+        type: 'summary',
+        title: 'Numbers & Time — Key Takeaways',
+        points: [
+          'Memorise 1–20; tens follow the -deset pattern',
+          '1 sat, 2/3/4 sata, 5+ sati — case changes with numbers',
+          'Koliko je sati? = What time is it?',
+          'Pola + next hour = half past (pola jedanaest = 10:30)',
+          'Bez četvrt + next hour = quarter to (bez četvrt dvanaest = 11:45)',
+        ],
+      },
+    ],
+  },
+  // ─────────────────────────────────────────────────────────
+  // LESSON A1-X4: Basic Questions
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'basic-questions',
+    title: 'Basic Questions',
+    subtitle: 'Ask and answer essential everyday questions',
+    icon: '❓',
+    level: 'A1',
+    duration: '~4 min',
+    color: '#d97706',
+    bg: '#fffbeb',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Question Words (Upitne Riječi)',
+        body: 'Croatian question words come first in the sentence, just like in English. The verb then takes the question (interrogative) form — in most cases you simply use the regular verb form but with rising intonation, or add the particle "li".',
+        icon: '❓',
+      },
+      {
+        type: 'table',
+        title: 'The Core Question Words',
+        headers: ['Croatian', 'English', 'Example'],
+        rows: [
+          ['Tko?', 'Who?', 'Tko si ti? (Who are you?)'],
+          ['Što?', 'What?', 'Što radiš? (What are you doing?)'],
+          ['Gdje?', 'Where?', 'Gdje živiš? (Where do you live?)'],
+          ['Kada?', 'When?', 'Kada ideš? (When are you going?)'],
+          ['Kako?', 'How?', 'Kako si? (How are you?)'],
+          ['Zašto?', 'Why?', 'Zašto kasniš? (Why are you late?)'],
+          ['Koliko?', 'How much/many?', 'Koliko košta? (How much does it cost?)'],
+          ['Koji / Koja / Koje?', 'Which?', 'Koji razred? (Which class?)'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Yes/No Questions with "Li"',
+        body: "For yes/no questions, Croatian uses the particle 'li' after the verb: 'Govoriš li engleski?' (Do you speak English?). In everyday speech, rising intonation is enough and 'li' is often dropped: 'Govoriš engleski?' is equally natural.",
+        highlight: 'Govoriš li engleski?',
+      },
+      {
+        type: 'example',
+        title: 'Essential Questions to Memorise',
+        items: [
+          {
+            hr: 'Kako se zoveš?',
+            en: 'What is your name? (informal)',
+            note: 'Most common way to ask',
+          },
+          { hr: 'Odakle si?', en: 'Where are you from?', note: 'Odakle = from where' },
+          {
+            hr: 'Koliko imaš godina?',
+            en: 'How old are you?',
+            note: 'Literally: How many years do you have?',
+          },
+          {
+            hr: 'Govoriš li hrvatski?',
+            en: 'Do you speak Croatian?',
+            note: 'Very useful early on',
+          },
+          { hr: 'Možeš li ponoviti?', en: 'Can you repeat?', note: 'Essential in class' },
+          { hr: 'Što znači ...?', en: 'What does ... mean?', note: 'Use constantly when learning' },
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Answering Yes and No',
+        body: "'Da' = yes. 'Ne' = no. For emphasis: 'Da, naravno!' (Yes, of course!). 'Ne, hvala.' (No, thank you.) Croatian also uses 'Nije' (it isn't) and 'Nisam' (I'm not) for negating with 'biti'.",
+        highlight: 'Da / Ne',
+      },
+      {
+        type: 'quiz',
+        title: 'Quick Check',
+        q: "How do you ask 'Where do you live?' in Croatian?",
+        opts: ['Kada živiš?', 'Gdje živiš?', 'Tko živiš?'],
+        correct: 1,
+        explanation:
+          "'Gdje' = where. 'Kada' = when. 'Tko' = who. The verb 'živiš' is the ti-form of živjeti (to live).",
+      },
+      {
+        type: 'summary',
+        title: 'Questions — Key Takeaways',
+        points: [
+          'Tko / Što / Gdje / Kada / Kako / Zašto / Koliko / Koji',
+          'Yes/no questions: add li after the verb, or use rising intonation',
+          'Kako se zoveš? — the most important question when meeting someone',
+          'Što znači ...? — use this constantly while learning',
+          'Da = yes / Ne = no — simple and universal',
+        ],
+      },
+    ],
+  },
+  // ─────────────────────────────────────────────────────────
+  // LESSON B1-X1: Motion Verbs — Ići, Dolaziti & Aspect
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'motion-verbs',
+    title: 'Motion Verbs',
+    subtitle: 'Master ići, doći, otići and the aspect of movement',
+    icon: '🚶',
+    level: 'B1',
+    duration: '~6 min',
+    color: '#b45309',
+    bg: '#fef3c7',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Croatian Motion Verbs',
+        body: 'Croatian has dedicated verb pairs for motion direction — the imperfective describes the act of moving, while the perfective emphasises the completed arrival or departure. Mix them up and you will confuse native speakers.',
+        icon: '🚶',
+      },
+      {
+        type: 'table',
+        title: 'Core Motion Verb Pairs',
+        headers: ['Imperfective', 'Perfective', 'Direction', 'Example (Impf.)'],
+        rows: [
+          ['ići', 'otići', 'away (going, leaving)', 'Idem kući. (I am going home.)'],
+          ['dolaziti', 'doći', 'toward (coming, arriving)', 'Dolazi u 8. (He arrives at 8.)'],
+          ['hodati', '—', 'walking (no direction)', 'Hodao sam sat vremena.'],
+          ['trčati', 'istrčati', 'running', 'Trčim svaki dan.'],
+          ['voziti', 'odvoziti', 'driving', 'Vozim auto na posao.'],
+          ['letjeti', 'odletjeti', 'flying', 'Let odlijeće u podne.'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Ići vs Otići',
+        body: "'Idem' (imperfective) = I am going / I go — the act of movement is ongoing or habitual. 'Otišao sam' (perfective) = I left / I went and am now gone — the departure is completed. Use imperfective for schedules and habits; use perfective when the point is that the person is now gone.",
+        highlight: 'Idem vs Otišao sam',
+      },
+      {
+        type: 'rule',
+        title: 'Dolaziti vs Doći',
+        body: "'Dolazi svaki tjedan.' = He comes every week. (Habit → imperfective.) 'Došao je u 8.' = He arrived at 8. (Completed arrival → perfective.) The perfective 'doći' always stresses that arrival is the completed event.",
+        highlight: 'Dolazi vs Došao je',
+      },
+      {
+        type: 'table',
+        title: 'Present Tense of Ići',
+        headers: ['Person', 'Form'],
+        rows: [
+          ['ja', 'idem'],
+          ['ti', 'ideš'],
+          ['on/ona/ono', 'ide'],
+          ['mi', 'idemo'],
+          ['vi', 'idete'],
+          ['oni/one/ona', 'idu'],
+        ],
+      },
+      {
+        type: 'example',
+        title: 'Motion Verbs in Context',
+        items: [
+          {
+            hr: 'Idem u školu.',
+            en: 'I am going to school.',
+            note: 'Direction expressed by Accusative after u',
+          },
+          {
+            hr: 'Otišao je na posao.',
+            en: 'He has gone to work (and left).',
+            note: 'Perfective — he is gone',
+          },
+          {
+            hr: 'Dolazi li baka sutra?',
+            en: 'Is grandma coming tomorrow?',
+            note: 'Future arrangement with imperfective',
+          },
+          {
+            hr: 'Dođi ovamo!',
+            en: 'Come here!',
+            note: 'Perfective imperative — one completed action',
+          },
+          {
+            hr: 'Ne idi tamo!',
+            en: "Don't go there!",
+            note: 'Negative imperative — imperfective preferred',
+          },
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Direction Cases with Motion Verbs',
+        body: "Motion verbs trigger the Accusative case: 'Idem u grad' (I am going to the city — Accusative). Static location uses Locative: 'Ja sam u gradu' (I am in the city). The same preposition 'u' changes the case depending on whether there is motion.",
+        highlight: 'u + Accusative (motion) vs u + Locative (static)',
+      },
+      {
+        type: 'quiz',
+        title: 'Quick Check',
+        q: "'She left an hour ago.' — which verb form is correct?",
+        opts: ['Ona ide.', 'Ona odlazi.', 'Ona je otišla.'],
+        correct: 2,
+        explanation:
+          "'Otišla je' (perfective past) = she left and is now gone. 'Ide' = she is going (present, ongoing). 'Odlazi' = she is leaving / she leaves (imperfective, still in the act).",
+      },
+      {
+        type: 'summary',
+        title: 'Motion Verbs — Key Takeaways',
+        points: [
+          'ići (impf.) / otići (pf.) — going away; dolaziti (impf.) / doći (pf.) — coming toward',
+          'Imperfective = habit, schedule, ongoing; Perfective = completed arrival or departure',
+          'Idem (I am going) vs Otišao sam (I went / I have left)',
+          'Motion → Accusative after u/na; Static location → Locative after u/na',
+          'Negative imperative strongly prefers imperfective: Ne idi! (not Nemoj otići for a general command)',
+        ],
+      },
+    ],
+  },
+  // ─────────────────────────────────────────────────────────
+  // LESSON B2-X1: Passive Voice
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'passive-voice',
+    title: 'Passive Voice',
+    subtitle: 'Master the passive in formal and written Croatian',
+    icon: '📝',
+    level: 'B2',
+    duration: '~6 min',
+    color: '#0369a1',
+    bg: '#f0f9ff',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Why Passive Voice Matters at B2',
+        body: 'The passive voice is common in news articles, official documents, academic writing, and formal speech. At B2 you need to understand it fluently and use it correctly when writing formally. Croatian has two main passive strategies.',
+        icon: '📝',
+      },
+      {
+        type: 'rule',
+        title: 'Strategy 1: Biti + Past Passive Participle',
+        body: "Form the passive with 'biti' (to be) + the past passive participle (trpni pridjev). The participle agrees with the grammatical subject in gender and number. This is the most explicit passive and is typical of formal/written Croatian.",
+        highlight: 'biti + trpni pridjev',
+      },
+      {
+        type: 'table',
+        title: 'Past Passive Participle Formation',
+        headers: ['Verb', 'Infinitive stem', 'Participle (m./f./n./pl.)', 'Meaning'],
+        rows: [
+          ['pisati', 'pisa-', 'pisan / pisana / pisano / pisani', 'written'],
+          ['graditi', 'gradi-', 'građen / građena / građeno / građeni', 'built'],
+          ['otvoriti', 'otvori-', 'otvoren / otvorena / otvoreno / otvoreni', 'opened'],
+          ['vidjeti', 'viđ-', 'viđen / viđena / viđeno / viđeni', 'seen'],
+          [
+            'napraviti',
+            'napravi-',
+            'napravljen / napravljena / napravljeno / napravljeni',
+            'made/done',
+          ],
+          ['zaključati', 'zaključa-', 'zaključan / zaključana / zaključano / zaključani', 'locked'],
+        ],
+      },
+      {
+        type: 'example',
+        title: 'Biti Passive — Examples',
+        items: [
+          {
+            hr: 'Roman je napisan 1925.',
+            en: 'The novel was written in 1925.',
+            note: 'Masc. sing. — napisan',
+          },
+          {
+            hr: 'Kuća je sagrađena od kamena.',
+            en: 'The house was built of stone.',
+            note: 'Fem. sing. — sagrađena',
+          },
+          { hr: 'Vrata su otvorena.', en: 'The doors are open(ed).', note: 'Plural — otvorena' },
+          {
+            hr: 'Pismo je pisano s ljubavlju.',
+            en: 'The letter was written with love.',
+            note: 'Neuter — pisano',
+          },
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Strategy 2: Se-Passive (Reflexive Passive)',
+        body: "Add the reflexive particle 'se' to an active verb: 'Ovdje se govori engleski.' (English is spoken here.) This construction is very common in everyday speech. It avoids naming an agent and is more natural than the biti-passive in conversation.",
+        highlight: 'se + verb',
+      },
+      {
+        type: 'example',
+        title: 'Se-Passive — Examples',
+        items: [
+          {
+            hr: 'Ovdje se govori engleski.',
+            en: 'English is spoken here.',
+            note: '3rd sg. — no agent named',
+          },
+          {
+            hr: 'Stan se iznajmljuje.',
+            en: 'The apartment is for rent.',
+            note: 'Very common in ads',
+          },
+          { hr: 'Vino se pije ohlađeno.', en: 'Wine is drunk chilled.', note: 'General truth' },
+          {
+            hr: 'Prodaju se stanovi.',
+            en: 'Apartments are being sold.',
+            note: '3rd pl. — subject after verb',
+          },
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Expressing the Agent (by whom)',
+        body: "To say who performs the action, use 'od' + Genitive for people: 'Knjiga je napisana od poznatog pisca.' (The book was written by a famous author.) For instruments use 'pomoću' + Genitive: 'Napravljen je pomoću novih alata.' (Made with new tools.)",
+        highlight: 'od + Genitiv (agent)',
+      },
+      {
+        type: 'table',
+        title: 'Biti Passive vs Se-Passive',
+        headers: ['Feature', 'Biti passive', 'Se-passive'],
+        rows: [
+          ['Style', 'Formal / written', 'Conversational / everyday'],
+          ['Agent', 'Can name with od + Gen', 'Never names agent'],
+          ['Tense', 'All tenses possible', 'Most natural in present'],
+          ['Example', 'Auto je popravljen.', 'Auto se popravio.'],
+        ],
+      },
+      {
+        type: 'quiz',
+        title: 'Quick Check',
+        q: "Which is the correct passive form of 'Gradili su most.' (They were building the bridge.)?",
+        opts: ['Most gradio je.', 'Most je bio građen.', 'Gradeći most.'],
+        correct: 1,
+        explanation:
+          "'Most je bio građen.' = The bridge was being built — biti (bio) + past passive participle (građen), agreeing with 'most' (masculine singular). The other options are not grammatical passive constructions.",
+      },
+      {
+        type: 'summary',
+        title: 'Passive Voice — Key Takeaways',
+        points: [
+          'Two strategies: biti + trpni pridjev (formal) and se + verb (conversational)',
+          'Trpni pridjev agrees with the subject in gender and number: pisan/pisana/pisano/pisani',
+          'Agent expressed with od + Genitive: od poznatog pisca (by a well-known author)',
+          'Se-passive never names an agent — very common in notices and everyday speech',
+          'Use biti-passive in academic/formal writing; use se-passive in speech and ads',
+        ],
+      },
+    ],
+  },
 ];
