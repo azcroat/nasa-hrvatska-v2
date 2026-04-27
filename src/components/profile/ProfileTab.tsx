@@ -39,53 +39,46 @@ export default function ProfileTab({
   return (
     <React.Fragment>
       {/* ── PROFILE HEADER ── */}
-      <ProfileHeader />
+      <ProfileHeader syncTime={authUser && lastSyncedAt > 0 ? lastSyncedAt : 0} />
 
-      {/* ── SYNC STATUS INDICATOR — only shown after first successful sync ── */}
-      {authUser && lastSyncedAt > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 11,
-            color: 'var(--success, #16a34a)',
-            fontWeight: 600,
-            marginBottom: 12,
-            paddingLeft: 2,
-          }}
-        >
-          <span style={{ fontSize: 13 }}>☁️</span>
-          <span>
-            {(() => {
-              const diff = Math.round((Date.now() - lastSyncedAt) / 60000);
-              if (diff < 1) return 'Synced just now';
-              if (diff === 1) return 'Synced 1 min ago';
-              return `Synced ${diff} min ago`;
-            })()}
-          </span>
-        </div>
-      )}
-
-      {/* ── SUB-TAB PILL SELECTOR ── */}
-      <div className="seg-bar">
+      {/* ── SUB-TAB STRIP ── */}
+      <div
+        style={{
+          display: 'flex',
+          borderBottom: '1.5px solid var(--card-b)',
+          marginBottom: 16,
+          background: 'var(--card)',
+          borderRadius: '12px 12px 0 0',
+          overflow: 'hidden',
+        }}
+      >
         {[
-          { id: 'stats', label: '📊 Stats' },
-          { id: 'insights', label: '💡 Insights' },
-          { id: 'settings', label: '⚙️ Settings' },
+          { id: 'stats', icon: '📊', label: 'Stats' },
+          { id: 'insights', icon: '💡', label: 'Insights' },
+          { id: 'settings', icon: '⚙️', label: 'Settings' },
         ].map((t) => (
           <button
             key={t.id}
             onClick={() => setPTab(t.id)}
-            className="seg-pill"
             style={{
-              background: ptab === t.id ? 'var(--card)' : 'transparent',
-              color: ptab === t.id ? 'var(--info)' : 'var(--subtext)',
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 3,
+              padding: '11px 4px 9px',
+              fontSize: 10,
               fontWeight: ptab === t.id ? 800 : 600,
-              boxShadow: ptab === t.id ? '0 2px 8px rgba(0,0,0,.1)' : 'none',
-              letterSpacing: ptab === t.id ? '.01em' : 0,
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              color: ptab === t.id ? '#059669' : 'var(--subtext)',
+              borderBottom: ptab === t.id ? '3px solid #059669' : '3px solid transparent',
+              transition: 'color .15s, border-color .15s',
+              fontFamily: "'Outfit',sans-serif",
             }}
           >
+            <span style={{ fontSize: 18 }}>{t.icon}</span>
             {t.label}
           </button>
         ))}
