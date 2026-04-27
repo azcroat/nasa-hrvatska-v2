@@ -116,7 +116,7 @@ function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillPr
       </div>
       <div
         style={{
-          fontSize: 9,
+          fontSize: 11,
           fontWeight: 600,
           color: 'var(--subtext)',
           lineHeight: 1,
@@ -250,11 +250,11 @@ export default function SessionCard({
               <div style={{ flex: 1 }}>
                 <div
                   style={{
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: 900,
-                    letterSpacing: '.15em',
+                    letterSpacing: '.12em',
                     textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,.45)',
+                    color: 'rgba(255,255,255,.5)',
                     marginBottom: 4,
                   }}
                 >
@@ -281,24 +281,6 @@ export default function SessionCard({
                 >
                   ~{session.estimatedMinutes} min · {totalCount} activities
                 </div>
-              </div>
-
-              {/* Count badge */}
-              <div
-                style={{
-                  background: 'rgba(255,255,255,.1)',
-                  border: '1px solid rgba(255,255,255,.18)',
-                  borderRadius: 8,
-                  padding: '5px 9px',
-                  fontSize: 10,
-                  fontWeight: 800,
-                  color: 'rgba(255,255,255,.8)',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  marginTop: 2,
-                }}
-              >
-                {totalCount} acts
               </div>
             </div>
 
@@ -395,15 +377,17 @@ export default function SessionCard({
                 width: '100%',
                 padding: '13px 0',
                 borderRadius: 13,
-                border: '1px solid rgba(255,255,255,.2)',
-                background: 'rgba(255,255,255,.1)',
+                border: 'none',
+                background: nextActivity ? CROATIAN_RED : 'rgba(204,0,0,.4)',
                 color: '#fff',
                 fontSize: 14,
                 fontWeight: 900,
                 fontFamily: "'Outfit',sans-serif",
                 cursor: nextActivity ? 'pointer' : 'not-allowed',
                 letterSpacing: '.025em',
-                opacity: nextActivity ? 1 : 0.5,
+                boxShadow: nextActivity
+                  ? '0 4px 16px rgba(204,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15)'
+                  : 'none',
               }}
             >
               {inProgress ? 'Continue Session →' : '▶ Begin Session →'}
