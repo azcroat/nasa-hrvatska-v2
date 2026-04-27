@@ -215,7 +215,7 @@ export default function Sidebar({
   return (
     <nav className="sidebar" aria-label="Main navigation">
       {/* Brand */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--nav-b)' }}>
+      <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--nav-b)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div
             style={{
@@ -272,8 +272,8 @@ export default function Sidebar({
       </div>
 
       {/* User card */}
-      <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--nav-b)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+      <div style={{ padding: '10px 16px 10px', borderBottom: '1px solid var(--nav-b)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <div
             style={{
               width: 38,
@@ -310,13 +310,7 @@ export default function Sidebar({
           </div>
         </div>
         {/* XP progress bar */}
-        <div style={{ marginBottom: 4 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>
-              Level {level + 1}
-            </span>
-            <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>{xpPct}%</span>
-          </div>
+        <div style={{ marginBottom: 6 }}>
           <div
             className="prog-track"
             role="progressbar"
@@ -324,7 +318,7 @@ export default function Sidebar({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label={`Progress to level ${level + 1}: ${xpPct}%`}
-            style={{ height: 6 }}
+            style={{ height: 5 }}
           >
             <div
               className="prog-fill"
@@ -334,9 +328,20 @@ export default function Sidebar({
               }}
             />
           </div>
+          <div
+            style={{
+              fontSize: 9,
+              color: 'var(--subtext)',
+              marginTop: 3,
+              textAlign: 'right',
+              fontWeight: 600,
+            }}
+          >
+            {xpPct}% to Level {level + 1}
+          </div>
         </div>
         {/* Streak + stat row */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
           {[
             { icon: '🔥', val: streak.count, label: 'streak' },
             { icon: '📚', val: st.lc, label: 'lessons' },
@@ -361,7 +366,7 @@ export default function Sidebar({
       </div>
 
       {/* Search */}
-      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--nav-b)' }}>
+      <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--nav-b)' }}>
         <div style={{ position: 'relative' }}>
           <span
             style={{
@@ -396,7 +401,7 @@ export default function Sidebar({
       </div>
 
       {/* Nav items */}
-      <nav style={{ padding: '8px 12px', flex: 1 }}>
+      <nav style={{ padding: '6px 12px', flex: 1 }}>
         {TABS.map((t) => (
           <button
             key={t.id}
