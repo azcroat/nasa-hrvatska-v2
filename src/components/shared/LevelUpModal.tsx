@@ -177,7 +177,8 @@ function LevelUpModal({ level, onClose }: { level: number; onClose?: () => void 
     return () => modal.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const shareText = `🇭🇷 Just reached Level ${level} (${meta.cefr} — ${meta.band}) in Croatian! ${meta.emoji} Learning with Naša Hrvatska — Croatian for the diaspora. https://nasahrvatska.com?ref=level`;
+  const shareUrl = `${window.location.origin}?ref=level`;
+  const shareText = `🇭🇷 Just reached Level ${level} (${meta.cefr} — ${meta.band}) in Croatian! ${meta.emoji} Learning with Naša Hrvatska — Croatian for the diaspora. ${shareUrl}`;
 
   async function handleShare() {
     if (navigator.share) {
@@ -185,7 +186,7 @@ function LevelUpModal({ level, onClose }: { level: number; onClose?: () => void 
         await navigator.share({
           title: 'Naša Hrvatska',
           text: shareText,
-          url: 'https://nasahrvatska.com?ref=level',
+          url: shareUrl,
         });
       } catch (_) {}
     } else {
