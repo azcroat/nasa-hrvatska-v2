@@ -473,7 +473,11 @@ export default function HomeTab({
             paddingLeft: 2,
           }}
         >
-          Dobro jutro, {authUser.d || 'Learner'}! 👋
+          {(() => {
+            const h = new Date().getHours();
+            const g = h < 12 ? 'Dobro jutro' : h < 18 ? 'Dobar dan' : 'Dobra večer';
+            return `${g}, ${authUser.d || 'Learner'}! 👋`;
+          })()}
         </div>
       )}
 
