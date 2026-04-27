@@ -11,9 +11,12 @@
  *   - goBack called when "Back to Practice" clicked on done screen
  *
  * Shuffle: rnd() → 0.99 makes sh() identity — drills preserve TRANSLATE_DRILLS order.
- * All 29 entries have opts[0] === hr (correct answer first) — verified separately.
+ * All entries have opts[0] === hr (correct answer first) — verified separately.
  * TRANSLATE_DRILLS[0] = { en:"I speak Croatian.", hr:"Govorim hrvatski." }.
- * 29/29 correct → award(Math.round(29/29 * 20)) = award(20).
+ * TOTAL/TOTAL correct → award(Math.round(TOTAL/TOTAL * 20)) = award(20).
+ *
+ * TOTAL is derived dynamically from TRANSLATE_DRILLS.length + C1_DRILLS.length
+ * so adding new drills in exercises.js never breaks these tests again.
  *
  * TranslateDrillsScreen uses NO CSS classes for option or Next buttons
  * (pure inline styles). Tests use text-based selectors throughout.
@@ -72,6 +75,10 @@ vi.mock('../data', async (importOriginal) => {
 });
 
 import TranslateDrillsScreen from '../components/practice/TranslateDrillsScreen';
+import { TRANSLATE_DRILLS, C1_DRILLS } from '../data/exercises.js';
+
+// Total drill count — derived dynamically so adding entries never breaks tests.
+const TOTAL = TRANSLATE_DRILLS.length + C1_DRILLS.length;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -82,7 +89,7 @@ function renderTranslateDrills(overrides = {}) {
 }
 
 /**
- * Complete all 29 TRANSLATE_DRILLS by clicking the correct answer each time.
+ * Complete all TOTAL drills by clicking the correct answer each time.
  * With identity shuffle, drills preserve TRANSLATE_DRILLS order and opts[0] === hr.
  * Clicking the first option always selects the correct answer.
  * award(20) fired after the last question's "See Results" click.
@@ -94,7 +101,7 @@ function completeAndGoBack(
   goBack: ReturnType<typeof vi.fn> = vi.fn(),
 ) {
   render(<TranslateDrillsScreen award={award} goBack={goBack} />);
-  for (let i = 0; i < 29; i++) {
+  for (let i = 0; i < TOTAL; i++) {
     // opts[0] is always correct (all entries have opts[0] === hr)
     const firstOpt = screen
       .queryAllByRole('button')
@@ -147,9 +154,9 @@ describe('TranslateDrillsScreen — rendering', () => {
     expect(screen.getByText('A2')).toBeTruthy();
   });
 
-  it('shows progress counter 1/29', () => {
+  it('shows progress counter 1/TOTAL', () => {
     renderTranslateDrills();
-    expect(screen.getByText(/1\/29/)).toBeTruthy();
+    expect(screen.getByText(new RegExp(`1\\/${TOTAL}`))).toBeTruthy();
   });
 });
 
@@ -208,7 +215,7 @@ describe('TranslateDrillsScreen — answer mechanics', () => {
 
   it('shows See Results on the last question after answering', () => {
     renderTranslateDrills();
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < TOTAL - 1; i++) {
       const firstOpt = screen
         .queryAllByRole('button')
         .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
@@ -217,13 +224,13 @@ describe('TranslateDrillsScreen — answer mechanics', () => {
       const nextBtn = screen.queryByText('Next →') || screen.queryByText('See Results');
       if (nextBtn) fireEvent.click(nextBtn);
     }
-    // Now on question 29 (last) — answer without clicking Next
+    // Now on the last question — answer without clicking Next
     const lastOpt = screen
       .queryAllByRole('button')
       .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
     if (lastOpt) fireEvent.click(lastOpt);
     expect(screen.getByText('See Results')).toBeTruthy();
-  }, 30000);
+  }, 60000);
 });
 
 // ── Completion / XP award guard ───────────────────────────────────────────────
@@ -238,9 +245,9 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
    * Runs 29-question loop once instead of twice (two separate tests would timeout
    * in the full parallel suite since each loop takes ~2s per test).
    */
-  it('shows done screen with score 29/29 and Back to Practice button', () => {
+  it('shows done screen with perfect score and Back to Practice button', () => {
     render(<TranslateDrillsScreen award={vi.fn()} goBack={vi.fn()} />);
-    for (let i = 0; i < 29; i++) {
+    for (let i = 0; i < TOTAL; i++) {
       const firstOpt = screen
         .queryAllByRole('button')
         .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
@@ -249,9 +256,9 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
       const nextBtn = screen.queryByText('Next →') || screen.queryByText('See Results');
       if (nextBtn) fireEvent.click(nextBtn);
     }
-    expect(screen.getByText(/29\/29 correct/)).toBeTruthy();
+    expect(screen.getByText(new RegExp(`${TOTAL}\\/${TOTAL} correct`))).toBeTruthy();
     expect(screen.getByText('Back to Practice')).toBeTruthy();
-  }, 60000);
+  }, 120000);
 
   /**
    * Consolidated award + quest test: verifies award(20) and markQuest('vocab')
@@ -260,7 +267,7 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
   it('award(20) and markQuest("vocab") called on completion', () => {
     const award = vi.fn();
     render(<TranslateDrillsScreen award={award} goBack={vi.fn()} />);
-    for (let i = 0; i < 29; i++) {
+    for (let i = 0; i < TOTAL; i++) {
       const firstOpt = screen
         .queryAllByRole('button')
         .find((btn) => !['← Back', 'Next →', 'See Results'].includes(btn.textContent ?? ''));
@@ -269,11 +276,11 @@ describe('TranslateDrillsScreen — completion + award guard', () => {
       const nextBtn = screen.queryByText('Next →') || screen.queryByText('See Results');
       if (nextBtn) fireEvent.click(nextBtn);
     }
-    // 29/29 correct → award(Math.round(29/29 * 20)) = award(20)
+    // TOTAL/TOTAL correct → award(Math.round(TOTAL/TOTAL * 20)) = award(20)
     expect(award).toHaveBeenCalledWith(20, false, 'grammar');
     expect(mockMarkQuest).toHaveBeenCalledWith('vocab');
     expect(mockMarkQuest).toHaveBeenCalledTimes(1);
-  }, 60000);
+  }, 120000);
 });
 
 // ── Navigation ────────────────────────────────────────────────────────────────
