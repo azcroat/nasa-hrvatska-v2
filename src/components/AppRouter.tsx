@@ -47,15 +47,17 @@ function lazyWithReload(fn: () => Promise<any>) {
   return lazy(() =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fn().catch((e: any) => {
-      const msg = ((e?.message as string) || '') + ((e?.name as string) || '');
+      // Lowercase once so all checks below are case-insensitive — browsers differ:
+      // Chrome capitalises "Failed", Safari capitalises "Importing", etc.
+      const msg = (((e?.message as string) || '') + ((e?.name as string) || '')).toLowerCase();
       const isChunkError =
-        msg.includes('Failed to fetch') ||
+        msg.includes('failed to fetch') ||
         msg.includes('importing a module script failed') ||
         msg.includes('dynamically imported module') ||
-        msg.includes('Expected a JavaScript module script') ||
-        msg.includes('MIME type') ||
-        msg.includes('Loading chunk') ||
-        msg.includes('Importing binding name'); // WebKit: stale cross-chunk binding mismatch
+        msg.includes('expected a javascript module script') ||
+        msg.includes('mime type') ||
+        msg.includes('loading chunk') ||
+        msg.includes('importing binding name'); // WebKit: stale cross-chunk binding mismatch
       if (isChunkError) {
         try {
           const key = 'nh_reload_attempt';
