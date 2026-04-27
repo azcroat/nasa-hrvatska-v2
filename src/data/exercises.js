@@ -4824,6 +4824,235 @@ export const TRANSLATE_DRILLS = [
     ],
     level: 'B2',
   },
+  // ── B2: Passive voice ─────────────────────────────────────────────────────
+  {
+    en: 'The letter was written yesterday.',
+    hr: 'Pismo je napisano jučer.',
+    opts: [
+      'Pismo je napisano jučer.',
+      'Pismo je pisano jučer.',
+      'Pismo se je napisalo jučer.',
+      'Pismo pisalo se jučer.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'Croatian is spoken in many countries.',
+    hr: 'Hrvatski se govori u mnogim zemljama.',
+    opts: [
+      'Hrvatski se govori u mnogim zemljama.',
+      'Hrvatski govori se u mnogim zemljama.',
+      'Hrvatski je govoreno u mnogim zemljama.',
+      'Hrvatski se govoriti u mnogim zemljama.',
+    ],
+    level: 'B2',
+  },
+  // ── B2: Indirect questions ────────────────────────────────────────────────
+  {
+    en: 'He asked whether she would come the next day.',
+    hr: 'Pitao je hoće li doći sutra.',
+    opts: [
+      'Pitao je hoće li doći sutra.',
+      'Pitao je da li hoće sutra doći.',
+      'Pitao je je li dolazi sutra.',
+      'Pitao je što hoće doći sutra.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'I wondered who had sent the message.',
+    hr: 'Pitao sam se tko je poslao poruku.',
+    opts: [
+      'Pitao sam se tko je poslao poruku.',
+      'Pitao sam se koji je poslao poruku.',
+      'Pitao se tko je poslao poruku.',
+      'Pitao sam se tko poslao je poruku.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: "She told me that she didn't know the answer.",
+    hr: 'Rekla mi je da ne zna odgovor.',
+    opts: [
+      'Rekla mi je da ne zna odgovor.',
+      'Rekla je meni da ne zna odgovor.',
+      'Rekla mi je što ne zna odgovor.',
+      'Rekla mi je da nije znala odgovor.',
+    ],
+    level: 'B2',
+  },
+  // ── B2: Concessive and purpose clauses ───────────────────────────────────
+  {
+    en: 'Although she was tired, she continued working.',
+    hr: 'Premda je bila umorna, nastavila je raditi.',
+    opts: [
+      'Premda je bila umorna, nastavila je raditi.',
+      'Premda bila je umorna, nastavila je raditi.',
+      'Iako umorna, nastavila raditi.',
+      'Unatoč bila umorna, nastavila je raditi.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'I study Croatian so that I can speak with the locals.',
+    hr: 'Učim hrvatski da bih mogao razgovarati s domaćim ljudima.',
+    opts: [
+      'Učim hrvatski da bih mogao razgovarati s domaćim ljudima.',
+      'Učim hrvatski da mogu razgovarati s domaćim.',
+      'Učim hrvatski za razgovarati s domaćim.',
+      'Učim hrvatski zato što razgovaramo s domaćim.',
+    ],
+    level: 'B2',
+  },
+  // ── B2: Advanced conjunctions ─────────────────────────────────────────────
+  {
+    en: 'Not only was she late, but she also forgot the keys.',
+    hr: 'Ne samo da je zakasnila, nego je i zaboravila ključeve.',
+    opts: [
+      'Ne samo da je zakasnila, nego je i zaboravila ključeve.',
+      'Ne samo zakasnila je, već zaboravila je ključeve.',
+      'Ne samo što je zakasnila, ali je zaboravila ključeve.',
+      'Ona ne samo kasnila nego zaboravila ključeve.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'In spite of the difficulties, we managed to finish.',
+    hr: 'Unatoč teškoćama, uspjeli smo završiti.',
+    opts: [
+      'Unatoč teškoćama, uspjeli smo završiti.',
+      'Unatoč teškoće, uspjeli smo završiti.',
+      'Usprkos od teškoća, uspjeli smo završiti.',
+      'Premda teškoće, uspjeli smo završiti.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'Since she had already left, I called her.',
+    hr: 'Budući da je već otišla, nazvao sam je.',
+    opts: [
+      'Budući da je već otišla, nazvao sam je.',
+      'Jer je otišla već, nazvao sam ona.',
+      'Budući je otišla, nazvao sam je.',
+      'Zato što je već otišla, nazvao je sam.',
+    ],
+    level: 'B2',
+  },
+  // ── B2: Impersonal constructions ─────────────────────────────────────────
+  {
+    en: 'One must respect the rules.',
+    hr: 'Treba poštovati pravila.',
+    opts: [
+      'Treba poštovati pravila.',
+      'Trebam poštovati pravila.',
+      'Moram se poštovati pravila.',
+      'Treba poštovanjem pravila.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'It is necessary to arrive on time.',
+    hr: 'Potrebno je stići na vrijeme.',
+    opts: [
+      'Potrebno je stići na vrijeme.',
+      'Potrebno stići je na vrijeme.',
+      'Nužno stizanje na vrijeme.',
+      'Treba se stizati na vrijeme.',
+    ],
+    level: 'B2',
+  },
+  // ── B2: Complex relative clauses ─────────────────────────────────────────
+  {
+    en: 'The woman to whom I gave the book is a professor.',
+    hr: 'Žena kojoj sam dao knjigu je profesorica.',
+    opts: [
+      'Žena kojoj sam dao knjigu je profesorica.',
+      'Žena koja sam dao knjigu je profesorica.',
+      'Žena kojeg sam dao knjigu je profesorica.',
+      'Žena kome sam dao knjigu je profesorica.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'The city in which I was born is on the coast.',
+    hr: 'Grad u kojemu sam se rodio nalazi se na obali.',
+    opts: [
+      'Grad u kojemu sam se rodio nalazi se na obali.',
+      'Grad koji sam se rodio je na obali.',
+      'Grad kojeg sam se rodio je na obali.',
+      'Grad gdje se rodio sam je na obali.',
+    ],
+    level: 'B2',
+  },
+  // ── B2: Negative indefinite pronouns ─────────────────────────────────────
+  {
+    en: 'None of them knew the answer.',
+    hr: 'Nitko od njih nije znao odgovor.',
+    opts: [
+      'Nitko od njih nije znao odgovor.',
+      'Nijedan od njima nije znao odgovor.',
+      'Nitko od njima nije znao odgovor.',
+      'Niko od njih nije znao odgovor.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'Nothing ever changes in this town.',
+    hr: 'Ništa se nikad ne mijenja u ovom gradu.',
+    opts: [
+      'Ništa se nikad ne mijenja u ovom gradu.',
+      'Ništa nikad mijenja se u ovom gradu.',
+      'Ništa ne mijenja se nikad u ovom gradu.',
+      'Ništa nikad ne mijenja u ovom gradu.',
+    ],
+    level: 'B2',
+  },
+  // ── B2: Verbal aspect at B2 level ────────────────────────────────────────
+  {
+    en: 'She was writing the report for two hours. (ongoing action)',
+    hr: 'Pisala je izvještaj dva sata.',
+    opts: [
+      'Pisala je izvještaj dva sata.',
+      'Napisala je izvještaj dva sata.',
+      'Pisala si izvještaj dva sata.',
+      'Pisala je izvještaja dva sata.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'He finally managed to finish the report. (completed)',
+    hr: 'Napokon je napisao izvještaj.',
+    opts: [
+      'Napokon je napisao izvještaj.',
+      'Napokon je pisao izvještaj.',
+      'Napokon napisati izvještaj.',
+      'Napokon je pisavši izvještaj.',
+    ],
+    level: 'B2',
+  },
+  // ── B2: Advanced quantifiers ──────────────────────────────────────────────
+  {
+    en: 'The majority of students passed the exam.',
+    hr: 'Većina studenata je položila ispit.',
+    opts: [
+      'Većina studenata je položila ispit.',
+      'Više studenata je položilo ispit.',
+      'Mnogi studenti su položili ispit.',
+      'Većina od studenata položila je ispit.',
+    ],
+    level: 'B2',
+  },
+  {
+    en: 'It depends on how much time we have.',
+    hr: 'Ovisi o tome koliko vremena imamo.',
+    opts: [
+      'Ovisi o tome koliko vremena imamo.',
+      'Zavisi od koliko vremena imamo.',
+      'Ovisi od koliko vremena imamo.',
+      'Zavisi o tomu koliko vremena imamo.',
+    ],
+    level: 'B2',
+  },
 ];
 
 // ── Past tense exercises (Multiple choice) ─────────────────────────────────
@@ -5047,5 +5276,183 @@ export const FUTURE_EXERCISES_XFORM = [
     q: "Transform to future tense: 'Govore na konferenciji.'",
     a: 'Govorit će na konferenciji.',
     note: 'Short future (standard Croatian): infinitive govoriti truncated to govorit + enclitic će; used in both written and spoken registers.',
+  },
+];
+
+// ─── C1 Translation Production Drills ────────────────────────────────────────
+// Format: { en, hr, opts, level }
+// C1 targets: verbal nouns, participial constructions, formal discourse markers,
+// advanced conditionals, idiomatic register, and literary/abstract language.
+export const C1_DRILLS = [
+  // ── Verbal nouns (glagolske imenice) ──────────────────────────────────────
+  {
+    en: 'The writing of the novel took three years.',
+    hr: 'Pisanje romana trajalo je tri godine.',
+    opts: [
+      'Pisanje romana trajalo je tri godine.',
+      'Pisanje romanu trajalo je tri godine.',
+      'Pisati roman trajalo je tri godine.',
+      'Pisanje od romana trajalo je tri godine.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'After arriving in Zagreb, she called her friend.',
+    hr: 'Nakon dolaska u Zagreb, nazvala je prijatelja.',
+    opts: [
+      'Nakon dolaska u Zagreb, nazvala je prijatelja.',
+      'Nakon dolasku u Zagreb, nazvala je prijatelja.',
+      'Dolazeći u Zagreb, nazvala je prijatelja.',
+      'Nakon što je došla u Zagreb, nazvala je prijatelja.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'The decision-making process was long and difficult.',
+    hr: 'Proces donošenja odluka bio je dug i težak.',
+    opts: [
+      'Proces donošenja odluka bio je dug i težak.',
+      'Proces donijeti odluke bio je dug i težak.',
+      'Proces odlučivanja bio je dug i težak.',
+      'Proces donošenje odluka bio je dug i težak.',
+    ],
+    level: 'C1',
+  },
+  // ── Participial constructions ──────────────────────────────────────────────
+  {
+    en: 'Having read the book, he understood the context better.',
+    hr: 'Pročitavši knjigu, bolje je razumio kontekst.',
+    opts: [
+      'Pročitavši knjigu, bolje je razumio kontekst.',
+      'Pročitao je knjigu, bolje razumio kontekst.',
+      'Pročitano knjige, bolje je razumio kontekst.',
+      'Čitajući knjigu, bolje je razumio kontekst.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'Having seen the results, the committee made its decision.',
+    hr: 'Vidjevši rezultate, odbor je donio odluku.',
+    opts: [
+      'Vidjevši rezultate, odbor je donio odluku.',
+      'Vidjeti rezultate, odbor je donio odluku.',
+      'Vidio je rezultate, pa je odbor donio odluku.',
+      'Gledajući rezultate, odbor je donio odluku.',
+    ],
+    level: 'C1',
+  },
+  // ── Formal discourse markers ───────────────────────────────────────────────
+  {
+    en: 'In light of the above, we can conclude that the plan was successful.',
+    hr: 'U svjetlu navedenoga, možemo zaključiti da je plan bio uspješan.',
+    opts: [
+      'U svjetlu navedenoga, možemo zaključiti da je plan bio uspješan.',
+      'U svjetlu navedenih, možemo zaključiti da je plan bio uspješan.',
+      'Zbog navedenoga, zaključiti možemo da plan bio uspješan.',
+      'Prema gore navedenom, možemo zaključiti da plan je bio uspješan.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'It should be noted that the situation has changed significantly.',
+    hr: 'Valja napomenuti da se situacija znatno promijenila.',
+    opts: [
+      'Valja napomenuti da se situacija znatno promijenila.',
+      'Treba napomenuti se da je situacija promijenila.',
+      'Vrijedno napominjati da se situacija promijenila.',
+      'Potrebno je napomenuti kako situacija promijenila.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'The law came into force on the first of January.',
+    hr: 'Zakon je stupio na snagu prvog siječnja.',
+    opts: [
+      'Zakon je stupio na snagu prvog siječnja.',
+      'Zakon je ušao na snagu prvog siječnja.',
+      'Zakon je počeo snagu prvog siječnja.',
+      'Zakon stupio je na snagu prvog siječnja.',
+    ],
+    level: 'C1',
+  },
+  // ── Advanced conditionals ──────────────────────────────────────────────────
+  {
+    en: 'Were it not for the sea, Dalmatia would be a very different place.',
+    hr: 'Da nije mora, Dalmacija bi bila sasvim drukčije mjesto.',
+    opts: [
+      'Da nije mora, Dalmacija bi bila sasvim drukčije mjesto.',
+      'Bez mora, Dalmacija bila bi drukčija.',
+      'Da nema more, Dalmacija bi bila drukčija.',
+      'Da nije mora, Dalmacija je drukčije mjesto.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'Had the law been different, the outcome might have been better.',
+    hr: 'Da je zakon bio drukčiji, ishod bi mogao biti bolji.',
+    opts: [
+      'Da je zakon bio drukčiji, ishod bi mogao biti bolji.',
+      'Ako bi zakon bio drukčiji, ishod bi bio bolji.',
+      'Da bi zakon bio drukčiji, ishod mogao biti bolji.',
+      'Kada bi zakon bio drukčiji, ishod bi biti bolji.',
+    ],
+    level: 'C1',
+  },
+  // ── Idiomatic and register-appropriate expressions ─────────────────────────
+  {
+    en: 'It is out of the question to accept such conditions.',
+    hr: 'Ne dolazi u obzir prihvaćanje takvih uvjeta.',
+    opts: [
+      'Ne dolazi u obzir prihvaćanje takvih uvjeta.',
+      'Nije moguće prihvatiti takve uvjete.',
+      'Ne može se prihvatiti takvih uvjeta.',
+      'Ne dolazi u obzir prihvatiti takve uvjete.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'She tactfully avoided the subject without addressing it directly.',
+    hr: 'Vješto je zaobilazila temu, ne dotičući je izravno.',
+    opts: [
+      'Vješto je zaobilazila temu, ne dotičući je izravno.',
+      'Vješto je obilazila oko temu bez izravnog dotaknutja.',
+      'Vješto zaobilazila je temu, ne dotaknuvši je.',
+      'Vješto je zaobilazila temu ne dirajući izravno.',
+    ],
+    level: 'C1',
+  },
+  // ── Abstract and literary language ────────────────────────────────────────
+  {
+    en: 'The sea does not forgive forgetfulness.',
+    hr: 'More ne oprašta zaboravnost.',
+    opts: [
+      'More ne oprašta zaboravnost.',
+      'More ne praštati zaboravnost.',
+      'Mora ne oprašta zaboravnosti.',
+      'More ne praštanje zaborav.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'Between memory and forgetting, identity takes shape.',
+    hr: 'Između sjećanja i zaborava oblikuje se identitet.',
+    opts: [
+      'Između sjećanja i zaborava oblikuje se identitet.',
+      'Između sjećanje i zaborav oblikuje se identitet.',
+      'Između sjećanja i zaborava, identitet oblikuje.',
+      'Između sjećanja i zaborava identitet se oblikovati.',
+    ],
+    level: 'C1',
+  },
+  {
+    en: 'A language that is not spoken is a language that is dying.',
+    hr: 'Jezik koji se ne govori, jezik je koji umire.',
+    opts: [
+      'Jezik koji se ne govori, jezik je koji umire.',
+      'Jezik koji ne govori je jezik koji umire.',
+      'Jezik koji se ne govori je umirući jezik.',
+      'Jezik koji nije govoren, umire.',
+    ],
+    level: 'C1',
   },
 ];

@@ -1556,4 +1556,381 @@ export const GRADED_STORIES = [
       },
     ],
   },
+
+  // ── C1 Stories ──────────────────────────────────────────────────────────────
+
+  {
+    id: 'gs_c1_1',
+    level: 'C1',
+    levelColor: '#4c1d95',
+    levelBg: '#ede9fe',
+    icon: '📖',
+    title: 'Jezik kao ogledalo kulture',
+    titleEn: 'Language as a Mirror of Culture',
+    duration: 7,
+    focus: 'Verbal nouns • Formal discourse • Abstract linguistic concepts',
+    intro:
+      'An analytical essay on the relationship between language and cultural identity in the Croatian context. Practise verbal nouns, formal discourse markers, and abstract vocabulary.',
+    paragraphs: [
+      {
+        hr: 'Jezik nije samo sredstvo komunikacije — on je i nositelj kulture, sjećanja i kolektivnog identiteta. Za Hrvate, ta dimenzija jezičnoga pitanja ima posebno značenje, uzimajući u obzir burnu povijest standardizacije i višestoljetnih pokušaja nametanja stranih jezičnih normi. Glagoljica, najstarije hrvatsko pismo, simbol je toga kontinuiteta: ona svjedoči o pismenosti koja seže u 9. stoljeće i koja je odolijevala latinizaciji i germanizaciji jednako kao što je preživjela osmanske prodore na periferiji.',
+        en: 'Language is not merely a means of communication — it is also a carrier of culture, memory and collective identity. For Croatians, this dimension of the language question has a particular significance, given the turbulent history of standardisation and centuries-long attempts to impose foreign linguistic norms. Glagolitic script, the oldest Croatian writing system, is a symbol of that continuity: it bears witness to literacy reaching back to the 9th century, which resisted Latinisation and Germanisation just as it survived Ottoman incursions on the periphery.',
+      },
+      {
+        hr: 'Standardizacija hrvatskoga književnog jezika u 19. stoljeću nije bila tek filološki projekt — bila je i politički čin. Ilirski preporoditelji, na čelu s Ljudevitom Gajem, težili su ujedinjavanju rasutih hrvatskih dijalekata u jedinstven književni standard koji bi mogao parirati mađarskome i njemačkome na razini javnoga diskursa. Uvođenje štokavske novoštokavske osnovice u standardni jezik podrazumijevalo je odricanje dijela autohtonih čakavskih i kajkavskih oblika — žrtvu koja se i danas propituje u lingvističkim i kulturnim raspravama.',
+        en: 'The standardisation of the Croatian literary language in the 19th century was not merely a philological project — it was also a political act. The Illyrian Revival figures, led by Ljudevit Gaj, sought to unify the scattered Croatian dialects into a single literary standard that could rival Hungarian and German at the level of public discourse. The introduction of the Shtokavian Neo-Shtokavian base into the standard language entailed the abandonment of some autochthonous Chakavian and Kajkavian forms — a sacrifice that is still debated in linguistic and cultural discussions today.',
+      },
+      {
+        hr: 'Danas, u dobu digitalne komunikacije, pitanje jezičnoga identiteta dobiva novu dimenziju. Pisana forma — nekad privilegija obrazovanih — sada je svakodnevna stvarnost za milijune korisnika društvenih mreža koji pišu onako kako govore: na čakavskome, kajkavskome, ili mješavinom standarda i žargona. Ta spontana demokratizacija pisanja ne ugrožava standardni jezik — ona ga obogaćuje, uvodeći u javni diskurs jezičnu raznolikost koja je uvijek bila dio hrvatskoga identiteta. Standardni jezik ostaje stup kulturnoga i administrativnoga jedinstva, ali vitalni su mu živci dijalekatski korijeni koji ga hrane autentičnošću.',
+        en: 'Today, in the age of digital communication, the question of linguistic identity takes on a new dimension. Written form — once the privilege of the educated — is now an everyday reality for millions of social media users who write as they speak: in Chakavian, Kajkavian, or a mixture of standard language and slang. This spontaneous democratisation of writing does not threaten the standard language — it enriches it, introducing into public discourse the linguistic diversity that has always been part of Croatian identity. The standard language remains a pillar of cultural and administrative unity, but its vital nerves are the dialectal roots that nourish it with authenticity.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'nositelj', en: 'carrier / bearer', ex: 'Jezik je nositelj kulture i sjećanja.' },
+      {
+        hr: 'standardizacija',
+        en: 'standardisation',
+        ex: 'Standardizacija języka bila je politički čin.',
+      },
+      {
+        hr: 'filološki',
+        en: 'philological (adj.)',
+        ex: 'Filološki projekt trajao je desetljećima.',
+      },
+      {
+        hr: 'odricanje',
+        en: 'abandonment / renunciation',
+        ex: 'Odricanje dijalekata bio je veliki korak.',
+      },
+      {
+        hr: 'propitovati',
+        en: 'to question / interrogate',
+        ex: 'Ta se žrtva još uvijek propituje.',
+      },
+      {
+        hr: 'obogaćivati',
+        en: 'to enrich (imperfective)',
+        ex: 'Dijalekti obogaćuju standardni jezik.',
+      },
+      { hr: 'dijalekatski', en: 'dialectal (adj.)', ex: 'Dijalekatski korijeni su važni.' },
+      {
+        hr: 'autentičnost',
+        en: 'authenticity',
+        ex: 'Autentičnost je temelj kulturnoga identiteta.',
+      },
+      { hr: 'javni diskurs', en: 'public discourse', ex: 'Jezik je dio javnoga diskursa.' },
+    ],
+    quiz: [
+      {
+        q: 'Što je, po tekstu, Glagoljica?',
+        qEn: 'What, according to the text, is Glagolitic script?',
+        opts: [
+          'Simbol kontinuiteta hrvatske pismenosti',
+          'Pismo koje je nastalo u 15. stoljeću',
+          'Tursko pismo adaptirano za Slavene',
+          'Najstariji europski alfabet uopće',
+        ],
+        correct: 0,
+      },
+      {
+        q: 'Zašto su ilirski preporoditelji uveli štokavsku osnovicu u standard?',
+        qEn: 'Why did the Illyrian Revival figures introduce the Shtokavian base into the standard?',
+        opts: [
+          'Jer je bio najbogatiji dijalekt',
+          'Kako bi standard mogao parirati mađarskome i njemačkome',
+          'Jer je to zahtijevao austrijski car',
+          'Kako bi ujedinili sve slavenske narode',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Kakav je, po tekstu, utjecaj digitalne komunikacije na standardni jezik?',
+        qEn: 'What effect, according to the text, does digital communication have on the standard language?',
+        opts: [
+          'Ugrožava ga i smanjuje njegovu upotrebu',
+          'Nema vidljivog utjecaja',
+          'Obogaćuje ga uvodeći jezičnu raznolikost',
+          'Potiče povratak glagoljici',
+        ],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_c1_2',
+    level: 'C1',
+    levelColor: '#4c1d95',
+    levelBg: '#ede9fe',
+    icon: '🍷',
+    title: 'Dalmatinska kuhinja: okus i sjećanje',
+    titleEn: 'Dalmatian Cuisine: Taste and Memory',
+    duration: 6,
+    focus: 'Sensory vocabulary • Implicit cultural meaning • Complex noun phrases',
+    intro:
+      'A cultural essay on Dalmatian cuisine as a layered historical record. Practise complex noun phrases, abstract cultural vocabulary, and C1-level reading comprehension.',
+    paragraphs: [
+      {
+        hr: 'Dalmatinska kuhinja nije tek zbroj recepata — ona je kodirana povijest, zapis klimatske i geopolitičke sudbine jedne obale. Venecijanska vladavina ostavila je trag u upotrebi maslinovog ulja i vina kao temeljnih kulinarskih medija; osmansko susjedstvo uvelo je neke mirodije i načine konzerviranja; rimsko naslijeđe vidljivo je u odabiru riba i školjaka koji se malo promijenio kroz dva tisućljeća. Kuhati po dalmatinski znači, u svakom smislu, kuhati po slojevima povijesti.',
+        en: 'Dalmatian cuisine is not merely a collection of recipes — it is a coded history, a record of the climatic and geopolitical fate of a coastline. Venetian rule left its mark in the use of olive oil and wine as foundational culinary media; Ottoman neighbourliness introduced some spices and methods of preservation; the Roman legacy is visible in the choice of fish and shellfish, which has changed little over two millennia. To cook in the Dalmatian way means, in every sense, to cook through layers of history.',
+      },
+      {
+        hr: 'Peko — posuda za pečenje ispod žara — možda je najprecizniji simbol dalmatinskoga kulinarskog pristupa. Spora, pokrivena kuhinja: meso ili riba polaže se s povrćem i uljem, peko se poklopi, a zatim zaspe žarom. Strpljenje je ovdje tehnika, a ne vrlina — bez njega nema ni okusa. Takav se način kuhanja ne može ubrzati bez gubitka: onaj tko pokušava pečenku pod pekom brzopleto pretvoriti u ekspresni obrok, izgubit će precizno ono što peko obećava.',
+        en: 'The peka — a bell-shaped lid for roasting under embers — is perhaps the most precise symbol of the Dalmatian culinary approach. Slow, covered cooking: meat or fish is arranged with vegetables and oil, the peka is closed, and then covered with embers. Patience here is technique, not virtue — without it there is no flavour either. This method of cooking cannot be hurried without loss: whoever tries to hastily turn a peka roast into an express meal will lose precisely what the peka promises.',
+      },
+      {
+        hr: 'Primat ribe u dalmatinskoj kuhinji nije tek pitanje dostupnosti — on odražava dublje poimanje odnosa čovjeka i mora. Riba je svježa ili nikakva; marinada i mirodije služe naglašavanju, a ne prikrivanju okusa. Ovaj filozofski stav prema sirovini — koji akademski gastronomi danas nazivaju "kuhinjom minimalne intervencije" — u Dalmaciji nije moda ni trend, nego praksa stara koliko i sam ribolov. Ribari koji su ujutro izvukli mrežu, o podne su priredili roštilj, a navečer pojeli ostatke s malo kruha i vinom: to je recept koji ne treba poboljšavati.',
+        en: "Fish's primacy in Dalmatian cuisine is not merely a question of availability — it reflects a deeper understanding of the relationship between people and the sea. Fish is fresh or nothing; marinade and spices serve to accentuate, not conceal, the flavour. This philosophical stance towards the raw ingredient — which academic gastronomes today call the 'cuisine of minimal intervention' — in Dalmatia is not a fashion or trend, but a practice as old as fishing itself. Fishermen who drew up their nets in the morning prepared a grill at noon and ate the leftovers with a little bread and wine in the evening: that is a recipe that needs no improvement.",
+      },
+    ],
+    vocabulary: [
+      {
+        hr: 'kulinarski',
+        en: 'culinary (adj.)',
+        ex: 'To je kulinarska tradicija stara tisućljećima.',
+      },
+      {
+        hr: 'peko',
+        en: 'traditional bell-shaped roasting lid',
+        ex: 'Janjetina ispod peka je specijalitet.',
+      },
+      { hr: 'strpljenje', en: 'patience', ex: 'Strpljenje je ključ dobrog jela.' },
+      {
+        hr: 'sirovina',
+        en: 'raw ingredient / raw material',
+        ex: 'Kvalitetna sirovina je temelj svega.',
+      },
+      {
+        hr: 'mirodije',
+        en: 'spices / aromatics',
+        ex: 'Dalmatinska kuhinja ne koristi previše mirodija.',
+      },
+      { hr: 'marinada', en: 'marinade', ex: 'Riba leži u marinadi sat vremena.' },
+      {
+        hr: 'naglašavati',
+        en: 'to accentuate / emphasise (impf.)',
+        ex: 'Ulje naglašava okus ribe.',
+      },
+      {
+        hr: 'poimanje',
+        en: 'understanding / conception',
+        ex: 'Poimanje hrane ovdje je filozofija.',
+      },
+      {
+        hr: 'intervencija',
+        en: 'intervention',
+        ex: 'Minimalna intervencija znači poštovanje sirovine.',
+      },
+    ],
+    quiz: [
+      {
+        q: 'Koji je, po tekstu, utjecaj venecijanske vladavine na dalmatinsku kuhinju?',
+        qEn: 'What, according to the text, was the influence of Venetian rule on Dalmatian cuisine?',
+        opts: [
+          'Uvođenje mesa kao glavnog jela',
+          'Upotreba maslinovog ulja i vina kao temeljnih kulinarskih medija',
+          'Tradicija peka i sporoga kuhanja',
+          'Donošenje egzotičnih ribljih vrsta',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što peko simbolizira u dalmatinskom pristupu kuhanju?',
+        qEn: 'What does the peka symbolise in the Dalmatian approach to cooking?',
+        opts: [
+          'Brzo i efikasno kuhanje',
+          'Talijansku kulinarsku tradiciju',
+          'Sporo kuhanje koje zahtijeva strpljenje',
+          'Modernu tehniku roštiljanja',
+        ],
+        correct: 2,
+      },
+      {
+        q: 'Što znači "kuhinja minimalne intervencije" kako je opisana u tekstu?',
+        qEn: 'What does "cuisine of minimal intervention" mean as described in the text?',
+        opts: [
+          'Kuhinja koja koristi malo posuđa i opreme',
+          'Filozofija da sirovina treba biti naglašena, a ne prikrivena',
+          'Japanski stil kuhanja adaptiran za Mediteran',
+          'Kuhinja bez soli i mirodija',
+        ],
+        correct: 1,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_c1_3',
+    level: 'C1',
+    levelColor: '#4c1d95',
+    levelBg: '#ede9fe',
+    icon: '✍️',
+    title: 'Miroslav Krleža i moderna hrvatska proza',
+    titleEn: 'Miroslav Krleža and Modern Croatian Prose',
+    duration: 7,
+    focus: 'Literary Croatian • Critical analysis vocabulary • Complex subordination',
+    intro:
+      "An analytical introduction to Croatia's most important 20th-century writer. Practise literary register, critical vocabulary, and complex argument structures at C1 level.",
+    paragraphs: [
+      {
+        hr: 'Miroslav Krleža (1893.–1981.) ostaje najmoćnijim glasom modernog hrvatskog romana, eseja i drame. Njegova proza — gruba, polifonična, prepuna aluzija na europsku povijest i filozofiju — nije salonska književnost za lagano čitanje, nego izazov koji traži od čitatelja punu angažiranost. Romani kao što su "Povratak Filipa Latinovicza" i "Zastave" mogu se čitati kao pokušaji razumijevanja raspada Austro-Ugarske Monarhije i rađanja novih, nerijetko krvavijih poredaka — ali i kao duboke studije psihičke i moralne razrovanosti modernoga čovjeka.',
+        en: 'Miroslav Krleža (1893–1981) remains the most powerful voice of the modern Croatian novel, essay and drama. His prose — rough, polyphonic, full of allusions to European history and philosophy — is not salon literature for easy reading, but a challenge that demands full engagement from the reader. Novels such as "The Return of Filip Latinovicz" and "Banners" can be read as attempts to understand the collapse of the Austro-Hungarian Monarchy and the birth of new, often bloodier orders — but also as deep studies of the psychological and moral disintegration of modern man.',
+      },
+      {
+        hr: "Krležin stil svjesno krši konvencije ujednačene proze: rečenice se nižu u dugačkim zamršenostima, digresije postaju temeljne, a svaki monolog junaka otkriva slojeve protuslovlja koja se nikad ne razrješuju. Ta fragmentarnost nije manjkavost nego poetički program — Krleža odbija laž zaključenosti i nudi čitatelju ono što opisuje kao 'otvorenu ranu' modernoga iskustva. Pod tim su utjecajem rasli Antun Šoljan, Slobodan Novak i cijela generacija šezdesetih, koji su razvijali vlastite varijante hrvatske postmoderne lirske proze.",
+        en: "Krleža's style deliberately violates the conventions of smooth prose: sentences accumulate in long convolutions, digressions become foundational, and each character's monologue reveals layers of contradictions that are never resolved. This fragmentariness is not a shortcoming but a poetic programme — Krleža refuses the lie of closure and offers the reader what he describes as the 'open wound' of modern experience. Under this influence grew Antun Šoljan, Slobodan Novak and an entire generation of the 1960s, who developed their own variants of Croatian postmodern lyrical prose.",
+      },
+      {
+        hr: 'Čitati Krležu danas znači suočiti se i s pitanjima koja nisu zastarjela: klasna napetost, ambivalentnost intelektualca u politički opterećenim vremenima, somatska i psihička cijena modernizacije. Njegova Enciklopedija — monumentalni projekt koji je Krleža vodio desetljećima — svjedoči o razlogu zbog kojega je bio toliko omiljen kod jugoslavenskih vlasti koliko i sumnjičav prema njima: bio je prevelik, presložen i previše protuslovit da bi se smjestio u bilo kakvu ideološku šablonu. Taj paradoks čini ga možda najpotpunijim hrvatskim intelektualcem 20. stoljeća.',
+        en: 'To read Krleža today means confronting questions that have not aged: class tension, the ambivalence of the intellectual in politically burdened times, the somatic and psychological cost of modernisation. His Encyclopaedia — a monumental project that Krleža led for decades — bears witness to the reason he was as beloved by Yugoslav authorities as he was suspicious of them: he was too large, too complex and too contradictory to fit into any ideological template. This paradox makes him perhaps the most complete Croatian intellectual of the 20th century.',
+      },
+    ],
+    vocabulary: [
+      {
+        hr: 'polifon/polifonija',
+        en: 'polyphonic / polyphony',
+        ex: 'Krležina proza je polifonična.',
+      },
+      { hr: 'aluzija', en: 'allusion', ex: 'Tekst je prepun aluzija na povijest.' },
+      { hr: 'angažiranost', en: 'engagement / commitment', ex: 'Čitanje traži punu angažiranost.' },
+      { hr: 'protuslovlje', en: 'contradiction', ex: 'Likovi su puni protuslovlja.' },
+      { hr: 'fragmentarnost', en: 'fragmentariness', ex: 'Fragmentarnost je poetički program.' },
+      {
+        hr: 'ambivalentnost',
+        en: 'ambivalence',
+        ex: 'Ambivalentnost intelektualca je vječna tema.',
+      },
+      { hr: 'šablona', en: 'template / mould', ex: 'Ne uklapa se ni u jednu ideološku šablonu.' },
+      { hr: 'paradoks', en: 'paradox', ex: 'To je temeljni paradoks njegova lika.' },
+      {
+        hr: 'poetički',
+        en: 'poetic (pertaining to poetics)',
+        ex: 'To je poetički, ne estetski izbor.',
+      },
+    ],
+    quiz: [
+      {
+        q: 'Što karakterizira Krležin stilski pristup prema tekstu?',
+        qEn: "What characterises Krleža's stylistic approach according to the text?",
+        opts: [
+          'Kratke, jasne rečenice i jednostavne priče',
+          'Duge, digresivne rečenice s nerazrješenim protuslovljima',
+          'Klasičan narativni format 19. stoljeća',
+          'Humor i ironija kao dominantna sredstva',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što tekst govori o Krleži i jugoslavenskim vlastima?',
+        qEn: 'What does the text say about Krleža and the Yugoslav authorities?',
+        opts: [
+          'Otvoreno se suprotstavljao vlastima i bio progonjen',
+          'Bio je potpuno odan režimu',
+          'Bio je omiljen, ali previše složen za svaku ideološku šablonu',
+          'Živio je u emigraciji i pisao o domovini',
+        ],
+        correct: 2,
+      },
+      {
+        q: 'Koji pisac je prema tekstu nastao pod Krležinim utjecajem?',
+        qEn: "Which writer, according to the text, developed under Krleža's influence?",
+        opts: ['Ivan Gundulić', 'Marko Marulić', 'Slobodan Novak', 'August Šenoa'],
+        correct: 2,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_c1_4',
+    level: 'C1',
+    levelColor: '#4c1d95',
+    levelBg: '#ede9fe',
+    icon: '🌊',
+    title: 'Ekološki izazovi Jadrana',
+    titleEn: 'Ecological Challenges of the Adriatic',
+    duration: 7,
+    focus: 'Academic/formal register • Environmental vocabulary • Complex argument structures',
+    intro:
+      'A formal analytical text on the environmental pressures facing the Adriatic Sea. Practise academic register, scientific vocabulary, and C1-level argumentation in Croatian.',
+    paragraphs: [
+      {
+        hr: 'Jadransko more, koje pokriva oko 138.000 četvornih kilometara i dostiže prosječnu dubinu od 173 metra, pripada ekološki najosjetljivijim morskim sustavima Mediterana. Kao poluotvoreno more s relativno ograničenom izmjenom vode s otvorenim Sredozemljem, Jadran je posebno podložan bioakumulaciji zagađivala iz industrijskih i poljoprivrednih izvora duž dalmatinske i talijanske obale. Povišene temperature mora, smanjena slanost u sjevernim plitkim vodama zbog porasta slatkovodnog otjecanja, te promjene u fitoplanktonskim zajednicama — sve su to pokazatelji koji upućuju na sustavne pomake u ekosustavu.',
+        en: 'The Adriatic Sea, covering approximately 138,000 square kilometres and reaching an average depth of 173 metres, belongs to the most ecologically sensitive marine systems in the Mediterranean. As a semi-enclosed sea with relatively limited exchange of water with the open Mediterranean, the Adriatic is particularly susceptible to bioaccumulation of pollutants from industrial and agricultural sources along the Dalmatian and Italian coasts. Elevated sea temperatures, reduced salinity in the northern shallow waters due to increased freshwater runoff, and changes in phytoplankton communities — these are all indicators pointing to systemic shifts in the ecosystem.',
+      },
+      {
+        hr: 'Ribarska industrija, nekada temelj obalne ekonomije, prolazi kroz sustavno iscrpljivanje resursa: stokovi plave ribe — sardina i skuša — smanjili su se za procijenjenih 30 do 40% u posljednjih dvadeset godina. Kvote propisane u okviru Zajedničke ribarske politike Europske unije dijelomično su suzbile prelov, ali nadzor nad provedbom ostaje nedostatan u malim lukama duž Dalmacije. Usporedno s tim, bilježi se širenje invazivnih vrsta — posebno blagovice Lagocephalus sceleratus — čija je prisutnost promijenila ponašanje i kretanje lokalnih ronioca i ribolovaca.',
+        en: "The fishing industry, once the foundation of the coastal economy, is undergoing systematic resource depletion: stocks of blue fish — sardines and mackerel — have declined by an estimated 30 to 40% over the past twenty years. Quotas prescribed under the European Union's Common Fisheries Policy have partially suppressed overfishing, but enforcement oversight remains insufficient in the small harbours along Dalmatia. Concurrently, the spread of invasive species is being recorded — particularly the silver-cheeked toadfish Lagocephalus sceleratus — whose presence has changed the behaviour and movement of local divers and fishermen.",
+      },
+      {
+        hr: 'Odgovori na ekološku krizu Jadrana ne mogu biti isključivo tehničko-regulatorni. Kulturna promjena u odnosu prema moru — od resursne prema suodgovornoj logici — preduvjet je za svaku dugoročnu strategiju. Inicijative kao što su morska zaštićena područja pokazuju pozitivne rezultate tamo gdje postoji lokalna podrška i edukacija, ali izostaju tamo gdje su standardi postavljeni izvana, bez uključivanja ribarskih zajednica u proces donošenja odluka. Budućnost Jadrana ovisi o sposobnosti institucija i lokalnih zajednica da pregovaraju oko interesa koji se čine nespojivima — ali koji su, u dugoročnoj perspektivi, zapravo zajednički.',
+        en: 'Responses to the ecological crisis of the Adriatic cannot be exclusively technical-regulatory in nature. A cultural shift in the relationship towards the sea — from a resource logic to a co-responsible logic — is a precondition for any long-term strategy. Initiatives such as marine protected areas show positive results where local support and education exist, but are absent where standards are set from outside, without the inclusion of fishing communities in the decision-making process. The future of the Adriatic depends on the ability of institutions and local communities to negotiate around interests that appear incompatible — but which are, in the long-term perspective, actually shared.',
+      },
+    ],
+    vocabulary: [
+      {
+        hr: 'bioakumulacija',
+        en: 'bioaccumulation',
+        ex: 'Bioakumulacija zagađivala je ozbiljan problem.',
+      },
+      {
+        hr: 'fitoplankton',
+        en: 'phytoplankton',
+        ex: 'Promjene u fitoplanktonskim zajednicama su alarmantan znak.',
+      },
+      {
+        hr: 'iscrpljivanje',
+        en: 'depletion (verbal noun)',
+        ex: 'Iscrpljivanje resursa mora se zaustaviti.',
+      },
+      { hr: 'prelov', en: 'overfishing', ex: 'Kvote trebaju spriječiti prelov.' },
+      { hr: 'nadzor', en: 'oversight / supervision', ex: 'Nadzor nad provedbom je nedostatan.' },
+      { hr: 'invazivna vrsta', en: 'invasive species', ex: 'Blagovica je opasna invazivna vrsta.' },
+      {
+        hr: 'suodgovornost',
+        en: 'co-responsibility',
+        ex: 'Suodgovornost je ključ ekološke politike.',
+      },
+      { hr: 'preduvjet', en: 'precondition', ex: 'Edukacija je preduvjet promjene.' },
+      {
+        hr: 'donošenje odluka',
+        en: 'decision-making',
+        ex: 'Ribari moraju sudjelovati u donošenju odluka.',
+      },
+    ],
+    quiz: [
+      {
+        q: 'Zašto je Jadran posebno osjetljiv na zagađenje?',
+        qEn: 'Why is the Adriatic particularly susceptible to pollution?',
+        opts: [
+          'Jer je najpliće more na Mediteranu',
+          'Jer je poluotvoreno more s ograničenom izmjenom vode',
+          'Jer ne prima slatku vodu iz rijeka',
+          'Jer se ribolov odvija isključivo u sjevernom dijelu',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što tekst kaže o morskim zaštićenim područjima?',
+        qEn: 'What does the text say about marine protected areas?',
+        opts: [
+          'Uvijek pokazuju pozitivne rezultate',
+          'Nikad ne funkcioniraju bez EU potpore',
+          'Rade bolje tamo gdje postoji lokalna podrška i edukacija',
+          'Zabranjeni su prema međunarodnom pravu',
+        ],
+        correct: 2,
+      },
+      {
+        q: 'Što, po tekstu, nije dovoljan odgovor na ekološku krizu?',
+        qEn: 'What, according to the text, is not a sufficient response to the ecological crisis?',
+        opts: [
+          'Kulturna promjena u odnosu prema moru',
+          'Isključivo tehnički i regulatorni pristup',
+          'Uključivanje ribarskih zajednica u odlučivanje',
+          'Suodgovorna logika upravljanja',
+        ],
+        correct: 1,
+      },
+    ],
+  },
 ];
