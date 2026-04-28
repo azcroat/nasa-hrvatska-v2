@@ -12,6 +12,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.net.Uri;
+import androidx.activity.EdgeToEdge;
 import androidx.core.content.ContextCompat;
 import com.getcapacitor.BridgeActivity;
 
@@ -44,6 +45,10 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Enable edge-to-edge display (required for Android 15 / SDK 35+).
+        // Must be called before super.onCreate() so the window flags are set
+        // before Capacitor's BridgeActivity inflates the WebView layout.
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
         WebView webView = getBridge().getWebView();

@@ -2,10 +2,11 @@
 <resources>
 
     <!-- Base application theme. -->
+    <!-- colorPrimaryDark removed — deprecated in Android 15 (SDK 35+); -->
+    <!-- status bar / nav bar colors are managed via EdgeToEdge.enable() instead. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 

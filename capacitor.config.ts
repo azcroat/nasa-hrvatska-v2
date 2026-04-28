@@ -18,8 +18,11 @@ const config: CapacitorConfig = {
       splashImmersive: true,
     },
     StatusBar: {
+      // Light style = dark status bar icons (readable on the app's cream background).
+      // backgroundColor removed — setting it called the deprecated Window.setStatusBarColor()
+      // API on Android 15+. With EdgeToEdge.enable() in MainActivity, the status bar is
+      // transparent; the app's cream background (#fffbeb) shows through naturally.
       style: 'Light',
-      backgroundColor: '#fffbeb',
     },
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],
