@@ -185,7 +185,9 @@ export default function NegationGenDrill({
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const finishFired = useRef(false);
-  const [q] = useState(() => shLocal(DATA).map(item => ({ ...item, opts: shLocal([...item.opts]) })));
+  const [q] = useState(() =>
+    shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
+  );
   const total = q.length;
   const [idx, setIdx] = useState(0);
   const [chosen, setChosen] = useState<string | null>(null);

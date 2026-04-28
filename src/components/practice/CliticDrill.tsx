@@ -178,7 +178,9 @@ interface Props {
 export default function CliticDrill({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
-  const [q] = useState(() => shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })));
+  const [q] = useState(() =>
+    shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
+  );
   const total = q.length;
   const [idx, setIdx] = useState(0);
   const [chosen, setChosen] = useState<string | null>(null);
