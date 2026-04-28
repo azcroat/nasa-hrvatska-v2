@@ -26,6 +26,31 @@ const KNIGHT_MESSAGES = [
   },
 ];
 
+/** Darken a hex color until white text meets WCAG AA (4.5:1 contrast ratio). */
+function aaButtonBg(hex: string): string {
+  if (!hex.startsWith('#') || hex.length !== 7) return hex;
+  const toLinear = (c: number) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  const lum = (h: string) => {
+    const r = parseInt(h.slice(1, 3), 16);
+    const g = parseInt(h.slice(3, 5), 16);
+    const b = parseInt(h.slice(5, 7), 16);
+    return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+  };
+  let current = hex;
+  for (let i = 0; i < 8; i++) {
+    if (1.05 / (lum(current) + 0.05) >= 4.5) return current;
+    // Darken by 15% each iteration
+    const r = Math.round(parseInt(current.slice(1, 3), 16) * 0.85);
+    const g = Math.round(parseInt(current.slice(3, 5), 16) * 0.85);
+    const b = Math.round(parseInt(current.slice(5, 7), 16) * 0.85);
+    current = '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
+  }
+  return current;
+}
+
 export default function DiscoverTab() {
   const { setScr } = useApp();
   const city = getCityOfDay();
@@ -167,7 +192,7 @@ export default function DiscoverTab() {
             onClick={() => setScr('cityofday')}
             style={{
               width: '100%',
-              background: cityColor,
+              background: aaButtonBg(cityColor),
               color: '#fff',
               border: 'none',
               borderRadius: 12,
