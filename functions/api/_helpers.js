@@ -23,12 +23,9 @@ export function sanitizeParam(value, maxLen = 200) {
         /\b(ignore|disregard|override|forget|bypass|jailbreak|system\s*prompt|act\s+as|pretend|you\s+are\s+now)\b[\s\S]{0,80}?\b(instruction|rule|above|below|prompt|constraint|boundary|limit)\b/gi,
         '[redacted]',
       )
-      // Explicitly remove script/style opening tags before generic stripping
-      // (prevents nested-tag bypass like <scr<b>ipt> → <script> after inner tag removal)
-      .replace(/<\/?script[^>]*>/gi, '')
-      .replace(/<\/?style[^>]*>/gi, '')
-      // Strip any remaining HTML/XML tags
-      .replace(/<[^>]*>/g, '')
+      // Strip < and > entirely — removing angle brackets prevents all HTML/script injection,
+      // including unclosed tags like <script (no closing >) that regex-based tag strippers miss.
+      .replace(/[<>]/g, '')
       // Collapse repeated whitespace
       .replace(/\s+/g, ' ')
       .trim()

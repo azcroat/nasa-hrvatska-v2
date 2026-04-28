@@ -145,7 +145,7 @@ export default function AIStoryScreen({
     if (!words || words.length === 0) return <span>{text}</span>;
     const safeWords = words.filter((w) => w != null && typeof w === 'string');
     if (safeWords.length === 0) return <span>{text}</span>;
-    const pattern = new RegExp(
+    const pattern = new RegExp( // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
       `(${safeWords.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
       'gi',
     );

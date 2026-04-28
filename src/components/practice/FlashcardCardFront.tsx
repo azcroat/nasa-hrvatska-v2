@@ -10,7 +10,7 @@ export default function FlashcardCardFront({ card, cardImg, cardImgLoading }: Pr
   const example = card[3];
   const escapedWord = word ? word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
   const blankedExample =
-    example && word ? example.replace(new RegExp(escapedWord, 'gi'), '___') : null;
+    example && word ? example.replace(new RegExp(escapedWord, 'gi'), '___') : null; // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
 
   return (
     <div
