@@ -16,7 +16,7 @@ function sanitizeParam(value, maxLen = 200) {
   return String(value)
     .replace(/[\r\n]/g, ' ')
     .replace(/[`\\]/g, '')
-    .replace(/<[^>]*>/g, '') // strip HTML tags — output rendered in UI
+    .replace(/[<>]/g, '') // strip angle brackets — prevents HTML injection including unclosed tags like <script
     .replace(
       /\b(ignore|disregard|override|forget|bypass|jailbreak|system\s*prompt|act\s+as|pretend|you\s+are\s+now)\b/gi,
       '',
