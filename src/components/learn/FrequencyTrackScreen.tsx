@@ -5,6 +5,7 @@ import {
   getLearnedFrequencyWords,
   markFrequencyWordLearned,
 } from '../../lib/frequency500.js';
+import { rnd } from '../../lib/random.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const POS_LABELS = {
@@ -68,7 +69,13 @@ function buildQuizQuestions(learnedSet: Set<number>): QuizQuestion[] {
   return pool.map((word) => {
     const others = FREQUENCY_500.filter((w) => w.rank !== word.rank);
     const distractors = pickRandom(others, DISTRACTORS_PER_Q).map((w) => w.en);
-    const choices = [word.en, ...distractors].sort(() => Math.random() - 0.5);
+    const choices = [word.en, ...distractors];
+    for (let i = choices.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      const tmp = choices[i] as string;
+      choices[i] = choices[j] as string;
+      choices[j] = tmp;
+    }
     return { word, choices, answer: word.en };
   });
 }

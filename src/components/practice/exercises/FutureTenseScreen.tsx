@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { H, speak, sh, shMemo } from '../../../data';
+import { H, speak, shMemo } from '../../../data';
 import { FUTURE } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
@@ -74,7 +74,7 @@ function FutureTenseScreen({ goBack, award }: Props) {
           <div key={qi} className="c" style={{ marginBottom: 8, padding: '10px 14px' }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{q.q}</div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {sh(q.opts).map(function (o, oi) {
+              {shMemo('fq_o' + qi, q.opts, undefined).map(function (o: string, oi: number) {
                 return (
                   <button
                     key={oi}

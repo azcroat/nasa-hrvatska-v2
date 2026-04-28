@@ -4,6 +4,7 @@ import { useStats } from '../../context/StatsContext';
 import PronunciationScorer from '../shared/PronunciationScorer';
 import { scoreColor, scoreEmoji, scoreLabel } from '../shared/pronunciationUtils.js';
 import { markQuest } from '../../lib/quests.js';
+import { rnd } from '../../lib/random.js';
 
 // ── Assessment phrase banks per CEFR level ──────────────────────────────────
 const PHRASES = {
@@ -212,7 +213,13 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   const phrases = useMemo(() => {
     const bank = (PHRASES as Record<string, typeof PHRASES.A1>)[levelKey(level)] || PHRASES.A1;
     // Shuffle and take 8 phrases for a focused assessment
-    const shuffled = [...bank].sort(() => Math.random() - 0.5);
+    const shuffled = [...bank];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      const tmp = shuffled[i] as (typeof bank)[0];
+      shuffled[i] = shuffled[j] as (typeof bank)[0];
+      shuffled[j] = tmp;
+    }
     return shuffled.slice(0, 8);
   }, [level]);
 

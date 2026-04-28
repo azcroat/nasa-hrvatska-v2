@@ -19,7 +19,7 @@ export default function TranslateDrillsScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  const drills = useMemo(() => sh([...TRANSLATE_DRILLS, ...C1_DRILLS]), []);
+  const drills = useMemo(() => sh([...TRANSLATE_DRILLS, ...C1_DRILLS]).map((d) => ({ ...d, opts: sh([...(d as { opts: string[] }).opts]) })), []);
   const [idx, setIdx] = useState(0);
   const [chosen, setChosen] = useState<string | null>(null); // option string user tapped
   const [score, setScore] = useState(0);
