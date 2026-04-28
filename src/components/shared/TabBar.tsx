@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import SearchModal from './SearchModal';
 
 const TABS = [
   { id: 'home', label: 'Today' },
   { id: 'learn', label: 'Learn' },
   { id: 'practice', label: 'Practice' },
-  { id: 'croatia', label: 'Discover' },
+  { id: 'croatia', label: 'Discover Croatia' },
   { id: 'profile', label: 'Me' },
 ];
 
@@ -177,7 +177,6 @@ function NavIcon({ id, active }: { id: string; active: boolean }) {
 const TAB_SUBTITLES: Record<string, string | undefined> = {
   learn: 'Lessons',
   practice: 'Drills',
-  croatia: 'Culture',
 };
 
 export default function TabBar({
@@ -192,24 +191,6 @@ export default function TabBar({
   badges?: Record<string, number>;
 }) {
   const [showSearch, setShowSearch] = useState(false);
-
-  // Local SRS due-count fallback — used only if the badges prop doesn't carry a practice count
-  const localDueCount = useMemo(() => {
-    try {
-      const sr = JSON.parse(localStorage.getItem('nh_sr') || '{}');
-      const now = Date.now();
-      return Object.values(sr).filter(
-        (v) =>
-          v &&
-          typeof v === 'object' &&
-          'due' in v &&
-          typeof (v as { due: number }).due === 'number' &&
-          (v as { due: number }).due <= now,
-      ).length;
-    } catch {
-      return 0;
-    }
-  }, []);
 
   const croatiaHasNew = (() => {
     const lastVisit = localStorage.getItem('nh_croatia_last_visit');
@@ -344,28 +325,7 @@ export default function TabBar({
                     }}
                   />
                 )}
-                {/* AI sparkle badge — always shown on Culture tab when not active */}
-                {t.id === 'croatia' && tab !== 'croatia' && (
-                  <div
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      bottom: 2,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      fontSize: 8,
-                      fontWeight: 900,
-                      color: '#b61800',
-                      letterSpacing: '.04em',
-                      lineHeight: 1,
-                      animation: 'pulse 2.4s ease-in-out infinite',
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    ✦AI
-                  </div>
-                )}
-                {badges && (badges[t.id] ?? 0) > 0 && (
+                {badges && t.id !== 'practice' && (badges[t.id] ?? 0) > 0 && (
                   <span
                     aria-label={`${badges[t.id]} new items`}
                     style={{
@@ -392,34 +352,6 @@ export default function TabBar({
                     {badges[t.id]}
                   </span>
                 )}
-                {/* Local SRS fallback badge — shown on Practice when badges prop has no count */}
-                {t.id === 'practice' &&
-                  !(badges && (badges.practice ?? 0) > 0) &&
-                  localDueCount > 0 && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: 2,
-                        right: '50%',
-                        transform: 'translateX(12px)',
-                        minWidth: 16,
-                        height: 16,
-                        padding: '0 4px',
-                        background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
-                        borderRadius: 8,
-                        fontSize: 9,
-                        fontWeight: 900,
-                        color: '#fff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        border: '1.5px solid var(--bg, #fff)',
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      ✦{localDueCount > 9 ? '9+' : localDueCount}
-                    </div>
-                  )}
               </button>
             );
           })}
