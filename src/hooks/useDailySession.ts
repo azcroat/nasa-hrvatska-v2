@@ -5,6 +5,7 @@ import { getDueCategoryQueue } from '../lib/adaptive';
 import type { SkillCategory } from '../lib/adaptive';
 import { isUnlocked } from '../lib/cefr';
 import { localDateStr } from '../lib/dateUtils';
+import { rnd } from '../lib/random.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -192,7 +193,13 @@ export function buildSessionActivities(userCefr: string): SessionActivity[] {
   }
 
   // Shuffle and fill to 4 total activities before Croatia slot
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const shuffled = [...pool];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    const tmp = shuffled[i] as (typeof shuffled)[0];
+    shuffled[i] = shuffled[j] as (typeof shuffled)[0];
+    shuffled[j] = tmp;
+  }
   const fillTarget = 4; // target 4 activities from P1+P2+P3 before Croatia slot
   for (const ex of shuffled) {
     if (activities.length >= fillTarget) break;

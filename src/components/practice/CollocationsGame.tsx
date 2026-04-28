@@ -196,7 +196,7 @@ interface Props {
 }
 export default function CollocationsGame({ goBack, award }: Props) {
   const finishFired = useRef(false);
-  const [qs] = useState(() => shLocal(DATA));
+  const [qs] = useState(() => shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })));
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
