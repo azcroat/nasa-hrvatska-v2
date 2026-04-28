@@ -3583,7 +3583,13 @@ body {
 .capacitor-native .desktop-panel { display: none !important; }
 .capacitor-native .scr-wrap {
   max-width: 100% !important;
-  padding: 20px 16px 92px !important;
+  /* Top: 20px spacing + status bar height (edge-to-edge: WebView extends under status bar).
+     Bottom: 92px nav bar clearance + gesture/button nav bar height.
+     Both use env(safe-area-inset-*) which is populated correctly because
+     index.html sets viewport-fit=cover. */
+  padding: calc(20px + env(safe-area-inset-top, 0px))
+           16px
+           calc(92px + env(safe-area-inset-bottom, 0px)) !important;
   /* Prevent Android pull-to-refresh from reloading the WebView, which resets
      the active tab back to Today. Users scrolling to the top were triggering
      the native swipe-down refresh gesture. */
