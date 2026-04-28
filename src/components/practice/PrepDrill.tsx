@@ -8,7 +8,9 @@ export default function PrepDrill({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  const [ppQ] = useState(() => sh(PREPDRILL).map((q) => ({ ...q, opts: sh([...(q as { opts: string[] }).opts]) })));
+  const [ppQ] = useState(() =>
+    sh(PREPDRILL).map((q) => ({ ...q, opts: sh([...(q as { opts: string[] }).opts]) })),
+  );
   const [ppI, sPpI] = useState(0);
   const [ppS, sPpS] = useState(0);
   const [ppA, sPpA] = useState(false);
