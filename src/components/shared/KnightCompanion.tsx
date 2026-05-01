@@ -481,7 +481,13 @@ export default function KnightCompanion() {
           onClick={handleTap}
           aria-label="Chat with Vitez Hrvoje, your Croatian coach"
           title="Vitez Hrvoje — tap for a message"
-          initial={introPlayed ? { scale: 0.6, opacity: 0 } : { x: -80, opacity: 0, scale: 0.8 }}
+          initial={
+            _isNative
+              ? false
+              : introPlayed
+                ? { scale: 0.6, opacity: 0 }
+                : { x: -80, opacity: 0, scale: 0.8 }
+          }
           animate={{ x: 0, scale: 1, opacity: 1 }}
           transition={
             introPlayed
