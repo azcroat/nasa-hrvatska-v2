@@ -82,6 +82,57 @@ if (import.meta.env.PROD) {
   console.warn = noop;
 }
 
+// ─── Error-handler helpers ────────────────────────────────────────────────
+// Defined here (before Sentry init) so they are available to the Sentry
+// dynamic import's .catch() handler as well as window.onerror /
+// window.onunhandledrejection which are registered later.
+//
+// Detects WebKit's "Importing binding name 'X' is not found" SyntaxError
+// which fires when a stale SW-cached chunk tries to resolve a named import
+// that no longer exists in the freshly-deployed chunk (minifier renamed it).
+function _isStaleBindingError(msg: unknown) {
+  return typeof msg === 'string' && msg.includes('Importing binding name');
+}
+// Detects chunk-load / dynamic-import failures across Chrome, Safari, Firefox,
+// and Webpack/Vite "loading chunk N failed" messages. These occur after a
+// deploy when old HTML references a vendor chunk whose hash has changed.
+function _isChunkLoadError(msg: string) {
+  return (
+    msg.includes('failed to fetch') ||
+    msg.includes('importing a module script failed') ||
+    msg.includes('dynamically imported module') ||
+    msg.includes('expected a javascript module script') ||
+    msg.includes('mime type') ||
+    msg.includes('loading chunk') ||
+    msg.includes('importing binding name')
+  );
+}
+// Purges JS caches and reloads, but only up to 2 times to prevent infinite
+// reload loops. Uses sessionStorage so the counter resets on each fresh visit.
+function _reloadWithCachePurge(storageKey: string) {
+  try {
+    const n = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
+    if (n >= 2) return false; // stop after 2 attempts — don't loop forever
+    sessionStorage.setItem(storageKey, String(n + 1));
+    if ('caches' in globalThis) {
+      caches
+        .keys()
+        .then((names) =>
+          names.forEach((name) => {
+            if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name);
+          }),
+        )
+        .catch(() => {})
+        .finally(() => globalThis.location.reload());
+    } else {
+      globalThis.location.reload();
+    }
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 // ─── Sentry error telemetry ────────────────────────────────────────────────
 // Set VITE_SENTRY_DSN in Cloudflare Pages environment variables.
 // The app works fully without it — telemetry is opt-in via env var.
@@ -89,57 +140,69 @@ if (import.meta.env.PROD) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _sentry: any = null;
 if (import.meta.env.VITE_SENTRY_DSN) {
-  import('@sentry/react').then((Sentry) => {
-    _sentry = Sentry;
-    Sentry.init({
-      dsn: import.meta.env.VITE_SENTRY_DSN,
-      environment: import.meta.env.MODE,
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      release:
-        typeof (globalThis as any).__BUILD_ID__ !== 'undefined'
-          ? (globalThis as any).__BUILD_ID__
-          : import.meta.env.VITE_APP_VERSION,
-      /* eslint-enable @typescript-eslint/no-explicit-any */
-      // Only send errors in production; silence in dev
-      enabled: import.meta.env.PROD,
-      tracesSampleRate: 0.1,
-      replaysOnErrorSampleRate: 0.1, // capture replay for 10% of error sessions to aid sync debugging
-      integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
-      // Scrub PII from error reports
-      beforeSend(event) {
-        if (event.request?.url) {
-          event.request.url = event.request.url.replace(/[?#].*/, '');
-        }
-        // Remove extra/contexts that may contain user data from error boundary
-        delete event.extra;
-        if (event.contexts) {
-          event.contexts = event.contexts.trace ? { trace: event.contexts.trace } : {};
-        }
-        if (Array.isArray(event.breadcrumbs?.values)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const bc = event.breadcrumbs as any;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          bc.values = (bc.values as any[])
-            .filter(
-              (b: { category?: string }) =>
-                b.category === 'web-vitals' || b.category === 'navigation',
-            )
-            .map(
-              ({
-                category,
-                level,
-                timestamp,
-              }: {
-                category?: string;
-                level?: string;
-                timestamp?: number;
-              }) => ({ category, level, timestamp }),
-            );
-        }
-        return event;
-      },
+  import('@sentry/react')
+    .then((Sentry) => {
+      _sentry = Sentry;
+      Sentry.init({
+        dsn: import.meta.env.VITE_SENTRY_DSN,
+        environment: import.meta.env.MODE,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        release:
+          typeof (globalThis as any).__BUILD_ID__ !== 'undefined'
+            ? (globalThis as any).__BUILD_ID__
+            : import.meta.env.VITE_APP_VERSION,
+        /* eslint-enable @typescript-eslint/no-explicit-any */
+        // Only send errors in production; silence in dev
+        enabled: import.meta.env.PROD,
+        tracesSampleRate: 0.1,
+        replaysOnErrorSampleRate: 0.1, // capture replay for 10% of error sessions to aid sync debugging
+        integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+        // Scrub PII from error reports
+        beforeSend(event) {
+          if (event.request?.url) {
+            event.request.url = event.request.url.replace(/[?#].*/, '');
+          }
+          // Remove extra/contexts that may contain user data from error boundary
+          delete event.extra;
+          if (event.contexts) {
+            event.contexts = event.contexts.trace ? { trace: event.contexts.trace } : {};
+          }
+          if (Array.isArray(event.breadcrumbs?.values)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const bc = event.breadcrumbs as any;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            bc.values = (bc.values as any[])
+              .filter(
+                (b: { category?: string }) =>
+                  b.category === 'web-vitals' || b.category === 'navigation',
+              )
+              .map(
+                ({
+                  category,
+                  level,
+                  timestamp,
+                }: {
+                  category?: string;
+                  level?: string;
+                  timestamp?: number;
+                }) => ({ category, level, timestamp }),
+              );
+          }
+          return event;
+        },
+      });
+    })
+    .catch((e: unknown) => {
+      const msg = (
+        ((e as { message?: string })?.message ?? '') +
+        ((e as { name?: string })?.name ?? '')
+      ).toLowerCase();
+      if (_isChunkLoadError(msg)) {
+        _reloadWithCachePurge('nh_reload_attempt');
+      }
+      // If not a chunk error, swallow silently — Sentry is not running so
+      // there is nowhere to report it.
     });
-  });
 }
 
 // Only initialize PostHog if the user has already accepted analytics cookies
@@ -250,37 +313,8 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, EBSta
 // errors in event handlers, errors in non-React code). Complements Sentry
 // when VITE_SENTRY_DSN is not set, and provides a lightweight fallback.
 //
-// Also handles WebKit's "Importing binding name 'X' is not found" SyntaxError
-// which fires when a stale SW-cached chunk tries to resolve a named import
-// that no longer exists in the freshly-deployed chunk (minifier renamed it).
-// In this case we purge the JS cache and reload — same recovery path as
-// lazyWithReload in AppRouter.jsx but for eagerly-loaded / static imports.
-function _isStaleBindingError(msg: unknown) {
-  return typeof msg === 'string' && msg.includes('Importing binding name');
-}
-function _reloadWithCachePurge(storageKey: string) {
-  try {
-    const n = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
-    if (n >= 2) return false; // stop after 2 attempts — don't loop forever
-    sessionStorage.setItem(storageKey, String(n + 1));
-    if ('caches' in globalThis) {
-      caches
-        .keys()
-        .then((names) =>
-          names.forEach((name) => {
-            if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name);
-          }),
-        )
-        .catch(() => {})
-        .finally(() => globalThis.location.reload());
-    } else {
-      globalThis.location.reload();
-    }
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
+// Helper functions (_isStaleBindingError, _isChunkLoadError, _reloadWithCachePurge)
+// are defined above the Sentry init block so they are available there too.
 
 window.onerror = function (message, _source, _lineno, _colno, error) {
   const msg = (error?.message || '') + String(message || '');
@@ -292,9 +326,12 @@ window.onerror = function (message, _source, _lineno, _colno, error) {
 };
 window.onunhandledrejection = function (event) {
   const reason = event.reason;
-  const msg = (reason?.message || '') + (reason?.name || '');
+  const msg = ((reason?.message ?? '') + (reason?.name ?? '')).toLowerCase();
   if (_isStaleBindingError(msg)) {
     if (_reloadWithCachePurge('nh_binding_reload')) return;
+  }
+  if (_isChunkLoadError(msg)) {
+    if (_reloadWithCachePurge('nh_reload_attempt')) return;
   }
   reportError(reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
 };
