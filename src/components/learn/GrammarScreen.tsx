@@ -13,6 +13,7 @@ interface GrammarQuestion {
 }
 interface GrammarLesson {
   title: string;
+  cefr?: string;
   desc: string;
   exs: string[][];
   qs: GrammarQuestion[];
@@ -137,6 +138,19 @@ export default function GrammarScreen({
       {gp === 'learn' && (
         <React.Fragment>
           {H('📐 ' + gl.title, '', goBack)}
+          {gl.cefr && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 8,
+                paddingLeft: 4,
+              }}
+            >
+              <span className={`cefr cefr-${gl.cefr.toLowerCase()}`}>{gl.cefr}</span>
+            </div>
+          )}
           <div className="c" style={{ marginBottom: 16 }}>
             <p style={{ fontSize: 15, color: '#44403c', lineHeight: 1.7 }}>{gl.desc}</p>
           </div>
