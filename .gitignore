@@ -27,3 +27,7 @@ scripts/backfill-run.cjs
 *.keystore
 android/local.properties
 scripts/keystore-credentials.txt
+
+# Capacitor iOS build output — not source, fully regenerable.
+# When resuming iOS development: npm run build && npx cap add ios && npx cap sync
+ios/

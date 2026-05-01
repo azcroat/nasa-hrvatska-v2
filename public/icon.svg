@@ -1,109 +1,118 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <!-- Background gradient: deep navy to teal -->
+    <!-- Background gradient: deep navy -->
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#060e1e"/>
-      <stop offset="50%" stop-color="#0a2348"/>
+      <stop offset="0%"   stop-color="#060e1e"/>
+      <stop offset="50%"  stop-color="#0a2348"/>
       <stop offset="100%" stop-color="#0e4f6e"/>
     </linearGradient>
-    <!-- Gold gradient for shield border and trim -->
+    <!-- Gold gradient for shield border and crown -->
     <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFE070"/>
-      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="0%"   stop-color="#FFE070"/>
+      <stop offset="40%"  stop-color="#f59e0b"/>
       <stop offset="100%" stop-color="#C8980A"/>
     </linearGradient>
-    <!-- Shield inner glow -->
-    <radialGradient id="shieldGlow" cx="50%" cy="35%" r="60%">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+    <!-- Shield inner highlight -->
+    <radialGradient id="shieldGlow" cx="50%" cy="30%" r="60%">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.15)"/>
       <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
     </radialGradient>
-    <!-- Subtle inner shadow on background -->
-    <radialGradient id="innerShadow" cx="50%" cy="50%" r="70%">
-      <stop offset="60%" stop-color="rgba(0,0,0,0)"/>
+    <!-- Vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="60%"  stop-color="rgba(0,0,0,0)"/>
       <stop offset="100%" stop-color="rgba(0,0,0,0.4)"/>
     </radialGradient>
-    <!-- Clip path for checkerboard inside shield -->
+
+    <!--
+      5x5 sahovnica — original shield shape, cells sized to fill it exactly
+      Shield height: y=100 to y=373 = 273px / 5 rows = 54.6px per row
+      Shield width:  x=141 to x=371 = 230px / 5 cols = 46px per col
+    -->
     <clipPath id="shieldClip">
-      <path d="M 256 118 L 346 140 L 346 260 Q 346 320 256 370 Q 166 320 166 260 L 166 140 Z"/>
+      <path d="M 256 100
+               L 371 124
+               L 371 282
+               Q 371 348 256 373
+               Q 141 348 141 282
+               L 141 124
+               Z"/>
     </clipPath>
   </defs>
 
-  <!-- App icon background -->
+  <!-- Background -->
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <rect width="512" height="512" rx="112" fill="url(#innerShadow)"/>
+  <rect width="512" height="512" rx="112" fill="url(#vignette)"/>
 
-  <!-- Decorative gold ring/halo behind shield -->
-  <circle cx="256" cy="240" r="155" fill="none" stroke="url(#gold)" stroke-width="3" opacity="0.35"/>
-  <circle cx="256" cy="240" r="140" fill="none" stroke="url(#gold)" stroke-width="1" opacity="0.2"/>
+  <!-- Decorative rings centred on shield -->
+  <circle cx="256" cy="230" r="158" fill="none" stroke="url(#gold)" stroke-width="2.5" opacity="0.30"/>
+  <circle cx="256" cy="230" r="142" fill="none" stroke="url(#gold)" stroke-width="1"   opacity="0.18"/>
 
-  <!-- Shield gold border (slightly larger, rendered first) -->
-  <path d="M 256 108 L 356 132 L 356 264 Q 356 334 256 388 Q 156 334 156 264 L 156 132 Z"
-    fill="url(#gold)" opacity="0.9"/>
+  <!-- Gold shield border -->
+  <path d="M 256  90
+           L 381 116
+           L 381 286
+           Q 381 358 256 385
+           Q 131 358 131 286
+           L 131 116
+           Z"
+        fill="url(#gold)" opacity="0.9"/>
 
-  <!-- Shield white/red checkerboard (5x5 grid, clipped to shield shape) -->
-  <!-- Row 1: W R W R W -->
+  <!-- 5x5 sahovnica: 46px wide x 54.6px tall cells, white top-left -->
+  <!-- Row height = (373-100)/5 = 54.6px so exactly 5 rows fill the full shield -->
   <g clip-path="url(#shieldClip)">
-    <!-- Row 1 -->
-    <rect x="166" y="118" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="202" y="118" width="36" height="36" fill="#D40030"/>
-    <rect x="238" y="118" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="274" y="118" width="36" height="36" fill="#D40030"/>
-    <rect x="310" y="118" width="36" height="36" fill="#FFFFFF"/>
-    <!-- Row 2 -->
-    <rect x="166" y="154" width="36" height="36" fill="#D40030"/>
-    <rect x="202" y="154" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="238" y="154" width="36" height="36" fill="#D40030"/>
-    <rect x="274" y="154" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="310" y="154" width="36" height="36" fill="#D40030"/>
-    <!-- Row 3 -->
-    <rect x="166" y="190" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="202" y="190" width="36" height="36" fill="#D40030"/>
-    <rect x="238" y="190" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="274" y="190" width="36" height="36" fill="#D40030"/>
-    <rect x="310" y="190" width="36" height="36" fill="#FFFFFF"/>
-    <!-- Row 4 -->
-    <rect x="166" y="226" width="36" height="36" fill="#D40030"/>
-    <rect x="202" y="226" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="238" y="226" width="36" height="36" fill="#D40030"/>
-    <rect x="274" y="226" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="310" y="226" width="36" height="36" fill="#D40030"/>
-    <!-- Row 5 -->
-    <rect x="166" y="262" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="202" y="262" width="36" height="36" fill="#D40030"/>
-    <rect x="238" y="262" width="36" height="36" fill="#FFFFFF"/>
-    <rect x="274" y="262" width="36" height="36" fill="#D40030"/>
-    <rect x="310" y="262" width="36" height="36" fill="#FFFFFF"/>
-    <!-- Rows 6-8 filling the lower shield -->
-    <rect x="166" y="298" width="36" height="80" fill="#D40030"/>
-    <rect x="202" y="298" width="36" height="80" fill="#FFFFFF"/>
-    <rect x="238" y="298" width="36" height="80" fill="#D40030"/>
-    <rect x="274" y="298" width="36" height="80" fill="#FFFFFF"/>
-    <rect x="310" y="298" width="36" height="80" fill="#D40030"/>
-    <!-- Inner glow overlay -->
-    <path d="M 256 118 L 346 140 L 346 260 Q 346 320 256 370 Q 166 320 166 260 L 166 140 Z"
-      fill="url(#shieldGlow)"/>
+    <!-- Row 0 (y=100): W R W R W -->
+    <rect x="141" y="100"   width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="187" y="100"   width="46" height="54.6" fill="#D40030"/>
+    <rect x="233" y="100"   width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="279" y="100"   width="46" height="54.6" fill="#D40030"/>
+    <rect x="325" y="100"   width="46" height="54.6" fill="#FFFFFF"/>
+    <!-- Row 1 (y=154.6): R W R W R -->
+    <rect x="141" y="154.6" width="46" height="54.6" fill="#D40030"/>
+    <rect x="187" y="154.6" width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="233" y="154.6" width="46" height="54.6" fill="#D40030"/>
+    <rect x="279" y="154.6" width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="325" y="154.6" width="46" height="54.6" fill="#D40030"/>
+    <!-- Row 2 (y=209.2): W R W R W -->
+    <rect x="141" y="209.2" width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="187" y="209.2" width="46" height="54.6" fill="#D40030"/>
+    <rect x="233" y="209.2" width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="279" y="209.2" width="46" height="54.6" fill="#D40030"/>
+    <rect x="325" y="209.2" width="46" height="54.6" fill="#FFFFFF"/>
+    <!-- Row 3 (y=263.8): R W R W R -->
+    <rect x="141" y="263.8" width="46" height="54.6" fill="#D40030"/>
+    <rect x="187" y="263.8" width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="233" y="263.8" width="46" height="54.6" fill="#D40030"/>
+    <rect x="279" y="263.8" width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="325" y="263.8" width="46" height="54.6" fill="#D40030"/>
+    <!-- Row 4 (y=318.4): W R W R W  — bottom lands exactly at y=373 (shield tip) -->
+    <rect x="141" y="318.4" width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="187" y="318.4" width="46" height="54.6" fill="#D40030"/>
+    <rect x="233" y="318.4" width="46" height="54.6" fill="#FFFFFF"/>
+    <rect x="279" y="318.4" width="46" height="54.6" fill="#D40030"/>
+    <rect x="325" y="318.4" width="46" height="54.6" fill="#FFFFFF"/>
+    <!-- Inner highlight -->
+    <path d="M 256 100 L 371 124 L 371 282 Q 371 348 256 373 Q 141 348 141 282 L 141 124 Z"
+          fill="url(#shieldGlow)"/>
   </g>
 
-  <!-- Small gold crown above shield -->
-  <g transform="translate(256, 98)" fill="url(#gold)">
-    <!-- Crown base -->
-    <rect x="-28" y="0" width="56" height="12" rx="3"/>
-    <!-- Crown points: 3 peaks -->
-    <polygon points="-28,0 -22,-18 -14,-8 0,-22 14,-8 22,-18 28,0" fill="url(#gold)"/>
-    <!-- Crown gems: 3 small circles -->
-    <circle cx="-22" cy="-16" r="4" fill="#D40030" opacity="0.9"/>
-    <circle cx="0"   cy="-20" r="4.5" fill="#D40030" opacity="0.9"/>
-    <circle cx="22"  cy="-16" r="4" fill="#D40030" opacity="0.9"/>
+  <!-- Gold crown centred above shield -->
+  <g transform="translate(256, 90)" fill="url(#gold)">
+    <rect x="-30" y="0" width="60" height="13" rx="3.5"/>
+    <polygon points="-30,0 -23,-20 -14,-9 0,-24 14,-9 23,-20 30,0"/>
+    <circle cx="-23" cy="-18" r="4.5" fill="#D40030" opacity="0.9"/>
+    <circle cx="0"   cy="-22" r="5"   fill="#D40030" opacity="0.9"/>
+    <circle cx="23"  cy="-18" r="4.5" fill="#D40030" opacity="0.9"/>
   </g>
 
-  <!-- "NH" monogram below shield — Naša Hrvatska initials -->
-  <text x="256" y="432"
-    font-family="Georgia, 'Times New Roman', serif"
-    font-size="52" font-weight="700"
-    text-anchor="middle"
-    fill="url(#gold)"
-    letter-spacing="6">NH</text>
+  <!-- Gold separator line -->
+  <line x1="186" y1="404" x2="326" y2="404"
+        stroke="url(#gold)" stroke-width="1.5" opacity="0.6"/>
 
-  <!-- Thin gold line separator above text -->
-  <line x1="186" y1="408" x2="326" y2="408" stroke="url(#gold)" stroke-width="1.5" opacity="0.6"/>
+  <!-- NH monogram -->
+  <text x="256" y="430"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="52" font-weight="700"
+        text-anchor="middle"
+        fill="url(#gold)"
+        letter-spacing="6">NH</text>
 </svg>
