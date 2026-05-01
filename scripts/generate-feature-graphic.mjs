@@ -12,42 +12,43 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 
-// ─── Šahovnica (Croatian coat-of-arms checkerboard) ──────────────────────────
-// Matches the app icon exactly:
-//   • Heraldic shield shape: angled shoulders, curved sides, pointed bottom
-//   • Top-left square = WHITE (consistent with icon.svg)
-//   • Gold gradient border (matching icon #FFE070 → #f59e0b → #C8980A)
-//   • Gold crown with red gems above the shield
+// ── Shield geometry ────────────────────────────────────────────────────────────
+// Derived from icon.svg by the mapping:  x_here = x_icon + 576,  y_here = y_icon − 25
 //
-// Shield geometry (centered at x=832):
-//   Shoulder x range: 717 → 947  (230 px wide)
-//   Angled top:       (832, 55)  center → (947, 75) right / (717, 75) left
-//   Straight sides:   y=75 → y=295
-//   Curved bottom:    Q(940,375) and Q(724,375) to tip (832,438)
-//   Checkerboard:     5×5 grid, cell=46 px, origin (717,75), top-left WHITE
+// icon clip : M 256 100 L 371 124 L 371 282 Q 371 348 256 373 Q 141 348 141 282 L 141 124 Z
+// here clip : M 832  75 L 947  99 L 947 257 Q 947 323 832 348 Q 717 323 717 257 L 717  99 Z
+//
+// icon gold : M 256  90 L 381 116 L 381 286 Q 381 358 256 385 Q 131 358 131 286 L 131 116 Z
+// here gold : M 832  65 L 957  91 L 957 261 Q 957 333 832 360 Q 707 333 707 261 L 707  91 Z
+//
+// Cell size: 46 w × 54.6 h  →  (y=75→348 = 273px) / 5 rows = 54.6px
+// Identical proportion to icon (both 273px tall, 230px wide, cells 46×54.6)
+
+const SHIELD_CLIP   = 'M 832 75 L 947 99 L 947 257 Q 947 323 832 348 Q 717 323 717 257 L 717 99 Z';
+const SHIELD_GOLD   = 'M 832 65 L 957 91 L 957 261 Q 957 333 832 360 Q 707 333 707 261 L 707 91 Z';
+const SHIELD_SHADOW = 'M 837 70 L 962 96 L 962 266 Q 962 338 837 365 Q 712 338 712 266 L 712 96 Z';
 
 function shieldSquares() {
-  const ox = 717; // grid origin x (left edge of shield at shoulder)
-  const oy = 75;  // grid origin y (top of straight sides)
-  const sz = 46;  // cell size — 5×46 = 230 = full shield width
+  const ox    = 717;   // left edge (x_icon 141 + 576)
+  const oy    = 75;    // top of grid (y_icon 100 − 25)
+  const cellW = 46;    // 5 × 46 = 230 = shield width
+  const cellH = 54.6;  // 273 / 5 — identical proportion to icon
   const RED   = '#D40030';
   const WHITE = '#ffffff';
 
   let rects = '';
-  // Render 8 rows so the curved lower half is fully painted before clipping
-  for (let row = 0; row < 8; row++) {
+  for (let row = 0; row < 5; row++) {
     for (let col = 0; col < 5; col++) {
-      const x = ox + col * sz;
-      const y = oy + row * sz;
-      // Top-left (0,0) = WHITE — matches icon.svg exactly
+      const x    = ox + col * cellW;
+      const y    = oy + row * cellH;
       const fill = (row + col) % 2 === 0 ? WHITE : RED;
-      rects += `<rect x="${x}" y="${y}" width="${sz}" height="${sz}" fill="${fill}"/>`;
+      rects += `<rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" fill="${fill}"/>`;
     }
   }
   return rects;
 }
 
-// Feature chips — two rows of 3
+// Feature chips
 function chip(x, y, w, label) {
   const cx = x + w / 2;
   return `
@@ -57,15 +58,11 @@ function chip(x, y, w, label) {
           font-size="13" font-weight="600" fill="white" text-anchor="middle">${label}</text>`;
 }
 
-// ─── Crown: mirrors the gold crown in icon.svg ────────────────────────────────
-// Translated so the base sits at (832, 40) — just above the shield's angled tip.
+// Crown — base sits at y=65, matching gold border top (same as icon)
 const crown = `
-  <g transform="translate(832, 40)" fill="url(#gold)">
-    <!-- Crown base bar -->
+  <g transform="translate(832, 65)" fill="url(#gold)">
     <rect x="-34" y="0" width="68" height="15" rx="3.5"/>
-    <!-- Three crown peaks -->
     <polygon points="-34,0 -27,-24 -17,-11 0,-30 17,-11 27,-24 34,0"/>
-    <!-- Red gem accents -->
     <circle cx="-27" cy="-22" r="5"   fill="#D40030" opacity="0.9"/>
     <circle cx="0"   cy="-28" r="5.5" fill="#D40030" opacity="0.9"/>
     <circle cx="27"  cy="-22" r="5"   fill="#D40030" opacity="0.9"/>
@@ -75,14 +72,14 @@ const svg = `<svg width="1024" height="500" viewBox="0 0 1024 500"
      xmlns="http://www.w3.org/2000/svg">
   <defs>
 
-    <!-- Background: app header gradient (dark navy → bright teal) -->
+    <!-- Background: dark navy → bright teal -->
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%"   stop-color="#0a3d55"/>
       <stop offset="50%"  stop-color="#0e7490"/>
       <stop offset="100%" stop-color="#0891b2"/>
     </linearGradient>
 
-    <!-- Gold gradient — matches icon.svg exactly -->
+    <!-- Gold — matches icon.svg exactly -->
     <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%"   stop-color="#FFE070"/>
       <stop offset="40%"  stop-color="#f59e0b"/>
@@ -95,28 +92,20 @@ const svg = `<svg width="1024" height="500" viewBox="0 0 1024 500"
       <stop offset="100%" stop-color="#0a3d55"  stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Ambient glow behind title text -->
+    <!-- Ambient glow behind title -->
     <radialGradient id="glowL" cx="25%" cy="50%" r="45%">
       <stop offset="0%"   stop-color="#0ea5e9" stop-opacity="0.08"/>
       <stop offset="100%" stop-color="#0a3d55"  stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Shield inner highlight (top-down, matches icon) -->
+    <!-- Shield inner highlight -->
     <radialGradient id="shieldGlow" cx="50%" cy="25%" r="60%">
       <stop offset="0%"   stop-color="rgba(255,255,255,0.15)"/>
       <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
     </radialGradient>
 
-    <!-- Clip path: heraldic shield — angled shoulders + curved pointed bottom -->
-    <!-- Matches the shape from icon.svg scaled to the feature graphic canvas  -->
     <clipPath id="shieldClip">
-      <path d="M 832 59
-               L 947 79
-               L 947 295
-               Q 937 375 832 438
-               Q 727 375 717 295
-               L 717 79
-               Z"/>
+      <path d="${SHIELD_CLIP}"/>
     </clipPath>
 
   </defs>
@@ -126,63 +115,42 @@ const svg = `<svg width="1024" height="500" viewBox="0 0 1024 500"
   <rect width="1024" height="500" fill="url(#glowR)"/>
   <rect width="1024" height="500" fill="url(#glowL)"/>
 
-  <!-- Decorative concentric rings behind shield (depth / premium feel) -->
-  <circle cx="832" cy="250" r="340" fill="none"
+  <!-- Atmosphere rings behind shield -->
+  <circle cx="832" cy="210" r="310" fill="none"
           stroke="rgba(255,255,255,0.035)" stroke-width="110"/>
-  <circle cx="832" cy="250" r="210" fill="none"
+  <circle cx="832" cy="210" r="190" fill="none"
           stroke="rgba(255,255,255,0.04)"  stroke-width="70"/>
 
-  <!-- ── CROATIAN FLAG ACCENT — vertical stripe on left edge ─────────────── -->
-  <rect x="0" y="0"   width="7" height="167" fill="#003DA5" opacity="0.85"/>
-  <rect x="0" y="167" width="7" height="166" fill="#ffffff"  opacity="0.85"/>
-  <rect x="0" y="333" width="7" height="167" fill="#D40030"  opacity="0.85"/>
 
-  <!-- ── ŠAHOVNICA SHIELD ─────────────────────────────────────────────────── -->
+  <!-- ── ŠAHOVNICA SHIELD ───────────────────────────────────────────────── -->
 
-  <!-- Shield drop-shadow / depth layer (same shape, offset +5,+5) -->
-  <path d="M 837 64
-           L 952 84
-           L 952 300
-           Q 942 380 837 443
-           Q 732 380 722 300
-           L 722 84
-           Z"
-        fill="rgba(0,0,0,0.22)"/>
+  <!-- Drop shadow -->
+  <path d="${SHIELD_SHADOW}" fill="rgba(0,0,0,0.22)"/>
 
-  <!-- Gold border: slightly larger path rendered behind the clip area -->
-  <path d="M 832 55
-           L 951 75
-           L 951 299
-           Q 941 379 832 442
-           Q 723 379 713 299
-           L 713 75
-           Z"
-        fill="url(#gold)" opacity="0.88"/>
+  <!-- Gold border -->
+  <path d="${SHIELD_GOLD}" fill="url(#gold)" opacity="0.88"/>
 
-  <!-- Checkerboard squares clipped to heraldic shield shape -->
+  <!-- Checkerboard clipped to shield -->
   <g clip-path="url(#shieldClip)">
     ${shieldSquares()}
-    <!-- Inner highlight overlay matching icon.svg shieldGlow -->
-    <path d="M 832 59 L 947 79 L 947 295 Q 937 375 832 438 Q 727 375 717 295 L 717 79 Z"
-          fill="url(#shieldGlow)"/>
+    <path d="${SHIELD_CLIP}" fill="url(#shieldGlow)"/>
   </g>
 
-  <!-- Thin white outline on inner shield edge (subtle finish) -->
-  <path d="M 832 59 L 947 79 L 947 295 Q 937 375 832 438 Q 727 375 717 295 L 717 79 Z"
-        fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+  <!-- Thin white inner outline -->
+  <path d="${SHIELD_CLIP}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
 
-  <!-- ── GOLD CROWN — matches icon.svg crown exactly ──────────────────────── -->
+  <!-- ── CROWN ──────────────────────────────────────────────────────────── -->
   ${crown}
 
-  <!-- Subtle "HRVATSKA" below shield tip — small gold lettering -->
-  <text x="832" y="460"
+  <!-- HRVATSKA label below shield -->
+  <text x="832" y="378"
         font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
         font-size="11" font-weight="700" fill="url(#gold)"
         text-anchor="middle" letter-spacing="5" opacity="0.72">H R V A T S K A</text>
 
   <!-- ── LEFT SIDE TEXT ──────────────────────────────────────────────────── -->
 
-  <!-- Overline badge: "FREE · NO ADS · OFFLINE" -->
+  <!-- Overline badge -->
   <rect x="60" y="108" width="250" height="30" rx="15"
         fill="rgba(255,255,255,0.11)" stroke="rgba(255,255,255,0.20)" stroke-width="1"/>
   <text x="185" y="128"
@@ -190,14 +158,14 @@ const svg = `<svg width="1024" height="500" viewBox="0 0 1024 500"
         font-size="12" font-weight="700" fill="rgba(186,230,253,0.92)"
         text-anchor="middle" letter-spacing="1.8">FREE  ·  NO ADS  ·  OFFLINE</text>
 
-  <!-- App name: "Naša" line 1 -->
+  <!-- App name line 1 -->
   <text x="60" y="213"
         font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
         font-size="80" font-weight="700" fill="white" letter-spacing="-2">
     Na&#x161;a
   </text>
 
-  <!-- App name: "Hrvatska" line 2 -->
+  <!-- App name line 2 -->
   <text x="60" y="298"
         font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
         font-size="80" font-weight="700" fill="white" letter-spacing="-2">
@@ -219,8 +187,8 @@ const svg = `<svg width="1024" height="500" viewBox="0 0 1024 500"
 
   <!-- Feature chips — row 2 -->
   ${chip(60,  412, 178, 'Spaced Repetition')}
-  ${chip(248, 412, 118, '7 Cases')}
-  ${chip(376, 412, 164, 'Cultural Stories')}
+  ${chip(248, 412, 138, 'All 7 Cases')}
+  ${chip(396, 412, 154, 'Cultural Stories')}
 
   <!-- Bottom sign-off -->
   <text x="60" y="478"
