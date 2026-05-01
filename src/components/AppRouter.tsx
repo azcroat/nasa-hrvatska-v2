@@ -1,6 +1,7 @@
 import React, { lazy, useRef, useEffect } from 'react';
 import { AnimatePresence, motion, type TargetAndTransition } from 'framer-motion';
 import { useSwipeBack } from '../hooks/useSwipeBack.js';
+import { isChunkLoadError } from '../lib/chunkErrors';
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
 // leaving elements permanently at opacity:0. Skip entry animation on native.
 // Capacitor Android: https://localhost with NO port. Dev server always has a port.
@@ -26,38 +27,15 @@ const PaywallScreen = lazyWithReload(() => import('./shared/PaywallScreen'));
 import { useApp } from '../context/AppContext';
 import { useStats } from '../context/StatsContext';
 
-// Reload on stale-chunk errors (happens after deploy when old index.html tries to
-// load chunk files that no longer exist at their old hashed paths, and the SW
-// returns the SPA fallback index.html causing a MIME-type or fetch failure).
-//
-// Error patterns covered:
-//   Chrome:       "Expected a JavaScript module script but the server responded with a MIME type of 'text/html'"
-//   Chrome:       "Failed to fetch"
-//   Safari/WebKit:"importing a module script failed"
-//   Firefox:      "error loading dynamically imported module"
-//   WebKit iOS:   "Importing binding name 'X' is not found." ← stale cached chunk has
-//                 a named import that no longer exists after redeployment / minification
-//                 rename (e.g. 'g' was renamed in the new build).
-//
-// Uses sessionStorage to cap at 2 attempts — prevents infinite loops when the
-// SW is stuck (e.g. offline, or Cloudflare down). After 2 attempts, lets
-// ScreenErrorBoundary show a stable error rather than looping forever.
+// Wraps React.lazy() to detect stale-chunk errors and self-heal with a
+// cache-purge reload. Capped at 2 attempts via sessionStorage.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function lazyWithReload(fn: () => Promise<any>) {
   return lazy(() =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fn().catch((e: any) => {
-      // Lowercase once so all checks below are case-insensitive — browsers differ:
-      // Chrome capitalises "Failed", Safari capitalises "Importing", etc.
       const msg = (((e?.message as string) || '') + ((e?.name as string) || '')).toLowerCase();
-      const isChunkError =
-        msg.includes('failed to fetch') ||
-        msg.includes('importing a module script failed') ||
-        msg.includes('dynamically imported module') ||
-        msg.includes('expected a javascript module script') ||
-        msg.includes('mime type') ||
-        msg.includes('loading chunk') ||
-        msg.includes('importing binding name'); // WebKit: stale cross-chunk binding mismatch
+      const isChunkError = isChunkLoadError(msg);
       if (isChunkError) {
         try {
           const key = 'nh_reload_attempt';

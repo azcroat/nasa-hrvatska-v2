@@ -1,18 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import { isChunkLoadError } from '../lib/chunkErrors';
 
-// Inline the helpers under test — avoids importing main.tsx which has
-// module-level side effects (ReactDOM.render, window.onerror assignment, etc.)
-function _isChunkLoadError(msg: string) {
-  return (
-    msg.includes('failed to fetch') ||
-    msg.includes('importing a module script failed') ||
-    msg.includes('dynamically imported module') ||
-    msg.includes('expected a javascript module script') ||
-    msg.includes('mime type') ||
-    msg.includes('loading chunk') ||
-    msg.includes('importing binding name')
-  );
-}
+// _isStaleBindingError and _reloadWithCachePurge remain inlined —
+// they are private to main.tsx and _reloadWithCachePurge uses an
+// injected storage map for testability.
 function _isStaleBindingError(msg: unknown) {
   return typeof msg === 'string' && msg.includes('Importing binding name');
 }
@@ -23,34 +14,34 @@ function _reloadWithCachePurge(storageKey: string, storage: Record<string, strin
   return true;
 }
 
-describe('_isChunkLoadError', () => {
+describe('isChunkLoadError', () => {
   it('detects Chrome "failed to fetch" pattern', () => {
-    expect(_isChunkLoadError('failed to fetch dynamically imported module')).toBe(true);
+    expect(isChunkLoadError('failed to fetch dynamically imported module')).toBe(true);
   });
   it('detects Safari "importing a module script failed" pattern', () => {
-    expect(_isChunkLoadError('importing a module script failed')).toBe(true);
+    expect(isChunkLoadError('importing a module script failed')).toBe(true);
   });
   it('detects Firefox "dynamically imported module" pattern', () => {
-    expect(_isChunkLoadError('error loading dynamically imported module')).toBe(true);
+    expect(isChunkLoadError('error loading dynamically imported module')).toBe(true);
   });
   it('detects MIME type mismatch pattern', () => {
     expect(
-      _isChunkLoadError(
+      isChunkLoadError(
         'expected a javascript module script but server responded with mime type text/html',
       ),
     ).toBe(true);
   });
   it('detects Webpack/Vite "loading chunk" pattern', () => {
-    expect(_isChunkLoadError('loading chunk 42 failed')).toBe(true);
+    expect(isChunkLoadError('loading chunk 42 failed')).toBe(true);
   });
   it('detects WebKit stale binding in lowercase msg', () => {
-    expect(_isChunkLoadError("importing binding name 'g' is not found")).toBe(true);
+    expect(isChunkLoadError("importing binding name 'g' is not found")).toBe(true);
   });
   it('does not match unrelated runtime errors', () => {
-    expect(_isChunkLoadError('cannot read properties of undefined')).toBe(false);
-    expect(_isChunkLoadError('network error')).toBe(false);
-    expect(_isChunkLoadError('')).toBe(false);
-    expect(_isChunkLoadError('TypeError: null is not an object')).toBe(false);
+    expect(isChunkLoadError('cannot read properties of undefined')).toBe(false);
+    expect(isChunkLoadError('network error')).toBe(false);
+    expect(isChunkLoadError('')).toBe(false);
+    expect(isChunkLoadError('TypeError: null is not an object')).toBe(false);
   });
 });
 
