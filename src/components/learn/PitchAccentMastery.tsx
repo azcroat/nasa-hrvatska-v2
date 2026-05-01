@@ -574,10 +574,25 @@ export default function PitchAccentMastery({
             >
               <div style={{ fontSize: 22, flexShrink: 0 }}>{a.emoji}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: a.color }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: a.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    flexWrap: 'wrap',
+                  }}
+                >
                   {a.nameEn}{' '}
                   <span style={{ fontWeight: 500, color: '#78716c', fontSize: 11 }}>
                     ({a.name})
+                  </span>
+                  <span
+                    className={`cefr cefr-${(LESSON_BY_ACCENT[a.id as keyof typeof LESSON_BY_ACCENT]?.cefr ?? 'B1').toLowerCase()}`}
+                  >
+                    {LESSON_BY_ACCENT[a.id as keyof typeof LESSON_BY_ACCENT]?.cefr ?? 'B1'}
                   </span>
                 </div>
                 <div style={{ fontSize: 11, color: '#78716c', marginTop: 1 }}>{a.rule}</div>
