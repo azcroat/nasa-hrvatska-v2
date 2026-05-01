@@ -34,7 +34,11 @@ describe('_isChunkLoadError', () => {
     expect(_isChunkLoadError('error loading dynamically imported module')).toBe(true);
   });
   it('detects MIME type mismatch pattern', () => {
-    expect(_isChunkLoadError('expected a javascript module script but server responded with mime type text/html')).toBe(true);
+    expect(
+      _isChunkLoadError(
+        'expected a javascript module script but server responded with mime type text/html',
+      ),
+    ).toBe(true);
   });
   it('detects Webpack/Vite "loading chunk" pattern', () => {
     expect(_isChunkLoadError('loading chunk 42 failed')).toBe(true);

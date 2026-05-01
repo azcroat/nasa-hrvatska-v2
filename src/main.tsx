@@ -194,8 +194,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     })
     .catch((e: unknown) => {
       const msg = (
-        ((e as { message?: string })?.message ?? '') +
-        ((e as { name?: string })?.name ?? '')
+        ((e as { message?: string })?.message ?? '') + ((e as { name?: string })?.name ?? '')
       ).toLowerCase();
       if (_isChunkLoadError(msg)) {
         _reloadWithCachePurge('nh_reload_attempt');
