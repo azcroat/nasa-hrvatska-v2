@@ -26,6 +26,7 @@ import { reportError } from './lib/errorReporter.js';
 import { isNative, isAndroid } from './lib/platform.js';
 import { initPostHog } from './lib/analytics';
 import { registerSW } from 'virtual:pwa-register';
+import { isChunkLoadError } from './lib/chunkErrors';
 
 // ─── Capacitor native: mark <html> for CSS animation overrides ────────────
 // Many CSS entrance animations start at opacity:0 with fill-mode:both.
@@ -92,20 +93,6 @@ if (import.meta.env.PROD) {
 // that no longer exists in the freshly-deployed chunk (minifier renamed it).
 function _isStaleBindingError(msg: unknown) {
   return typeof msg === 'string' && msg.includes('Importing binding name');
-}
-// Detects chunk-load / dynamic-import failures across Chrome, Safari, Firefox,
-// and Webpack/Vite "loading chunk N failed" messages. These occur after a
-// deploy when old HTML references a vendor chunk whose hash has changed.
-function _isChunkLoadError(msg: string) {
-  return (
-    msg.includes('failed to fetch') ||
-    msg.includes('importing a module script failed') ||
-    msg.includes('dynamically imported module') ||
-    msg.includes('expected a javascript module script') ||
-    msg.includes('mime type') ||
-    msg.includes('loading chunk') ||
-    msg.includes('importing binding name')
-  );
 }
 // Purges JS caches and reloads, but only up to 2 times to prevent infinite
 // reload loops. Uses sessionStorage so the counter resets on each fresh visit.
@@ -196,7 +183,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
       const msg = (
         ((e as { message?: string })?.message ?? '') + ((e as { name?: string })?.name ?? '')
       ).toLowerCase();
-      if (_isChunkLoadError(msg)) {
+      if (isChunkLoadError(msg)) {
         _reloadWithCachePurge('nh_reload_attempt');
       }
       // If not a chunk error, swallow silently — Sentry is not running so
@@ -312,8 +299,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, EBSta
 // errors in event handlers, errors in non-React code). Complements Sentry
 // when VITE_SENTRY_DSN is not set, and provides a lightweight fallback.
 //
-// Helper functions (_isStaleBindingError, _isChunkLoadError, _reloadWithCachePurge)
-// are defined above the Sentry init block so they are available there too.
+// Helper functions (_isStaleBindingError, _reloadWithCachePurge) are defined above
+// the Sentry init block so they are available there too. isChunkLoadError is imported
+// from ./lib/chunkErrors.
 
 window.onerror = function (message, _source, _lineno, _colno, error) {
   const msg = (error?.message || '') + String(message || '');
@@ -329,7 +317,7 @@ window.onunhandledrejection = function (event) {
   if (_isStaleBindingError(msg)) {
     if (_reloadWithCachePurge('nh_binding_reload')) return;
   }
-  if (_isChunkLoadError(msg)) {
+  if (isChunkLoadError(msg)) {
     if (_reloadWithCachePurge('nh_reload_attempt')) return;
   }
   reportError(reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
