@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, srMark } from '../../data';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { markQuest } from '../../lib/quests.js';
@@ -22,6 +22,47 @@ export default function MatchGame({
   const [msl, sMsl] = useState<any[]>([]);
   const [gph, sGph] = useState('play');
   const [gsc, sGsc] = useState(0);
+
+  const completionFiredRef = useRef(false);
+
+  function handleCardClick(c: any) {
+    if (mm.includes(c.p)) return;
+    if (msl.length === 0) {
+      sMsl([c]);
+      return;
+    }
+    const f = msl[0];
+    if (!f) return;
+    if (f.id === c.id) {
+      sMsl([]);
+      return;
+    }
+    if (f.p === c.p && f.tp !== c.tp) {
+      const hrWord = f.tp === 'hr' ? f.t : c.t;
+      srMark(hrWord, true, 0);
+      sMm((m: any[]) => [...m, c.p]);
+      sGsc((s) => s + 1);
+      sMsl([]);
+      if (mm.length + 1 === mp.length / 2 && !completionFiredRef.current) {
+        completionFiredRef.current = true;
+        setTimeout(() => {
+          if (typeof award === 'function') award(20, false, 'vocabulary');
+          markQuest('vocab');
+          sGph('done');
+          knightSpeak(
+            'celebrating',
+            'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️',
+            800,
+          );
+        }, 500);
+      }
+    } else {
+      const hrWord = f.tp === 'hr' ? f.t : c.tp === 'hr' ? c.t : null;
+      if (hrWord) srMark(hrWord, false, 0);
+      sMsl([f, c]);
+      setTimeout(() => sMsl([]), 800);
+    }
+  }
 
   return (
     <div className="scr-wrap">
@@ -76,79 +117,11 @@ export default function MatchGame({
                 transition: 'transform .15s ease, box-shadow .15s ease',
                 transform: msl.some((s: any) => s.id === c.id) ? 'scale(1.03)' : 'scale(1)',
               }}
-              onClick={() => {
-                if (mm.includes(c.p)) return;
-                if (msl.length === 0) {
-                  sMsl([c]);
-                  return;
-                }
-                const f = msl[0];
-                if (!f) return;
-                if (f.id === c.id) {
-                  sMsl([]);
-                  return;
-                }
-                if (f.p === c.p && f.tp !== c.tp) {
-                  const hrWord = f.tp === 'hr' ? f.t : c.t;
-                  srMark(hrWord, true, 0);
-                  sMm((m: any[]) => [...m, c.p]);
-                  sGsc((s) => s + 1);
-                  sMsl([]);
-                  if (mm.length + 1 === mp.length / 2)
-                    setTimeout(() => {
-                      if (typeof award === 'function') award(20, false, 'vocabulary');
-                      markQuest('vocab');
-                      sGph('done');
-                      knightSpeak(
-                        'celebrating',
-                        'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️',
-                        800,
-                      );
-                    }, 500);
-                } else {
-                  const hrWord = f.tp === 'hr' ? f.t : c.tp === 'hr' ? c.t : null;
-                  if (hrWord) srMark(hrWord, false, 0);
-                  sMsl([f, c]);
-                  setTimeout(() => sMsl([]), 800);
-                }
-              }}
+              onClick={() => handleCardClick(c)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  if (mm.includes(c.p)) return;
-                  if (msl.length === 0) {
-                    sMsl([c]);
-                    return;
-                  }
-                  const f = msl[0];
-                  if (!f) return;
-                  if (f.id === c.id) {
-                    sMsl([]);
-                    return;
-                  }
-                  if (f.p === c.p && f.tp !== c.tp) {
-                    const hrWord = f.tp === 'hr' ? f.t : c.t;
-                    srMark(hrWord, true, 0);
-                    sMm((m: any[]) => [...m, c.p]);
-                    sGsc((s) => s + 1);
-                    sMsl([]);
-                    if (mm.length + 1 === mp.length / 2)
-                      setTimeout(() => {
-                        if (typeof award === 'function') award(20, false, 'vocabulary');
-                        markQuest('vocab');
-                        sGph('done');
-                        knightSpeak(
-                          'celebrating',
-                          'Sve upareno! You just matched every word. Neural pathways reinforced. 🧠⚔️',
-                          800,
-                        );
-                      }, 500);
-                  } else {
-                    const hrWord = f.tp === 'hr' ? f.t : c.tp === 'hr' ? c.t : null;
-                    if (hrWord) srMark(hrWord, false, 0);
-                    sMsl([f, c]);
-                    setTimeout(() => sMsl([]), 800);
-                  }
+                  handleCardClick(c);
                 }
               }}
             >
