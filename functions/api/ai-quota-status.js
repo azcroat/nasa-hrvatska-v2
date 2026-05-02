@@ -51,9 +51,9 @@ export async function onRequestGet(context) {
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
       status: 401,
-      headers: corsHeaders(origin),
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
     });
   }
 
