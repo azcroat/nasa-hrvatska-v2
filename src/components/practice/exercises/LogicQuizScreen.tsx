@@ -47,8 +47,8 @@ function LogicQuizScreen({ goBack, award }: Props) {
           fontSize: 12,
         }}
       >
-        💡 Read the Croatian situation and pick ALL correct answers. Some questions have 2 right
-        answers!
+        💡 Read the Croatian situation and tap the best answer. After answering, all correct options
+        are revealed in green!
       </div>
       {questions.map(function (lq: { q: string; right: string[]; wrong: string[] }, li: number) {
         const allOpts = shuffledOpts[li] ?? [];
@@ -91,15 +91,15 @@ function LogicQuizScreen({ goBack, award }: Props) {
                     key={oi}
                     style={{
                       padding: '8px 14px',
-                      border: `2px solid ${!answered ? '#d6d3d1' : wasChosen ? (isRight ? '#16a34a' : '#dc2626') : '#d6d3d1'}`,
+                      border: `2px solid ${!answered ? '#d6d3d1' : isRight ? '#16a34a' : wasChosen ? '#dc2626' : '#d6d3d1'}`,
                       borderRadius: 10,
                       background: !answered
                         ? 'white'
-                        : wasChosen
-                          ? isRight
-                            ? '#dcfce7'
-                            : '#fee2e2'
-                          : 'white',
+                        : isRight
+                          ? '#dcfce7'
+                          : wasChosen
+                            ? '#fee2e2'
+                            : 'white',
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: answered ? 'default' : 'pointer',
