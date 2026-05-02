@@ -543,6 +543,8 @@ export default function AIConversation({
           }
           if (parsed.error === 'timeout')
             throw new Error('The AI took too long to respond. Please try again.');
+          if (parsed.error)
+            throw new Error('The AI conversation was interrupted. Please try again.');
           if (parsed.type === 'done' && parsed.result) result = parsed.result as MajaResult;
         }
       }
