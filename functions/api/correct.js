@@ -83,7 +83,7 @@ export async function onRequestPost(context) {
   }
 
   if (!ANTHROPIC_KEY) {
-    return new Response(JSON.stringify({ error: 'Service not configured' }), {
+    return new Response(JSON.stringify({ error: 'AI_KEY_MISSING' }), {
       status: 503,
       headers: CORS(origin),
     });
