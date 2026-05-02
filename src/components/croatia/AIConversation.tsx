@@ -580,6 +580,11 @@ export default function AIConversation({
           'setup_error:The AI service is not yet configured. The ANTHROPIC_API_KEY needs to be set in Cloudflare Pages → Settings → Environment Variables.',
         );
       }
+      if (msg === 'server_misconfigured') {
+        throw new Error(
+          'setup_error:The server is missing required configuration. Please contact support.',
+        );
+      }
       if (msg === 'daily_quota_exceeded' || res.status === 429) {
         const resetTime = data.resetAt
           ? new Date(data.resetAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
