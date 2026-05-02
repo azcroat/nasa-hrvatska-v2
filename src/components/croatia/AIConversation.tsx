@@ -773,11 +773,34 @@ export default function AIConversation({
         prev?.word === clean ? { ...prev, loading: false, translation, note } : prev,
       );
     } catch {
-      setTooltip((prev) =>
-        prev?.word === clean
-          ? { ...prev, loading: false, translation: 'Translation unavailable' }
-          : prev,
-      );
+      // callAI failed (auth, quota, or network) — fall back to unauthenticated MyMemory proxy
+      try {
+        const fbRes = await apiFetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: clean, from: 'hr', to: 'en' }),
+        });
+        const fbData = fbRes.ok ? await fbRes.json() : null;
+        const translation = (fbData?.translation as string | undefined) || null;
+        if (translation) {
+          translationCacheRef.current[clean.toLowerCase()] = { translation, note: null };
+          setTooltip((prev) =>
+            prev?.word === clean ? { ...prev, loading: false, translation, note: null } : prev,
+          );
+        } else {
+          setTooltip((prev) =>
+            prev?.word === clean
+              ? { ...prev, loading: false, translation: 'Translation unavailable' }
+              : prev,
+          );
+        }
+      } catch {
+        setTooltip((prev) =>
+          prev?.word === clean
+            ? { ...prev, loading: false, translation: 'Translation unavailable' }
+            : prev,
+        );
+      }
     }
   }
 
