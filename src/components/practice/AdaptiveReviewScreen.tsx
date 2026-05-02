@@ -618,8 +618,8 @@ export default function AdaptiveReviewScreen({ goBack, award }: Props) {
         if (!questFiredRef.current) {
           questFiredRef.current = true;
           markQuest('master');
+          if (award) award(newCorrect * 2, false, 'review');
         }
-        if (award) award(newCorrect * 2, false, 'review');
         setView('results');
       } else {
         setSessionIdx((i) => i + 1);
