@@ -38,7 +38,6 @@ export default function ListeningScreen({
   /* eslint-enable @typescript-eslint/no-explicit-any */
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
-  const questFired = useRef(false);
   const [idx, setIdx] = useState(0);
 
   // Knight coaching — entry tip on mount
@@ -83,6 +82,7 @@ export default function ListeningScreen({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
+              markQuest('speak');
               if (typeof award === 'function') award(score * 4 + 10, false, 'listening');
               if (!stats.vs?.includes('listening')) {
                 setStats((prev) => {
@@ -125,10 +125,6 @@ export default function ListeningScreen({
       setSelected(-1);
       setReplayed(false);
     } else {
-      if (!questFired.current) {
-        questFired.current = true;
-        markQuest('speak');
-      }
       setIdx(total);
     }
   }
