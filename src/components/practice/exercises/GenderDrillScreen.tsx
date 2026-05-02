@@ -37,14 +37,11 @@ function GenderDrillScreen({ goBack, award, setSt }: Props) {
   const words = React.useMemo(() => sh(GENDERDRILL.sort).slice(0, 12), []);
   const plurals = React.useMemo(() => GENDERDRILL.plurals.slice(0, 10), []);
 
-  // Generate 3-option MC for each plural: correct + 2 random distractors
-  const pluralOpts = React.useMemo(() => {
-    const allP = GENDERDRILL.plurals.map((p) => p.p);
-    return plurals.map((p) => {
-      const wrong = sh(allP.filter((x) => x !== p.p)).slice(0, 2);
-      return sh([p.p, ...wrong]);
-    });
-  }, [plurals]);
+  // Generate 3-option MC for each plural: shuffle the same-word opts
+  const pluralOpts = React.useMemo(
+    () => plurals.map((p) => sh([...(p as { s: string; p: string; opts: string[] }).opts])),
+    [plurals],
+  );
 
   // ─── Completion tracking ───────────────────────────────────────────────────
   const sortDone = Object.keys(revealedGenders).length === words.length;
