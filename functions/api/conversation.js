@@ -76,7 +76,7 @@ function corsHeaders(origin) {
   };
 }
 
-const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2'];
+const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const VALID_TOPICS = [
   'free',
   'introductions',
@@ -220,6 +220,21 @@ function buildConversationSystemPrompt({
 - Treat the learner as a near-peer who can handle nuance.
 - Never use English in the croatian field — full immersion.
 - Gentle recast is fine; explicit corrections are rare and only for repeated systematic errors.`,
+
+    C1: `C1 RULES:
+- 4–6 sentences of sophisticated Croatian. All tenses, all aspects, complex subordinate clauses.
+- Idioms, proverbs, cultural and literary references freely.
+- Treat the learner as fully fluent — discuss abstract topics, nuanced opinions, professional subjects.
+- Never use English. Never simplify. Full immersion always.
+- Offer corrections only for register errors (e.g., too informal for context) or subtle usage mistakes — not grammar basics.
+- Introduce regional expressions and stylistic variation naturally.`,
+
+    C2: `C2 RULES:
+- Write as you would to an educated native Croatian speaker.
+- Complex sentences, rich vocabulary, idiomatic speech, regional color, literary devices all welcome.
+- No scaffolding, no glosses, no simplification.
+- Correct only for pragmatic failures (wrong register, cultural misstep) — not grammar.
+- Discuss literature, history, politics, philosophy, humor in fully natural Croatian.`,
   };
 
   // ── Topic scenario injection ──
