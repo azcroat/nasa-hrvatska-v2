@@ -512,6 +512,11 @@ export default function AIConversation({
           'setup_error:The AI service is not yet configured. The ANTHROPIC_API_KEY needs to be set in Cloudflare Pages → Settings → Environment Variables.',
         );
       }
+      if (errData.error === 'server_misconfigured') {
+        throw new Error(
+          'setup_error:The server is missing required configuration. Please contact support.',
+        );
+      }
       throw new Error(errData.error || `Server error ${res.status}`);
     }
     // Read SSE stream — only the final `done` event carries the result
