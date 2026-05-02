@@ -13,6 +13,13 @@ function PossessivesScreen({ goBack, award }: Props) {
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
+  const shuffledOpts = React.useMemo(
+    () =>
+      (questions as { person: string; noun: string; opts: string[]; a: string }[]).map((q) =>
+        sh([...q.opts]),
+      ),
+    [questions],
+  );
 
   function handleAnswer(
     e: React.MouseEvent<HTMLButtonElement>,
@@ -107,7 +114,7 @@ function PossessivesScreen({ goBack, award }: Props) {
               <span style={{ fontWeight: 700 }}>{q.noun}</span>
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
-              {sh(q.opts).map(function (o, oi) {
+              {(shuffledOpts[qi] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}

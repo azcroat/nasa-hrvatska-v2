@@ -15,6 +15,26 @@ function EmotionGenderScreen({ goBack, award }: Props) {
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
+  const pairOffsets = React.useMemo(() => {
+    const offsets: number[] = [];
+    let offset = 0;
+    EMOGENDER.forEach((eg) => {
+      offsets.push(offset);
+      offset += (eg.pairs as unknown[]).length;
+    });
+    return offsets;
+  }, []);
+  const shuffledOpts = React.useMemo(() => {
+    const result: string[][] = [];
+    EMOGENDER.forEach((eg) => {
+      (eg.pairs as { m: string; f: string }[]).forEach((p) => {
+        const correct = eg.gender === 'm' ? p.m : p.f;
+        const wrong = eg.gender === 'm' ? p.f : p.m;
+        result.push(sh([correct, wrong]));
+      });
+    });
+    return result;
+  }, []);
 
   function handleAnswer(
     e: React.MouseEvent<HTMLButtonElement>,
@@ -63,10 +83,9 @@ function EmotionGenderScreen({ goBack, award }: Props) {
             </div>
             {eg.pairs.map(function (p, pi) {
               const correct = eg.gender === 'm' ? p.m : p.f;
-              const wrong = eg.gender === 'm' ? p.f : p.m;
               return (
                 <div key={pi} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                  {sh([correct, wrong]).map(function (o, oi) {
+                  {(shuffledOpts[(pairOffsets[ei] ?? 0) + pi] ?? []).map(function (o, oi) {
                     return (
                       <button
                         key={oi}

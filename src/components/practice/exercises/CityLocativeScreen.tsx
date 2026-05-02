@@ -13,6 +13,14 @@ function CityLocativeScreen({ goBack, award }: Props) {
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
+  const shuffledOpts = React.useMemo(
+    () =>
+      (quizCities as { nom: string; lok: string }[]).map((c2, i) => {
+        const wrong = (CITYLOC.cities[(i + 3) % CITYLOC.cities.length] ?? CITYLOC.cities[0]!).lok;
+        return sh([c2.lok, wrong]);
+      }),
+    [quizCities],
+  );
 
   function handleAnswer(e: React.MouseEvent<HTMLButtonElement>, isCorrect: boolean) {
     (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
@@ -89,7 +97,6 @@ function CityLocativeScreen({ goBack, award }: Props) {
       </div>
       <h3 className="sh">🎯 Quick Quiz</h3>
       {quizCities.map(function (c2: { nom: string; lok: string }, i: number) {
-        const wrong = (CITYLOC.cities[(i + 3) % CITYLOC.cities.length] ?? CITYLOC.cities[0]!).lok;
         return (
           <div
             key={i}
@@ -107,7 +114,7 @@ function CityLocativeScreen({ goBack, award }: Props) {
               {' → u _____'}
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
-              {sh([c2.lok, wrong]).map(function (o, oi) {
+              {(shuffledOpts[i] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}
