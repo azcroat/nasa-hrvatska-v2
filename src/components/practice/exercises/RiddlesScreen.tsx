@@ -10,9 +10,10 @@ interface Props {
 
 function RiddlesScreen({ goBack, award }: Props) {
   const riddles = shMemo('rid', RIDDLES, 8);
-  const answeredRef = useRef(0);
-  const correctRef = useRef(0);
+  const handledRef = useRef(new Set<number>());
+  const correctCountRef = useRef(0);
   const [done, setDone] = useState(false);
+  const [choices, setChoices] = useState<Record<number, string>>({});
   const shuffledOpts = React.useMemo(
     () =>
       (riddles as { clue: string; opts: string[]; answer: string; en: string }[]).map((r) =>
@@ -21,23 +22,20 @@ function RiddlesScreen({ goBack, award }: Props) {
     [riddles],
   );
 
-  function handleAnswer(
-    e: React.MouseEvent<HTMLButtonElement>,
-    isCorrect: boolean,
-    answer: string,
-  ) {
-    const btn = e.target as HTMLButtonElement;
-    btn.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    btn.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(ri: number, chosenOption: string, correctAnswer: string) {
+    if (handledRef.current.has(ri)) return;
+    handledRef.current.add(ri);
+
+    const isCorrect = chosenOption === correctAnswer;
+    setChoices((prev) => ({ ...prev, [ri]: chosenOption }));
+
     if (isCorrect) {
+      correctCountRef.current++;
       if (typeof award === 'function') award(5, false, 'grammar');
-      speak(answer);
+      speak(correctAnswer);
     }
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    if (isCorrect) correctRef.current++;
-    answeredRef.current++;
-    if (answeredRef.current >= riddles.length && !done) {
+
+    if (handledRef.current.size >= riddles.length) {
       markQuest('grammar');
       setDone(true);
     }
@@ -73,22 +71,37 @@ function RiddlesScreen({ goBack, award }: Props) {
             >
               <span aria-hidden="true">🔊</span> "{r.clue}"
             </button>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 6,
+                flexWrap: 'wrap',
+                pointerEvents: choices[ri] !== undefined ? 'none' : 'auto',
+              }}
+            >
               {(shuffledOpts[ri] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}
                     style={{
                       padding: '8px 16px',
-                      border: '2px solid #d6d3d1',
+                      border: `2px solid ${choices[ri] === undefined ? '#d6d3d1' : choices[ri] === o ? (o === r.answer ? '#16a34a' : '#dc2626') : '#d6d3d1'}`,
                       borderRadius: 12,
-                      background: 'white',
+                      background:
+                        choices[ri] === undefined
+                          ? 'white'
+                          : choices[ri] === o
+                            ? o === r.answer
+                              ? '#dcfce7'
+                              : '#fee2e2'
+                            : 'white',
                       fontSize: 13,
                       fontWeight: 600,
-                      cursor: 'pointer',
+                      cursor: choices[ri] !== undefined ? 'default' : 'pointer',
+                      pointerEvents: choices[ri] !== undefined ? 'none' : 'auto',
                     }}
-                    onClick={function (e) {
-                      handleAnswer(e, o === r.answer, r.answer);
+                    onClick={function () {
+                      handleAnswer(ri, o, r.answer);
                     }}
                   >
                     {o}
@@ -106,14 +119,14 @@ function RiddlesScreen({ goBack, award }: Props) {
       {done && (
         <div className="c" style={{ marginTop: 16, padding: '20px 16px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>
-            {correctRef.current / riddles.length >= 0.8
+            {correctCountRef.current / riddles.length >= 0.8
               ? '🏆'
-              : correctRef.current / riddles.length >= 0.6
+              : correctCountRef.current / riddles.length >= 0.6
                 ? '⭐'
                 : '💪'}
           </div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-            {correctRef.current}/{riddles.length} correct
+            {correctCountRef.current}/{riddles.length} correct
           </div>
           <button className="b bp" style={{ marginTop: 12 }} onClick={goBack}>
             ✓ Done

@@ -10,9 +10,10 @@ interface Props {
 
 function CityLocativeScreen({ goBack, award }: Props) {
   const quizCities = shMemo('cl', CITYLOC.cities, 8);
-  const answeredRef = useRef(0);
-  const correctRef = useRef(0);
+  const handledRef = useRef(new Set<number>());
+  const correctCountRef = useRef(0);
   const [done, setDone] = useState(false);
+  const [choices, setChoices] = useState<Record<number, string>>({});
   const shuffledOpts = React.useMemo(
     () =>
       (quizCities as { nom: string; lok: string }[]).map((c2, i) => {
@@ -22,18 +23,19 @@ function CityLocativeScreen({ goBack, award }: Props) {
     [quizCities],
   );
 
-  function handleAnswer(e: React.MouseEvent<HTMLButtonElement>, isCorrect: boolean) {
-    (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(qi: number, chosenOption: string, correctAnswer: string) {
+    if (handledRef.current.has(qi)) return;
+    handledRef.current.add(qi);
+
+    const isCorrect = chosenOption === correctAnswer;
+    setChoices((prev) => ({ ...prev, [qi]: chosenOption }));
+
     if (isCorrect) {
+      correctCountRef.current++;
       if (typeof award === 'function') award(3, false, 'grammar');
     }
-    const btn = e.target as HTMLButtonElement;
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    if (isCorrect) correctRef.current++;
-    answeredRef.current++;
-    if (answeredRef.current >= quizCities.length && !done) {
+
+    if (handledRef.current.size >= quizCities.length) {
       markQuest('grammar');
       setDone(true);
     }
@@ -113,22 +115,36 @@ function CityLocativeScreen({ goBack, award }: Props) {
               {c2.nom}
               {' → u _____'}
             </div>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 4,
+                pointerEvents: choices[i] !== undefined ? 'none' : 'auto',
+              }}
+            >
               {(shuffledOpts[i] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}
                     style={{
                       padding: '8px 14px',
-                      border: '2px solid #d6d3d1',
+                      border: `2px solid ${choices[i] === undefined ? '#d6d3d1' : choices[i] === o ? (o === c2.lok ? '#16a34a' : '#dc2626') : '#d6d3d1'}`,
                       borderRadius: 10,
-                      background: 'white',
+                      background:
+                        choices[i] === undefined
+                          ? 'white'
+                          : choices[i] === o
+                            ? o === c2.lok
+                              ? '#dcfce7'
+                              : '#fee2e2'
+                            : 'white',
                       fontSize: 11,
                       fontWeight: 600,
-                      cursor: 'pointer',
+                      cursor: choices[i] !== undefined ? 'default' : 'pointer',
+                      pointerEvents: choices[i] !== undefined ? 'none' : 'auto',
                     }}
-                    onClick={function (e) {
-                      handleAnswer(e, o === c2.lok);
+                    onClick={function () {
+                      handleAnswer(i, o, c2.lok);
                     }}
                   >
                     {o}
@@ -142,14 +158,14 @@ function CityLocativeScreen({ goBack, award }: Props) {
       {done && (
         <div className="c" style={{ marginTop: 16, padding: '20px 16px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>
-            {correctRef.current / quizCities.length >= 0.8
+            {correctCountRef.current / quizCities.length >= 0.8
               ? '🏆'
-              : correctRef.current / quizCities.length >= 0.6
+              : correctCountRef.current / quizCities.length >= 0.6
                 ? '⭐'
                 : '💪'}
           </div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-            {correctRef.current}/{quizCities.length} correct
+            {correctCountRef.current}/{quizCities.length} correct
           </div>
           <button className="b bp" style={{ marginTop: 12 }} onClick={goBack}>
             ✓ Done

@@ -11,33 +11,37 @@ interface Props {
 
 function SentenceBuilderScreen({ goBack, award }: Props) {
   const questions = shMemo('sb', SENTBUILD, 15);
-  const answeredRef = useRef(0);
-  const correctRef = useRef(0);
+  const handledRef = useRef(new Set<number>());
+  const correctCountRef = useRef(0);
   const [done, setDone] = useState(false);
-  const [answeredCount, setAnsweredCount] = useState(0);
+  const [choices, setChoices] = useState<Record<number, string>>({});
   const shuffledOpts = React.useMemo(
     () => (questions as { en: string; hr: string; opts: string[] }[]).map((s) => sh([...s.opts])),
     [questions],
   );
 
-  function handleAnswer(e: React.MouseEvent<HTMLButtonElement>, isCorrect: boolean) {
-    const btn = e.target as HTMLButtonElement;
-    btn.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    btn.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(qi: number, chosenOption: string, correctAnswer: string) {
+    if (handledRef.current.has(qi)) return;
+    handledRef.current.add(qi);
+
+    const isCorrect = chosenOption === correctAnswer;
+    setChoices((prev) => ({ ...prev, [qi]: chosenOption }));
+
     recordTopicResult('grammar', isCorrect);
+
     if (isCorrect) {
+      correctCountRef.current++;
       if (typeof award === 'function') award(5, false, 'grammar');
+      speak(correctAnswer);
     }
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    if (isCorrect) correctRef.current++;
-    answeredRef.current++;
-    setAnsweredCount(answeredRef.current);
-    if (answeredRef.current >= questions.length && !done) {
+
+    if (handledRef.current.size >= questions.length) {
       markQuest('grammar');
       setDone(true);
     }
   }
+
+  const answeredCount = Object.keys(choices).length;
 
   return (
     <div className="scr-wrap">
@@ -91,16 +95,23 @@ function SentenceBuilderScreen({ goBack, award }: Props) {
                     width: '100%',
                     padding: '8px 12px',
                     marginBottom: 4,
-                    border: '2px solid #e7e5e4',
+                    border: `2px solid ${choices[i] === undefined ? '#e7e5e4' : choices[i] === o ? (o === s.hr ? '#16a34a' : '#dc2626') : '#e7e5e4'}`,
                     borderRadius: 10,
-                    background: 'white',
+                    background:
+                      choices[i] === undefined
+                        ? 'white'
+                        : choices[i] === o
+                          ? o === s.hr
+                            ? '#dcfce7'
+                            : '#fee2e2'
+                          : 'white',
                     fontSize: 13,
                     textAlign: 'left',
-                    cursor: 'pointer',
+                    cursor: choices[i] !== undefined ? 'default' : 'pointer',
+                    pointerEvents: choices[i] !== undefined ? 'none' : 'auto',
                   }}
-                  onClick={function (e) {
-                    handleAnswer(e, o === s.hr);
-                    if (o === s.hr) speak(s.hr);
+                  onClick={function () {
+                    handleAnswer(i, o, s.hr);
                   }}
                 >
                   {'🇭🇷 '}
@@ -114,14 +125,14 @@ function SentenceBuilderScreen({ goBack, award }: Props) {
       {done && (
         <div className="c" style={{ marginTop: 16, padding: '20px 16px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>
-            {correctRef.current / questions.length >= 0.8
+            {correctCountRef.current / questions.length >= 0.8
               ? '🏆'
-              : correctRef.current / questions.length >= 0.6
+              : correctCountRef.current / questions.length >= 0.6
                 ? '⭐'
                 : '💪'}
           </div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-            {correctRef.current}/{questions.length} correct
+            {correctCountRef.current}/{questions.length} correct
           </div>
           <button className="b bp" style={{ marginTop: 12 }} onClick={goBack}>
             ✓ Done

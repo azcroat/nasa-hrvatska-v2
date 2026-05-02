@@ -12,9 +12,11 @@ function ColorAgreementScreen({ goBack, award }: Props) {
   const singQuestions = shMemo('cs', COLORAGREE.singQuiz, undefined);
   const plurQuestions = shMemo('cp', COLORAGREE.plurQuiz, undefined);
   const total = singQuestions.length + plurQuestions.length;
-  const answeredRef = useRef(0);
-  const correctRef = useRef(0);
+  const handledRef = useRef(new Set<number>());
+  const correctCountRef = useRef(0);
   const [done, setDone] = useState(false);
+  const [singChoices, setSingChoices] = useState<Record<number, string>>({});
+  const [plurChoices, setPlurChoices] = useState<Record<number, string>>({});
   const shuffledSingOpts = React.useMemo(
     () =>
       (singQuestions as { noun: string; en: string; opts: string[]; color: string }[]).map((q) =>
@@ -30,25 +32,36 @@ function ColorAgreementScreen({ goBack, award }: Props) {
     [plurQuestions],
   );
 
-  function handleAnswer(
-    e: React.MouseEvent<HTMLButtonElement>,
-    isCorrect: boolean,
-    spoken: string,
-  ) {
-    (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleSingAnswer(qi: number, chosen: string, correct: string, spoken: string) {
+    if (handledRef.current.has(qi)) return;
+    handledRef.current.add(qi);
+    setSingChoices((prev) => ({ ...prev, [qi]: chosen }));
+    const isCorrect = chosen === correct;
     if (isCorrect) {
+      correctCountRef.current++;
       if (typeof award === 'function') award(3, false, 'grammar');
       speak(spoken);
     }
-    const btn = e.target as HTMLButtonElement;
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    if (isCorrect) correctRef.current++;
-    answeredRef.current++;
-    if (answeredRef.current >= total && !done) {
-      markQuest('grammar');
+    if (handledRef.current.size >= total && !done) {
       setDone(true);
+      markQuest('grammar');
+    }
+  }
+
+  function handlePlurAnswer(qi: number, chosen: string, correct: string, spoken: string) {
+    const plurFlatIdx = singQuestions.length + qi;
+    if (handledRef.current.has(plurFlatIdx)) return;
+    handledRef.current.add(plurFlatIdx);
+    setPlurChoices((prev) => ({ ...prev, [qi]: chosen }));
+    const isCorrect = chosen === correct;
+    if (isCorrect) {
+      correctCountRef.current++;
+      if (typeof award === 'function') award(3, false, 'grammar');
+      speak(spoken);
+    }
+    if (handledRef.current.size >= total && !done) {
+      setDone(true);
+      markQuest('grammar');
     }
   }
 
@@ -114,21 +127,35 @@ function ColorAgreementScreen({ goBack, award }: Props) {
               {q.en}
               {') je _____'}
             </div>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 4,
+                pointerEvents: singChoices[qi] !== undefined ? 'none' : 'auto',
+              }}
+            >
               {(shuffledSingOpts[qi] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}
                     style={{
                       padding: '8px 14px',
-                      border: '2px solid #d6d3d1',
+                      border: `2px solid ${singChoices[qi] === undefined ? '#d6d3d1' : singChoices[qi] === o ? (o === q.color ? '#16a34a' : '#dc2626') : '#d6d3d1'}`,
                       borderRadius: 10,
-                      background: 'white',
+                      background:
+                        singChoices[qi] === undefined
+                          ? 'white'
+                          : singChoices[qi] === o
+                            ? o === q.color
+                              ? '#dcfce7'
+                              : '#fee2e2'
+                            : 'white',
                       fontSize: 11,
-                      cursor: 'pointer',
+                      cursor: singChoices[qi] !== undefined ? 'default' : 'pointer',
+                      pointerEvents: singChoices[qi] !== undefined ? 'none' : 'auto',
                     }}
-                    onClick={function (e) {
-                      handleAnswer(e, o === q.color, q.noun + ' je ' + q.color);
+                    onClick={function () {
+                      handleSingAnswer(qi, o, q.color, q.noun + ' je ' + q.color);
                     }}
                   >
                     {o}
@@ -154,21 +181,35 @@ function ColorAgreementScreen({ goBack, award }: Props) {
               {q.en}
               {') su _____'}
             </div>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 4,
+                pointerEvents: plurChoices[qi] !== undefined ? 'none' : 'auto',
+              }}
+            >
               {(shuffledPlurOpts[qi] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}
                     style={{
                       padding: '8px 14px',
-                      border: '2px solid #d6d3d1',
+                      border: `2px solid ${plurChoices[qi] === undefined ? '#d6d3d1' : plurChoices[qi] === o ? (o === q.color ? '#16a34a' : '#dc2626') : '#d6d3d1'}`,
                       borderRadius: 10,
-                      background: 'white',
+                      background:
+                        plurChoices[qi] === undefined
+                          ? 'white'
+                          : plurChoices[qi] === o
+                            ? o === q.color
+                              ? '#dcfce7'
+                              : '#fee2e2'
+                            : 'white',
                       fontSize: 11,
-                      cursor: 'pointer',
+                      cursor: plurChoices[qi] !== undefined ? 'default' : 'pointer',
+                      pointerEvents: plurChoices[qi] !== undefined ? 'none' : 'auto',
                     }}
-                    onClick={function (e) {
-                      handleAnswer(e, o === q.color, q.noun + ' su ' + q.color);
+                    onClick={function () {
+                      handlePlurAnswer(qi, o, q.color, q.noun + ' su ' + q.color);
                     }}
                   >
                     {o}
@@ -182,14 +223,14 @@ function ColorAgreementScreen({ goBack, award }: Props) {
       {done && (
         <div className="c" style={{ marginTop: 16, padding: '20px 16px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>
-            {correctRef.current / total >= 0.8
+            {correctCountRef.current / total >= 0.8
               ? '🏆'
-              : correctRef.current / total >= 0.6
+              : correctCountRef.current / total >= 0.6
                 ? '⭐'
                 : '💪'}
           </div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-            {correctRef.current}/{total} correct
+            {correctCountRef.current}/{total} correct
           </div>
           <button className="b bp" style={{ marginTop: 12 }} onClick={goBack}>
             ✓ Done
