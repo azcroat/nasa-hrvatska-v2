@@ -114,7 +114,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
-  if (!ANTHROPIC_KEY) return err(500, 'Service not configured', origin);
+  if (!ANTHROPIC_KEY) return err(503, 'AI_KEY_MISSING', origin);
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);

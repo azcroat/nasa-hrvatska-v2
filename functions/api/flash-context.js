@@ -113,7 +113,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   // API key check
-  if (!ANTHROPIC_KEY) return err(500, 'Service not configured', origin);
+  if (!ANTHROPIC_KEY) return err(503, 'AI_KEY_MISSING', origin);
 
   // Content-type check
   const ct = request.headers.get('content-type') || '';

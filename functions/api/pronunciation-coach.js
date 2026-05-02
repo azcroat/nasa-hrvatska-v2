@@ -234,7 +234,7 @@ export async function onRequestPost({ request, env }) {
     );
   }
 
-  if (!ANTHROPIC_KEY) return err(500, 'Service not configured', origin);
+  if (!ANTHROPIC_KEY) return err(503, 'AI_KEY_MISSING', origin);
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);
