@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { speak, getMistakes, recordMistake } from '../../data';
 import { getSR } from '../../lib/srs.ts';
 import { useStats } from '../../context/StatsContext.tsx';
@@ -343,6 +343,7 @@ export default function AdaptiveReviewScreen({ goBack, award }: Props) {
   const [sessionIdx, setSessionIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [wrong, setWrong] = useState(0);
+  const questFiredRef = useRef(false);
 
   const sr = useMemo(() => getSR(), []);
   const mistakes = useMemo(() => getMistakes(), []);
@@ -355,7 +356,10 @@ export default function AdaptiveReviewScreen({ goBack, award }: Props) {
   // but defensive), transition to results via effect — NOT during render.
   useEffect(() => {
     if (view === 'session' && session.length > 0 && sessionIdx >= session.length) {
-      markQuest('master');
+      if (!questFiredRef.current) {
+        questFiredRef.current = true;
+        markQuest('master');
+      }
       if (award) award(correct * 2, false, 'review');
       setView('results');
     }
@@ -611,7 +615,10 @@ export default function AdaptiveReviewScreen({ goBack, award }: Props) {
       }
       if (sessionIdx + 1 >= session.length) {
         const newCorrect = isCorrect ? correct + 1 : correct;
-        markQuest('master');
+        if (!questFiredRef.current) {
+          questFiredRef.current = true;
+          markQuest('master');
+        }
         if (award) award(newCorrect * 2, false, 'review');
         setView('results');
       } else {
