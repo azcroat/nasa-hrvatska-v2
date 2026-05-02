@@ -27,14 +27,12 @@ export default function VocativeScreen({
   const [qi, setQi] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const [selected, setSelected] = useState(-1);
+  const [selected, setSelected] = useState<string | null>(null);
   const [dIdx, setDIdx] = useState(0);
   const finishFired = useRef(false);
 
   const total = quizQ.length;
   const pct = Math.round((score / total) * 100);
-
-  const shuffledOpts = React.useMemo(() => quizQ.map((q) => sh([q.a, ...q.al])), [quizQ]);
 
   // ── Phase: Rules ───────────────────────────────────────────────────────────
   if (phase === 'rules') {
@@ -247,7 +245,7 @@ export default function VocativeScreen({
     }
 
     const q = quizQ[qi]!;
-    const opts = shuffledOpts[qi] ?? [];
+    const opts = sh([q.a, ...q.al]);
 
     return (
       <div className="scr-wrap">
@@ -281,7 +279,7 @@ export default function VocativeScreen({
         <div style={{ display: 'grid', gap: 8 }}>
           {opts.map((o, oi) => {
             const isCorrect = o === q.a;
-            const isSelected = answered && opts.indexOf(o) === selected;
+            const isSelected = answered && o === selected;
             return (
               <button
                 key={oi}
@@ -315,8 +313,7 @@ export default function VocativeScreen({
                 }}
                 onClick={() => {
                   if (answered) return;
-                  const idx = opts.indexOf(o);
-                  setSelected(idx);
+                  setSelected(o);
                   setAnswered(true);
                   if (isCorrect) {
                     setScore((s) => s + 1);
@@ -338,7 +335,7 @@ export default function VocativeScreen({
             style={{ width: '100%', marginTop: 16 }}
             onClick={() => {
               setAnswered(false);
-              setSelected(-1);
+              setSelected(null);
               setQi(qi + 1);
               if (qi + 1 >= total) setPhase('done');
             }}
@@ -400,7 +397,7 @@ export default function VocativeScreen({
                 setQi(0);
                 setScore(0);
                 setAnswered(false);
-                setSelected(-1);
+                setSelected(null);
                 setDIdx(0);
               }}
             >
