@@ -12,18 +12,18 @@ interface Props {
 function TenseFlipScreen({ goBack, award }: Props) {
   const items = shMemo('tf', TENSEFLIP, 10);
   const total = items.length * 2; // each item has perfekt + negative
-  const revealedRef = useRef(0);
+  const handledRef = useRef(new Set<string>());
+  const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
   const [done, setDone] = useState(false);
 
-  function handleReveal(e: React.MouseEvent<HTMLButtonElement>, spoken: string) {
+  function handleReveal(key: string, spoken: string) {
+    if (handledRef.current.has(key)) return;
+    handledRef.current.add(key);
+    setRevealed((prev) => new Set([...prev, key]));
     speak(spoken);
     recordTopicResult('past_tense', true);
     if (typeof award === 'function') award(3, false, 'grammar');
-    const btn = e.target as HTMLButtonElement;
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    revealedRef.current++;
-    if (revealedRef.current >= total && !done) {
+    if (handledRef.current.size >= total) {
       markQuest('grammar');
       setDone(true);
     }
@@ -44,6 +44,10 @@ function TenseFlipScreen({ goBack, award }: Props) {
         💡 See the present tense, then tap to reveal the past (perfekt) and negative past forms.
       </div>
       {items.map(function (t: { prez: string; perf: string; neg: string }, ti: number) {
+        const perfKey = `${ti}-perf`;
+        const negKey = `${ti}-neg`;
+        const perfRevealed = revealed.has(perfKey);
+        const negRevealed = revealed.has(negKey);
         return (
           <div key={ti} className="c" style={{ marginBottom: 10, padding: '10px 14px' }}>
             <button
@@ -71,43 +75,33 @@ function TenseFlipScreen({ goBack, award }: Props) {
                 style={{
                   flex: 1,
                   padding: '8px',
-                  border: '2px solid #d6d3d1',
+                  border: `2px solid ${perfRevealed ? '#16a34a' : '#d6d3d1'}`,
                   borderRadius: 10,
-                  background: 'white',
+                  background: perfRevealed ? '#dcfce7' : 'white',
                   fontSize: 12,
-                  cursor: 'pointer',
+                  cursor: perfRevealed ? 'default' : 'pointer',
+                  pointerEvents: perfRevealed ? 'none' : 'auto',
                   textAlign: 'left',
                 }}
-                onClick={function (e) {
-                  const btn = e.target as HTMLButtonElement;
-                  btn.textContent = '✅ ' + t.perf;
-                  btn.style.background = '#dcfce7';
-                  btn.style.borderColor = '#16a34a';
-                  handleReveal(e, t.perf);
-                }}
+                onClick={() => handleReveal(perfKey, t.perf)}
               >
-                🔵 Perfekt?
+                {perfRevealed ? '✅ ' + t.perf : '🔵 Perfekt?'}
               </button>
               <button
                 style={{
                   flex: 1,
                   padding: '8px',
-                  border: '2px solid #d6d3d1',
+                  border: `2px solid ${negRevealed ? '#dc2626' : '#d6d3d1'}`,
                   borderRadius: 10,
-                  background: 'white',
+                  background: negRevealed ? '#fee2e2' : 'white',
                   fontSize: 12,
-                  cursor: 'pointer',
+                  cursor: negRevealed ? 'default' : 'pointer',
+                  pointerEvents: negRevealed ? 'none' : 'auto',
                   textAlign: 'left',
                 }}
-                onClick={function (e) {
-                  const btn = e.target as HTMLButtonElement;
-                  btn.textContent = '❌ ' + t.neg;
-                  btn.style.background = '#fee2e2';
-                  btn.style.borderColor = '#dc2626';
-                  handleReveal(e, t.neg);
-                }}
+                onClick={() => handleReveal(negKey, t.neg)}
               >
-                🔴 Negative?
+                {negRevealed ? '❌ ' + t.neg : '🔴 Negative?'}
               </button>
             </div>
           </div>
