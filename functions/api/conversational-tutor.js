@@ -138,8 +138,8 @@ export async function onRequestPost(context) {
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY;
   if (!ANTHROPIC_KEY) {
-    return new Response(JSON.stringify({ error: 'not_configured' }), {
-      status: 500,
+    return new Response(JSON.stringify({ error: 'AI_KEY_MISSING' }), {
+      status: 503,
       headers: corsHeaders(origin),
     });
   }
