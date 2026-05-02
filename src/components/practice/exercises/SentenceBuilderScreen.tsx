@@ -86,39 +86,48 @@ function SentenceBuilderScreen({ goBack, award }: Props) {
               {'🇬🇧 '}
               {s.en}
             </div>
-            {(shuffledOpts[i] ?? []).map(function (o, oi) {
-              return (
-                <button
-                  key={oi}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    padding: '8px 12px',
-                    marginBottom: 4,
-                    border: `2px solid ${choices[i] === undefined ? '#e7e5e4' : choices[i] === o ? (o === s.hr ? '#16a34a' : '#dc2626') : '#e7e5e4'}`,
-                    borderRadius: 10,
-                    background:
-                      choices[i] === undefined
-                        ? 'white'
-                        : choices[i] === o
-                          ? o === s.hr
-                            ? '#dcfce7'
-                            : '#fee2e2'
-                          : 'white',
-                    fontSize: 13,
-                    textAlign: 'left',
-                    cursor: choices[i] !== undefined ? 'default' : 'pointer',
-                    pointerEvents: choices[i] !== undefined ? 'none' : 'auto',
-                  }}
-                  onClick={function () {
-                    handleAnswer(i, o, s.hr);
-                  }}
-                >
-                  {'🇭🇷 '}
-                  {o}
-                </button>
-              );
-            })}
+            <div
+              style={{
+                display: 'flex',
+                gap: 6,
+                flexWrap: 'wrap',
+                pointerEvents: choices[i] !== undefined ? 'none' : 'auto',
+              }}
+            >
+              {(shuffledOpts[i] ?? []).map(function (o, oi) {
+                return (
+                  <button
+                    key={oi}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '8px 12px',
+                      marginBottom: 4,
+                      border: `2px solid ${choices[i] === undefined ? '#e7e5e4' : choices[i] === o ? (o === s.hr ? '#16a34a' : '#dc2626') : '#e7e5e4'}`,
+                      borderRadius: 10,
+                      background:
+                        choices[i] === undefined
+                          ? 'white'
+                          : choices[i] === o
+                            ? o === s.hr
+                              ? '#dcfce7'
+                              : '#fee2e2'
+                            : 'white',
+                      fontSize: 13,
+                      textAlign: 'left',
+                      cursor: choices[i] !== undefined ? 'default' : 'pointer',
+                      pointerEvents: choices[i] !== undefined ? 'none' : 'auto',
+                    }}
+                    onClick={function () {
+                      handleAnswer(i, o, s.hr);
+                    }}
+                  >
+                    {'🇭🇷 '}
+                    {o}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         );
       })}

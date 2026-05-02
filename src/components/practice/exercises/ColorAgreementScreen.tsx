@@ -42,9 +42,9 @@ function ColorAgreementScreen({ goBack, award }: Props) {
       if (typeof award === 'function') award(3, false, 'grammar');
       speak(spoken);
     }
-    if (handledRef.current.size >= total && !done) {
-      setDone(true);
+    if (handledRef.current.size >= total) {
       markQuest('grammar');
+      setDone(true);
     }
   }
 
@@ -59,9 +59,9 @@ function ColorAgreementScreen({ goBack, award }: Props) {
       if (typeof award === 'function') award(3, false, 'grammar');
       speak(spoken);
     }
-    if (handledRef.current.size >= total && !done) {
-      setDone(true);
+    if (handledRef.current.size >= total) {
       markQuest('grammar');
+      setDone(true);
     }
   }
 
