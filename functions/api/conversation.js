@@ -441,7 +441,10 @@ export async function onRequestPost(context) {
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
   const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
   if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response('Unauthorized', { status: 401, headers: corsHeaders(origin) });
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   // Daily AI quota check (cost 2 — streaming conversation is heavier)
