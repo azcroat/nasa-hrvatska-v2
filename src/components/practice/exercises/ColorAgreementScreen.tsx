@@ -15,6 +15,20 @@ function ColorAgreementScreen({ goBack, award }: Props) {
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
+  const shuffledSingOpts = React.useMemo(
+    () =>
+      (singQuestions as { noun: string; en: string; opts: string[]; color: string }[]).map((q) =>
+        sh([...q.opts]),
+      ),
+    [singQuestions],
+  );
+  const shuffledPlurOpts = React.useMemo(
+    () =>
+      (plurQuestions as { noun: string; en: string; opts: string[]; color: string }[]).map((q) =>
+        sh([...q.opts]),
+      ),
+    [plurQuestions],
+  );
 
   function handleAnswer(
     e: React.MouseEvent<HTMLButtonElement>,
@@ -101,7 +115,7 @@ function ColorAgreementScreen({ goBack, award }: Props) {
               {') je _____'}
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
-              {sh(q.opts).map(function (o, oi) {
+              {(shuffledSingOpts[qi] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}
@@ -141,7 +155,7 @@ function ColorAgreementScreen({ goBack, award }: Props) {
               {') su _____'}
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
-              {sh(q.opts).map(function (o, oi) {
+              {(shuffledPlurOpts[qi] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}

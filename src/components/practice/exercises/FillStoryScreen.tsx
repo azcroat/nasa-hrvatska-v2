@@ -15,6 +15,22 @@ function FillStoryScreen({ goBack, award }: Props) {
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
+  const storyOffsets = React.useMemo(() => {
+    const offsets: number[] = [];
+    let offset = 0;
+    FILL_STORIES.forEach((story) => {
+      offsets.push(offset);
+      offset += (story.story as unknown[]).length;
+    });
+    return offsets;
+  }, []);
+  const shuffledOpts = React.useMemo(() => {
+    const result: string[][] = [];
+    FILL_STORIES.forEach((story) => {
+      (story.story as { opts: string[] }[]).forEach((s) => result.push(sh([...s.opts])));
+    });
+    return result;
+  }, []);
 
   function handleAnswer(e: React.MouseEvent<HTMLButtonElement>, isCorrect: boolean) {
     const btn = e.target as HTMLButtonElement;
@@ -55,7 +71,7 @@ function FillStoryScreen({ goBack, award }: Props) {
                     {s.text.replace('_____', '______')}
                   </div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {sh(s.opts).map(function (o, oi) {
+                    {(shuffledOpts[(storyOffsets[si] ?? 0) + qi] ?? []).map(function (o, oi) {
                       return (
                         <button
                           key={oi}

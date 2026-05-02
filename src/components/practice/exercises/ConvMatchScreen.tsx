@@ -15,6 +15,24 @@ function ConvMatchScreen({ goBack, award }: Props) {
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
+  const pairOffsets = React.useMemo(() => {
+    const offsets: number[] = [];
+    let offset = 0;
+    CONVMATCH.forEach((conv) => {
+      offsets.push(offset);
+      offset += (conv.pairs as unknown[]).length;
+    });
+    return offsets;
+  }, []);
+  const shuffledOpts = React.useMemo(() => {
+    const result: string[][] = [];
+    CONVMATCH.forEach((conv) => {
+      (conv.pairs as { q: string; a: string; wrong: string }[]).forEach((p) =>
+        result.push(sh([p.a, p.wrong])),
+      );
+    });
+    return result;
+  }, []);
 
   function handleAnswer(
     e: React.MouseEvent<HTMLButtonElement>,
@@ -73,7 +91,7 @@ function ConvMatchScreen({ goBack, award }: Props) {
                     {'🗣️ '}
                     {p.q}
                   </div>
-                  {sh([p.a, p.wrong]).map(function (o, oi) {
+                  {(shuffledOpts[(pairOffsets[ci] ?? 0) + pi] ?? []).map(function (o, oi) {
                     return (
                       <button
                         key={oi}

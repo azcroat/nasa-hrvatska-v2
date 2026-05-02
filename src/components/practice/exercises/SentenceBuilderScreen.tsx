@@ -15,6 +15,10 @@ function SentenceBuilderScreen({ goBack, award }: Props) {
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
+  const shuffledOpts = React.useMemo(
+    () => (questions as { en: string; hr: string; opts: string[] }[]).map((s) => sh([...s.opts])),
+    [questions],
+  );
 
   function handleAnswer(e: React.MouseEvent<HTMLButtonElement>, isCorrect: boolean) {
     const btn = e.target as HTMLButtonElement;
@@ -78,7 +82,7 @@ function SentenceBuilderScreen({ goBack, award }: Props) {
               {'🇬🇧 '}
               {s.en}
             </div>
-            {sh(s.opts).map(function (o, oi) {
+            {(shuffledOpts[i] ?? []).map(function (o, oi) {
               return (
                 <button
                   key={oi}

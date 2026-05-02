@@ -12,6 +12,13 @@ function LogicQuizScreen({ goBack, award }: Props) {
   const questions = shMemo('lq', LOGICQUIZ, undefined);
   const answeredRef = useRef(0);
   const [done, setDone] = useState(false);
+  const shuffledOpts = React.useMemo(
+    () =>
+      (questions as { q: string; right: string[]; wrong: string[] }[]).map((lq) =>
+        sh([...lq.right, ...lq.wrong]),
+      ),
+    [questions],
+  );
 
   function handleOptionClick(
     e: React.MouseEvent<HTMLButtonElement>,
@@ -55,7 +62,7 @@ function LogicQuizScreen({ goBack, award }: Props) {
         answers!
       </div>
       {questions.map(function (lq: { q: string; right: string[]; wrong: string[] }, li: number) {
-        const allOpts = sh(lq.right.concat(lq.wrong));
+        const allOpts = shuffledOpts[li] ?? [];
         return (
           <div key={li} className="c" style={{ marginBottom: 12, padding: '12px 14px' }}>
             <button

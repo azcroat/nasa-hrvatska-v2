@@ -13,6 +13,13 @@ function RiddlesScreen({ goBack, award }: Props) {
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
+  const shuffledOpts = React.useMemo(
+    () =>
+      (riddles as { clue: string; opts: string[]; answer: string; en: string }[]).map((r) =>
+        sh([...r.opts]),
+      ),
+    [riddles],
+  );
 
   function handleAnswer(
     e: React.MouseEvent<HTMLButtonElement>,
@@ -67,7 +74,7 @@ function RiddlesScreen({ goBack, award }: Props) {
               <span aria-hidden="true">🔊</span> "{r.clue}"
             </button>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {sh(r.opts).map(function (o, oi) {
+              {(shuffledOpts[ri] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}
