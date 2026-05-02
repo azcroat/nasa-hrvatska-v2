@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { QWORDS } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
@@ -19,15 +19,16 @@ function QuestionWordsScreen({ goBack, award }: Props) {
   const [answers, setAnswers] = useState(() => new Array(total).fill(null));
   const [selected, setSelected] = useState(() => new Array(total).fill(null));
 
-  const questFiredRef = useRef(false);
   const correctCount = answers.filter((a) => a === 'correct').length;
   const answeredCount = answers.filter((a) => a !== null).length;
   const allDone = answeredCount === total;
   const xpEarned = correctCount * 3;
-  if (allDone && !questFiredRef.current) {
-    questFiredRef.current = true;
+
+  React.useEffect(() => {
+    if (!allDone) return;
     markQuest('grammar');
-  }
+    if (xpEarned > 0 && typeof award === 'function') award(xpEarned, true, 'grammar');
+  }, [allDone]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleAnswer(
     qi: number,
@@ -47,7 +48,6 @@ function QuestionWordsScreen({ goBack, award }: Props) {
       return n;
     });
     if (isCorrect) {
-      if (typeof award === 'function') award(3, false, 'grammar');
       speak(q.q.replace('_____', q.a));
     }
   }
