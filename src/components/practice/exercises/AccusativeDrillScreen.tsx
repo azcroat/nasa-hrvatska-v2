@@ -13,24 +13,18 @@ function AccusativeDrillScreen({ goBack, award }: Props) {
   const foodItems = shMemo('af', AKUFOOD, undefined);
   const clothesItems = shMemo('ac', AKUCLOTHES, undefined);
   const total = foodItems.length + clothesItems.length;
-  const revealedRef = useRef(0);
+  const handledRef = useRef(new Set<number>());
+  const [revealed, setRevealed] = useState<Set<number>>(() => new Set());
   const [done, setDone] = useState(false);
 
-  function handleReveal(
-    e: React.MouseEvent<HTMLButtonElement>,
-    f: { aku: string; q: string; nom: string },
-  ) {
-    (e.target as HTMLButtonElement).textContent = f.aku;
-    (e.target as HTMLButtonElement).style.background = '#dcfce7';
-    (e.target as HTMLButtonElement).style.borderColor = '#16a34a';
-    speak(f.q.replace('_____', f.aku));
+  function handleReveal(flatIdx: number, item: { aku: string; q: string; nom: string }) {
+    if (handledRef.current.has(flatIdx)) return;
+    handledRef.current.add(flatIdx);
+    setRevealed((prev) => new Set([...prev, flatIdx]));
+    speak(item.q.replace('_____', item.aku));
     recordTopicResult('cases', true);
     if (typeof award === 'function') award(2, false, 'grammar');
-    const btn = e.target as HTMLButtonElement;
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    revealedRef.current++;
-    if (revealedRef.current >= total && !done) {
+    if (handledRef.current.size >= total) {
       markQuest('grammar');
       setDone(true);
     }
@@ -53,6 +47,8 @@ function AccusativeDrillScreen({ goBack, award }: Props) {
       </div>
       <h3 className="sh">🍔 Hrana (Food)</h3>
       {foodItems.map(function (f: { q: string; nom: string; aku: string }, i: number) {
+        const flatIdx = i;
+        const isRevealed = revealed.has(flatIdx);
         return (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <div style={{ flex: 1, fontSize: 12 }}>
@@ -63,17 +59,16 @@ function AccusativeDrillScreen({ goBack, award }: Props) {
             <button
               style={{
                 padding: '8px 14px',
-                border: '2px solid #d6d3d1',
+                border: `2px solid ${isRevealed ? '#16a34a' : '#d6d3d1'}`,
                 borderRadius: 10,
-                background: 'white',
+                background: isRevealed ? '#dcfce7' : 'white',
                 fontSize: 12,
-                cursor: 'pointer',
+                cursor: isRevealed ? 'default' : 'pointer',
+                pointerEvents: isRevealed ? 'none' : 'auto',
               }}
-              onClick={function (e) {
-                handleReveal(e, f);
-              }}
+              onClick={() => handleReveal(flatIdx, f)}
             >
-              Show
+              {isRevealed ? f.aku : 'Show'}
             </button>
           </div>
         );
@@ -82,6 +77,8 @@ function AccusativeDrillScreen({ goBack, award }: Props) {
         👚 Odjeća (Clothes)
       </h3>
       {clothesItems.map(function (cl: { q: string; nom: string; aku: string }, i: number) {
+        const flatIdx = foodItems.length + i;
+        const isRevealed = revealed.has(flatIdx);
         return (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <div style={{ flex: 1, fontSize: 12 }}>
@@ -92,17 +89,16 @@ function AccusativeDrillScreen({ goBack, award }: Props) {
             <button
               style={{
                 padding: '8px 14px',
-                border: '2px solid #d6d3d1',
+                border: `2px solid ${isRevealed ? '#16a34a' : '#d6d3d1'}`,
                 borderRadius: 10,
-                background: 'white',
+                background: isRevealed ? '#dcfce7' : 'white',
                 fontSize: 12,
-                cursor: 'pointer',
+                cursor: isRevealed ? 'default' : 'pointer',
+                pointerEvents: isRevealed ? 'none' : 'auto',
               }}
-              onClick={function (e) {
-                handleReveal(e, cl);
-              }}
+              onClick={() => handleReveal(flatIdx, cl)}
             >
-              Show
+              {isRevealed ? cl.aku : 'Show'}
             </button>
           </div>
         );
