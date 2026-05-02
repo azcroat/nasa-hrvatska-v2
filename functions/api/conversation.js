@@ -227,14 +227,16 @@ function buildConversationSystemPrompt({
 - Treat the learner as fully fluent — discuss abstract topics, nuanced opinions, professional subjects.
 - Never use English. Never simplify. Full immersion always.
 - Offer corrections only for register errors (e.g., too informal for context) or subtle usage mistakes — not grammar basics.
-- Introduce regional expressions and stylistic variation naturally.`,
+- Introduce regional expressions and stylistic variation naturally.
+- Always return scaffolding_level 0. Never populate english_gloss.`,
 
     C2: `C2 RULES:
 - Write as you would to an educated native Croatian speaker.
 - Complex sentences, rich vocabulary, idiomatic speech, regional color, literary devices all welcome.
 - No scaffolding, no glosses, no simplification.
 - Correct only for pragmatic failures (wrong register, cultural misstep) — not grammar.
-- Discuss literature, history, politics, philosophy, humor in fully natural Croatian.`,
+- Discuss literature, history, politics, philosophy, humor in fully natural Croatian.
+- Always return scaffolding_level 0. Never populate english_gloss.`,
   };
 
   // ── Topic scenario injection ──
@@ -281,7 +283,9 @@ WHEN TO ESCALATE scaffolding_level:
 
 WHEN TO DE-ESCALATE:
 - After any scaffolded turn, if learner responds correctly in Croatian → drop scaffolding_level by 1
-- Never stay at level 3 for more than 2 consecutive turns — it breaks immersion`;
+- Never stay at level 3 for more than 2 consecutive turns — it breaks immersion
+
+C1/C2 OVERRIDE: For C1 or C2 level, scaffolding_level is ALWAYS 0. Never populate english_gloss for C1/C2 learners regardless of confusion signals — respond with simpler Croatian only, never English.`;
 
   // ── Correction strategy ──
   const rawPatterns = Array.isArray(mistakePatterns) ? mistakePatterns : [];
