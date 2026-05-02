@@ -10,6 +10,10 @@ interface Props {
 
 function ComparativesScreen({ goBack, award }: Props) {
   const questions = shMemo('cq', COMPQUIZ, undefined);
+  const shuffledOpts = React.useMemo(
+    () => (questions as { q: string; opts: string[]; a: string }[]).map((q) => sh([...q.opts])),
+    [questions],
+  );
   const answeredRef = useRef(0);
   const correctRef = useRef(0);
   const [done, setDone] = useState(false);
@@ -144,7 +148,7 @@ function ComparativesScreen({ goBack, award }: Props) {
           <div key={qi} className="c" style={{ marginBottom: 8, padding: '10px 14px' }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{q.q}</div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {sh(q.opts).map(function (o, oi) {
+              {(shuffledOpts[qi] ?? []).map(function (o, oi) {
                 return (
                   <button
                     key={oi}
