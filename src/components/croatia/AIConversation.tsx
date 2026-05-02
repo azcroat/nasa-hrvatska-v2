@@ -525,6 +525,12 @@ export default function AIConversation({
     const decoder = new TextDecoder();
     let buffer = '';
     let result: MajaResult | null = null;
+    let streamTimedOut = false;
+    const STREAM_TIMEOUT_MS = 60_000;
+    const streamTimeoutId = setTimeout(() => {
+      streamTimedOut = true;
+      reader.cancel().catch(() => {});
+    }, STREAM_TIMEOUT_MS);
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -549,12 +555,16 @@ export default function AIConversation({
         }
       }
     } finally {
+      clearTimeout(streamTimeoutId);
       // Always release the stream lock — prevents connection exhaustion on errors
       try {
         reader.cancel();
       } catch {
         /* ignore cancel errors */
       }
+    }
+    if (streamTimedOut) {
+      throw new Error('The AI took too long to respond. Please try again.');
     }
     if (!result || !result.croatian)
       throw new Error('The AI returned an empty response. Please try again.');
