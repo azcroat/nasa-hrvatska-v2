@@ -12,9 +12,10 @@ function ConvMatchScreen({ goBack, award }: Props) {
   const total = CONVMATCH.reduce(function (sum, conv) {
     return sum + conv.pairs.length;
   }, 0);
-  const answeredRef = useRef(0);
-  const correctRef = useRef(0);
+  const handledRef = useRef(new Set<number>());
+  const correctCountRef = useRef(0);
   const [done, setDone] = useState(false);
+  const [choices, setChoices] = useState<Record<number, string>>({});
   const pairOffsets = React.useMemo(() => {
     const offsets: number[] = [];
     let offset = 0;
@@ -35,22 +36,21 @@ function ConvMatchScreen({ goBack, award }: Props) {
   }, []);
 
   function handleAnswer(
-    e: React.MouseEvent<HTMLButtonElement>,
-    isCorrect: boolean,
-    answer: string,
+    flatIdx: number,
+    chosenOption: string,
+    correctAnswer: string,
+    spoken: string,
   ) {
-    (e.target as HTMLButtonElement).style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    (e.target as HTMLButtonElement).style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+    if (handledRef.current.has(flatIdx)) return;
+    handledRef.current.add(flatIdx);
+    setChoices((prev) => ({ ...prev, [flatIdx]: chosenOption }));
+    const isCorrect = chosenOption === correctAnswer;
     if (isCorrect) {
+      correctCountRef.current++;
       if (typeof award === 'function') award(5, false, 'grammar');
-      speak(answer);
+      speak(spoken);
     }
-    const btn = e.target as HTMLButtonElement;
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    if (isCorrect) correctRef.current++;
-    answeredRef.current++;
-    if (answeredRef.current >= total && !done) {
+    if (handledRef.current.size >= total) {
       markQuest('speak');
       setDone(true);
     }
@@ -67,6 +67,8 @@ function ConvMatchScreen({ goBack, award }: Props) {
               {conv.title}
             </div>
             {conv.pairs.map(function (p, pi) {
+              const flatIdx = (pairOffsets[ci] ?? 0) + pi;
+              const chosen = choices[flatIdx];
               return (
                 <div
                   key={pi}
@@ -91,30 +93,40 @@ function ConvMatchScreen({ goBack, award }: Props) {
                     {'🗣️ '}
                     {p.q}
                   </div>
-                  {(shuffledOpts[(pairOffsets[ci] ?? 0) + pi] ?? []).map(function (o, oi) {
-                    return (
-                      <button
-                        key={oi}
-                        style={{
-                          display: 'block',
-                          width: '100%',
-                          padding: '8px 12px',
-                          marginBottom: 4,
-                          border: '2px solid #e7e5e4',
-                          borderRadius: 10,
-                          background: 'white',
-                          fontSize: 12,
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                        }}
-                        onClick={function (e) {
-                          handleAnswer(e, o === p.a, p.a);
-                        }}
-                      >
-                        {o}
-                      </button>
-                    );
-                  })}
+                  <div style={{ pointerEvents: chosen !== undefined ? 'none' : 'auto' }}>
+                    {(shuffledOpts[flatIdx] ?? []).map(function (o, oi) {
+                      return (
+                        <button
+                          key={oi}
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            padding: '8px 12px',
+                            marginBottom: 4,
+                            border: `2px solid ${chosen === undefined ? '#e7e5e4' : chosen === o ? (o === p.a ? '#16a34a' : '#dc2626') : '#e7e5e4'}`,
+                            borderRadius: 10,
+                            background:
+                              chosen === undefined
+                                ? 'white'
+                                : chosen === o
+                                  ? o === p.a
+                                    ? '#dcfce7'
+                                    : '#fee2e2'
+                                  : 'white',
+                            fontSize: 12,
+                            textAlign: 'left',
+                            cursor: chosen !== undefined ? 'default' : 'pointer',
+                            pointerEvents: chosen !== undefined ? 'none' : 'auto',
+                          }}
+                          onClick={function () {
+                            handleAnswer(flatIdx, o, p.a, p.a);
+                          }}
+                        >
+                          {o}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })}
@@ -124,14 +136,14 @@ function ConvMatchScreen({ goBack, award }: Props) {
       {done && (
         <div className="c" style={{ marginTop: 16, padding: '20px 16px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>
-            {correctRef.current / total >= 0.8
+            {correctCountRef.current / total >= 0.8
               ? '🏆'
-              : correctRef.current / total >= 0.6
+              : correctCountRef.current / total >= 0.6
                 ? '⭐'
                 : '💪'}
           </div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-            {correctRef.current}/{total} correct
+            {correctCountRef.current}/{total} correct
           </div>
           <button className="b bp" style={{ marginTop: 12 }} onClick={goBack}>
             ✓ Done
