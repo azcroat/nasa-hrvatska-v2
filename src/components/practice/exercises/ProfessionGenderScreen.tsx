@@ -40,17 +40,19 @@ interface Props {
 
 function ProfessionGenderScreen({ goBack, award }: Props) {
   const [tab, setTab] = useState('learn');
-  const [answers, setAnswers] = useState<Record<number, boolean>>({});
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const questFiredRef = useRef(false);
   const quiz = useMemo(() => buildQuiz(PROFGENDER), []);
 
-  const correctCount = Object.values(answers).filter(Boolean).length;
+  const correctCount = Object.entries(answers).filter(
+    ([qi, chosen]) => chosen === quiz[Number(qi)]?.a,
+  ).length;
   const allDone = Object.keys(answers).length === quiz.length;
 
   function handleAnswer(qi: number, opt: string, correct: string) {
     if (answers[qi] !== undefined) return;
     const isCorrect = opt === correct;
-    setAnswers((prev) => ({ ...prev, [qi]: isCorrect }));
+    setAnswers((prev) => ({ ...prev, [qi]: opt }));
     if (isCorrect) {
       if (typeof award === 'function') award(3, false, 'grammar');
       speak(opt);
@@ -211,7 +213,7 @@ function ProfessionGenderScreen({ goBack, award }: Props) {
                         bg = '#dcfce7';
                         bc = '#16a34a';
                         col = '#14532d';
-                      } else if (!chosen && oi === q.opts.indexOf(opt)) {
+                      } else if (opt === chosen && opt !== q.a) {
                         bg = '#fee2e2';
                         bc = '#dc2626';
                         col = '#7f1d1d';
