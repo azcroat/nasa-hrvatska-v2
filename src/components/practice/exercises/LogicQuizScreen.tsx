@@ -10,8 +10,9 @@ interface Props {
 
 function LogicQuizScreen({ goBack, award }: Props) {
   const questions = shMemo('lq', LOGICQUIZ, undefined);
-  const answeredRef = useRef(0);
+  const handledRef = useRef(new Set<number>());
   const [done, setDone] = useState(false);
+  const [questionChoices, setQuestionChoices] = useState<Record<number, string>>({});
   const shuffledOpts = React.useMemo(
     () =>
       (questions as { q: string; right: string[]; wrong: string[] }[]).map((lq) =>
@@ -20,27 +21,15 @@ function LogicQuizScreen({ goBack, award }: Props) {
     [questions],
   );
 
-  function handleOptionClick(
-    e: React.MouseEvent<HTMLButtonElement>,
-    isRight: boolean,
-    o: string,
-    onQuestionDone: () => void,
-  ) {
-    (e.target as HTMLButtonElement).style.background = isRight ? '#dcfce7' : '#fee2e2';
-    (e.target as HTMLButtonElement).style.borderColor = isRight ? '#16a34a' : '#dc2626';
+  function handleOptionClick(li: number, o: string, isRight: boolean) {
+    if (handledRef.current.has(li)) return;
+    handledRef.current.add(li);
+    setQuestionChoices((prev) => ({ ...prev, [li]: o }));
     if (isRight) {
       if (typeof award === 'function') award(3, false, 'grammar');
       speak(o);
     }
-    const btn = e.target as HTMLButtonElement;
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    onQuestionDone();
-  }
-
-  function onQuestionDone() {
-    answeredRef.current++;
-    if (answeredRef.current >= questions.length && !done) {
+    if (handledRef.current.size >= questions.length) {
       markQuest('grammar');
       setDone(true);
     }
@@ -63,6 +52,7 @@ function LogicQuizScreen({ goBack, award }: Props) {
       </div>
       {questions.map(function (lq: { q: string; right: string[]; wrong: string[] }, li: number) {
         const allOpts = shuffledOpts[li] ?? [];
+        const answered = questionChoices[li] !== undefined;
         return (
           <div key={li} className="c" style={{ marginBottom: 12, padding: '12px 14px' }}>
             <button
@@ -85,23 +75,38 @@ function LogicQuizScreen({ goBack, award }: Props) {
             >
               <span aria-hidden="true">🔊</span> {lq.q}
             </button>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 6,
+                flexWrap: 'wrap',
+                pointerEvents: answered ? 'none' : 'auto',
+              }}
+            >
               {allOpts.map(function (o, oi) {
                 const isRight = lq.right.indexOf(o) >= 0;
+                const wasChosen = questionChoices[li] === o;
                 return (
                   <button
                     key={oi}
                     style={{
                       padding: '8px 14px',
-                      border: '2px solid #d6d3d1',
+                      border: `2px solid ${!answered ? '#d6d3d1' : wasChosen ? (isRight ? '#16a34a' : '#dc2626') : '#d6d3d1'}`,
                       borderRadius: 10,
-                      background: 'white',
+                      background: !answered
+                        ? 'white'
+                        : wasChosen
+                          ? isRight
+                            ? '#dcfce7'
+                            : '#fee2e2'
+                          : 'white',
                       fontSize: 12,
                       fontWeight: 600,
-                      cursor: 'pointer',
+                      cursor: answered ? 'default' : 'pointer',
+                      pointerEvents: answered ? 'none' : 'auto',
                     }}
-                    onClick={function (e) {
-                      handleOptionClick(e, isRight, o, onQuestionDone);
+                    onClick={function () {
+                      handleOptionClick(li, o, isRight);
                     }}
                   >
                     {o}

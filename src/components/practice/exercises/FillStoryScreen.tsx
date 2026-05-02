@@ -12,9 +12,10 @@ function FillStoryScreen({ goBack, award }: Props) {
   const total = FILL_STORIES.reduce(function (sum, story) {
     return sum + story.story.length;
   }, 0);
-  const answeredRef = useRef(0);
-  const correctRef = useRef(0);
+  const handledRef = useRef(new Set<number>());
+  const correctCountRef = useRef(0);
   const [done, setDone] = useState(false);
+  const [choices, setChoices] = useState<Record<number, string>>({});
   const storyOffsets = React.useMemo(() => {
     const offsets: number[] = [];
     let offset = 0;
@@ -32,23 +33,16 @@ function FillStoryScreen({ goBack, award }: Props) {
     return result;
   }, []);
 
-  function handleAnswer(e: React.MouseEvent<HTMLButtonElement>, isCorrect: boolean) {
-    const btn = e.target as HTMLButtonElement;
-    const btns = btn.parentNode ? (btn.parentNode as HTMLElement).children : [];
-    for (let i = 0; i < btns.length; i++) {
-      (btns[i] as HTMLElement).style.background = 'white';
-      (btns[i] as HTMLElement).style.borderColor = '#d6d3d1';
-    }
-    btn.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
-    btn.style.borderColor = isCorrect ? '#16a34a' : '#dc2626';
+  function handleAnswer(flatIdx: number, chosenOption: string, correctAnswer: string) {
+    if (handledRef.current.has(flatIdx)) return;
+    handledRef.current.add(flatIdx);
+    setChoices((prev) => ({ ...prev, [flatIdx]: chosenOption }));
+    const isCorrect = chosenOption === correctAnswer;
     if (isCorrect) {
+      correctCountRef.current++;
       if (typeof award === 'function') award(3, false, 'grammar');
     }
-    if (btn.closest && btn.closest('div'))
-      (btn.closest('div') as HTMLElement).style.pointerEvents = 'none';
-    if (isCorrect) correctRef.current++;
-    answeredRef.current++;
-    if (answeredRef.current >= total && !done) {
+    if (handledRef.current.size >= total) {
       markQuest('grammar');
       setDone(true);
     }
@@ -65,27 +59,44 @@ function FillStoryScreen({ goBack, award }: Props) {
               {story.title}
             </div>
             {story.story.map(function (s, qi) {
+              const flatIdx = (storyOffsets[si] ?? 0) + qi;
+              const chosen = choices[flatIdx];
               return (
                 <div key={qi} style={{ marginBottom: 10 }}>
                   <div style={{ fontSize: 13, color: '#44403c', marginBottom: 4 }}>
                     {s.text.replace('_____', '______')}
                   </div>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {(shuffledOpts[(storyOffsets[si] ?? 0) + qi] ?? []).map(function (o, oi) {
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 6,
+                      flexWrap: 'wrap',
+                      pointerEvents: chosen !== undefined ? 'none' : 'auto',
+                    }}
+                  >
+                    {(shuffledOpts[flatIdx] ?? []).map(function (o, oi) {
                       return (
                         <button
                           key={oi}
                           style={{
                             padding: '6px 12px',
-                            border: '2px solid #d6d3d1',
+                            border: `2px solid ${chosen === undefined ? '#d6d3d1' : chosen === o ? (o === s.blank ? '#16a34a' : '#dc2626') : '#d6d3d1'}`,
                             borderRadius: 10,
-                            background: 'white',
+                            background:
+                              chosen === undefined
+                                ? 'white'
+                                : chosen === o
+                                  ? o === s.blank
+                                    ? '#dcfce7'
+                                    : '#fee2e2'
+                                  : 'white',
                             fontSize: 12,
                             fontWeight: 600,
-                            cursor: 'pointer',
+                            cursor: chosen !== undefined ? 'default' : 'pointer',
+                            pointerEvents: chosen !== undefined ? 'none' : 'auto',
                           }}
-                          onClick={function (e) {
-                            handleAnswer(e, o === s.blank);
+                          onClick={function () {
+                            handleAnswer(flatIdx, o, s.blank);
                           }}
                         >
                           {o}
@@ -103,14 +114,14 @@ function FillStoryScreen({ goBack, award }: Props) {
       {done && (
         <div className="c" style={{ marginTop: 16, padding: '20px 16px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>
-            {correctRef.current / total >= 0.8
+            {correctCountRef.current / total >= 0.8
               ? '🏆'
-              : correctRef.current / total >= 0.6
+              : correctCountRef.current / total >= 0.6
                 ? '⭐'
                 : '💪'}
           </div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-            {correctRef.current}/{total} correct
+            {correctCountRef.current}/{total} correct
           </div>
           <button className="b bp" style={{ marginTop: 12 }} onClick={goBack}>
             ✓ Done
