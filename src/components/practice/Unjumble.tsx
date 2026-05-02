@@ -19,6 +19,8 @@ export default function Unjumble({
   const total = ujQ.length;
   const q = ujQ[ujI];
 
+  const shuffledWords = React.useMemo(() => ujQ.map((q) => sh([...q.words])), [ujQ]);
+
   if (!q) {
     const xp = ujS * 3 + 10;
     return (
@@ -68,7 +70,7 @@ export default function Unjumble({
           "{q.en}"
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-          {sh(q.words).map((w, wi) => (
+          {(shuffledWords[ujI] ?? []).map((w, wi) => (
             <button
               key={wi}
               style={{
