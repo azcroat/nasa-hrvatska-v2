@@ -101,11 +101,28 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  // Sanitize subscription endpoint
+  // Sanitize subscription endpoint — must parse AND come from a known push service
+  let endpointUrl;
   try {
-    new URL(subscription.endpoint);
+    endpointUrl = new URL(subscription.endpoint);
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid endpoint URL' }), {
+      status: 400,
+      headers: corsHeaders(origin),
+    });
+  }
+  const ALLOWED_PUSH_DOMAINS = [
+    'fcm.googleapis.com',
+    'notify.windows.com',
+    'push.services.mozilla.com',
+    'updates.push.services.mozilla.com',
+    'web.push.apple.com',
+  ];
+  const domainAllowed = ALLOWED_PUSH_DOMAINS.some(
+    (d) => endpointUrl.hostname === d || endpointUrl.hostname.endsWith('.' + d),
+  );
+  if (!domainAllowed) {
+    return new Response(JSON.stringify({ error: 'Invalid push service' }), {
       status: 400,
       headers: corsHeaders(origin),
     });
