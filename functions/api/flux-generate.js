@@ -7,6 +7,7 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { corsHeaders, isAllowedOrigin, sanitizeParam, ok, err } from './_helpers.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 function buildVocabPrompt(word, meaning) {
   const clean = meaning.toLowerCase().replace(/^to\s+/, '');
@@ -37,6 +38,11 @@ export async function onRequestPost(context) {
 
   const allowed = await checkRateLimit(request, 4);
   if (!allowed) return err(429, 'Rate limited', origin);
+
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  if (!FIREBASE_PROJECT_ID) return err(500, 'Server misconfigured', origin);
+  const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+  if (!uid) return err(401, 'Unauthorized', origin);
 
   const REPLICATE_API_KEY = env.REPLICATE_API_KEY;
   if (!REPLICATE_API_KEY) return err(503, 'Image generation not configured', origin);
