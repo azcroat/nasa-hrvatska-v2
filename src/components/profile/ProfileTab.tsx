@@ -6,6 +6,7 @@ import SettingsTab from './SettingsTab';
 import PrestigeModal from './PrestigeModal';
 import ClanCard from '../home/ClanCard';
 import { useApp } from '../../context/AppContext';
+import { useStats } from '../../context/StatsContext';
 
 export default function ProfileTab({
   syncReady,
@@ -19,6 +20,7 @@ export default function ProfileTab({
   lastSyncedAt?: number;
 }) {
   const { au: authUser } = useApp();
+  const { setStats } = useStats();
   const [ptab, setPTab] = useState('stats');
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
@@ -114,8 +116,11 @@ export default function ProfileTab({
             const newPrestige = prestigeLevel + 1;
             localStorage.setItem('nh_prestige', String(newPrestige));
             localStorage.setItem('nh_xp', '0');
+            setStats((prev) => ({ ...prev, xp: 0 }));
             setShowPrestigeModal(false);
-            if (onSyncNow) onSyncNow();
+            setTimeout(() => {
+              if (onSyncNow) onSyncNow();
+            }, 0);
           }}
         />
       )}
