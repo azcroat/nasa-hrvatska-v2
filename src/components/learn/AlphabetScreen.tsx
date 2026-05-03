@@ -73,7 +73,6 @@ export default function AlphabetScreen({ goBack, award }: Props) {
       setAnswered(false);
       setSelected(null);
     } else {
-      markQuest('grammar');
       setQuizDone(true);
     }
   }
@@ -206,6 +205,7 @@ export default function AlphabetScreen({ goBack, award }: Props) {
                 if (!awardFired.current) {
                   awardFired.current = true;
                   if (typeof award === 'function') award(20, false, 'vocabulary');
+                  markQuest('grammar');
                 }
                 if (!stats.vs?.includes('alphabet')) {
                   setStats((prev) => {
