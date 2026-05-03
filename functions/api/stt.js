@@ -11,6 +11,7 @@
 // MediaRecorder output: audio/webm;codecs=opus (Chrome/Edge), audio/ogg (Firefox), audio/mp4 (Safari)
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 function isAllowedOrigin(origin, isDev) {
   if (!origin) return true; // PWA standalone / Capacitor
@@ -143,6 +144,21 @@ export async function onRequestPost(context) {
   if (!allowed) {
     return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
       status: 429,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
+  }
+
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  if (!FIREBASE_PROJECT_ID) {
+    return new Response(JSON.stringify({ error: 'server_misconfigured' }), {
+      status: 500,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
+  }
+  const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+  if (!uid) {
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
     });
   }
