@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { H, speak, sh } from '../../data';
 import { REGIONS, ROLEPLAY, RECIPES } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -18,6 +18,9 @@ export function RegionScreen({ regionKey, goBack }: RegionProps) {
   const [quizDone, setQuizDone] = useState(false);
   const [expandedPerson, setExpandedPerson] = useState<number | null>(null);
   const r = (REGIONS as Record<string, (typeof REGIONS)[keyof typeof REGIONS]>)[regionKey]!;
+
+  const quizFinishFired = useRef(false);
+  const frozenOpts = useMemo(() => r.quiz.map((q) => sh([q.a, ...q.al])), [r]);
 
   const TABS = [
     { id: 'overview', label: 'Overview', icon: '📖' },
@@ -44,9 +47,12 @@ export function RegionScreen({ regionKey, goBack }: RegionProps) {
         setQuizI((i) => i + 1);
         setQuizSel(null);
       } else {
-        const finalScore = correct ? quizScore + 1 : quizScore;
-        markQuest('culture');
-        if (typeof award === 'function') award(finalScore * 5 + 10, false, 'culture');
+        if (!quizFinishFired.current) {
+          quizFinishFired.current = true;
+          const finalScore = correct ? quizScore + 1 : quizScore;
+          markQuest('culture');
+          if (typeof award === 'function') award(finalScore * 5 + 10, false, 'culture');
+        }
         setQuizDone(true);
       }
     }, 1400);
@@ -359,7 +365,7 @@ export function RegionScreen({ regionKey, goBack }: RegionProps) {
                   {r.quiz[quizI]!.q}
                 </div>
               </div>
-              {sh([r.quiz[quizI]!.a, ...r.quiz[quizI]!.al]).map(function (opt, i) {
+              {(frozenOpts[quizI] ?? []).map(function (opt, i) {
                 const chosen = quizSel === opt;
                 const correct = opt === r.quiz[quizI]!.a;
                 const revealed = quizSel !== null;
