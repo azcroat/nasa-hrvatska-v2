@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { H, speak, sh } from '../../data';
 import { TEXTING } from '../../data';
@@ -34,6 +34,7 @@ export default function TextingScreen({ goBack, award }: Props) {
   const [done, setDone] = useState(false);
 
   const questions = useMemo(() => buildQuiz(TEXTING), []);
+  const finishFired = useRef(false);
 
   function startQuiz() {
     setPhase('quiz');
@@ -59,9 +60,12 @@ export default function TextingScreen({ goBack, award }: Props) {
       setAnswered(false);
       setSelected(-1);
     } else {
-      const xp = Math.round((score / questions.length) * 20) + 5;
-      if (award) award(xp, false, 'culture');
-      markQuest('culture');
+      if (!finishFired.current) {
+        finishFired.current = true;
+        const xp = Math.round((score / questions.length) * 20) + 5;
+        if (award) award(xp, false, 'culture');
+        markQuest('culture');
+      }
       setDone(true);
     }
   }
