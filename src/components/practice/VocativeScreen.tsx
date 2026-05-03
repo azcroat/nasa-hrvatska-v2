@@ -34,6 +34,8 @@ export default function VocativeScreen({
   const total = quizQ.length;
   const pct = Math.round((score / total) * 100);
 
+  const shuffledOpts = React.useMemo(() => quizQ.map((q) => sh([q.a, ...q.al])), [quizQ]);
+
   // ── Phase: Rules ───────────────────────────────────────────────────────────
   if (phase === 'rules') {
     return (
@@ -245,7 +247,7 @@ export default function VocativeScreen({
     }
 
     const q = quizQ[qi]!;
-    const opts = sh([q.a, ...q.al]);
+    const opts = shuffledOpts[qi] ?? [];
 
     return (
       <div className="scr-wrap">
