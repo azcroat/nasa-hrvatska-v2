@@ -31,6 +31,7 @@ export function RegionScreen({ regionKey, goBack }: RegionProps) {
   ];
 
   function resetQuiz() {
+    quizFinishFired.current = false;
     setQuizI(0);
     setQuizSel(null);
     setQuizScore(0);
