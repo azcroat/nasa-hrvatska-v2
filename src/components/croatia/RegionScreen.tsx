@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { sh } from '../../data';
 import { REGIONS } from '../../data';
 
@@ -15,6 +15,7 @@ function RegionScreen({ regionKey, goBack }: Props) {
   const [quizDone, setQuizDone] = useState(false);
   const [expandedPerson, setExpandedPerson] = useState<number | null>(null);
   const r = (REGIONS as Record<string, (typeof REGIONS)[keyof typeof REGIONS]>)[regionKey]!;
+  const frozenOpts = useMemo(() => r.quiz.map((q) => sh([q.a, ...q.al])), [r]);
 
   const TABS = [
     { id: 'overview', label: 'Overview', icon: '📖' },
@@ -351,7 +352,7 @@ function RegionScreen({ regionKey, goBack }: Props) {
                   {r.quiz[quizI]!.q}
                 </div>
               </div>
-              {sh([r.quiz[quizI]!.a, ...r.quiz[quizI]!.al]).map(function (opt, i) {
+              {(frozenOpts[quizI] ?? []).map(function (opt, i) {
                 const chosen = quizSel === opt;
                 const correct = opt === r.quiz[quizI]!.a;
                 const revealed = quizSel !== null;
