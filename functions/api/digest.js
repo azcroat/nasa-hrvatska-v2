@@ -155,7 +155,7 @@ export async function onRequestPost(ctx) {
       /* not JSON */
     }
     console.error('digest.js: Resend error', res.status, errMsg);
-    return errJson(errMsg || 'Email service error', 502, hdrs);
+    return errJson('Email service temporarily unavailable', 502, hdrs);
   }
 
   // Block 4: parse JSON — catches malformed responses
