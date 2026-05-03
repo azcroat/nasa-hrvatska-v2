@@ -140,7 +140,7 @@ export async function onRequestPost(context) {
   }
 
   // Rate limit: 30 requests/minute (each VAD clip is ~2–5 s of audio)
-  const allowed = await checkRateLimit(request, 30);
+  const allowed = await checkRateLimit(request, 30, env);
   if (!allowed) {
     return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
       status: 429,

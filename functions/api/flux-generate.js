@@ -36,7 +36,7 @@ export async function onRequestPost(context) {
 
   if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
-  const allowed = await checkRateLimit(request, 4);
+  const allowed = await checkRateLimit(request, 4, env);
   if (!allowed) return err(429, 'Rate limited', origin);
 
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';

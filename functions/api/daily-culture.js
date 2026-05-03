@@ -35,7 +35,7 @@ export async function onRequestGet(context) {
 
   if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
-  const allowed = await checkRateLimit(request, 20);
+  const allowed = await checkRateLimit(request, 20, env);
   if (!allowed) return err(429, 'Rate limited', origin);
 
   const ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;

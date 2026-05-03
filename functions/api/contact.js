@@ -59,7 +59,7 @@ export async function onRequestPost(context) {
     });
   }
 
-  const allowed = await checkRateLimit(request, 5);
+  const allowed = await checkRateLimit(request, 5, env);
   if (!allowed) {
     return new Response(
       JSON.stringify({ ok: false, error: 'Too many requests. Please wait a minute.' }),

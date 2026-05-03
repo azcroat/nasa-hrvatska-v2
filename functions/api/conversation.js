@@ -425,7 +425,7 @@ export async function onRequestPost(context) {
   }
 
   // Stricter rate limit for conversation (expensive endpoint)
-  const allowed = await checkRateLimit(request, SESSION_RATE_LIMIT_PER_MINUTE);
+  const allowed = await checkRateLimit(request, SESSION_RATE_LIMIT_PER_MINUTE, env);
   if (!allowed) {
     return new Response(
       JSON.stringify({

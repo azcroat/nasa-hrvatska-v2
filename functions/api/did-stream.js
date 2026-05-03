@@ -28,7 +28,7 @@ export async function onRequestPost(context) {
   if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
   // Strict rate limit — D-ID is expensive
-  const allowed = await checkRateLimit(request, 5);
+  const allowed = await checkRateLimit(request, 5, env);
   if (!allowed) return err(429, 'Rate limited', origin);
 
   const DID_API_KEY = env.DID_API_KEY;
