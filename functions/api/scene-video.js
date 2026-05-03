@@ -97,7 +97,7 @@ export async function onRequestGet({ request, env }) {
     });
   }
 
-  const allowed = await checkRateLimit(request, 30);
+  const allowed = await checkRateLimit(request, 30, env);
   if (!allowed) {
     return new Response(JSON.stringify({ ok: false, error: 'Rate limit exceeded' }), {
       status: 429,

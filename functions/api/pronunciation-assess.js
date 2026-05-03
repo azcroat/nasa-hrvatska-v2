@@ -104,7 +104,7 @@ export async function onRequestPost({ request, env }) {
   if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
   // Rate limit: 10 requests per minute per IP
-  const allowed = await checkRateLimit(request, 10);
+  const allowed = await checkRateLimit(request, 10, env);
   if (!allowed) {
     return new Response(JSON.stringify({ ok: false, error: 'rate_limit' }), {
       status: 429,

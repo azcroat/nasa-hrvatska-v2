@@ -43,7 +43,7 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  const allowed = await checkRateLimit(request, 10); // 10/min — subscribe is rare
+  const allowed = await checkRateLimit(request, 10, env); // 10/min — subscribe is rare
   if (!allowed) {
     return new Response(JSON.stringify({ error: 'rate_limit' }), {
       status: 429,

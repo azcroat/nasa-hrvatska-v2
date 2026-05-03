@@ -120,7 +120,7 @@ export async function onRequestPost({ request, env }) {
   const isDev = env.ENVIRONMENT !== 'production';
   if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
-  const allowed = await checkRateLimit(request, 40);
+  const allowed = await checkRateLimit(request, 40, env);
   if (!allowed) {
     return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
       status: 429,

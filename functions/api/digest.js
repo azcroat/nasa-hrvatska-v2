@@ -46,7 +46,7 @@ export async function onRequestPost(ctx) {
     return errJson('Forbidden', 403, hdrs);
   }
 
-  const allowed = await checkRateLimit(ctx.request, 5); // 5 per minute max
+  const allowed = await checkRateLimit(ctx.request, 5, ctx.env); // 5 per minute max
   if (!allowed) {
     return errJson('Rate limit exceeded', 429, hdrs);
   }

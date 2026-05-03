@@ -89,7 +89,7 @@ export async function onRequestPost({ request, env }) {
   const origin = request.headers.get('origin') || '';
 
   // Rate limit by IP — checkRateLimit returns true=allowed, false=rate-limited
-  const allowed = await checkRateLimit(request, 30);
+  const allowed = await checkRateLimit(request, 30, env);
   if (!allowed) return err(429, 'Rate limit exceeded', origin);
 
   const kv = env.NH_CLANS;

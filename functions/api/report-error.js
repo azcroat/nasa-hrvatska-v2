@@ -112,7 +112,7 @@ export async function onRequestPost(context) {
   }
 
   // 30 reports/min per IP — prevents log-flood abuse
-  const allowed = await checkRateLimit(request, 30);
+  const allowed = await checkRateLimit(request, 30, env);
   if (!allowed) {
     return new Response(JSON.stringify({ ok: true }), {
       status: 200, // Return 200 so sendBeacon doesn't retry

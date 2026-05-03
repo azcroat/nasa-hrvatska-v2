@@ -216,7 +216,7 @@ export async function onRequest(context) {
 
   // Rate limit: 30/min for GET, 10/min for POST
   const limit = request.method === 'POST' ? 10 : 30;
-  const allowed = await checkRateLimit(request, limit);
+  const allowed = await checkRateLimit(request, limit, env);
   if (!allowed) return err('Too many requests. Please wait a moment.', 429, origin);
 
   // Auth — required for both GET and POST
