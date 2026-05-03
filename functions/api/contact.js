@@ -295,7 +295,8 @@ export async function onRequestPost(context) {
       },
     );
   } catch (e) {
-    return new Response(JSON.stringify({ ok: false, error: e.message }), {
+    console.error('[contact] Resend network error:', e.message);
+    return new Response(JSON.stringify({ ok: false, error: 'Service temporarily unavailable.' }), {
       status: 502,
       headers: { ...CORS(origin), 'Content-Type': 'application/json' },
     });
