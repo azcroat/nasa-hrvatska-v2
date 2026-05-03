@@ -1,9 +1,10 @@
 // Cloudflare Pages Function — Azure Pronunciation Assessment
 // Accepts a base64-encoded WAV recording + reference text, submits to Azure
 // Cognitive Services Pronunciation Assessment REST API, and returns phoneme-level
-// scores. No Firebase auth required; protected by IP-based rate limiting only.
+// scores. Requires Firebase auth token (Authorization: Bearer <token>).
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 // ── CORS helpers (same pattern as pronunciation-coach.js) ─────────────────────
 function isAllowedOrigin(origin, isDev) {
@@ -110,6 +111,11 @@ export async function onRequestPost({ request, env }) {
       headers: corsHeaders(origin),
     });
   }
+
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  if (!FIREBASE_PROJECT_ID) return err(500, 'Server misconfigured', origin);
+  const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+  if (!uid) return err(401, 'Unauthorized', origin);
 
   // Check env vars early — return a clear signal so the client can fall back.
   const AZURE_KEY = env.AZURE_SPEECH_KEY;
