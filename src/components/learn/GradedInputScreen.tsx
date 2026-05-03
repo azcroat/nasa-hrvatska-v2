@@ -874,6 +874,7 @@ export default function GradedInputScreen({
 }) {
   const [view, setView] = useState('list'); // 'list' | 'reader' | 'quiz'
   const [story, setStory] = useState<GradedStory | null>(null);
+  const completeFired = useRef(false);
 
   function selectStory(s: GradedStory) {
     setStory(s);
@@ -885,6 +886,8 @@ export default function GradedInputScreen({
   }
 
   function complete(xp: number) {
+    if (completeFired.current) return;
+    completeFired.current = true;
     if (story) markDone(story.id);
     if (typeof award === 'function') award(xp, false, 'reading');
     markQuest('reading');
