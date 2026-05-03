@@ -3,7 +3,7 @@
  * in-memory fallback (per-isolate, ephemeral).
  *
  * D1 provides atomic increments via INSERT ... ON CONFLICT DO UPDATE ... RETURNING,
- * eliminating the per-datacenter bypass possible with Cache API alone.
+ * eliminating the cross-datacenter bypass possible with Cache API alone.
  *
  * Required D1 table (run once in Cloudflare Dashboard → D1 → AI_QUOTA_DB):
  *   CREATE TABLE IF NOT EXISTS rate_limits (
@@ -33,10 +33,10 @@ function _cleanFallback() {
 function _fallbackCheck(key, limit) {
   _cleanFallback();
   const fallbackLimit = Math.max(1, Math.floor(limit * 0.5));
-  const window = Math.floor(Date.now() / 60000);
+  const minuteWindow = Math.floor(Date.now() / 60000);
   const existing = _fallbackCounters.get(key);
-  if (!existing || existing.windowStart !== window) {
-    _fallbackCounters.set(key, { count: 1, windowStart: window });
+  if (!existing || existing.windowStart !== minuteWindow) {
+    _fallbackCounters.set(key, { count: 1, windowStart: minuteWindow });
     return true;
   }
   if (existing.count >= fallbackLimit) return false;
@@ -48,6 +48,13 @@ function _fallbackCheck(key, limit) {
 async function _d1Check(db, key, limit) {
   const minute = Math.floor(Date.now() / 60000);
   const now = Date.now();
+  // Probabilistic cleanup: ~1% of requests purge rows older than 2 minutes
+  if (Math.random() < 0.01) {
+    db.prepare('DELETE FROM rate_limits WHERE updated_at < ?1')
+      .bind(now - 120000)
+      .run()
+      .catch(() => {});
+  }
   try {
     const row = await db
       .prepare(
