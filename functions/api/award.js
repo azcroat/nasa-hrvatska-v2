@@ -20,6 +20,8 @@ import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { corsHeaders, isAllowedOrigin } from './_helpers.js';
 
+const VALID_ACTIVITY_TYPES = new Set(Object.keys(ACTIVITY_XP_MAP).filter((k) => k !== 'default'));
+
 const VELOCITY_BUDGET = 600; // XP per window
 const VELOCITY_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const VELOCITY_TTL_S = 700; // KV TTL: 10 min + 2 min buffer
@@ -78,6 +80,12 @@ export async function onRequestPost(context) {
   const { activityType, claimedXp } = body || {};
 
   if (typeof activityType !== 'string' || !activityType.trim()) {
+    return new Response(JSON.stringify({ error: 'invalid_activity_type' }), {
+      status: 400,
+      headers: corsHeaders(origin),
+    });
+  }
+  if (!VALID_ACTIVITY_TYPES.has(activityType)) {
     return new Response(JSON.stringify({ error: 'invalid_activity_type' }), {
       status: 400,
       headers: corsHeaders(origin),
