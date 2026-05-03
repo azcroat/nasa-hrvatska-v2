@@ -5,7 +5,7 @@
  * a scrollable transcript with per-line audio, then reveals 3 comprehension
  * questions. Awards 15 XP on completion. Resets once per day.
  */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { speak } from '../../lib/audio.js';
@@ -68,6 +68,7 @@ export default function DailyListeningCard({
   const [score, setScore] = useState(0);
   const [speakingLine, setSpeakingLine] = useState<string | null>(null);
   const completedKey = getCompletedKey(level);
+  const checkAnswersFired = useRef(false);
   const alreadyDone =
     phase !== 'done' &&
     (() => {
@@ -115,13 +116,17 @@ export default function DailyListeningCard({
     });
     setScore(correct);
     setChecked(true);
-    // Award XP proportional to score
-    const xp = Math.round(XP_REWARD * (0.5 + (correct / Math.max(data.questions.length, 1)) * 0.5));
-    if (award) award(xp, false, 'listening');
-    markQuest('speak');
-    try {
-      localStorage.setItem(completedKey, '1');
-    } catch {}
+    if (!checkAnswersFired.current) {
+      checkAnswersFired.current = true;
+      const xp = Math.round(
+        XP_REWARD * (0.5 + (correct / Math.max(data.questions.length, 1)) * 0.5),
+      );
+      if (award) award(xp, false, 'listening');
+      markQuest('speak');
+      try {
+        localStorage.setItem(completedKey, '1');
+      } catch {}
+    }
     setTimeout(() => setPhase('done'), 400);
   }, [data, answers, award, completedKey]);
 
