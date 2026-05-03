@@ -13,6 +13,22 @@ function corsHeaders(origin) {
   };
 }
 
+function isAllowedOrigin(origin, isDev) {
+  if (!origin) return true; // PWA standalone / Capacitor
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
@@ -21,6 +37,14 @@ export async function onRequestOptions({ request }) {
 export async function onRequestPost(context) {
   const { request, env } = context;
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
+
+  if (!isAllowedOrigin(origin, isDev)) {
+    return new Response(JSON.stringify({ error: 'forbidden' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+    });
+  }
 
   const allowed = await checkRateLimit(request, 30);
   if (!allowed) {
