@@ -789,6 +789,7 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
           setBreakdownCount(0);
           setTurnCount(0);
           setSessionHistory('');
+          milestone10Fired.current = false;
         }}
       />
     );
