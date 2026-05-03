@@ -147,6 +147,7 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const apiMsgsRef = useRef<{ role: string; content: string }[]>([]); // mirrors messages but only role+content for API calls
   const recordingStreamRef = useRef<MediaStream | null>(null);
+  const milestone10Fired = useRef<boolean>(false);
 
   // ── Check mic permission on mount ─────────
   useEffect(() => {
@@ -329,7 +330,8 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
         setTurnCount(newTurn);
         if (typeof award === 'function') {
           award(5, false, 'speaking');
-          if (newTurn === 10) {
+          if (newTurn === 10 && !milestone10Fired.current) {
+            milestone10Fired.current = true;
             award(20, false, 'speaking');
             markQuest('speak');
           }
