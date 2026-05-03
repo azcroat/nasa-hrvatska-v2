@@ -4,30 +4,7 @@
 // Adding MYMEMORY_EMAIL env var lifts the limit from 1k → 10k words/day.
 
 import { checkRateLimit } from './_rateLimit.js';
-
-function corsHeaders(origin) {
-  return {
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
-}
-
-function isAllowedOrigin(origin, isDev) {
-  if (!origin) return true; // PWA standalone / Capacitor
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
+import { corsHeaders, isAllowedOrigin } from './_helpers.js';
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
