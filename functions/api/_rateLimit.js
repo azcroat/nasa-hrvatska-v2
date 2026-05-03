@@ -5,13 +5,7 @@
  * D1 provides atomic increments via INSERT ... ON CONFLICT DO UPDATE ... RETURNING,
  * eliminating the cross-datacenter bypass possible with Cache API alone.
  *
- * Required D1 table (run once in Cloudflare Dashboard → D1 → AI_QUOTA_DB):
- *   CREATE TABLE IF NOT EXISTS rate_limits (
- *     key           TEXT    PRIMARY KEY,
- *     count         INTEGER NOT NULL DEFAULT 0,
- *     window_minute INTEGER NOT NULL,
- *     updated_at    INTEGER NOT NULL
- *   );
+ * The rate_limits table is created automatically on first use (no manual migration needed).
  */
 
 // ── Module-level fallback map ─────────────────────────────────────────────────
@@ -45,9 +39,32 @@ function _fallbackCheck(key, limit) {
 }
 
 // ── D1 tier (globally consistent) ────────────────────────────────────────────
+// Module-level flag: table creation attempted once per isolate cold-start
+let _rlTableReady = false;
+
+async function _ensureRlTable(db) {
+  if (_rlTableReady) return;
+  try {
+    await db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS rate_limits (
+           key           TEXT    PRIMARY KEY,
+           count         INTEGER NOT NULL DEFAULT 0,
+           window_minute INTEGER NOT NULL,
+           updated_at    INTEGER NOT NULL
+         )`,
+      )
+      .run();
+    _rlTableReady = true;
+  } catch {
+    // Table may already exist or DDL may be unavailable — ignore
+  }
+}
+
 async function _d1Check(db, key, limit) {
   const minute = Math.floor(Date.now() / 60000);
   const now = Date.now();
+  await _ensureRlTable(db);
   // Probabilistic cleanup: ~1% of requests purge rows older than 2 minutes
   if (Math.random() < 0.01) {
     db.prepare('DELETE FROM rate_limits WHERE updated_at < ?1')
