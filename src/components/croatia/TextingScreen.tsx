@@ -43,6 +43,7 @@ export default function TextingScreen({ goBack, award }: Props) {
     setSelected(-1);
     setScore(0);
     setDone(false);
+    finishFired.current = false;
   }
 
   function pick(i: number) {
