@@ -22,6 +22,17 @@
 
 import { corsHeaders, isAllowedOrigin } from './_helpers.js';
 
+// ── Timing-safe string comparison ────────────────────────────────────────────
+function timingSafeEqual(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  const te = new TextEncoder();
+  const aBytes = te.encode(a);
+  const bBytes = te.encode(b);
+  let diff = 0;
+  for (let i = 0; i < aBytes.length; i++) diff |= aBytes[i] ^ bBytes[i];
+  return diff === 0;
+}
+
 // ── Base64URL helpers ─────────────────────────────────────────────────────────
 function b64url(input) {
   const str = typeof input === 'string' ? input : String.fromCharCode(...new Uint8Array(input));
@@ -139,7 +150,7 @@ export async function onRequestPost(context) {
 
   // Auth — must supply the CRON_SECRET
   const CRON_SECRET = env.CRON_SECRET;
-  if (!CRON_SECRET || body.secret !== CRON_SECRET) {
+  if (!CRON_SECRET || !timingSafeEqual(body.secret, CRON_SECRET)) {
     return new Response(JSON.stringify({ error: 'unauthorized' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
