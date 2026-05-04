@@ -1210,6 +1210,20 @@ const LEARN_PATH = [
         lessonId: 'time-calendar',
       },
       {
+        id: 'lp_present_tense',
+        name: 'Present Tense Verbs',
+        diff: 2,
+        dur: '~10 min',
+        cat: 'grammar',
+        icon: '🔄',
+        desc: "Three conjugation classes (-em/-im/-am), biti, htjeti, and 15 verbs you'll use every day",
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_present_tense')) || s.lc >= 6;
+        },
+        go: 'animlesson',
+        lessonId: 'present-tense-verbs',
+      },
+      {
         id: 'lp11',
         name: 'First Quiz',
         diff: 1,

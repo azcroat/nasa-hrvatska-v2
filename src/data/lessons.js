@@ -3823,4 +3823,166 @@ export const LESSONS = [
       },
     ],
   },
+
+  // ─────────────────────────────────────────────────────────
+  // LESSON: Present Tense Verbs (A1-A2)
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'present-tense-verbs',
+    title: 'Present Tense Verbs',
+    subtitle: 'Master the three conjugation classes and 15 essential verbs',
+    icon: '🔄',
+    level: 'A1',
+    duration: '~10 min',
+    color: '#0891b2',
+    bg: '#ecfeff',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Present Tense in Croatian',
+        body: 'Croatian verbs change their endings based on who is doing the action. There are three conjugation classes, each with a different vowel in the ending (-em, -im, -am). Once you know which class a verb belongs to, you can conjugate any verb in that class instantly.',
+        icon: '🔄',
+      },
+      {
+        type: 'rule',
+        title: 'The Three Conjugation Classes',
+        body: 'Class 1 (-em class): the vowel E appears in the ending — pijem, idem, zovem. Class 2 (-im class): the vowel I appears — govorim, vidim, volim. Class 3 (-am class): the vowel A appears — imam, znam, čitam. The infinitive ending is the best clue: -ati (mostly Class 3), -iti/-eti (mostly Class 2), -ati with consonant change (often Class 1).',
+        highlight: '-em / -im / -am',
+      },
+      {
+        type: 'table',
+        title: 'Class 1: -em Conjugation (piti — to drink)',
+        headers: ['Person', 'Croatian', 'English'],
+        rows: [
+          ['ja (I)', 'pijem', 'I drink'],
+          ['ti (you)', 'piješ', 'you drink'],
+          ['on/ona/ono (he/she/it)', 'pije', 'he/she drinks'],
+          ['mi (we)', 'pijemo', 'we drink'],
+          ['vi (you pl.)', 'pijete', 'you (all) drink'],
+          ['oni/one (they)', 'piju', 'they drink'],
+        ],
+      },
+      {
+        type: 'table',
+        title: 'Class 2: -im Conjugation (govoriti — to speak)',
+        headers: ['Person', 'Croatian', 'English'],
+        rows: [
+          ['ja', 'govorim', 'I speak'],
+          ['ti', 'govoriš', 'you speak'],
+          ['on/ona', 'govori', 'he/she speaks'],
+          ['mi', 'govorimo', 'we speak'],
+          ['vi', 'govorite', 'you (all) speak'],
+          ['oni', 'govore', 'they speak'],
+        ],
+      },
+      {
+        type: 'table',
+        title: 'Class 3: -am Conjugation (imati — to have)',
+        headers: ['Person', 'Croatian', 'English'],
+        rows: [
+          ['ja', 'imam', 'I have'],
+          ['ti', 'imaš', 'you have'],
+          ['on/ona', 'ima', 'he/she has'],
+          ['mi', 'imamo', 'we have'],
+          ['vi', 'imate', 'you (all) have'],
+          ['oni', 'imaju', 'they have'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'The Two Irregular Essentials: biti & htjeti',
+        body: '"Biti" (to be) is the most irregular verb in Croatian but the most important. Present tense: jesam/sam, jesi/si, jest/je, jesmo/smo, jeste/ste, jesu/su. The short clitic forms (sam, si, je, smo, ste, su) are used in sentences; the long forms (jesam, jesi...) are used for emphasis or questions. "Htjeti" (to want): hoću, hoćeš, hoće, hoćemo, hoćete, hoće.',
+        highlight: 'biti is irregular',
+      },
+      {
+        type: 'table',
+        title: '15 High-Frequency Verbs — Class at a Glance',
+        headers: ['Infinitive', 'English', 'Class', 'Ja form'],
+        rows: [
+          ['biti', 'to be', 'irregular', 'sam / jesam'],
+          ['htjeti', 'to want', 'irregular', 'hoću'],
+          ['imati', 'to have', 'Class 3', 'imam'],
+          ['znati', 'to know', 'Class 3', 'znam'],
+          ['ići', 'to go', 'Class 1', 'idem'],
+          ['doći', 'to come', 'Class 1', 'dođem'],
+          ['govoriti', 'to speak', 'Class 2', 'govorim'],
+          ['vidjeti', 'to see', 'Class 2', 'vidim'],
+          ['čuti', 'to hear', 'Class 1', 'čujem'],
+          ['voljeti', 'to love/like', 'Class 2', 'volim'],
+          ['raditi', 'to work', 'Class 2', 'radim'],
+          ['čitati', 'to read', 'Class 3', 'čitam'],
+          ['pisati', 'to write', 'Class 1', 'pišem'],
+          ['jesti', 'to eat', 'Class 1', 'jedem'],
+          ['piti', 'to drink', 'Class 1', 'pijem'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'The Personal Pronoun is Optional',
+        body: 'In Croatian, the verb ending already tells you who the subject is. So you can drop the pronoun: "Govorim hrvatski" = I speak Croatian (no "ja" needed). Pronouns are included for emphasis or contrast: "Ja govorim hrvatski, a ti govoriš engleski" (I speak Croatian, but you speak English). Beginners often include pronouns — this is fine and understood.',
+        highlight: 'pronoun is optional',
+      },
+      {
+        type: 'example',
+        title: 'Present Tense in Real Sentences',
+        items: [
+          {
+            hr: 'Govorim malo hrvatski.',
+            en: 'I speak a little Croatian.',
+            note: 'Class 2, ja form',
+          },
+          {
+            hr: 'Imaš li brata?',
+            en: 'Do you have a brother?',
+            note: 'Class 3, li = yes/no question',
+          },
+          { hr: 'Ona voli kavu.', en: 'She loves coffee.', note: 'Class 2, ona form' },
+          { hr: 'Idemo na plažu!', en: 'We are going to the beach!', note: 'Class 1, mi form' },
+          { hr: 'Što radite?', en: 'What are you (all) doing?', note: 'Class 2, vi form' },
+          { hr: 'Oni piju vino.', en: 'They are drinking wine.', note: 'Class 1, oni form' },
+        ],
+      },
+      {
+        type: 'quiz',
+        q: 'Which conjugation class does "govoriti" (to speak) belong to?',
+        options: ['Class 1 (-em)', 'Class 2 (-im)', 'Class 3 (-am)', 'Irregular'],
+        correct: 1,
+        explanation:
+          '"Govoriti" belongs to Class 2. The pattern: govorim, govoriš, govori, govorimo, govorite, govore. The -i- vowel throughout (except the oni form -e) is the Class 2 signature.',
+      },
+      {
+        type: 'quiz',
+        q: 'What is the "ja" (I) form of "znati" (to know)?',
+        options: ['znam', 'znajem', 'znim', 'znaje'],
+        correct: 0,
+        explanation:
+          '"Znati" is a Class 3 (-am class) verb. The ja form is "znam". Full conjugation: znam, znaš, zna, znamo, znate, znaju. "Znajem" does not exist; this is a common learner error.',
+      },
+      {
+        type: 'quiz',
+        q: 'In Croatian, when should you include the subject pronoun (ja, ti, on...)?',
+        options: [
+          'Always — it is required',
+          'Never — it is always dropped',
+          'For emphasis or contrast — otherwise optional',
+          'Only in questions',
+        ],
+        correct: 2,
+        explanation:
+          'Croatian is a pro-drop language — the verb ending conveys the subject, so the pronoun is optional. Include it for emphasis ("Ja govorim, ne ti!") or contrast. Beginners can always include pronouns without making an error.',
+      },
+      {
+        type: 'summary',
+        title: 'Present Tense Verbs — Complete!',
+        points: [
+          'Three conjugation classes: -em (Class 1), -im (Class 2), -am (Class 3)',
+          'biti and htjeti are irregular — memorize them first',
+          'Class 1 signature vowel: e (pijem, pišem, idem)',
+          'Class 2 signature vowel: i (govorim, vidim, volim)',
+          'Class 3 signature vowel: a (imam, znam, čitam)',
+          'Subject pronouns are optional — verb endings tell the story',
+        ],
+      },
+    ],
+  },
 ];
