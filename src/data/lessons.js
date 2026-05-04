@@ -4291,4 +4291,169 @@ export const LESSONS = [
       },
     ],
   },
+  {
+    id: 'feelings-inner-life',
+    title: 'Feelings & Inner Life',
+    subtitle:
+      'Reflexive emotion verbs, the dative of experience, and untranslatable Croatian words',
+    icon: '💙',
+    level: 'B1',
+    duration: '~12 min',
+    color: '#7c3aed',
+    bg: '#faf5ff',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Feelings in Croatian',
+        body: 'Expressing emotions in Croatian involves patterns that have no direct English equivalent. Many feelings are expressed with reflexive verbs (verbs that include "se"), and a whole group of emotional states use the DATIVE case — the emotion happens TO the speaker. Mastering these patterns moves you from textbook Croatian to how Croatians actually feel and speak.',
+        icon: '💙',
+      },
+      {
+        type: 'rule',
+        title: 'Reflexive Emotion Verbs with SE',
+        body: 'Many emotions are expressed with reflexive verbs in Croatian — the feeling reflects back onto the subject. Key examples: bojati se (to be afraid of), sramiti se (to be ashamed of), veseliti se (to look forward to / to be happy about), nadati se (to hope for), čuditi se (to be surprised at), brinuti se (to worry about). All take an object in the GENITIVE case: bojim se psa (I am afraid of the dog).',
+        highlight: 'bojati se / nadati se / sramiti se',
+      },
+      {
+        type: 'table',
+        title: 'Key Reflexive Emotion Verbs',
+        headers: ['Croatian', 'English', 'Object case', 'Example'],
+        rows: [
+          ['bojati se', 'to be afraid of', 'genitive', "Bojim se psa. (I'm afraid of the dog.)"],
+          ['sramiti se', 'to be ashamed of', 'genitive', "Sramim se toga. (I'm ashamed of that.)"],
+          [
+            'veseliti se',
+            'to look forward to',
+            'dative',
+            'Veselim se odmoru. (I look forward to vacation.)',
+          ],
+          ['nadati se', 'to hope for', 'dative', 'Nadam se boljem. (I hope for better.)'],
+          ['čuditi se', 'to be surprised at', 'dative', "Čudim se tebi. (I'm surprised at you.)"],
+          [
+            'brinuti se',
+            'to worry about',
+            'instrumental/za+acc',
+            'Brinem se za tebe. (I worry about you.)',
+          ],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'The Dative of Experience — Emotion Happens TO You',
+        body: 'A powerful Croatian pattern: the emotional state happens TO the speaker, who is in the DATIVE case. The structure is: Dative pronoun + je / mi je / ti je / mu je / joj je / nam je / vam je / im je. Examples: Žao mi je (I am sorry — lit. "sorrow is to me"). Dosadno mi je (I am bored). Hladno mi je (I am cold). Drago mi je (I am pleased — lit. "dear is to me"). The subject of the feeling is in the dative, not nominative.',
+        highlight: 'Žao mi je / Dosadno mi je / Drago mi je',
+      },
+      {
+        type: 'table',
+        title: 'Dative of Experience — Common Expressions',
+        headers: ['Croatian', 'Literal meaning', 'English equivalent'],
+        rows: [
+          ['Žao mi je.', 'Sorrow is to me.', 'I am sorry. / I feel bad about it.'],
+          ['Drago mi je.', 'Dear/pleasant is to me.', 'I am pleased. / Nice to meet you.'],
+          ['Dosadno mi je.', 'Boring is to me.', 'I am bored.'],
+          ['Hladno mi je.', 'Cold is to me.', 'I am cold.'],
+          ['Toplo mi je.', 'Warm is to me.', 'I am warm.'],
+          ['Muka mi je.', 'Nausea is to me.', 'I feel sick. / I am disgusted.'],
+          ['Stalo mi je do tebe.', 'It matters to me — about you.', 'I care about you.'],
+          ['Žao mi je za njega.', 'Sorrow is to me for him.', 'I feel sorry for him.'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Čežnja — Longing That Has No English Word',
+        body: '"Čežnja" (pronounced CHEZH-nya) is a deep, bittersweet longing — for a person, a place, a time that has passed. It is more intense than nostalgia and more poetic than homesickness. You "feel čežnja" — "osjećam čežnju" or "imam čežnju za domovinom" (I have a longing for home). Croatian literature and poetry is saturated with čežnja. When a Croatian says "ima nešto u njemu od te čežnje" — "there is something in him of that longing" — it is high praise.',
+        highlight: 'čežnja = bittersweet deep longing',
+      },
+      {
+        type: 'rule',
+        title: 'Inat — Defiant Stubbornness',
+        body: '"Inat" is a culturally specific attitude: doing something deliberately out of spite, stubbornness, or defiance — often against your own interest, just to prove a point. "Iz inata" (out of inat/spite) is a common phrase. "Samo iz inata ne odlazi" — "He stays only out of inat." Inat is sometimes worn as a badge of honor: the Dubrovnik defenders who held the city under siege were praised for their inat. It can be admirable resistance or frustrating stubbornness — context decides.',
+        highlight: 'inat = defiant spite / stubborn pride',
+      },
+      {
+        type: 'rule',
+        title: 'Snalaziti se — The Art of Making It Work',
+        body: '"Snalaziti se" (reflexive, imperfective) means to navigate, adapt, improvise, and make things work — usually in difficult circumstances. It is a core survival verb for Croatian life. "Snalazim se" = I am managing / I am figuring it out. "On se uvijek snađe" (He always manages / He always finds a way). Asking "Snalaziš li se?" is a warm, practical question: "Are you finding your way? Are you managing?" — richer than "Are you okay?"',
+        highlight: 'snalaziti se = to adapt and manage',
+      },
+      {
+        type: 'example',
+        title: 'Feelings in Real Sentences — Listen',
+        items: [
+          { hr: 'Bojim se visine.', en: 'I am afraid of heights.', note: 'bojati se + genitive' },
+          {
+            hr: 'Nadam se da ćeš doći.',
+            en: 'I hope you will come.',
+            note: 'nadati se + da clause',
+          },
+          {
+            hr: 'Žao mi je što si tužan.',
+            en: 'I am sorry that you are sad.',
+            note: 'dative of experience',
+          },
+          {
+            hr: 'Dosadno mi je bez tebe.',
+            en: 'I am bored without you.',
+            note: 'dative + bez + genitive',
+          },
+          {
+            hr: 'Snalazim se pomalo.',
+            en: 'I am managing a little / finding my way.',
+            note: 'snalaziti se = to adapt',
+          },
+          {
+            hr: 'Iz inata, ostao je do kraja.',
+            en: 'Out of spite/stubbornness, he stayed until the end.',
+            note: 'iz inata = cultural phrase',
+          },
+          {
+            hr: 'Čežnja za domovinom ne prolazi.',
+            en: "The longing for one's homeland does not pass.",
+            note: 'čežnja + za + instrumental',
+          },
+        ],
+      },
+      {
+        type: 'quiz',
+        q: 'What case does "bojati se" (to be afraid of) take for its object?',
+        options: ['Accusative', 'Dative', 'Genitive', 'Instrumental'],
+        correct: 2,
+        explanation:
+          '"Bojati se" takes the GENITIVE case for its object: "Bojim se psa" (I am afraid of the dog — psa is genitive of pas). Many reflexive emotion verbs take the genitive. Compare: "veseliti se" and "nadati se" take the dative instead.',
+      },
+      {
+        type: 'quiz',
+        q: 'What does "Žao mi je" literally mean?',
+        options: ['I feel happy', 'Sorrow is to me (I am sorry)', 'I am surprised', 'I am bored'],
+        correct: 1,
+        explanation:
+          '"Žao mi je" uses the dative of experience pattern. "Žao" (sorrow/regret) is the subject, "mi" is the dative pronoun (to me), and "je" is the verb "to be". Literal: "Sorrow is to me." This pattern — emotional state in dative — is fundamental to expressing feelings naturally in Croatian.',
+      },
+      {
+        type: 'quiz',
+        q: 'What does "snalaziti se" most closely mean?',
+        options: [
+          'to feel lonely',
+          'to be stubborn / do something out of spite',
+          'to adapt and manage in difficult circumstances',
+          'to long for something lost',
+        ],
+        correct: 2,
+        explanation:
+          '"Snalaziti se" = to navigate, adapt, improvise, and manage. "Snalazim se" = I am managing / figuring it out. The other options describe: "čežnja" (longing for something lost) and "inat" (stubborn spite). "Snalaziti se" is a core everyday verb in Croatian.',
+      },
+      {
+        type: 'summary',
+        title: 'Feelings & Inner Life — Complete!',
+        points: [
+          'Reflexive emotion verbs use se: bojati se, sramiti se, nadati se, veseliti se',
+          'bojati se / sramiti se take GENITIVE; nadati se / veseliti se take DATIVE',
+          'Dative of experience: Žao mi je / Dosadno mi je / Drago mi je',
+          'Čežnja = bittersweet longing that Croatian has no single English translation for',
+          'Inat = defiant stubbornness — sometimes admired, sometimes frustrating',
+          'Snalaziti se = to adapt and navigate — the essential Croatian life skill',
+        ],
+      },
+    ],
+  },
 ];

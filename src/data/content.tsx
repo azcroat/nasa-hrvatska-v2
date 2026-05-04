@@ -1807,6 +1807,20 @@ const LEARN_PATH = [
         },
         go: 'listeningpath',
       },
+      {
+        id: 'lp_feelings',
+        name: 'Feelings & Inner Life',
+        diff: 3,
+        dur: '~12 min',
+        cat: 'grammar',
+        icon: '💙',
+        desc: 'Reflexive emotion verbs, the dative of experience, and untranslatable words: čežnja, inat, snalaziti se',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_feelings')) || s.lc >= 26;
+        },
+        go: 'animlesson',
+        lessonId: 'feelings-inner-life',
+      },
     ],
   },
   {
