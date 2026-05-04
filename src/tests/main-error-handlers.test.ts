@@ -57,6 +57,9 @@ describe('_isStaleBindingError', () => {
   it('returns false for unrelated strings', () => {
     expect(_isStaleBindingError('Failed to fetch')).toBe(false);
   });
+  it('returns false for lowercased input — caller must not lowercase before calling', () => {
+    expect(_isStaleBindingError("importing binding name 'g' is not found")).toBe(false);
+  });
 });
 
 describe('_reloadWithCachePurge', () => {

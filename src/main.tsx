@@ -26,7 +26,7 @@ import { reportError } from './lib/errorReporter.js';
 import { isNative, isAndroid } from './lib/platform.js';
 import { initPostHog } from './lib/analytics';
 import { registerSW } from 'virtual:pwa-register';
-import { isChunkLoadError } from './lib/chunkErrors';
+import { isChunkLoadError, reloadWithCachePurge } from './lib/chunkErrors';
 
 // ─── Capacitor native: mark <html> for CSS animation overrides ────────────
 // Many CSS entrance animations start at opacity:0 with fill-mode:both.
@@ -94,30 +94,9 @@ if (import.meta.env.PROD) {
 function _isStaleBindingError(msg: unknown) {
   return typeof msg === 'string' && msg.includes('Importing binding name');
 }
-// Purges JS caches and reloads, but only up to 2 times to prevent infinite
-// reload loops. Uses sessionStorage so the counter resets on each fresh visit.
+// Delegates to reloadWithCachePurge from ./lib/chunkErrors (single implementation).
 function _reloadWithCachePurge(storageKey: string) {
-  try {
-    const n = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
-    if (n >= 2) return false; // stop after 2 attempts — don't loop forever
-    sessionStorage.setItem(storageKey, String(n + 1));
-    if ('caches' in globalThis) {
-      caches
-        .keys()
-        .then((names) =>
-          names.forEach((name) => {
-            if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name);
-          }),
-        )
-        .catch(() => {})
-        .finally(() => globalThis.location.reload());
-    } else {
-      globalThis.location.reload();
-    }
-    return true;
-  } catch (_) {
-    return false;
-  }
+  return reloadWithCachePurge(storageKey);
 }
 
 // ─── Sentry error telemetry ────────────────────────────────────────────────
@@ -313,8 +292,9 @@ window.onerror = function (message, _source, _lineno, _colno, error) {
 };
 window.onunhandledrejection = function (event) {
   const reason = event.reason;
-  const msg = ((reason?.message ?? '') + (reason?.name ?? '')).toLowerCase();
-  if (_isStaleBindingError(msg)) {
+  const rawMsg = (reason?.message ?? '') + (reason?.name ?? '');
+  const msg = rawMsg.toLowerCase();
+  if (_isStaleBindingError(rawMsg)) {
     if (_reloadWithCachePurge('nh_binding_reload')) return;
   }
   if (isChunkLoadError(msg)) {

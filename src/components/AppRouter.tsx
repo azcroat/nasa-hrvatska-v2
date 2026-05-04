@@ -1,7 +1,7 @@
 import React, { lazy, useRef, useEffect } from 'react';
 import { AnimatePresence, motion, type TargetAndTransition } from 'framer-motion';
 import { useSwipeBack } from '../hooks/useSwipeBack.js';
-import { isChunkLoadError } from '../lib/chunkErrors';
+import { isChunkLoadError, reloadWithCachePurge } from '../lib/chunkErrors';
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
 // leaving elements permanently at opacity:0. Skip entry animation on native.
 // Capacitor Android: https://localhost with NO port. Dev server always has a port.
@@ -35,31 +35,8 @@ function lazyWithReload(fn: () => Promise<any>) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fn().catch((e: any) => {
       const msg = (((e?.message as string) || '') + ((e?.name as string) || '')).toLowerCase();
-      const isChunkError = isChunkLoadError(msg);
-      if (isChunkError) {
-        try {
-          const key = 'nh_reload_attempt';
-          const n = parseInt(sessionStorage.getItem(key) || '0', 10);
-          if (n < 2) {
-            sessionStorage.setItem(key, String(n + 1));
-            // Purge the JS runtime cache so the reload fetches fresh chunks from network.
-            // Without this, StaleWhileRevalidate serves the same stale chunk again.
-            if ('caches' in globalThis) {
-              caches
-                .keys()
-                .then((names) => {
-                  names.forEach((name) => {
-                    if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name);
-                  });
-                })
-                .catch(() => {})
-                .finally(() => globalThis.location.reload());
-            } else {
-              globalThis.location.reload();
-            }
-            return new Promise(() => {}); // keep the promise pending so React doesn't render an error state
-          }
-        } catch (_) {}
+      if (isChunkLoadError(msg) && reloadWithCachePurge('nh_reload_attempt')) {
+        return new Promise(() => {}); // keep pending so React doesn't render an error state
       }
       throw e;
     }),
