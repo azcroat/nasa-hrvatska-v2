@@ -3985,4 +3985,154 @@ export const LESSONS = [
       },
     ],
   },
+  // ─────────────────────────────────────────────────────────
+  // LESSON: Prepositions in Action
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'prepositions-action',
+    title: 'Prepositions in Action',
+    subtitle: 'Master location vs. direction, genitive preps, and the instrumental s/sa',
+    icon: '📍',
+    level: 'A2',
+    duration: '~10 min',
+    color: '#b45309',
+    bg: '#fffbeb',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Croatian Prepositions',
+        body: 'Croatian prepositions are paired with specific cases — the preposition tells you which case to use. The most important pair to master first: "u" and "na" change meaning completely depending on whether they precede an accusative (direction: going TO) or a locative (location: being AT/IN). This single rule unlocks hundreds of sentences.',
+        icon: '📍',
+      },
+      {
+        type: 'rule',
+        title: 'u / na + Accusative = Direction (Movement TO)',
+        body: 'When you are moving toward a place, use u or na with the ACCUSATIVE case. The accusative for masculine inanimate nouns is the same as nominative; feminine -a nouns become -u. Idem u grad (I am going to the city). Idem na plažu (I am going to the beach). The key question: Is there movement toward the place? → Accusative.',
+        highlight: 'movement = accusative',
+      },
+      {
+        type: 'rule',
+        title: 'u / na + Locative = Location (Being AT/IN)',
+        body: 'When you are at a place (no movement), use u or na with the LOCATIVE case. Locative endings: masculine/neuter -u (u gradu, u selu), feminine -i (na plaži, u školi). Jesam u gradu (I am in the city). Sjedimo na plaži (We are sitting on the beach). The key question: Is there static location, no movement? → Locative.',
+        highlight: 'location = locative',
+      },
+      {
+        type: 'table',
+        title: 'u/na: Accusative vs Locative — Side by Side',
+        headers: ['Meaning', 'Case', 'Example', 'English'],
+        rows: [
+          ['going TO', 'Accusative', 'Idem u grad.', 'I am going to the city.'],
+          ['being IN', 'Locative', 'Jesam u gradu.', 'I am in the city.'],
+          ['going TO', 'Accusative', 'Idem na plažu.', 'I am going to the beach.'],
+          ['being ON', 'Locative', 'Sjedim na plaži.', 'I am sitting on the beach.'],
+          ['going TO', 'Accusative', 'Idem u školu.', 'I am going to school.'],
+          ['being IN', 'Locative', 'Jesam u školi.', 'I am at school.'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Genitive Prepositions: od, do, iz, bez, kod',
+        body: '"Od" (from, of): Putujem od Splita do Dubrovnika (I travel from Split to Dubrovnik). "Do" (to, until): do srijede (until Wednesday). "Iz" (from out of — for enclosed spaces): iz kuće (from the house), iz grada (from the city). "Bez" (without): bez šećera (without sugar). "Kod" (at someone\'s place / near): kod prijatelja (at a friend\'s place), kod mene (at my place). All five require genitive case after them.',
+        highlight: 'od / do / iz / bez / kod = genitive',
+      },
+      {
+        type: 'rule',
+        title: 'iz vs od — The Important Distinction',
+        body: '"Iz" means FROM a contained/enclosed space: dolazim iz Zagreba (I come from Zagreb — the city encloses you). "Od" means FROM a person, an event, or something not enclosed: to je dar od mame (this is a gift from mum), od ponedjeljka (from Monday). Do NOT use "od" for cities and rooms — use "iz". This iz/od distinction is one of the most common errors in learner Croatian.',
+        highlight: 'iz = enclosed space; od = from person/time',
+      },
+      {
+        type: 'rule',
+        title: 'Instrumental s/sa — With, Together',
+        body: '"S" (before consonants) or "sa" (before s, z, š, ž, or for rhythm) means "with" and always takes the INSTRUMENTAL case. Instrumental endings: masculine/neuter -om (s bratom — with brother), feminine -om (s mamom — with mum), plurals vary. Idem s prijateljem (I am going with a friend). Razgovaram sa sestrom (I am talking with my sister). Never use "s" + nominative — always instrumental.',
+        highlight: 's/sa = instrumental',
+      },
+      {
+        type: 'table',
+        title: 'Key Prepositions — Summary',
+        headers: ['Preposition', 'Case Required', 'Core Meaning', 'Example'],
+        rows: [
+          ['u (direction)', 'Accusative', 'going into', 'Idem u kafić.'],
+          ['na (direction)', 'Accusative', 'going onto/to', 'Idem na more.'],
+          ['u (location)', 'Locative', 'being inside', 'Jesam u kafiću.'],
+          ['na (location)', 'Locative', 'being on/at', 'Sjedim na moru.'],
+          ['od', 'Genitive', 'from / of', 'Dar od prijatelja.'],
+          ['do', 'Genitive', 'to / until', 'Do ponedjeljka.'],
+          ['iz', 'Genitive', 'from (enclosed)', 'Dolazim iz Splita.'],
+          ['bez', 'Genitive', 'without', 'Kava bez šećera.'],
+          ['kod', 'Genitive', "at someone's / near", 'Kod mene doma.'],
+          ['s/sa', 'Instrumental', 'with (together)', 'S prijateljem.'],
+        ],
+      },
+      {
+        type: 'example',
+        title: 'Prepositions in Real Sentences — Listen',
+        items: [
+          { hr: 'Idem u Zagreb.', en: 'I am going to Zagreb.', note: 'u + accusative = direction' },
+          { hr: 'Živim u Zagrebu.', en: 'I live in Zagreb.', note: 'u + locative = location' },
+          {
+            hr: 'Dolazim iz Splita.',
+            en: 'I come from Split.',
+            note: 'iz + genitive = from enclosed space',
+          },
+          {
+            hr: 'Kava bez mlijeka, molim.',
+            en: 'Coffee without milk, please.',
+            note: 'bez + genitive',
+          },
+          {
+            hr: 'Idem s mamom na tržnicu.',
+            en: 'I am going with mum to the market.',
+            note: 's + instrumental',
+          },
+          {
+            hr: 'Kod mene je uvijek dobrodošao.',
+            en: 'At my place, he is always welcome.',
+            note: 'kod + genitive',
+          },
+        ],
+      },
+      {
+        type: 'quiz',
+        q: 'You are going to the beach. Which case follows "na"?',
+        options: ['Nominative', 'Genitive', 'Accusative', 'Locative'],
+        correct: 2,
+        explanation:
+          'Movement TO a place requires the accusative. "Idem na plažu" — plažu is the accusative of plaža. If you were sitting ON the beach (no movement), you would use locative: "Sjedim na plaži".',
+      },
+      {
+        type: 'quiz',
+        q: 'How do you say "I come from Zagreb" in Croatian?',
+        options: [
+          'Dolazim od Zagreba.',
+          'Dolazim iz Zagreba.',
+          'Dolazim u Zagreb.',
+          'Dolazim s Zagreba.',
+        ],
+        correct: 1,
+        explanation:
+          '"Iz" is used for coming from enclosed spaces (cities, rooms, buildings). Zagreb encloses you while you are there, so "dolazim iz Zagreba" is correct. "Od" is used for persons and time points, not cities.',
+      },
+      {
+        type: 'quiz',
+        q: 'Which preposition always requires the INSTRUMENTAL case?',
+        options: ['od', 'u', 's/sa', 'bez'],
+        correct: 2,
+        explanation:
+          '"S/sa" (with) always requires the instrumental case: s bratom, sa sestrom, s prijateljem. "Bez" requires genitive. "Od" requires genitive. "U" can require accusative (direction) or locative (location).',
+      },
+      {
+        type: 'summary',
+        title: 'Prepositions in Action — Complete!',
+        points: [
+          'u/na + accusative = movement TO a place (Idem u grad)',
+          'u/na + locative = static location AT a place (Jesam u gradu)',
+          'iz = from an enclosed space (iz grada, iz kuće)',
+          'od = from a person or time point (od mame, od ponedjeljka)',
+          'od/do/iz/bez/kod all take the genitive case',
+          's/sa (with) always takes the instrumental case',
+        ],
+      },
+    ],
+  },
 ];
