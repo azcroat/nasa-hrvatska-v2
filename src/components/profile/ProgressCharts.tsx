@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { weekKey } from '../../lib/dateUtils';
 
 interface BarDatum {
   value: number;
@@ -81,7 +82,16 @@ const ProgressCharts = React.memo(function ProgressCharts({
     return days;
   }, []);
 
-  const thisWeek = history.slice(-7).reduce((s, d) => s + d.delta, 0);
+  // Read from the same authoritative counter used by StatsWidget / SessionCard / HomeTab.
+  // The delta-based calculation over progress_history silently ignores prestige resets
+  // (negative deltas are clamped to 0), causing thisWeek > stats.xp after a prestige.
+  const thisWeek = (() => {
+    try {
+      return parseInt(localStorage.getItem('nh_week_xp_' + weekKey()) || '0', 10);
+    } catch {
+      return 0;
+    }
+  })();
   const lastWeek = history.slice(-14, -7).reduce((s, d) => s + d.delta, 0);
   const trend = lastWeek > 0 ? Math.round(((thisWeek - lastWeek) / lastWeek) * 100) : 0;
 

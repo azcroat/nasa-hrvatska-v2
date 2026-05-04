@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { weekKey } from '../../lib/dateUtils';
 import ProfileHeader from './ProfileHeader';
 import StatsTab from './StatsTab';
 import InsightsTab from './InsightsTab';
@@ -116,6 +117,11 @@ export default function ProfileTab({
             const newPrestige = prestigeLevel + 1;
             localStorage.setItem('nh_prestige', String(newPrestige));
             localStorage.setItem('nh_xp', '0');
+            // Reset the weekly XP counter so "This Week" shows 0 after prestige,
+            // consistent with stats.xp resetting to 0.
+            try {
+              localStorage.setItem('nh_week_xp_' + weekKey(), '0');
+            } catch {}
             setStats((prev) => ({ ...prev, xp: 0 }));
             setShowPrestigeModal(false);
             setTimeout(() => {
