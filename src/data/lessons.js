@@ -4456,4 +4456,190 @@ export const LESSONS = [
       },
     ],
   },
+  {
+    id: 'writing-registers',
+    title: 'Croatian Writing Registers',
+    subtitle:
+      'From casual conversation to formal prose: passive voice, nominalizations, and discourse markers',
+    icon: '✍️',
+    level: 'B2',
+    duration: '~15 min',
+    color: '#1d4ed8',
+    bg: '#eff6ff',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Registers in Croatian',
+        body: 'Croatian has a wide range of registers — from casual spoken language to formal bureaucratic and literary prose. At B2 level, you need to recognize and produce text in multiple registers. The differences involve: vocabulary choice, verb constructions (especially passive voice), degree of nominalization, and the use of formal discourse markers. This lesson maps the landscape.',
+        icon: '✍️',
+      },
+      {
+        type: 'rule',
+        title: 'Three Registers — The Spectrum',
+        body: 'Informal (razgovorni): short sentences, colloquialisms, contractions, direct style. Used in: text messages, casual conversation, social media. Journalistic (novinarski): medium-length sentences, active voice preferred, some technical vocabulary. Used in: news articles, online media, magazines. Formal (formalni/administrativni): long sentences, passive constructions, nominalizations, impersonal style. Used in: official documents, academic writing, legal texts, formal correspondence.',
+        highlight: 'razgovorni / novinarski / formalni',
+      },
+      {
+        type: 'table',
+        title: 'The Same Idea — Three Registers',
+        headers: ['Register', 'Croatian example', 'Features'],
+        rows: [
+          ['Informal', 'Zakon su izmijenili.', 'Active, simple, direct (they changed the law)'],
+          [
+            'Journalistic',
+            'Vlada je izmijenila zakon.',
+            'Subject named, active voice, clear agent',
+          ],
+          [
+            'Formal',
+            'Zakon je izmijenjen od strane Vlade.',
+            'Passive, nominalized, agent in prepositional phrase',
+          ],
+          ['Informal', 'Tražim posao.', 'First-person, direct'],
+          ['Journalistic', 'Stopa nezaposlenosti raste.', 'Impersonal, nominalized subject'],
+          [
+            'Formal',
+            'Provodi se postupak zapošljavanja.',
+            'Reflexive passive, full nominalization',
+          ],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Passive Voice — Two Constructions',
+        body: 'Croatian forms passive voice in two ways. (1) SE passive (reflexive passive): the verb takes "se" and the agent is dropped — "Zakon se mijenja" (The law is being changed / The law changes — impersonal). Most common in everyday and journalistic writing. (2) Biti + past passive participle: "Zakon je izmijenjen" (The law has been changed). The participle agrees with the subject in gender and number. Formal texts heavily prefer the biti+participle construction.',
+        highlight: 'se passive vs. biti + participle',
+      },
+      {
+        type: 'table',
+        title: 'Passive Voice — Formation Examples',
+        headers: ['Active', 'SE Passive', 'Biti + Participle'],
+        rows: [
+          ['Gradimo kuću.', 'Kuća se gradi.', 'Kuća je izgrađena.'],
+          ['Objavljuju rezultate.', 'Rezultati se objavljuju.', 'Rezultati su objavljeni.'],
+          ['Zakon mijenjaju.', 'Zakon se mijenja.', 'Zakon je izmijenjen.'],
+          ['Pišu izvještaj.', 'Izvještaj se piše.', 'Izvještaj je napisan.'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Nominalization — Turning Verbs into Nouns',
+        body: 'Formal Croatian heavily uses "verbal nouns" — converting verbs into nouns using the suffixes -anje, -enje, or -enje. This creates an impersonal, bureaucratic tone. Examples: zapošljavanje (employment, from zapošljavati), obrazovanje (education, from obrazovati), odobravanje (approval, from odobravati), provođenje (implementation, from provoditi), financiranje (financing, from financirati). A sentence like "Provodi se postupak odobravanja financiranja projekta" packs four nominalizations and is perfectly normal in official Croatian.',
+        highlight: '-anje / -enje = nominalization suffix',
+      },
+      {
+        type: 'table',
+        title: 'Common Nominalizations',
+        headers: ['Verb', 'Nominalization', 'English'],
+        rows: [
+          ['zapošljavati', 'zapošljavanje', 'employment / hiring'],
+          ['obrazovati', 'obrazovanje', 'education'],
+          ['odobravati', 'odobravanje', 'approval'],
+          ['provoditi', 'provođenje', 'implementation / conducting'],
+          ['financirati', 'financiranje', 'financing / funding'],
+          ['istraživati', 'istraživanje', 'research / investigation'],
+          ['razvijati', 'razvijanje / razvoj', 'development'],
+          ['komunicirati', 'komunikacija', 'communication'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Discourse Markers — Connecting Ideas Formally',
+        body: 'Formal Croatian uses specific discourse markers to connect ideas logically. These signal contrast, addition, explanation, and result. Key markers: međutim (however), naime (namely / you see — explains/clarifies), pritom (in doing so / meanwhile), stoga (therefore), ipak (nevertheless / yet), štoviše (moreover / furthermore), osim toga (in addition / besides), s obzirom na to (given that / considering). Using these correctly signals C1+ writing competence.',
+        highlight: 'međutim / naime / stoga / štoviše',
+      },
+      {
+        type: 'table',
+        title: 'Discourse Markers in Context',
+        headers: ['Marker', 'Function', 'Example'],
+        rows: [
+          ['međutim', 'contrast (however)', 'Rezultati su dobri. Međutim, troškovi su visoki.'],
+          ['naime', 'explanation (namely)', 'Problem je ozbiljan. Naime, nema sredstava.'],
+          ['stoga', 'result (therefore)', 'Nema proračuna; stoga projekt kasni.'],
+          ['pritom', 'simultaneous (in doing so)', 'Provode se mjere, pritom se štede resursi.'],
+          ['štoviše', 'addition (moreover)', 'Rezultati su dobri, štoviše, odlični.'],
+          ['ipak', 'concession (nevertheless)', 'Teško je, ipak nastavljamo.'],
+          ['naprotiv', 'contrast (on the contrary)', 'Ne pada; naprotiv, raste.'],
+        ],
+      },
+      {
+        type: 'example',
+        title: 'Register Shifts — Same Content, Different Registers',
+        items: [
+          {
+            hr: 'Nisam dobio povišicu.',
+            en: "I didn't get a raise.",
+            note: 'Informal — direct, first person',
+          },
+          {
+            hr: 'Zaposleniku je odbijena molba za povišicu plaće.',
+            en: "The employee's salary increase request was denied.",
+            note: 'Formal — passive, nominalization',
+          },
+          { hr: 'Ajmo.', en: "Let's go.", note: 'Informal — contracted imperative' },
+          {
+            hr: 'Predlaže se pokretanje postupka.',
+            en: 'The initiation of proceedings is proposed.',
+            note: 'Formal — se passive + nominalization',
+          },
+          {
+            hr: 'Projekt kasni jer nema para.',
+            en: "The project is delayed because there's no money.",
+            note: 'Informal — colloquial "para"',
+          },
+          {
+            hr: 'Projekt kasni zbog nedostatka financijskih sredstava.',
+            en: 'The project is delayed due to lack of financial resources.',
+            note: 'Formal — zbog + gen., nominalization',
+          },
+        ],
+      },
+      {
+        type: 'quiz',
+        q: 'Which passive construction is most characteristic of formal/bureaucratic Croatian?',
+        options: [
+          'SE passive (Zakon se mijenja)',
+          'Active voice with named subject',
+          'Biti + past passive participle (Zakon je izmijenjen)',
+          'Modal verb constructions',
+        ],
+        correct: 2,
+        explanation:
+          'Formal/bureaucratic Croatian strongly prefers the biti + past passive participle construction: "Zakon je izmijenjen", "Projekt je odobren", "Izvještaj je napisan". The SE passive is more common in everyday and journalistic writing. Active voice is preferred in journalistic style but avoided in formal documents.',
+      },
+      {
+        type: 'quiz',
+        q: 'What is a nominalization in Croatian?',
+        options: [
+          'A noun in the nominative case',
+          'A verb converted into a noun using suffixes like -anje or -enje',
+          'A passive verb form',
+          'A discourse marker connecting two clauses',
+        ],
+        correct: 1,
+        explanation:
+          'Nominalization converts a verb into a noun: zapošljavati → zapošljavanje, obrazovati → obrazovanje, provoditi → provođenje. This creates the impersonal, abstract tone of formal Croatian. Heavy nominalization stacks like "postupak odobravanja financiranja" are common in official documents.',
+      },
+      {
+        type: 'quiz',
+        q: 'Which discourse marker means "namely" or "you see" (introduces an explanation)?',
+        options: ['međutim', 'stoga', 'naime', 'pritom'],
+        correct: 2,
+        explanation:
+          '"Naime" introduces an explanation or clarification of the previous statement: "Problem je ozbiljan. Naime, nema sredstava." (The problem is serious. Namely/You see, there are no resources.) "Međutim" = however, "stoga" = therefore, "pritom" = in doing so.',
+      },
+      {
+        type: 'summary',
+        title: 'Croatian Writing Registers — Complete!',
+        points: [
+          'Three registers: informal (razgovorni), journalistic (novinarski), formal (formalni)',
+          'SE passive: Zakon se mijenja — impersonal, common in all registers',
+          'Biti + participle: Zakon je izmijenjen — formal register preferred',
+          'Nominalization: -anje/-enje turns verbs into abstract nouns',
+          'Discourse markers signal logical relationships: međutim/naime/stoga/štoviše',
+          'Formal Croatian stacks nominalizations and passive constructions freely',
+        ],
+      },
+    ],
+  },
 ];

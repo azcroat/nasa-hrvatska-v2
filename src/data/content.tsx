@@ -2019,6 +2019,20 @@ const LEARN_PATH = [
         },
         go: 'pronunciation_course',
       },
+      {
+        id: 'lp_registers',
+        name: 'Croatian Writing Registers',
+        diff: 3,
+        dur: '~15 min',
+        cat: 'grammar',
+        icon: '✍️',
+        desc: 'Informal vs journalistic vs formal Croatian — passive voice, nominalization, and discourse markers (međutim/naime/stoga)',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_registers')) || s.lc >= 35;
+        },
+        go: 'animlesson',
+        lessonId: 'writing-registers',
+      },
     ],
   },
   {
