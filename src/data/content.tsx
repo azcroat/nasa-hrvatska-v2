@@ -1672,6 +1672,20 @@ const LEARN_PATH = [
         },
         go: 'writing',
       },
+      {
+        id: 'lp_numbers_nouns',
+        name: 'Numbers & Nouns',
+        diff: 3,
+        dur: '~10 min',
+        cat: 'grammar',
+        icon: '🔢',
+        desc: 'The 3-way counting rule (1/2-4/5+), the 11-19 exception, and collective numbers for mixed groups',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_numbers_nouns')) || s.lc >= 20;
+        },
+        go: 'animlesson',
+        lessonId: 'numbers-nouns',
+      },
     ],
   },
   {
