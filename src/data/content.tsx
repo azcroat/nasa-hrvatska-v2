@@ -2853,7 +2853,10 @@ const FILL_STORIES = [
 const _shCache = {};
 function shMemo(key, arr, n) {
   if (!_shCache[key]) _shCache[key] = shuffleArr(arr);
-  return n ? _shCache[key].slice(0, n) : _shCache[key];
+  if (!n) return _shCache[key];
+  const sliceKey = key + ':' + n;
+  if (!_shCache[sliceKey]) _shCache[sliceKey] = _shCache[key].slice(0, n);
+  return _shCache[sliceKey];
 }
 function shuffleArr(arr) {
   const a = arr.slice();
