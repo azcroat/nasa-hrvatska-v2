@@ -1407,6 +1407,20 @@ const LEARN_PATH = [
         go: 'lesson',
         topic: 'opinions',
       },
+      {
+        id: 'lp_prepositions',
+        name: 'Prepositions in Action',
+        diff: 2,
+        dur: '~10 min',
+        cat: 'grammar',
+        icon: '📍',
+        desc: 'u/na with accusative vs locative (the direction/location split), genitive preps od/do/iz/bez/kod, and instrumental s/sa',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_prepositions')) || s.lc >= 12;
+        },
+        go: 'animlesson',
+        lessonId: 'prepositions-action',
+      },
     ],
   },
   {
