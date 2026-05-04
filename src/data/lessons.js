@@ -3658,4 +3658,169 @@ export const LESSONS = [
       },
     ],
   },
+  // ─────────────────────────────────────────────────────────
+  // LESSON: Time & Calendar
+  // ─────────────────────────────────────────────────────────
+  {
+    id: 'time-calendar',
+    title: 'Time & Calendar',
+    subtitle: 'Tell time, say dates, and talk about when things happen',
+    icon: '🕐',
+    level: 'A1',
+    duration: '~8 min',
+    color: '#7c3aed',
+    bg: '#f5f3ff',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Time & Calendar in Croatian',
+        body: 'Knowing how to talk about time is essential from day one. In Croatian, you ask "Koliko je sati?" (What time is it?) and use a simple number system for hours and minutes. Days and months are not capitalized in Croatian.',
+        icon: '🕐',
+      },
+      {
+        type: 'rule',
+        title: 'Asking & Telling the Time',
+        body: 'To ask the time: "Koliko je sati?" (lit. How many is hours?). To answer, use the number + "sati" (hours): "Dva su sata" (It is 2 o\'clock), "Pet je sati" (It is 5 o\'clock). Note: 1 o\'clock is "Jedan sat", 2-4 use "sata", 5+ use "sati" — the same noun case rule applies to all counting in Croatian.',
+        highlight: 'Koliko je sati?',
+      },
+      {
+        type: 'table',
+        title: 'Telling the Time — Examples',
+        headers: ['Time', 'Croatian', 'Literal Meaning'],
+        rows: [
+          ['1:00', 'Jedan sat', 'One hour'],
+          ['2:00', 'Dva su sata', 'Two are hours'],
+          ['5:00', 'Pet je sati', 'Five is hours'],
+          ['12:00', 'Dvanaest je sati', 'Twelve is hours'],
+          ['3:30', 'Tri i pol', 'Three and a half'],
+          ['6:15', 'Šest i četvrt', 'Six and a quarter'],
+          ['8:45', 'Tri četvrt do devet', 'Three quarters to nine'],
+        ],
+      },
+      {
+        type: 'example',
+        title: 'Time Expressions — Listen',
+        items: [
+          { hr: 'Koliko je sati?', en: 'What time is it?', note: 'The essential question' },
+          { hr: 'Pet je sati.', en: "It is five o'clock.", note: '5+ hours → sati' },
+          { hr: 'Dva su sata.', en: "It is two o'clock.", note: '2-4 hours → sata' },
+          { hr: 'Tri i pol.', en: 'Half past three.', note: 'pol = half' },
+          { hr: 'Četvrt do osam.', en: 'A quarter to eight.', note: 'do = to/until' },
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Days of the Week',
+        body: 'Days of the week are NOT capitalized in Croatian. They are: ponedjeljak (Monday), utorak (Tuesday), srijeda (Wednesday), četvrtak (Thursday), petak (Friday), subota (Saturday), nedjelja (Sunday). The week starts on Monday in Croatia. "Danas je..." = Today is... "Sutra je..." = Tomorrow is...',
+        highlight: 'not capitalized',
+      },
+      {
+        type: 'table',
+        title: 'Days of the Week',
+        headers: ['Croatian', 'English', 'Origin / Memory Aid'],
+        rows: [
+          ['ponedjeljak', 'Monday', 'after Sunday (nedjelja)'],
+          ['utorak', 'Tuesday', 'second (drugi)'],
+          ['srijeda', 'Wednesday', 'middle (sredina) of the week'],
+          ['četvrtak', 'Thursday', 'fourth (četvrti) day'],
+          ['petak', 'Friday', 'fifth (peti) day'],
+          ['subota', 'Saturday', 'from Hebrew Shabbat'],
+          ['nedjelja', 'Sunday', 'no work (ne + djelo)'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Months of the Year',
+        body: 'Months are also NOT capitalized in Croatian. Croatian uses Slavic month names — not the Latin/international ones. These names reflect nature and agriculture: siječanj (January, from "sjeći" = to cut), veljača (February), ožujak (March, from "orah" = walnut), travanj (April, from "trava" = grass), sviban (May), lipanj (June, from "lipa" = linden), srpanj (July, from "srp" = sickle), kolovoz (August, lit. wheel-rut), rujan (September, from "rujati" = to roar), listopad (October, from "list" = leaf, "pad" = fall), studeni (November, from "studen" = cold), prosinac (December).',
+        highlight: 'Slavic month names',
+      },
+      {
+        type: 'table',
+        title: 'Months of the Year',
+        headers: ['Croatian', 'English', 'Meaning / Root'],
+        rows: [
+          ['siječanj', 'January', 'to cut (wood in winter)'],
+          ['veljača', 'February', 'great/mighty (veljik)'],
+          ['ožujak', 'March', 'walnut (orah)'],
+          ['travanj', 'April', 'grass (trava)'],
+          ['sviban', 'May', 'whistle/may tree'],
+          ['lipanj', 'June', 'linden tree (lipa)'],
+          ['srpanj', 'July', 'sickle (srp)'],
+          ['kolovoz', 'August', 'wheel-rut (kolo+voz)'],
+          ['rujan', 'September', 'to roar (rujati)'],
+          ['listopad', 'October', 'leaf-fall (list+pad)'],
+          ['studeni', 'November', 'cold (studen)'],
+          ['prosinac', 'December', 'millet (proso)'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Time Adverbs You Must Know',
+        body: 'These time adverbs appear in everyday speech constantly. Memorize them: danas (today), jučer (yesterday), sutra (tomorrow), jutros (this morning), večeras (this evening), noćas (tonight), sada / sad (now), odmah (immediately), uvijek (always), nikad (never), često (often), ponekad (sometimes), rijetko (rarely).',
+        highlight: 'danas / jučer / sutra',
+      },
+      {
+        type: 'example',
+        title: 'Time Adverbs in Sentences',
+        items: [
+          {
+            hr: 'Danas imam sat jezika.',
+            en: 'Today I have a language lesson.',
+            note: 'danas = today',
+          },
+          {
+            hr: 'Jučer sam bio u gradu.',
+            en: 'Yesterday I was in the city.',
+            note: 'jučer = yesterday',
+          },
+          {
+            hr: 'Sutra idemo na more.',
+            en: 'Tomorrow we are going to the sea.',
+            note: 'sutra = tomorrow',
+          },
+          {
+            hr: 'Uvijek pijem kavu jutros.',
+            en: 'I always drink coffee in the morning.',
+            note: 'jutros = this morning',
+          },
+          { hr: 'Nikad ne kasnim.', en: 'I am never late.', note: 'nikad = never' },
+        ],
+      },
+      {
+        type: 'quiz',
+        q: 'How do you say "What time is it?" in Croatian?',
+        options: ['Što je vremena?', 'Koliko je sati?', 'Kada je sat?', 'Koji je dan?'],
+        correct: 1,
+        explanation:
+          '"Koliko je sati?" literally means "How many is hours?" — it is the standard way to ask the time in Croatian. "Što je vremena?" does not exist; "Koji je dan?" means "What day is it?"',
+      },
+      {
+        type: 'quiz',
+        q: 'Which Croatian month name means "leaf-fall"?',
+        options: ['rujan', 'studeni', 'listopad', 'srpanj'],
+        correct: 2,
+        explanation:
+          '"Listopad" = October. It combines "list" (leaf) + "pad" (fall). Croatian uses these evocative Slavic month names instead of the Latin-based names used in most European languages.',
+      },
+      {
+        type: 'quiz',
+        q: 'What does "sutra" mean?',
+        options: ['yesterday', 'now', 'tomorrow', 'today'],
+        correct: 2,
+        explanation:
+          '"Sutra" = tomorrow. The full trio to memorize: jučer (yesterday) — danas (today) — sutra (tomorrow). These are among the most frequently used time adverbs in Croatian.',
+      },
+      {
+        type: 'summary',
+        title: 'Time & Calendar — Complete!',
+        points: [
+          '"Koliko je sati?" = What time is it?',
+          '1 sat, 2-4 sata, 5+ sati — counting rule applies',
+          'Days and months are NOT capitalized in Croatian',
+          'Croatian months have Slavic names based on nature',
+          'Key adverbs: danas / jučer / sutra / jutros / večeras',
+        ],
+      },
+    ],
+  },
 ];

@@ -1196,6 +1196,20 @@ const LEARN_PATH = [
         lessonId: 'gender',
       },
       {
+        id: 'lp_time_calendar',
+        name: 'Time & Calendar',
+        diff: 1,
+        dur: '~8 min',
+        cat: 'grammar',
+        icon: '🕐',
+        desc: 'Tell the time, name the days, say the months — Croatian time words are unlike any other language',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_time_calendar')) || s.lc >= 4;
+        },
+        go: 'animlesson',
+        lessonId: 'time-calendar',
+      },
+      {
         id: 'lp11',
         name: 'First Quiz',
         diff: 1,
