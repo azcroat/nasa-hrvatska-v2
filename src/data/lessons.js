@@ -3731,7 +3731,7 @@ export const LESSONS = [
       {
         type: 'rule',
         title: 'Months of the Year',
-        body: 'Months are also NOT capitalized in Croatian. Croatian uses Slavic month names — not the Latin/international ones. These names reflect nature and agriculture: siječanj (January, from "sjeći" = to cut), veljača (February), ožujak (March, from "orah" = walnut), travanj (April, from "trava" = grass), sviban (May), lipanj (June, from "lipa" = linden), srpanj (July, from "srp" = sickle), kolovoz (August, lit. wheel-rut), rujan (September, from "rujati" = to roar), listopad (October, from "list" = leaf, "pad" = fall), studeni (November, from "studen" = cold), prosinac (December).',
+        body: 'Months are also NOT capitalized in Croatian. Croatian uses Slavic month names — not the Latin/international ones. These names reflect nature and agriculture: siječanj (January, from "sjeći" = to cut), veljača (February), ožujak (March, from "orah" = walnut), travanj (April, from "trava" = grass), svibanj (May), lipanj (June, from "lipa" = linden), srpanj (July, from "srp" = sickle), kolovoz (August, lit. wheel-rut), rujan (September, from "rujati" = to roar), listopad (October, from "list" = leaf, "pad" = fall), studeni (November, from "studen" = cold), prosinac (December).',
         highlight: 'Slavic month names',
       },
       {
@@ -3743,7 +3743,7 @@ export const LESSONS = [
           ['veljača', 'February', 'great/mighty (veljik)'],
           ['ožujak', 'March', 'walnut (orah)'],
           ['travanj', 'April', 'grass (trava)'],
-          ['sviban', 'May', 'whistle/may tree'],
+          ['svibanj', 'May', 'may tree (sviba)'],
           ['lipanj', 'June', 'linden tree (lipa)'],
           ['srpanj', 'July', 'sickle (srp)'],
           ['kolovoz', 'August', 'wheel-rut (kolo+voz)'],
@@ -3779,9 +3779,9 @@ export const LESSONS = [
             note: 'sutra = tomorrow',
           },
           {
-            hr: 'Uvijek pijem kavu jutros.',
+            hr: 'Uvijek pijem kavu ujutro.',
             en: 'I always drink coffee in the morning.',
-            note: 'jutros = this morning',
+            note: 'ujutro = in the morning (habitual)',
           },
           { hr: 'Nikad ne kasnim.', en: 'I am never late.', note: 'nikad = never' },
         ],
