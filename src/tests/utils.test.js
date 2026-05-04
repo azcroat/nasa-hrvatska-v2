@@ -148,6 +148,17 @@ describe('shMemo', () => {
     const result = shMemo('any-key', arr);
     expect(result.sort()).toEqual([...arr].sort());
   });
+  it('returns same reference for same key and n (slice path)', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const r1 = shMemo('slice-key', arr, 3);
+    const r2 = shMemo('slice-key', arr, 3);
+    expect(r1).toBe(r2);
+  });
+  it('sliced result has correct length', () => {
+    const arr = [1, 2, 3, 4, 5];
+    const result = shMemo('len-key', arr, 3);
+    expect(result).toHaveLength(3);
+  });
 });
 
 // ── generateFamilyCode ───────────────────────────────────────────────────────
