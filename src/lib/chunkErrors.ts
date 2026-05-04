@@ -19,3 +19,27 @@ export function isChunkLoadError(msg: string): boolean {
     msg.includes('importing binding name')
   );
 }
+
+export function reloadWithCachePurge(storageKey: string): boolean {
+  try {
+    const n = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
+    if (n >= 2) return false;
+    sessionStorage.setItem(storageKey, String(n + 1));
+    if ('caches' in globalThis) {
+      caches
+        .keys()
+        .then((names) =>
+          names.forEach((name) => {
+            if (name.includes('nasa-hrvatska') && name.includes('-js')) caches.delete(name);
+          }),
+        )
+        .catch(() => {})
+        .finally(() => globalThis.location.reload());
+    } else {
+      globalThis.location.reload();
+    }
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
