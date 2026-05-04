@@ -2188,6 +2188,20 @@ const LEARN_PATH = [
         go: 'animlesson',
         lessonId: 'idioms-register',
       },
+      {
+        id: 'lp_lang_identity',
+        name: 'Croatian Language Identity',
+        diff: 3,
+        dur: '~15 min',
+        cat: 'heritage',
+        icon: '🇭🇷',
+        desc: 'Post-independence vocabulary, Glagolitic heritage, dialect dignity, and language anxiety — the soul of the language',
+        ck: function (s) {
+          return (s.vs && s.vs.includes('lp_lang_identity')) || s.xp >= 2500 || s.gc >= 10;
+        },
+        go: 'animlesson',
+        lessonId: 'language-identity',
+      },
     ],
   },
 ];

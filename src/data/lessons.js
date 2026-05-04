@@ -4642,4 +4642,155 @@ export const LESSONS = [
       },
     ],
   },
+  {
+    id: 'language-identity',
+    title: 'Croatian Language Identity',
+    subtitle:
+      'Purism, the Glagolitic legacy, dialect dignity, and language anxiety in the diaspora',
+    icon: '🇭🇷',
+    level: 'C1',
+    duration: '~15 min',
+    color: '#991b1b',
+    bg: '#fef2f2',
+    slides: [
+      {
+        type: 'intro',
+        title: 'Language as Identity',
+        body: 'For Croatians, language is not merely a communication tool — it is a marker of national identity, historical survival, and cultural pride. The Croatian standard language emerged through centuries of resistance: against Ottoman pressure, Habsburg rule, and Yugoslav-era linguistic standardization. Understanding this history helps you understand why Croatians care so deeply about language, and why your Croatian — even imperfect — is received with warmth.',
+        icon: '🇭🇷',
+      },
+      {
+        type: 'rule',
+        title: 'Post-Independence Lexical Divergence from Serbian',
+        body: 'After independence in 1991, Croatian underwent deliberate lexical differentiation from Serbian. Words that had been shared were replaced with distinctly Croatian forms or revived historical terms. Examples: vlak (train) vs. Serbian voz; tisuća (thousand) vs. Serbian hiljada; tjedan (week) vs. Serbian nedelja; zrakoplov (airplane) vs. Serbian avion; sveučilište (university) vs. Serbian univerzitet. This was not arbitrary — it was a conscious assertion of distinct cultural identity after decades of pressure toward a unified "Serbo-Croatian".',
+        highlight: 'vlak / tisuća / tjedan / zrakoplov',
+      },
+      {
+        type: 'table',
+        title: 'Croatian vs Serbian Lexical Pairs',
+        headers: ['Meaning', 'Croatian', 'Serbian', 'Note'],
+        rows: [
+          ['train', 'vlak', 'voz', 'Croatian term historically prior'],
+          ['thousand', 'tisuća', 'hiljada', 'tisuća from Old Slavic'],
+          ['week', 'tjedan', 'nedelja', 'nedelja = Sunday in Croatian (nedjeljom)'],
+          ['airplane', 'zrakoplov', 'avion', 'zrakoplov = air-boat, native compound'],
+          ['university', 'sveučilište', 'univerzitet', 'sveučilište = all-learning-place'],
+          ['hospital', 'bolnica', 'bolnica', 'same in both (not all words differ)'],
+          ['hello', 'bok / ćao', 'zdravo', 'bok = informal; formal = dobar dan'],
+          ['thank you', 'hvala', 'hvala', 'same (Slavic root)'],
+        ],
+      },
+      {
+        type: 'rule',
+        title: 'Language Purism and Word Revival',
+        body: 'Croatian has a tradition of "purist" word creation — preferring native Slavic roots over international loanwords when possible. The 19th-century National Revival (Narodni preporod) and the work of Vjekoslav Babukić and Bogoslav Šulek established hundreds of Croatian words. Šulek coined: tiskovnica (newspaper/printing office), brzojav (telegram, lit. fast-message), prirodopis (natural history), plinovod (gas pipe, lit. gas-conductor). This tradition continues — many Croatian scientists and linguists still prefer native terms.',
+        highlight: 'natural Slavic roots preferred over Latin/Greek loans',
+      },
+      {
+        type: 'rule',
+        title: 'The Glagolitic Script — A Living Heritage',
+        body: 'The Glagolitic script (glagoljica) was created in the 9th century by Saints Cyril and Methodius. While most Slavic languages moved to Cyrillic or Latin, Croatia maintained Glagolitic in religious and official use until the 18th century — uniquely long in Europe. The Baška Tablet (Bašćanska ploča, c. 1100 CE), the oldest monument naming a Croatian king in Croatian, is written in Glagolitic. Today, Glagolitic is used in art, logos, and street signs across Dalmatia and Istria as a symbol of cultural pride and continuity.',
+        highlight: 'glagoljica = Croatian cultural anchor since 9th century',
+      },
+      {
+        type: 'rule',
+        title: 'Dialect Dignity — Čakavian and Kajkavian',
+        body: 'Standard Croatian is based on Štokavian, but two other dialects — Čakavian and Kajkavian — are alive and treasured. Čakavian (spoken on the Dalmatian coast, Kvarner islands, and Istria) was the language of early Croatian literature: Marko Marulić\'s Judita (1501) is Čakavian. Kajkavian (Zagreb region) sounds more like Slovenian and was the language of Baroque Croatian poetry. Neither dialect is "broken Croatian" — both are distinct systems with UNESCO recognition as cultural heritage. When you hear a grandmother in a Dalmatian village speak Čakavian, you are hearing a living medieval language.',
+        highlight: 'Čakavian and Kajkavian are treasured heritage dialects',
+      },
+      {
+        type: 'rule',
+        title: 'Language Anxiety in the Diaspora',
+        body: 'Croatian diaspora communities (in Germany, Austria, USA, Australia, Canada, and elsewhere) often experience "language anxiety" — a complex mix of pride, guilt, and uncertainty about their Croatian. Heritage speakers may code-switch unconsciously, mix in loanwords from the host language, or feel embarrassed by regional Croatian influenced by their grandparents\' dialect. The honest answer from linguists: heritage Croatian is not inferior Croatian. It preserves features, idioms, and vocabulary that have since changed in Croatia. When you speak it, you are keeping the language alive in ways that textbooks cannot.',
+        highlight: 'heritage Croatian is not broken Croatian',
+      },
+      {
+        type: 'example',
+        title: 'Language Identity in Context — Listen',
+        items: [
+          {
+            hr: 'Čuvamo jezik kao dragocjenost.',
+            en: 'We guard the language like a treasure.',
+            note: 'Common sentiment among Croatian linguists',
+          },
+          {
+            hr: 'Glagoljica je naš otisak prsta u povijesti.',
+            en: 'Glagolitic is our fingerprint in history.',
+            note: 'Common metaphor for Glagolitic heritage',
+          },
+          {
+            hr: 'Govorim onako kako su me roditelji naučili.',
+            en: 'I speak the way my parents taught me.',
+            note: 'Heritage speaker perspective',
+          },
+          {
+            hr: 'Jezik nije samo komunikacija — to je tko smo.',
+            en: 'Language is not just communication — it is who we are.',
+            note: 'Core Croatian linguistic identity claim',
+          },
+          {
+            hr: 'Naš vlak, naš zrakoplov, naša tisuća.',
+            en: 'Our train, our airplane, our thousand.',
+            note: 'The distinctly Croatian vocabulary',
+          },
+          {
+            hr: 'Iz inata, govorimo po svome.',
+            en: 'Out of stubborn pride, we speak our own way.',
+            note: 'Connects to cultural concept of inat',
+          },
+        ],
+      },
+      {
+        type: 'quiz',
+        q: 'Why does Croatian use "vlak" instead of "voz" for train?',
+        options: [
+          '"Voz" is incorrect Croatian grammar',
+          '"Vlak" is a post-independence lexical choice to assert distinct Croatian identity from Serbian',
+          '"Vlak" was borrowed from German',
+          'There is no difference — both are used equally in Croatia',
+        ],
+        correct: 1,
+        explanation:
+          '"Vlak" is the Croatian word for train, historically used and reinforced after 1991 independence as part of deliberate lexical differentiation from Serbian (which uses "voz"). This reflects a broader conscious effort to develop distinctly Croatian vocabulary, not a claim that "voz" is grammatically wrong.',
+      },
+      {
+        type: 'quiz',
+        q: 'What is the Baška Tablet (Bašćanska ploča)?',
+        options: [
+          'A medieval Croatian legal code from 1288',
+          'The oldest Croatian Glagolitic monument naming a Croatian king in Croatian (c. 1100 CE)',
+          'A 19th-century linguistic manifesto establishing the Croatian standard language',
+          'A Byzantine map of the Adriatic coast',
+        ],
+        correct: 1,
+        explanation:
+          'The Baška Tablet (c. 1100 CE) is the oldest Croatian Glagolitic monument that mentions a Croatian king (King Zvonimir) in the Croatian language. It is a symbol of Croatian linguistic continuity — written in Glagolitic when most of Europe was switching to Latin or Cyrillic.',
+      },
+      {
+        type: 'quiz',
+        q: "What is the correct way to understand a heritage speaker's Croatian that mixes dialects and loanwords?",
+        options: [
+          'As broken or degraded Croatian that needs to be corrected',
+          'As a fossilized old Croatian that cannot adapt',
+          'As a living form of Croatian that preserves features and keeps the language alive in the diaspora',
+          'As a different language entirely, not Croatian',
+        ],
+        correct: 2,
+        explanation:
+          'Heritage Croatian is a living, legitimate form of the language. It often preserves older vocabulary and regional features that have since changed in Croatia itself. Diaspora speakers may mix in loanwords from the host country, but this is code-switching — a normal bilingual phenomenon, not language "corruption". Linguists treat heritage Croatian as valuable data about language change.',
+      },
+      {
+        type: 'summary',
+        title: 'Croatian Language Identity — Complete!',
+        points: [
+          'Post-1991: vlak, tisuća, tjedan, zrakoplov, sveučilište — deliberate Croatian lexical choices',
+          'Purism tradition: Šulek and the National Revival created hundreds of native Croatian words',
+          'Glagolitic script (glagoljica): Croatian cultural identity anchor since the 9th century',
+          'Čakavian and Kajkavian are treasured heritage dialects, not inferior forms',
+          'Heritage Croatian is not broken Croatian — it preserves the language in the diaspora',
+          'Language is identity: for Croatians, speaking Croatian is a political and cultural act',
+        ],
+      },
+    ],
+  },
 ];
