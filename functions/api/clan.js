@@ -108,7 +108,7 @@ export async function onRequestPost({ request, env }) {
   // Require Firebase token for all write operations — uid in the body is untrusted
   const authHeader = request.headers.get('authorization') || '';
   if (!authHeader.startsWith('Bearer ')) return err(401, 'Authorization required', origin);
-  const projectId = env?.FIREBASE_PROJECT_ID || '';
+  const projectId = env?.FIREBASE_PROJECT_ID || env?.VITE_FIREBASE_PROJECT_ID || '';
   const verified = await getFirebaseUid(request, projectId).catch(() => null);
   if (!verified || verified !== uid) return err(401, 'Unauthorized', origin);
 

@@ -208,7 +208,9 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
     const localLevel = localStorage.getItem('nh_level') || '';
     const remoteOrd = CEFR_NUM[fp.nh_level as string] || 0;
     const localOrd = CEFR_NUM[localLevel] || 0;
-    if (remoteOrd >= localOrd) localStorage.setItem('nh_level', fp.nh_level);
+    // remoteOrd === 0 means fp.nh_level is not a recognised CEFR level — skip to avoid
+    // writing corrupted data (e.g. a manually edited Firestore doc with an invalid value).
+    if (remoteOrd > 0 && remoteOrd >= localOrd) localStorage.setItem('nh_level', fp.nh_level);
   }
   if (fp.nh_goal) {
     localStorage.setItem('nh_goal', fp.nh_goal);

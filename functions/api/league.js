@@ -235,8 +235,8 @@ export async function onRequest(context) {
   if (request.method === 'GET') {
     const _wkParam = url.searchParams.get('week');
     // Validate weekKey format to prevent KV key injection via query string.
-    // Allow only YYYY-WNN format (current or historical); reject anything else.
-    if (_wkParam && !/^\d{4}-W\d{2}$/.test(_wkParam)) {
+    // Allow only YYYY-WNN format with valid week numbers (W01-W53).
+    if (_wkParam && !/^\d{4}-W(0[1-9]|[1-4]\d|5[0-3])$/.test(_wkParam)) {
       return err('Invalid weekKey.', 400, origin);
     }
     const weekKey = _wkParam || getCurrentWeekKey();
