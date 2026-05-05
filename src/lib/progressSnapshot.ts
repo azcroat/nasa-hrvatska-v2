@@ -49,7 +49,7 @@ export function buildProgressSnapshot({
   jWords,
 }: ProgressSnapshotParams) {
   const dc = _bestDc(dchlA, dchlSl);
-  const weekXP = parseInt(localStorage.getItem('nh_week_xp_' + _weekKey()) || '0', 10);
+  const weekXP = parseInt(localStorage.getItem('nh_week_xp_' + _weekKey()) || '0', 10) || 0;
   const fbUpdated = (() => {
     try {
       const p = gP(uid) as Record<string, unknown> | null;

@@ -6,32 +6,16 @@
  * getStreak() / updateStreak() in data.jsx use, so everything stays consistent.
  */
 
+import { localDateStr as _localDateStr } from './dateUtils.js';
+
 const STREAK_REPAIR_KEY = 'nh_streak_repair';
 const XP_COST_REPAIR = 100; // XP cost to repair one missed day
 const FREE_REPAIR_KEY = 'nh_used_free_repair'; // one-time free repair for new users
 
-function _localDateStr(): string {
-  const d = new Date();
-  return (
-    d.getFullYear() +
-    '-' +
-    String(d.getMonth() + 1).padStart(2, '0') +
-    '-' +
-    String(d.getDate()).padStart(2, '0')
-  );
-}
-
 function _yesterdayStr(): string {
-  // Use setDate arithmetic — DST-safe (avoids the 23/25-hour edge case of Date.now()-86400000)
   const d = new Date();
   d.setDate(d.getDate() - 1);
-  return (
-    d.getFullYear() +
-    '-' +
-    String(d.getMonth() + 1).padStart(2, '0') +
-    '-' +
-    String(d.getDate()).padStart(2, '0')
-  );
+  return _localDateStr(d);
 }
 
 /**

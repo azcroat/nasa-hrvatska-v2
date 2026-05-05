@@ -69,9 +69,9 @@ cleanupOutdatedCaches();
 // ── Runtime caching ──────────────────────────────────────────────────────────
 
 // __BUILD_ID__ is injected by Vite at build time — unique timestamp per deploy.
-// No manual version bumping ever needed.
-// eslint-disable-next-line no-undef
-const CACHE_VER = 'nasa-hrvatska-v' + __BUILD_ID__;
+// Fallback guards against a misconfigured build omitting injection (ReferenceError crashes SW).
+const _BUILD_ID = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : Date.now(); // eslint-disable-line no-undef
+const CACHE_VER = 'nasa-hrvatska-v' + _BUILD_ID;
 
 // 1. Data chunks (vocab, grammar, exercises, lessons, scenarios, cultural, geo,
 //    stories, pitch-data, daily, songs) — StaleWhileRevalidate.

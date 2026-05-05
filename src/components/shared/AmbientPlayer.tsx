@@ -71,6 +71,12 @@ export default function AmbientPlayer() {
         nodesRef.current.source.stop();
       } catch {}
       try {
+        nodesRef.current.source.disconnect();
+      } catch {}
+      try {
+        nodesRef.current.filter.disconnect();
+      } catch {}
+      try {
         nodesRef.current.gainNode.disconnect();
       } catch {}
       nodesRef.current = null;
@@ -78,6 +84,12 @@ export default function AmbientPlayer() {
     if (lfoRef.current) {
       try {
         lfoRef.current.lfo.stop();
+      } catch {}
+      try {
+        lfoRef.current.lfo.disconnect();
+      } catch {}
+      try {
+        lfoRef.current.lfoGain.disconnect();
       } catch {}
       lfoRef.current = null;
     }

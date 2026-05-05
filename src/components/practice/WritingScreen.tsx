@@ -208,6 +208,7 @@ interface WritingScreenProps {
 export default function WritingScreen({ goBack, award }: WritingScreenProps) {
   const finishFired = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const mountedRef = useRef(true);
   const isOnline = useOnlineStatus();
   const { level: userLevel } = useStats();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
@@ -295,9 +296,10 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
     });
   }
 
-  // Revoke previous URL and stop previous audio on unmount
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -330,7 +332,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
       audioRef.current = audio;
       audio.play().catch(() => {});
     } finally {
-      setTtsLoading(false);
+      if (mountedRef.current) setTtsLoading(false);
     }
   }
 
