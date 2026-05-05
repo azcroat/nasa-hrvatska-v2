@@ -206,25 +206,32 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
     // higher level earned on another device (e.g. Android A1 must not clobber Chrome B2).
     const CEFR_NUM: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 6 };
     const localLevel = localStorage.getItem('nh_level') || '';
-    const remoteOrd = CEFR_NUM[fp.nh_level as string] || 0;
+    // Normalize to uppercase so 'a2' from a manually-edited Firestore doc still resolves.
+    const normalizedRemote = String(fp.nh_level).toUpperCase();
+    const remoteOrd = CEFR_NUM[normalizedRemote] || 0;
     const localOrd = CEFR_NUM[localLevel] || 0;
     // remoteOrd === 0 means fp.nh_level is not a recognised CEFR level — skip to avoid
     // writing corrupted data (e.g. a manually edited Firestore doc with an invalid value).
-    if (remoteOrd > 0 && remoteOrd >= localOrd) localStorage.setItem('nh_level', fp.nh_level);
+    if (remoteOrd > 0 && remoteOrd >= localOrd) localStorage.setItem('nh_level', normalizedRemote);
   }
   if (fp.nh_goal) {
     localStorage.setItem('nh_goal', fp.nh_goal);
     localStorage.setItem('nh_goal_set', '1');
   }
   if (fp.nh_culture) localStorage.setItem('nh_culture', fp.nh_culture);
-  if (fp.nh_daily_goal_xp > 0) {
-    const lDgx = parseInt(localStorage.getItem('nh_daily_goal_xp') || '0', 10);
-    // Math.max: whichever device set the higher daily-goal XP target wins.
-    // Prevents a stale lower value from one device silently overwriting a higher goal
-    // the user explicitly chose on another device.
-    try {
-      localStorage.setItem('nh_daily_goal_xp', String(Math.max(lDgx, fp.nh_daily_goal_xp)));
-    } catch (_) {}
+  if (fp.nh_daily_goal_xp) {
+    // Explicit parseInt: fp.nh_daily_goal_xp may be a string from Firestore (JS type coercion
+    // on '100' > 0 is true, but Math.max(lDgx, '100') would return NaN without parsing).
+    const remoteGoal = parseInt(String(fp.nh_daily_goal_xp), 10) || 0;
+    if (remoteGoal > 0) {
+      const lDgx = parseInt(localStorage.getItem('nh_daily_goal_xp') || '0', 10) || 0;
+      // Math.max: whichever device set the higher daily-goal XP target wins.
+      // Prevents a stale lower value from one device silently overwriting a higher goal
+      // the user explicitly chose on another device.
+      try {
+        localStorage.setItem('nh_daily_goal_xp', String(Math.max(lDgx, remoteGoal)));
+      } catch (_) {}
+    }
   }
   if (fp.nh_placement_done) {
     localStorage.setItem('nh_placement_done', 'true');
