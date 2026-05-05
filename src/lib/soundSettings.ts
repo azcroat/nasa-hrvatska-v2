@@ -102,6 +102,15 @@ export function playTone({
     gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + duration);
+    // Disconnect nodes after playback to prevent AudioContext node accumulation
+    osc.onended = () => {
+      try {
+        osc.disconnect();
+      } catch (_) {}
+      try {
+        gainNode.disconnect();
+      } catch (_) {}
+    };
   } catch (_) {
     /* audio not supported */
   }
@@ -135,6 +144,14 @@ export function playFanfare(): void {
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
       osc.start(t);
       osc.stop(t + 0.5);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+        } catch (_) {}
+        try {
+          g.disconnect();
+        } catch (_) {}
+      };
     });
   } catch (_) {}
 }
@@ -159,6 +176,14 @@ export function playLevelUp(): void {
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
       osc.start(t);
       osc.stop(t + 0.42);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+        } catch (_) {}
+        try {
+          g.disconnect();
+        } catch (_) {}
+      };
     });
   } catch (_) {}
 }
@@ -181,6 +206,14 @@ export function playStreak(): void {
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
       osc.start(t);
       osc.stop(t + 0.35);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+        } catch (_) {}
+        try {
+          g.disconnect();
+        } catch (_) {}
+      };
     });
   } catch (_) {}
 }

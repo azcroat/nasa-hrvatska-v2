@@ -23,6 +23,7 @@ import {
 } from '../lib/firebase.js';
 import { buildProgressSnapshot } from '../lib/progressSnapshot.js';
 import { mergeStatsFromRemote } from '../lib/mergeStatsFromRemote.js';
+import { sanitizeStats } from '../lib/sanitizeStats.js';
 import * as offlineAwardQueue from '../lib/offlineAwardQueue.js';
 import type { Stats, AuthUser } from '../types/index.js';
 
@@ -127,34 +128,42 @@ export function useSyncManager({
     const lpSt = lp ? ((lp.stats || lp.st || {}) as Record<string, unknown>) : {};
 
     const _diffOrder: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
+    // Sanitize both sides before merging — prevents inflated values from a
+    // crafted Firestore progress blob bypassing validation and poisoning localStorage.
+    const safeLp = sanitizeStats(lpSt);
+    const safePSt = sanitizeStats(pSt);
+
     const mergedStats = {
-      ...pSt,
-      xp: Math.max((lpSt.xp as number) || 0, (pSt.xp as number) || 0),
-      lc: Math.max((lpSt.lc as number) || 0, (pSt.lc as number) || 0),
-      gc: Math.max((lpSt.gc as number) || 0, (pSt.gc as number) || 0),
-      sp: Math.max((lpSt.sp as number) || 0, (pSt.sp as number) || 0),
-      de: Math.max((lpSt.de as number) || 0, (pSt.de as number) || 0),
-      rc: Math.max((lpSt.rc as number) || 0, (pSt.rc as number) || 0),
-      str: Math.max((lpSt.str as number) || 0, (pSt.str as number) || 0),
-      pf: Math.max((lpSt.pf as number) || 0, (pSt.pf as number) || 0),
-      mv: Math.max((lpSt.mv as number) || 0, (pSt.mv as number) || 0),
-      hi: Math.max((lpSt.hi as number) || 0, (pSt.hi as number) || 0),
+      ...safePSt,
+      xp: Math.max((safeLp.xp as number) || 0, (safePSt.xp as number) || 0),
+      lc: Math.max((safeLp.lc as number) || 0, (safePSt.lc as number) || 0),
+      gc: Math.max((safeLp.gc as number) || 0, (safePSt.gc as number) || 0),
+      sp: Math.max((safeLp.sp as number) || 0, (safePSt.sp as number) || 0),
+      de: Math.max((safeLp.de as number) || 0, (safePSt.de as number) || 0),
+      rc: Math.max((safeLp.rc as number) || 0, (safePSt.rc as number) || 0),
+      str: Math.max((safeLp.str as number) || 0, (safePSt.str as number) || 0),
+      pf: Math.max((safeLp.pf as number) || 0, (safePSt.pf as number) || 0),
+      mv: Math.max((safeLp.mv as number) || 0, (safePSt.mv as number) || 0),
+      hi: Math.max((safeLp.hi as number) || 0, (safePSt.hi as number) || 0),
       // diff: take the higher CEFR level — never regress even on stale remote snapshot
       diff: (() => {
-        const lo = _diffOrder[lpSt.diff as string] ?? -1;
-        const po = _diffOrder[pSt.diff as string] ?? -1;
-        return lo >= po ? lpSt.diff : pSt.diff;
+        const lo = _diffOrder[safeLp.diff as string] ?? -1;
+        const po = _diffOrder[safePSt.diff as string] ?? -1;
+        return lo >= po ? safeLp.diff : safePSt.diff;
       })(),
-      ct: [...new Set([...((lpSt.ct as string[]) || []), ...((pSt.ct as string[]) || [])])],
-      vs: [...new Set([...((lpSt.vs as string[]) || []), ...((pSt.vs as string[]) || [])])],
+      ct: [...new Set([...((safeLp.ct as string[]) || []), ...((safePSt.ct as string[]) || [])])],
+      vs: [...new Set([...((safeLp.vs as string[]) || []), ...((safePSt.vs as string[]) || [])])],
       badges: [
-        ...new Set([...((lpSt.badges as string[]) || []), ...((pSt.badges as string[]) || [])]),
+        ...new Set([
+          ...((safeLp.badges as string[]) || []),
+          ...((safePSt.badges as string[]) || []),
+        ]),
       ],
       // rs: ordered score history — keep the longer array (more entries = more complete history)
       rs:
-        ((lpSt.rs as string[]) || []).length >= ((pSt.rs as string[]) || []).length
-          ? (lpSt.rs as string[]) || []
-          : (pSt.rs as string[]) || [],
+        ((safeLp.rs as string[]) || []).length >= ((safePSt.rs as string[]) || []).length
+          ? (safeLp.rs as string[]) || []
+          : (safePSt.rs as string[]) || [],
     };
 
     lP(uid, { ...fp, savedAt: fpTs || Date.now(), stats: mergedStats });

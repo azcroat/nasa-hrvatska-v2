@@ -6,6 +6,7 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 // ── Azure TTS ─────────────────────────────────────────────────────────────────
 // hr-HR-GabrijelaNeural: native Croatian Neural voice.
@@ -395,14 +396,25 @@ export async function onRequestPost(context) {
   // Require Firebase auth to prevent unbounded Azure/Google TTS billing.
   // Unauthenticated callers (including rotating-IP attackers) are rejected before any API call.
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  let _ttsUid = null;
   if (FIREBASE_PROJECT_ID) {
-    const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
-    if (!uid) {
+    _ttsUid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!_ttsUid) {
       return new Response(JSON.stringify({ error: 'unauthorized' }), {
         status: 401,
         headers: corsHeaders(origin),
       });
     }
+  }
+
+  // Per-user AI quota — 1 turn per TTS request, 100 turns/day cap.
+  // Prevents authenticated users from draining Azure/ElevenLabs budget via high-frequency polling.
+  const _quota = await checkAIQuota(request, env, _ttsUid, 1);
+  if (!_quota.allowed) {
+    return new Response(JSON.stringify({ error: 'quota_exceeded', resetAt: _quota.resetAt }), {
+      status: 429,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   const AZURE_KEY = env.AZURE_TTS_KEY;

@@ -185,7 +185,8 @@ export default function DialogueSim({
         body: JSON.stringify({
           scenario_id: scenario.id,
           userMessage: userMsg,
-          history: aiHistory,
+          // Cap to last 14 messages (7 turns) — prevents context window overflow on long sessions
+          history: aiHistory.slice(-14),
           level: userLevel || 'A2',
         }),
         signal: AbortSignal.timeout(25000),

@@ -13,7 +13,8 @@ const FREEZE_COST = 50; // XP cost to purchase one freeze
 
 export function getFreezesStored(): number {
   try {
-    return Math.min(2, parseInt(localStorage.getItem(FREEZE_KEY) || '0', 10));
+    const parsed = parseInt(localStorage.getItem(FREEZE_KEY) || '0', 10);
+    return Math.min(2, isNaN(parsed) ? 0 : parsed);
   } catch {
     return 0;
   }
