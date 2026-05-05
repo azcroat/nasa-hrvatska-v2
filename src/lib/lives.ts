@@ -38,15 +38,17 @@ export function getHearts(): number {
     saveState(fresh);
     return fresh.hearts;
   }
+  // Clamp hearts from localStorage to valid range [0,5] — guards against corrupted data.
+  const safeHearts = Math.min(5, Math.max(0, s.hearts || 0));
   const hoursPassed = (Date.now() - (s.lastRegen || 0)) / 14400000;
   const regenCount = Math.floor(hoursPassed);
-  if (regenCount > 0 && s.hearts < 5) {
-    const newHearts = Math.min(5, s.hearts + regenCount);
+  if (regenCount > 0 && safeHearts < 5) {
+    const newHearts = Math.min(5, safeHearts + regenCount);
     const updated: HeartsState = { ...s, hearts: newHearts, lastRegen: Date.now() };
     saveState(updated);
     return newHearts;
   }
-  return s.hearts;
+  return safeHearts;
 }
 
 export function loseHeart(): number {

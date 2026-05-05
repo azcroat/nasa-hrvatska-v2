@@ -22,9 +22,14 @@ import { corsHeaders, isAllowedOrigin } from './_helpers.js';
 
 const VALID_ACTIVITY_TYPES = new Set(Object.keys(ACTIVITY_XP_MAP).filter((k) => k !== 'default'));
 
-const VELOCITY_BUDGET = 600; // XP per window
+const VELOCITY_BUDGET = 600; // XP per 10-min window
 const VELOCITY_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const VELOCITY_TTL_S = 700; // KV TTL: 10 min + 2 min buffer
+
+// Daily XP cap: ~12 lessons + ample exercises for the most dedicated power user.
+// Prevents velocity-window chaining (144 windows/day × 600 XP = 86,400 XP exploit).
+const DAILY_XP_CAP = 2500;
+const DAILY_TTL_S = 90000; // 25 hours — covers UTC date boundary drift
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
@@ -100,27 +105,48 @@ export async function onRequestPost(context) {
 
   const maxXp = ACTIVITY_XP_MAP[activityType] ?? ACTIVITY_XP_MAP.default;
 
-  // ── Per-user velocity check via KV ────────────────────────────────────────
+  // ── Per-user velocity + daily cap via KV ─────────────────────────────────
   const kv = env.XP_VELOCITY;
   if (kv) {
     try {
       const now = Date.now();
-      const key = `xpv2:${uid}`;
-      const raw = await kv.get(key);
-      let entry = raw ? JSON.parse(raw) : { total: 0, windowStart: now };
+      const todayUTC = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
-      // Reset window if it has expired
+      // Fetch velocity window and daily cap in parallel
+      const velKey = `xpv2:${uid}`;
+      const dayKey = `xpday:${uid}:${todayUTC}`;
+      const [rawVel, rawDay] = await Promise.all([kv.get(velKey), kv.get(dayKey)]);
+
+      let entry = rawVel ? JSON.parse(rawVel) : { total: 0, windowStart: now };
+      const dayTotal = rawDay ? (JSON.parse(rawDay).total ?? 0) : 0;
+
+      // Reset velocity window if it has expired
       if (now - entry.windowStart > VELOCITY_WINDOW_MS) {
         entry = { total: 0, windowStart: now };
       }
 
-      const remaining = Math.max(0, VELOCITY_BUDGET - entry.total);
-      const awarded = Math.min(claimedXp, maxXp, remaining);
+      const velRemaining = Math.max(0, VELOCITY_BUDGET - entry.total);
+      const dayRemaining = Math.max(0, DAILY_XP_CAP - dayTotal);
+      const awarded = Math.min(claimedXp, maxXp, velRemaining, dayRemaining);
+
+      if (awarded <= 0) {
+        // Both caps enforce 0 — return 0 without updating KV to avoid wasted writes
+        return new Response(JSON.stringify({ awarded: 0, activityType }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        });
+      }
+
       entry.total += awarded;
 
-      // Write-back KV synchronously before returning — prevents concurrent requests from
+      // Write-back both keys synchronously — prevents concurrent requests from each
       // reading the same pre-update state and each being awarded up to VELOCITY_BUDGET.
-      await kv.put(key, JSON.stringify(entry), { expirationTtl: VELOCITY_TTL_S });
+      await Promise.all([
+        kv.put(velKey, JSON.stringify(entry), { expirationTtl: VELOCITY_TTL_S }),
+        kv.put(dayKey, JSON.stringify({ total: dayTotal + awarded }), {
+          expirationTtl: DAILY_TTL_S,
+        }),
+      ]);
 
       return new Response(JSON.stringify({ awarded, activityType }), {
         status: 200,

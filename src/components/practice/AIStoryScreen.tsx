@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
 import { speak } from '../../lib/audio.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -32,6 +32,13 @@ export default function AIStoryScreen({
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const isOnline = useOnlineStatus();
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
   const [loading, setLoading] = useState(false);
   const [story, setStory] = useState<string | null>(null);
   const [translation, setTranslation] = useState<string | null>(null);
@@ -115,6 +122,7 @@ export default function AIStoryScreen({
         }
       }
 
+      if (!mountedRef.current) return;
       if (parsed && parsed.story) {
         setStory(parsed.story);
         setTranslation(parsed.translation || '');
@@ -123,9 +131,10 @@ export default function AIStoryScreen({
         setRawReply(replyText);
       }
     } catch (err: unknown) {
+      if (!mountedRef.current) return;
       setError((err instanceof Error ? err.message : null) || 'Failed to generate story');
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [weakWords, loading]);
 

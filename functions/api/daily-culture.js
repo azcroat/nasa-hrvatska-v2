@@ -7,6 +7,7 @@
 // Response is cached at the Cloudflare edge for 6 hours.
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
 import { corsHeaders, isAllowedOrigin, err } from './_helpers.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
@@ -37,6 +38,13 @@ export async function onRequestGet(context) {
 
   const allowed = await checkRateLimit(request, 20, env);
   if (!allowed) return err(429, 'Rate limited', origin);
+
+  // Require Firebase auth — prevents unauthenticated AI budget drain.
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  if (FIREBASE_PROJECT_ID) {
+    const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!uid) return err(401, 'Authentication required', origin);
+  }
 
   const ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_API_KEY) return err(503, 'Not configured', origin);

@@ -9,12 +9,12 @@ import { getAuth } from 'firebase/auth';
  * not aborts) with exponential backoff — but only when the caller has NOT
  * provided their own AbortSignal (to respect caller-controlled timeouts).
  */
-export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
+async function _attachToken(options: RequestInit, forceRefresh = false): Promise<void> {
   try {
     const auth = getAuth();
     const user = auth.currentUser;
     if (user) {
-      const token = await user.getIdToken();
+      const token = await user.getIdToken(forceRefresh);
       options.headers = {
         ...options.headers,
         Authorization: `Bearer ${token}`,
@@ -25,10 +25,14 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
     console.error('[apiFetch] Failed to get auth token:', err?.message);
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
-        new CustomEvent('nh:auth-token-error', { detail: { url, error: err?.message } }),
+        new CustomEvent('nh:auth-token-error', { detail: { url: '', error: err?.message } }),
       );
     }
   }
+}
+
+export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  await _attachToken(options);
 
   // If caller supplies their own signal, respect it exactly — no retry wrapping
   if (options.signal) {
@@ -37,12 +41,19 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
 
   // Managed path: internal timeout + retry on transient network errors
   const MAX_RETRIES = 2;
+  let _tokenRefreshed = false;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
     try {
       const response = await fetch(url, { ...options, signal: controller.signal });
       clearTimeout(timeoutId);
+      // On 401 with a stale token, force-refresh once and retry immediately.
+      if (response.status === 401 && !_tokenRefreshed) {
+        _tokenRefreshed = true;
+        await _attachToken(options, true);
+        continue;
+      }
       return response;
     } catch (err: unknown) {
       clearTimeout(timeoutId);
