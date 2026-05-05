@@ -4311,7 +4311,7 @@ export const LESSONS = [
       {
         type: 'rule',
         title: 'Reflexive Emotion Verbs with SE',
-        body: 'Many emotions are expressed with reflexive verbs in Croatian — the feeling reflects back onto the subject. Key examples: bojati se (to be afraid of), sramiti se (to be ashamed of), veseliti se (to look forward to / to be happy about), nadati se (to hope for), čuditi se (to be surprised at), brinuti se (to worry about). All take an object in the GENITIVE case: bojim se psa (I am afraid of the dog).',
+        body: 'Many emotions are expressed with reflexive verbs in Croatian — the feeling reflects back onto the subject. Key examples: bojati se (to be afraid of), sramiti se (to be ashamed of), veseliti se (to look forward to / to be happy about), nadati se (to hope for), čuditi se (to be surprised at), brinuti se (to worry about). The object case depends on the verb: bojati se and sramiti se take the GENITIVE (bojim se psa — I am afraid of the dog), while veseliti se and nadati se take the DATIVE.',
         highlight: 'bojati se / nadati se / sramiti se',
       },
       {

@@ -114,13 +114,14 @@ const LEVEL_SPEECHES: Record<number, { mood: string; text: string }> = {
   },
 };
 
-// Module-level guard: comeback bonus fires at most once per app session
-// (mirrors _comebackUsedThisSession in App.jsx — must stay in sync if moved)
-let _awardComebackUsed = false;
+// Module-level guard: comeback bonus fires at most once per calendar day.
+// Stored as a date string so it resets automatically when the date rolls over
+// (the previous boolean would block the bonus on a new day in the same session).
+let _awardComebackUsed = '';
 
 // Expose for App.jsx reset on sign-out (if needed)
 export function resetComebackGuard() {
-  _awardComebackUsed = false;
+  _awardComebackUsed = '';
 }
 export function canEarnXP(exerciseId: string): boolean {
   try {
@@ -184,10 +185,10 @@ export function useAward({
       if (
         comebackBonus &&
         amt > 0 &&
-        !_awardComebackUsed &&
+        _awardComebackUsed !== _today &&
         !localStorage.getItem('nh_comeback_used_' + _today)
       ) {
-        _awardComebackUsed = true;
+        _awardComebackUsed = _today;
         localStorage.setItem('nh_comeback_used_' + _today, '1');
         totalAmt = totalAmt + 50; // Bonus is flat, not subject to campaign multiplier
       }

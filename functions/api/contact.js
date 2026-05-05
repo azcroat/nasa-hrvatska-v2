@@ -260,7 +260,7 @@ export async function onRequestPost(context) {
 
       <!-- CTA -->
       <div style="margin-top:28px;text-align:center;padding-top:20px;border-top:1px solid #f1f5f9">
-        <a href="https://claude.ai" style="display:inline-block;background:linear-gradient(135deg,#0e7490,#164e63);color:#fff;text-decoration:none;border-radius:12px;padding:12px 28px;font-weight:700;font-size:14px">Open Claude to fix →</a>
+        <a href="https://nasahrvatska.com" style="display:inline-block;background:linear-gradient(135deg,#0e7490,#164e63);color:#fff;text-decoration:none;border-radius:12px;padding:12px 28px;font-weight:700;font-size:14px">Open Naša Hrvatska →</a>
         <div style="margin-top:12px;font-size:12px;color:#94a3b8">Naša Hrvatska · nasahrvatska.com</div>
       </div>
     </div>

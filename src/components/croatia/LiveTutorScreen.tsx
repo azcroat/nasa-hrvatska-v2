@@ -207,35 +207,40 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
   const testSpeaker = useCallback(async () => {
     setTestingAudio(true);
     setAudioTestResult(null);
+    let ctx: AudioContext | null = getAudioContext() as AudioContext | null;
+    let tempCtx = false;
     try {
       // Use existing unlocked context if available, otherwise create a temporary one
-      let ctx = getAudioContext();
-      let tempCtx = false;
       if (!ctx) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
         tempCtx = true;
       }
-      await ctx.resume();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      await ctx!.resume();
+      const osc = ctx!.createOscillator();
+      const gain = ctx!.createGain();
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(ctx!.destination);
       osc.type = 'sine';
       osc.frequency.value = 520; // pleasant mid-tone
-      gain.gain.setValueAtTime(0.25, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.6);
+      gain.gain.setValueAtTime(0.25, ctx!.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx!.currentTime + 0.6);
+      osc.start(ctx!.currentTime);
+      osc.stop(ctx!.currentTime + 0.6);
       await new Promise((r) => setTimeout(r, 700));
-      if (tempCtx) ctx.close();
       setAudioStatus('ok');
       setAudioTestResult('ok');
     } catch {
       setAudioTestResult('fail');
       setAudioStatus('no-output');
+    } finally {
+      if (tempCtx && ctx) {
+        try {
+          ctx.close();
+        } catch {}
+      }
+      setTestingAudio(false);
     }
-    setTestingAudio(false);
   }, []);
 
   // ── Auto-scroll ───────────────────────────
@@ -255,6 +260,7 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
     setTurnCount(0);
     setPhase('none');
     setError(null);
+    milestone10Fired.current = false;
 
     // Prime the tutor with a system-style user message
     const opener = `Zdravo! Htio/htjela bih vježbati hrvatski. Tema: ${topic}. Razina: ${level}.`;
