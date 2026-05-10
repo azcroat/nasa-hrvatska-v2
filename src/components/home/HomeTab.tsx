@@ -347,12 +347,15 @@ export default function HomeTab({
   // because AppRouter only renders HomeTab when currentScreen === 'dashboard'. The
   // prevScreenRef approach below can never fire in this case (HomeTab is gone). Instead,
   // onStart() writes the launched screen to sessionStorage; on the next mount (when user
-  // returns), we read it back and call markDone.
+  // returns), we read nh_session_completed (written by useAward only on real completion)
+  // and call markDone only when the exercise was actually finished, not just backed out of.
   React.useEffect(() => {
     try {
       const pending = sessionStorage.getItem('nh_session_started');
-      if (pending) {
-        sessionStorage.removeItem('nh_session_started');
+      const completed = sessionStorage.getItem('nh_session_completed');
+      sessionStorage.removeItem('nh_session_started');
+      sessionStorage.removeItem('nh_session_completed');
+      if (pending && completed === pending) {
         markDone(pending);
       }
     } catch {}
@@ -366,7 +369,15 @@ export default function HomeTab({
     const prev = prevScreenRef.current;
     prevScreenRef.current = currentScreen;
     if (currentScreen === 'dashboard' && prev !== 'dashboard' && prev !== 'welcome') {
-      markDone(prev);
+      try {
+        const pending = sessionStorage.getItem('nh_session_started');
+        const completed = sessionStorage.getItem('nh_session_completed');
+        sessionStorage.removeItem('nh_session_started');
+        sessionStorage.removeItem('nh_session_completed');
+        if (pending && completed === pending) {
+          markDone(pending);
+        }
+      } catch {}
     }
   }, [currentScreen, markDone]);
 

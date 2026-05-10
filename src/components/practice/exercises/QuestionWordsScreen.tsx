@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { QWORDS } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 function QuestionWordsScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const questions = useMemo(() => shMemo('qw', QWORDS, undefined), []);
   const shuffledOpts = useMemo(
     () =>
@@ -27,6 +29,11 @@ function QuestionWordsScreen({ goBack, award }: Props) {
   React.useEffect(() => {
     if (!allDone) return;
     markQuest('grammar');
+    setStats((s) => ({ ...s, gc: s.gc + 1 }));
+    writeDelta({ gc: 1 });
+    try {
+      sessionStorage.setItem('nh_grammar_unit_completed', 'true');
+    } catch {}
     if (xpEarned > 0 && typeof award === 'function') award(xpEarned, true, 'grammar');
   }, [allDone]); // eslint-disable-line react-hooks/exhaustive-deps
 
