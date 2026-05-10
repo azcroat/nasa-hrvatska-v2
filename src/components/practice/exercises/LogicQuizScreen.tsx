@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { LOGICQUIZ } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 function LogicQuizScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const questions = shMemo('lq', LOGICQUIZ, undefined);
   const handledRef = useRef(new Set<number>());
   const [done, setDone] = useState(false);
@@ -31,6 +33,8 @@ function LogicQuizScreen({ goBack, award }: Props) {
     }
     if (handledRef.current.size >= questions.length) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }

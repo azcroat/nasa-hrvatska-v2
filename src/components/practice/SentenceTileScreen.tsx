@@ -12,6 +12,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { H, Bar } from '../../data';
 import { SENTBUILD } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { useHaptic } from '../../hooks/useHaptic';
 import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
@@ -97,6 +98,7 @@ export default function SentenceTileScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { setStats, writeDelta } = useStats();
   const haptic = useHaptic();
 
   const questions = useMemo(() => {
@@ -154,6 +156,8 @@ export default function SentenceTileScreen({
     if (nextIdx >= questions.length) {
       if (typeof award === 'function') award(score * 4 + 5, true, 'grammar');
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       knightSpeak(
         score >= questions.length * 0.8 ? 'victory' : 'encouraging',
         score >= questions.length * 0.8
@@ -168,7 +172,7 @@ export default function SentenceTileScreen({
       setTray([]);
       setFeedback(null);
     }
-  }, [idx, questions, score, award]);
+  }, [idx, questions, score, award, setStats, writeDelta]);
 
   if (done) {
     const pct = Math.round((score / questions.length) * 100);

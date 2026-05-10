@@ -3,6 +3,7 @@ import { H, speak, sh, shMemo } from '../../../data';
 import { SENTBUILD } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 function SentenceBuilderScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const questions = shMemo('sb', SENTBUILD, 15);
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
@@ -37,6 +39,8 @@ function SentenceBuilderScreen({ goBack, award }: Props) {
 
     if (handledRef.current.size >= questions.length) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }

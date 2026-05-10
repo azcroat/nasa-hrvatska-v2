@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { speak, sh } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { recordTopicResult, rateCategorySession } from '../../lib/adaptive.ts';
 import { useAdaptiveSession } from '../../hooks/useAdaptiveSession';
 
@@ -1268,6 +1269,7 @@ interface ProductionDrillProps {
   award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function ProductionDrillScreen({ goBack, award }: ProductionDrillProps) {
+  const { setStats, writeDelta } = useStats();
   const [mode, setMode] = useState<string | null>(null);
 
   // Adaptive session tracking — difficulty starts at 4 (free production exercises)
@@ -1288,6 +1290,8 @@ export default function ProductionDrillScreen({ goBack, award }: ProductionDrill
 
   function handleDone() {
     markQuest('grammar');
+    setStats((s) => ({ ...s, gc: s.gc + 1 }));
+    writeDelta({ gc: 1 });
     // Rate each category based on session accuracy
     const summary = sessionSummary();
     for (const [cat, accuracy] of Object.entries(summary) as Array<[string, number]>) {

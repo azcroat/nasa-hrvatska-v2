@@ -3,6 +3,7 @@ import { H, speak, sh } from '../../../data';
 import { REFLEXIVE } from '../../../data';
 import { rnd } from '../../../lib/random.js';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 function ReflexiveScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const [tab, setTab] = useState('rules');
   const [_qIdx] = useState(() => Math.floor(rnd() * REFLEXIVE.quiz.length));
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -39,6 +41,8 @@ function ReflexiveScreen({ goBack, award }: Props) {
     if (Object.keys(newAnswers).length === REFLEXIVE.quiz.length && !questFiredRef.current) {
       questFiredRef.current = true;
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
     }
   }
 

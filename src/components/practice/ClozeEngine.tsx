@@ -218,7 +218,7 @@ interface Props {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function ClozeEngine({ goBack, award }: Props) {
-  const { level } = useStats();
+  const { level, setStats, writeDelta } = useStats();
   const mountedRef = useRef(true);
   useEffect(
     () => () => {
@@ -298,6 +298,8 @@ export default function ClozeEngine({ goBack, award }: Props) {
       const earned = Math.round((score / questions.length) * 30) + 10;
       if (award) award(earned, false, 'grammar');
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     } else {
       setQi(qi + 1);

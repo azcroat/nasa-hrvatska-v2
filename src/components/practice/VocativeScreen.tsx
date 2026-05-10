@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { H, Bar, VOCATIVE } from '../../data';
 import { speak } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 // Shuffle helper
 function sh<T>(a: T[]): T[] {
@@ -22,6 +23,7 @@ export default function VocativeScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { setStats, writeDelta } = useStats();
   const [phase, setPhase] = useState('rules'); // rules | dialogues | quiz | done
   const [quizQ] = useState(() => sh(VOCATIVE.quiz));
   const [qi, setQi] = useState(0);
@@ -413,6 +415,8 @@ export default function VocativeScreen({
               finishFired.current = true;
               if (typeof award === 'function') award(xpEarned, false, 'vocabulary');
               markQuest('grammar');
+              setStats((s) => ({ ...s, gc: s.gc + 1 }));
+              writeDelta({ gc: 1 });
               goBack();
             }}
           >

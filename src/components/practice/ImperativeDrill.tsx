@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 import { rnd } from '../../lib/random.js';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -175,6 +176,7 @@ interface Props {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function ImperativeDrill({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [q] = useState(() =>
     shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
@@ -200,6 +202,8 @@ export default function ImperativeDrill({ goBack, award }: Props) {
         finishFired.current = true;
         if (award) award(score * 5, false, 'grammar');
         markQuest('grammar');
+        setStats((s) => ({ ...s, gc: s.gc + 1 }));
+        writeDelta({ gc: 1 });
       }
       setDone(true);
     } else {

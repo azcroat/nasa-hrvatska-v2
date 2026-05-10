@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { CITYLOC } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 function CityLocativeScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const quizCities = shMemo('cl', CITYLOC.cities, 8);
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
@@ -37,6 +39,8 @@ function CityLocativeScreen({ goBack, award }: Props) {
 
     if (handledRef.current.size >= quizCities.length) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }
