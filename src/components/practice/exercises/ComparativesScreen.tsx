@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { COMPARE, COMPQUIZ } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 function ComparativesScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const questions = shMemo('cq', COMPQUIZ, undefined);
   const shuffledOpts = React.useMemo(
     () => (questions as { q: string; opts: string[]; a: string }[]).map((q) => sh([...q.opts])),
@@ -33,6 +35,8 @@ function ComparativesScreen({ goBack, award }: Props) {
 
     if (handledRef.current.size >= questions.length) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }

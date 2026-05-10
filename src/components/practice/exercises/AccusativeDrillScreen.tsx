@@ -3,6 +3,7 @@ import { H, speak, shMemo } from '../../../data';
 import { AKUFOOD, AKUCLOTHES } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 function AccusativeDrillScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const foodItems = shMemo('af', AKUFOOD, undefined);
   const clothesItems = shMemo('ac', AKUCLOTHES, undefined);
   const total = foodItems.length + clothesItems.length;
@@ -26,6 +28,8 @@ function AccusativeDrillScreen({ goBack, award }: Props) {
     if (typeof award === 'function') award(2, false, 'grammar');
     if (handledRef.current.size >= total) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }

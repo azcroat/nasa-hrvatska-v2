@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, UNJUMBLE } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 export default function Unjumble({
   goBack,
@@ -9,6 +10,7 @@ export default function Unjumble({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { setStats, writeDelta } = useStats();
   const [ujQ] = useState(() => sh(UNJUMBLE).slice(0, 10));
   const [ujI, sUjI] = useState(0);
   const [ujS, sUjS] = useState(0);
@@ -44,6 +46,8 @@ export default function Unjumble({
               finishFired.current = true;
               if (typeof award === 'function') award(xp, false, 'grammar');
               markQuest('grammar');
+              setStats((s) => ({ ...s, gc: s.gc + 1 }));
+              writeDelta({ gc: 1 });
               goBack();
             }}
           >

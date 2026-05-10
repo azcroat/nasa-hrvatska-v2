@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { PROFGENDER } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface ProfItem {
   en: string;
@@ -39,6 +40,7 @@ interface Props {
 }
 
 function ProfessionGenderScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const [tab, setTab] = useState('learn');
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const questFiredRef = useRef(false);
@@ -60,6 +62,8 @@ function ProfessionGenderScreen({ goBack, award }: Props) {
     if (Object.keys(answers).length + 1 >= quiz.length && !questFiredRef.current) {
       questFiredRef.current = true;
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
     }
   }
 

@@ -3,6 +3,7 @@ import { H, speak, shMemo } from '../../../data';
 import { FUTURE } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 function FutureTenseScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const questions = shMemo('fq', FUTURE.quiz, undefined);
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
@@ -33,6 +35,8 @@ function FutureTenseScreen({ goBack, award }: Props) {
 
     if (handledRef.current.size >= questions.length) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }

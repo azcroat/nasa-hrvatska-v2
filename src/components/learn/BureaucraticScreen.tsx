@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { BUREAUCRATIC } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 interface QuizQuestion {
   q: string;
@@ -13,6 +14,7 @@ interface QuizBlockProps {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function QuizBlock({ questions, award }: QuizBlockProps) {
+  const { setStats, writeDelta } = useStats();
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [score, setScore] = useState<number | null>(null);
 
@@ -28,6 +30,8 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
       if (award) {
         award(pts * 5, false, 'grammar');
         markQuest('grammar');
+        setStats((s) => ({ ...s, gc: s.gc + 1 }));
+        writeDelta({ gc: 1 });
       }
     }
   }

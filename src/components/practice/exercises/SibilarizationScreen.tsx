@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, speak, sh, shMemo } from '../../../data';
 import { SIBIL } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 function SibilarizationScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const questions = shMemo('sq', SIBIL.quiz, undefined);
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
@@ -34,6 +36,8 @@ function SibilarizationScreen({ goBack, award }: Props) {
 
     if (handledRef.current.size >= questions.length) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }

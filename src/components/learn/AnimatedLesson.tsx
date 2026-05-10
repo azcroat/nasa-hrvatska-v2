@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { speak } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import {
   ProgressBar,
   IntroSlide,
@@ -70,6 +71,7 @@ interface Props {
 }
 
 export default function AnimatedLesson({ lesson, goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const [slide, setSlide] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [quizResults, setQuizResults] = useState<Record<number, boolean>>({});
@@ -112,6 +114,8 @@ export default function AnimatedLesson({ lesson, goBack, award }: Props) {
       if (typeof award === 'function') {
         award(25, false, 'lesson');
         markQuest('grammar');
+        setStats((s) => ({ ...s, gc: s.gc + 1 }));
+        writeDelta({ gc: 1 });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

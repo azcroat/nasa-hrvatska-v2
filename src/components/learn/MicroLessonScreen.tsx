@@ -101,7 +101,7 @@ export default function MicroLessonScreen({
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
   goFlashcards?: () => void;
 }) {
-  const { level } = useStats();
+  const { level, setStats, writeDelta } = useStats();
   const [phase, setPhase] = useState('loading'); // loading | error | intro | quiz | results
   const [lesson, setLesson] = useState<MicroLesson | null>(null);
   const [weakWords, setWeakWords] = useState<WeakWord[]>([]);
@@ -127,9 +127,11 @@ export default function MicroLessonScreen({
       const xpEarned = 10 + correctCount * 5;
       awardFn(xpEarned);
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       void total; // suppress unused warning
     }
-  }, [phase, lesson, correctCount, awardFn]);
+  }, [phase, lesson, correctCount, awardFn, setStats, writeDelta]);
 
   // ── Fetch lesson ─────────────────────────────────────────────────────────────
   const fetchLesson = useCallback(async () => {

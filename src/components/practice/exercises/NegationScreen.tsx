@@ -3,6 +3,7 @@ import { H, speak, sh, shMemo } from '../../../data';
 import { NEGATION } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
+import { useStats } from '../../../context/StatsContext';
 
 const NEGATION_QUIZ = [
   { q: 'Ne ___ ručak. (kuhati — ja)', a: 'kuham', opts: ['kuham', 'kuhaš', 'kuha', 'kuhamo'] },
@@ -55,6 +56,7 @@ interface Props {
 }
 
 function NegationScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const [tab, setTab] = useState('learn');
   // answers[qi] = the option the user selected (string), or undefined
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -81,6 +83,8 @@ function NegationScreen({ goBack, award }: Props) {
     if (answeredCount + 1 >= shuffledQuiz.length && !questFiredRef.current) {
       questFiredRef.current = true;
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
     }
   }
 

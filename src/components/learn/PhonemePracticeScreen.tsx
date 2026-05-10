@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
 const STORAGE_KEY = 'nh_phonemes_mastered';
@@ -131,6 +132,7 @@ export default function PhonemePracticeScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { setStats, writeDelta } = useStats();
   const [mastered, setMastered] = useState<Set<string>>(() => loadMastered() as Set<string>);
   const [active, setActive] = useState<number | null>(null);
   const [celebrated, setCelebrated] = useState(false);
@@ -155,6 +157,8 @@ export default function PhonemePracticeScreen({
       setCelebrated(true);
       if (typeof award === 'function') award(100, true, 'pronunciation');
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setTimeout(() => {
         knightSpeak(
           'victory',

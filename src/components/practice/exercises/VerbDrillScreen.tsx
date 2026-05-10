@@ -4,6 +4,7 @@ import { VERBDRILL, VBPERSONS } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { addWordToSRS } from '../../../lib/srs.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface VerbEntry {
   inf: string;
@@ -47,6 +48,7 @@ interface Props {
 }
 
 export default function VerbDrillScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('reference'); // 'reference' | 'quiz'
 
   // Quiz state
@@ -81,6 +83,8 @@ export default function VerbDrillScreen({ goBack, award }: Props) {
       if (!awardFired.current) {
         awardFired.current = true;
         markQuest('grammar');
+        setStats((s) => ({ ...s, gc: s.gc + 1 }));
+        writeDelta({ gc: 1 });
         if (typeof award === 'function') award(score * 3 + 10, false, 'grammar');
       }
       setQuizDone(true);

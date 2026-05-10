@@ -109,11 +109,14 @@ export function buildProgressSnapshot({
     nh_reduce_motion: localStorage.getItem('nh_reduce_motion') === 'true',
     nh_autotts: localStorage.getItem('nh_autotts') === 'true',
     // Journey milestones — additive union on merge; never truncated below 200 entries
+    // Return undefined when local is empty — Firestore's setDoc(merge) drops undefined
+    // fields, so a missing/empty local value won't overwrite server milestone history.
     nh_journey: (() => {
       try {
-        return JSON.parse(localStorage.getItem('nh_journey') || '[]');
+        const parsed = JSON.parse(localStorage.getItem('nh_journey') || 'null');
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : undefined;
       } catch {
-        return [];
+        return undefined;
       }
     })(),
     // Weekend warrior tracking — object { sat?: 'YYYY-MM-DD', sun?: 'YYYY-MM-DD' }

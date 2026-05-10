@@ -3,6 +3,7 @@ import { H } from '../../data';
 import { speak } from '../../lib/audio.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 const TOPICS = [
   {
@@ -252,6 +253,7 @@ export default function GrammarExplainer({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { setStats, writeDelta } = useStats();
   const [phase, setPhase] = useState('pick');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [level, setLevel] = useState(() => {
@@ -312,6 +314,8 @@ export default function GrammarExplainer({
       xpAwarded.current = true;
       award(20, false, 'grammar');
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setPhase('done');
       setTimeout(() => setPhase('lesson'), 1800);
     }

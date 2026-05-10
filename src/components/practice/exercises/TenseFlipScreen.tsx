@@ -3,6 +3,7 @@ import { H, speak, shMemo } from '../../../data';
 import { TENSEFLIP } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 function TenseFlipScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const items = shMemo('tf', TENSEFLIP, 10);
   const total = items.length * 2; // each item has perfekt + negative
   const handledRef = useRef(new Set<string>());
@@ -25,6 +27,8 @@ function TenseFlipScreen({ goBack, award }: Props) {
     if (typeof award === 'function') award(3, false, 'grammar');
     if (handledRef.current.size >= total) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }

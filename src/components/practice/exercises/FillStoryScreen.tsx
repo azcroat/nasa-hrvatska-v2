@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, sh } from '../../../data';
 import { FILL_STORIES } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 function FillStoryScreen({ goBack, award }: Props) {
+  const { setStats, writeDelta } = useStats();
   const total = FILL_STORIES.reduce(function (sum, story) {
     return sum + story.story.length;
   }, 0);
@@ -44,6 +46,8 @@ function FillStoryScreen({ goBack, award }: Props) {
     }
     if (handledRef.current.size >= total) {
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       setDone(true);
     }
   }

@@ -8,6 +8,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import { PITCH_ACCENT_LESSONS } from '../../data/pitchAccentContent.js';
@@ -400,6 +401,7 @@ export default function PitchAccentMastery({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { setStats, writeDelta } = useStats();
   const [phase, setPhase] = useState('intro'); // intro | lesson | practical | done
   const [accentIdx, setAccentIdx] = useState(0);
   const [lessonPhase, setLessonPhase] = useState('theory'); // theory | examples | pairs | quiz
@@ -465,6 +467,8 @@ export default function PitchAccentMastery({
       awardFired.current = true;
       if (typeof award === 'function') award(40, false, 'pronunciation');
       markQuest('grammar');
+      setStats((s) => ({ ...s, gc: s.gc + 1 }));
+      writeDelta({ gc: 1 });
       knightSpeak(
         'victory',
         'Nevjerojatno! You completed the Croatian Pitch Accent course. You now know something most Croatian textbooks never teach. Čestitam! 🏆',
