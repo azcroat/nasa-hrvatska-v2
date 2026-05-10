@@ -179,7 +179,17 @@ export function useAward({
         setShowXP(false);
         return;
       }
-      if (_effectiveEx) markExerciseDone(_effectiveEx);
+      if (_effectiveEx) {
+        markExerciseDone(_effectiveEx);
+        // Signal daily-session completion: only if this exercise was the active session activity.
+        // HomeTab reads this on remount to distinguish real completion from back-press.
+        try {
+          const started = sessionStorage.getItem('nh_session_started');
+          if (started && started === _effectiveEx) {
+            sessionStorage.setItem('nh_session_completed', _effectiveEx);
+          }
+        } catch {}
+      }
       let totalAmt = lXPgain(amt);
       const _today = _localDateStr();
       if (

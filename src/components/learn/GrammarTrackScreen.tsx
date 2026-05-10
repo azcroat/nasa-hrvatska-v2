@@ -342,9 +342,25 @@ function markDone(unitId: string): void {
 }
 
 export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
-  const { setScr } = useApp();
+  const { setScr, sCurEx } = useApp();
   const [activeLevel, setActiveLevel] = useState('A1');
   const [done, setDone] = useState(getProgress);
+
+  // On remount, check if the last-launched unit was actually completed.
+  // QuestionWordsScreen (and others) write nh_grammar_unit_completed on real completion;
+  // if user just hit back, the key is absent so we don't mark done prematurely.
+  useEffect(() => {
+    try {
+      const completed = sessionStorage.getItem('nh_grammar_unit_completed');
+      const pending = sessionStorage.getItem('nh_grammar_unit_pending');
+      sessionStorage.removeItem('nh_grammar_unit_completed');
+      sessionStorage.removeItem('nh_grammar_unit_pending');
+      if (completed === 'true' && pending) {
+        markDone(pending);
+        setDone(getProgress());
+      }
+    } catch {}
+  }, []);
 
   // Refresh progress when user returns to this screen (e.g. after completing a unit)
   useEffect(() => {
@@ -360,8 +376,10 @@ export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
   }, []);
 
   function launch(unit: Unit): void {
-    markDone(unit.id);
-    setDone(getProgress());
+    try {
+      sessionStorage.setItem('nh_grammar_unit_pending', unit.id);
+    } catch {}
+    if (sCurEx) sCurEx(unit.screen);
     setScr(unit.screen);
   }
 
