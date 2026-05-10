@@ -258,6 +258,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
       });
       if (!res.ok) throw new Error('API error ' + res.status);
       const data = await res.json();
+      if (!mountedRef.current) return;
       setResult(data);
       // Log mistakes and add single-word corrections to SRS queue
       const corrections: ChangeItem[] = data.changes || data.mistakes || [];
@@ -275,13 +276,15 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
         }
       });
     } catch (e) {
+      if (!mountedRef.current) return;
       setError(
         !isOnline
           ? 'No connection — please reconnect to use AI feedback.'
           : 'Could not connect to AI correction service. Check your connection.',
       );
+    } finally {
+      if (mountedRef.current) setLoading(false);
     }
-    setLoading(false);
   }
 
   function newPrompt() {

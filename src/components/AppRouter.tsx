@@ -1394,7 +1394,7 @@ export default function AppRouter(props: Record<string, any>) {
         )}
         {currentScreen === 'negation' && (
           <ScreenErrorBoundary key="negation" name="negation">
-            <NegationScreen goBack={goBack} />
+            <NegationScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'sibil' && (
