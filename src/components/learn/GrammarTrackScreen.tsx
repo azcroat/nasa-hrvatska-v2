@@ -376,6 +376,11 @@ export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
   }, []);
 
   function launch(unit: Unit): void {
+    // Mark done on launch so all 30+ units track progress correctly — idempotent.
+    // The remount useEffect additionally handles the nh_grammar_unit_completed signal
+    // written by screens that opt into fine-grained completion tracking (e.g. QuestionWords).
+    markDone(unit.id);
+    setDone(getProgress());
     try {
       sessionStorage.setItem('nh_grammar_unit_pending', unit.id);
     } catch {}
