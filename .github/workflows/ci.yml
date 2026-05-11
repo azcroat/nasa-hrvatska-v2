@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches: ['master']
   pull_request:
-    branches: ['**']
+    branches: ['master']
 
 # Cancel any in-progress run for the same branch when a new push arrives.
 # Prevents E2E suites from piling up during rapid development (e.g. 6 queued runs).
