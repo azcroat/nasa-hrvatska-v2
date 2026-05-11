@@ -5,6 +5,7 @@ import { markQuest } from '../../../lib/quests.js';
 import { addWordToSRS } from '../../../lib/srs.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
 import { useStats } from '../../../context/StatsContext';
+import CompletionCard from '../../shared/CompletionCard';
 
 interface VerbEntry {
   inf: string;
@@ -185,42 +186,17 @@ export default function VerbDrillScreen({ goBack, award }: Props) {
 
   // ── Quiz done ─────────────────────────────────────────────────────────────────
   if (quizDone) {
-    const pct = score / questions.length;
     return (
       <div className="scr-wrap">
         {H('💪 Conjugation Quiz', '', goBack)}
-        <div style={{ textAlign: 'center', padding: '32px 16px' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>
-            {pct >= 0.9 ? '🏆' : pct >= 0.7 ? '⭐' : '💪'}
-          </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#164e63', marginBottom: 4 }}>
-            {score}/{questions.length} correct
-          </div>
-          <div style={{ fontSize: 13, color: '#78716c', marginBottom: 16 }}>
-            {pct >= 0.9
-              ? 'Verb master! Your conjugation is solid.'
-              : pct >= 0.7
-                ? 'Great progress! Review the ones you missed.'
-                : 'Keep drilling — verb forms click with repetition.'}
-          </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#d97706', marginBottom: 24 }}>
-            +{score * 3 + 10} XP
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button
-              className="b bg"
-              style={{ flex: 1 }}
-              onClick={() => {
-                setMode('reference');
-              }}
-            >
-              📖 Review
-            </button>
-            <button className="b bp" style={{ flex: 1 }} onClick={goBack}>
-              ✓ Done
-            </button>
-          </div>
-        </div>
+        <CompletionCard
+          score={score}
+          total={questions.length}
+          xp={score * 3 + 10}
+          onDone={goBack}
+          secondaryLabel="📖 Review Verbs"
+          onSecondary={() => setMode('reference')}
+        />
       </div>
     );
   }
@@ -259,31 +235,18 @@ export default function VerbDrillScreen({ goBack, award }: Props) {
         <div
           style={{
             fontSize: 12,
-            color: '#78716c',
+            color: 'var(--subtext)',
             marginBottom: 6,
             fontWeight: 700,
             letterSpacing: '.05em',
+            textTransform: 'uppercase',
           }}
         >
-          CONJUGATE
+          Conjugate
         </div>
-        <div style={{ fontSize: 22, fontWeight: 900, color: '#164e63', marginBottom: 4 }}>
-          {q.verb}
-        </div>
-        <div style={{ fontSize: 13, color: '#78716c', marginBottom: 10 }}>{q.en}</div>
-        <div
-          style={{
-            display: 'inline-block',
-            background: '#0e7490',
-            color: 'white',
-            fontSize: 15,
-            fontWeight: 800,
-            padding: '6px 18px',
-            borderRadius: 20,
-          }}
-        >
-          {q.person} + ?
-        </div>
+        <div className="ex-prompt">{q.verb}</div>
+        <div className="ex-hint">{q.en}</div>
+        <div className="ex-person-badge">{q.person} + ?</div>
       </div>
 
       {/* Options */}
