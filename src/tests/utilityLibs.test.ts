@@ -146,7 +146,7 @@ describe('getMemoryHook', () => {
 });
 
 // ── wordOfDay ─────────────────────────────────────────────────────────────────
-import { getWordOfDay } from '../lib/wordOfDay';
+import { getWordOfDay, getPhraseOfDay } from '../lib/wordOfDay';
 
 describe('getWordOfDay', () => {
   it('returns an object { hr, en, ph, cat } or null', () => {
@@ -175,6 +175,42 @@ describe('getWordOfDay', () => {
       expect(word.hr.length).toBeGreaterThan(0);
       expect(word.en.length).toBeGreaterThan(0);
     }
+  });
+
+  it('returns null when Date constructor throws (catch branch)', () => {
+    // dayOfYear() calls new Date() inside the try block — mocking it to throw
+    // exercises the catch { return null } path (line 56).
+    vi.spyOn(globalThis, 'Date').mockImplementationOnce(() => {
+      throw new Error('clock error');
+    });
+    expect(getWordOfDay()).toBeNull();
+    vi.restoreAllMocks();
+  });
+});
+
+describe('getPhraseOfDay', () => {
+  it('returns an object { hr, en, note } or null', () => {
+    const phrase = getPhraseOfDay();
+    if (phrase !== null) {
+      expect(typeof phrase.hr).toBe('string');
+      expect(typeof phrase.en).toBe('string');
+      expect(typeof phrase.note).toBe('string');
+    } else {
+      expect(phrase).toBeNull();
+    }
+  });
+
+  it('returns the same phrase when called twice in the same test', () => {
+    expect(getPhraseOfDay()).toEqual(getPhraseOfDay());
+  });
+
+  it('returns null when Date constructor throws (catch branch)', () => {
+    // Exercises the catch { return null } path (line 77).
+    vi.spyOn(globalThis, 'Date').mockImplementationOnce(() => {
+      throw new Error('clock error');
+    });
+    expect(getPhraseOfDay()).toBeNull();
+    vi.restoreAllMocks();
   });
 });
 
