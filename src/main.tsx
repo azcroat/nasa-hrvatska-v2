@@ -123,6 +123,13 @@ if (import.meta.env.VITE_SENTRY_DSN) {
         tracesSampleRate: 0.1,
         replaysOnErrorSampleRate: 0.1, // capture replay for 10% of error sessions to aid sync debugging
         integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+        // Filter browser-extension noise that is not actionable
+        ignoreErrors: [
+          // DuckDuckGo (and other browser extensions) fire this when their content
+          // script's tab reference is invalidated by SPA navigation. Not our code.
+          'Invalid call to runtime.sendMessage()',
+          'Tab not found',
+        ],
         // Scrub PII from error reports
         beforeSend(event) {
           if (event.request?.url) {
