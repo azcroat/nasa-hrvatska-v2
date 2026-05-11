@@ -180,6 +180,11 @@ const ListeningPath = lazyWithReload(() => import('./practice/ListeningPath'));
 const AspectDrillScreen = lazyWithReload(() => import('./practice/AspectDrillScreen'));
 const TranslateDrillsScreen = lazyWithReload(() => import('./practice/TranslateDrillsScreen'));
 const CliticDrill = lazyWithReload(() => import('./practice/CliticDrill'));
+const AnimateAccDrill = lazyWithReload(() => import('./practice/AnimateAccDrill'));
+const PassiveDrill = lazyWithReload(() => import('./practice/PassiveDrill'));
+const InstrumentalDrill = lazyWithReload(() => import('./practice/InstrumentalDrill'));
+const DativeDrill = lazyWithReload(() => import('./practice/DativeDrill'));
+const FleetingADrill = lazyWithReload(() => import('./practice/FleetingADrill'));
 const SlangScreen = lazyWithReload(() => import('./practice/SlangScreen'));
 const NumbersCasesDrill = lazyWithReload(() => import('./practice/NumbersCasesDrill'));
 const ImperativeDrill = lazyWithReload(() => import('./practice/ImperativeDrill'));
@@ -1531,6 +1536,31 @@ export default function AppRouter(props: Record<string, any>) {
         {currentScreen === 'neggen' && (
           <ScreenErrorBoundary key="neggen" name="neggen">
             <NegationGenDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'animateacc' && (
+          <ScreenErrorBoundary key="animateacc" name="animateacc">
+            <AnimateAccDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'passive' && (
+          <ScreenErrorBoundary key="passive" name="passive">
+            <PassiveDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'instrumental' && (
+          <ScreenErrorBoundary key="instrumental" name="instrumental">
+            <InstrumentalDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'dative' && (
+          <ScreenErrorBoundary key="dative" name="dative">
+            <DativeDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'fleetinga' && (
+          <ScreenErrorBoundary key="fleetinga" name="fleetinga">
+            <FleetingADrill goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'collocations' && (
