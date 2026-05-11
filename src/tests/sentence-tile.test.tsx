@@ -83,6 +83,19 @@ vi.mock('../data', async (importOriginal) => {
   };
 });
 
+// ── StatsContext mock ─────────────────────────────────────────────────────────
+vi.mock('../context/StatsContext.tsx', () => ({
+  useStats: () => ({
+    writeDelta: vi.fn(),
+    stats: {},
+    setStats: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+  }),
+  StatsProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 import SentenceTileScreen from '../components/practice/SentenceTileScreen';
 
 // ── Math.random pinned to 0 for deterministic Fisher-Yates shuffle ────────────
