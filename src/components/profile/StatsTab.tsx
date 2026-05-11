@@ -573,12 +573,11 @@ export default function StatsTab({
               {cefrStageIdx >= 4 && (
                 <div
                   style={{
-                    background: 'var(--info-bg)',
-                    border: '1.5px dashed var(--card-b)',
+                    background: 'rgba(240,249,255,0.75)',
+                    border: '1.5px dashed rgba(0,0,0,0.05)',
                     borderRadius: 14,
                     padding: '14px 16px',
                     marginTop: 10,
-                    opacity: 0.75,
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
