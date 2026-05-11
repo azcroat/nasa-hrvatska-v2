@@ -206,6 +206,7 @@ interface ScreenLauncherResult {
   launchMatch: (pool: unknown[]) => void;
   launchSpeaking: (items: unknown[]) => void;
   launchPathItem: (item: LearnPathItem) => Promise<void>;
+  launchSessionActivity: (screen: string) => Promise<void>;
   goBack: () => void;
 }
 
@@ -698,6 +699,73 @@ export function useScreenLauncher({
     ],
   );
 
+  // Launches any daily-session activity by screen ID. Pool-dependent screens
+  // (flashcards, mcgame, match) async-load V and initialise their pools; all
+  // other exercises navigate directly. Called from HomeTab's SessionCard.
+  const launchSessionActivity = useCallback(
+    async (screen: string): Promise<void> => {
+      returnContextRef.current = { tab: 'home', screen: 'dashboard' };
+
+      if (screen === 'flashcards' || screen === 'mcgame' || screen === 'match') {
+        const { V } = (await _getData()) as { V: Record<string, string[][]> };
+        const globalPool = allCats
+          .flatMap((t) => (V[t] ?? []) as string[][])
+          .filter((w) => w?.[0] && w?.[1]);
+
+        if (screen === 'flashcards') {
+          if (globalPool.length === 0) return;
+          setFcInitPool(_sh(globalPool).slice(0, 20));
+          sCurEx('flashcards');
+          sessionStorage.setItem('nh_ex_start', Date.now().toString());
+          trackStart('flashcards');
+          setScr('flashcards');
+        } else if (screen === 'mcgame') {
+          const qs = _sh(globalPool)
+            .slice(0, 20)
+            .flatMap((w) => {
+              const wr = _sh(globalPool.filter((x) => x[1] !== w[1]))
+                .slice(0, 3)
+                .map((x) => x[1])
+                .filter((s): s is string => s != null);
+              if (wr.length < 3) return [];
+              return [
+                {
+                  hr: w[0]!,
+                  en: w[1]!,
+                  ph: w[2] ?? '',
+                  opts: _sh([w[1]!].concat(wr)),
+                  correct: w[1]!,
+                },
+              ];
+            });
+          if (qs.length === 0) return;
+          setMcInitQ(qs);
+          sCurEx('mcgame');
+          sessionStorage.setItem('nh_ex_start', Date.now().toString());
+          trackStart('quiz');
+          setScr('mcgame');
+        } else {
+          const sel = _sh(globalPool).slice(0, 6);
+          if (sel.length < 2) return;
+          const matchPool = _sh([
+            ...sel.map((w, i) => ({ id: `h${i}`, t: w[0], p: i, tp: 'hr' })),
+            ...sel.map((w, i) => ({ id: `e${i}`, t: w[1], p: i, tp: 'en' })),
+          ]);
+          setMatchInitPool(matchPool);
+          sCurEx('match');
+          sessionStorage.setItem('nh_ex_start', Date.now().toString());
+          trackStart('matching');
+          setScr('match');
+        }
+      } else {
+        sCurEx(screen);
+        sessionStorage.setItem('nh_ex_start', Date.now().toString());
+        setScr(screen);
+      }
+    },
+    [setScr, sCurEx, setFcInitPool, setMcInitQ, setMatchInitPool, allCats],
+  );
+
   const goBack = useCallback((): void => {
     const startTs = parseInt(sessionStorage.getItem('nh_ex_start') || '0');
     const dur = startTs ? Date.now() - startTs : 0;
@@ -757,6 +825,7 @@ export function useScreenLauncher({
     launchMatch,
     launchSpeaking,
     launchPathItem,
+    launchSessionActivity,
     goBack,
   };
 }
