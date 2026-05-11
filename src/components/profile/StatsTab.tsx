@@ -155,11 +155,49 @@ export default function StatsTab({
     [st, streak.count, mastered],
   );
 
+  const cefr = useMemo(() => getCEFR(st.xp || 0, st.lc || 0, st.gc || 0), [st.xp, st.lc, st.gc]);
+
   const styleLabel = useMemo(() => getStyleLabel(), []);
   const stylePrefs = useMemo(() => getStylePreferences(), []);
 
   return (
     <React.Fragment>
+      {/* ── MILESTONE HIGHLIGHTS ── */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+        <div
+          style={{
+            flex: 1,
+            background: 'linear-gradient(135deg,#ea580c,#f59e0b)',
+            borderRadius: 16,
+            padding: '16px',
+            color: 'white',
+          }}
+        >
+          <div style={{ fontSize: 28, fontWeight: 900, lineHeight: 1 }}>{streak.count} 🔥</div>
+          <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.9, marginTop: 4 }}>
+            Day Streak
+          </div>
+          <div style={{ fontSize: 10, opacity: 0.75, marginTop: 2 }}>
+            {streak.count >= 30 ? 'Legendary!' : streak.count >= 7 ? 'On fire!' : 'Keep going!'}
+          </div>
+        </div>
+        <div
+          style={{
+            flex: 1,
+            background: 'linear-gradient(135deg,#0e7490,#164e63)',
+            borderRadius: 16,
+            padding: '16px',
+            color: 'white',
+          }}
+        >
+          <div style={{ fontSize: 28, fontWeight: 900, lineHeight: 1 }}>{cefr.level}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.9, marginTop: 4 }}>
+            CEFR Level
+          </div>
+          <div style={{ fontSize: 10, opacity: 0.75, marginTop: 2 }}>{cefr.label}</div>
+        </div>
+      </div>
+
       {/* ── 12-WEEK ACTIVITY CALENDAR ── */}
       <XPActivityCalendar st={st} />
 

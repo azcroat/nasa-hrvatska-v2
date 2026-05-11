@@ -183,6 +183,34 @@ html{
   border-left: 4px solid var(--lavender, #7c3aed);
 }
 
+/* ── Exercise prompt hierarchy ────────────────────────── */
+/* L1: the Croatian word/phrase being tested */
+.ex-prompt {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--heading);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+/* L2: subdued English translation / context */
+.ex-hint {
+  font-size: 13px;
+  color: var(--subtext);
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+/* L3: person/type badge inside question card */
+.ex-person-badge {
+  display: inline-block;
+  background: var(--info);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 6px 18px;
+  border-radius: 20px;
+}
+
 /* ── Grammar hint box ─────────────────────────────────── */
 .grammar-hint {
   background: rgba(14,116,144,0.15);

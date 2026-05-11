@@ -16,6 +16,7 @@ import { useStats } from '../../context/StatsContext';
 import { useHaptic } from '../../hooks/useHaptic';
 import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
+import CompletionCard from '../shared/CompletionCard';
 
 const TILE_STYLE_BASE = {
   padding: '10px 16px',
@@ -158,13 +159,6 @@ export default function SentenceTileScreen({
       markQuest('grammar');
       setStats((s) => ({ ...s, gc: s.gc + 1 }));
       writeDelta({ gc: 1 });
-      knightSpeak(
-        score >= questions.length * 0.8 ? 'victory' : 'encouraging',
-        score >= questions.length * 0.8
-          ? `${score}/${questions.length} — your Croatian word order is spot on! ⚔️`
-          : `${score}/${questions.length} — sentence building takes practice. You're getting there! 💪`,
-        300,
-      );
       setDone(true);
     } else {
       setIdx(nextIdx);
@@ -175,28 +169,10 @@ export default function SentenceTileScreen({
   }, [idx, questions, score, award, setStats, writeDelta]);
 
   if (done) {
-    const pct = Math.round((score / questions.length) * 100);
     return (
       <div className="scr-wrap">
         {H('🧩 Sentence Assembly', 'Tap tiles to build Croatian sentences', goBack)}
-        <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-          <div style={{ fontSize: 64, marginBottom: 12 }}>
-            {pct >= 80 ? '🏆' : pct >= 60 ? '⭐' : '💪'}
-          </div>
-          <div style={{ fontSize: 24, fontWeight: 900, color: '#164e63', marginBottom: 8 }}>
-            {score} / {questions.length} correct
-          </div>
-          <div style={{ fontSize: 16, color: '#64748b', marginBottom: 24 }}>
-            {pct >= 80
-              ? 'Excellent word order!'
-              : pct >= 60
-                ? 'Good progress!'
-                : 'Keep practising!'}
-          </div>
-          <button className="b bp" onClick={goBack}>
-            ✓ Done
-          </button>
-        </div>
+        <CompletionCard score={score} total={questions.length} xp={score * 4 + 5} onDone={goBack} />
       </div>
     );
   }
