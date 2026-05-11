@@ -62,7 +62,9 @@ async function runAxe(page, label) {
  *  2. Wait 500 ms for React to finish painting.
  */
 async function waitForSettle(page) {
+  // Absorb up to two SW-triggered reloads (new chunks may cause a second cache-fill reload).
   await page.waitForEvent('load', { timeout: 6_000 }).catch(() => {});
+  await page.waitForEvent('load', { timeout: 3_000 }).catch(() => {});
   await page.waitForTimeout(500);
 }
 
@@ -70,10 +72,12 @@ async function waitForSettle(page) {
 
 test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
   test.beforeEach(async ({ page }) => {
-    // Use B2-level stats (xp:5000 → total 5275) so all CEFR-gated exercises unlock.
-    // Without this, the locked-exercise cards render with opacity:0.55 wrapper which
-    // reduces effective foreground contrast below 4.5:1 and fails axe color-contrast.
-    await seedAuth(page, { xp: 5000 });
+    // Use C1-level stats (xp:8000 → total 8275) so ALL CEFR-gated exercises unlock,
+    // including the C1-level FleetingADrill added in the grammar drill expansion.
+    // Without this, locked-exercise cards render with opacity:0.55 which reduces
+    // effective foreground contrast below 4.5:1 and fails axe color-contrast.
+    // Formula: total = xp + lc*15 + gc*25 = 8000+150+125 = 8275 → C1 (≥8000).
+    await seedAuth(page, { xp: 8000 });
     await blockFirebase(page);
     await mockTTS(page);
   });
