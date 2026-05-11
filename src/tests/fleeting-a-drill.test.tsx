@@ -133,7 +133,7 @@ describe('FleetingADrill — answer mechanics', () => {
   it('shows a grammar tip after answering', () => {
     renderFleetingADrill();
     fireEvent.click(screen.getByText('pisao'));
-    expect(screen.getByText(/l→o/)).toBeTruthy();
+    expect(screen.getByText(/pisa-l/)).toBeTruthy();
   });
 
   it('shows Next → after answering a non-final question', () => {
