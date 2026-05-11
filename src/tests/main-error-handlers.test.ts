@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { isChunkLoadError } from '../lib/chunkErrors';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { isChunkLoadError, reloadWithCachePurge } from '../lib/chunkErrors';
 
 // _isStaleBindingError and _reloadWithCachePurge remain inlined —
 // they are private to main.tsx and _reloadWithCachePurge uses an
@@ -87,5 +87,55 @@ describe('_reloadWithCachePurge', () => {
     const store: Record<string, string> = {};
     _reloadWithCachePurge('fresh_key', store);
     expect(store['fresh_key']).toBe('1');
+  });
+});
+
+// Tests for the real reloadWithCachePurge exported from chunkErrors.ts.
+// The function uses sessionStorage + location.reload (browser APIs). We mock
+// globalThis.caches so location.reload is deferred via .finally() (async),
+// keeping the synchronous return value reachable without jsdom "not implemented" noise.
+describe('reloadWithCachePurge (real export — branch coverage)', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  afterEach(() => {
+    // Restore stubs BEFORE touching sessionStorage so proxy stubs don't throw on clear().
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    sessionStorage.clear();
+  });
+
+  it('returns false without calling reload when counter is already at 2', () => {
+    sessionStorage.setItem('nh_ck_test', '2');
+    expect(reloadWithCachePurge('nh_ck_test')).toBe(false);
+  });
+
+  it('returns true and increments sessionStorage counter on first call', () => {
+    // Mock caches so location.reload fires async (via .finally), not synchronously —
+    // this lets return true execute cleanly in the jsdom test environment.
+    vi.stubGlobal('caches', {
+      keys: vi.fn().mockResolvedValue([]),
+      delete: vi.fn().mockResolvedValue(true),
+    });
+    expect(reloadWithCachePurge('nh_ck_test')).toBe(true);
+    expect(sessionStorage.getItem('nh_ck_test')).toBe('1');
+  });
+
+  it('returns false when sessionStorage is unavailable (catch branch)', () => {
+    // Replace the global sessionStorage with a proxy that throws on first access —
+    // this exercises the catch { return false } path in reloadWithCachePurge.
+    vi.stubGlobal(
+      'sessionStorage',
+      new Proxy(
+        {},
+        {
+          get() {
+            throw new Error('SecurityError: storage not available');
+          },
+        },
+      ),
+    );
+    expect(reloadWithCachePurge('nh_ck_test')).toBe(false);
   });
 });
