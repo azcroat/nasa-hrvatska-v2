@@ -133,7 +133,7 @@ describe('InstrumentalDrill — answer mechanics', () => {
   it('shows a grammar tip after answering', () => {
     renderInstrumentalDrill();
     fireEvent.click(screen.getByText('autom'));
-    expect(screen.getByText(/Instrumental/)).toBeTruthy();
+    expect(screen.getByText(/auto \+ -m/)).toBeTruthy();
   });
 
   it('shows Next → after answering a non-final question', () => {
