@@ -140,8 +140,13 @@ export async function onRequestPost(context) {
       // Structured log — visible in Cloudflare Pages → Functions → Logs
       console.error(JSON.stringify(structured));
 
-      // Forward to Sentry if SENTRY_DSN is configured
-      if (env.SENTRY_DSN) {
+      // Browser extension noise — log only, do not forward to Sentry
+      const IGNORED_SENTRY_PATTERNS = ['invalid call to runtime.sendmessage', 'tab not found'];
+      const msgLower = structured.message.toLowerCase();
+      const isSentryIgnored = IGNORED_SENTRY_PATTERNS.some((p) => msgLower.includes(p));
+
+      // Forward to Sentry if SENTRY_DSN is configured and not extension noise
+      if (env.SENTRY_DSN && !isSentryIgnored) {
         context.waitUntil(forwardToSentry(env.SENTRY_DSN, structured));
       }
     }

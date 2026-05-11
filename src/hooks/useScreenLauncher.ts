@@ -757,13 +757,22 @@ export function useScreenLauncher({
           trackStart('matching');
           setScr('match');
         }
+      } else if (screen === 'listening') {
+        const { LISTEN } = (await _getData()) as { LISTEN: unknown[] };
+        const pool = Array.isArray(LISTEN) ? _sh(LISTEN).slice(0, 10) : [];
+        if (pool.length === 0) return;
+        setLsInitQ(pool);
+        sCurEx('listening');
+        sessionStorage.setItem('nh_ex_start', Date.now().toString());
+        trackStart('listening');
+        setScr('listening');
       } else {
         sCurEx(screen);
         sessionStorage.setItem('nh_ex_start', Date.now().toString());
         setScr(screen);
       }
     },
-    [setScr, sCurEx, setFcInitPool, setMcInitQ, setMatchInitPool, allCats],
+    [setScr, sCurEx, setFcInitPool, setMcInitQ, setMatchInitPool, setLsInitQ, allCats],
   );
 
   const goBack = useCallback((): void => {

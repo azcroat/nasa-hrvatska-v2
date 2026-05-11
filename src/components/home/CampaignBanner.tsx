@@ -1,5 +1,4 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
 
 interface CampaignQuest {
   id: string;
@@ -42,8 +41,6 @@ export default function CampaignBanner({
   onQuestTap?: (q: CampaignQuest) => void;
   onCtaTap?: (screen?: string) => void;
 }) {
-  const { setScr } = useApp();
-
   if (
     !activeCampaign ||
     campaignDismissed ||
@@ -258,9 +255,7 @@ export default function CampaignBanner({
                   return (
                     <div
                       key={q.id}
-                      onClick={() =>
-                        !done && (onQuestTap ? onQuestTap(q) : setScr && setScr(q.screen))
-                      }
+                      onClick={() => !done && onQuestTap && onQuestTap(q)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -315,7 +310,6 @@ export default function CampaignBanner({
         <button
           onClick={() => {
             if (onCtaTap) onCtaTap(ctaScreen);
-            else if (setScr) setScr(ctaScreen);
           }}
           style={{
             width: '100%',
