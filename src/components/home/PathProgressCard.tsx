@@ -218,7 +218,7 @@ export default function PathProgressCard({
   setTab,
   resumeLesson,
   lastActivity,
-  sCurEx,
+  launchActivity,
 }: {
   activePalette: Palette;
   pathData: PathData;
@@ -227,7 +227,7 @@ export default function PathProgressCard({
   setTab: (tab: string) => void;
   resumeLesson?: (() => void) | null;
   lastActivity?: { label?: string; ex?: string } | null;
-  sCurEx?: (screen: string) => void;
+  launchActivity?: (screen: string) => void | Promise<void>;
 }) {
   const { setScr } = useApp();
   const { stats: st } = useStats();
@@ -319,12 +319,11 @@ export default function PathProgressCard({
           })()}
 
           {/* Resume last activity */}
-          {lastActivity && st.lc > 0 && (
+          {lastActivity && st.lc > 0 && launchActivity && (
             <button
               className="progress-hero-secondary"
               onClick={() => {
-                if (lastActivity?.ex) setScr(lastActivity.ex);
-                if (sCurEx && lastActivity?.ex) sCurEx(lastActivity.ex);
+                if (lastActivity?.ex) void launchActivity(lastActivity.ex);
               }}
               style={{ marginTop: 8 }}
             >
