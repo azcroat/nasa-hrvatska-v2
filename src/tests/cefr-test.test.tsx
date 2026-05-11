@@ -70,6 +70,19 @@ vi.mock('../data', async (importOriginal) => {
   };
 });
 
+// ── StatsContext mock ─────────────────────────────────────────────────────────
+vi.mock('../context/StatsContext.tsx', () => ({
+  useStats: () => ({
+    writeDelta: vi.fn(),
+    stats: {},
+    setStats: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+  }),
+  StatsProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 import CefrTest from '../components/practice/CefrTest';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
