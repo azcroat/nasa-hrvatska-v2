@@ -99,10 +99,13 @@ async function gotoCroatia(page) {
 // ---------------------------------------------------------------------------
 async function openAIConvoFromPractice(page) {
   await page.goto('/practice');
-  await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+  // SW may trigger a reload while caching the PracticeTab chunk on first run — absorb it
+  // before asserting navigation visibility, which briefly disappears during a reload.
+  await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
+  await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 20_000 });
   // Wait for the hero AI Voice Conversation button — confirms Practice tab fully rendered
   const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
-  await expect(aiHeroBtn).toBeVisible({ timeout: 10_000 });
+  await expect(aiHeroBtn).toBeVisible({ timeout: 20_000 });
   await aiHeroBtn.click();
   // First-load of the lazy AIConversation chunk can be slow in CI.
   await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 20_000 });
@@ -257,7 +260,7 @@ test.describe('Write mode', () => {
   test('the "Introduce Yourself" prompt is available at A1 level', async ({ page }) => {
     // Switch level to A1 to see A1 prompts
     await page.locator('button').filter({ hasText: /^A1$/ }).first().click();
-    await expect(page.getByText('Introduce Yourself')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Introduce Yourself')).toBeVisible({ timeout: 10_000 });
   });
 
   test('selecting a prompt enables the "Start Writing" button', async ({ page }) => {

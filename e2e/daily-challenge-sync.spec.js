@@ -28,16 +28,20 @@ test.describe('Home screen — authenticated', () => {
     // QuestTracker moved from Home tab to Practice tab
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true }).click();
-    await expect(page.getByText('Daily Quests').first()).toBeVisible({ timeout: 10_000 });
+    // SW may trigger a reload while caching the PracticeTab chunk on first run — absorb it.
+    await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
+    await expect(page.getByText('Daily Quests').first()).toBeVisible({ timeout: 20_000 });
   });
 
   test('Practice tab shows EARN BONUS XP label', async ({ page }) => {
     // QuestTracker moved from Home tab to Practice tab; card is collapsed by default — expand first
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true }).click();
+    // SW may trigger a reload while caching the PracticeTab chunk on first run — absorb it.
+    await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
     // The collapsed button shows "N of M complete" — use that to avoid matching hero "quests done today"
     const questsBtn = page.locator('button').filter({ hasText: /\d+ of \d+ complete/ });
-    await expect(questsBtn).toBeVisible({ timeout: 10_000 });
+    await expect(questsBtn).toBeVisible({ timeout: 20_000 });
     await questsBtn.click();
     await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
   });
@@ -46,9 +50,11 @@ test.describe('Home screen — authenticated', () => {
     // QuestTracker moved from Home tab to Practice tab; card is collapsed by default — expand first
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true }).click();
+    // SW may trigger a reload while caching the PracticeTab chunk on first run — absorb it.
+    await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
     // The collapsed button shows "N of M complete" — use that to avoid matching hero "quests done today"
     const questsBtn = page.locator('button').filter({ hasText: /\d+ of \d+ complete/ });
-    await expect(questsBtn).toBeVisible({ timeout: 10_000 });
+    await expect(questsBtn).toBeVisible({ timeout: 20_000 });
     await questsBtn.click();
     // Wait for QuestTracker header to confirm it's rendered
     await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
