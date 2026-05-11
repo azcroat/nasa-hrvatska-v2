@@ -52,6 +52,7 @@ interface HomeTabProps {
   isNewUserWindow?: boolean;
   daysSinceJoin?: number | null;
   resumeLesson?: (() => void) | null;
+  launchActivity?: (screen: string) => void | Promise<void>;
 }
 
 import {
@@ -145,6 +146,7 @@ export default function HomeTab({
   isNewUserWindow = false,
   daysSinceJoin = null,
   resumeLesson = null,
+  launchActivity,
 }: HomeTabProps) {
   const { setScr, doSignUp, currentScreen } = useApp();
   const { stats: st, award } = useStats();
@@ -508,8 +510,15 @@ export default function HomeTab({
             try {
               sessionStorage.setItem('nh_session_started', nextActivity.screen);
             } catch {}
-            setScr(nextActivity.screen);
-            if (sCurEx) sCurEx(nextActivity.screen);
+            if (launchActivity) {
+              // launchActivity initialises pool data for exercises that need it
+              // (flashcards, mcgame, match) before navigating — fixes the ScreenGuard
+              // "start from Practice tab" fallback that appeared when bare setScr was used.
+              void launchActivity(nextActivity.screen);
+            } else {
+              setScr(nextActivity.screen);
+              if (sCurEx) sCurEx(nextActivity.screen);
+            }
           }
         }}
         onKeepPracticing={() => setTab('practice')}

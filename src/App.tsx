@@ -753,6 +753,7 @@ function App() {
     launchPathItem,
     launchLegendary,
     launchCheckpoint,
+    launchSessionActivity,
     goBack,
   } = useScreenLauncher({
     setScr,
@@ -1582,6 +1583,7 @@ function App() {
       launchSpeaking,
       launchLegendary,
       launchCheckpoint,
+      launchSessionActivity,
       // Sync
       _syncReady,
       doSyncNow,
@@ -1654,6 +1656,7 @@ function App() {
       launchSpeaking,
       launchLegendary,
       launchCheckpoint,
+      launchSessionActivity,
       _syncReady,
       doSyncNow,
       lastSyncedAt,

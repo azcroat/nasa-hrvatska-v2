@@ -380,6 +380,7 @@ export default function AppRouter(props: Record<string, any>) {
     launchListening,
     launchMatch,
     launchSpeaking,
+    launchSessionActivity,
     _syncReady,
     doSyncNow,
     lastSyncedAt,
@@ -739,6 +740,7 @@ export default function AppRouter(props: Record<string, any>) {
                           allCats={allCats}
                           sh={_sh}
                           launchPathItem={launchPathItem}
+                          launchActivity={launchSessionActivity}
                           syncReady={_syncReady}
                           onSyncNow={doSyncNow}
                           authUser={authUser}
