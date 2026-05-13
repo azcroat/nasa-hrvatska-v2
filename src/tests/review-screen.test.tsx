@@ -59,6 +59,21 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(),
 }));
 
+// ── StatsContext mock ─────────────────────────────────────────────────────────
+const mockSetStats = vi.hoisted(() => vi.fn());
+const mockWriteDelta = vi.hoisted(() => vi.fn());
+vi.mock('../context/StatsContext', () => ({
+  useStats: () => ({
+    stats: { vs: [] },
+    setStats: mockSetStats,
+    writeDelta: mockWriteDelta,
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+  }),
+  StatsProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 // ── CroatianKnight mock — avoids complex animation setup ──────────────────────
 vi.mock('../components/shared/CroatianKnight', () => ({ default: () => null }));
 
@@ -404,11 +419,12 @@ describe('ReviewScreen — done mode', () => {
     expect(award).toHaveBeenCalledWith(15, false, 'review');
   });
 
-  it('"Continue →" calls markQuest("master")', () => {
+  it('"Continue →" calls markQuest("master") and markQuest("review")', () => {
     goToDone();
     const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
     expect(mockMarkQuest).toHaveBeenCalledWith('master');
+    expect(mockMarkQuest).toHaveBeenCalledWith('review');
   });
 
   it('"Continue →" calls markPracticed()', () => {
@@ -469,5 +485,50 @@ describe('ReviewScreen — score tracking', () => {
     const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
     fireEvent.click(btn);
     expect(award).toHaveBeenCalledWith(10, false, 'review'); // score=1 → 1*5+5=10
+  });
+});
+
+// ─── Exercise Contract clauses 4-6 ───────────────────────────────────────────
+
+describe('ReviewScreen — Exercise Contract (vs tag + writeDelta)', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('setStats is called with vs including "srsreview" on completion', () => {
+    goToDone();
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
+    fireEvent.click(btn);
+    expect(mockSetStats).toHaveBeenCalled();
+    const fn = mockSetStats.mock.calls[0][0] as (prev: { vs?: string[]; rc?: number }) => {
+      vs: string[];
+      rc: number;
+    };
+    const result = fn({ vs: [], rc: 0 });
+    expect(result.vs).toContain('srsreview');
+    expect(result.rc).toBe(1);
+  });
+
+  it('writeDelta is called with { rc: 1, vs: ["srsreview"] } on completion', () => {
+    goToDone();
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
+    fireEvent.click(btn);
+    expect(mockWriteDelta).toHaveBeenCalledWith({ rc: 1, vs: ['srsreview'] });
+  });
+
+  it('setStats inner guard returns prev unchanged if vs already includes "srsreview"', () => {
+    // Verify idempotency of the setStats updater function itself.
+    // Navigate to done and click Continue — setStats is called once.
+    goToDone();
+    const btn = screen.getAllByRole('button').find((b) => b.textContent?.includes('Continue'))!;
+    fireEvent.click(btn);
+    expect(mockSetStats).toHaveBeenCalledTimes(1);
+    const fn = mockSetStats.mock.calls[0]![0] as (prev: { vs: string[]; rc?: number }) => {
+      vs: string[];
+      rc?: number;
+    };
+    // Simulate the case where prev.vs already has 'srsreview' — guard returns prev as-is
+    const prev = { vs: ['srsreview'], rc: 5 };
+    expect(fn(prev)).toBe(prev);
   });
 });

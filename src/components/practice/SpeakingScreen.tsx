@@ -193,7 +193,7 @@ export default function SpeakingScreen({
   award,
   setSt,
 }: SpeakingScreenProps) {
-  const { writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const { needsRationale, dismissRationale } = useAndroidMicPermission();
   const [listening, setListening] = useState(false);
   const [recResult, setRecResult] = useState<string | null>(null);
@@ -291,7 +291,15 @@ export default function SpeakingScreen({
       if (typeof award === 'function') award(ssc * 5 + 5, false, 'speaking');
       markQuest('speak');
       setSt((s) => ({ ...s, sp: s.sp + 1 }));
-      writeDelta({ sp: 1 });
+      if (!stats.vs?.includes('speaking')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('speaking')) return prev;
+          return { ...prev, vs: [...(prev.vs || []), 'speaking'] };
+        });
+        writeDelta({ sp: 1, vs: ['speaking'] });
+      } else {
+        writeDelta({ sp: 1 });
+      }
       setShowSummary(true);
     }
   }

@@ -4,6 +4,7 @@ import { getPrioritizedReviewQueue } from '../../lib/srs.js';
 import { useHaptic } from '../../hooks/useHaptic';
 import { markPracticed } from '../../hooks/useNotifications';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { logError } from '../../lib/learnerErrors.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { playFanfare as _playFanfare } from '../../lib/soundSettings.js';
@@ -33,6 +34,7 @@ interface ReviewStateRef {
 
 export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenProps) {
   const haptic = useHaptic();
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const _cats = allCats || Object.keys(V);
   const pool = useMemo(
@@ -310,6 +312,14 @@ export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenPro
               haptic.award();
               if (typeof award === 'function') award(score * 5 + 5, false, 'review');
               markQuest('master');
+              markQuest('review');
+              if (!stats.vs?.includes('srsreview')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('srsreview')) return prev;
+                  return { ...prev, rc: (prev.rc || 0) + 1, vs: [...(prev.vs || []), 'srsreview'] };
+                });
+                if (writeDelta) writeDelta({ rc: 1, vs: ['srsreview'] });
+              }
               goBack();
             }}
           >
