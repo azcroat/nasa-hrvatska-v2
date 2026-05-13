@@ -6,6 +6,15 @@ import type { DailySession, SessionActivity } from '../../hooks/useDailySession'
 const CROATIAN_RED = '#CC0000';
 const CROATIAN_BLUE = '#002868';
 
+/** Minimal shape needed by SessionCard — avoids importing the full LearnPathItem type */
+interface LearnPathChipItem {
+  id?: string;
+  name?: string;
+  go?: string;
+  topic?: string;
+  [key: string]: unknown;
+}
+
 interface SessionCardProps {
   session: DailySession;
   isComplete: boolean;
@@ -17,6 +26,12 @@ interface SessionCardProps {
   streak: number;
   xpThisWeek: number;
   wordsdue: number;
+  /** Next incomplete LearnPath item. When null/undefined the chip is not rendered. */
+  nextLearnPathItem?: LearnPathChipItem | null;
+  /** Called when user clicks the LearnPath chip. Receives the item. */
+  onLearnPathStart?: (item: LearnPathChipItem) => void;
+  /** Whether the current next LearnPath item has already been completed (greyed chip). */
+  learnPathItemDone?: boolean;
 }
 
 // ── Šahovnica Croatian coat of arms crest ──
@@ -140,6 +155,9 @@ export default function SessionCard({
   streak,
   xpThisWeek,
   wordsdue,
+  nextLearnPathItem = null,
+  onLearnPathStart,
+  learnPathItemDone = false,
 }: SessionCardProps) {
   const completedCount = session.completedIds.length;
   const totalCount = session.activities.length;
@@ -344,6 +362,42 @@ export default function SessionCard({
                   </div>
                 );
               })}
+
+              {/* LearnPath chip — 6th chip, additive, does not affect the session counter */}
+              {nextLearnPathItem && (
+                <div
+                  data-testid="learnpath-chip"
+                  onClick={() => {
+                    if (!learnPathItemDone && onLearnPathStart) {
+                      onLearnPathStart(nextLearnPathItem);
+                    }
+                  }}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: 100,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: '.01em',
+                    cursor: learnPathItemDone ? 'default' : 'pointer',
+                    ...(learnPathItemDone
+                      ? {
+                          background: 'rgba(255,255,255,.10)',
+                          color: 'rgba(255,255,255,.45)',
+                          border: `1px solid rgba(255,255,255,.12)`,
+                        }
+                      : {
+                          background: CROATIAN_BLUE,
+                          color: '#fff',
+                          border: `1px solid rgba(100,160,255,.4)`,
+                          boxShadow: '0 2px 8px rgba(0,40,104,.45)',
+                        }),
+                  }}
+                >
+                  {learnPathItemDone
+                    ? `✓ ${(nextLearnPathItem.name || 'Path Lesson').slice(0, 20)}`
+                    : `★ ${(nextLearnPathItem.name || 'Path Lesson').slice(0, 20)}`}
+                </div>
+              )}
             </div>
           </div>
 
