@@ -154,12 +154,12 @@ const LEVELS = [
         qs: 15,
       },
       {
-        id: 'akudrill',
+        id: 'accusativedrill',
         icon: '🍽️',
         title: 'Accusative Case',
         desc: 'Direct objects — the most-used case',
-        screen: 'akudrill',
-        qs: 15,
+        screen: 'accusativedrill',
+        qs: 20,
       },
       {
         id: 'future',

@@ -915,7 +915,7 @@ function App() {
         coloragree: 'practice',
         opposites: 'practice',
         cityloc: 'practice',
-        akudrill: 'practice',
+        accusativedrill: 'practice',
         ordinals: 'practice',
         relpron: 'practice',
         emogender: 'practice',

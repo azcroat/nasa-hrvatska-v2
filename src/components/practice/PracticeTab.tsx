@@ -630,14 +630,14 @@ export default function PracticeTab({
       action: go('coloragree'),
     },
     {
-      id: 'akudrill',
+      id: 'accusativedrill',
       label: 'Accusative',
       icon: '🍽️',
       desc: 'Direct objects change form',
       category: 'grammar',
       cefr: 'B1',
       duration: '~10 min',
-      action: go('akudrill'),
+      action: go('accusativedrill'),
     },
     {
       id: 'relpron',

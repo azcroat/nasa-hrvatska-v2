@@ -139,9 +139,7 @@ const EmotionGenderScreen = lazyWithReload(
 );
 const OppositesScreen = lazyWithReload(() => import('./practice/exercises/OppositesScreen'));
 const CityLocativeScreen = lazyWithReload(() => import('./practice/exercises/CityLocativeScreen'));
-const AccusativeDrillScreen = lazyWithReload(
-  () => import('./practice/exercises/AccusativeDrillScreen'),
-);
+const AccusativeDrill = lazyWithReload(() => import('./practice/AccusativeDrill'));
 const ColorAgreementScreen = lazyWithReload(
   () => import('./practice/exercises/ColorAgreementScreen'),
 );
@@ -1382,9 +1380,9 @@ export default function AppRouter(props: Record<string, any>) {
             <CityLocativeScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
-        {currentScreen === 'akudrill' && (
-          <ScreenErrorBoundary key="akudrill" name="akudrill">
-            <AccusativeDrillScreen goBack={goBack} award={award} />
+        {currentScreen === 'accusativedrill' && (
+          <ScreenErrorBoundary key="accusativedrill" name="accusativedrill">
+            <AccusativeDrill goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'coloragree' && (
