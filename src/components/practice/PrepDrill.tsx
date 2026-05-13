@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, PREPDRILL } from '../../data';
+import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 export default function PrepDrill({
   goBack,
@@ -8,6 +10,7 @@ export default function PrepDrill({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { stats, setStats, writeDelta } = useStats();
   const [ppQ] = useState(() =>
     sh(PREPDRILL).map((q) => ({ ...q, opts: sh([...(q as { opts: string[] }).opts]) })),
   );
@@ -39,6 +42,18 @@ export default function PrepDrill({
               if (finishFired.current) return;
               finishFired.current = true;
               if (typeof award === 'function') award(ppS * 5, false, 'grammar');
+              markQuest('grammar');
+              if (!stats.vs?.includes('preposition')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('preposition')) return prev;
+                  return {
+                    ...prev,
+                    gc: (prev.gc || 0) + 1,
+                    vs: [...(prev.vs || []), 'preposition'],
+                  };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['preposition'] });
+              }
               goBack();
             }}
           >
