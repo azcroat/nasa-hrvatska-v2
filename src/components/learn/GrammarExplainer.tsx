@@ -196,7 +196,7 @@ const TOPIC_TO_SCREEN = {
   future: 'future',
   cases_intro: 'padezi',
   nominative: 'padezi',
-  accusative: 'akudrill',
+  accusative: 'accusativedrill',
   genitive: 'negation',
   dative: 'prepdrill',
   locative: 'prepdrill',

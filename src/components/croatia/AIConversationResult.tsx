@@ -47,7 +47,7 @@ interface AIConversationResultProps {
 }
 
 const EXERCISE_MAP = {
-  akudrill: '🍽️ Accusative Case',
+  accusativedrill: '🍽️ Accusative Case',
   tenseflip: '⏳ Tense Flip',
   verbdrill: '💪 Verb Drill',
   negation: '❌ Negation',

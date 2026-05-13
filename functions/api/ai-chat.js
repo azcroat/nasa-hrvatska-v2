@@ -114,7 +114,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
     {"original": "<exact learner phrase with error>", "correction": "<corrected form>", "rule": "<brief grammar rule>" }
   ],
   "focus_areas": [
-    {"topic": "<grammar or vocab topic>", "explanation": "<1 sentence on why this is the priority>", "exercise": "<one key from: akudrill,tenseflip,verbdrill,negation,possess,ordinals,relpron,emogender,comparatives,future,sibil,prepdrill,numtime,profgender,reflexive,sentbuild,genderdrill>"}
+    {"topic": "<grammar or vocab topic>", "explanation": "<1 sentence on why this is the priority>", "exercise": "<one key from: accusativedrill,tenseflip,verbdrill,negation,possess,ordinals,relpron,emogender,comparatives,future,sibil,prepdrill,numtime,profgender,reflexive,sentbuild,genderdrill>"}
   ],
   "vocabulary_feedback": "<1-2 sentences on vocabulary range and variety>",
   "encouragement": "<warm, specific encouraging message in Croatian — 1-2 sentences>"

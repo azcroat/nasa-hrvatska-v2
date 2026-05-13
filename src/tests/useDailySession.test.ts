@@ -61,7 +61,7 @@ describe('buildSessionActivities', () => {
   it('only includes exercises at or below user CEFR level', () => {
     const acts = buildSessionActivities('A1');
     // B1+ exercises should not appear in an A1 session
-    const b1Exercises = ['aspectdrill', 'clitic', 'future', 'akudrill'];
+    const b1Exercises = ['aspectdrill', 'clitic', 'future', 'accusativedrill'];
     for (const ex of b1Exercises) {
       expect(acts.find((a) => a.screen === ex)).toBeFalsy();
     }
@@ -111,7 +111,7 @@ describe('buildSessionActivities', () => {
       'typing',
       'speaking_sprint',
       'aspectdrill',
-      'akudrill',
+      'accusativedrill',
       'future',
       'comparatives',
       'clitic',

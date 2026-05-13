@@ -46,7 +46,7 @@ const MINUTES_PER_ACTIVITY = 5;
 /** Maps adaptive SkillCategory → exercise screen id */
 const CATEGORY_SCREEN_MAP: Partial<Record<SkillCategory, string>> = {
   genitive: 'genitivedrill',
-  accusative: 'akudrill',
+  accusative: 'accusativedrill',
   'dative-locative': 'cloze',
   instrumental: 'cloze',
   vocative: 'cloze',
@@ -132,7 +132,13 @@ const CEFR_EXERCISE_POOL: Array<{
     cefr: 'B1',
     category: 'aspect-imperfective',
   },
-  { id: 'akudrill', label: 'Accusative', screen: 'akudrill', cefr: 'B1', category: 'accusative' },
+  {
+    id: 'accusativedrill',
+    label: 'Accusative Case',
+    screen: 'accusativedrill',
+    cefr: 'B1',
+    category: 'accusative',
+  },
   { id: 'future', label: 'Future Tense', screen: 'future', cefr: 'B1', category: 'future-tense' },
   {
     id: 'comparatives',
