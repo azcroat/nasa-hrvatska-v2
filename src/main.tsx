@@ -129,6 +129,10 @@ if (import.meta.env.VITE_SENTRY_DSN) {
           // script's tab reference is invalidated by SPA navigation. Not our code.
           'Invalid call to runtime.sendMessage()',
           'Tab not found',
+          // iOS in-app WKWebView containers (DuckDuckGo Mobile, FB, etc.) inject
+          // their own webkit.messageHandlers; bundled third-party code probes
+          // for native handlers and WKWebView rejects when no reply within timeout.
+          'WKWebView API client did not respond to this postMessage',
         ],
         // Scrub PII from error reports
         beforeSend(event) {
@@ -307,6 +311,9 @@ window.onunhandledrejection = function (event) {
   if (isChunkLoadError(msg)) {
     if (_reloadWithCachePurge('nh_reload_attempt')) return;
   }
+  // iOS in-app WKWebView containers (DuckDuckGo Mobile, FB, etc.) — third-party
+  // bundled code probes native handlers; WKWebView rejects with no reply.
+  if (rawMsg.includes('WKWebView API client did not respond')) return;
   reportError(reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
 };
 
