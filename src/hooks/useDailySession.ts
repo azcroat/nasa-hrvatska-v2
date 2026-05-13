@@ -78,8 +78,8 @@ const CEFR_EXERCISE_POOL: Array<{
   { id: 'znam', label: 'Translate', screen: 'znam', cefr: 'A2', category: 'vocab-a2' },
   { id: 'qwords', label: 'Questions', screen: 'qwords', cefr: 'A2', category: 'vocab-a2' },
   { id: 'genderdrill', label: 'Gender', screen: 'genderdrill', cefr: 'A2', category: 'vocab-a2' },
-  { id: 'cloze', label: 'Sentence Cloze', screen: 'cloze', cefr: 'A2', category: 'genitive' },
-  { id: 'unjumble', label: 'Word Order', screen: 'unjumble', cefr: 'A2', category: 'genitive' },
+  { id: 'cloze', label: 'Sentence Cloze', screen: 'cloze', cefr: 'A2', category: 'vocab-a2' },
+  { id: 'unjumble', label: 'Word Order', screen: 'unjumble', cefr: 'A2', category: 'vocab-a2' },
   { id: 'prepdrill', label: 'Prepositions', screen: 'prepdrill', cefr: 'A2', category: 'genitive' },
   { id: 'negation', label: 'Negation', screen: 'negation', cefr: 'A2', category: 'genitive' },
   {
@@ -87,14 +87,14 @@ const CEFR_EXERCISE_POOL: Array<{
     label: 'Build Sentences',
     screen: 'sentbuild',
     cefr: 'A2',
-    category: 'genitive',
+    category: 'vocab-a2',
   },
   {
     id: 'sentencetiles',
     label: 'Tile Assembly',
     screen: 'sentencetiles',
     cefr: 'A2',
-    category: 'genitive',
+    category: 'vocab-a2',
   },
   { id: 'typing', label: 'Typing', screen: 'typing', cefr: 'A2', category: 'vocab-a2' },
   {
