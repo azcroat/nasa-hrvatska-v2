@@ -186,6 +186,7 @@ const InstrumentalDrill = lazyWithReload(() => import('./practice/InstrumentalDr
 const DativeDrill = lazyWithReload(() => import('./practice/DativeDrill'));
 const GenitiveDrill = lazyWithReload(() => import('./practice/GenitiveDrill'));
 const NominativeDrill = lazyWithReload(() => import('./practice/NominativeDrill'));
+const LocativeDrill = lazyWithReload(() => import('./practice/LocativeDrill'));
 const FleetingADrill = lazyWithReload(() => import('./practice/FleetingADrill'));
 const SlangScreen = lazyWithReload(() => import('./practice/SlangScreen'));
 const NumbersCasesDrill = lazyWithReload(() => import('./practice/NumbersCasesDrill'));
@@ -1570,6 +1571,11 @@ export default function AppRouter(props: Record<string, any>) {
         {currentScreen === 'genitivedrill' && (
           <ScreenErrorBoundary key="genitivedrill" name="genitivedrill">
             <GenitiveDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'locdrill' && (
+          <ScreenErrorBoundary key="locdrill" name="locdrill">
+            <LocativeDrill goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'fleetinga' && (
