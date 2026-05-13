@@ -185,7 +185,7 @@ export default function NegationGenDrill({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [q] = useState(() =>
     shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
@@ -211,8 +211,13 @@ export default function NegationGenDrill({
         finishFired.current = true;
         if (award) award(score * 5, false, 'grammar');
         markQuest('grammar');
-        setStats((s) => ({ ...s, gc: s.gc + 1 }));
-        writeDelta({ gc: 1 });
+        if (!stats.vs?.includes('negationgen')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('negationgen')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'negationgen'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['negationgen'] });
+        }
       }
       setDone(true);
     } else {
