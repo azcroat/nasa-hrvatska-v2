@@ -176,7 +176,7 @@ interface Props {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function ImperativeDrill({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [q] = useState(() =>
     shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
@@ -202,8 +202,13 @@ export default function ImperativeDrill({ goBack, award }: Props) {
         finishFired.current = true;
         if (award) award(score * 5, false, 'grammar');
         markQuest('grammar');
-        setStats((s) => ({ ...s, gc: s.gc + 1 }));
-        writeDelta({ gc: 1 });
+        if (!stats.vs?.includes('imperative')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('imperative')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'imperative'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['imperative'] });
+        }
       }
       setDone(true);
     } else {

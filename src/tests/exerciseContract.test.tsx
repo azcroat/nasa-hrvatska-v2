@@ -83,11 +83,6 @@ const FULL_CONTRACT_DRILLS = [
   },
   { name: 'PassiveDrill', path: '../components/practice/PassiveDrill', vsTag: 'passive' },
   { name: 'CliticDrill', path: '../components/practice/CliticDrill', vsTag: 'clitic' },
-];
-
-// Drills that are missing the vs[] tag in their writeDelta call.
-// TODO: fix these drills so writeDelta({ gc: 1, vs: ['<tag>'] }) before removing skip.
-const MISSING_VS_DRILLS = [
   { name: 'ImperativeDrill', path: '../components/practice/ImperativeDrill', vsTag: 'imperative' },
   {
     name: 'NegationGenDrill',
@@ -130,35 +125,6 @@ describe('Exercise Contract -- gold-pattern drills', () => {
 
   for (const drill of FULL_CONTRACT_DRILLS) {
     it(`${drill.name} follows the contract`, async () => {
-      const mod = await import(/* @vite-ignore */ drill.path);
-      const Component = mod.default;
-      const { value, setStats, writeDelta, award } = makeCtx();
-      const goBack = vi.fn();
-
-      render(
-        <StatsProvider value={value}>
-          <Component goBack={goBack} award={award} />
-        </StatsProvider>,
-      );
-
-      await completeDrill(award);
-
-      expect(award).toHaveBeenCalledTimes(1);
-      expect(award.mock.calls[0]![0]).toBeGreaterThan(0);
-      expect(award.mock.calls[0]![2]).toBe('grammar');
-      expect(markQuestMock).toHaveBeenCalledWith('grammar');
-      expect(setStats).toHaveBeenCalled();
-      expect(writeDelta).toHaveBeenCalledWith(
-        expect.objectContaining({ gc: 1, vs: expect.arrayContaining([drill.vsTag]) }),
-      );
-    });
-  }
-
-  for (const drill of MISSING_VS_DRILLS) {
-    // SKIP: these drills are missing vs[] in their writeDelta call.
-    // They call award/markQuest/setStats correctly but writeDelta only passes { gc: 1 }
-    // without the vs tag. Fix: add vs: ['<tag>'] to the writeDelta call in each drill.
-    it.skip(`${drill.name} follows the contract`, async () => {
       const mod = await import(/* @vite-ignore */ drill.path);
       const Component = mod.default;
       const { value, setStats, writeDelta, award } = makeCtx();
