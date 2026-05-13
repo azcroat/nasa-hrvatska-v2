@@ -398,9 +398,16 @@ export default function HomeTab({
   void resumeLesson;
   void _allCats;
   void _sh;
-  void launchPathItem;
   void currentDayIdx;
   void allQuestsDone;
+
+  // The next incomplete LearnPath item (null when all complete)
+  const nextLearnPathItem = pathData.nextItem ?? null;
+  // Chip is "done" when stats.vs already contains the item id (written immediately by launchPathItem)
+  const learnPathItemDone =
+    nextLearnPathItem?.id != null && Array.isArray(st.vs)
+      ? st.vs.includes(nextLearnPathItem.id)
+      : false;
 
   return (
     <React.Fragment>
@@ -525,6 +532,13 @@ export default function HomeTab({
         streak={streak.count}
         xpThisWeek={xpThisWeek}
         wordsdue={dueCount}
+        nextLearnPathItem={nextLearnPathItem}
+        learnPathItemDone={learnPathItemDone}
+        onLearnPathStart={(item) => {
+          // launchPathItem() handles vocab pool load, dwell timer, and returnContext.
+          // NEVER use setScr() directly here — see feedback_learnpath_launch.md.
+          void launchPathItem(item as Parameters<typeof launchPathItem>[0]);
+        }}
       />
 
       {/* ── WORD OF THE DAY ── */}
