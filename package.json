@@ -104,7 +104,8 @@
     "yaml": ">=2.8.3",
     "cacache": ">=18.0.5",
     "@tootallnate/once": ">=3.0.1",
-    "basic-ftp": ">=5.2.1"
+    "basic-ftp": ">=5.2.1",
+    "protobufjs": ">=7.5.8 <8"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,js,jsx}": ["prettier --write", "eslint --max-warnings=0"],
