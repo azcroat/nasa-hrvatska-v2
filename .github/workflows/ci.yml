@@ -39,8 +39,11 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+      # --ignore-scripts: pure-JS toolchain below (eslint/tsc/prettier/madge/npm audit)
+      # doesn't need native binaries from esbuild/sharp/better-sqlite3 postinstalls.
+      # Reduces supply-chain blast radius if a transitive dep is compromised.
+      - name: Install dependencies (no install scripts)
+        run: npm ci --ignore-scripts
 
       - name: ESLint
         run: npm run lint

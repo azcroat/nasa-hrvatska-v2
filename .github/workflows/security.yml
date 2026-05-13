@@ -17,8 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # SHA-pinned (v0.36.0, published 2026-04-22) — never use @master for third-party
+      # actions: any push to that branch gets executed in CI with our GITHUB_TOKEN.
+      # Update by running: gh api repos/aquasecurity/trivy-action/git/refs/tags/<version>
       - name: Trivy — dependency CVEs and secrets
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8  # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
