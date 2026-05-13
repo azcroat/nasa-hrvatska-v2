@@ -9,11 +9,14 @@ import FlashcardResultScreen from './FlashcardResultScreen';
 import FlashcardEmptyState from './FlashcardEmptyState';
 import FlashcardCardFront from './FlashcardCardFront';
 import FlashcardCardBack from './FlashcardCardBack';
+import FlashcardRecallQuiz from './FlashcardRecallQuiz';
 import { knightSpeak, knightFlash } from '../../lib/knightSpeak.js';
 import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 
 const MAX_CACHE_ENTRIES = 20;
+const QUIZ_XP_BASE = 10;
+const QUIZ_XP_PER_CORRECT = 5;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function evictCache(cacheRef: React.MutableRefObject<any>) {
   const keys = Object.keys(cacheRef.current);
@@ -102,6 +105,8 @@ export default function Flashcards({
 
   const [missed, setMissed] = useState<any[]>([]);
   const [done, setDone] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const finalKnownRef = useRef(0);
   const [correctAnim, setCorrectAnim] = useState(false);
   const [wrongAnim, setWrongAnim] = useState(false);
   const [showStillLearning, setShowStillLearning] = useState(false);
@@ -301,9 +306,25 @@ export default function Flashcards({
     } catch {
       /* ignore */
     }
-    if (typeof award === 'function')
-      award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS, false, 'vocabulary');
-    markQuest('vocab');
+    finalKnownRef.current = finalKnown;
+    // XP and quest fire only after the recall quiz (or skip). Show quiz intro first.
+    setShowQuiz(true);
+  }
+
+  function handleQuizComplete(quizScore: number, skipped: boolean) {
+    setShowQuiz(false);
+    const finalKnown = finalKnownRef.current;
+    if (skipped) {
+      // Skip path — preserve existing XP formula and old quest tag
+      if (typeof award === 'function')
+        award(finalKnown * XP_PER_KNOWN + XP_COMPLETION_BONUS, false, 'vocabulary');
+      markQuest('vocab');
+    } else {
+      // Quiz path — new XP formula per Exercise Contract
+      if (typeof award === 'function')
+        award(QUIZ_XP_BASE + quizScore * QUIZ_XP_PER_CORRECT, false, 'flashcards');
+      // markQuest + setStats/writeDelta fired inside FlashcardRecallQuiz before calling onComplete
+    }
     knightSpeak(
       finalKnown === activePool.length
         ? 'victory'
@@ -345,6 +366,18 @@ export default function Flashcards({
     setKnown(0);
     setMissed([]);
     setDone(false);
+    setShowQuiz(false);
+  }
+
+  // ── QUIZ SCREEN (injected between deck and result) ──
+  if (showQuiz) {
+    return (
+      <FlashcardRecallQuiz
+        pool={activePool}
+        knownCount={finalKnownRef.current}
+        onComplete={handleQuizComplete}
+      />
+    );
   }
 
   // ── RESULT SCREEN ──
