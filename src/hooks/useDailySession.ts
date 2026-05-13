@@ -45,7 +45,7 @@ const MINUTES_PER_ACTIVITY = 5;
 
 /** Maps adaptive SkillCategory → exercise screen id */
 const CATEGORY_SCREEN_MAP: Partial<Record<SkillCategory, string>> = {
-  genitive: 'prepdrill',
+  genitive: 'genitivedrill',
   accusative: 'akudrill',
   'dative-locative': 'cloze',
   instrumental: 'cloze',
@@ -82,6 +82,13 @@ const CEFR_EXERCISE_POOL: Array<{
   { id: 'unjumble', label: 'Word Order', screen: 'unjumble', cefr: 'A2', category: 'vocab-a2' },
   { id: 'prepdrill', label: 'Prepositions', screen: 'prepdrill', cefr: 'A2', category: 'genitive' },
   { id: 'negation', label: 'Negation', screen: 'negation', cefr: 'A2', category: 'genitive' },
+  {
+    id: 'genitivedrill',
+    label: 'Genitive Case',
+    screen: 'genitivedrill',
+    cefr: 'A2',
+    category: 'genitive',
+  },
   {
     id: 'sentbuild',
     label: 'Build Sentences',

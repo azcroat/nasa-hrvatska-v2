@@ -150,8 +150,8 @@ describe('buildSessionActivities', () => {
     const getDueCategoryQueue = vi.mocked(adaptive.getDueCategoryQueue);
     getDueCategoryQueue.mockReturnValue([{ category: 'genitive', difficulty: 3 }]);
     const acts = buildSessionActivities('A1');
-    // genitive maps to 'prepdrill' screen
-    expect(acts.find((a) => a.screen === 'prepdrill')).toBeTruthy();
+    // genitive maps to 'genitivedrill' screen
+    expect(acts.find((a) => a.screen === 'genitivedrill')).toBeTruthy();
   });
 });
 
