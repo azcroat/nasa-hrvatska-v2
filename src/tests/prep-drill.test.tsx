@@ -54,6 +54,20 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(),
 }));
 
+// ── StatsContext mock — provides useStats() without needing a Provider ────────
+vi.mock('../context/StatsContext', () => ({
+  useStats: vi.fn(() => ({
+    stats: { vs: [] as string[], gc: 0 },
+    setStats: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+    writeDelta: vi.fn(),
+  })),
+  StatsProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+}));
+
 // ── rnd mock — 0.99 makes sh() identity ──────────────────────────────────────
 vi.mock('../lib/random.js', () => ({ rnd: vi.fn(() => 0.99) }));
 
