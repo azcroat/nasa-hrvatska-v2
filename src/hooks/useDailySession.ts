@@ -90,6 +90,13 @@ const CEFR_EXERCISE_POOL: Array<{
     category: 'genitive',
   },
   {
+    id: 'nomdrill',
+    label: 'Nominative Case',
+    screen: 'nomdrill',
+    cefr: 'A1',
+    category: 'vocab-a2',
+  },
+  {
     id: 'sentbuild',
     label: 'Build Sentences',
     screen: 'sentbuild',
