@@ -1436,7 +1436,7 @@ export default function AppRouter(props: Record<string, any>) {
         )}
         {currentScreen === 'conjdrill' && (
           <ScreenErrorBoundary key="conjdrill" name="conjdrill">
-            <ConjugationDrill goBack={goBack} award={award} setSt={setStats} />
+            <ConjugationDrill goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'znam' && (

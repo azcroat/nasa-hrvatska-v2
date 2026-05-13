@@ -4,15 +4,12 @@ import { H, Bar, speak, sh, CONJ } from '../../data';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyFn = (s: any) => any;
 interface Props {
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
-  setSt: (fn: AnyFn) => void;
 }
-export default function ConjugationDrill({ goBack, award, setSt }: Props) {
-  const { writeDelta } = useStats();
+export default function ConjugationDrill({ goBack, award }: Props) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [cjMode, sCjMode] = useState('menu');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,8 +136,17 @@ export default function ConjugationDrill({ goBack, award, setSt }: Props) {
                       finishFired.current = true;
                       if (typeof award === 'function') award(cjS * 2 + 10, false, 'grammar');
                       markQuest('grammar');
-                      setSt((s) => ({ ...s, gc: s.gc + 1 }));
-                      writeDelta({ gc: 1 });
+                      if (!stats.vs?.includes('conjugation')) {
+                        setStats((prev) => {
+                          if (prev.vs?.includes('conjugation')) return prev;
+                          return {
+                            ...prev,
+                            gc: (prev.gc || 0) + 1,
+                            vs: [...(prev.vs || []), 'conjugation'],
+                          };
+                        });
+                        if (writeDelta) writeDelta({ gc: 1, vs: ['conjugation'] });
+                      }
                       goBack();
                     }}
                   >
@@ -197,7 +203,6 @@ export default function ConjugationDrill({ goBack, award, setSt }: Props) {
                         const correct = oi === ci;
                         if (correct) {
                           sCjS((s) => s + 1);
-                          if (typeof award === 'function') award(3, false, 'grammar');
                         }
                         recordTopicResult('grammar', correct);
                       }
