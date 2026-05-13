@@ -5,6 +5,7 @@ import { unlockAudio } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { GRADED_STORIES } from '../../data/gradedStories.js';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 const LEVELS = ['All', 'A1', 'A2', 'B1'];
 const LEVEL_COLOR: Record<string, string> = { A1: '#166534', A2: '#1e40af', B1: '#92400e' };
@@ -875,6 +876,7 @@ export default function GradedInputScreen({
   const [view, setView] = useState('list'); // 'list' | 'reader' | 'quiz'
   const [story, setStory] = useState<GradedStory | null>(null);
   const completeFired = useRef(false);
+  const { stats, setStats, writeDelta } = useStats();
 
   function selectStory(s: GradedStory) {
     setStory(s);
@@ -891,6 +893,11 @@ export default function GradedInputScreen({
     if (story) markDone(story.id);
     if (typeof award === 'function') award(xp, false, 'reading');
     markQuest('reading');
+    // Contract: update vs badge + sync lc counter — guarded to fire once per story
+    if (!stats.vs.includes('story-comprehension')) {
+      setStats((prev) => ({ ...prev, vs: [...prev.vs, 'story-comprehension'] }));
+    }
+    writeDelta({ lc: 1, vs: ['story-comprehension'] });
     goBack();
   }
 
