@@ -52,7 +52,7 @@ async function completeDrill(awardMock: ReturnType<typeof vi.fn>) {
 
     // Priority 1: click "Next ->" or "See results" when visible (post-answer state).
     const advanceBtn = allButtons.find((b) =>
-      /next|see results/i.test((b as HTMLElement).textContent || ''),
+      /next|see results|done/i.test((b as HTMLElement).textContent || ''),
     );
     if (advanceBtn) {
       fireEvent.click(advanceBtn);
@@ -89,6 +89,7 @@ const FULL_CONTRACT_DRILLS = [
     path: '../components/practice/NegationGenDrill',
     vsTag: 'negationgen',
   },
+  { name: 'PrepDrill', path: '../components/practice/PrepDrill', vsTag: 'preposition' },
 ];
 
 describe('Exercise Contract -- gold-pattern drills', () => {
