@@ -1,0 +1,37 @@
+name: OSV-Scanner
+
+# Google's open-source scanner against the federated OSV.dev vulnerability DB.
+# Complements Trivy (different DB, different vendor) — defense in depth.
+# No SaaS backend, no account, no token — pure CLI binary in CI.
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [master]
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly Monday 9am UTC (after Trivy at 7am, CodeQL at 6am)
+
+permissions:
+  contents: read
+  security-events: write  # upload SARIF to GitHub Security tab
+  actions: read
+
+jobs:
+  scan:
+    # SHA-pinned (v2.3.8, published 2026-05-11) — never use @main for third-party
+    # actions. Update by running: gh api repos/google/osv-scanner-action/git/refs/tags/<version>
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2  # v2.3.8
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    with:
+      # Recursive scan of the repo. OSV-Scanner auto-detects package-lock.json,
+      # functions/package-lock.json, etc.
+      scan-args: |-
+        -r
+        --skip-git
+        ./
+      upload-sarif: true
+      fail-on-vuln: false  # informational only — npm audit gate already runs in ci.yml
