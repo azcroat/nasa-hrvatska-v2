@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
@@ -216,6 +217,7 @@ interface SprintPrompt {
 
 export default function SpeakingSprintScreen({ goBack, award }: Props) {
   const { isOnline } = useOnlineStatus();
+  const { stats, setStats, writeDelta } = useStats();
   const [phase, setPhase] = useState('setup');
   const [currentPrompt, setCurrentPrompt] = useState<SprintPrompt | null>(null);
   const [userTranscript, setUserTranscript] = useState('');
@@ -426,6 +428,15 @@ export default function SpeakingSprintScreen({ goBack, award }: Props) {
       const totalRounds = rounds + (phase === 'feedback' ? 1 : 0);
       if (award && totalRounds > 0) award(totalRounds * 5, false, 'speaking');
       markQuest('speak');
+      if (!stats.vs?.includes('speaking')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('speaking')) return prev;
+          return { ...prev, sp: (prev.sp || 0) + 1, vs: [...(prev.vs || []), 'speaking'] };
+        });
+        writeDelta({ sp: 1, vs: ['speaking'] });
+      } else {
+        writeDelta({ sp: 1 });
+      }
     }
     goBack();
   }

@@ -210,7 +210,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mountedRef = useRef(true);
   const isOnline = useOnlineStatus();
-  const { level: userLevel } = useStats();
+  const { stats, setStats, writeDelta, level: userLevel } = useStats();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
   const [text, setText] = useState('');
   const [result, setResult] = useState<WritingResult | null>(null);
@@ -801,7 +801,14 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
               markQuest('write');
               if (typeof award === 'function') {
                 const sc = result.score ?? 0;
-                award(sc > 0 ? Math.round(sc / 10) + 5 : 5, false, 'grammar');
+                award(sc > 0 ? Math.round(sc / 10) + 5 : 5, false, 'writing');
+              }
+              if (!stats.vs?.includes('writing')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('writing')) return prev;
+                  return { ...prev, vs: [...(prev.vs || []), 'writing'] };
+                });
+                if (writeDelta) writeDelta({ vs: ['writing'] });
               }
               setText('');
               setResult(null);
