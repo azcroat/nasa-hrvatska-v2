@@ -43,10 +43,16 @@ function makeCtx() {
   return { value, setStats, writeDelta, award };
 }
 
-async function completeDrill(awardMock: ReturnType<typeof vi.fn>) {
-  for (let i = 0; i < 100; i++) {
+async function completeDrill(awardMock: ReturnType<typeof vi.fn>, completionOverride?: () => void) {
+  for (let i = 0; i < 300; i++) {
     // Award fired means we reached the done screen and the contract was executed.
     if (awardMock.mock.calls.length > 0) break;
+
+    // If a per-drill override is supplied, delegate to it each iteration.
+    if (completionOverride) {
+      completionOverride();
+      continue;
+    }
 
     // Priority 0: click a menu tile (div.tc) for drills that start with a mode-select screen
     // e.g. ConjugationDrill shows tense tiles before the quiz begins.
@@ -83,6 +89,35 @@ async function completeDrill(awardMock: ReturnType<typeof vi.fn>) {
   }
 }
 
+// AspectDrillScreen: option buttons use inline styles only (no .ob class).
+// completionOverride clicks the first non-advance button to answer, then advances.
+function makeAspectOverride(awardMock: ReturnType<typeof vi.fn>) {
+  return () => {
+    if (awardMock.mock.calls.length > 0) return;
+    const allButtons = screen.queryAllByRole('button');
+    // Priority 1: advance / finish buttons.
+    const advanceBtn = allButtons.find((b) =>
+      /next|see results|done|finish/i.test((b as HTMLElement).textContent || ''),
+    );
+    if (advanceBtn) {
+      fireEvent.click(advanceBtn);
+      return;
+    }
+    // Priority 2: first non-nav, non-reference button (the answer options).
+    // Exclude: the H() back button ("Back"), "6 Rules", "Mistakes", "Back to Drill".
+    const answerBtn = allButtons.find((b) => {
+      const text = ((b as HTMLElement).textContent || '').trim();
+      return (
+        !/^back$|6 rules|mistakes|back to drill|show.*rule|hide.*rule/i.test(text) &&
+        !(b as HTMLButtonElement).disabled
+      );
+    });
+    if (answerBtn) {
+      fireEvent.click(answerBtn);
+    }
+  };
+}
+
 // Drills that fully conform to the gold contract (award + markQuest + setStats + writeDelta with vs).
 const FULL_CONTRACT_DRILLS = [
   {
@@ -103,6 +138,13 @@ const FULL_CONTRACT_DRILLS = [
     name: 'ConjugationDrill',
     path: '../components/practice/ConjugationDrill',
     vsTag: 'conjugation',
+  },
+  {
+    name: 'AspectDrillScreen',
+    path: '../components/practice/AspectDrillScreen',
+    vsTag: 'aspect',
+    // Override needed: answer buttons use inline styles (no .ob class).
+    useOverride: true,
   },
 ];
 
@@ -151,7 +193,10 @@ describe('Exercise Contract -- gold-pattern drills', () => {
         </StatsProvider>,
       );
 
-      await completeDrill(award);
+      const override = (drill as { useOverride?: boolean }).useOverride
+        ? makeAspectOverride(award)
+        : undefined;
+      await completeDrill(award, override);
 
       expect(award).toHaveBeenCalledTimes(1);
       expect(award.mock.calls[0]![0]).toBeGreaterThan(0);
