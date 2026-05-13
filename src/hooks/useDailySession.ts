@@ -97,6 +97,13 @@ const CEFR_EXERCISE_POOL: Array<{
     category: 'vocab-a2',
   },
   {
+    id: 'locdrill',
+    label: 'Locative Case',
+    screen: 'locdrill',
+    cefr: 'B1',
+    category: 'dative-locative',
+  },
+  {
     id: 'sentbuild',
     label: 'Build Sentences',
     screen: 'sentbuild',
