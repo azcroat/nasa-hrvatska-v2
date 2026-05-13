@@ -134,6 +134,7 @@ const FULL_CONTRACT_DRILLS = [
     vsTag: 'negationgen',
   },
   { name: 'PrepDrill', path: '../components/practice/PrepDrill', vsTag: 'preposition' },
+  { name: 'GenitiveDrill', path: '../components/practice/GenitiveDrill', vsTag: 'genitive' },
   {
     name: 'ConjugationDrill',
     path: '../components/practice/ConjugationDrill',
