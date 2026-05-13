@@ -5,11 +5,10 @@
  *   - Menu screen shows 4 tense tiles
  *   - Clicking "All Tenses" transitions to quiz mode
  *   - First question shown (CONJ[0]/ja with identity shuffle)
- *   - award(3) called per correct answer during quiz
- *   - award(cjS * 2 + 10) called on "🏠 Finish!" (20 correct → award(50))
+ *   - award(cjS * 2 + 10) called ONCE on "🏠 Finish!" (20 correct → award(50))
  *   - markQuest('grammar') called on Finish
- *   - writeDelta({ gc: 1 }) called on Finish
- *   - setSt called on Finish
+ *   - writeDelta({ gc: 1, vs: ['conjugation'] }) called on Finish
+ *   - setStats called on Finish (via context, not prop)
  *   - goBack called on Finish
  *
  * Shuffle is deterministic: rnd() → 0.99 makes sh() identity.
@@ -17,9 +16,6 @@
  * Q0: verb "čitati" (to read), person "ja", answer "čitam".
  * Options are constructed as sh([answer, ...wrongs]) — identity keeps answer first.
  * All 20 questions: clicking first .ob button = correct → score=20, award(50) on Finish.
- *
- * ConjugationDrill also calls award(3) on EACH correct answer during the quiz
- * (micro-reward pattern). This means award is called 20+1 = 21 times total.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -70,10 +66,11 @@ vi.mock('../lib/random.js', () => ({ rnd: vi.fn(() => 0.99) }));
 
 // ── StatsContext mock — provides useStats() without needing a Provider ────────
 const mockWriteDelta = vi.hoisted(() => vi.fn());
+const mockSetStats = vi.hoisted(() => vi.fn());
 vi.mock('../context/StatsContext', () => ({
   useStats: vi.fn(() => ({
     stats: { vs: [] as string[], gc: 0 },
-    setStats: vi.fn(),
+    setStats: mockSetStats,
     dispatch: vi.fn(),
     award: vi.fn(),
     level: 1,
@@ -100,7 +97,7 @@ import ConjugationDrill from '../components/practice/ConjugationDrill';
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function renderConjugationDrill(overrides = {}) {
-  const props = { goBack: vi.fn(), award: vi.fn(), setSt: vi.fn(), ...overrides };
+  const props = { goBack: vi.fn(), award: vi.fn(), ...overrides };
   const utils = render(<ConjugationDrill {...props} />);
   return { ...utils, props };
 }
@@ -110,15 +107,13 @@ function renderConjugationDrill(overrides = {}) {
  * the first .ob button each time (always correct with identity shuffle).
  * Then click "🏠 Finish!" to trigger award(50) + markQuest + writeDelta + goBack.
  *
- * award(3) is called 20 times during the quiz (per correct answer).
- * award(cjS * 2 + 10) = award(50) is called once on Finish.
+ * award(cjS * 2 + 10) = award(50) is called exactly once on Finish.
  */
 function completeAllAndFinish(
   award: ReturnType<typeof vi.fn> = vi.fn(),
   goBack: ReturnType<typeof vi.fn> = vi.fn(),
-  setSt: ReturnType<typeof vi.fn> = vi.fn(),
 ) {
-  const { container } = render(<ConjugationDrill award={award} goBack={goBack} setSt={setSt} />);
+  const { container } = render(<ConjugationDrill award={award} goBack={goBack} />);
   // Click "All Tenses" to start the quiz
   fireEvent.click(screen.getByText('All Tenses'));
   // Answer all 20 questions
@@ -133,7 +128,7 @@ function completeAllAndFinish(
   // Done screen: click "🏠 Finish!" to trigger completion effects
   const finishBtn = screen.queryByText('🏠 Finish!');
   if (finishBtn) fireEvent.click(finishBtn);
-  return { award, goBack, setSt };
+  return { award, goBack };
 }
 
 // ── Rendering — menu screen ───────────────────────────────────────────────────
@@ -142,6 +137,7 @@ describe('ConjugationDrill — menu screen', () => {
   beforeEach(() => {
     mockMarkQuest.mockClear();
     mockWriteDelta.mockClear();
+    mockSetStats.mockClear();
   });
 
   it('renders without crashing', () => {
@@ -174,6 +170,7 @@ describe('ConjugationDrill — quiz start', () => {
   beforeEach(() => {
     mockMarkQuest.mockClear();
     mockWriteDelta.mockClear();
+    mockSetStats.mockClear();
   });
 
   it('clicking All Tenses transitions to quiz mode', () => {
@@ -224,6 +221,7 @@ describe('ConjugationDrill — answer mechanics', () => {
   beforeEach(() => {
     mockMarkQuest.mockClear();
     mockWriteDelta.mockClear();
+    mockSetStats.mockClear();
   });
 
   it('shows Next → after answering first question', () => {
@@ -239,11 +237,9 @@ describe('ConjugationDrill — answer mechanics', () => {
     expect(screen.queryByText('Next →')).toBeNull();
   });
 
-  it('options are locked after answering — guard prevents double-count', () => {
+  it('options are locked after answering — clicking again does not change state', () => {
     const award = vi.fn();
-    const { container } = render(
-      <ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />,
-    );
+    const { container } = render(<ConjugationDrill award={award} goBack={vi.fn()} />);
     fireEvent.click(screen.getByText('All Tenses'));
     const optBtn = container.querySelector('button.ob')!;
     fireEvent.click(optBtn);
@@ -251,17 +247,6 @@ describe('ConjugationDrill — answer mechanics', () => {
     // Clicking again should not trigger award again
     fireEvent.click(optBtn);
     expect(award.mock.calls.length).toBe(callsAfterFirst);
-  });
-
-  it('award(3) is called when a correct answer is given', () => {
-    const award = vi.fn();
-    const { container } = render(
-      <ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />,
-    );
-    fireEvent.click(screen.getByText('All Tenses'));
-    // First .ob is always correct (answer prepended, identity shuffle)
-    fireEvent.click(container.querySelector('button.ob')!);
-    expect(award).toHaveBeenCalledWith(3, false, 'grammar');
   });
 
   it('advances to next question after clicking Next →', () => {
@@ -292,6 +277,7 @@ describe('ConjugationDrill — completion + award guard', () => {
   beforeEach(() => {
     mockMarkQuest.mockClear();
     mockWriteDelta.mockClear();
+    mockSetStats.mockClear();
   });
 
   it('shows done screen after all 20 questions answered', () => {
@@ -302,9 +288,7 @@ describe('ConjugationDrill — completion + award guard', () => {
   });
 
   it('shows Conjugation Complete! heading on done screen', () => {
-    const { container } = render(
-      <ConjugationDrill goBack={vi.fn()} award={vi.fn()} setSt={vi.fn()} />,
-    );
+    const { container } = render(<ConjugationDrill goBack={vi.fn()} award={vi.fn()} />);
     fireEvent.click(screen.getByText('All Tenses'));
     for (let i = 0; i < 20; i++) {
       const optBtn = container.querySelector('button.ob');
@@ -317,9 +301,7 @@ describe('ConjugationDrill — completion + award guard', () => {
   });
 
   it('shows score on done screen (20 / 20)', () => {
-    const { container } = render(
-      <ConjugationDrill goBack={vi.fn()} award={vi.fn()} setSt={vi.fn()} />,
-    );
+    const { container } = render(<ConjugationDrill goBack={vi.fn()} award={vi.fn()} />);
     fireEvent.click(screen.getByText('All Tenses'));
     for (let i = 0; i < 20; i++) {
       const optBtn = container.querySelector('button.ob');
@@ -331,28 +313,11 @@ describe('ConjugationDrill — completion + award guard', () => {
     expect(screen.getByText(/20 \/ 20/)).toBeTruthy();
   });
 
-  it('award called 20 times with 3 (once per correct answer)', () => {
-    const award = vi.fn();
-    const { container } = render(
-      <ConjugationDrill award={award} goBack={vi.fn()} setSt={vi.fn()} />,
-    );
-    fireEvent.click(screen.getByText('All Tenses'));
-    for (let i = 0; i < 20; i++) {
-      const optBtn = container.querySelector('button.ob');
-      if (!optBtn) break;
-      fireEvent.click(optBtn);
-      const nextBtn = container.querySelector('button.b.bp');
-      if (nextBtn) fireEvent.click(nextBtn);
-    }
-    // 20 correct answers → award(3) called 20 times (before Finish click)
-    expect(award.mock.calls.filter((c) => c[0] === 3).length).toBe(20);
-  });
-
-  it('award(cjS * 2 + 10) called on Finish (20 correct → award(50))', () => {
+  it('award(cjS * 2 + 10) called exactly once on Finish (20 correct → award(50))', () => {
     const award = vi.fn();
     completeAllAndFinish(award);
-    // Last award call on Finish: cjS=20 → award(20 * 2 + 10) = award(50)
-    expect(award).toHaveBeenLastCalledWith(50, false, 'grammar');
+    expect(award).toHaveBeenCalledTimes(1);
+    expect(award).toHaveBeenCalledWith(50, false, 'grammar');
   });
 
   it('markQuest("grammar") called on Finish', () => {
@@ -365,15 +330,14 @@ describe('ConjugationDrill — completion + award guard', () => {
     expect(mockMarkQuest).toHaveBeenCalledTimes(1);
   });
 
-  it('writeDelta({ gc: 1 }) called on Finish', () => {
+  it('writeDelta({ gc: 1, vs: ["conjugation"] }) called on Finish', () => {
     completeAllAndFinish();
-    expect(mockWriteDelta).toHaveBeenCalledWith({ gc: 1 });
+    expect(mockWriteDelta).toHaveBeenCalledWith({ gc: 1, vs: ['conjugation'] });
   });
 
-  it('setSt called on Finish', () => {
-    const setSt = vi.fn();
-    completeAllAndFinish(vi.fn(), vi.fn(), setSt);
-    expect(setSt).toHaveBeenCalledTimes(1);
+  it('setStats called on Finish (via context)', () => {
+    completeAllAndFinish();
+    expect(mockSetStats).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -383,6 +347,7 @@ describe('ConjugationDrill — navigation', () => {
   beforeEach(() => {
     mockMarkQuest.mockClear();
     mockWriteDelta.mockClear();
+    mockSetStats.mockClear();
   });
 
   it('goBack is called when Finish is clicked on done screen', () => {

@@ -48,11 +48,20 @@ async function completeDrill(awardMock: ReturnType<typeof vi.fn>) {
     // Award fired means we reached the done screen and the contract was executed.
     if (awardMock.mock.calls.length > 0) break;
 
+    // Priority 0: click a menu tile (div.tc) for drills that start with a mode-select screen
+    // e.g. ConjugationDrill shows tense tiles before the quiz begins.
+    const menuTile = document.querySelector('.tc') as HTMLElement | null;
+    if (menuTile) {
+      fireEvent.click(menuTile);
+      continue;
+    }
+
     const allButtons = screen.queryAllByRole('button');
 
-    // Priority 1: click "Next ->" or "See results" when visible (post-answer state).
+    // Priority 1: click "Next ->", "See results", "done", or "finish" when visible.
+    // "Finish!" is the completion CTA on ConjugationDrill's results screen.
     const advanceBtn = allButtons.find((b) =>
-      /next|see results|done/i.test((b as HTMLElement).textContent || ''),
+      /next|see results|done|finish/i.test((b as HTMLElement).textContent || ''),
     );
     if (advanceBtn) {
       fireEvent.click(advanceBtn);
@@ -90,6 +99,11 @@ const FULL_CONTRACT_DRILLS = [
     vsTag: 'negationgen',
   },
   { name: 'PrepDrill', path: '../components/practice/PrepDrill', vsTag: 'preposition' },
+  {
+    name: 'ConjugationDrill',
+    path: '../components/practice/ConjugationDrill',
+    vsTag: 'conjugation',
+  },
 ];
 
 describe('Exercise Contract -- gold-pattern drills', () => {
