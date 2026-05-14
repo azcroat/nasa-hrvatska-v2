@@ -55,5 +55,22 @@ export function mergeStatsFromRemote(prev: Stats, rawRemoteSt: unknown, ds: Stat
     mistakesMastered: Math.max(prev.mistakesMastered || 0, remoteSt.mistakesMastered || 0),
     readingDone: Math.max(prev.readingDone || 0, remoteSt.readingDone || 0),
     mediaVisits: Math.max(prev.mediaVisits || 0, remoteSt.mediaVisits || 0),
+    // levelQuizPasses — per-key latest-wins by passedAt timestamp.
+    // A device that passed a quiz more recently (higher passedAt) wins for that level.
+    // Keys from both local and remote are always preserved (additive union).
+    levelQuizPasses: (() => {
+      const local = prev.levelQuizPasses ?? {};
+      const remote = remoteSt.levelQuizPasses ?? {};
+      const merged: Record<number, { score: number; passedAt: number }> = { ...local };
+      for (const key of Object.keys(remote) as unknown as number[]) {
+        const k = Number(key);
+        const rv = remote[k];
+        const lv = merged[k];
+        if (rv && (!lv || rv.passedAt > lv.passedAt)) {
+          merged[k] = rv;
+        }
+      }
+      return merged;
+    })(),
   };
 }

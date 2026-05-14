@@ -482,6 +482,33 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
       localStorage.setItem('nh_journey_first_lesson', '1');
     } catch (_) {}
 
+  // ── levelQuizPasses — per-key latest-wins by passedAt (localStorage mirror) ─
+  // The authoritative merge happens in mergeStatsFromRemote (React state).
+  // This localStorage mirror ensures the value survives across cold starts when
+  // React state is re-hydrated from localStorage before the Firestore watcher fires.
+  const remoteLQP = (fp.stats as Record<string, unknown> | undefined)?.levelQuizPasses;
+  if (remoteLQP && typeof remoteLQP === 'object') {
+    let localLQP: Record<number, { score: number; passedAt: number }> = {};
+    try {
+      const raw = localStorage.getItem('nh_level_quiz_passes');
+      if (raw) localLQP = JSON.parse(raw);
+    } catch (_) {}
+    const merged: Record<number, { score: number; passedAt: number }> = { ...localLQP };
+    for (const [key, val] of Object.entries(remoteLQP as Record<string, unknown>)) {
+      const k = Number(key);
+      if (Number.isNaN(k)) continue;
+      const v = val as { score?: number; passedAt?: number };
+      if (typeof v?.score !== 'number' || typeof v?.passedAt !== 'number') continue;
+      const existing = merged[k];
+      if (!existing || v.passedAt > existing.passedAt) {
+        merged[k] = { score: v.score, passedAt: v.passedAt };
+      }
+    }
+    try {
+      localStorage.setItem('nh_level_quiz_passes', JSON.stringify(merged));
+    } catch (_) {}
+  }
+
   // ── Ceremony flags — additive union (packed object → individual keys) ────────
   // progressSnapshot packs ceremony keys into `nh_ceremonies: { streak_7: true, stage5: true }`.
   // applyRemoteProgress unpacks them back to individual localStorage keys so the

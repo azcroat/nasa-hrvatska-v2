@@ -68,6 +68,15 @@ service cloud.firestore {
       return prog == '' || prog.size() <= 204800;
     }
 
+    // User-doc UPDATE: levelQuizPasses must be a map when present.
+    // Optional field — absent on existing users (no entry) is always valid.
+    // The field lives inside the progress JSON blob; this guard covers any future
+    // path that writes it as a top-level Firestore field.
+    function validLevelQuizPasses() {
+      return !('levelQuizPasses' in request.resource.data)
+          || request.resource.data.levelQuizPasses is map;
+    }
+
     // ─── User documents ────────────────────────────────────────────────────
     // Owner reads/writes their own document only.
     // UPDATE validates the top-level xp field to prevent client-side XP inflation.
@@ -78,7 +87,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && validXpUpdate() && validProgressSize()
+      allow update: if isOwner(userId) && validXpUpdate() && validProgressSize() && validLevelQuizPasses()
         || (isAuthenticated()
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendUids']));
       allow delete: if false;
