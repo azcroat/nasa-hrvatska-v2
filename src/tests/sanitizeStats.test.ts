@@ -187,3 +187,96 @@ describe('sanitizeStats — null/undefined/malformed input', () => {
     expect(result).not.toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// levelQuizPasses — SP1 addition: per-key latest-wins merge field
+// ---------------------------------------------------------------------------
+describe('sanitizeStats — levelQuizPasses field', () => {
+  it('accepts a valid levelQuizPasses object', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: { 1: { score: 85, passedAt: 1700000000000 } },
+    });
+    expect(result.levelQuizPasses).toBeDefined();
+    expect(result.levelQuizPasses![1]).toEqual({ score: 85, passedAt: 1700000000000 });
+  });
+
+  it('accepts multiple level keys', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: {
+        1: { score: 90, passedAt: 1700000000000 },
+        2: { score: 75, passedAt: 1700001000000 },
+      },
+    });
+    expect(Object.keys(result.levelQuizPasses!)).toHaveLength(2);
+  });
+
+  it('excludes entries with NaN keys (non-numeric string key)', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: {
+        notANumber: { score: 90, passedAt: 1700000000000 },
+        1: { score: 80, passedAt: 1700000000001 },
+      },
+    });
+    // Only the numeric key survives
+    expect(result.levelQuizPasses![1]).toBeDefined();
+    expect(Object.keys(result.levelQuizPasses!).filter((k) => k === 'notANumber')).toHaveLength(0);
+  });
+
+  it('excludes entries where score is not a number', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: { 1: { score: 'A+', passedAt: 1700000000000 } },
+    });
+    expect(result.levelQuizPasses![1]).toBeUndefined();
+  });
+
+  it('excludes entries where passedAt is not a number', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: { 1: { score: 90, passedAt: 'now' } },
+    });
+    expect(result.levelQuizPasses![1]).toBeUndefined();
+  });
+
+  it('excludes entries with Infinity score', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: { 1: { score: Infinity, passedAt: 1700000000000 } },
+    });
+    expect(result.levelQuizPasses![1]).toBeUndefined();
+  });
+
+  it('excludes entries with Infinity passedAt', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: { 1: { score: 90, passedAt: Infinity } },
+    });
+    expect(result.levelQuizPasses![1]).toBeUndefined();
+  });
+
+  it('ignores null levelQuizPasses', () => {
+    const result = sanitizeStats({ levelQuizPasses: null });
+    expect(result.levelQuizPasses).toBeUndefined();
+  });
+
+  it('ignores array levelQuizPasses (must be plain object)', () => {
+    const result = sanitizeStats({ levelQuizPasses: [{ score: 90, passedAt: 1700000000000 }] });
+    expect(result.levelQuizPasses).toBeUndefined();
+  });
+
+  it('returns empty validated object when all entries are invalid', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: {
+        1: { score: 'bad', passedAt: 'also bad' },
+        notanum: { score: 90, passedAt: 1700000000000 },
+      },
+    });
+    // levelQuizPasses is set but empty (or undefined)
+    if (result.levelQuizPasses !== undefined) {
+      expect(Object.keys(result.levelQuizPasses)).toHaveLength(0);
+    }
+  });
+
+  it('preserves score of 0 (falsy but valid)', () => {
+    const result = sanitizeStats({
+      levelQuizPasses: { 1: { score: 0, passedAt: 1700000000000 } },
+    });
+    expect(result.levelQuizPasses![1]).toEqual({ score: 0, passedAt: 1700000000000 });
+  });
+});

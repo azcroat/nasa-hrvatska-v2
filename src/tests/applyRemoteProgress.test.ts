@@ -712,6 +712,118 @@ describe('nh_session_history', () => {
 
 // ── XP cooldown merge ─────────────────────────────────────────────────────────
 
+// ── levelQuizPasses localStorage mirror — SP1 addition ───────────────────────
+
+describe('applyRemoteProgress — levelQuizPasses localStorage mirror', () => {
+  beforeEach(clearLS);
+  afterEach(clearLS);
+
+  it('writes levelQuizPasses to nh_level_quiz_passes when not in local storage', () => {
+    const setters = makeSetters();
+    applyRemoteProgress(
+      { stats: { levelQuizPasses: { 1: { score: 85, passedAt: 2000 } } } },
+      setters,
+    );
+    const stored = JSON.parse(localStorage.getItem('nh_level_quiz_passes') || '{}');
+    expect(stored[1]).toEqual({ score: 85, passedAt: 2000 });
+  });
+
+  it('remote key wins when remote passedAt > local passedAt', () => {
+    localStorage.setItem(
+      'nh_level_quiz_passes',
+      JSON.stringify({ 1: { score: 60, passedAt: 1000 } }),
+    );
+    const setters = makeSetters();
+    applyRemoteProgress(
+      { stats: { levelQuizPasses: { 1: { score: 90, passedAt: 5000 } } } },
+      setters,
+    );
+    const stored = JSON.parse(localStorage.getItem('nh_level_quiz_passes') || '{}');
+    expect(stored[1].score).toBe(90);
+    expect(stored[1].passedAt).toBe(5000);
+  });
+
+  it('local key wins when local passedAt >= remote passedAt', () => {
+    localStorage.setItem(
+      'nh_level_quiz_passes',
+      JSON.stringify({ 1: { score: 95, passedAt: 9999 } }),
+    );
+    const setters = makeSetters();
+    applyRemoteProgress(
+      { stats: { levelQuizPasses: { 1: { score: 50, passedAt: 1000 } } } },
+      setters,
+    );
+    const stored = JSON.parse(localStorage.getItem('nh_level_quiz_passes') || '{}');
+    expect(stored[1].score).toBe(95);
+    expect(stored[1].passedAt).toBe(9999);
+  });
+
+  it('remote-only key is added alongside existing local key', () => {
+    localStorage.setItem(
+      'nh_level_quiz_passes',
+      JSON.stringify({ 1: { score: 80, passedAt: 1000 } }),
+    );
+    const setters = makeSetters();
+    applyRemoteProgress(
+      { stats: { levelQuizPasses: { 2: { score: 75, passedAt: 2000 } } } },
+      setters,
+    );
+    const stored = JSON.parse(localStorage.getItem('nh_level_quiz_passes') || '{}');
+    expect(stored[1]).toEqual({ score: 80, passedAt: 1000 });
+    expect(stored[2]).toEqual({ score: 75, passedAt: 2000 });
+  });
+
+  it('skips entries with NaN key (non-numeric string)', () => {
+    const setters = makeSetters();
+    applyRemoteProgress(
+      {
+        stats: {
+          levelQuizPasses: {
+            notANumber: { score: 90, passedAt: 1000 },
+            1: { score: 80, passedAt: 2000 },
+          },
+        },
+      },
+      setters,
+    );
+    const stored = JSON.parse(localStorage.getItem('nh_level_quiz_passes') || '{}');
+    // numeric key persisted
+    expect(stored[1]).toEqual({ score: 80, passedAt: 2000 });
+    // non-numeric key discarded
+    expect(stored['notANumber']).toBeUndefined();
+  });
+
+  it('skips entries where score or passedAt is not a number', () => {
+    const setters = makeSetters();
+    applyRemoteProgress(
+      {
+        stats: {
+          levelQuizPasses: {
+            1: { score: 'A+', passedAt: 1000 },
+            2: { score: 80, passedAt: 'now' },
+          },
+        },
+      },
+      setters,
+    );
+    const stored = JSON.parse(localStorage.getItem('nh_level_quiz_passes') || '{}');
+    expect(stored[1]).toBeUndefined();
+    expect(stored[2]).toBeUndefined();
+  });
+
+  it('does nothing when fp.stats.levelQuizPasses is missing', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ stats: { xp: 100 } }, setters);
+    expect(localStorage.getItem('nh_level_quiz_passes')).toBeNull();
+  });
+
+  it('does nothing when fp.stats is missing entirely', () => {
+    const setters = makeSetters();
+    applyRemoteProgress({ name: 'Ana' }, setters);
+    expect(localStorage.getItem('nh_level_quiz_passes')).toBeNull();
+  });
+});
+
 describe('applyRemoteProgress — XP cooldown merge', () => {
   beforeEach(clearLS);
   afterEach(clearLS);

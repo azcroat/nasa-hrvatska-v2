@@ -268,3 +268,88 @@ describe('mergeStatsFromRemote — real-world sync scenarios', () => {
     expect(result.lc).toBe(42);
   });
 });
+
+// ── levelQuizPasses merge — SP1 addition ─────────────────────────────────────
+
+describe('mergeStatsFromRemote — levelQuizPasses per-key latest-wins merge', () => {
+  it('remote key wins when remote passedAt > local passedAt', () => {
+    const local = prev({
+      levelQuizPasses: { 1: { score: 70, passedAt: 1000 } },
+    } as unknown as Partial<Stats>);
+    const result = mergeStatsFromRemote(
+      local,
+      { levelQuizPasses: { 1: { score: 90, passedAt: 2000 } } },
+      DS,
+    );
+    expect(result.levelQuizPasses![1]!.score).toBe(90);
+    expect(result.levelQuizPasses![1]!.passedAt).toBe(2000);
+  });
+
+  it('local key wins when local passedAt > remote passedAt', () => {
+    const local = prev({
+      levelQuizPasses: { 1: { score: 95, passedAt: 9999 } },
+    } as unknown as Partial<Stats>);
+    const result = mergeStatsFromRemote(
+      local,
+      { levelQuizPasses: { 1: { score: 60, passedAt: 1000 } } },
+      DS,
+    );
+    expect(result.levelQuizPasses![1]!.score).toBe(95);
+    expect(result.levelQuizPasses![1]!.passedAt).toBe(9999);
+  });
+
+  it('remote-only key is added to result', () => {
+    const local = prev({ levelQuizPasses: {} } as unknown as Partial<Stats>);
+    const result = mergeStatsFromRemote(
+      local,
+      { levelQuizPasses: { 2: { score: 80, passedAt: 5000 } } },
+      DS,
+    );
+    expect(result.levelQuizPasses![2]).toEqual({ score: 80, passedAt: 5000 });
+  });
+
+  it('local-only key is preserved in result', () => {
+    const local = prev({
+      levelQuizPasses: { 3: { score: 88, passedAt: 7777 } },
+    } as unknown as Partial<Stats>);
+    const result = mergeStatsFromRemote(local, {}, DS);
+    expect(result.levelQuizPasses![3]).toEqual({ score: 88, passedAt: 7777 });
+  });
+
+  it('both local and remote keys are merged (union of keys)', () => {
+    const local = prev({
+      levelQuizPasses: { 1: { score: 90, passedAt: 1000 } },
+    } as unknown as Partial<Stats>);
+    const result = mergeStatsFromRemote(
+      local,
+      { levelQuizPasses: { 2: { score: 75, passedAt: 2000 } } },
+      DS,
+    );
+    expect(result.levelQuizPasses![1]).toEqual({ score: 90, passedAt: 1000 });
+    expect(result.levelQuizPasses![2]).toEqual({ score: 75, passedAt: 2000 });
+  });
+
+  it('empty local and empty remote → empty levelQuizPasses', () => {
+    const local = prev({ levelQuizPasses: {} } as unknown as Partial<Stats>);
+    const result = mergeStatsFromRemote(local, { levelQuizPasses: {} }, DS);
+    expect(result.levelQuizPasses).toEqual({});
+  });
+
+  it('missing local levelQuizPasses (legacy user) does not crash', () => {
+    const local = prev(); // no levelQuizPasses
+    const result = mergeStatsFromRemote(
+      local,
+      { levelQuizPasses: { 1: { score: 80, passedAt: 1000 } } },
+      DS,
+    );
+    expect(result.levelQuizPasses![1]).toBeDefined();
+  });
+
+  it('missing remote levelQuizPasses does not wipe local', () => {
+    const local = prev({
+      levelQuizPasses: { 1: { score: 85, passedAt: 1234 } },
+    } as unknown as Partial<Stats>);
+    const result = mergeStatsFromRemote(local, {}, DS);
+    expect(result.levelQuizPasses![1]).toEqual({ score: 85, passedAt: 1234 });
+  });
+});
