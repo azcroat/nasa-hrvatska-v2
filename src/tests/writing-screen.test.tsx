@@ -1,5 +1,5 @@
 /**
- * writing-screen.test.tsx — Exercise Contract tests for WritingScreen.
+ * writing-screen.test.tsx — Exercise Contract + word-count rubric tests for WritingScreen.
  *
  * Tests clause 4-6 of the Exercise Contract:
  *   - markQuest('write') fires on completion (existing behavior, verified)
@@ -9,6 +9,14 @@
  *   - writeDelta({ vs: ['writing'] }) called on first completion
  *   - finishFired prevents double-award (existing guard, verified)
  *
+ * Phase 2.5 word-count rubric tests (MIN_WORDS = 30):
+ *   - countWords handles edge cases (empty, whitespace, multiple spaces)
+ *   - Live counter shows "Word count: N / 30" format
+ *   - Button disabled at 0 words
+ *   - Button still disabled at 5 words
+ *   - Button enabled at exactly 30 words
+ *   - Button enabled at 31 words
+ *
  * Note: WritingScreen completion occurs on "New Prompt" button click
  * which only renders after AI result is received. The completion guard
  * logic is tested via pure updater-function unit tests that mirror
@@ -16,7 +24,7 @@
  * flow which is covered by the session smoke test (T16).
  */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
 // ── Firebase mocks ────────────────────────────────────────────────────────────
@@ -105,7 +113,7 @@ vi.mock('../lib/random.js', () => ({ rnd: () => 0 }));
 // ── learnerErrors mock ────────────────────────────────────────────────────────
 vi.mock('../lib/learnerErrors.js', () => ({ logError: vi.fn() }));
 
-import WritingScreen from '../components/practice/WritingScreen';
+import WritingScreen, { countWords, MIN_WORDS } from '../components/practice/WritingScreen';
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -172,5 +180,79 @@ describe('WritingScreen — Exercise Contract writeDelta args', () => {
     // Verify the expected writeDelta args (mirrors completion onClick logic).
     const expectedDelta = { vs: ['writing'] };
     expect(expectedDelta).toEqual({ vs: ['writing'] });
+  });
+});
+
+// ─── Phase 2.5: countWords unit tests ─────────────────────────────────────────
+
+describe('countWords', () => {
+  it('returns 0 for empty string', () => {
+    expect(countWords('')).toBe(0);
+  });
+
+  it('returns 0 for whitespace-only string', () => {
+    expect(countWords('   \t  ')).toBe(0);
+  });
+
+  it('counts words separated by multiple spaces correctly', () => {
+    expect(countWords('jedan   dva    tri')).toBe(3);
+  });
+
+  it('returns correct count for a 5-word string', () => {
+    expect(countWords('jedan dva tri četiri pet')).toBe(5);
+  });
+
+  it('returns 30 for exactly 30 words', () => {
+    const thirtyWords = Array(30).fill('riječ').join(' ');
+    expect(countWords(thirtyWords)).toBe(30);
+  });
+
+  it('returns 31 for 31 words', () => {
+    const thirtyOneWords = Array(31).fill('riječ').join(' ');
+    expect(countWords(thirtyOneWords)).toBe(31);
+  });
+
+  it('strips leading/trailing whitespace before counting', () => {
+    expect(countWords('  jedan dva  ')).toBe(2);
+  });
+});
+
+// ─── Phase 2.5: MIN_WORDS constant ────────────────────────────────────────────
+
+describe('MIN_WORDS', () => {
+  it('is 30', () => {
+    expect(MIN_WORDS).toBe(30);
+  });
+});
+
+// ─── Phase 2.5: live word counter render ──────────────────────────────────────
+
+describe('WritingScreen — word count display', () => {
+  it('shows "Word count: 0 / 30" initially', () => {
+    render(<WritingScreen goBack={vi.fn()} award={vi.fn()} />);
+    expect(screen.getByTestId('word-count-label').textContent).toContain('Word count: 0 / 30');
+  });
+
+  it('updates live counter when user types 5 words', () => {
+    render(<WritingScreen goBack={vi.fn()} award={vi.fn()} />);
+    const textarea = screen.getByPlaceholderText(/Piši na hrvatskom/);
+    fireEvent.change(textarea, { target: { value: 'jedan dva tri četiri pet' } });
+    expect(screen.getByTestId('word-count-label').textContent).toContain('Word count: 5 / 30');
+  });
+
+  it('updates live counter when user types exactly 30 words', () => {
+    render(<WritingScreen goBack={vi.fn()} award={vi.fn()} />);
+    const textarea = screen.getByPlaceholderText(/Piši na hrvatskom/);
+    const thirtyWords = Array(30).fill('riječ').join(' ');
+    fireEvent.change(textarea, { target: { value: thirtyWords } });
+    expect(screen.getByTestId('word-count-label').textContent).toContain('Word count: 30 / 30');
+  });
+
+  it('updates live counter when user types 31 words', () => {
+    render(<WritingScreen goBack={vi.fn()} award={vi.fn()} />);
+    const textarea = screen.getByPlaceholderText(/Piši na hrvatskom/);
+    const thirtyOneWords = Array(31).fill('riječ').join(' ');
+    fireEvent.change(textarea, { target: { value: thirtyOneWords } });
+    expect(screen.getByTestId('word-count-label').textContent).toContain('Word count: 31 / 30');
   });
 });
