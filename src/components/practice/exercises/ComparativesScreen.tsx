@@ -10,7 +10,7 @@ interface Props {
 }
 
 function ComparativesScreen({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const questions = shMemo('cq', COMPQUIZ, undefined);
   const shuffledOpts = React.useMemo(
     () => (questions as { q: string; opts: string[]; a: string }[]).map((q) => sh([...q.opts])),
@@ -18,6 +18,7 @@ function ComparativesScreen({ goBack, award }: Props) {
   );
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
+  const finishFired = useRef(false);
   const [done, setDone] = useState(false);
   const [choices, setChoices] = useState<Record<number, string>>({});
 
@@ -34,9 +35,17 @@ function ComparativesScreen({ goBack, award }: Props) {
     }
 
     if (handledRef.current.size >= questions.length) {
-      markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!finishFired.current) {
+        finishFired.current = true;
+        markQuest('grammar');
+        if (!stats.vs?.includes('comparatives')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('comparatives')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'comparatives'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['comparatives'] });
+        }
+      }
       setDone(true);
     }
   }

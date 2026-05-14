@@ -10,10 +10,11 @@ interface Props {
 }
 
 function PossessivesScreen({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const questions = shMemo('pq', POSSESS.quiz, 10);
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
+  const finishFired = useRef(false);
   const [done, setDone] = useState(false);
   const [choices, setChoices] = useState<Record<number, string>>({});
   const shuffledOpts = React.useMemo(
@@ -38,9 +39,17 @@ function PossessivesScreen({ goBack, award }: Props) {
     }
 
     if (handledRef.current.size >= questions.length) {
-      markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!finishFired.current) {
+        finishFired.current = true;
+        markQuest('grammar');
+        if (!stats.vs?.includes('possessives')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('possessives')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'possessives'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['possessives'] });
+        }
+      }
       setDone(true);
     }
   }
