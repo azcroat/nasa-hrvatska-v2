@@ -1477,16 +1477,19 @@ export const V = {
     ['obiteljski ručak', 'family lunch', 'oh-bee-TELJ-skee ROO-chak'],
     ['tradicija', 'tradition', 'trah-dee-TSEE-yah'],
   ],
-  // A2 high-frequency perfective verbs — taught as plain vocab here;
+  // A2 high-frequency verbs — taught as plain vocab here;
   // aspect theory (imperfective vs. perfective) is introduced at B1.
+  // Note: moći and htjeti are imperfective; trebati is biaspectual.
+  // The lesson title ("Useful Verbs") reflects this — no aspect claim is made.
+  // Format: [croatian, english, pronunciation_guide, example_sentence]
   perfective_verbs_a2: [
-    ['moći', 'to be able to / can', 'Mogu ti pomoći.'],
-    ['trebati', 'to need to', 'Trebam vode.'],
-    ['postati', 'to become', 'Postao je liječnik.'],
-    ['doći', 'to come / arrive', 'Doći ću sutra.'],
-    ['otići', 'to leave / go away', 'Otići ćemo u 5.'],
-    ['htjeti', 'to want to', 'Hoću kavu.'],
-    ['dobiti', 'to receive / get', 'Dobio sam poklon.'],
+    ['moći', 'to be able to / can', 'MO-ći', 'Mogu ti pomoći.'],
+    ['trebati', 'to need to', 'TRE-ba-ti', 'Trebam vode.'],
+    ['postati', 'to become', 'PO-sta-ti', 'Postao je liječnik.'],
+    ['doći', 'to come / arrive', 'DO-ći', 'Doći ću sutra.'],
+    ['otići', 'to leave / go away', 'O-ti-ći', 'Otići ćemo u 5.'],
+    ['htjeti', 'to want to', 'HTJE-ti', 'Hoću kavu.'],
+    ['dobiti', 'to receive / get', 'DO-bi-ti', 'Dobio sam poklon.'],
   ],
 };
 export const TOP100 = {

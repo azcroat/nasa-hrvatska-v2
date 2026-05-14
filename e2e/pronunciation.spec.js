@@ -1064,6 +1064,10 @@ test.describe('Navigation smoke test', () => {
       await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
       await expect(page.locator('body')).not.toContainText('Something went wrong', { timeout: 5_000 });
 
+      // Wait for the React app to render meaningful content before reading textContent.
+      // In CI the SPA bundle can take an extra tick after the nav appears but before
+      // the main content hydrates, causing body.trim().length === 0 on first read.
+      await expect(page.locator('body')).not.toBeEmpty({ timeout: 5_000 });
       const body = await page.locator('body').textContent();
       expect(body.trim().length).toBeGreaterThan(100);
 
