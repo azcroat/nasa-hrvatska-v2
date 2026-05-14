@@ -527,6 +527,54 @@ describe('useRecorder', () => {
     expect(playSpy).not.toHaveBeenCalled();
   });
 
+  it('maxDurationMs auto-stops the recording after the elapsed time', async () => {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording({ maxDurationMs: 2000 });
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000); // finish countdown → recording starts
+    });
+    expect(result.current.state).toBe('recording');
+
+    await act(async () => {
+      vi.advanceTimersByTime(2000); // recording duration elapses
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('done');
+  });
+
+  it('startRecording without maxDurationMs does not auto-stop', async () => {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(result.current.state).toBe('recording');
+
+    // Advance 60s — should still be recording
+    await act(async () => {
+      vi.advanceTimersByTime(60_000);
+    });
+    expect(result.current.state).toBe('recording');
+  });
+
   it('rejected getUserMedia with undefined name falls back to UnknownError', async () => {
     Object.defineProperty(navigator, 'mediaDevices', {
       configurable: true,
