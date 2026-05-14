@@ -169,7 +169,34 @@ export function useRecorder(): UseRecorderResult {
     if (rec && rec.state === 'recording') rec.stop();
   }, []);
   const playback = useCallback(async () => {}, []);
-  const reset = useCallback(() => {}, []);
+
+  const reset = useCallback(() => {
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+      try {
+        recorderRef.current.stop();
+      } catch (_) {
+        // ignore
+      }
+    }
+    recorderRef.current = null;
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (audioUrl && audioUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(audioUrl);
+    }
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setError(null);
+    setCountdown(0);
+    setState('idle');
+    setMicAvailable(null);
+  }, [audioUrl]);
 
   return {
     state,

@@ -237,4 +237,30 @@ describe('useRecorder', () => {
     expect(result.current.error?.code).toBe('NotReadableError');
     expect(result.current.error?.message).toBe('huh');
   });
+
+  it('reset() returns hook to idle and stops in-flight resources', async () => {
+    const trackStop = vi.fn();
+    const fakeStream = { getTracks: () => [{ stop: trackStop }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(result.current.state).toBe('recording');
+
+    act(() => {
+      result.current.reset();
+    });
+    expect(result.current.state).toBe('idle');
+    expect(result.current.audioBlob).toBeNull();
+    expect(result.current.audioUrl).toBeNull();
+    expect(result.current.error).toBeNull();
+    expect(trackStop).toHaveBeenCalled();
+  });
 });
