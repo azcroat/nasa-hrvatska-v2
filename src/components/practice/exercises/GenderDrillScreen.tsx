@@ -17,7 +17,7 @@ interface Props {
 }
 
 function GenderDrillScreen({ goBack, award, setSt }: Props) {
-  const { writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   // ─── Sort by Gender state ──────────────────────────────────────────────────
   // revealedGenders: { [i]: { guess: 'm'|'f'|'n', correct: bool } }
   const [revealedGenders, setRevealedGenders] = useState<Record<number, GenderEntry>>({});
@@ -53,12 +53,18 @@ function GenderDrillScreen({ goBack, award, setSt }: Props) {
     if (completionFired.current) return;
     completionFired.current = true;
     if (typeof award === 'function') award(15, false, 'grammar');
+    markQuest('grammar');
+    if (!stats.vs?.includes('gender')) {
+      setStats((prev) => {
+        if (prev.vs?.includes('gender')) return prev;
+        return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'gender'] };
+      });
+      if (writeDelta) writeDelta({ gc: 1, vs: ['gender'] });
+    }
     if (setSt) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setSt((s: any) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
     }
-    markQuest('grammar');
     goBack();
   }
 

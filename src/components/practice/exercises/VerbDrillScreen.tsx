@@ -49,7 +49,7 @@ interface Props {
 }
 
 export default function VerbDrillScreen({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState('reference'); // 'reference' | 'quiz'
 
   // Quiz state
@@ -83,10 +83,15 @@ export default function VerbDrillScreen({ goBack, award }: Props) {
     } else {
       if (!awardFired.current) {
         awardFired.current = true;
-        markQuest('grammar');
-        setStats((s) => ({ ...s, gc: s.gc + 1 }));
-        writeDelta({ gc: 1 });
         if (typeof award === 'function') award(score * 3 + 10, false, 'grammar');
+        markQuest('grammar');
+        if (!stats.vs?.includes('verb-drill')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('verb-drill')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'verb-drill'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['verb-drill'] });
+        }
       }
       setQuizDone(true);
     }
