@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { unlockAudio } from '../lib/audio.js';
 
 const MIME_PRIORITY = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'] as const;
 
@@ -168,7 +169,17 @@ export function useRecorder(): UseRecorderResult {
     const rec = recorderRef.current;
     if (rec && rec.state === 'recording') rec.stop();
   }, []);
-  const playback = useCallback(async () => {}, []);
+  const playback = useCallback(async () => {
+    unlockAudio();
+    if (!audioUrl) return;
+    const audio = new Audio(audioUrl);
+    audio.volume = 1.0;
+    try {
+      await audio.play();
+    } catch (_) {
+      // logged by consumer if needed
+    }
+  }, [audioUrl]);
 
   const reset = useCallback(() => {
     if (countdownTimerRef.current) {
