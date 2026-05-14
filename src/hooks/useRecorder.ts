@@ -51,6 +51,8 @@ export function useRecorder(): UseRecorderResult {
   const [error, setError] = useState<RecorderError | null>(null);
 
   const streamRef = useRef<MediaStream | null>(null);
+  const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
   const mountedRef = useRef(true);
   useEffect(
     () => () => {
@@ -90,6 +92,29 @@ export function useRecorder(): UseRecorderResult {
           setMicAvailable(true);
           setCountdown(3);
           setState('countdown');
+
+          let secs = 3;
+          countdownTimerRef.current = setInterval(() => {
+            secs -= 1;
+            if (!mountedRef.current) return;
+            if (secs > 0) {
+              setCountdown(secs);
+              return;
+            }
+            if (countdownTimerRef.current) {
+              clearInterval(countdownTimerRef.current);
+              countdownTimerRef.current = null;
+            }
+            const mime = negotiateMimeType(MediaRecorder.isTypeSupported.bind(MediaRecorder));
+            if (mime === null) {
+              setState('unsupported');
+              return;
+            }
+            const rec = new MediaRecorder(stream, { mimeType: mime });
+            recorderRef.current = rec;
+            rec.start();
+            setState('recording');
+          }, 1000);
         })
         .catch(() => {
           // handled in Task 6
