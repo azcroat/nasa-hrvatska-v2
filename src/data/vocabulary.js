@@ -1477,6 +1477,17 @@ export const V = {
     ['obiteljski ručak', 'family lunch', 'oh-bee-TELJ-skee ROO-chak'],
     ['tradicija', 'tradition', 'trah-dee-TSEE-yah'],
   ],
+  // A2 high-frequency perfective verbs — taught as plain vocab here;
+  // aspect theory (imperfective vs. perfective) is introduced at B1.
+  perfective_verbs_a2: [
+    ['moći', 'to be able to / can', 'Mogu ti pomoći.'],
+    ['trebati', 'to need to', 'Trebam vode.'],
+    ['postati', 'to become', 'Postao je liječnik.'],
+    ['doći', 'to come / arrive', 'Doći ću sutra.'],
+    ['otići', 'to leave / go away', 'Otići ćemo u 5.'],
+    ['htjeti', 'to want to', 'Hoću kavu.'],
+    ['dobiti', 'to receive / get', 'Dobio sam poklon.'],
+  ],
 };
 export const TOP100 = {
   'At the Airport': [
