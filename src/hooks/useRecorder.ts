@@ -55,12 +55,33 @@ export function useRecorder(): UseRecorderResult {
   const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const mountedRef = useRef(true);
-  useEffect(
-    () => () => {
+  const audioUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    audioUrlRef.current = audioUrl;
+  }, [audioUrl]);
+  useEffect(() => {
+    return () => {
       mountedRef.current = false;
-    },
-    [],
-  );
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current);
+        countdownTimerRef.current = null;
+      }
+      if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+        try {
+          recorderRef.current.stop();
+        } catch (_) {
+          // ignore
+        }
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (audioUrlRef.current && audioUrlRef.current.startsWith('blob:')) {
+        URL.revokeObjectURL(audioUrlRef.current);
+      }
+    };
+  }, []);
 
   const startRecording = useCallback(
     (_opts?: StartRecordingOpts) => {

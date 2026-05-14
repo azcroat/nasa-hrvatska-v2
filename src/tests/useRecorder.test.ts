@@ -300,4 +300,47 @@ describe('useRecorder', () => {
     });
     expect(playSpy).toHaveBeenCalled();
   });
+
+  it('does not setState after unmount during async getUserMedia resolve', async () => {
+    let resolveGUM: (s: MediaStream) => void = () => {};
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () =>
+          new Promise<MediaStream>((r) => {
+            resolveGUM = r;
+          }),
+      },
+    });
+
+    const { result, unmount } = renderHook(() => useRecorder());
+    act(() => {
+      result.current.startRecording();
+    });
+    expect(result.current.state).toBe('requesting');
+
+    unmount();
+    // Resolving after unmount should not throw, should not warn.
+    await act(async () => {
+      resolveGUM(fakeStream);
+      await Promise.resolve();
+    });
+    // No assertion needed — test passes if no React unmount warning fires.
+  });
+
+  it('cleanup on unmount stops stream tracks', async () => {
+    const trackStop = vi.fn();
+    const fakeStream = { getTracks: () => [{ stop: trackStop }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+    const { result, unmount } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    unmount();
+    expect(trackStop).toHaveBeenCalled();
+  });
 });
