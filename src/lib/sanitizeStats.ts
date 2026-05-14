@@ -33,5 +33,28 @@ export function sanitizeStats(raw: unknown): Partial<Stats> {
     const v = r[k];
     if (Array.isArray(v)) s[k] = v.filter((x): x is string => typeof x === 'string');
   }
+  // Level quiz pass records — validate shape before admitting
+  if (
+    r.levelQuizPasses &&
+    typeof r.levelQuizPasses === 'object' &&
+    !Array.isArray(r.levelQuizPasses)
+  ) {
+    const raw = r.levelQuizPasses as Record<string, unknown>;
+    const validated: Record<number, { score: number; passedAt: number }> = {};
+    for (const key of Object.keys(raw)) {
+      const k = Number(key);
+      if (Number.isNaN(k)) continue;
+      const v = raw[key] as Record<string, unknown> | null | undefined;
+      if (
+        typeof v?.score === 'number' &&
+        isFinite(v.score) &&
+        typeof v?.passedAt === 'number' &&
+        isFinite(v.passedAt)
+      ) {
+        validated[k] = { score: v.score, passedAt: v.passedAt };
+      }
+    }
+    s.levelQuizPasses = validated;
+  }
   return s;
 }

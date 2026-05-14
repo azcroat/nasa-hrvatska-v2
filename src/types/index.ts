@@ -29,6 +29,8 @@ export interface Stats {
   mediaVisits?: number;
   streak?: number;
   heritage?: boolean; // Heritage/diaspora Croatian speaker flag (wires to AI conversation context)
+  /** Per-level quiz pass records. Indexed by level number (1-7); value is { score, passedAt }. */
+  levelQuizPasses?: Record<number, { score: number; passedAt: number }>;
 }
 
 export type StatsAction =
