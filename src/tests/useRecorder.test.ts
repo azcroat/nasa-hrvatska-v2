@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useRecorder, negotiateMimeType } from '../hooks/useRecorder';
 
 describe('negotiateMimeType', () => {
@@ -44,5 +44,31 @@ describe('useRecorder', () => {
     expect(typeof result.current.stopRecording).toBe('function');
     expect(typeof result.current.playback).toBe('function');
     expect(typeof result.current.reset).toBe('function');
+  });
+
+  it('transitions idle → requesting → countdown on startRecording', async () => {
+    let resolveGUM: (s: MediaStream) => void = () => {};
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () =>
+          new Promise<MediaStream>((resolve) => {
+            resolveGUM = resolve;
+          }),
+      },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    act(() => {
+      result.current.startRecording();
+    });
+    expect(result.current.state).toBe('requesting');
+
+    await act(async () => {
+      resolveGUM(fakeStream);
+    });
+    expect(result.current.state).toBe('countdown');
+    expect(result.current.countdown).toBe(3);
   });
 });
