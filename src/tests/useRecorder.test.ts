@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useRecorder, negotiateMimeType } from '../hooks/useRecorder';
 
+vi.mock('../lib/audio.js', () => ({ unlockAudio: vi.fn() }));
+
 describe('negotiateMimeType', () => {
   it('returns audio/webm;codecs=opus when supported', () => {
     const isTypeSupported = (m: string) => m === 'audio/webm;codecs=opus';
@@ -262,5 +264,40 @@ describe('useRecorder', () => {
     expect(result.current.audioUrl).toBeNull();
     expect(result.current.error).toBeNull();
     expect(trackStop).toHaveBeenCalled();
+  });
+
+  it('playback() constructs Audio with audioUrl and calls play()', async () => {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const playSpy = vi.fn(() => Promise.resolve());
+    function FakeAudio(this: { volume: number; play: () => Promise<void> }, _url: string) {
+      this.volume = 0;
+      this.play = playSpy;
+    }
+    (globalThis as unknown as { Audio: unknown }).Audio = FakeAudio;
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('done');
+
+    await act(async () => {
+      await result.current.playback();
+    });
+    expect(playSpy).toHaveBeenCalled();
   });
 });
