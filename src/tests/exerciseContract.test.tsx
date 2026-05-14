@@ -118,6 +118,20 @@ function makeAspectOverride(awardMock: ReturnType<typeof vi.fn>) {
   };
 }
 
+// 1-pair fixture injected via _testPairs prop so AspectDrillScreen completes after
+// 4 questions (1 pair × 4 phases) instead of 100 (25 pairs × 4 phases).
+// No module mocking required — ordering within FULL_CONTRACT_DRILLS is irrelevant.
+const ASPECT_PAIRS_FIXTURE = [
+  {
+    impf: 'pisati',
+    pf: 'napisati',
+    en: 'to write',
+    rule: 'na- prefix marks completion',
+    ctx: 'Svaki dan pišem pisma. / Napisao sam pismo majci.',
+    cefr: 'B1',
+  },
+];
+
 // Drills that fully conform to the gold contract (award + markQuest + setStats + writeDelta with vs).
 const FULL_CONTRACT_DRILLS = [
   // ─── Phase 1: Grammar drills (original 13) ───────────────────────────────────
@@ -125,6 +139,16 @@ const FULL_CONTRACT_DRILLS = [
     name: 'InstrumentalDrill',
     path: '../components/practice/InstrumentalDrill',
     vsTag: 'instrumental',
+  },
+  // AspectDrillScreen: _testPairs prop injects a 1-pair fixture (no module mocking).
+  // useOverride drives the inline-style answer buttons (no .ob class).
+  // Ordering within FULL_CONTRACT_DRILLS is unrestricted.
+  {
+    name: 'AspectDrillScreen',
+    path: '../components/practice/AspectDrillScreen',
+    vsTag: 'aspect',
+    useOverride: true,
+    testPairs: ASPECT_PAIRS_FIXTURE,
   },
   { name: 'PassiveDrill', path: '../components/practice/PassiveDrill', vsTag: 'passive' },
   { name: 'CliticDrill', path: '../components/practice/CliticDrill', vsTag: 'clitic' },
@@ -368,21 +392,6 @@ const FULL_CONTRACT_DRILLS = [
     skip: true,
     skipReason: 'Award auto-fires via useEffect; inline-style buttons, helper cannot drive MC loop',
   },
-
-  // ─── AspectDrillScreen MUST be last — vi.resetModules() in this test busts the ──
-  // module cache and would break subsequent tests that rely on the top-level       ──
-  // StatsProvider import matching the component's StatsContext.                    ──
-  {
-    // Partial-completion pattern: vi.doMock overrides ASPECT_PAIRS with a 1-pair
-    // fixture so the drill completes after 4 questions (1 pair x 4 phases) instead
-    // of 100 (25 pairs x 4 phases). The real completion code path still executes.
-    // Override needed: answer buttons use inline styles (no .ob class).
-    name: 'AspectDrillScreen',
-    path: '../components/practice/AspectDrillScreen',
-    vsTag: 'aspect',
-    useOverride: true,
-    aspectMock: true,
-  },
 ];
 
 describe('Exercise Contract -- gold-pattern drills', () => {
@@ -420,68 +429,35 @@ describe('Exercise Contract -- gold-pattern drills', () => {
   for (const drill of FULL_CONTRACT_DRILLS) {
     const testFn = (drill as { skip?: boolean }).skip ? it.skip : it;
     testFn(`${drill.name} follows the contract`, async () => {
-      // AspectDrillScreen: mock grammar module to inject 1-pair fixture so the
-      // drill completes after 4 questions instead of 100 (CI timeout fix).
-      // vi.resetModules() busts the module cache so doMock takes effect; we
-      // then re-import StatsProvider from the fresh registry to avoid the
-      // "useStats must be within StatsProvider" mismatch (different context objects).
-      let ComponentToRender: React.ComponentType<{
+      const mod = await import(/* @vite-ignore */ drill.path);
+      const ComponentToRender = mod.default as React.ComponentType<{
         goBack: () => void;
         award?: (...args: unknown[]) => void;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        _testPairs?: any[];
       }>;
-      let ProviderToRender: React.ComponentType<{
-        value: StatsContextValue;
-        children: React.ReactNode;
-      }>;
-      if ((drill as { aspectMock?: boolean }).aspectMock) {
-        const ONE_PAIR_FIXTURE = [
-          {
-            impf: 'pisati',
-            pf: 'napisati',
-            en: 'to write',
-            rule: 'na- prefix marks completion',
-            ctx: 'Svaki dan pišem pisma. / Napisao sam pismo majci.',
-            cefr: 'B1',
-          },
-        ];
-        vi.resetModules();
-        vi.doMock('../data/grammar.js', async () => {
-          const actual = await vi.importActual<Record<string, unknown>>('../data/grammar.js');
-          return { ...actual, ASPECT_PAIRS: ONE_PAIR_FIXTURE };
-        });
-        const [compMod, ctxMod] = await Promise.all([
-          import(/* @vite-ignore */ drill.path),
-          import('../context/StatsContext'),
-        ]);
-        ComponentToRender = compMod.default;
-        ProviderToRender = ctxMod.StatsProvider as React.ComponentType<{
-          value: StatsContextValue;
-          children: React.ReactNode;
-        }>;
-      } else {
-        const mod = await import(/* @vite-ignore */ drill.path);
-        ComponentToRender = mod.default;
-        ProviderToRender = StatsProvider;
-      }
 
       const { value, setStats, writeDelta, award } = makeCtx();
       const goBack = vi.fn();
 
+      // testPairs: injects a small fixture via prop (no module mocking needed).
+      // Only AspectDrillScreen uses this; all other drills ignore the extra prop.
+      const testPairs = (drill as { testPairs?: unknown[] }).testPairs;
+
       render(
-        <ProviderToRender value={value}>
-          <ComponentToRender goBack={goBack} award={award} />
-        </ProviderToRender>,
+        <StatsProvider value={value}>
+          <ComponentToRender
+            goBack={goBack}
+            award={award}
+            {...(testPairs ? { _testPairs: testPairs } : {})}
+          />
+        </StatsProvider>,
       );
 
       const override = (drill as { useOverride?: boolean }).useOverride
         ? makeAspectOverride(award)
         : undefined;
       await completeDrill(award, override);
-
-      if ((drill as { aspectMock?: boolean }).aspectMock) {
-        vi.doUnmock('../data/grammar.js');
-        vi.resetModules();
-      }
 
       const expectedActivityType = (drill as { activityType?: string }).activityType ?? 'grammar';
       const expectedQuestArg = (drill as { questArg?: string }).questArg ?? 'grammar';
