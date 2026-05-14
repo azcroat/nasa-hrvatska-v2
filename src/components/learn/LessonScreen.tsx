@@ -1,4 +1,5 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react';
+import MicroQuiz from './MicroQuiz';
 import { useStats } from '../../context/StatsContext.tsx';
 import {
   H,
@@ -87,6 +88,13 @@ export default function LessonScreen({
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
 
+  // ── MicroQuiz state ────────────────────────────────────────────────────────
+  const [showMicroQuiz, setShowMicroQuiz] = useState(false);
+  const microQuizItemsSeenRef = useRef<{ hr: string; en: string }[]>([]);
+
+  const microQuizEnabled =
+    typeof window !== 'undefined' && localStorage.getItem('nh_microquiz_enabled') !== 'false';
+
   // Reset resultFired whenever the lesson enters 'learn' phase (new lesson or Study Again)
   useEffect(() => {
     if (lp === 'learn') resultFired.current = false;
@@ -152,6 +160,38 @@ export default function LessonScreen({
   const { writeDelta } = useStats();
   const awardFn = typeof award === 'function' ? award : () => {};
 
+  // advanceQuizItem: wraps sLx calls from quiz-phase Next button / keyboard
+  // Triggers MicroQuiz every 3 answered items when quiz has >= 6 items total
+  const advanceQuizItem = useCallback(() => {
+    const newIdx = lx + 1;
+    if (
+      microQuizEnabled &&
+      qi.length >= 6 &&
+      newIdx > 0 &&
+      newIdx % 3 === 0 &&
+      newIdx < qi.length
+    ) {
+      // Capture the last 3 items just completed
+      microQuizItemsSeenRef.current = qi
+        .slice(Math.max(0, newIdx - 3), newIdx)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((it: any) => ({ hr: it[0] as string, en: it[1] as string }));
+      setShowMicroQuiz(true);
+      return; // Don't advance yet; advance after MicroQuiz completes
+    }
+    sLx(newIdx);
+    sLa(false);
+    sLsl(-1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lx, qi, microQuizEnabled]);
+
+  function onMicroQuizComplete() {
+    setShowMicroQuiz(false);
+    sLx(lx + 1);
+    sLa(false);
+    sLsl(-1);
+  }
+
   // Pick a Croatian city for the cultural moment on the result screen
   const culturalCity = useMemo(() => {
     if (!CROATIAN_CITIES || !CROATIAN_CITIES.length) return null;
@@ -200,9 +240,7 @@ export default function LessonScreen({
       if ((e.key === 'Enter' || e.key === ' ') && la) {
         e.preventDefault();
         if (lx < qi.length - 1) {
-          sLx((i) => i + 1);
-          sLa(false);
-          sLsl(-1);
+          advanceQuizItem();
         } else {
           if (resultFired.current) return;
           resultFired.current = true;
@@ -229,7 +267,23 @@ export default function LessonScreen({
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lp, lx, la, ls, qi]);
+  }, [lp, lx, la, ls, qi, advanceQuizItem]);
+
+  /* ── MICROQUIZ OVERLAY ────────────────────────────────────────── */
+  if (showMicroQuiz) {
+    const distractors = qi
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((it: any) => ({ hr: it[0] as string, en: it[1] as string }))
+      .filter((d) => !microQuizItemsSeenRef.current.some((s) => s.hr === d.hr));
+    return (
+      <MicroQuiz
+        items={microQuizItemsSeenRef.current}
+        distractors={distractors}
+        onComplete={onMicroQuizComplete}
+        award={awardFn}
+      />
+    );
+  }
 
   /* ── FLASHCARDS OVERLAY ───────────────────────────────────────── */
   if (showFlashcards) {
@@ -804,9 +858,7 @@ export default function LessonScreen({
               style={{ width: '100%', marginTop: 14 }}
               onClick={() => {
                 if (lx < qi.length - 1) {
-                  sLx((i) => i + 1);
-                  sLa(false);
-                  sLsl(-1);
+                  advanceQuizItem();
                 } else {
                   if (resultFired.current) return;
                   resultFired.current = true;
