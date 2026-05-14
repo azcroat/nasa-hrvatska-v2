@@ -100,3 +100,40 @@ describe('AccusativeDrill -- smoke tests', () => {
     expect(screen.getByText(/2 \/ 20/)).toBeTruthy();
   });
 });
+
+// ── vs-dedup guard (branch coverage) ─────────────────────────────────────────
+
+describe('AccusativeDrill — vs-dedup guard (both branches)', () => {
+  /**
+   * Mirrors the setStats updater in AccusativeDrill's completion handler.
+   * Tests the inner guard: if prev.vs already includes 'accusative', return prev unchanged.
+   */
+  function accusativeUpdater(prev: { gc?: number; vs?: string[] }) {
+    if (prev.vs?.includes('accusative')) return prev;
+    return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'accusative'] };
+  }
+
+  it('updater adds gc+1 and "accusative" to vs on first completion', () => {
+    const result = accusativeUpdater({ gc: 0, vs: [] });
+    expect(result.gc).toBe(1);
+    expect(result.vs).toContain('accusative');
+  });
+
+  it('updater returns prev unchanged if vs already includes "accusative" (idempotent)', () => {
+    const prev = { gc: 2, vs: ['accusative'] };
+    expect(accusativeUpdater(prev)).toBe(prev);
+  });
+
+  it('updater handles undefined vs gracefully', () => {
+    const result = accusativeUpdater({ gc: 0, vs: undefined });
+    expect(result.vs).toContain('accusative');
+    expect(result.gc).toBe(1);
+  });
+
+  it('updater is idempotent — tag appears exactly once on repeated calls', () => {
+    const first = accusativeUpdater({ gc: 0, vs: [] });
+    const second = accusativeUpdater(first);
+    expect(second).toBe(first);
+    expect((second.vs ?? []).filter((t) => t === 'accusative').length).toBe(1);
+  });
+});

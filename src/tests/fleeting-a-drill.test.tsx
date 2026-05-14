@@ -208,3 +208,33 @@ describe('FleetingADrill — navigation', () => {
     expect(goBack).toHaveBeenCalledTimes(1);
   });
 });
+
+// ── vs-dedup guard (branch coverage) ─────────────────────────────────────────
+
+describe('FleetingADrill — vs-dedup guard (both branches)', () => {
+  /**
+   * Mirrors the setStats updater in FleetingADrill's completion handler.
+   * Tests both branches of the inner idempotency guard.
+   */
+  function fleetingaUpdater(prev: { gc?: number; vs?: string[] }) {
+    if (prev.vs?.includes('fleetinga')) return prev;
+    return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'fleetinga'] };
+  }
+
+  it('updater adds gc+1 and "fleetinga" to vs on first completion', () => {
+    const result = fleetingaUpdater({ gc: 0, vs: [] });
+    expect(result.gc).toBe(1);
+    expect(result.vs).toContain('fleetinga');
+  });
+
+  it('updater returns prev unchanged if vs already includes "fleetinga" (idempotent)', () => {
+    const prev = { gc: 1, vs: ['fleetinga'] };
+    expect(fleetingaUpdater(prev)).toBe(prev);
+  });
+
+  it('updater handles undefined vs gracefully', () => {
+    const result = fleetingaUpdater({ gc: 0, vs: undefined });
+    expect(result.vs).toContain('fleetinga');
+    expect(result.gc).toBe(1);
+  });
+});

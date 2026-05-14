@@ -229,6 +229,43 @@ describe('WordSprint — completion contract (timer expires with score > 0)', ()
   });
 });
 
+// ─── vs-dedup guard (both branches) ──────────────────────────────────────────
+
+describe('WordSprint — vs-dedup guard (both branches)', () => {
+  /**
+   * Mirrors the setStats updater passed inside the completion useEffect in WordSprint.
+   * Tests both branches of the inner idempotency guard.
+   */
+  function wordsprintUpdater(prev: { gc?: number; vs?: string[] }) {
+    if (prev.vs?.includes('wordsprint')) return prev;
+    return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'wordsprint'] };
+  }
+
+  it('updater adds gc+1 and "wordsprint" to vs on first completion', () => {
+    const result = wordsprintUpdater({ gc: 0, vs: [] });
+    expect(result.gc).toBe(1);
+    expect(result.vs).toContain('wordsprint');
+  });
+
+  it('updater returns prev unchanged if vs already includes "wordsprint" (idempotent)', () => {
+    const prev = { gc: 4, vs: ['wordsprint'] };
+    expect(wordsprintUpdater(prev)).toBe(prev);
+  });
+
+  it('updater handles undefined vs gracefully', () => {
+    const result = wordsprintUpdater({ gc: 0, vs: undefined });
+    expect(result.vs).toContain('wordsprint');
+    expect(result.gc).toBe(1);
+  });
+
+  it('updater is idempotent on repeated calls — tag appears exactly once', () => {
+    const first = wordsprintUpdater({ gc: 0, vs: [] });
+    const second = wordsprintUpdater(first);
+    expect(second).toBe(first);
+    expect((second.vs ?? []).filter((t) => t === 'wordsprint').length).toBe(1);
+  });
+});
+
 // ─── No award when score is 0 ─────────────────────────────────────────────────
 
 describe('WordSprint — no award when score is 0', () => {

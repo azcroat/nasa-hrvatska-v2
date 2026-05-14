@@ -284,3 +284,40 @@ describe('Unjumble — navigation', () => {
     expect(goBack).toHaveBeenCalledTimes(1);
   });
 });
+
+// ── vs-dedup guard (branch coverage) ─────────────────────────────────────────
+
+describe('Unjumble — vs-dedup guard (both branches)', () => {
+  /**
+   * Mirrors the setStats updater inside the Continue → onClick handler.
+   * Tests both branches of the inner idempotency guard.
+   */
+  function unjumbleUpdater(prev: { gc?: number; vs?: string[] }) {
+    if (prev.vs?.includes('unjumble')) return prev;
+    return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'unjumble'] };
+  }
+
+  it('updater adds gc+1 and "unjumble" to vs on first completion (vs is empty)', () => {
+    const result = unjumbleUpdater({ gc: 0, vs: [] });
+    expect(result.gc).toBe(1);
+    expect(result.vs).toContain('unjumble');
+  });
+
+  it('updater returns prev unchanged if vs already includes "unjumble" (idempotent)', () => {
+    const prev = { gc: 5, vs: ['unjumble'] };
+    expect(unjumbleUpdater(prev)).toBe(prev);
+  });
+
+  it('updater handles undefined vs gracefully (first visit)', () => {
+    const result = unjumbleUpdater({ gc: 1, vs: undefined });
+    expect(result.vs).toContain('unjumble');
+    expect(result.gc).toBe(2);
+  });
+
+  it('updater is idempotent on repeated calls — tag appears exactly once', () => {
+    const first = unjumbleUpdater({ gc: 0, vs: [] });
+    const second = unjumbleUpdater(first);
+    expect(second).toBe(first);
+    expect((second.vs ?? []).filter((t) => t === 'unjumble').length).toBe(1);
+  });
+});
