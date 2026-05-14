@@ -419,7 +419,14 @@ describe('Exercise Contract -- gold-pattern drills', () => {
 
     expect(markQuestMock).toHaveBeenCalledWith('grammar');
 
-    expect(setStats).toHaveBeenCalled();
+    // Verify the setStats updater actually mutates gc and vs correctly.
+    expect(setStats).toHaveBeenCalledWith(expect.any(Function));
+    const setStatsUpdater = setStats.mock.calls[0]![0] as (
+      prev: typeof value.stats,
+    ) => typeof value.stats;
+    const updatedStats = setStatsUpdater(value.stats);
+    expect(updatedStats.gc).toBe(1);
+    expect(updatedStats.vs).toContain('dative');
 
     expect(writeDelta).toHaveBeenCalledWith(
       expect.objectContaining({ gc: 1, vs: expect.arrayContaining(['dative']) }),
@@ -466,7 +473,16 @@ describe('Exercise Contract -- gold-pattern drills', () => {
       expect(award.mock.calls[0]![0]).toBeGreaterThan(0);
       expect(award.mock.calls[0]![2]).toBe(expectedActivityType);
       expect(markQuestMock).toHaveBeenCalledWith(expectedQuestArg);
-      expect(setStats).toHaveBeenCalled();
+
+      // Verify the setStats updater actually produces gc+1 and includes the vs-tag.
+      expect(setStats).toHaveBeenCalledWith(expect.any(Function));
+      const setStatsUpdater = setStats.mock.calls[0]![0] as (
+        prev: StatsContextValue['stats'],
+      ) => StatsContextValue['stats'];
+      const updatedStats = setStatsUpdater(value.stats);
+      expect(updatedStats.gc).toBe(1);
+      expect(updatedStats.vs).toContain(drill.vsTag);
+
       expect(writeDelta).toHaveBeenCalledWith(
         expect.objectContaining({ gc: 1, vs: expect.arrayContaining([drill.vsTag]) }),
       );
