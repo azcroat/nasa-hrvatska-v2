@@ -11,9 +11,10 @@ interface Props {
 }
 
 function FutureTenseScreen({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const questions = shMemo('fq', FUTURE.quiz, undefined);
   const handledRef = useRef(new Set<number>());
+  const finishFired = useRef(false);
   const correctCountRef = useRef(0);
   const [done, setDone] = useState(false);
   const [choices, setChoices] = useState<Record<number, string>>({});
@@ -33,10 +34,17 @@ function FutureTenseScreen({ goBack, award }: Props) {
       speak(spoken);
     }
 
-    if (handledRef.current.size >= questions.length) {
+    if (handledRef.current.size >= questions.length && !finishFired.current) {
+      finishFired.current = true;
+      if (typeof award === 'function') award(correctCountRef.current * 5, false, 'grammar');
       markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!stats.vs?.includes('future-tense')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('future-tense')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'future-tense'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['future-tense'] });
+      }
       setDone(true);
     }
   }

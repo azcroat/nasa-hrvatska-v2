@@ -56,7 +56,7 @@ interface Props {
 }
 
 function NegationScreen({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const [tab, setTab] = useState('learn');
   // answers[qi] = the option the user selected (string), or undefined
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -83,8 +83,13 @@ function NegationScreen({ goBack, award }: Props) {
     if (answeredCount + 1 >= shuffledQuiz.length && !questFiredRef.current) {
       questFiredRef.current = true;
       markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!stats.vs?.includes('negation')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('negation')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'negation'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['negation'] });
+      }
     }
   }
 
