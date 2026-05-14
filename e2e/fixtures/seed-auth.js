@@ -51,6 +51,15 @@ export function seedAuth(page, statOverrides = {}) {
     localStorage.setItem('nh_weekly_recap_shown_' + new Date().toISOString().slice(0, 10).replace(/-/g, '').slice(0, 8), '1');
     // Ensure hero is always expanded so hero stats / translate pill are accessible
     localStorage.setItem('nh_hero_expanded', '1');
+    // Pre-dismiss all ceremony modals (stage + streak) so they never fire mid-test
+    // and block button clicks (CeremonyModal is position:fixed zIndex:9999).
+    // Stage gates: [5, 11, 22, 34, 45] lessons → stages 1–5
+    for (let i = 1; i <= 5; i++) {
+      localStorage.setItem('nh_stage' + i + '_ceremony', '1');
+    }
+    localStorage.setItem('nh_ceremony_streak_30', '1');
+    localStorage.setItem('nh_ceremony_streak_50', '1');
+    localStorage.setItem('nh_ceremony_streak_100', '1');
   }, {
     email: TEST_EMAIL,
     name: TEST_NAME,
