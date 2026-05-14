@@ -86,7 +86,7 @@ export function useRecorder(): UseRecorderResult {
     };
   }, []);
 
-  const startRecording = useCallback((_opts?: StartRecordingOpts) => {
+  const startRecording = useCallback((opts?: StartRecordingOpts) => {
     if (busyRef.current) return;
     busyRef.current = true;
     setState('requesting');
@@ -98,6 +98,8 @@ export function useRecorder(): UseRecorderResult {
       busyRef.current = false;
       return;
     }
+
+    const maxDurationMs = opts?.maxDurationMs;
 
     navigator.mediaDevices
       .getUserMedia({ audio: true })
@@ -162,6 +164,18 @@ export function useRecorder(): UseRecorderResult {
           };
           rec.start();
           setState('recording');
+          if (typeof maxDurationMs === 'number' && maxDurationMs > 0) {
+            setTimeout(() => {
+              if (!mountedRef.current) return;
+              if (rec.state === 'recording') {
+                try {
+                  rec.stop();
+                } catch (_) {
+                  // ignore
+                }
+              }
+            }, maxDurationMs);
+          }
         }, 1000);
       })
       .catch((err: Error & { name?: string }) => {
