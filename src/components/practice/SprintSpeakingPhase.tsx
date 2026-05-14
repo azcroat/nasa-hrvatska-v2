@@ -1,5 +1,6 @@
 import React from 'react';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
+import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
 
 // Evaluate once at module load — avoids re-checking on every render.
 // Android WebView returns false here; Chrome desktop and Safari return true.
@@ -77,11 +78,13 @@ export default function SprintSpeakingPhase({
       {/* Recording indicator / mic denied fallback / no SR fallback */}
       {micDenied || !SR_SUPPORTED ? (
         <div style={{ marginBottom: 16 }}>
-          <p style={{ fontSize: 13, color: '#d97706', marginBottom: 10, textAlign: 'center' }}>
-            {micDenied
-              ? 'Microphone access denied — type your response instead:'
-              : 'Speech recognition not available — type your response:'}
-          </p>
+          {micDenied ? (
+            <MicPermissionDeniedExplainer onRetry={onStartListening} />
+          ) : (
+            <p style={{ fontSize: 13, color: '#d97706', marginBottom: 10, textAlign: 'center' }}>
+              Speech recognition not available — type your response:
+            </p>
+          )}
           <textarea
             value={textInput}
             onChange={(e) => onTextInputChange(e.target.value)}
