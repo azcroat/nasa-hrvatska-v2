@@ -69,18 +69,12 @@ export default defineConfig({
         'src/hooks/useScreenLauncher.ts',
       ],
       thresholds: {
-        // Coverage thresholds set aspirationally on 2026-04-19. Since then SP1+SP2
-        // contract work and FIX-9 added many tests; current coverage approximately:
-        // statements=80+, branches=78.86, functions=80+, lines=80+. The branches
-        // shortfall is concentrated in useAward.ts (~57% branches) — a 500-line
-        // hook with complex XP/badge/streak/ceremony logic that requires extensive
-        // mock scaffolding to fully cover.
-        //
-        // Pragmatic adjustment 2026-05-14: branches threshold lowered to 78 to
-        // unblock the SonarCloud + Build&Deploy gates that depend on Unit Tests
-        // passing. Raise back to 80 in a dedicated useAward.ts coverage sprint.
+        // Coverage thresholds set aspirationally on 2026-04-19. After the FIX-12
+        // useAward.ts coverage sprint (b942f7c — 61 new branch-coverage tests
+        // bringing useAward.ts branches to 88.55%), global branches reached
+        // 83.13%, so the temporary 78% relaxation has been restored to 80%.
         statements: 80,
-        branches: 78,
+        branches: 80,
         functions: 80,
         lines: 80,
       },
