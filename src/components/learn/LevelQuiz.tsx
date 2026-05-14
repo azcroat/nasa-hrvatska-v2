@@ -34,7 +34,10 @@ export default function LevelQuiz({ levelNumber, questions, goBack, award, onPas
   const { setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [q] = useState(() =>
-    shLocal(questions.slice(0, 10)).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
+    shLocal((Array.isArray(questions) ? questions : []).slice(0, 10)).map((item) => ({
+      ...item,
+      opts: shLocal([...(Array.isArray(item.opts) ? item.opts : [])]),
+    })),
   );
   const total = q.length;
   const [idx, setIdx] = useState(0);
