@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 import { rnd } from '../../lib/random.js';
 function shLocal<T>(a: T[]): T[] {
@@ -184,6 +185,7 @@ export default function WordFamilies({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [qs] = useState(() =>
     shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
@@ -214,8 +216,19 @@ export default function WordFamilies({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(score * 5, false, 'vocabulary');
-              markQuest('vocab');
+              if (typeof award === 'function') award(score * 5, false, 'grammar');
+              markQuest('grammar');
+              if (!stats.vs?.includes('word-families')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('word-families')) return prev;
+                  return {
+                    ...prev,
+                    gc: (prev.gc || 0) + 1,
+                    vs: [...(prev.vs || []), 'word-families'],
+                  };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['word-families'] });
+              }
               goBack();
             }}
             style={{ width: '100%', marginTop: 16 }}

@@ -63,6 +63,20 @@ vi.mock('firebase/firestore', () => ({
 // ── PronunciationScorer mock — uses Web Speech API unavailable in jsdom ───────
 vi.mock('../components/shared/PronunciationScorer', () => ({ default: () => null }));
 
+// ── StatsContext mock ─────────────────────────────────────────────────────────
+vi.mock('../context/StatsContext', () => ({
+  useStats: vi.fn(() => ({
+    stats: { vs: [] as string[], lc: 0 },
+    setStats: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+    writeDelta: vi.fn(),
+  })),
+  StatsProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+}));
+
 // ── adaptive + quests mocks ───────────────────────────────────────────────────
 const mockRecordTopicResult = vi.hoisted(() => vi.fn());
 vi.mock('../lib/adaptive.js', () => ({ recordTopicResult: mockRecordTopicResult }));
@@ -332,10 +346,10 @@ describe('ShadowingScreen — done mode', () => {
       .getAllByRole('button')
       .find((b) => b.textContent?.trim() === 'Finish')!;
     fireEvent.click(finishBtn);
-    expect(award).toHaveBeenCalledWith(2 * 3 + 5, false, 'speaking');
+    expect(award).toHaveBeenCalledWith(2 * 3 + 5, false, 'listening');
   });
 
-  it('"Finish" button in done mode calls markQuest("speak")', () => {
+  it('"Finish" button in done mode calls markQuest("listening")', () => {
     const award = vi.fn();
     render(<ShadowingScreen goBack={vi.fn()} award={award} />);
     clickISaidIt();
@@ -346,7 +360,7 @@ describe('ShadowingScreen — done mode', () => {
       .getAllByRole('button')
       .find((b) => b.textContent?.trim() === 'Finish')!;
     fireEvent.click(finishBtn);
-    expect(mockMarkQuest).toHaveBeenCalledWith('speak');
+    expect(mockMarkQuest).toHaveBeenCalledWith('listening');
   });
 
   it('"Finish" button double-click does not double-award (finishFired ref)', () => {

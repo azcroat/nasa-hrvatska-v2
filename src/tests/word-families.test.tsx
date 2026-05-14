@@ -50,6 +50,20 @@ vi.mock('firebase/firestore', () => ({
 const mockMarkQuest = vi.hoisted(() => vi.fn());
 vi.mock('../lib/quests.js', () => ({ markQuest: mockMarkQuest }));
 
+// ── StatsContext mock ─────────────────────────────────────────────────────────
+vi.mock('../context/StatsContext', () => ({
+  useStats: vi.fn(() => ({
+    stats: { vs: [] as string[], gc: 0 },
+    setStats: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+    writeDelta: vi.fn(),
+  })),
+  StatsProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+}));
+
 // ── data mock ─────────────────────────────────────────────────────────────────
 vi.mock('../data', async (importOriginal) => {
   const actual = await importOriginal();
@@ -188,10 +202,10 @@ describe('WordFamilies — completion + award guard', () => {
     expect(award).toHaveBeenCalledTimes(1);
   });
 
-  it('markQuest("vocab") is called on completion', () => {
+  it('markQuest("grammar") is called on completion', () => {
     const { award: _award } = completeAllQuestions();
     fireEvent.click(screen.getByText('🏠 Done'));
-    expect(mockMarkQuest).toHaveBeenCalledWith('vocab');
+    expect(mockMarkQuest).toHaveBeenCalledWith('grammar');
   });
 
   it('markQuest is called exactly once (not per answer)', () => {

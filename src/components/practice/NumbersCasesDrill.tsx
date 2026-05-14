@@ -208,7 +208,7 @@ export default function NumbersCasesDrill({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [q] = useState(() =>
     shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
@@ -234,8 +234,16 @@ export default function NumbersCasesDrill({
         finishFired.current = true;
         if (award) award(score * 5, false, 'grammar');
         markQuest('grammar');
-        setStats((s) => ({ ...s, gc: s.gc + 1 }));
-        writeDelta({ gc: 1 });
+        if (!stats.vs?.includes('numbers-cases')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('numbers-cases')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'numbers-cases'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['numbers-cases'] });
+        } else {
+          setStats((s) => ({ ...s, gc: s.gc + 1 }));
+          writeDelta({ gc: 1 });
+        }
       }
       setDone(true);
     } else {
