@@ -64,3 +64,26 @@ The Exercise Contract enforced by `src/tests/exerciseContract.test.tsx` covers ~
 - They're a distinct architectural surface (placement test, AI conversation, curriculum quiz).
 
 If you add a new file under `src/components/practice/` (top-level OR `exercises/` subdir) that IS a standalone graded interaction, it MUST follow the contract. The contract test enforces this.
+
+## vs-tag style convention
+
+**New tags:** kebab-case, lowercase, descriptive. Examples: `dative`, `genitive`, `pronunciation-contrast`, `future-tense`.
+
+**Legacy tags (do NOT rename):** The 10 tags below predate the kebab-case style convention. Several are dual-use as screen-IDs (renaming breaks `AppRouter.tsx` routing); all are persisted in user Firestore `vs:[]` arrays (renaming would orphan existing user progress). Leave them exactly as-is in all new code:
+
+| Tag | Reason locked |
+|---|---|
+| `animateacc` | Dual-use: also the screen-ID for `AnimateAccDrill` |
+| `falsefr` | Dual-use: also a screen-ID |
+| `fleetinga` | Dual-use: also the screen-ID for `FleetingADrill` |
+| `formalregister` | Dual-use: also a screen-ID |
+| `grammarmap` | Dual-use: also a screen-ID |
+| `padezifull` | Dual-use: also a screen-ID |
+| `techvoc` | Dual-use: also a screen-ID |
+| `srsreview` | Persisted in user data; rename would orphan `vs:['srsreview']` entries |
+| `numtime` | Used in `FULL_CONTRACT_DRILLS`; rename would break contract test references and user data |
+| `wordsprint` | Same as `numtime` |
+
+Other pre-Phase-1 single-word tags also preserved as-is: `dative`, `clitic`, `passive`, `imperative`, `instrumental`, `negationgen`.
+
+**If you must rename a legacy tag in a future migration:** add an explicit old → new mapping in `applyRemoteProgress.ts` that rewrites the value on first sync. Without that migration, returning users lose their progress for that tag permanently.
