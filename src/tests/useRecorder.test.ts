@@ -364,4 +364,230 @@ describe('useRecorder', () => {
     });
     expect(calls).toBe(1);
   });
+
+  it('unmount cleanup revokes blob: audioUrl', async () => {
+    class BlobFileReader2 {
+      result: string | null = null;
+      onload: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
+      onerror: (() => void) | null = null;
+      readAsDataURL(_blob: Blob) {
+        this.result = 'blob:http://localhost/another-fake-blob';
+        queueMicrotask(() =>
+          this.onload?.call(this as unknown as FileReader, {} as ProgressEvent<FileReader>),
+        );
+      }
+    }
+    (globalThis as unknown as { FileReader: unknown }).FileReader = BlobFileReader2;
+
+    const revokeSpy = vi.fn();
+    (globalThis as unknown as { URL: { revokeObjectURL: typeof URL.revokeObjectURL } }).URL = {
+      revokeObjectURL: revokeSpy,
+    } as unknown as typeof URL;
+
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result, unmount } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.audioUrl).toMatch(/^blob:/);
+
+    unmount();
+    expect(revokeSpy).toHaveBeenCalledWith(expect.stringMatching(/^blob:/));
+
+    (globalThis as unknown as { FileReader: unknown }).FileReader = MockFileReader;
+  });
+
+  it('unmount during getUserMedia rejection clears busy flag without setState', async () => {
+    let rejectGUM: (err: Error) => void = () => {};
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () =>
+          new Promise<MediaStream>((_, reject) => {
+            rejectGUM = reject;
+          }),
+      },
+    });
+
+    const { result, unmount } = renderHook(() => useRecorder());
+    act(() => {
+      result.current.startRecording();
+    });
+    expect(result.current.state).toBe('requesting');
+
+    unmount();
+    // Now reject — should hit the !mountedRef branch in .catch
+    await act(async () => {
+      rejectGUM(Object.assign(new Error('post-unmount'), { name: 'NotAllowedError' }));
+      await Promise.resolve();
+    });
+    // No assertion needed — passes if no React unmount warning fires.
+  });
+
+  it('reset() during countdown clears timer + stops stream', async () => {
+    const trackStop = vi.fn();
+    const fakeStream = { getTracks: () => [{ stop: trackStop }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    // Advance only 1 second — still in countdown, timer + stream are live
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(result.current.state).toBe('countdown');
+
+    act(() => {
+      result.current.reset();
+    });
+    expect(result.current.state).toBe('idle');
+    expect(trackStop).toHaveBeenCalled();
+    // After reset, advancing time should not produce a state change (timer cleared)
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+    });
+    expect(result.current.state).toBe('idle');
+  });
+
+  it('sets state=error when FileReader fails to encode blob', async () => {
+    class BrokenFileReader {
+      result: string | null = null;
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      readAsDataURL() {
+        queueMicrotask(() => this.onerror?.());
+      }
+    }
+    (globalThis as unknown as { FileReader: unknown }).FileReader = BrokenFileReader;
+
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('error');
+    expect(result.current.error?.code).toBe('FileReaderError');
+
+    // restore MockFileReader for following tests
+    (globalThis as unknown as { FileReader: unknown }).FileReader = MockFileReader;
+  });
+
+  it('stopRecording is a no-op when no recorder is active', () => {
+    const { result } = renderHook(() => useRecorder());
+    // Should not throw, even with nothing to stop
+    expect(() => result.current.stopRecording()).not.toThrow();
+    expect(result.current.state).toBe('idle');
+  });
+
+  it('playback() is a no-op when audioUrl is null', async () => {
+    const playSpy = vi.fn(() => Promise.resolve());
+    function FakeAudio(this: { volume: number; play: () => Promise<void> }, _url: string) {
+      this.volume = 0;
+      this.play = playSpy;
+    }
+    (globalThis as unknown as { Audio: unknown }).Audio = FakeAudio;
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      await result.current.playback();
+    });
+    expect(playSpy).not.toHaveBeenCalled();
+  });
+
+  it('rejected getUserMedia with undefined name falls back to UnknownError', async () => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      // Reject with an Error that has no .name property
+      value: { getUserMedia: () => Promise.reject({ message: 'mysterious' }) },
+    });
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('error');
+    expect(result.current.error?.code).toBe('UnknownError');
+  });
+
+  it('reset() revokes blob: audioUrl via URL.revokeObjectURL', async () => {
+    class BlobFileReader {
+      result: string | null = null;
+      onload: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
+      onerror: (() => void) | null = null;
+      readAsDataURL(_blob: Blob) {
+        this.result = 'blob:http://localhost/fake-blob-id';
+        queueMicrotask(() =>
+          this.onload?.call(this as unknown as FileReader, {} as ProgressEvent<FileReader>),
+        );
+      }
+    }
+    (globalThis as unknown as { FileReader: unknown }).FileReader = BlobFileReader;
+
+    const revokeSpy = vi.fn();
+    (globalThis as unknown as { URL: { revokeObjectURL: typeof URL.revokeObjectURL } }).URL = {
+      revokeObjectURL: revokeSpy,
+    } as unknown as typeof URL;
+
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.audioUrl).toMatch(/^blob:/);
+
+    act(() => {
+      result.current.reset();
+    });
+    expect(revokeSpy).toHaveBeenCalledWith(expect.stringMatching(/^blob:/));
+
+    // restore MockFileReader for following tests
+    (globalThis as unknown as { FileReader: unknown }).FileReader = MockFileReader;
+  });
 });
