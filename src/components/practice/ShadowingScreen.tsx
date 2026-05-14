@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, Spk, speakSlow, SHADOWING } from '../../data';
-import { unlockAudio } from '../../lib/audio.js';
 import PronunciationScorer from '../shared/PronunciationScorer';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
+import { useRecorder } from '../../hooks/useRecorder';
+import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -64,138 +65,8 @@ function WaveformSVG({ bars, color, label, width = 260, height = 70 }: WaveformS
   );
 }
 
-// ── recording hook ────────────────────────────────────────────────────────────
-
-const MIC_DURATION = 8000; // ms — 8s gives learners enough time to shadow longer phrases
-
-function useRecorder() {
-  const [micAvailable, setMicAvailable] = useState<boolean | null>(null); // null=unchecked, true, false
-  const [recordingState, setRecordingState] = useState('idle'); // idle | countdown | recording | done
-  const [countdown, setCountdown] = useState(0);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const audioUrlRef = useRef<string | null>(null);
-  const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-      }
-      if (audioUrlRef.current) {
-        URL.revokeObjectURL(audioUrlRef.current);
-        audioUrlRef.current = null;
-      }
-      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
-      if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-        try {
-          recorderRef.current.stop();
-        } catch (_) {}
-      }
-    };
-  }, []);
-
-  const reset = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    if (audioUrlRef.current) {
-      URL.revokeObjectURL(audioUrlRef.current);
-      audioUrlRef.current = null;
-    }
-    if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
-    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-      try {
-        recorderRef.current.stop();
-      } catch (_) {}
-    }
-    setRecordingState('idle');
-    setCountdown(0);
-    setAudioBlob(null);
-  }, []);
-
-  const startRecording = useCallback(async () => {
-    if (!navigator.mediaDevices) {
-      setMicAvailable(false);
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-      setMicAvailable(true);
-
-      // Countdown 3→1
-      setCountdown(3);
-      setRecordingState('countdown');
-
-      let secs = 3;
-      countdownTimerRef.current = setInterval(() => {
-        secs -= 1;
-        if (secs > 0) {
-          setCountdown(secs);
-        } else {
-          clearInterval(countdownTimerRef.current ?? undefined);
-          countdownTimerRef.current = null;
-          beginCapture(stream);
-        }
-      }, 1000);
-    } catch (_) {
-      setMicAvailable(false);
-    }
-  }, []);
-
-  function beginCapture(stream: MediaStream) {
-    chunksRef.current = [];
-    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-      ? 'audio/webm;codecs=opus'
-      : MediaRecorder.isTypeSupported('audio/webm')
-        ? 'audio/webm'
-        : MediaRecorder.isTypeSupported('audio/mp4')
-          ? 'audio/mp4'
-          : '';
-    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-    recorderRef.current = recorder;
-
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) chunksRef.current.push(e.data);
-    };
-    recorder.onstop = () => {
-      stream.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-      setAudioBlob(blob);
-      // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
-      const reader = new FileReader();
-      reader.onload = () => {
-        audioUrlRef.current = reader.result as string;
-        setRecordingState('done');
-      };
-      reader.readAsDataURL(blob);
-    };
-
-    recorder.start();
-    setRecordingState('recording');
-
-    setTimeout(() => {
-      if (recorder.state !== 'inactive') recorder.stop();
-    }, MIC_DURATION);
-  }
-
-  const playBack = useCallback(() => {
-    unlockAudio(); // must be synchronous — iOS activation
-    if (!audioUrlRef.current) return;
-    const audio = new Audio(audioUrlRef.current);
-    audio.volume = 1.0; // required: low volume blocks activation on some WebViews
-    audio.play().catch(() => {});
-  }, []);
-
-  return { micAvailable, recordingState, countdown, audioBlob, startRecording, playBack, reset };
-}
+// Recording duration ceiling — useRecorder auto-stops via maxDurationMs.
+const MIC_DURATION = 8000; // 8s gives learners enough time to shadow longer phrases.
 
 // ── waveform comparison panel ─────────────────────────────────────────────────
 
@@ -336,8 +207,7 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }: WaveformPane
 // ── recording UI ──────────────────────────────────────────────────────────────
 
 interface RecordingPanelProps {
-  micAvailable: boolean | null;
-  recordingState: string;
+  state: string;
   countdown: number;
   audioBlob: Blob | null;
   onStart: () => void;
@@ -346,14 +216,12 @@ interface RecordingPanelProps {
   onNailedIt: () => void;
 }
 
-function RecordingPanel({
-  micAvailable,
-  recordingState,
-  countdown,
-  onStart,
-  onPlayBack,
-}: RecordingPanelProps) {
-  if (micAvailable === false) {
+function RecordingPanel({ state, countdown, onStart, onPlayBack, onReset }: RecordingPanelProps) {
+  if (state === 'denied') {
+    return <MicPermissionDeniedExplainer onRetry={onReset} />;
+  }
+
+  if (state === 'unsupported') {
     return (
       <div
         style={{
@@ -372,7 +240,39 @@ function RecordingPanel({
     );
   }
 
-  if (recordingState === 'idle') {
+  if (state === 'error') {
+    return (
+      <div
+        style={{
+          marginTop: 12,
+          fontSize: 13,
+          color: '#92400e',
+          background: '#fffbeb',
+          border: '1.5px solid #fde68a',
+          borderRadius: 10,
+          padding: '10px 14px',
+          textAlign: 'center',
+        }}
+      >
+        Recording failed unexpectedly.{' '}
+        <button
+          onClick={onReset}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: '#0891b2',
+            fontWeight: 700,
+            cursor: 'pointer',
+            textDecoration: 'underline',
+          }}
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (state === 'idle') {
     return (
       <button className="b bs" style={{ marginTop: 12 }} onClick={onStart}>
         🎤 Record My Attempt
@@ -380,7 +280,7 @@ function RecordingPanel({
     );
   }
 
-  if (recordingState === 'countdown') {
+  if (state === 'countdown') {
     return (
       <div
         style={{
@@ -396,7 +296,7 @@ function RecordingPanel({
     );
   }
 
-  if (recordingState === 'recording') {
+  if (state === 'recording') {
     return (
       <div style={{ marginTop: 12, textAlign: 'center' }}>
         <span
@@ -428,7 +328,7 @@ function RecordingPanel({
     );
   }
 
-  if (recordingState === 'done') {
+  if (state === 'done') {
     return (
       <div
         style={{
@@ -483,23 +383,24 @@ export default function ShadowingScreen({
   const [showWaveform, setShowWaveform] = useState(false);
 
   const {
-    micAvailable,
-    recordingState,
+    state: recState,
     countdown,
     audioBlob,
-    startRecording,
-    playBack,
+    startRecording: startRec,
+    playback,
     reset: resetRecorder,
   } = useRecorder();
 
+  const handleStartRecording = () => startRec({ maxDurationMs: MIC_DURATION });
+
   // When a recording completes, show waveform — must be before early return
-  const prevRecordingState = useRef(recordingState);
+  const prevRecordingState = useRef(recState);
   useEffect(() => {
-    if (prevRecordingState.current === 'recording' && recordingState === 'done') {
+    if (prevRecordingState.current === 'recording' && recState === 'done') {
       setShowWaveform(true);
     }
-    prevRecordingState.current = recordingState;
-  }, [recordingState]);
+    prevRecordingState.current = recState;
+  }, [recState]);
 
   if (!SHADOWING || SHADOWING.length === 0) return null;
   const items = SHADOWING;
@@ -680,12 +581,11 @@ export default function ShadowingScreen({
         {/* Record My Attempt — shown before "said" */}
         {!said && (
           <RecordingPanel
-            micAvailable={micAvailable}
-            recordingState={recordingState}
+            state={recState}
             countdown={countdown}
             audioBlob={audioBlob}
-            onStart={startRecording}
-            onPlayBack={playBack}
+            onStart={handleStartRecording}
+            onPlayBack={playback}
             onReset={resetRecorder}
             onNailedIt={handleNailedIt}
           />
