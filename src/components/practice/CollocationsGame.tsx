@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
-
+import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function shLocal(a: any[]) {
@@ -195,6 +196,7 @@ interface Props {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function CollocationsGame({ goBack, award }: Props) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [qs] = useState(() =>
     shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
@@ -226,6 +228,18 @@ export default function CollocationsGame({ goBack, award }: Props) {
               if (finishFired.current) return;
               finishFired.current = true;
               if (typeof award === 'function') award(score * 5, false, 'vocabulary');
+              markQuest('vocab');
+              if (!stats.vs?.includes('collocations')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('collocations')) return prev;
+                  return {
+                    ...prev,
+                    gc: (prev.gc || 0) + 1,
+                    vs: [...(prev.vs || []), 'collocations'],
+                  };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['collocations'] });
+              }
               goBack();
             }}
             style={{ width: '100%', marginTop: 16 }}

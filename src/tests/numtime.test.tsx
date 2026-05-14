@@ -59,6 +59,24 @@ vi.mock('firebase/firestore', () => ({
 // ── rnd mock — 0.99 makes sh() identity ──────────────────────────────────────
 vi.mock('../lib/random.js', () => ({ rnd: vi.fn(() => 0.99) }));
 
+// ── quests mock ───────────────────────────────────────────────────────────────
+const mockMarkQuest = vi.hoisted(() => vi.fn());
+vi.mock('../lib/quests.js', () => ({ markQuest: mockMarkQuest }));
+
+// ── StatsContext mock ─────────────────────────────────────────────────────────
+vi.mock('../context/StatsContext', () => ({
+  useStats: vi.fn(() => ({
+    stats: { vs: [] as string[], gc: 0 },
+    setStats: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+    writeDelta: vi.fn(),
+  })),
+  StatsProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+}));
+
 // ── data mock ─────────────────────────────────────────────────────────────────
 vi.mock('../data', async (importOriginal) => {
   const actual = await importOriginal();
@@ -226,7 +244,7 @@ describe('NumTime — completion + award guard', () => {
     const award = vi.fn();
     completeAndFinish(award);
     // 10/10 correct → ntS=10 → award(10*3+10) = award(40)
-    expect(award).toHaveBeenCalledWith(40, false, 'vocabulary');
+    expect(award).toHaveBeenCalledWith(40, false, 'grammar');
   });
 
   it('Finish! button calls both award and goBack', () => {

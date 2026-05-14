@@ -52,6 +52,15 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(),
 }));
 
+// ── StatsContext mock — provides useStats() without needing a Provider ────────
+vi.mock('../context/StatsContext', () => ({
+  useStats: vi.fn(() => ({
+    stats: { vs: [] as string[], gc: 0 },
+    setStats: vi.fn(),
+    writeDelta: vi.fn(),
+  })),
+}));
+
 // ── quests mock ───────────────────────────────────────────────────────────────
 const mockMarkQuest = vi.hoisted(() => vi.fn());
 vi.mock('../lib/quests.js', () => ({ markQuest: mockMarkQuest }));

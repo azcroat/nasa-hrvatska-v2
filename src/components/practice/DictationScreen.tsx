@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { H, Bar, speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
@@ -116,6 +117,7 @@ interface Props {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function DictationScreen({ goBack, award }: Props) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const mountedRef = useRef(true);
   useEffect(
@@ -199,8 +201,15 @@ export default function DictationScreen({ goBack, award }: Props) {
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              markQuest('speak');
               if (typeof award === 'function') award(xp, false, 'listening');
+              markQuest('listening');
+              if (!stats.vs?.includes('dictation')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('dictation')) return prev;
+                  return { ...prev, lc: (prev.lc || 0) + 1, vs: [...(prev.vs || []), 'dictation'] };
+                });
+                if (writeDelta) writeDelta({ lc: 1, vs: ['dictation'] });
+              }
               goBack();
             }}
           >

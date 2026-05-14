@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { H, Bar, V, srMark, speak } from '../../data';
 import { rnd } from '../../lib/random.js';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 
 interface TimerDisplayProps {
@@ -129,6 +130,8 @@ interface WordSprintProps {
   goBack: () => void;
 }
 export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
+  const { stats, setStats, writeDelta } = useStats();
+  const finishFired = useRef(false);
   const catList = Object.keys(V);
   const [phase, setPhase] = useState('menu');
   const [selectedCats, setSelectedCats] = useState(['greetings', 'food', 'animals']);
@@ -259,10 +262,19 @@ export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
 
   useEffect(() => {
     if (phase === 'result' && score > 0) {
-      if (typeof award === 'function') award(Math.min(score * 2, 50), false, 'vocabulary');
-      markQuest('vocab');
+      if (finishFired.current) return;
+      finishFired.current = true;
+      if (typeof award === 'function') award(Math.min(score * 2, 50), false, 'grammar');
+      markQuest('grammar');
+      if (!stats.vs?.includes('wordsprint')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('wordsprint')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'wordsprint'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['wordsprint'] });
+      }
     }
-  }, [phase, score, award]);
+  }, [phase, score, award, stats, setStats, writeDelta]);
 
   useEffect(() => {
     if (phase !== 'result') return;

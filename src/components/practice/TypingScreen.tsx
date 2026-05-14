@@ -4,6 +4,7 @@ import CroatianKeyboard from '../shared/CroatianKeyboard';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
+import { useStats } from '../../context/StatsContext';
 
 // ── Answer checking helpers ───────────────────────────────────────────────────
 
@@ -118,6 +119,7 @@ export default function TypingScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const startTsRef = useRef(0); // tracks when current word was presented
@@ -163,6 +165,13 @@ export default function TypingScreen({
               }
               if (typeof award === 'function') award(xp, false, 'vocabulary');
               markQuest('vocab');
+              if (!stats.vs?.includes('typing')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('typing')) return prev;
+                  return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'typing'] };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['typing'] });
+              }
               goBack();
             }}
           >
