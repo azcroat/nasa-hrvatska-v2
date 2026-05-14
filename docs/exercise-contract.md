@@ -29,3 +29,38 @@ Every grammar/case/tense/aspect/clitic/preposition/conjugation drill in this cod
 ## Adding a new drill — content authoring
 
 Claude drafts Q&A from in-memory Croatian linguistic knowledge. jschr reviews in chat before commit. Do not commit Q&A that has not been reviewed.
+
+## Components that do NOT need contract compliance
+
+The following are sub-components, helper panels, or rarely-trafficked screens. Contract clauses do not apply.
+
+### Drill sub-components (rendered inside parent drills)
+- AspectPhaseBar, AspectQuestionPanel, AspectRuleCard, AspectTimeline
+- DialogueAvatar, DialogueResultsScreen, DialogueTipContent, DialogueGuidedMode, DialogueScenarioMenu, DialogueAiMode
+- FlashcardCardBack, FlashcardCardFront, FlashcardEmptyState, FlashcardResultScreen, FlashcardRecallQuiz (parent `Flashcards.tsx` compliant)
+- McGameOver, McQuestionArea, McResult (parent `McGame.tsx` compliant)
+- SprintCountdownScreen, SprintFeedbackPhase, SprintModelPhase, SprintSetupScreen, SprintSpeakingPhase (parent `SpeakingSprintScreen` compliant)
+- SlangAgeGate, SlangEntryCard, SlangQuizPanel (parent `SlangScreen` wraps these)
+- SpeakingPracticePanel, SpeakingSummaryScreen (parents handle contract)
+- StoryScreens (parent `GradedInputScreen` compliant per Phase 2 P2-3)
+- ListeningComprehensionScreen, ListeningPath (parent `ListeningScreen` compliant per Phase 2 P2-4)
+
+### Debug, list-view, tab containers, placement
+- AdaptiveReviewScreen (review-mode wrapper, contract via parent)
+- MyWordsScreen, MistakesScreen (list views, not exercises)
+- PracticeTab (tab container, not an exercise)
+- CefrTest (placement test — distinct flow; contract not applicable)
+
+### Other modules
+- All `learn/` screens — those are lessons, not exercises (see Pedagogy Foundations sub-project; `LevelQuiz` is a curriculum quiz with bespoke completion semantics, not a practice drill)
+- `croatia/` AI conversation screens — covered in AI module sub-project
+
+### Why this list matters
+
+The Exercise Contract enforced by `src/tests/exerciseContract.test.tsx` covers ~30 practice exercises after SP2. Components listed above have valid reasons to not implement the contract:
+
+- They're rendered inside a parent that owns completion semantics (sub-panels).
+- They're list views or settings screens, not graded interactions.
+- They're a distinct architectural surface (placement test, AI conversation, curriculum quiz).
+
+If you add a new file under `src/components/practice/` (top-level OR `exercises/` subdir) that IS a standalone graded interaction, it MUST follow the contract. The contract test enforces this.
