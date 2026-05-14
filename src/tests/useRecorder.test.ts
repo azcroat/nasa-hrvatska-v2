@@ -1,6 +1,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useRecorder } from '../hooks/useRecorder';
+import { useRecorder, negotiateMimeType } from '../hooks/useRecorder';
+
+describe('negotiateMimeType', () => {
+  it('returns audio/webm;codecs=opus when supported', () => {
+    const isTypeSupported = (m: string) => m === 'audio/webm;codecs=opus';
+    expect(negotiateMimeType(isTypeSupported)).toBe('audio/webm;codecs=opus');
+  });
+
+  it('falls back to audio/webm', () => {
+    const isTypeSupported = (m: string) => m === 'audio/webm';
+    expect(negotiateMimeType(isTypeSupported)).toBe('audio/webm');
+  });
+
+  it('falls back to audio/mp4 on Safari', () => {
+    const isTypeSupported = (m: string) => m === 'audio/mp4';
+    expect(negotiateMimeType(isTypeSupported)).toBe('audio/mp4');
+  });
+
+  it('returns null when nothing is supported', () => {
+    expect(negotiateMimeType(() => false)).toBeNull();
+  });
+});
 
 describe('useRecorder', () => {
   beforeEach(() => {
