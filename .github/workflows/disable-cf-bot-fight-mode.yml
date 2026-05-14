@@ -45,46 +45,74 @@ jobs:
           SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
           echo "success=$SUCCESS" >> "$GITHUB_OUTPUT"
 
-      - name: Fallback — disable via zone settings if bot_management returned error
+      - name: Fallback — diagnose token permissions and try zone settings
         if: steps.bot_mgmt.outputs.success != 'true'
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           ZONE_ID: ${{ steps.zone.outputs.zone_id }}
         run: |
-          set -euo pipefail
-          echo "bot_management endpoint did not succeed. Attempting legacy zone settings..."
-
-          # List all zone settings to find relevant bot-fight keys
-          echo "--- Zone settings (bot/challenge related) ---"
-          curl -sf \
+          set -uo pipefail
+          echo "bot_management PATCH returned error (10405 = token lacks Bot Management:Edit scope)."
+          echo ""
+          echo "--- Zone settings (bot/challenge/security related) ---"
+          # Use -s not -sf so HTTP errors don't abort the diagnostic step
+          SETTINGS_RESP=$(curl -s \
             "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/settings" \
             -H "Authorization: Bearer $CF_TOKEN" \
-            -H "Content-Type: application/json" \
-            | jq '[.result[] | select(.id | test("bot|fight|challenge|security"))]'
+            -H "Content-Type: application/json")
+          echo "$SETTINGS_RESP" | jq '[.result[] | select(.id | test("bot|fight|challenge|security"))]' || echo "$SETTINGS_RESP"
 
-          # Try patching security_level to essentially low as a fallback
-          echo "--- Attempting security_level patch to essentially_off ---"
+          echo ""
+          echo "--- Attempting security_level patch to essentially_off (does not stop Bot Fight Mode but reduces friction) ---"
           RESPONSE=$(curl -s -X PATCH \
             "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/settings/security_level" \
             -H "Authorization: Bearer $CF_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{"value": "essentially_off"}')
-          echo "$RESPONSE" | jq '{success: .success, errors: .errors, value: .result.value}'
+          echo "$RESPONSE" | jq '{success: .success, errors: .errors, value: .result.value}' || echo "$RESPONSE"
 
           echo ""
-          echo "DIAGNOSTIC: Bot Fight Mode may require a paid plan (Pro+) to control via API."
-          echo "If both attempts failed, disable manually in CF Dashboard:"
-          echo "  Security > Bots > Bot Fight Mode toggle"
+          echo "============================================================"
+          echo "ACTION REQUIRED: CLOUDFLARE_API_TOKEN lacks Bot Management:Edit"
+          echo "============================================================"
+          echo "Error 10405 means the API token does not have the"
+          echo "'Bot Management' permission scope. To fix:"
+          echo ""
+          echo "Option A (recommended — update token):"
+          echo "  1. Go to CF Dashboard > My Profile > API Tokens"
+          echo "  2. Edit the token used for CLOUDFLARE_API_TOKEN"
+          echo "  3. Add permission: Zone > Bot Management > Edit"
+          echo "  4. Re-run this workflow"
+          echo ""
+          echo "Option B (manual — dashboard):"
+          echo "  CF Dashboard > nasahrvatska.com > Security > Bots"
+          echo "  Toggle 'Bot Fight Mode' OFF"
+          echo "  (No API token change needed)"
+          echo "============================================================"
+          # Exit 0 so we can still run the confirm step
+          exit 0
 
       - name: Confirm final bot_management state
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           ZONE_ID: ${{ steps.zone.outputs.zone_id }}
         run: |
-          set -euo pipefail
-          echo "--- Final bot_management state ---"
-          curl -sf \
+          set -uo pipefail
+          echo "--- Final bot_management state (GET) ---"
+          RESPONSE=$(curl -s \
             "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/bot_management" \
             -H "Authorization: Bearer $CF_TOKEN" \
-            -H "Content-Type: application/json" \
-            | jq '{success: .success, fight_mode: .result.fight_mode, using_latest_model: .result.using_latest_model}'
+            -H "Content-Type: application/json")
+          echo "$RESPONSE" | jq '{success: .success, errors: .errors, fight_mode: .result.fight_mode, using_latest_model: .result.using_latest_model}' || echo "$RESPONSE"
+          # Surface clear final verdict
+          FIGHT_MODE=$(echo "$RESPONSE" | jq -r '.result.fight_mode // "unknown"')
+          echo ""
+          if [ "$FIGHT_MODE" = "false" ]; then
+            echo "SUCCESS: fight_mode=false — Bot Fight Mode is DISABLED."
+          elif [ "$FIGHT_MODE" = "true" ]; then
+            echo "STILL ENABLED: fight_mode=true — manual action required (see step above)."
+            exit 1
+          else
+            echo "UNKNOWN: fight_mode=$FIGHT_MODE — token may lack read permission too."
+            exit 1
+          fi
