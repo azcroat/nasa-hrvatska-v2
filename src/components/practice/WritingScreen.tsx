@@ -205,6 +205,13 @@ interface WritingScreenProps {
   award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
+// ── Word-count gate ───────────────────────────────────────────────────────────
+export const MIN_WORDS = 30;
+
+export function countWords(raw: string): number {
+  return raw.trim().split(/\s+/).filter(Boolean).length;
+}
+
 export default function WritingScreen({ goBack, award }: WritingScreenProps) {
   const finishFired = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -231,7 +238,8 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
         }
       : prompt;
 
-  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const wordCount = countWords(text);
+  const meetsMinWords = wordCount >= MIN_WORDS;
 
   async function checkWithAI() {
     if (!text.trim() || text.trim().length < 10) {
@@ -541,12 +549,12 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
             marginTop: 4,
           }}
         >
-          <span style={{ fontSize: 12, color: 'var(--subtext)' }}>
-            {wordCount} words
-            {wordCount < 30 && wordCount > 0 && (
-              <span style={{ color: 'var(--error)' }}> (aim for 30+)</span>
+          <span data-testid="word-count-label" style={{ fontSize: 12, color: 'var(--subtext)' }}>
+            Word count: {wordCount} / {MIN_WORDS}
+            {wordCount > 0 && wordCount < MIN_WORDS && (
+              <span style={{ color: 'var(--error)' }}> (aim for {MIN_WORDS}+)</span>
             )}
-            {wordCount >= 30 && wordCount < 80 && (
+            {wordCount >= MIN_WORDS && wordCount < 80 && (
               <span style={{ color: 'var(--info)' }}> ✓ good start</span>
             )}
             {wordCount >= 80 && <span style={{ color: 'var(--success)' }}> ✓ great length</span>}
@@ -792,10 +800,35 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
             </div>
           )}
 
+          {!meetsMinWords && (
+            <p
+              data-testid="word-count-warning"
+              style={{
+                color: 'var(--error)',
+                fontSize: 13,
+                marginTop: 12,
+                marginBottom: 0,
+                textAlign: 'center',
+              }}
+            >
+              Write at least {MIN_WORDS} words to mark this complete.
+            </p>
+          )}
           <button
+            data-testid="new-prompt-btn"
             className="b bp"
-            style={{ width: '100%', marginTop: 16 }}
+            style={{
+              width: '100%',
+              marginTop: 16,
+              opacity: meetsMinWords ? 1 : 0.45,
+              cursor: meetsMinWords ? 'pointer' : 'not-allowed',
+            }}
+            disabled={!meetsMinWords}
             onClick={() => {
+              if (!meetsMinWords) {
+                setError(`Write at least ${MIN_WORDS} words to mark this complete.`);
+                return;
+              }
               if (finishFired.current) return;
               finishFired.current = true;
               markQuest('write');
