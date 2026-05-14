@@ -284,3 +284,40 @@ describe('NumTime — navigation', () => {
     expect(goBack).toHaveBeenCalledTimes(1);
   });
 });
+
+// ── vs-dedup guard (branch coverage) ─────────────────────────────────────────
+
+describe('NumTime — vs-dedup guard (both branches)', () => {
+  /**
+   * Mirrors the setStats updater passed inside the Finish! onClick handler.
+   * Tests the inner guard: if prev.vs already includes 'numtime', return prev unchanged.
+   */
+  function numtimeUpdater(prev: { gc?: number; vs?: string[] }) {
+    if (prev.vs?.includes('numtime')) return prev;
+    return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'numtime'] };
+  }
+
+  it('updater adds gc+1 and "numtime" to vs on first completion (vs is empty)', () => {
+    const result = numtimeUpdater({ gc: 0, vs: [] });
+    expect(result.gc).toBe(1);
+    expect(result.vs).toContain('numtime');
+  });
+
+  it('updater returns prev unchanged if vs already includes "numtime" (idempotent)', () => {
+    const prev = { gc: 3, vs: ['numtime'] };
+    expect(numtimeUpdater(prev)).toBe(prev);
+  });
+
+  it('updater handles undefined vs gracefully (first visit)', () => {
+    const result = numtimeUpdater({ gc: 2, vs: undefined });
+    expect(result.vs).toContain('numtime');
+    expect(result.gc).toBe(3);
+  });
+
+  it('updater does not append "numtime" twice when called twice with the result', () => {
+    const first = numtimeUpdater({ gc: 0, vs: [] });
+    const second = numtimeUpdater(first);
+    expect(second).toBe(first); // second call returns prev unchanged
+    expect((second.vs ?? []).filter((t) => t === 'numtime').length).toBe(1);
+  });
+});

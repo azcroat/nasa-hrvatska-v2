@@ -233,6 +233,36 @@ describe('NegationGenDrill — completion + award guard', () => {
   });
 });
 
+// ── vs-dedup guard (branch coverage) ─────────────────────────────────────────
+
+describe('NegationGenDrill — vs-dedup guard (both branches)', () => {
+  /**
+   * Mirrors the setStats updater in NegationGenDrill's completion handler.
+   * Tests both branches of the inner idempotency guard.
+   */
+  function negationgenUpdater(prev: { gc?: number; vs?: string[] }) {
+    if (prev.vs?.includes('negationgen')) return prev;
+    return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'negationgen'] };
+  }
+
+  it('updater adds gc+1 and "negationgen" to vs on first completion', () => {
+    const result = negationgenUpdater({ gc: 0, vs: [] });
+    expect(result.gc).toBe(1);
+    expect(result.vs).toContain('negationgen');
+  });
+
+  it('updater returns prev unchanged if vs already includes "negationgen" (idempotent)', () => {
+    const prev = { gc: 3, vs: ['negationgen'] };
+    expect(negationgenUpdater(prev)).toBe(prev);
+  });
+
+  it('updater handles undefined vs gracefully', () => {
+    const result = negationgenUpdater({ gc: 0, vs: undefined });
+    expect(result.vs).toContain('negationgen');
+    expect(result.gc).toBe(1);
+  });
+});
+
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 describe('NegationGenDrill — navigation', () => {

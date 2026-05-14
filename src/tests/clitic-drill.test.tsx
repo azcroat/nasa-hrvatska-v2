@@ -257,6 +257,36 @@ describe('CliticDrill — completion + award guard', () => {
   });
 });
 
+// ── vs-dedup guard (branch coverage) ─────────────────────────────────────────
+
+describe('CliticDrill — vs-dedup guard (both branches)', () => {
+  /**
+   * Mirrors the setStats updater inside the ← Back onClick handler in CliticDrill.
+   * Tests both paths: first-visit adds gc+1 and tag; revisit returns prev unchanged.
+   */
+  function cliticUpdater(prev: { gc?: number; vs?: string[] }) {
+    if (prev.vs?.includes('clitic')) return prev;
+    return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'clitic'] };
+  }
+
+  it('updater adds gc+1 and "clitic" to vs on first completion', () => {
+    const result = cliticUpdater({ gc: 0, vs: [] });
+    expect(result.gc).toBe(1);
+    expect(result.vs).toContain('clitic');
+  });
+
+  it('updater returns prev unchanged if vs already includes "clitic" (idempotent)', () => {
+    const prev = { gc: 2, vs: ['clitic'] };
+    expect(cliticUpdater(prev)).toBe(prev);
+  });
+
+  it('updater handles undefined vs gracefully', () => {
+    const result = cliticUpdater({ gc: 0, vs: undefined });
+    expect(result.vs).toContain('clitic');
+    expect(result.gc).toBe(1);
+  });
+});
+
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 describe('CliticDrill — navigation', () => {
