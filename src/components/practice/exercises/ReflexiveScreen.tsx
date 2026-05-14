@@ -11,7 +11,7 @@ interface Props {
 }
 
 function ReflexiveScreen({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const [tab, setTab] = useState('rules');
   const [_qIdx] = useState(() => Math.floor(rnd() * REFLEXIVE.quiz.length));
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -35,14 +35,20 @@ function ReflexiveScreen({ goBack, award }: Props) {
     if (answers[qi] !== undefined) return;
     const newAnswers = { ...answers, [qi]: o };
     setAnswers(newAnswers);
-    if (o === a) {
-      if (typeof award === 'function') award(5, false, 'grammar');
-    }
     if (Object.keys(newAnswers).length === REFLEXIVE.quiz.length && !questFiredRef.current) {
       questFiredRef.current = true;
+      const correctCount = Object.keys(newAnswers).filter(
+        (k) => newAnswers[Number(k)] === REFLEXIVE.quiz[Number(k)]?.a,
+      ).length;
+      if (typeof award === 'function') award(correctCount * 5, false, 'grammar');
       markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!stats.vs?.includes('reflexive')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('reflexive')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'reflexive'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['reflexive'] });
+      }
     }
   }
 

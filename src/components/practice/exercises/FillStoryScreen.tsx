@@ -10,12 +10,13 @@ interface Props {
 }
 
 function FillStoryScreen({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const total = FILL_STORIES.reduce(function (sum, story) {
     return sum + story.story.length;
   }, 0);
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
+  const finishFired = useRef(false);
   const [done, setDone] = useState(false);
   const [choices, setChoices] = useState<Record<number, string>>({});
   const storyOffsets = React.useMemo(() => {
@@ -42,12 +43,18 @@ function FillStoryScreen({ goBack, award }: Props) {
     const isCorrect = chosenOption === correctAnswer;
     if (isCorrect) {
       correctCountRef.current++;
-      if (typeof award === 'function') award(3, false, 'grammar');
     }
-    if (handledRef.current.size >= total) {
+    if (handledRef.current.size >= total && !finishFired.current) {
+      finishFired.current = true;
+      if (typeof award === 'function') award(correctCountRef.current * 5, false, 'grammar');
       markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!stats.vs?.includes('fill-story')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('fill-story')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'fill-story'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['fill-story'] });
+      }
       setDone(true);
     }
   }
