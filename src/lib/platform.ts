@@ -38,6 +38,36 @@ export function isIos(): boolean {
   return isNative() && (window as unknown as CapacitorWindow).Capacitor?.getPlatform?.() === 'ios';
 }
 
+export type MicPermissionPlatform =
+  | 'ios-safari'
+  | 'ios-app'
+  | 'android-browser'
+  | 'android-app'
+  | 'desktop';
+
+/**
+ * Classify the runtime for routing per-OS microphone re-grant instructions.
+ *
+ * Distinctions matter:
+ *   - ios-safari: open Settings → Safari → Microphone for the site.
+ *   - ios-app: open Settings → Naša Hrvatska → Microphone.
+ *   - android-browser: tap the lock icon in the URL bar.
+ *   - android-app: open Settings → Apps → Naša Hrvatska → Permissions.
+ *   - desktop: standard browser permission UI.
+ *
+ * Built on the existing isNative/isIos/isAndroid helpers so any Capacitor
+ * detection improvements propagate automatically.
+ */
+export function getMicPermissionPlatform(): MicPermissionPlatform {
+  const native = isNative();
+  if (isIos()) return native ? 'ios-app' : 'ios-safari';
+  // Android browser: native check is false AND the UA says Android. isAndroid()
+  // itself short-circuits on !isNative, so we have to UA-sniff here directly.
+  if (!native && /android/i.test(navigator.userAgent)) return 'android-browser';
+  if (native && /android/i.test(navigator.userAgent)) return 'android-app';
+  return 'desktop';
+}
+
 export function isSpeechRecognitionSupported(): boolean {
   return (
     typeof window !== 'undefined' &&
