@@ -64,6 +64,7 @@ const ProfileScreen = lazyWithReload(() => import('./profile/ProfileScreen'));
 const VocabJournal = lazyWithReload(() => import('./profile/VocabJournal'));
 const FavoritesScreen = lazyWithReload(() => import('./profile/FavoritesScreen'));
 const LearnPath = lazyWithReload(() => import('./profile/LearnPath'));
+const LevelQuiz = lazyWithReload(() => import('./learn/LevelQuiz'));
 const SentenceTileScreen = lazyWithReload(() => import('./practice/SentenceTileScreen'));
 const ProverbsScreen = lazyWithReload(() => import('./croatia/ProverbsScreen'));
 const Flashcards = lazyWithReload(() => import('./practice/Flashcards'));
@@ -1284,6 +1285,32 @@ export default function AppRouter(props: Record<string, any>) {
               onLaunchItem={launchPathItem}
               onLaunchLegendary={launchLegendary}
               onLaunchCheckpoint={launchCheckpoint}
+            />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'levelquiz' && (
+          <ScreenErrorBoundary key="levelquiz" name="levelquiz">
+            <LevelQuiz
+              levelNumber={(() => {
+                try {
+                  return (
+                    JSON.parse(sessionStorage.getItem('nh_level_quiz') || '{}').levelNumber ?? 1
+                  );
+                } catch {
+                  return 1;
+                }
+              })()}
+              questions={(() => {
+                try {
+                  return (
+                    JSON.parse(sessionStorage.getItem('nh_level_quiz') || '{}').questions ?? []
+                  );
+                } catch {
+                  return [];
+                }
+              })()}
+              goBack={goBack}
+              award={award}
             />
           </ScreenErrorBoundary>
         )}
