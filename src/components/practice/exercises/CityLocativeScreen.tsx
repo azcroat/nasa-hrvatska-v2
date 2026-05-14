@@ -10,10 +10,11 @@ interface Props {
 }
 
 function CityLocativeScreen({ goBack, award }: Props) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const quizCities = shMemo('cl', CITYLOC.cities, 8);
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
+  const finishFired = useRef(false);
   const [done, setDone] = useState(false);
   const [choices, setChoices] = useState<Record<number, string>>({});
   const shuffledOpts = React.useMemo(
@@ -34,13 +35,19 @@ function CityLocativeScreen({ goBack, award }: Props) {
 
     if (isCorrect) {
       correctCountRef.current++;
-      if (typeof award === 'function') award(3, false, 'grammar');
     }
 
-    if (handledRef.current.size >= quizCities.length) {
+    if (handledRef.current.size >= quizCities.length && !finishFired.current) {
+      finishFired.current = true;
+      if (typeof award === 'function') award(correctCountRef.current * 5, false, 'grammar');
       markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!stats.vs?.includes('city-locative')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('city-locative')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'city-locative'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['city-locative'] });
+      }
       setDone(true);
     }
   }

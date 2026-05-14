@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { H, speak, sh } from '../../../data';
 import { CONVMATCH } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
+import { useStats } from '../../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
@@ -9,11 +10,13 @@ interface Props {
 }
 
 function ConvMatchScreen({ goBack, award }: Props) {
+  const { stats, setStats, writeDelta } = useStats();
   const total = CONVMATCH.reduce(function (sum, conv) {
     return sum + conv.pairs.length;
   }, 0);
   const handledRef = useRef(new Set<number>());
   const correctCountRef = useRef(0);
+  const finishFired = useRef(false);
   const [done, setDone] = useState(false);
   const [choices, setChoices] = useState<Record<number, string>>({});
   const pairOffsets = React.useMemo(() => {
@@ -47,11 +50,19 @@ function ConvMatchScreen({ goBack, award }: Props) {
     const isCorrect = chosenOption === correctAnswer;
     if (isCorrect) {
       correctCountRef.current++;
-      if (typeof award === 'function') award(5, false, 'grammar');
       speak(spoken);
     }
-    if (handledRef.current.size >= total) {
-      markQuest('speak');
+    if (handledRef.current.size >= total && !finishFired.current) {
+      finishFired.current = true;
+      if (typeof award === 'function') award(correctCountRef.current * 5, false, 'grammar');
+      markQuest('grammar');
+      if (!stats.vs?.includes('conv-match')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('conv-match')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'conv-match'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['conv-match'] });
+      }
       setDone(true);
     }
   }
