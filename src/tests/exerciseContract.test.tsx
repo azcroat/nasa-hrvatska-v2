@@ -89,66 +89,14 @@ async function completeDrill(awardMock: ReturnType<typeof vi.fn>, completionOver
   }
 }
 
-// AspectDrillScreen: option buttons use inline styles only (no .ob class).
-// completionOverride clicks the first non-advance button to answer, then advances.
-function makeAspectOverride(awardMock: ReturnType<typeof vi.fn>) {
-  return () => {
-    if (awardMock.mock.calls.length > 0) return;
-    const allButtons = screen.queryAllByRole('button');
-    // Priority 1: advance / finish buttons.
-    const advanceBtn = allButtons.find((b) =>
-      /next|see results|done|finish/i.test((b as HTMLElement).textContent || ''),
-    );
-    if (advanceBtn) {
-      fireEvent.click(advanceBtn);
-      return;
-    }
-    // Priority 2: first non-nav, non-reference button (the answer options).
-    // Exclude: the H() back button ("Back"), "6 Rules", "Mistakes", "Back to Drill".
-    const answerBtn = allButtons.find((b) => {
-      const text = ((b as HTMLElement).textContent || '').trim();
-      return (
-        !/^back$|6 rules|mistakes|back to drill|show.*rule|hide.*rule/i.test(text) &&
-        !(b as HTMLButtonElement).disabled
-      );
-    });
-    if (answerBtn) {
-      fireEvent.click(answerBtn);
-    }
-  };
-}
-
-// 1-pair fixture injected via _testPairs prop so AspectDrillScreen completes after
-// 4 questions (1 pair × 4 phases) instead of 100 (25 pairs × 4 phases).
-// No module mocking required — ordering within FULL_CONTRACT_DRILLS is irrelevant.
-const ASPECT_PAIRS_FIXTURE = [
-  {
-    impf: 'pisati',
-    pf: 'napisati',
-    en: 'to write',
-    rule: 'na- prefix marks completion',
-    ctx: 'Svaki dan pišem pisma. / Napisao sam pismo majci.',
-    cefr: 'B1',
-  },
-];
-
 // Drills that fully conform to the gold contract (award + markQuest + setStats + writeDelta with vs).
+// AspectDrillScreen has been moved to its own isolated file: aspectDrillContract.test.tsx
 const FULL_CONTRACT_DRILLS = [
   // ─── Phase 1: Grammar drills (original 13) ───────────────────────────────────
   {
     name: 'InstrumentalDrill',
     path: '../components/practice/InstrumentalDrill',
     vsTag: 'instrumental',
-  },
-  // AspectDrillScreen: _testPairs prop injects a 1-pair fixture (no module mocking).
-  // useOverride drives the inline-style answer buttons (no .ob class).
-  // Ordering within FULL_CONTRACT_DRILLS is unrestricted.
-  {
-    name: 'AspectDrillScreen',
-    path: '../components/practice/AspectDrillScreen',
-    vsTag: 'aspect',
-    useOverride: true,
-    testPairs: ASPECT_PAIRS_FIXTURE,
   },
   { name: 'PassiveDrill', path: '../components/practice/PassiveDrill', vsTag: 'passive' },
   { name: 'CliticDrill', path: '../components/practice/CliticDrill', vsTag: 'clitic' },
@@ -440,31 +388,18 @@ describe('Exercise Contract -- gold-pattern drills', () => {
       const ComponentToRender = mod.default as React.ComponentType<{
         goBack: () => void;
         award?: (...args: unknown[]) => void;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        _testPairs?: any[];
       }>;
 
       const { value, setStats, writeDelta, award } = makeCtx();
       const goBack = vi.fn();
 
-      // testPairs: injects a small fixture via prop (no module mocking needed).
-      // Only AspectDrillScreen uses this; all other drills ignore the extra prop.
-      const testPairs = (drill as { testPairs?: unknown[] }).testPairs;
-
       render(
         <StatsProvider value={value}>
-          <ComponentToRender
-            goBack={goBack}
-            award={award}
-            {...(testPairs ? { _testPairs: testPairs } : {})}
-          />
+          <ComponentToRender goBack={goBack} award={award} />
         </StatsProvider>,
       );
 
-      const override = (drill as { useOverride?: boolean }).useOverride
-        ? makeAspectOverride(award)
-        : undefined;
-      await completeDrill(award, override);
+      await completeDrill(award);
 
       const expectedActivityType = (drill as { activityType?: string }).activityType ?? 'grammar';
       const expectedQuestArg = (drill as { questArg?: string }).questArg ?? 'grammar';

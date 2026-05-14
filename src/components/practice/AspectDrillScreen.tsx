@@ -193,18 +193,12 @@ function gapSentence(sentence: string, target: string, _wrong: string) {
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AspectPair = any;
-
 export default function AspectDrillScreen({
   goBack,
   award,
-  _testPairs,
 }: {
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
-  /** Injected in tests only — overrides the imported ASPECT_PAIRS constant. */
-  _testPairs?: AspectPair[];
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
@@ -238,13 +232,10 @@ export default function AspectDrillScreen({
     });
   }
 
-  const sourcePairs = _testPairs ?? ASPECT_PAIRS;
-
   const allItems = useMemo(() => {
-    if (!sourcePairs?.length) return [];
-    return sh([...sourcePairs]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_testPairs]);
+    if (!ASPECT_PAIRS?.length) return [];
+    return sh([...ASPECT_PAIRS]);
+  }, []);
 
   const items = useMemo(() => {
     if (mistakesOnly && mistakeIds.size > 0) {
