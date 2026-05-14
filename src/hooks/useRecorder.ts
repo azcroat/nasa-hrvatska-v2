@@ -45,8 +45,8 @@ export interface UseRecorderResult {
 export function useRecorder(): UseRecorderResult {
   const [state, setState] = useState<RecorderState>('idle');
   const [micAvailable, setMicAvailable] = useState<boolean | null>(null);
-  const [audioBlob] = useState<Blob | null>(null);
-  const [audioUrl] = useState<string | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState<RecorderError | null>(null);
 
@@ -112,6 +112,32 @@ export function useRecorder(): UseRecorderResult {
             }
             const rec = new MediaRecorder(stream, { mimeType: mime });
             recorderRef.current = rec;
+            const chunks: Blob[] = [];
+            rec.ondataavailable = (e: BlobEvent) => {
+              if (e.data && e.data.size > 0) chunks.push(e.data);
+            };
+            rec.onstop = () => {
+              stream.getTracks().forEach((t) => t.stop());
+              streamRef.current = null;
+              const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+              if (!mountedRef.current) return;
+              setAudioBlob(blob);
+              const reader = new FileReader();
+              reader.onload = () => {
+                if (!mountedRef.current) return;
+                setAudioUrl(reader.result as string);
+                setState('done');
+              };
+              reader.onerror = () => {
+                if (!mountedRef.current) return;
+                setError({
+                  code: 'FileReaderError',
+                  message: "Couldn't save your recording.",
+                });
+                setState('error');
+              };
+              reader.readAsDataURL(blob);
+            };
             rec.start();
             setState('recording');
           }, 1000);
@@ -123,7 +149,10 @@ export function useRecorder(): UseRecorderResult {
     [state],
   );
 
-  const stopRecording = useCallback(() => {}, []);
+  const stopRecording = useCallback(() => {
+    const rec = recorderRef.current;
+    if (rec && rec.state === 'recording') rec.stop();
+  }, []);
   const playback = useCallback(async () => {}, []);
   const reset = useCallback(() => {}, []);
 

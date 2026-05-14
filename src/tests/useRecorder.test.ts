@@ -23,6 +23,18 @@ describe('negotiateMimeType', () => {
   });
 });
 
+class MockFileReader {
+  result: string | null = null;
+  onload: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
+  onerror: (() => void) | null = null;
+  readAsDataURL(_blob: Blob) {
+    this.result = 'data:audio/webm;base64,ZmFrZQ==';
+    queueMicrotask(() =>
+      this.onload?.call(this as unknown as FileReader, {} as ProgressEvent<FileReader>),
+    );
+  }
+}
+
 class MockMediaRecorder {
   state = 'inactive';
   mimeType: string;
@@ -49,6 +61,7 @@ describe('useRecorder', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     (globalThis as unknown as { MediaRecorder: unknown }).MediaRecorder = MockMediaRecorder;
+    (globalThis as unknown as { FileReader: unknown }).FileReader = MockFileReader;
   });
 
   afterEach(() => {
@@ -112,5 +125,33 @@ describe('useRecorder', () => {
       vi.advanceTimersByTime(3000);
     });
     expect(result.current.state).toBe('recording');
+  });
+
+  it('stopRecording moves recording → done with audioUrl set', async () => {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(result.current.state).toBe('recording');
+
+    await act(async () => {
+      result.current.stopRecording();
+      // flush queued microtask from MockFileReader.onload
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('done');
+    expect(result.current.audioUrl).toMatch(/^data:audio\//);
+    expect(result.current.audioBlob).toBeInstanceOf(Blob);
   });
 });
