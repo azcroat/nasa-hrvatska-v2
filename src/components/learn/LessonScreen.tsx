@@ -256,7 +256,7 @@ export default function LessonScreen({
             lc: s.lc + 1,
             pf: p === 1 ? s.pf + 1 : s.pf,
             rs: [...s.rs, String(Math.round(p * 100))],
-            ct: [...new Set([...s.ct, lt])],
+            ct: [...new Set([...(Array.isArray(s.ct) ? s.ct : []), lt])],
           }));
           writeDelta({ lc: 1, ...(p === 1 ? { pf: 1 } : {}), ct: [lt] });
           playFanfare();
@@ -874,7 +874,7 @@ export default function LessonScreen({
                     lc: s.lc + 1,
                     pf: p === 1 ? s.pf + 1 : s.pf,
                     rs: [...s.rs, String(Math.round(p * 100))],
-                    ct: [...new Set([...s.ct, lt])],
+                    ct: [...new Set([...(Array.isArray(s.ct) ? s.ct : []), lt])],
                   }));
                   writeDelta({ lc: 1, ...(p === 1 ? { pf: 1 } : {}), ct: [lt] });
                   playFanfare();

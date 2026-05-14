@@ -23,6 +23,7 @@ function shLocal<T>(a: T[]): T[] {
 }
 
 function buildQuestions(items: VocabItem[], distractors: VocabItem[]) {
+  if (!Array.isArray(items) || !Array.isArray(distractors)) return [];
   const sampled = shLocal(items).slice(0, 2);
   return sampled.map((item) => {
     const wrongOpts = shLocal(distractors.filter((d) => d.en !== item.en))
