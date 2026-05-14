@@ -154,4 +154,22 @@ describe('useRecorder', () => {
     expect(result.current.audioUrl).toMatch(/^data:audio\//);
     expect(result.current.audioBlob).toBeInstanceOf(Blob);
   });
+
+  it('sets state=denied when getUserMedia rejects with NotAllowedError', async () => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () =>
+          Promise.reject(Object.assign(new Error('denied'), { name: 'NotAllowedError' })),
+      },
+    });
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('denied');
+    expect(result.current.micAvailable).toBe(false);
+    expect(result.current.error?.code).toBe('NotAllowedError');
+  });
 });
