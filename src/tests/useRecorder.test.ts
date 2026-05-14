@@ -23,9 +23,32 @@ describe('negotiateMimeType', () => {
   });
 });
 
+class MockMediaRecorder {
+  state = 'inactive';
+  mimeType: string;
+  ondataavailable: ((e: { data: Blob }) => void) | null = null;
+  onstop: (() => void) | null = null;
+  onerror: ((e: unknown) => void) | null = null;
+  constructor(_stream: MediaStream, opts?: { mimeType?: string }) {
+    this.mimeType = opts?.mimeType ?? '';
+  }
+  start() {
+    this.state = 'recording';
+  }
+  stop() {
+    this.state = 'inactive';
+    this.ondataavailable?.({ data: new Blob(['fake'], { type: this.mimeType || 'audio/webm' }) });
+    this.onstop?.();
+  }
+}
+(MockMediaRecorder as unknown as { isTypeSupported: (m: string) => boolean }).isTypeSupported = (
+  m: string,
+) => m.startsWith('audio/webm');
+
 describe('useRecorder', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    (globalThis as unknown as { MediaRecorder: unknown }).MediaRecorder = MockMediaRecorder;
   });
 
   afterEach(() => {
@@ -70,5 +93,24 @@ describe('useRecorder', () => {
     });
     expect(result.current.state).toBe('countdown');
     expect(result.current.countdown).toBe(3);
+  });
+
+  it('transitions countdown → recording after 3 seconds', async () => {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    expect(result.current.state).toBe('countdown');
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(result.current.state).toBe('recording');
   });
 });
