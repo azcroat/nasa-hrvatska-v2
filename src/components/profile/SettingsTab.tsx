@@ -168,6 +168,9 @@ export default function SettingsTab({
   const [reduceMotion, setReduceMotion] = useState(
     () => localStorage.getItem('nh_reduce_motion') === 'true',
   );
+  const [microQuizEnabled, setMicroQuizEnabled] = useState(
+    () => localStorage.getItem('nh_microquiz_enabled') !== 'false',
+  );
   const [syncing, setSyncing] = useState(false);
   const [syncDone, setSyncDone] = useState(false);
   const [syncErr, setSyncErr] = useState(false);
@@ -684,6 +687,62 @@ export default function SettingsTab({
               position: 'absolute',
               top: 3,
               left: heartsAlways ? 21 : 3,
+              width: 20,
+              height: 20,
+              borderRadius: '50%',
+              background: 'white',
+              transition: 'left .2s',
+              boxShadow: '0 1px 4px rgba(0,0,0,.2)',
+            }}
+          />
+        </button>
+      </div>
+
+      {/* MicroQuiz toggle — brief recall checks every 3 lesson items */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '14px 0',
+          borderBottom: '1px solid var(--card-b)',
+        }}
+      >
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>
+            🧠 Quick checks during lessons
+          </div>
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}>
+            Brief 2-question recall checks every 3 items. Helps retention. No XP penalty for wrong.
+          </div>
+        </div>
+        <button
+          role="switch"
+          aria-checked={microQuizEnabled ? 'true' : 'false'}
+          onClick={() => {
+            const next = !microQuizEnabled;
+            setMicroQuizEnabled(next);
+            try {
+              localStorage.setItem('nh_microquiz_enabled', next ? 'true' : 'false');
+            } catch (_) {}
+          }}
+          style={{
+            width: 44,
+            height: 26,
+            borderRadius: 13,
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background .2s',
+            background: microQuizEnabled ? 'var(--success)' : 'var(--bar-bg)',
+            position: 'relative',
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              position: 'absolute',
+              top: 3,
+              left: microQuizEnabled ? 21 : 3,
               width: 20,
               height: 20,
               borderRadius: '50%',
