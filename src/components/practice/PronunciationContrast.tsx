@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { speak } from '../../lib/audio.js';
+import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
 function shLocal<T>(a: T[]): T[] {
   const b = [...a];
@@ -291,6 +293,7 @@ interface PronunciationContrastProps {
   award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function PronunciationContrast({ goBack, award }: PronunciationContrastProps) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [qs] = useState(() => shLocal(DATA));
   const [idx, setIdx] = useState(0);
@@ -316,7 +319,19 @@ export default function PronunciationContrast({ goBack, award }: PronunciationCo
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(score * 5, false, 'speaking');
+              if (typeof award === 'function') award(score * 5, false, 'grammar');
+              markQuest('grammar');
+              if (!stats.vs?.includes('pronunciation-contrast')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('pronunciation-contrast')) return prev;
+                  return {
+                    ...prev,
+                    gc: (prev.gc || 0) + 1,
+                    vs: [...(prev.vs || []), 'pronunciation-contrast'],
+                  };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['pronunciation-contrast'] });
+              }
               goBack();
             }}
             style={{ width: '100%', marginTop: 16 }}

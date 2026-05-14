@@ -116,18 +116,18 @@ export default function PitchAccentScreen({
               onClick={() => {
                 if (finishFired.current) return;
                 finishFired.current = true;
-                if (typeof award === 'function') award(score * 5 + 5, false, 'pronunciation');
+                if (typeof award === 'function') award(score * 5 + 5, false, 'grammar');
                 markQuest('grammar');
-                if (!stats.vs?.includes('pitchaccent')) {
+                if (!stats.vs?.includes('pitch-accent')) {
                   setStats((prev) => {
-                    if (prev.vs?.includes('pitchaccent')) return prev;
+                    if (prev.vs?.includes('pitch-accent')) return prev;
                     return {
                       ...prev,
-                      lc: (prev.lc || 0) + 1,
-                      vs: [...(prev.vs || []), 'pitchaccent'],
+                      gc: (prev.gc || 0) + 1,
+                      vs: [...(prev.vs || []), 'pitch-accent'],
                     };
                   });
-                  if (writeDelta) writeDelta({ lc: 1, vs: ['pitchaccent'] });
+                  if (writeDelta) writeDelta({ gc: 1, vs: ['pitch-accent'] });
                 }
                 goBack();
               }}

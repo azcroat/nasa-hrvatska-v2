@@ -4,6 +4,7 @@ import { unlockAudio } from '../../lib/audio.js';
 import PronunciationScorer from '../shared/PronunciationScorer';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -472,6 +473,7 @@ export default function ShadowingScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [said, setSaid] = useState(false);
@@ -572,8 +574,19 @@ export default function ShadowingScreen({
               onClick={() => {
                 if (finishFired.current) return;
                 finishFired.current = true;
-                if (typeof award === 'function') award(items.length * 3 + 5, false, 'speaking');
-                markQuest('speak');
+                if (typeof award === 'function') award(items.length * 3 + 5, false, 'listening');
+                markQuest('listening');
+                if (!stats.vs?.includes('shadowing')) {
+                  setStats((prev) => {
+                    if (prev.vs?.includes('shadowing')) return prev;
+                    return {
+                      ...prev,
+                      lc: (prev.lc || 0) + 1,
+                      vs: [...(prev.vs || []), 'shadowing'],
+                    };
+                  });
+                  if (writeDelta) writeDelta({ lc: 1, vs: ['shadowing'] });
+                }
                 goBack();
               }}
             >
