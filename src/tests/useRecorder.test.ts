@@ -172,4 +172,69 @@ describe('useRecorder', () => {
     expect(result.current.micAvailable).toBe(false);
     expect(result.current.error?.code).toBe('NotAllowedError');
   });
+
+  it('sets state=unsupported when no mediaDevices on navigator', () => {
+    Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: undefined });
+    const { result } = renderHook(() => useRecorder());
+    act(() => {
+      result.current.startRecording();
+    });
+    expect(result.current.state).toBe('unsupported');
+    expect(result.current.micAvailable).toBe(false);
+  });
+
+  it('sets state=unsupported on NotFoundError', async () => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () =>
+          Promise.reject(Object.assign(new Error('no mic'), { name: 'NotFoundError' })),
+      },
+    });
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('unsupported');
+  });
+
+  it('sets state=unsupported when negotiateMimeType returns null', async () => {
+    (MockMediaRecorder as unknown as { isTypeSupported: (m: string) => boolean }).isTypeSupported =
+      () => false;
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(result.current.state).toBe('unsupported');
+    // restore for following tests
+    (MockMediaRecorder as unknown as { isTypeSupported: (m: string) => boolean }).isTypeSupported =
+      (m: string) => m.startsWith('audio/webm');
+  });
+
+  it('sets state=error on generic DOMException', async () => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () =>
+          Promise.reject(Object.assign(new Error('huh'), { name: 'NotReadableError' })),
+      },
+    });
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('error');
+    expect(result.current.error?.code).toBe('NotReadableError');
+    expect(result.current.error?.message).toBe('huh');
+  });
 });
