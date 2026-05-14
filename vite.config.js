@@ -9,6 +9,50 @@ import fs from 'fs';
 const BUILD_ID = Date.now().toString();
 fs.writeFileSync('./public/version.json', JSON.stringify({ v: BUILD_ID }) + '\n');
 
+// CSP guard: Vite inlines small public/ scripts into the built index.html,
+// which violates script-src 'self' (no 'unsafe-inline'). This plugin runs
+// after all other HTML transforms and replaces any inlined <script> blocks
+// whose content matches native-init.js or sw-update.js with the original
+// external <script src="..."> tags — same behaviour, CSP-compliant.
+function keepPublicScriptsExternal() {
+  // Read the canonical source text for each file once at plugin init time.
+  const externalScripts = [
+    { src: '/native-init.js', file: 'public/native-init.js' },
+    { src: '/sw-update.js',   file: 'public/sw-update.js'   },
+  ].map(({ src, file }) => ({
+    src,
+    // Strip JS comments and normalise whitespace so we match against the
+    // content Vite embeds (it strips comments during its HTML processing).
+    raw: fs.readFileSync(file, 'utf8'),
+  }));
+
+  return {
+    name: 'keep-public-scripts-external',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      let result = html;
+      for (const { src, raw } of externalScripts) {
+        // Build a regex that matches an inline <script> whose body is a
+        // substring of (or identical to) the source file content.
+        // Vite strips leading // comments and trims, so we use the first
+        // non-comment code line as the unique fingerprint.
+        const firstCodeLine = raw
+          .split('\n')
+          .find(l => l.trim() && !l.trim().startsWith('//'));
+        if (!firstCodeLine) continue;
+        // Escape special regex chars in the fingerprint.
+        const escaped = firstCodeLine.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim();
+        const inlinePattern = new RegExp(
+          `<script>\\s*[\\s\\S]*?${escaped}[\\s\\S]*?<\\/script>`,
+          'g'
+        );
+        result = result.replace(inlinePattern, `<script src="${src}"></script>`);
+      }
+      return result;
+    },
+  };
+}
+
 export default defineConfig({
   // Inject BUILD_ID so sw.js can use it as CACHE_VER without any manual bumping.
   define: {
@@ -16,6 +60,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    keepPublicScriptsExternal(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: null,
