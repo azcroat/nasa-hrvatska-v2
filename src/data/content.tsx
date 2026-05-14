@@ -1224,6 +1224,20 @@ const LEARN_PATH = [
         lessonId: 'present-tense-verbs',
       },
       {
+        id: 'lp_perfective_verbs_a2',
+        name: 'Useful Verbs',
+        diff: 1,
+        dur: '~8 min',
+        cat: 'vocabulary',
+        icon: '⚡',
+        desc: '7 super-useful verbs you will use every day. Aspect theory comes later — for now, just learn the meanings.',
+        ck: function (s) {
+          return (s.ct && s.ct.includes('perfective_verbs_a2')) || s.lc >= 7;
+        },
+        go: 'lesson',
+        topic: 'perfective_verbs_a2',
+      },
+      {
         id: 'lp11',
         name: 'First Quiz',
         diff: 1,
