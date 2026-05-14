@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { speak, sh } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
@@ -1269,8 +1269,9 @@ interface ProductionDrillProps {
   award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function ProductionDrillScreen({ goBack, award }: ProductionDrillProps) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const [mode, setMode] = useState<string | null>(null);
+  const finishFired = useRef(false);
 
   // Adaptive session tracking — difficulty starts at 4 (free production exercises)
   const { onCorrect, onWrong, sessionSummary, reset } = useAdaptiveSession(4);
@@ -1289,9 +1290,17 @@ export default function ProductionDrillScreen({ goBack, award }: ProductionDrill
     : 'vocab-b1';
 
   function handleDone() {
-    markQuest('grammar');
-    setStats((s) => ({ ...s, gc: s.gc + 1 }));
-    writeDelta({ gc: 1 });
+    if (!finishFired.current) {
+      finishFired.current = true;
+      markQuest('grammar');
+      if (!stats.vs?.includes('production')) {
+        setStats((prev) => {
+          if (prev.vs?.includes('production')) return prev;
+          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'production'] };
+        });
+        if (writeDelta) writeDelta({ gc: 1, vs: ['production'] });
+      }
+    }
     // Rate each category based on session accuracy
     const summary = sessionSummary();
     for (const [cat, accuracy] of Object.entries(summary) as Array<[string, number]>) {

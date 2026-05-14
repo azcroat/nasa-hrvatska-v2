@@ -218,8 +218,9 @@ interface Props {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function ClozeEngine({ goBack, award }: Props) {
-  const { level, setStats, writeDelta } = useStats();
+  const { level, stats, setStats, writeDelta } = useStats();
   const mountedRef = useRef(true);
+  const finishFired = useRef(false);
   useEffect(
     () => () => {
       mountedRef.current = false;
@@ -295,11 +296,19 @@ export default function ClozeEngine({ goBack, award }: Props) {
   function handleNext() {
     stopAudio();
     if (qi + 1 >= questions.length) {
-      const earned = Math.round((score / questions.length) * 30) + 10;
-      if (award) award(earned, false, 'grammar');
-      markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!finishFired.current) {
+        finishFired.current = true;
+        const earned = Math.round((score / questions.length) * 30) + 10;
+        if (typeof award === 'function') award(earned, false, 'grammar');
+        markQuest('grammar');
+        if (!stats.vs?.includes('cloze')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('cloze')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'cloze'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['cloze'] });
+        }
+      }
       setDone(true);
     } else {
       setQi(qi + 1);

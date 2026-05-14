@@ -62,6 +62,22 @@ vi.mock('firebase/firestore', () => ({
 const mockMarkQuest = vi.hoisted(() => vi.fn());
 vi.mock('../lib/quests.js', () => ({ markQuest: mockMarkQuest }));
 
+// ── StatsContext mock ─────────────────────────────────────────────────────────
+const mockSetStats = vi.hoisted(() => vi.fn());
+const mockWriteDelta = vi.hoisted(() => vi.fn());
+vi.mock('../context/StatsContext', () => ({
+  useStats: vi.fn(() => ({
+    stats: { xp: 0, lc: 0, gc: 0, sp: 0, vs: [] as string[] },
+    setStats: mockSetStats,
+    writeDelta: mockWriteDelta,
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+  })),
+  StatsProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+}));
+
 // ── adaptive mock ─────────────────────────────────────────────────────────────
 vi.mock('../lib/adaptive.js', () => ({ recordTopicResult: vi.fn() }));
 

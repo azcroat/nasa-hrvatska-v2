@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { sh } from '../../data';
 import { TRANSLATE_DRILLS, C1_DRILLS } from '../../data/exercises.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 const CEFR_COLORS = { A2: '#16a34a', B1: '#d97706', B2: '#7c3aed', C1: '#be123c' };
 const CEFR_BG = {
@@ -19,6 +20,8 @@ export default function TranslateDrillsScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { stats, setStats, writeDelta } = useStats();
+  const finishFired = useRef(false);
   const drills = useMemo(
     () =>
       sh([...TRANSLATE_DRILLS, ...C1_DRILLS]).map((d) => ({
@@ -45,9 +48,19 @@ export default function TranslateDrillsScreen({
 
   function next() {
     if (idx + 1 >= drills.length) {
-      const xp = Math.round((score / drills.length) * 20);
-      if (xp > 0 && typeof award === 'function') award(xp, false, 'grammar');
-      markQuest('vocab');
+      if (!finishFired.current) {
+        finishFired.current = true;
+        const xp = Math.round((score / drills.length) * 20);
+        if (typeof award === 'function') award(xp, false, 'grammar');
+        markQuest('vocab');
+        if (!stats.vs?.includes('translate')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('translate')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'translate'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['translate'] });
+        }
+      }
       setDone(true);
     } else {
       setChosen(null);
