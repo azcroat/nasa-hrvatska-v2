@@ -55,6 +55,9 @@ export function useRecorder(): UseRecorderResult {
   const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const mountedRef = useRef(true);
+  // Synchronous re-entrancy guard. State-based check is racy because
+  // React batches setState — two sync calls both see state==='idle'.
+  const busyRef = useRef(false);
   const audioUrlRef = useRef<string | null>(null);
   useEffect(() => {
     audioUrlRef.current = audioUrl;
@@ -83,108 +86,107 @@ export function useRecorder(): UseRecorderResult {
     };
   }, []);
 
-  const startRecording = useCallback(
-    (_opts?: StartRecordingOpts) => {
-      if (
-        state !== 'idle' &&
-        state !== 'denied' &&
-        state !== 'unsupported' &&
-        state !== 'error' &&
-        state !== 'done'
-      ) {
-        return;
-      }
-      setState('requesting');
-      setError(null);
+  const startRecording = useCallback((_opts?: StartRecordingOpts) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setState('requesting');
+    setError(null);
 
-      if (!navigator.mediaDevices?.getUserMedia) {
-        setState('unsupported');
-        setMicAvailable(false);
-        return;
-      }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setState('unsupported');
+      setMicAvailable(false);
+      busyRef.current = false;
+      return;
+    }
 
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          if (!mountedRef.current) {
-            stream.getTracks().forEach((t) => t.stop());
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        if (!mountedRef.current) {
+          stream.getTracks().forEach((t) => t.stop());
+          busyRef.current = false;
+          return;
+        }
+        streamRef.current = stream;
+        setMicAvailable(true);
+        setCountdown(3);
+        setState('countdown');
+
+        let secs = 3;
+        countdownTimerRef.current = setInterval(() => {
+          secs -= 1;
+          if (!mountedRef.current) return;
+          if (secs > 0) {
+            setCountdown(secs);
             return;
           }
-          streamRef.current = stream;
-          setMicAvailable(true);
-          setCountdown(3);
-          setState('countdown');
-
-          let secs = 3;
-          countdownTimerRef.current = setInterval(() => {
-            secs -= 1;
-            if (!mountedRef.current) return;
-            if (secs > 0) {
-              setCountdown(secs);
-              return;
-            }
-            if (countdownTimerRef.current) {
-              clearInterval(countdownTimerRef.current);
-              countdownTimerRef.current = null;
-            }
-            const mime = negotiateMimeType(MediaRecorder.isTypeSupported.bind(MediaRecorder));
-            if (mime === null) {
-              setState('unsupported');
-              return;
-            }
-            const rec = new MediaRecorder(stream, { mimeType: mime });
-            recorderRef.current = rec;
-            const chunks: Blob[] = [];
-            rec.ondataavailable = (e: BlobEvent) => {
-              if (e.data && e.data.size > 0) chunks.push(e.data);
-            };
-            rec.onstop = () => {
-              stream.getTracks().forEach((t) => t.stop());
-              streamRef.current = null;
-              const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
-              if (!mountedRef.current) return;
-              setAudioBlob(blob);
-              const reader = new FileReader();
-              reader.onload = () => {
-                if (!mountedRef.current) return;
-                setAudioUrl(reader.result as string);
-                setState('done');
-              };
-              reader.onerror = () => {
-                if (!mountedRef.current) return;
-                setError({
-                  code: 'FileReaderError',
-                  message: "Couldn't save your recording.",
-                });
-                setState('error');
-              };
-              reader.readAsDataURL(blob);
-            };
-            rec.start();
-            setState('recording');
-          }, 1000);
-        })
-        .catch((err: Error & { name?: string }) => {
-          if (!mountedRef.current) return;
-          const code = err.name ?? 'UnknownError';
-          setMicAvailable(false);
-          setError({ code, message: err.message });
-          if (code === 'NotAllowedError' || code === 'PermissionDeniedError') {
-            setState('denied');
-          } else if (
-            code === 'NotFoundError' ||
-            code === 'DevicesNotFoundError' ||
-            code === 'OverconstrainedError' ||
-            code === 'NotSupportedError'
-          ) {
-            setState('unsupported');
-          } else {
-            setState('error');
+          if (countdownTimerRef.current) {
+            clearInterval(countdownTimerRef.current);
+            countdownTimerRef.current = null;
           }
-        });
-    },
-    [state],
-  );
+          const mime = negotiateMimeType(MediaRecorder.isTypeSupported.bind(MediaRecorder));
+          if (mime === null) {
+            setState('unsupported');
+            busyRef.current = false;
+            return;
+          }
+          const rec = new MediaRecorder(stream, { mimeType: mime });
+          recorderRef.current = rec;
+          const chunks: Blob[] = [];
+          rec.ondataavailable = (e: BlobEvent) => {
+            if (e.data && e.data.size > 0) chunks.push(e.data);
+          };
+          rec.onstop = () => {
+            stream.getTracks().forEach((t) => t.stop());
+            streamRef.current = null;
+            const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+            if (!mountedRef.current) return;
+            setAudioBlob(blob);
+            const reader = new FileReader();
+            reader.onload = () => {
+              if (!mountedRef.current) return;
+              setAudioUrl(reader.result as string);
+              setState('done');
+              busyRef.current = false;
+            };
+            reader.onerror = () => {
+              if (!mountedRef.current) return;
+              setError({
+                code: 'FileReaderError',
+                message: "Couldn't save your recording.",
+              });
+              setState('error');
+              busyRef.current = false;
+            };
+            reader.readAsDataURL(blob);
+          };
+          rec.start();
+          setState('recording');
+        }, 1000);
+      })
+      .catch((err: Error & { name?: string }) => {
+        if (!mountedRef.current) {
+          busyRef.current = false;
+          return;
+        }
+        const code = err.name ?? 'UnknownError';
+        setMicAvailable(false);
+        setError({ code, message: err.message });
+        if (code === 'NotAllowedError' || code === 'PermissionDeniedError') {
+          setState('denied');
+        } else if (
+          code === 'NotFoundError' ||
+          code === 'DevicesNotFoundError' ||
+          code === 'OverconstrainedError' ||
+          code === 'NotSupportedError'
+        ) {
+          setState('unsupported');
+        } else {
+          setState('error');
+        }
+        busyRef.current = false;
+      });
+  }, []);
 
   const stopRecording = useCallback(() => {
     const rec = recorderRef.current;
@@ -203,6 +205,7 @@ export function useRecorder(): UseRecorderResult {
   }, [audioUrl]);
 
   const reset = useCallback(() => {
+    busyRef.current = false;
     if (countdownTimerRef.current) {
       clearInterval(countdownTimerRef.current);
       countdownTimerRef.current = null;
