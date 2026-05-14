@@ -144,16 +144,15 @@ const FULL_CONTRACT_DRILLS = [
     vsTag: 'conjugation',
   },
   {
-    // SKIP: 100-question drill (25 pairs x 4 phases) times out on CI's 30s budget.
-    // Drill source verified contract-compliant during Task 7 (commit 7c3b47f):
-    // calls award, markQuest, setStats, and writeDelta({ gc: 1, vs: ['aspect'] }).
-    // Revisit if a partial-completion test pattern is introduced.
+    // Partial-completion pattern: vi.doMock overrides ASPECT_PAIRS with a 1-pair
+    // fixture so the drill completes after 4 questions (1 pair x 4 phases) instead
+    // of 100 (25 pairs x 4 phases). The real completion code path still executes.
+    // Override needed: answer buttons use inline styles (no .ob class).
     name: 'AspectDrillScreen',
     path: '../components/practice/AspectDrillScreen',
     vsTag: 'aspect',
-    // Override needed: answer buttons use inline styles (no .ob class).
     useOverride: true,
-    skip: true,
+    aspectMock: true,
   },
 ];
 
@@ -192,21 +191,68 @@ describe('Exercise Contract -- gold-pattern drills', () => {
   for (const drill of FULL_CONTRACT_DRILLS) {
     const testFn = (drill as { skip?: boolean }).skip ? it.skip : it;
     testFn(`${drill.name} follows the contract`, async () => {
-      const mod = await import(/* @vite-ignore */ drill.path);
-      const Component = mod.default;
+      // AspectDrillScreen: mock grammar module to inject 1-pair fixture so the
+      // drill completes after 4 questions instead of 100 (CI timeout fix).
+      // vi.resetModules() busts the module cache so doMock takes effect; we
+      // then re-import StatsProvider from the fresh registry to avoid the
+      // "useStats must be within StatsProvider" mismatch (different context objects).
+      let ComponentToRender: React.ComponentType<{
+        goBack: () => void;
+        award?: (...args: unknown[]) => void;
+      }>;
+      let ProviderToRender: React.ComponentType<{
+        value: StatsContextValue;
+        children: React.ReactNode;
+      }>;
+      if ((drill as { aspectMock?: boolean }).aspectMock) {
+        const ONE_PAIR_FIXTURE = [
+          {
+            impf: 'pisati',
+            pf: 'napisati',
+            en: 'to write',
+            rule: 'na- prefix marks completion',
+            ctx: 'Svaki dan pišem pisma. / Napisao sam pismo majci.',
+            cefr: 'B1',
+          },
+        ];
+        vi.resetModules();
+        vi.doMock('../data/grammar.js', async () => {
+          const actual = await vi.importActual<Record<string, unknown>>('../data/grammar.js');
+          return { ...actual, ASPECT_PAIRS: ONE_PAIR_FIXTURE };
+        });
+        const [compMod, ctxMod] = await Promise.all([
+          import(/* @vite-ignore */ drill.path),
+          import('../context/StatsContext'),
+        ]);
+        ComponentToRender = compMod.default;
+        ProviderToRender = ctxMod.StatsProvider as React.ComponentType<{
+          value: StatsContextValue;
+          children: React.ReactNode;
+        }>;
+      } else {
+        const mod = await import(/* @vite-ignore */ drill.path);
+        ComponentToRender = mod.default;
+        ProviderToRender = StatsProvider;
+      }
+
       const { value, setStats, writeDelta, award } = makeCtx();
       const goBack = vi.fn();
 
       render(
-        <StatsProvider value={value}>
-          <Component goBack={goBack} award={award} />
-        </StatsProvider>,
+        <ProviderToRender value={value}>
+          <ComponentToRender goBack={goBack} award={award} />
+        </ProviderToRender>,
       );
 
       const override = (drill as { useOverride?: boolean }).useOverride
         ? makeAspectOverride(award)
         : undefined;
       await completeDrill(award, override);
+
+      if ((drill as { aspectMock?: boolean }).aspectMock) {
+        vi.doUnmock('../data/grammar.js');
+        vi.resetModules();
+      }
 
       expect(award).toHaveBeenCalledTimes(1);
       expect(award.mock.calls[0]![0]).toBeGreaterThan(0);
