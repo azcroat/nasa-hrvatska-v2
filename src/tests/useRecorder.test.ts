@@ -343,4 +343,25 @@ describe('useRecorder', () => {
     unmount();
     expect(trackStop).toHaveBeenCalled();
   });
+
+  it('double-tap startRecording is a no-op for the second call', async () => {
+    let calls = 0;
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () => {
+          calls += 1;
+          return Promise.resolve(fakeStream);
+        },
+      },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+      result.current.startRecording();
+    });
+    expect(calls).toBe(1);
+  });
 });
