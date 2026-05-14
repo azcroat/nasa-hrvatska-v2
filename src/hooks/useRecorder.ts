@@ -142,8 +142,23 @@ export function useRecorder(): UseRecorderResult {
             setState('recording');
           }, 1000);
         })
-        .catch(() => {
-          // handled in Task 6
+        .catch((err: Error & { name?: string }) => {
+          if (!mountedRef.current) return;
+          const code = err.name ?? 'UnknownError';
+          setMicAvailable(false);
+          setError({ code, message: err.message });
+          if (code === 'NotAllowedError' || code === 'PermissionDeniedError') {
+            setState('denied');
+          } else if (
+            code === 'NotFoundError' ||
+            code === 'DevicesNotFoundError' ||
+            code === 'OverconstrainedError' ||
+            code === 'NotSupportedError'
+          ) {
+            setState('unsupported');
+          } else {
+            setState('error');
+          }
         });
     },
     [state],
