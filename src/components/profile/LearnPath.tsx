@@ -1,6 +1,78 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { H, LEARN_PATH } from '../../data';
 import type { Stats, LearnPathItem } from '../../types';
+import type { LevelQuizQuestion } from '../learn/LevelQuiz';
+
+// ── Mastery gate helper ──────────────────────────────────────────────────────
+// Returns true when targetLevel is unlocked.
+// Rules (all must hold):
+//   1. Level 1 is always unlocked.
+//   2. Prev level >= 80% items complete (using ck()).
+//   3. Prev level quiz passed (score >= 7/10).
+//   Grandfather: if prev level is 100% complete AND no quiz record exists,
+//   treat as auto-passed so existing progress is never blocked.
+type ItemWithCk = { ck: (s: Partial<Stats>) => boolean; topic?: string };
+function canUnlockLevel(
+  targetLevel: number,
+  prevLevelItems: ItemWithCk[],
+  stats: Partial<Stats>,
+): boolean {
+  if (targetLevel <= 1) return true;
+  const prevLevel = targetLevel - 1;
+  const completedCount = prevLevelItems.filter((it) => it.ck(stats)).length;
+  const threshold80 = Math.ceil(prevLevelItems.length * 0.8);
+  if (completedCount < threshold80) return false;
+  const quizRecord = stats.levelQuizPasses?.[prevLevel];
+  if (quizRecord && quizRecord.score >= 7) return true;
+  // Grandfather: full prev-level completion with no quiz record -> auto-pass
+  if (!quizRecord && completedCount >= prevLevelItems.length) return true;
+  return false;
+}
+
+// ── Level Quiz question builder ──────────────────────────────────────────────
+async function buildLevelQuizQuestions(levelItems: ItemWithCk[]): Promise<LevelQuizQuestion[]> {
+  const { V } = (await import('../../data')) as unknown as { V: Record<string, string[][]> };
+  const pool: { hr: string; en: string }[] = [];
+  for (const item of levelItems) {
+    if (!item.topic) continue;
+    const vocab = V[item.topic] ?? [];
+    pool.push(
+      ...vocab
+        .filter((w) => w[0] != null && w[1] != null)
+        .slice(0, 6)
+        .map((w) => ({ hr: w[0]!, en: w[1]! })),
+    );
+  }
+  if (pool.length < 4) return [];
+  // Deduplicate by hr word
+  const seen = new Set<string>();
+  const deduped = pool.filter((p) => {
+    if (seen.has(p.hr)) return false;
+    seen.add(p.hr);
+    return true;
+  });
+  const shuffled = [...deduped].sort(() => Math.random() - 0.5).slice(0, 10);
+  return shuffled.map((word) => {
+    const distractors = deduped
+      .filter((p) => p.en !== word.en)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3)
+      .map((p) => p.en);
+    // Pad distractors from pool if not enough
+    if (distractors.length < 3) {
+      const extra = pool.filter((p) => p.en !== word.en && !distractors.includes(p.en));
+      while (distractors.length < 3 && extra.length > 0) {
+        distractors.push(extra.splice(0, 1)[0]!.en);
+      }
+    }
+    return {
+      q: word.hr,
+      opts: [word.en, ...distractors].sort(() => Math.random() - 0.5),
+      answer: word.en,
+      en: '',
+    } satisfies LevelQuizQuestion;
+  });
+}
 
 // Returns a Set of topic keys whose FSRS words are mostly overdue (skill decay signal).
 // A topic is "decayed" when >40% of its reviewed words are past their due date.
@@ -127,8 +199,25 @@ export default function LearnPath({
 }) {
   const activeRef = useRef<HTMLDivElement | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [quizLaunching, setQuizLaunching] = useState(false);
   const decayedTopics = useMemo(() => getDecayedTopics(), []);
   const passedCheckpoints = useMemo(() => getPassedCheckpoints(), []);
+
+  // Launch the LevelQuiz screen for the given 1-based level number
+  async function launchLevelQuiz(levelNumber: number): Promise<void> {
+    if (!setScr) return;
+    setQuizLaunching(true);
+    try {
+      const levelData = LEARN_PATH[levelNumber - 1];
+      if (!levelData) return;
+      const questions = await buildLevelQuizQuestions(levelData.items as unknown as ItemWithCk[]);
+      sessionStorage.setItem('nh_level_quiz', JSON.stringify({ levelNumber, questions }));
+      sessionStorage.setItem('nh_ex_start', Date.now().toString());
+      setScr('levelquiz');
+    } finally {
+      setQuizLaunching(false);
+    }
+  }
 
   // Calculate global progress
   let totalDone = 0,
@@ -283,12 +372,12 @@ export default function LearnPath({
         const col = LEVEL_COLORS[li % LEVEL_COLORS.length]!;
         const levelDone = lv.items.filter((it) => it.ck(st)).length;
         const levelPct = Math.round((levelDone / lv.items.length) * 100);
-        const prevLevelDone =
-          li === 0
-            ? true
-            : LEARN_PATH[li - 1]!.items.filter((it) => it.ck(st)).length >=
-              Math.ceil(LEARN_PATH[li - 1]!.items.length * 0.6);
-        const isUnlocked = li === 0 || prevLevelDone;
+        const prevItems = li > 0 ? (LEARN_PATH[li - 1]!.items as unknown as ItemWithCk[]) : [];
+        const isUnlocked = canUnlockLevel(lv.level, prevItems, st);
+        // Level Quiz CTA: show when >= 80% complete but quiz not yet passed
+        const threshold80 = Math.ceil(lv.items.length * 0.8);
+        const quizPassed = (st.levelQuizPasses?.[lv.level]?.score ?? -1) >= 7;
+        const showQuizCTA = isUnlocked && levelDone >= threshold80 && !quizPassed && setScr;
 
         return (
           <div key={li} style={{ marginBottom: 8 }}>
@@ -638,7 +727,7 @@ export default function LearnPath({
               >
                 <div style={{ fontSize: 28, marginBottom: 6 }}>🔒</div>
                 <div style={{ fontSize: 13, color: 'var(--subtext)', fontWeight: 600 }}>
-                  Complete 60% of {LEARN_PATH[li - 1]?.title} to unlock
+                  Complete 80% of {LEARN_PATH[li - 1]?.title} and pass its Level Quiz to unlock
                 </div>
               </div>
             )}
@@ -706,6 +795,58 @@ export default function LearnPath({
                     Start →
                   </button>
                 )}
+              </div>
+            )}
+
+            {/* ── Level Quiz CTA — shown when >= 80% done but quiz not yet passed ── */}
+            {showQuizCTA && (
+              <div
+                className="c"
+                style={{
+                  marginTop: 4,
+                  marginBottom: 20,
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
+                  border: '2px solid #0e7490',
+                  borderRadius: 12,
+                }}
+              >
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#0e7490', marginBottom: 6 }}>
+                  Level {lv.level} Quiz
+                </div>
+                <div style={{ fontSize: 14, color: '#475569', marginBottom: 12 }}>
+                  10 questions from items you have studied. Score 7/10 to unlock Level{' '}
+                  {lv.level + 1}.
+                </div>
+                <button
+                  className="b bp"
+                  onClick={() => void launchLevelQuiz(lv.level)}
+                  disabled={quizLaunching}
+                  style={{ width: '100%' }}
+                >
+                  {quizLaunching ? 'Loading...' : 'Take Level Quiz →'}
+                </button>
+              </div>
+            )}
+
+            {/* Already passed badge */}
+            {isUnlocked && quizPassed && lv.level < LEARN_PATH.length && (
+              <div
+                style={{
+                  marginBottom: 12,
+                  padding: '8px 14px',
+                  borderRadius: 10,
+                  background: '#f0fdf4',
+                  border: '1.5px solid #86efac',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#166534',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                Level {lv.level} Quiz Passed ({st.levelQuizPasses![lv.level]!.score}/10)
               </div>
             )}
           </div>
