@@ -15,6 +15,11 @@ test-results/
 coverage/
 UsersjschrAppDataLocalGoogleChromeUser Data/
 
+# superpowers tooling scratch — session-local brainstorm/state directories,
+# regenerated on each /brainstorm. Specs and plans under docs/superpowers/
+# are tracked separately as historical decision records.
+.superpowers/
+
 # Build artifacts — contain internal URLs, DSN keys, performance data
 lighthouse-report.json
 e2e/sync-proof-report/
