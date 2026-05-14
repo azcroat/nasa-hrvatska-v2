@@ -1,5 +1,14 @@
 import { useState, useCallback } from 'react';
 
+const MIME_PRIORITY = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'] as const;
+
+export function negotiateMimeType(isTypeSupported: (m: string) => boolean): string | null {
+  for (const m of MIME_PRIORITY) {
+    if (isTypeSupported(m)) return m;
+  }
+  return null;
+}
+
 export type RecorderState =
   | 'idle'
   | 'requesting'
