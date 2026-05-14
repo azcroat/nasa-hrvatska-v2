@@ -69,6 +69,20 @@ vi.mock('../lib/quests.js', () => ({ markQuest: mockMarkQuest }));
 const mockRecordTopicResult = vi.hoisted(() => vi.fn());
 vi.mock('../lib/adaptive.js', () => ({ recordTopicResult: mockRecordTopicResult }));
 
+// ── StatsContext mock ─────────────────────────────────────────────────────────
+vi.mock('../context/StatsContext', () => ({
+  useStats: vi.fn(() => ({
+    stats: { vs: [] as string[], lc: 0 },
+    setStats: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 1,
+    writeDelta: vi.fn(),
+  })),
+  StatsProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+}));
+
 // ── apiFetch mock ─────────────────────────────────────────────────────────────
 const mockApiFetch = vi.hoisted(() =>
   vi.fn(() =>

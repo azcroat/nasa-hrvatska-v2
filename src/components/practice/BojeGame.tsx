@@ -1,11 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, BOJE } from '../../data';
+import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 interface Props {
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 export default function BojeGame({ goBack, award }: Props) {
+  const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [bjMode, sBjMode] = useState('learn');
   const [bjIdx, sBjIdx] = useState(0);
@@ -260,6 +263,18 @@ export default function BojeGame({ goBack, award }: Props) {
                       if (!finishFired.current) {
                         finishFired.current = true;
                         if (typeof award === 'function') award(bjSc * 2, false, 'vocabulary');
+                        markQuest('vocab');
+                        if (!stats.vs?.includes('boje')) {
+                          setStats((prev) => {
+                            if (prev.vs?.includes('boje')) return prev;
+                            return {
+                              ...prev,
+                              gc: (prev.gc || 0) + 1,
+                              vs: [...(prev.vs || []), 'boje'],
+                            };
+                          });
+                          if (writeDelta) writeDelta({ gc: 1, vs: ['boje'] });
+                        }
                       }
                       sBjIdx(total);
                     }

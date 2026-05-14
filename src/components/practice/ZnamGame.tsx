@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, Bar, sh, ZNAM, srMark } from '../../data';
+import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 export default function ZnamGame({
   goBack,
@@ -8,6 +10,8 @@ export default function ZnamGame({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { stats, setStats, writeDelta } = useStats();
+  const finishFired = useRef(false);
   const [znMode, sZnMode] = useState('menu');
   const [znSec, sZnSec] = useState(0);
   const [znIdx, sZnIdx] = useState(0);
@@ -24,6 +28,7 @@ export default function ZnamGame({
     sZnAns(false);
     sZnSel(-1);
     sZnOpts(sh([s0.hr, ...s0.alts]));
+    finishFired.current = false;
     sZnMode('quiz');
   }
 
@@ -126,6 +131,21 @@ export default function ZnamGame({
                       sZnSel(-1);
                       sZnOpts(sh([nxt.hr, ...nxt.alts]));
                     } else {
+                      if (!finishFired.current) {
+                        finishFired.current = true;
+                        markQuest('vocab');
+                        if (!stats.vs?.includes('znam')) {
+                          setStats((prev) => {
+                            if (prev.vs?.includes('znam')) return prev;
+                            return {
+                              ...prev,
+                              gc: (prev.gc || 0) + 1,
+                              vs: [...(prev.vs || []), 'znam'],
+                            };
+                          });
+                          if (writeDelta) writeDelta({ gc: 1, vs: ['znam'] });
+                        }
+                      }
                       sZnMode('done');
                     }
                   }}

@@ -10,7 +10,7 @@ export default function Unjumble({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const [ujQ] = useState(() => sh(UNJUMBLE).slice(0, 10));
   const [ujI, sUjI] = useState(0);
   const [ujS, sUjS] = useState(0);
@@ -46,8 +46,13 @@ export default function Unjumble({
               finishFired.current = true;
               if (typeof award === 'function') award(xp, false, 'grammar');
               markQuest('grammar');
-              setStats((s) => ({ ...s, gc: s.gc + 1 }));
-              writeDelta({ gc: 1 });
+              if (!stats.vs?.includes('unjumble')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('unjumble')) return prev;
+                  return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'unjumble'] };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['unjumble'] });
+              }
               goBack();
             }}
           >

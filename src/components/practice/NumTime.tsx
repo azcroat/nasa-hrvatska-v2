@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, NUMTIME } from '../../data';
+import { markQuest } from '../../lib/quests.js';
+import { useStats } from '../../context/StatsContext';
 
 export default function NumTime({
   goBack,
@@ -8,6 +10,7 @@ export default function NumTime({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { stats, setStats, writeDelta } = useStats();
   type NTQuestion = { q: string; a: string; al: string[] };
   const finishFired = useRef(false);
   const initialData = useState<[NTQuestion[], string[]]>(() => {
@@ -44,7 +47,15 @@ export default function NumTime({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(ntS * 3 + 10, false, 'vocabulary');
+              if (typeof award === 'function') award(ntS * 3 + 10, false, 'grammar');
+              markQuest('grammar');
+              if (!stats.vs?.includes('numtime')) {
+                setStats((prev) => {
+                  if (prev.vs?.includes('numtime')) return prev;
+                  return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'numtime'] };
+                });
+                if (writeDelta) writeDelta({ gc: 1, vs: ['numtime'] });
+              }
               goBack();
             }}
           >
