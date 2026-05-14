@@ -78,15 +78,17 @@ vi.mock('../data', async (importOriginal) => {
 });
 
 // ── StatsContext mock ─────────────────────────────────────────────────────────
+const mockSetStats = vi.hoisted(() => vi.fn());
+const mockWriteDelta = vi.hoisted(() => vi.fn());
 vi.mock('../context/StatsContext.tsx', () => ({
-  useStats: () => ({
-    writeDelta: vi.fn(),
-    stats: {},
-    setStats: vi.fn(),
+  useStats: vi.fn(() => ({
+    stats: { xp: 0, lc: 0, gc: 0, sp: 0, vs: [] as string[] },
+    setStats: mockSetStats,
+    writeDelta: mockWriteDelta,
     dispatch: vi.fn(),
     award: vi.fn(),
     level: 1,
-  }),
+  })),
   StatsProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 

@@ -8,7 +8,7 @@
  * DuoLingo best-practice: tile-tap engages deeper recall than multiple-choice
  * because the learner must produce word order, not just recognize it.
  */
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { SENTBUILD } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -99,8 +99,9 @@ export default function SentenceTileScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const haptic = useHaptic();
+  const finishFired = useRef(false);
 
   const questions = useMemo(() => {
     return shuffle(SENTBUILD).slice(0, 10);
@@ -155,10 +156,18 @@ export default function SentenceTileScreen({
   const handleNext = useCallback(() => {
     const nextIdx = idx + 1;
     if (nextIdx >= questions.length) {
-      if (typeof award === 'function') award(score * 4 + 5, true, 'grammar');
-      markQuest('grammar');
-      setStats((s) => ({ ...s, gc: s.gc + 1 }));
-      writeDelta({ gc: 1 });
+      if (!finishFired.current) {
+        finishFired.current = true;
+        if (typeof award === 'function') award(score * 4 + 5, true, 'grammar');
+        markQuest('grammar');
+        if (!stats.vs?.includes('sentence-tile')) {
+          setStats((prev) => {
+            if (prev.vs?.includes('sentence-tile')) return prev;
+            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'sentence-tile'] };
+          });
+          if (writeDelta) writeDelta({ gc: 1, vs: ['sentence-tile'] });
+        }
+      }
       setDone(true);
     } else {
       setIdx(nextIdx);
@@ -166,7 +175,7 @@ export default function SentenceTileScreen({
       setTray([]);
       setFeedback(null);
     }
-  }, [idx, questions, score, award, setStats, writeDelta]);
+  }, [idx, questions, score, award, stats, setStats, writeDelta]);
 
   if (done) {
     return (
