@@ -1,42 +1,115 @@
 /**
- * possessives.contract.test.tsx — Pattern Y
+ * possessives.contract.test.tsx — Pattern X
  *
- * PossessivesScreen uses inline-style option buttons (no .ob class); the generic
- * UI helper cannot click options to drive the MC loop.
- * We verify the contract clauses are wired in source instead.
+ * PossessivesScreen fires the contract when all possessive pronoun quiz questions
+ * are answered. shMemo limits to 10 questions; we snapshot all gray-border option
+ * buttons and click them.
  */
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, fireEvent } from '@testing-library/react';
+import { StatsProvider } from '../context/StatsContext';
+import type { Stats, StatsContextValue } from '../types';
 
-const source = readFileSync(
-  join(__dirname, '../components/practice/exercises/PossessivesScreen.tsx'),
-  'utf8',
-);
+vi.mock('../lib/random.js', () => ({ rnd: () => 0.9999 }));
 
-describe('PossessivesScreen — contract clauses (Pattern Y)', () => {
-  it('has a finishFired guard to prevent double-firing', () => {
-    expect(source).toMatch(/finishFired\.current/);
+const markQuestMock = vi.fn();
+vi.mock('../lib/quests.js', () => ({
+  markQuest: (...args: unknown[]) => markQuestMock(...args),
+}));
+
+function makeCtx(vsOverride?: string[]) {
+  const setStats = vi.fn();
+  const writeDelta = vi.fn();
+  const award = vi.fn();
+  const stats: Stats = {
+    xp: 0,
+    lc: 0,
+    gc: 0,
+    sp: 0,
+    de: 0,
+    rc: 0,
+    pf: 0,
+    mv: 0,
+    hi: 0,
+    str: 0,
+    authLoading: 0,
+    diff: 'beginner',
+    ct: [],
+    vs: vsOverride ?? [],
+    rs: [],
+    badges: [],
+  };
+  const value: StatsContextValue = {
+    stats,
+    setStats,
+    writeDelta,
+    dispatch: vi.fn(),
+    award,
+    level: 1,
+  };
+  return { value, setStats, writeDelta, award };
+}
+
+function clickAllGrayOptionButtons(): void {
+  const btns = Array.from(document.querySelectorAll('button')) as HTMLButtonElement[];
+  const grayBtns = btns.filter((b) =>
+    (b.getAttribute('style') ?? '').includes('rgb(214, 211, 209)'),
+  );
+  grayBtns.forEach((b) => fireEvent.click(b));
+}
+
+describe('PossessivesScreen contract (Pattern X)', () => {
+  beforeEach(() => {
+    markQuestMock.mockClear();
   });
 
-  it('fires markQuest("grammar") on completion', () => {
-    expect(source).toMatch(/markQuest\(['"]grammar['"]\)/);
+  it('fires award, markQuest(grammar), setStats gc+1/vs:possessives, writeDelta', async () => {
+    const { default: PossessivesScreen } =
+      await import('../components/practice/exercises/PossessivesScreen');
+    const { value, setStats, writeDelta, award } = makeCtx();
+
+    render(
+      <StatsProvider value={value}>
+        <PossessivesScreen goBack={vi.fn()} award={award} />
+      </StatsProvider>,
+    );
+
+    clickAllGrayOptionButtons();
+
+    expect(award).toHaveBeenCalled();
+    const calls = award.mock.calls as [number, boolean, string][];
+    const grammarCall = calls.find((c) => c[2] === 'grammar');
+    expect(grammarCall).toBeDefined();
+
+    expect(markQuestMock).toHaveBeenCalledWith('grammar');
+
+    expect(setStats).toHaveBeenCalled();
+    const updater = setStats.mock.calls[0]![0] as (prev: Stats) => Stats;
+    const next = updater({ ...value.stats });
+    expect(next.gc).toBe(1);
+    expect(next.vs).toContain('possessives');
+
+    expect(writeDelta).toHaveBeenCalledWith(
+      expect.objectContaining({ gc: 1, vs: expect.arrayContaining(['possessives']) }),
+    );
   });
 
-  it('calls award with activityType "grammar"', () => {
-    expect(source).toMatch(/award\([^)]*['"]grammar['"]\)/);
-  });
+  it('is idempotent — skips setStats/writeDelta when vs already has possessives', async () => {
+    const { default: PossessivesScreen } =
+      await import('../components/practice/exercises/PossessivesScreen');
+    const { value, setStats, writeDelta, award } = makeCtx(['possessives']);
 
-  it('calls setStats and increments gc by 1, appends "possessives" to vs', () => {
-    expect(source).toMatch(/gc:\s*\(prev\.gc\s*\|\|\s*0\)\s*\+\s*1/);
-    expect(source).toMatch(/vs:\s*\[\.\.\.\(prev\.vs\s*\|\|\s*\[\]\),\s*['"]possessives['"]\]/);
-  });
+    render(
+      <StatsProvider value={value}>
+        <PossessivesScreen goBack={vi.fn()} award={award} />
+      </StatsProvider>,
+    );
 
-  it('calls writeDelta with gc:1 and vs:["possessives"]', () => {
-    expect(source).toMatch(/writeDelta\(\s*\{\s*gc:\s*1,\s*vs:\s*\[\s*['"]possessives['"]\s*\]/);
-  });
+    clickAllGrayOptionButtons();
 
-  it('guards against duplicate first-time award (vs.includes check)', () => {
-    expect(source).toMatch(/vs\?\.includes\(['"]possessives['"]\)/);
+    expect(markQuestMock).toHaveBeenCalledWith('grammar');
+    expect(setStats).not.toHaveBeenCalled();
+    expect(writeDelta).not.toHaveBeenCalled();
   });
 });

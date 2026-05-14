@@ -1,43 +1,127 @@
 /**
- * reflexive.contract.test.tsx — Pattern Y
+ * reflexive.contract.test.tsx — Pattern X
  *
- * ReflexiveScreen has a multi-tab UI (rules/tenses/verbs/quiz) with inline-style
- * option buttons in the quiz tab (no .ob class). The generic UI helper cannot
- * navigate tabs and click options to drive the MC loop.
- * We verify the contract clauses are wired in source instead.
+ * ReflexiveScreen has a tabbed interface. The contract fires on the Quiz tab.
+ * We navigate to "Quiz" tab first, then snapshot all unanswered (gray-border)
+ * option buttons and click them; handledRef prevents double-counting.
+ * Quiz options use #e7e5e4 = rgb(231,229,228) as the unanswered border color.
  */
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, fireEvent, screen } from '@testing-library/react';
+import { StatsProvider } from '../context/StatsContext';
+import type { Stats, StatsContextValue } from '../types';
 
-const source = readFileSync(
-  join(__dirname, '../components/practice/exercises/ReflexiveScreen.tsx'),
-  'utf8',
-);
+vi.mock('../lib/random.js', () => ({ rnd: () => 0.9999 }));
 
-describe('ReflexiveScreen — contract clauses (Pattern Y)', () => {
-  it('has a questFiredRef guard to prevent double-firing', () => {
-    expect(source).toMatch(/questFiredRef\.current/);
+const markQuestMock = vi.fn();
+vi.mock('../lib/quests.js', () => ({
+  markQuest: (...args: unknown[]) => markQuestMock(...args),
+}));
+
+function makeCtx(vsOverride?: string[]) {
+  const setStats = vi.fn();
+  const writeDelta = vi.fn();
+  const award = vi.fn();
+  const stats: Stats = {
+    xp: 0,
+    lc: 0,
+    gc: 0,
+    sp: 0,
+    de: 0,
+    rc: 0,
+    pf: 0,
+    mv: 0,
+    hi: 0,
+    str: 0,
+    authLoading: 0,
+    diff: 'beginner',
+    ct: [],
+    vs: vsOverride ?? [],
+    rs: [],
+    badges: [],
+  };
+  const value: StatsContextValue = {
+    stats,
+    setStats,
+    writeDelta,
+    dispatch: vi.fn(),
+    award,
+    level: 1,
+  };
+  return { value, setStats, writeDelta, award };
+}
+
+function clickAllGrayOptionButtons(grayColor: string): void {
+  const btns = Array.from(document.querySelectorAll('button')) as HTMLButtonElement[];
+  const grayBtns = btns.filter((b) => (b.getAttribute('style') ?? '').includes(grayColor));
+  grayBtns.forEach((b) => fireEvent.click(b));
+}
+
+describe('ReflexiveScreen contract (Pattern X)', () => {
+  beforeEach(() => {
+    markQuestMock.mockClear();
   });
 
-  it('fires markQuest("grammar") on completion', () => {
-    expect(source).toMatch(/markQuest\(['"]grammar['"]\)/);
+  it('fires award, markQuest(grammar), setStats gc+1/vs:reflexive, writeDelta', async () => {
+    const { default: ReflexiveScreen } =
+      await import('../components/practice/exercises/ReflexiveScreen');
+    const { value, setStats, writeDelta, award } = makeCtx();
+
+    render(
+      <StatsProvider value={value}>
+        <ReflexiveScreen goBack={vi.fn()} award={award} />
+      </StatsProvider>,
+    );
+
+    // Navigate to Quiz tab
+    const quizTab = screen
+      .queryAllByRole('button')
+      .find((b) => /^Quiz$/i.test((b as HTMLElement).textContent?.trim() ?? ''));
+    if (quizTab) fireEvent.click(quizTab);
+
+    // Quiz options use #e7e5e4 for unanswered border
+    clickAllGrayOptionButtons('rgb(231, 229, 228)');
+
+    expect(award).toHaveBeenCalled();
+    const calls = award.mock.calls as [number, boolean, string][];
+    const grammarCall = calls.find((c) => c[2] === 'grammar');
+    expect(grammarCall).toBeDefined();
+    expect(grammarCall![0]).toBeGreaterThan(0);
+
+    expect(markQuestMock).toHaveBeenCalledWith('grammar');
+
+    expect(setStats).toHaveBeenCalled();
+    const updater = setStats.mock.calls[0]![0] as (prev: Stats) => Stats;
+    const next = updater({ ...value.stats });
+    expect(next.gc).toBe(1);
+    expect(next.vs).toContain('reflexive');
+
+    expect(writeDelta).toHaveBeenCalledWith(
+      expect.objectContaining({ gc: 1, vs: expect.arrayContaining(['reflexive']) }),
+    );
   });
 
-  it('calls award with activityType "grammar"', () => {
-    expect(source).toMatch(/award\([^)]*['"]grammar['"]\)/);
-  });
+  it('is idempotent — skips setStats/writeDelta when vs already has reflexive', async () => {
+    const { default: ReflexiveScreen } =
+      await import('../components/practice/exercises/ReflexiveScreen');
+    const { value, setStats, writeDelta, award } = makeCtx(['reflexive']);
 
-  it('calls setStats and increments gc by 1, appends "reflexive" to vs', () => {
-    expect(source).toMatch(/gc:\s*\(prev\.gc\s*\|\|\s*0\)\s*\+\s*1/);
-    expect(source).toMatch(/vs:\s*\[\.\.\.\(prev\.vs\s*\|\|\s*\[\]\),\s*['"]reflexive['"]\]/);
-  });
+    render(
+      <StatsProvider value={value}>
+        <ReflexiveScreen goBack={vi.fn()} award={award} />
+      </StatsProvider>,
+    );
 
-  it('calls writeDelta with gc:1 and vs:["reflexive"]', () => {
-    expect(source).toMatch(/writeDelta\(\s*\{\s*gc:\s*1,\s*vs:\s*\[\s*['"]reflexive['"]\s*\]/);
-  });
+    const quizTab = screen
+      .queryAllByRole('button')
+      .find((b) => /^Quiz$/i.test((b as HTMLElement).textContent?.trim() ?? ''));
+    if (quizTab) fireEvent.click(quizTab);
 
-  it('guards against duplicate first-time award (vs.includes check)', () => {
-    expect(source).toMatch(/vs\?\.includes\(['"]reflexive['"]\)/);
+    clickAllGrayOptionButtons('rgb(231, 229, 228)');
+
+    expect(markQuestMock).toHaveBeenCalledWith('grammar');
+    expect(setStats).not.toHaveBeenCalled();
+    expect(writeDelta).not.toHaveBeenCalled();
   });
 });
