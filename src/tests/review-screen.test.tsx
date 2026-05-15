@@ -10,7 +10,7 @@
  *   - Correct answer: "Next →" button appears for non-last question
  *   - Wrong answer: "✓ The answer was" + correct answer text shown
  *   - Wrong answer: srMark(word, false) + logError called
- *   - Wrong answer: apiFetch called for AI explanation
+ *   - Wrong answer: _aiPost called for AI explanation
  *   - Navigation: "Next →" advances to next question
  *   - Last question shows "Results" instead of "Next →"
  *   - Done mode: "Continue →" button, award(score * 5 + 5), markQuest('master')
@@ -104,7 +104,7 @@ vi.mock('../lib/knightSpeak.js', () => ({ knightSpeak: mockKnightSpeak }));
 // ── soundSettings mock ────────────────────────────────────────────────────────
 vi.mock('../lib/soundSettings.js', () => ({ playFanfare: vi.fn() }));
 
-// ── apiFetch mock — returns AI explanation ────────────────────────────────────
+// ── _aiPost mock — returns AI explanation ────────────────────────────────────
 const mockApiFetch = vi.hoisted(() =>
   vi.fn(() =>
     Promise.resolve({
@@ -119,7 +119,7 @@ const mockApiFetch = vi.hoisted(() =>
     }),
   ),
 );
-vi.mock('../lib/apiFetch.js', () => ({ apiFetch: mockApiFetch }));
+vi.mock('../lib/aiPost', () => ({ _aiPost: mockApiFetch }));
 
 // ── srs mock — controls which words appear ────────────────────────────────────
 const REVIEW_WORDS = vi.hoisted(() => [
@@ -334,7 +334,7 @@ describe('ReviewScreen — wrong answer', () => {
     expect(mockLogError).toHaveBeenCalled();
   });
 
-  it('wrong answer: apiFetch called for AI explanation', () => {
+  it('wrong answer: _aiPost called for AI explanation', () => {
     renderScreen();
     clickWrongOption();
     expect(mockApiFetch).toHaveBeenCalledWith('/api/explain-error', expect.any(Object));
