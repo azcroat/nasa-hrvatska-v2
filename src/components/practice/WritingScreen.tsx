@@ -10,6 +10,8 @@ import { _aiPost } from '../../lib/aiPost';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { addWordToSRS } from '../../lib/srs.js';
+import { CorrectionDiff } from './CorrectionDiff';
+import type { CorrectionChange } from './CorrectionDiff';
 
 const PROMPTS = [
   // A2 — simple present, basic vocabulary
@@ -133,71 +135,12 @@ const PROMPTS = [
   },
 ];
 
-interface ChangeItem {
-  original: string;
-  corrected?: string;
-  type?: string;
-  note?: string;
-}
-
-interface HighlightedTextProps {
-  original: string;
-  changes: ChangeItem[];
-}
-
-function HighlightedText({ original, changes }: HighlightedTextProps) {
-  if (!changes || changes.length === 0) {
-    return <span>{original}</span>;
-  }
-  const text = original;
-  const segments = [];
-  let lastIdx = 0;
-  // Sort changes by position in text
-  const sorted = [...changes].sort((a, b) => {
-    const ai = text.toLowerCase().indexOf(a.original.toLowerCase());
-    const bi = text.toLowerCase().indexOf(b.original.toLowerCase());
-    return ai - bi;
-  });
-  for (const change of sorted) {
-    const idx = text.toLowerCase().indexOf(change.original.toLowerCase(), lastIdx);
-    if (idx === -1) continue;
-    if (idx > lastIdx) segments.push({ text: text.slice(lastIdx, idx), error: false });
-    segments.push({ text: text.slice(idx, idx + change.original.length), error: true });
-    lastIdx = idx + change.original.length;
-  }
-  if (lastIdx < text.length) segments.push({ text: text.slice(lastIdx), error: false });
-  return (
-    <span>
-      {segments.map((seg, i) => (
-        <span
-          key={i}
-          style={
-            seg.error
-              ? {
-                  background: '#fef2f2',
-                  color: '#dc2626',
-                  borderRadius: 3,
-                  padding: '0 2px',
-                  textDecoration: 'underline',
-                  textDecorationColor: '#dc2626',
-                  textDecorationStyle: 'wavy',
-                }
-              : {}
-          }
-        >
-          {seg.text}
-        </span>
-      ))}
-    </span>
-  );
-}
-
 interface WritingResult {
   score?: number;
   level_demonstrated?: string;
   corrected_text?: string;
   strengths?: string[];
-  changes?: ChangeItem[];
+  changes?: CorrectionChange[];
   encouragement?: string;
 }
 
@@ -221,6 +164,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
   const { stats, setStats, writeDelta, level: userLevel } = useStats();
   const [promptIdx, setPromptIdx] = useState(() => Math.floor(rnd() * PROMPTS.length));
   const [text, setText] = useState('');
+  const [submittedText, setSubmittedText] = useState('');
   const [result, setResult] = useState<WritingResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -254,6 +198,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
     setLoading(true);
     setError('');
     setResult(null);
+    setSubmittedText(text);
     try {
       const res = await _aiPost('/api/correct', {
         mode: 'writeeval',
@@ -266,8 +211,9 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
       if (!mountedRef.current) return;
       setResult(data);
       // Log mistakes and add single-word corrections to SRS queue
-      const corrections: ChangeItem[] = data.changes || data.mistakes || [];
-      corrections.forEach((ch: ChangeItem) => {
+      type ApiCorrection = CorrectionChange & { type?: string };
+      const corrections: ApiCorrection[] = data.changes || data.mistakes || [];
+      corrections.forEach((ch: ApiCorrection) => {
         const orig = ch.original || '';
         const corr = (ch.corrected || '').trim();
         logError(
@@ -714,70 +660,12 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
             </div>
           )}
 
-          {/* Annotated diff with HighlightedText */}
-          {result.changes && result.changes.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--info)', marginBottom: 8 }}>
-                📝 Your text — annotated:
-              </p>
-              <div
-                style={{
-                  background: 'var(--card)',
-                  border: '1.5px solid var(--card-b)',
-                  borderRadius: 10,
-                  padding: '12px 14px',
-                  fontSize: 14,
-                  lineHeight: 2,
-                  color: 'var(--heading)',
-                }}
-              >
-                <HighlightedText original={text} changes={result.changes} />
-              </div>
-              <div style={{ marginTop: 10 }}>
-                {result.changes.map((c, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: 'flex',
-                      gap: 8,
-                      alignItems: 'flex-start',
-                      padding: '8px 10px',
-                      background: 'var(--error-bg)',
-                      border: '1px solid var(--error-b)',
-                      borderRadius: 8,
-                      marginBottom: 6,
-                    }}
-                  >
-                    <span style={{ fontSize: 16, flexShrink: 0 }}>✏️</span>
-                    <div>
-                      <span
-                        style={{
-                          color: 'var(--error)',
-                          textDecoration: 'line-through',
-                          fontWeight: 700,
-                        }}
-                      >
-                        {c.original}
-                      </span>
-                      <span style={{ color: 'var(--subtext)', margin: '0 6px' }}>→</span>
-                      <span style={{ color: 'var(--success)', fontWeight: 700 }}>
-                        {c.corrected}
-                      </span>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: 'var(--subtext)',
-                          marginTop: 3,
-                          fontStyle: 'italic',
-                        }}
-                      >
-                        {c.note}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {result.corrected_text && (
+            <CorrectionDiff
+              originalText={submittedText}
+              correctedText={result.corrected_text}
+              changes={result.changes ?? []}
+            />
           )}
 
           {/* Encouragement */}
