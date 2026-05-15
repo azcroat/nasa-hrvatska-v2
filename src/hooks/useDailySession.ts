@@ -408,6 +408,64 @@ export function getRecentProduction(): string[] {
   }
 }
 
+// ── Production pool (SP4b) ───────────────────────────────────────────────────
+// Five-member pool of exercises that require active learner output.
+// micRequired === false members are eligible as fallback for mic-blocked users.
+const PRODUCTION_POOL: Array<{
+  id: string;
+  label: string;
+  screen: string;
+  cefr: string;
+  category: SkillCategory;
+  micRequired: boolean;
+}> = [
+  {
+    id: 'speaking_sprint',
+    label: 'Speaking Sprint',
+    screen: 'speaking_sprint',
+    cefr: 'A2',
+    category: 'speaking',
+    micRequired: true,
+  },
+  {
+    id: 'shadowing',
+    label: 'Shadowing',
+    screen: 'shadowing',
+    cefr: 'A2',
+    category: 'speaking',
+    micRequired: true,
+  },
+  {
+    id: 'production_drill',
+    label: 'Production',
+    screen: 'productiondrill',
+    cefr: 'B1',
+    category: 'speaking',
+    micRequired: true,
+  },
+  {
+    id: 'writing',
+    label: 'Free Writing',
+    screen: 'writing',
+    cefr: 'B1',
+    category: 'speaking',
+    micRequired: false,
+  },
+  {
+    id: 'dictation',
+    label: 'Dictation',
+    screen: 'dictation',
+    cefr: 'B1',
+    category: 'speaking',
+    micRequired: false,
+  },
+];
+
+/** Set of screen IDs in the production pool, for fast lookup in markDone wiring. */
+export const PRODUCTION_SCREEN_IDS: ReadonlySet<string> = new Set(
+  PRODUCTION_POOL.map((p) => p.screen),
+);
+
 export function recordProductionExercise(screen: string): void {
   if (!screen || typeof screen !== 'string') return;
   try {
