@@ -419,6 +419,51 @@ For each of 5 endpoints, two tests:
 
 ## Follow-up slices to track
 
-- **SP5b:** extend the layer to the remaining 7 AI endpoints
+- **SP5b:** extend the layer to the remaining 7 AI endpoints (also: migrate the multi-mode `callAI` helper in `AIConversation.tsx` so its hint requestor sends `userContext`; wire `appendRecentError` into the per-unit drill screens — `AccusativeDrillScreen`, `AspectDrillScreen`, etc. — so the error log captures grammar-topic mistakes, not just story-reader MCQ errors; add timeout/retry to `_aiPost` to recover the resilience features that `apiFetch` had)
 - **SP5c:** server-side weekly summary that reads aggregated `userContext` snapshots
 - **SP5d:** optional A/B framework to measure correction-quality lift
+
+---
+
+## Follow-up — what shipped (2026-05-15)
+
+### Acceptance gate — actual results
+
+| Gate | Result | Evidence |
+|---|---|---|
+| 1. Schema strictly validated | PASS | 12 parser tests in `src/tests/_userContext.parser.test.js` |
+| 2. Zero regression on stateless path | PASS | All 5 endpoint integration tests assert byte-identical prompt when `userContext` absent (`USER ERROR CONTEXT` / `LEARNER NOTES` / `TUTOR CONTEXT` / `STORY CONTEXT` markers strictly absent in fallback path) |
+| 3. Client error-log chokepoint working | PARTIAL | `appendRecentError` shipped + wired into `GradedInputScreen` (story reader). Per-unit grammar drill screens deferred to SP5b — original chokepoint assumption was wrong (GrammarTrackScreen is a navigator, not a quiz). |
+| 4. Prompt-injection resistance | PASS | Parser test confirms `Ignore previous instructions` patterns stripped from `userAnswer` (test: `strips known prompt-injection patterns from userAnswer`) |
+| 5. Token budget held | PASS | Worst-case render: diagnostic 1675 chars (~420 tokens), maja 281, hint 57, explain 143, story 144 — all under 500-token soft ceiling |
+| 6. Maja regression-free | PASS | Existing `src/tests/ai-conversation.test.tsx` (11 tests) passes unchanged after Phase 5 |
+| 7. Per-phase rollback verified | PASS | Each phase shipped as a single commit; reverting any one strips the corresponding endpoint's userContext consumption only |
+| 8. Privacy filter | PASS | `grep email\|friendUids\|family` against `functions/api/_userContext.js` returns zero matches |
+
+### Commits
+
+- `1c8f932` feat(sp5): recentErrors.ts — appendRecentError + getRecentErrors with 7 tests
+- `a4414e6` feat(sp5): userContext.ts — buildUserContext + 15 unit tests
+- `5773bbb` feat(sp5): export getFirebaseBearer for AI request wrapper
+- `66f031e` feat(sp5): aiPost.ts wrapper attaches userContext + Bearer auth (4 tests)
+- `3700a69` feat(sp5): server parseUserContext with allowlist + sanitization (12 tests)
+- `121d006` feat(sp5): server renderContextPrompt + 5 per-kind helpers (8 tests)
+- `c4d95e5` feat(sp5): GradedInputScreen logs wrong answers to nh_recent_errors
+- `e52c1d5` feat(sp5): correct.js consumes userContext via renderContextPrompt
+- `11fc6ed` feat(sp5): client /api/correct callers migrate to _aiPost
+- `87330c9` feat(sp5): explain-error.js consumes userContext + client callers migrate
+- `09e34e8` fix(e2e/sp4b): clear nh_daily_session + raise xp to 3000 for deterministic B1
+- `a2a4efb` feat(sp5): grammar-diagnosis.js consumes userContext + client callers migrate
+- `3d33f29` feat(sp5): ai-chat.js hint/explain/story consume userContext (3 modes, others untouched)
+- `adf4603` feat(sp5): conversation.js Maja consumes userContext alongside conversationMemory
+- `40947b6` test(e2e): SP5 user-context payload visible at /api/correct call site
+
+Full unit + integration suite: **2801 passed**, 25 skipped, 0 failed (148 test files).
+
+### Notable adaptations made during execution
+
+1. **`_aiPost` gained an `AbortSignal` pass-through** (`AiPostOptions.signal`) — required to preserve stream cancellation behavior in `AIConversation.tsx`'s `callMaja()`. Backwards-compatible (only spread into `RequestInit` when present).
+2. **`getWeakTopics` signature differed from plan** — the existing `adaptive.ts` returns `{id, accuracy(0–100), attempts}`, not `{topic, accuracy(0–1), attempts}`. The `readWeakTopics()` helper in `userContext.ts` translates: rename `id`→`topic`, divide accuracy by 100.
+3. **`GrammarTrackScreen.tsx` is a curriculum navigator, not a quiz** — original plan target was wrong. Error logging in v1 ships only on `GradedInputScreen` (story reader). SP5b extends to the actual per-unit drill screens.
+4. **`ai-chat.js` has THREE prompt construction sites** (early `explain` branch, `SINGLE_PROMPT_MODES` branch, main path) — all three were patched with a shared `_maybePersonalize()` helper to keep DRY.
+5. **`AIConversation.tsx`'s hint requestor was NOT migrated** to `_aiPost` because it routes through a multi-mode `callAI` helper that also serves non-target modes. Server fail-open when `userContext` is missing means the call still works, just without personalization. SP5b refactors `callAI` to fix this.
