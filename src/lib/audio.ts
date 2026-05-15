@@ -5,6 +5,22 @@ import { getVoicePreference } from './soundSettings';
 import { isNative, isIos } from './platform';
 import { dbgInfo, dbgWarn, dbgError } from './debugLog';
 
+// Server-side /api/tts requires Firebase auth (security audit 406d772).
+// Get the current Firebase user's ID token and add it as Bearer.
+async function _getFirebaseBearer(): Promise<string | null> {
+  try {
+    const { getAuth } = await import('firebase/auth');
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return null;
+    const token = await user.getIdToken(false);
+    return token || null;
+  } catch (e) {
+    dbgWarn('[TTS] could not get Firebase ID token:', (e as Error)?.message ?? e);
+    return null;
+  }
+}
+
 // In Capacitor native builds, relative URLs resolve to the bundled WebView server
 // (https://localhost), not to the live domain. We try each endpoint in order and
 // use the first one that returns a successful response.
@@ -37,6 +53,17 @@ async function _ttsPost(
 ): Promise<Response | null> {
   const endpoints = isNative() ? _NATIVE_ENDPOINTS : [''];
 
+  // Attach Firebase Bearer token so the server-side auth gate passes.
+  // Without this, /api/tts returns 401 and TTS silently falls through to
+  // Web Speech — which fails on devices without a Croatian voice.
+  const bearer = await _getFirebaseBearer();
+  const authHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (bearer) {
+    authHeaders.Authorization = `Bearer ${bearer}`;
+  } else {
+    dbgWarn('[TTS] no Firebase user signed in — request will be unauthenticated');
+  }
+
   if (isNative()) {
     // Try CapacitorHttp (native Android HTTP — bypasses WebView fetch() failures)
     type _CapHttp = {
@@ -63,7 +90,7 @@ async function _ttsPost(
           dbgInfo(`[TTS] CapacitorHttp POST → "${url}"`);
           const resp = await capHttp.post({
             url,
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders,
             data: body,
             responseType: 'blob',
           });
@@ -116,7 +143,7 @@ async function _ttsPost(
     try {
       const r = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify(body),
         signal,
       });
