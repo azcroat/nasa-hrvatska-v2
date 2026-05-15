@@ -7,7 +7,18 @@ import { GRADED_STORIES } from '../../data/gradedStories.js';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { useRecorder } from '../../hooks/useRecorder';
+import { appendRecentError } from '../../lib/recentErrors';
 import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
+
+// Map CEFR story level to TOPIC_ALLOWLIST entry for recent-error logging.
+// Graded stories test vocabulary comprehension, so vocab-{level} is the
+// closest semantic match. A1 buckets to vocab-a2 since the allowlist has
+// no vocab-a1 entry.
+function _levelToTopic(level: string): string {
+  if (level === 'B2' || level === 'C1') return 'vocab-b2';
+  if (level === 'B1') return 'vocab-b1';
+  return 'vocab-a2';
+}
 
 const LEVELS = ['All', 'A1', 'A2', 'B1'];
 const LEVEL_COLOR: Record<string, string> = { A1: '#166534', A2: '#1e40af', B1: '#92400e' };
@@ -721,7 +732,17 @@ function StoryQuiz({
     if (answered || !q) return;
     setSelected(idx);
     setAnswered(true);
-    if (idx === q.correct) setScore((s) => s + 1);
+    if (idx === q.correct) {
+      setScore((s) => s + 1);
+    } else {
+      // Log wrong answer so AI feedback endpoints can reference recent mistakes.
+      appendRecentError({
+        topic: _levelToTopic(story.level),
+        prompt: q.q ?? '',
+        userAnswer: q.opts[idx] ?? '',
+        correctAnswer: q.opts[q.correct] ?? '',
+      });
+    }
   }
 
   function next() {
