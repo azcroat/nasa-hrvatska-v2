@@ -1,38 +1,23 @@
 name: cf-skip-bot-on-api
-
-# Uses tempfiles for every JSON body to eliminate bash-quoting bugs that
-# made the previous attempts fail with "Malformed JSON" (CF code 6007).
-
 on:
   workflow_dispatch:
-
 jobs:
   fix:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify token
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          set -e
-          curl -sS https://api.cloudflare.com/client/v4/user/tokens/verify \
-            -H "Authorization: Bearer $CF_TOKEN" | jq .
-
-      - name: Resolve zone ID + show zone-level permissions
+      - name: Resolve zone ID
         id: zone
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -e
-          RESP=$(curl -sS \
+          ZONE_ID=$(curl -sS \
             "https://api.cloudflare.com/client/v4/zones?name=nasahrvatska.com" \
-            -H "Authorization: Bearer $CF_TOKEN")
-          echo "Zone-level permissions granted to this token:"
-          echo "$RESP" | jq '.result[0].permissions'
-          ZONE_ID=$(echo "$RESP" | jq -r '.result[0].id')
+            -H "Authorization: Bearer $CF_TOKEN" | jq -r '.result[0].id')
           echo "zone-id=$ZONE_ID" >> "$GITHUB_OUTPUT"
+          echo "Zone: $ZONE_ID"
 
-      - name: Attempt — direct PATCH /settings/security_level
+      - name: Verbose PATCH security_level — debug raw HTTP
         id: zs
         continue-on-error: true
         env:
@@ -40,92 +25,42 @@ jobs:
           ZONE: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
-          printf '{"value":"essentially_off"}' > /tmp/sl.json
-          echo "Body bytes:"
-          xxd /tmp/sl.json | head -2
-          RESP=$(curl -sS -X PATCH \
+          # Print HTTP status, response headers, and body together. Trim any
+          # newline/whitespace in the token in case the secret has one.
+          TOKEN_CLEAN=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          echo "Token length: ${#CF_TOKEN}, cleaned length: ${#TOKEN_CLEAN}"
+          curl -sS -i -X PATCH \
             "https://api.cloudflare.com/client/v4/zones/$ZONE/settings/security_level" \
-            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Authorization: Bearer $TOKEN_CLEAN" \
             -H "Content-Type: application/json" \
-            --data-binary @/tmp/sl.json)
-          echo "Response:"
-          echo "$RESP" | jq .
-          OK=$(echo "$RESP" | jq -r '.success')
-          if [ "$OK" = "true" ]; then
-            echo "winner=security_level" >> "$GITHUB_OUTPUT"
-          fi
+            -d '{"value":"essentially_off"}' \
+            -w '\n--- HTTP %{http_code} | %{size_upload}B uploaded ---\n'
 
-      - name: Attempt — direct PATCH /settings/browser_check
-        id: bc
-        continue-on-error: true
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          ZONE: ${{ steps.zone.outputs.zone-id }}
-        run: |
-          set +e
-          printf '{"value":"off"}' > /tmp/bc.json
-          RESP=$(curl -sS -X PATCH \
-            "https://api.cloudflare.com/client/v4/zones/$ZONE/settings/browser_check" \
-            -H "Authorization: Bearer $CF_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data-binary @/tmp/bc.json)
-          echo "Response:"
-          echo "$RESP" | jq .
-          OK=$(echo "$RESP" | jq -r '.success')
-          if [ "$OK" = "true" ]; then
-            echo "winner=browser_check" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Attempt — Page Rule for /api/* (only if direct flips didn't fully work)
+      - name: Verbose Page Rule POST — debug raw HTTP
         id: pr
         continue-on-error: true
-        if: steps.zs.outputs.winner == '' || steps.bc.outputs.winner == ''
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           ZONE: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
-          cat > /tmp/pr.json <<'JSON'
-          {
-            "targets": [
-              {
-                "target": "url",
-                "constraint": { "operator": "matches", "value": "*nasahrvatska.com/api/*" }
-              }
-            ],
-            "actions": [
-              { "id": "security_level", "value": "essentially_off" },
-              { "id": "browser_integrity_check", "value": "off" }
-            ],
-            "priority": 1,
-            "status": "active"
-          }
-          JSON
-          echo "Body:"
-          cat /tmp/pr.json
-          RESP=$(curl -sS -X POST \
+          TOKEN_CLEAN=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          # Use jq to build the JSON safely
+          BODY=$(jq -n \
+            --arg url "*nasahrvatska.com/api/*" \
+            '{
+              targets: [{ target: "url", constraint: { operator: "matches", value: $url } }],
+              actions: [
+                { id: "security_level", value: "essentially_off" },
+                { id: "browser_integrity_check", value: "off" }
+              ],
+              priority: 1,
+              status: "active"
+            }')
+          echo "Body to send: $BODY"
+          curl -sS -i -X POST \
             "https://api.cloudflare.com/client/v4/zones/$ZONE/pagerules" \
-            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Authorization: Bearer $TOKEN_CLEAN" \
             -H "Content-Type: application/json" \
-            --data-binary @/tmp/pr.json)
-          echo "Response:"
-          echo "$RESP" | jq .
-          OK=$(echo "$RESP" | jq -r '.success')
-          if [ "$OK" = "true" ]; then
-            echo "winner=pagerules" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Result
-        env:
-          ZS: ${{ steps.zs.outputs.winner }}
-          BC: ${{ steps.bc.outputs.winner }}
-          PR: ${{ steps.pr.outputs.winner }}
-        run: |
-          set -e
-          echo "Winners: zs=$ZS bc=$BC pr=$PR"
-          if [ -n "$ZS" ] || [ -n "$BC" ] || [ -n "$PR" ]; then
-            echo "::notice::At least one CF API path succeeded. Test https://nasahrvatska.com/api/tts in 60s."
-            exit 0
-          fi
-          echo "::error::All paths failed. See per-step responses above for the actual CF error codes."
-          exit 1
+            -d "$BODY" \
+            -w '\n--- HTTP %{http_code} ---\n'
