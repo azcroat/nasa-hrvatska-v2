@@ -15,6 +15,7 @@ import { markQuest } from '../../lib/quests.js';
 import { logError, getErrorsForAPI } from '../../lib/learnerErrors.js';
 import { SCENARIOS, deriveWeakAreas, sceneForCat } from './ConversationScenarios.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 import { stopAudio } from '../../lib/audio.ts';
 import AIConversationHeader from './AIConversationHeader';
 import AIConversationWriteSetup from './AIConversationWriteSetup';
@@ -472,12 +473,7 @@ export default function AIConversation({
 
     let res;
     try {
-      res = await apiFetch('/api/conversation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: ctrl.signal,
-      });
+      res = await _aiPost('/api/conversation', body, { signal: ctrl.signal });
     } catch (netErr) {
       const err = netErr as Error;
       if (err.name === 'AbortError') throw new Error('Request timed out — please try again.');
