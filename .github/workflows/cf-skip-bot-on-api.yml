@@ -1,0 +1,99 @@
+name: cf-skip-bot-on-api
+
+# One-shot workflow_dispatch that creates a Cloudflare Configuration Rule
+# matching URI path /api/*, setting Security Level = essentially_off and
+# Browser Integrity Check = off. Goal: unblock POST /api/tts in browsers
+# being challenged by Cloudflare Bot Fight Mode.
+#
+# Uses the existing CLOUDFLARE_API_TOKEN secret. If the token lacks the
+# Rulesets edit scope, every API write returns 403 and the workflow fails
+# loudly so we know to upgrade the token instead of pretending it worked.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-rule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve zone ID
+        id: zone
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -e
+          RESP=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones?name=nasahrvatska.com" \
+            -H "Authorization: Bearer $CF_TOKEN")
+          echo "Zones response: $RESP"
+          ZONE_ID=$(echo "$RESP" | jq -r '.result[0].id')
+          if [ -z "$ZONE_ID" ] || [ "$ZONE_ID" = "null" ]; then
+            echo "::error::Failed to resolve zone ID for nasahrvatska.com"
+            exit 1
+          fi
+          echo "zone-id=$ZONE_ID" >> "$GITHUB_OUTPUT"
+          echo "Zone ID: $ZONE_ID"
+
+      - name: List existing http_config_settings rulesets
+        id: list
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ZONE: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set -e
+          RESP=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE/rulesets" \
+            -H "Authorization: Bearer $CF_TOKEN")
+          echo "Rulesets response: $RESP"
+          RULESET_ID=$(echo "$RESP" | jq -r '.result[] | select(.phase == "http_config_settings") | .id' | head -n1)
+          echo "Existing http_config_settings ruleset id: $RULESET_ID"
+          echo "ruleset-id=${RULESET_ID:-}" >> "$GITHUB_OUTPUT"
+
+      - name: Create or append rule
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ZONE: ${{ steps.zone.outputs.zone-id }}
+          RULESET: ${{ steps.list.outputs.ruleset-id }}
+        run: |
+          set -e
+          RULE_BODY='{
+            "expression": "(starts_with(http.request.uri.path, \"/api/\"))",
+            "action": "set_config",
+            "action_parameters": {
+              "security_level": "essentially_off",
+              "bic": false
+            },
+            "description": "SP4a-mic: bypass Bot Fight Mode on /api/* (set by automated workflow)"
+          }'
+
+          if [ -z "$RULESET" ] || [ "$RULESET" = "null" ]; then
+            echo "No existing http_config_settings ruleset — creating a new one with our rule baked in"
+            CREATE_BODY=$(jq -n --argjson rule "$RULE_BODY" '{
+              name: "Skip bot challenge for API (automated)",
+              kind: "zone",
+              phase: "http_config_settings",
+              rules: [$rule]
+            }')
+            RESP=$(curl -sS -X POST \
+              "https://api.cloudflare.com/client/v4/zones/$ZONE/rulesets" \
+              -H "Authorization: Bearer $CF_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "$CREATE_BODY")
+          else
+            echo "Existing ruleset $RULESET found — appending our rule"
+            RESP=$(curl -sS -X POST \
+              "https://api.cloudflare.com/client/v4/zones/$ZONE/rulesets/$RULESET/rules" \
+              -H "Authorization: Bearer $CF_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "$RULE_BODY")
+          fi
+
+          echo "Response:"
+          echo "$RESP" | jq .
+
+          SUCCESS=$(echo "$RESP" | jq -r '.success')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "::error::Cloudflare API returned success=false. See response above. Likely the token lacks the Rulesets:Edit scope on this zone. Upgrade scope or use the dashboard."
+            exit 1
+          fi
+          echo "::notice::Rule created. Edge will pick up the change within 30-60 seconds."
