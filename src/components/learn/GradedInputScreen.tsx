@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { speak } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { unlockAudio } from '../../lib/audio.js';
@@ -8,6 +8,7 @@ import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { useRecorder } from '../../hooks/useRecorder';
 import { appendRecentError } from '../../lib/recentErrors';
+import { recordStoryRead } from '../../lib/recentReads';
 import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
 
 // Map CEFR story level to TOPIC_ALLOWLIST entry for recent-error logging.
@@ -915,12 +916,21 @@ function StoryQuiz({
 export default function GradedInputScreen({
   goBack,
   award,
+  initialStoryId,
 }: {
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
+  initialStoryId?: string;
 }) {
-  const [view, setView] = useState('list'); // 'list' | 'reader' | 'quiz'
-  const [story, setStory] = useState<GradedStory | null>(null);
+  // SP7: when launched with initialStoryId, skip the catalog and open the
+  // matching story directly. Unknown IDs fall through to the list view.
+  const initialStory = useMemo(() => {
+    if (!initialStoryId) return null;
+    return GRADED_STORIES.find((s: GradedStory) => s.id === initialStoryId) ?? null;
+  }, [initialStoryId]);
+
+  const [view, setView] = useState(initialStory ? 'reader' : 'list'); // 'list' | 'reader' | 'quiz'
+  const [story, setStory] = useState<GradedStory | null>(initialStory);
   const completeFired = useRef(false);
   const { stats, setStats, writeDelta } = useStats();
 
@@ -936,6 +946,7 @@ export default function GradedInputScreen({
   function complete(xp: number) {
     if (completeFired.current) return;
     completeFired.current = true;
+    if (story) recordStoryRead(story.id); // SP7
     if (story) markDone(story.id);
     if (typeof award === 'function') award(xp, false, 'reading');
     markQuest('reading');
