@@ -4,6 +4,7 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { checkAIQuota } from './_aiQuota.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -106,10 +107,17 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  // No auth required — no personal data stored
+  // Require Firebase auth — even though no personal data is stored, Anthropic
+  // is paid per request. Without auth, a rotating-IP attacker drains the budget.
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  let _uid = null;
+  if (FIREBASE_PROJECT_ID) {
+    _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!_uid) return err(401, 'unauthorized', origin);
+  }
 
-  // Quota check (cost 1)
-  const quota = await checkAIQuota(request, env, null, 1);
+  // Quota check (cost 1) — keyed on uid for per-user enforcement
+  const quota = await checkAIQuota(request, env, _uid, 1);
   if (!quota.allowed) {
     return new Response(
       JSON.stringify({

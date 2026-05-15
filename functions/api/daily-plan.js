@@ -3,6 +3,7 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { checkAIQuota } from './_aiQuota.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -120,8 +121,17 @@ export async function onRequestPost(context) {
     });
   }
 
-  // Daily AI quota check (cost 2 — Sonnet model)
-  const quota = await checkAIQuota(request, env, null, 2);
+  // Require Firebase auth — Anthropic is paid per request. Without auth, a rotating-IP
+  // attacker drains the budget. Also lets the quota check be per-user instead of per-IP.
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  let _uid = null;
+  if (FIREBASE_PROJECT_ID) {
+    _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!_uid) return err(401, 'unauthorized', origin);
+  }
+
+  // Daily AI quota check (cost 2 — Sonnet model) — now keyed on uid when present
+  const quota = await checkAIQuota(request, env, _uid, 2);
   if (!quota.allowed) {
     return new Response(
       JSON.stringify({

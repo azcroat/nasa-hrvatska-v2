@@ -20,6 +20,7 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { log, logError } from './_logger.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 function isAllowedOrigin(origin, isDev) {
   // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
@@ -95,6 +96,19 @@ export async function onRequestGet({ request, env }) {
       status: 400,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
     });
+  }
+
+  // Require Firebase auth — Pexels free quota is shared across all callers.
+  // Without auth, a rotating-IP attacker can exhaust Pexels rate limit for real users.
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  if (FIREBASE_PROJECT_ID) {
+    const _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!_uid) {
+      return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+      });
+    }
   }
 
   const allowed = await checkRateLimit(request, 30, env);

@@ -9,6 +9,8 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { corsHeaders, isAllowedOrigin, sanitizeParam, ok, err } from './_helpers.js';
+import { getFirebaseUid } from './_verifyToken.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 const CROATIAN_VOICES = {
   female: 'hr-HR-GabrijelaNeural',
@@ -30,6 +32,19 @@ export async function onRequestPost(context) {
   // Strict rate limit — D-ID is expensive
   const allowed = await checkRateLimit(request, 5, env);
   if (!allowed) return err(429, 'Rate limited', origin);
+
+  // Require Firebase auth — D-ID is paid per video (~$0.30+). Without auth, a rotating-IP
+  // attacker can drain the D-ID budget even with rate limit in place.
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  let _uid = null;
+  if (FIREBASE_PROJECT_ID) {
+    _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!_uid) return err(401, 'unauthorized', origin);
+  }
+
+  // Per-user daily AI quota — caps how many D-ID videos any single user can request.
+  const _quota = await checkAIQuota(request, env, _uid, 1);
+  if (!_quota.allowed) return err(429, 'quota_exceeded', origin);
 
   const DID_API_KEY = env.DID_API_KEY;
   if (!DID_API_KEY) return err(503, 'Avatar video not configured', origin);

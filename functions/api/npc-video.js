@@ -14,6 +14,8 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { corsHeaders, isAllowedOrigin } from './_helpers.js';
 import { log, logError } from './_logger.js';
+import { getFirebaseUid } from './_verifyToken.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 const VALID_PORTRAITS = new Set([
   'barista',
@@ -67,6 +69,29 @@ export async function onRequestGet({ request, env }) {
   const allowed = await checkRateLimit(request, 20, env);
   if (!allowed) {
     return new Response(JSON.stringify({ ok: false, error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Require Firebase auth — D-ID is paid (~$0.30+/video). Without auth gate, a rotating-IP
+  // attacker can drain the budget. Cache miss → D-ID call → real money.
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  let _uid = null;
+  if (FIREBASE_PROJECT_ID) {
+    _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!_uid) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+      });
+    }
+  }
+
+  // Per-user daily AI quota
+  const _quota = await checkAIQuota(request, env, _uid, 1);
+  if (!_quota.allowed) {
+    return new Response(JSON.stringify({ error: 'quota_exceeded', resetAt: _quota.resetAt }), {
       status: 429,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
     });
