@@ -50,7 +50,7 @@ export function projectChangesToNodes(
     if (!c || typeof c.original !== 'string' || c.original.length === 0) return;
     const at = findFreeOccurrence(c.original, 0);
     if (at === -1) {
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.DEV) {
         console.warn('[CorrectionDiff] dropped change — original not found:', c.original);
       }
       return;
