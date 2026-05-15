@@ -220,6 +220,7 @@ export default function McQuestionArea({
             <div key={i} style={{ position: 'relative' }}>
               <motion.button
                 ref={i === 0 ? firstOptionRef : null}
+                data-testid={'mc-option-' + i}
                 className={'ob' + (isCorrect ? ' ok' : isWrong ? ' no' : '')}
                 aria-pressed={answered && selected === i}
                 aria-label={`Option ${i + 1}: ${o}`}

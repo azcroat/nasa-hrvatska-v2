@@ -2,7 +2,7 @@
 // SP10: one render per retrofitted screen, asserting each new testid is present.
 // Guards against accidental testid removal during future refactors.
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
 // ── Firebase mocks (some screens pull these transitively) ────────────────────
@@ -64,7 +64,11 @@ vi.mock('../context/StatsContext.tsx', () => ({
     React.createElement(React.Fragment, null, children),
 }));
 vi.mock('../lib/quests.js', () => ({ markQuest: vi.fn() }));
-vi.mock('../lib/srs.js', () => ({ addWordToSRS: vi.fn(), getSR: () => ({}) }));
+vi.mock('../lib/srs.js', () => ({
+  addWordToSRS: vi.fn(),
+  getSR: () => ({}),
+  getPrioritizedReviewQueue: () => [['hvala', 'thank you', '']],
+}));
 vi.mock('../lib/adaptive.js', () => ({ recordTopicResult: vi.fn() }));
 vi.mock('../lib/adaptive.ts', () => ({
   recordTopicResult: vi.fn(),
@@ -87,7 +91,24 @@ vi.mock('../lib/audio.ts', () => ({
 }));
 vi.mock('../lib/soundSettings.js', () => ({
   getVoicePreference: vi.fn(() => 'hr-HR-GabrijelaNeural'),
+  playCorrect: vi.fn(),
+  playWrong: vi.fn(),
+  playFanfare: vi.fn(),
 }));
+vi.mock('../lib/lives.js', () => ({
+  getHearts: () => 5,
+  loseHeart: () => 4,
+  refillHearts: vi.fn(),
+}));
+vi.mock('../hooks/useHaptic', () => ({
+  useHaptic: () => ({ correct: vi.fn(), wrong: vi.fn(), award: vi.fn(), tap: vi.fn() }),
+}));
+vi.mock('../hooks/useNotifications', () => ({ markPracticed: vi.fn() }));
+vi.mock('../lib/learnerErrors.js', () => ({ logError: vi.fn() }));
+vi.mock('../lib/aiPost', () => ({
+  _aiPost: vi.fn(() => Promise.resolve({ ok: false, json: () => Promise.resolve({}) })),
+}));
+vi.mock('../lib/random.js', () => ({ rnd: () => 0.5 }));
 vi.mock('../lib/knightSpeak.js', () => ({ knightSpeak: vi.fn() }));
 vi.mock('../lib/platform.js', () => ({ isNative: () => false }));
 vi.mock('../lib/recentReads', () => ({
@@ -191,5 +212,56 @@ describe('SP10 testid smoke tests — BLOCKER screens', () => {
     expect(screen.getByTestId('nav-practice')).toBeInTheDocument();
     expect(screen.getByTestId('nav-croatia')).toBeInTheDocument();
     expect(screen.getByTestId('nav-profile')).toBeInTheDocument();
+  });
+});
+
+describe('SP10 testid smoke tests — PRIORITY screens', () => {
+  it('ClozeEngine renders cloze-input + cloze-submit testids (in typing mode)', async () => {
+    const { default: ClozeEngine } = await import('../components/practice/ClozeEngine');
+    render(<ClozeEngine goBack={() => {}} award={() => {}} />);
+    // Default is multiple-choice; toggle into typing mode to surface input + submit testids.
+    const toggle = screen.getByText(/Multiple Choice/i);
+    fireEvent.click(toggle);
+    expect(screen.getByTestId('cloze-input')).toBeInTheDocument();
+    expect(screen.getByTestId('cloze-submit')).toBeInTheDocument();
+  });
+
+  it('McGame renders mc-option-0 through mc-option-3 testids', async () => {
+    const { default: McGame } = await import('../components/practice/McGame');
+    const questions = [
+      {
+        hr: 'hvala',
+        correct: 'thank you',
+        opts: ['thank you', 'goodbye', 'hello', 'please'],
+        _qIdx: 0,
+        _isRetry: false,
+      },
+    ];
+    render(
+      <McGame questions={questions} onComplete={() => {}} goBack={() => {}} award={() => {}} />,
+    );
+    expect(screen.getByTestId('mc-option-0')).toBeInTheDocument();
+    expect(screen.getByTestId('mc-option-1')).toBeInTheDocument();
+    expect(screen.getByTestId('mc-option-2')).toBeInTheDocument();
+    expect(screen.getByTestId('mc-option-3')).toBeInTheDocument();
+  });
+
+  it('DictationScreen renders dictation-input + dictation-submit testids', async () => {
+    const { default: DictationScreen } = await import('../components/practice/DictationScreen');
+    render(<DictationScreen goBack={() => {}} award={() => {}} />);
+    expect(screen.getByTestId('dictation-input')).toBeInTheDocument();
+    expect(screen.getByTestId('dictation-submit')).toBeInTheDocument();
+  });
+
+  it('ReviewScreen renders review-flip testid', async () => {
+    const { default: ReviewScreen } = await import('../components/practice/ReviewScreen');
+    render(<ReviewScreen goBack={() => {}} award={() => {}} />);
+    expect(screen.getByTestId('review-flip')).toBeInTheDocument();
+  });
+
+  it('AspectDrillScreen renders aspect-option-0 testid', async () => {
+    const { default: AspectDrillScreen } = await import('../components/practice/AspectDrillScreen');
+    render(<AspectDrillScreen goBack={() => {}} award={() => {}} />);
+    expect(screen.getByTestId('aspect-option-0')).toBeInTheDocument();
   });
 });

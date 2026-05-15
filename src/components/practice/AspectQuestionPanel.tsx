@@ -111,6 +111,7 @@ export default function AspectQuestionPanel({
               return (
                 <button
                   key={i}
+                  data-testid={'aspect-option-' + i}
                   onClick={() => onAnswer(opt)}
                   style={{
                     flex: 1,
@@ -186,6 +187,7 @@ export default function AspectQuestionPanel({
               return (
                 <button
                   key={i}
+                  data-testid={'aspect-option-' + i}
                   onClick={() => onAnswer(opt)}
                   style={{
                     flex: 1,

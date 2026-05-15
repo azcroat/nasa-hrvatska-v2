@@ -325,6 +325,7 @@ export default function DictationScreen({ goBack, award }: Props) {
 
       <input
         ref={inputRef}
+        data-testid="dictation-input"
         type="text"
         value={input}
         onChange={(e) => {
@@ -455,6 +456,7 @@ export default function DictationScreen({ goBack, award }: Props) {
 
       {!checked ? (
         <button
+          data-testid="dictation-submit"
           className="b bp"
           style={{ width: '100%', marginTop: 16 }}
           onClick={handleCheck}
