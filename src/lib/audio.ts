@@ -683,3 +683,9 @@ export function getAudioDebugState(): Record<string, string | number | boolean> 
     isNative: isNative(),
   };
 }
+
+// SP5: expose Firebase Bearer fetcher for AI POST wrapper (`_aiPost`).
+// Wraps the internal `_getFirebaseBearer` without renaming it (preserves internal call sites).
+export async function getFirebaseBearer(): Promise<string | null> {
+  return _getFirebaseBearer();
+}
