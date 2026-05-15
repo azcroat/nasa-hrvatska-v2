@@ -4,6 +4,7 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
+import { parseUserContext, renderContextPrompt } from './_userContext.js';
 
 function sanitizeParam(value, maxLen = 200) {
   return String(value || '')
@@ -122,8 +123,10 @@ export async function onRequestPost(context) {
   }
 
   const safePrompt = sanitizeParam(prompt, 300);
+  const userCtx = parseUserContext(reqBody);
+  const contextProse = renderContextPrompt(userCtx, 'correct');
 
-  const systemPrompt = `You are a Croatian language teacher. The student was asked to write about: "${safePrompt}".
+  const basePrompt = `You are a Croatian language teacher. The student was asked to write about: "${safePrompt}".
 
 Analyze their Croatian text and respond with ONLY valid JSON (no markdown, no code blocks) in this exact format:
 {
@@ -145,6 +148,8 @@ Analyze their Croatian text and respond with ONLY valid JSON (no markdown, no co
 Score 0-100 based on grammar accuracy, vocabulary, and natural expression.
 level_demonstrated: A1 (Beginner), A2 (Elementary), B1 (Intermediate), B2 (Upper-Intermediate), C1 (Advanced).
 List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be encouraging and specific.`;
+
+  const systemPrompt = contextProse ? basePrompt + '\n\n' + contextProse : basePrompt;
 
   // Block 1: network errors only
   let response;
