@@ -1,7 +1,11 @@
 // src/tests/useDailySession.production.test.ts
 // Full unit test file — replaces the partial version from Task 1.
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { readMicState, selectProductionExercise } from '../hooks/useDailySession';
+import {
+  readMicState,
+  selectProductionExercise,
+  buildSessionActivities,
+} from '../hooks/useDailySession';
 
 vi.mock('../lib/random.js', () => ({ rnd: () => 0 }));
 
@@ -164,5 +168,48 @@ describe('selectProductionExercise — recent-exclusion', () => {
       recentScreens: ['writing', 'dictation'],
     });
     expect(['writing', 'dictation']).toContain(result?.screen);
+  });
+});
+
+describe('buildSessionActivities — P2.5 production slot', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('A2 session contains exactly one production-pool screen', () => {
+    const result = buildSessionActivities('A2');
+    const productionScreens = [
+      'speaking_sprint',
+      'shadowing',
+      'writing',
+      'dictation',
+      'productiondrill',
+    ];
+    const matches = result.filter((a) => productionScreens.includes(a.screen));
+    expect(matches.length).toBe(1);
+  });
+
+  it('A1 session does NOT contain a production-pool screen (all locked)', () => {
+    const result = buildSessionActivities('A1');
+    const productionScreens = [
+      'speaking_sprint',
+      'shadowing',
+      'writing',
+      'dictation',
+      'productiondrill',
+    ];
+    const matches = result.filter((a) => productionScreens.includes(a.screen));
+    expect(matches.length).toBe(0);
+  });
+
+  it('mic-denied user at B1 gets Writing or Dictation as production slot', () => {
+    localStorage.setItem('nh_mic_state', 'denied');
+    const result = buildSessionActivities('B1');
+    const productionMatch = result.find((a) =>
+      ['speaking_sprint', 'shadowing', 'writing', 'dictation', 'productiondrill'].includes(
+        a.screen,
+      ),
+    );
+    expect(['writing', 'dictation']).toContain(productionMatch?.screen);
   });
 });
