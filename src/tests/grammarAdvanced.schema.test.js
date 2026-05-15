@@ -93,12 +93,15 @@ describe('grammar-advanced.js schema', () => {
     }
   });
 
-  it('Task 1 baseline: ADVANCED_UNITS has at least 1 unit', () => {
-    expect(ADVANCED_UNITS.length).toBeGreaterThanOrEqual(1);
+  it('ADVANCED_UNITS has exactly 10 entries', () => {
+    expect(ADVANCED_UNITS).toHaveLength(10);
   });
 
-  it('Task 1 baseline: the FUTUR_II exemplar is present', () => {
-    expect(ADVANCED_UNITS.find((u) => u.id === 'futur-ii')).toBeTruthy();
+  it('exactly 5 B2 + 5 C1', () => {
+    const b2 = ADVANCED_UNITS.filter((u) => u.cefr === 'B2');
+    const c1 = ADVANCED_UNITS.filter((u) => u.cefr === 'C1');
+    expect(b2).toHaveLength(5);
+    expect(c1).toHaveLength(5);
   });
 
   it('no drill option string is empty', () => {
