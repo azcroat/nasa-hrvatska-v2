@@ -112,7 +112,86 @@ export function parseUserContext(body) {
   };
 }
 
-// renderContextPrompt added in Task 6 — stub here so imports don't break.
-export function renderContextPrompt(_ctx, _kind) {
-  return '';
+function _renderDiagnostic(ctx) {
+  const lines = ['USER ERROR CONTEXT:'];
+  lines.push(`- ${ctx.level.cefr} learner (XP ${ctx.level.xp}, ${ctx.level.streak}-day streak)`);
+  if (ctx.weakTopics.length > 0) {
+    const weak = ctx.weakTopics
+      .map((t) => `${t.topic} (${Math.round(t.accuracy * 100)}% over ${t.attempts} attempts)`)
+      .join(', ');
+    lines.push(`- Persistent weakness: ${weak}`);
+  }
+  if (ctx.recentErrors.length > 0) {
+    lines.push('- Recent mistakes:');
+    for (const e of ctx.recentErrors) {
+      lines.push(
+        `  - ${e.minutesAgo}m ago: "${e.prompt}" - user said "${e.userAnswer}" (correct: "${e.correctAnswer}") - topic: ${e.topic}`,
+      );
+    }
+  }
+  if (ctx.vocab.learned > 0 || ctx.vocab.hardest.length > 0) {
+    const hardest =
+      ctx.vocab.hardest.length > 0 ? `; struggles with: ${ctx.vocab.hardest.join(', ')}` : '';
+    lines.push(`- Known vocab: ${ctx.vocab.learned} words${hardest}`);
+  }
+  lines.push("Use this to ground your feedback in the learner's actual pattern.");
+  return lines.join('\n');
+}
+
+function _renderMaja(ctx) {
+  const weak =
+    ctx.weakTopics.length > 0
+      ? `currently weak on ${ctx.weakTopics.map((t) => t.topic).join(', ')}`
+      : '';
+  const struggles =
+    ctx.vocab.hardest.length > 0
+      ? `Recent struggles include ${ctx.vocab.hardest.slice(0, 3).join(', ')}.`
+      : '';
+  return [
+    'LEARNER NOTES (in addition to conversation memory):',
+    `This learner is ${ctx.level.cefr}${weak ? ', ' + weak : ''}. ${struggles}`.trim(),
+    'When you can naturally weave these into the scenario, do so - but do not over-correct mid-conversation.',
+  ]
+    .join('\n')
+    .trim();
+}
+
+function _renderHint(ctx) {
+  const weak = ctx.weakTopics.length > 0 ? ctx.weakTopics[0].topic : '';
+  return `Learner: ${ctx.level.cefr}${weak ? `, weak in ${weak}` : ''}. Keep hint at that level.`;
+}
+
+function _renderTutor(ctx) {
+  const breadth = ctx.vocab.learned;
+  const weak =
+    ctx.weakTopics.length > 0
+      ? ` Focus area: ${ctx.weakTopics[0].topic} (${Math.round(ctx.weakTopics[0].accuracy * 100)}% accuracy).`
+      : '';
+  return `TUTOR CONTEXT: ${ctx.level.cefr} learner; vocabulary breadth ~${breadth} words.${weak} Anchor explanations on what they already know.`;
+}
+
+function _renderStoryContext(ctx) {
+  const breadth = ctx.vocab.learned;
+  const avoid = ctx.weakTopics.length > 0 ? ctx.weakTopics[0].topic : '';
+  return `STORY CONTEXT: ${ctx.level.cefr} reader; vocabulary breadth ~${breadth} words. Use accessible vocabulary; ${avoid ? `avoid heavy ${avoid} constructions in the first paragraph.` : 'prefer concrete nouns.'}`;
+}
+
+export function renderContextPrompt(ctx, kind) {
+  if (!ctx) return '';
+  switch (kind) {
+    case 'correct':
+    case 'explain-error':
+    case 'grammar-diagnosis':
+      return _renderDiagnostic(ctx);
+    case 'maja':
+      return _renderMaja(ctx);
+    case 'ai-chat-hint':
+      return _renderHint(ctx);
+    case 'ai-chat-explain':
+      return _renderTutor(ctx);
+    case 'ai-chat-story':
+      return _renderStoryContext(ctx);
+    default:
+      return '';
+  }
 }
