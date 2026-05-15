@@ -527,6 +527,21 @@ describe('useRecorder', () => {
     expect(playSpy).not.toHaveBeenCalled();
   });
 
+  it('startRecording({countdown:0}) skips the countdown and goes straight to recording', async () => {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording({ countdown: 0 });
+    });
+    // With no countdown, the hook should jump from 'requesting' straight to 'recording'.
+    expect(result.current.state).toBe('recording');
+  });
+
   it('maxDurationMs auto-stops the recording after the elapsed time', async () => {
     const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
     Object.defineProperty(navigator, 'mediaDevices', {
