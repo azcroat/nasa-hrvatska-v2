@@ -66,6 +66,10 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [vadLevel, setVadLevel] = useState(0); // 0–1 for UI visualisation
+  // SP4a — exposed so consumers (AIConversation, LiveTutorScreen, MajaScreen)
+  // can render the shared MicPermissionDeniedExplainer instead of just relying
+  // on the onError callback with a plain string. Reset on cleanup.
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   // Whether Whisper is available: null=untested, true=confirmed, false=503→use Web Speech
   const whisperAvailRef = useRef(null);
@@ -448,6 +452,7 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       audioCtxRef.current = null;
       ctxIsOwnedRef.current = false;
       if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+        setPermissionDenied(true);
         onErrorRef.current?.(
           isNative()
             ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
@@ -462,6 +467,11 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
     }
   }, [isListening, isProcessing, vadTick, startWebSpeech, stop]);
 
+  /** Manually clear permission-denied state (e.g., after user re-grants and taps Try Again). */
+  const clearPermissionDenied = useCallback(() => {
+    setPermissionDenied(false);
+  }, []);
+
   return {
     isListening,
     isProcessing,
@@ -470,5 +480,8 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
     stop,
     /** True when Whisper path is active (false → Web Speech fallback is in use) */
     usingWhisper: SUPPORTS_VAD && whisperAvailRef.current !== false,
+    /** SP4a — set true when getUserMedia rejected with NotAllowed/PermissionDenied. */
+    permissionDenied,
+    clearPermissionDenied,
   };
 }
