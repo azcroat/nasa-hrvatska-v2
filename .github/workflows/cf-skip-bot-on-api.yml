@@ -5,7 +5,7 @@ jobs:
   fix:
     runs-on: ubuntu-latest
     steps:
-      - name: Resolve zone ID
+      - name: Resolve zone ID + clean token
         id: zone
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -18,49 +18,78 @@ jobs:
           echo "zone-id=$ZONE_ID" >> "$GITHUB_OUTPUT"
           echo "token-clean=$TOKEN" >> "$GITHUB_OUTPUT"
 
-      - name: Inspect current bot_management config
+      # Try PATCH for every zone-settings endpoint that could be the bot trigger.
+      # Print HTTP status + body for each; non-200 = scope-blocked.
+      - name: PATCH bot_fight_mode = off
         env:
-          TOKEN: ${{ steps.zone.outputs.token-clean }}
-          ZONE: ${{ steps.zone.outputs.zone-id }}
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
-          curl -sS \
-            "https://api.cloudflare.com/client/v4/zones/$ZONE/bot_management" \
-            -H "Authorization: Bearer $TOKEN" | jq .
-
-      - name: Create Page Rule disable_security for /api/*
-        id: pr
-        continue-on-error: true
-        env:
-          TOKEN: ${{ steps.zone.outputs.token-clean }}
-          ZONE: ${{ steps.zone.outputs.zone-id }}
-        run: |
-          set +e
-          BODY=$(jq -n '{
-            targets: [{ target: "url", constraint: { operator: "matches", value: "*nasahrvatska.com/api/*" } }],
-            actions: [
-              { id: "disable_security", value: "on" }
-            ],
-            priority: 1,
-            status: "active"
-          }')
-          echo "PR body: $BODY"
-          curl -sS -i -X POST \
-            "https://api.cloudflare.com/client/v4/zones/$ZONE/pagerules" \
-            -H "Authorization: Bearer $TOKEN" \
+          curl -sS -i -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$Z/settings/bot_fight_mode" \
+            -H "Authorization: Bearer $T" \
             -H "Content-Type: application/json" \
-            -d "$BODY" \
-            -w '\n--- HTTP %{http_code} ---\n'
+            -d '{"value":"off"}' \
+            -w '\n--- HTTP %{http_code} ---\n' | tail -10
 
-      - name: Restore zone-wide security_level to medium
+      - name: PATCH browser_check = off
         env:
-          TOKEN: ${{ steps.zone.outputs.token-clean }}
-          ZONE: ${{ steps.zone.outputs.zone-id }}
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
           curl -sS -X PATCH \
-            "https://api.cloudflare.com/client/v4/zones/$ZONE/settings/security_level" \
-            -H "Authorization: Bearer $TOKEN" \
+            "https://api.cloudflare.com/client/v4/zones/$Z/settings/browser_check" \
+            -H "Authorization: Bearer $T" \
             -H "Content-Type: application/json" \
-            -d '{"value":"medium"}' \
+            -d '{"value":"off"}' \
             -w '\n--- HTTP %{http_code} ---\n'
+
+      - name: PATCH challenge_ttl = 31536000 (1 year cache for solved challenges)
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$Z/settings/challenge_ttl" \
+            -H "Authorization: Bearer $T" \
+            -H "Content-Type: application/json" \
+            -d '{"value":31536000}' \
+            -w '\n--- HTTP %{http_code} ---\n'
+
+      # Try Rulesets API for the http_request_firewall_custom phase
+      # (= WAF Custom Rules, separate from Page Rules).
+      - name: Create WAF Custom Rule to skip on /api/*
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          # Get the current http_request_firewall_custom ruleset entrypoint
+          RS=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/rulesets" \
+            -H "Authorization: Bearer $T" | jq -r '.result[] | select(.phase == "http_request_firewall_custom") | .id' | head -n1)
+          echo "Existing http_request_firewall_custom ruleset: $RS"
+          if [ -z "$RS" ] || [ "$RS" = "null" ]; then
+            BODY=$(jq -n '{
+              name: "nh-api-skip",
+              kind: "zone",
+              phase: "http_request_firewall_custom",
+              rules: [{
+                expression: "(starts_with(http.request.uri.path, \"/api/\"))",
+                action: "skip",
+                action_parameters: {
+                  ruleset: "current"
+                },
+                description: "Skip WAF on /api/* (auth + quota handle abuse)"
+              }]
+            }')
+            curl -sS -i -X POST \
+              "https://api.cloudflare.com/client/v4/zones/$Z/rulesets" \
+              -H "Authorization: Bearer $T" \
+              -H "Content-Type: application/json" \
+              -d "$BODY" \
+              -w '\n--- HTTP %{http_code} ---\n'
+          fi
