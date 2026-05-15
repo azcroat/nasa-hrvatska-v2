@@ -1348,14 +1348,15 @@ export default function ProductionDrillScreen({ goBack, award }: ProductionDrill
 
       <div style={{ padding: '0 16px' }}>
         {!mode && (
-          <div>
+          <div data-testid="production-drill-input">
             <p style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 20, lineHeight: 1.6 }}>
               Generate language — don't just pick answers. Choose a production mode:
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {MODES.map((m) => (
+              {MODES.map((m, mi) => (
                 <button
                   key={m.id}
+                  data-testid={mi === 0 ? 'production-drill-submit' : undefined}
                   onClick={() => setMode(m.id)}
                   style={{
                     display: 'flex',

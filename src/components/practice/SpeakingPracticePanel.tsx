@@ -226,11 +226,13 @@ export default function SpeakingPracticePanel({
           On Android WebView, it uses the Azure/MediaRecorder path automatically.
           Only falls back to self-assessment tip when BOTH paths are absent. */}
       {scorerCanRun ? (
-        <PronunciationScorer
-          targetText={sw[0] ?? ''}
-          targetEnglish={sw[1] ?? ''}
-          onScore={onScore}
-        />
+        <div data-testid="speaking-record">
+          <PronunciationScorer
+            targetText={sw[0] ?? ''}
+            targetEnglish={sw[1] ?? ''}
+            onScore={onScore}
+          />
+        </div>
       ) : (
         <div
           style={{
@@ -268,7 +270,7 @@ export default function SpeakingPracticePanel({
       {/* Legacy mic button + AI score panel — only shown when BOTH Web Speech AND MediaRecorder
           are absent (PronunciationScorer handles all cases where scorerCanRun is true) */}
       {!scorerCanRun ? (
-        <div style={{ marginBottom: 16, marginTop: 16 }}>
+        <div data-testid="speaking-record" style={{ marginBottom: 16, marginTop: 16 }}>
           <button
             onClick={listening ? onStopMic : onStartMic}
             style={{
@@ -368,6 +370,7 @@ export default function SpeakingPracticePanel({
           {/* AI pronunciation score */}
           {pronScore && (
             <div
+              data-testid="speaking-result"
               className="c"
               style={{
                 padding: '12px 16px',
@@ -474,6 +477,7 @@ export default function SpeakingPracticePanel({
                 <Spk text={sw[0]} label="▶ Play native" />
               </div>
               <button
+                data-testid="speaking-retry"
                 onClick={onClearRecording}
                 style={{
                   width: '100%',
@@ -495,7 +499,7 @@ export default function SpeakingPracticePanel({
         </div>
       ) : null}
 
-      <button className="b bs" onClick={onSelfAssess}>
+      <button data-testid="speaking-submit" className="b bs" onClick={onSelfAssess}>
         👍 I Said It Correctly!
       </button>
       {sr === 'ok' && (

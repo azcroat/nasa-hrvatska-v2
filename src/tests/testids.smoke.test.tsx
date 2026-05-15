@@ -1,0 +1,195 @@
+// src/tests/testids.smoke.test.tsx
+// SP10: one render per retrofitted screen, asserting each new testid is present.
+// Guards against accidental testid removal during future refactors.
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
+
+// ── Firebase mocks (some screens pull these transitively) ────────────────────
+vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApps: vi.fn(() => []) }));
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(() => ({})),
+  setPersistence: vi.fn(() => Promise.resolve()),
+  browserLocalPersistence: {},
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  onAuthStateChanged: vi.fn(() => () => {}),
+  updateProfile: vi.fn(),
+  initializeAuth: vi.fn(() => ({})),
+  indexedDBLocalPersistence: {},
+  browserSessionPersistence: {},
+  inMemoryPersistence: {},
+  GoogleAuthProvider: vi.fn(() => ({})),
+  signInWithPopup: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  deleteUser: vi.fn(),
+}));
+vi.mock('firebase/firestore', () => ({
+  getFirestore: vi.fn(() => ({})),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  limit: vi.fn(),
+  orderBy: vi.fn(),
+}));
+
+// ── Common mocks ─────────────────────────────────────────────────────────────
+vi.mock('../context/StatsContext', () => ({
+  useStats: () => ({
+    stats: { xp: 1500, lc: 10, gc: 5, sp: 3, vs: [] as string[] },
+    setStats: vi.fn(),
+    writeDelta: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 'B1',
+  }),
+  StatsProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+}));
+vi.mock('../context/StatsContext.tsx', () => ({
+  useStats: () => ({
+    stats: { xp: 1500, lc: 10, gc: 5, sp: 3, vs: [] as string[] },
+    setStats: vi.fn(),
+    writeDelta: vi.fn(),
+    dispatch: vi.fn(),
+    award: vi.fn(),
+    level: 'B1',
+  }),
+  StatsProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+}));
+vi.mock('../lib/quests.js', () => ({ markQuest: vi.fn() }));
+vi.mock('../lib/srs.js', () => ({ addWordToSRS: vi.fn(), getSR: () => ({}) }));
+vi.mock('../lib/adaptive.js', () => ({ recordTopicResult: vi.fn() }));
+vi.mock('../lib/adaptive.ts', () => ({
+  recordTopicResult: vi.fn(),
+  rateCategorySession: vi.fn(),
+}));
+vi.mock('../lib/apiFetch.js', () => ({
+  apiFetch: vi.fn(() => Promise.resolve({ ok: false, json: () => Promise.resolve({}) })),
+}));
+vi.mock('../lib/audio.js', () => ({
+  unlockAudio: vi.fn(),
+  speakSynth: vi.fn().mockResolvedValue(undefined),
+  speakEN: vi.fn(),
+  getFirebaseBearer: vi.fn(async () => null),
+}));
+vi.mock('../lib/audio.ts', () => ({
+  unlockAudio: vi.fn(),
+  speakSynth: vi.fn().mockResolvedValue(undefined),
+  speakEN: vi.fn(),
+  getFirebaseBearer: vi.fn(async () => null),
+}));
+vi.mock('../lib/soundSettings.js', () => ({
+  getVoicePreference: vi.fn(() => 'hr-HR-GabrijelaNeural'),
+}));
+vi.mock('../lib/knightSpeak.js', () => ({ knightSpeak: vi.fn() }));
+vi.mock('../lib/platform.js', () => ({ isNative: () => false }));
+vi.mock('../lib/recentReads', () => ({
+  recordStoryRead: vi.fn(),
+  getRecentReads: vi.fn(() => []),
+  getRecentReadsExtended: vi.fn(() => []),
+}));
+vi.mock('../lib/recentErrors', () => ({ appendRecentError: vi.fn() }));
+vi.mock('../hooks/useRecorder', () => ({
+  useRecorder: () => ({
+    state: 'idle',
+    countdown: 0,
+    audioBlob: null,
+    startRecording: vi.fn(),
+    stopRecording: vi.fn(),
+    playback: vi.fn(),
+    reset: vi.fn(),
+    permissionDenied: false,
+  }),
+}));
+vi.mock('../hooks/useAndroidMicPermission', () => ({
+  useAndroidMicPermission: () => ({ needsRationale: false, dismissRationale: vi.fn() }),
+}));
+vi.mock('../hooks/useAdaptiveSession', () => ({
+  useAdaptiveSession: () => ({
+    onCorrect: vi.fn(),
+    onWrong: vi.fn(),
+    sessionSummary: () => ({}),
+    reset: vi.fn(),
+  }),
+}));
+vi.mock('../components/shared/PronunciationScorer', () => ({ default: () => null }));
+
+// SHADOWING data mock — keep H/Bar/Spk real but inject deterministic SHADOWING list
+const MOCK_SHADOWING = vi.hoisted(() => [
+  { hr: 'Dobar dan.', en: 'Good day.', tip: 'Focus on the melody of the greeting' },
+  { hr: 'Hvala lijepa.', en: 'Thank you very much.', tip: 'Short phrase' },
+]);
+vi.mock('../data', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    speak: vi.fn(),
+    speakSlow: vi.fn(),
+    sh: (arr: unknown[]) => arr, // identity for deterministic Build tile order
+    SHADOWING: MOCK_SHADOWING,
+  };
+});
+
+describe('SP10 testid smoke tests — BLOCKER screens', () => {
+  it('SpeakingScreen renders speaking-record testid', async () => {
+    const { default: SpeakingScreen } = await import('../components/practice/SpeakingScreen');
+    // SpeakingScreen requires sw + si props; otherwise returns null
+    const sw = ['hvala', 'thank you', 'hvala'];
+    const si = [sw];
+    render(
+      <SpeakingScreen
+        sw={sw}
+        si={si}
+        sx={0}
+        sr={null}
+        ssc={0}
+        sSr={() => {}}
+        sSx={() => {}}
+        sSw={() => {}}
+        sSsc={() => {}}
+        goBack={() => {}}
+        award={() => {}}
+        setSt={() => {}}
+      />,
+    );
+    expect(screen.getByTestId('speaking-record')).toBeInTheDocument();
+  });
+
+  it('ShadowingScreen renders shadowing-record + shadowing-play testids', async () => {
+    const { default: ShadowingScreen } = await import('../components/practice/ShadowingScreen');
+    render(<ShadowingScreen goBack={() => {}} award={() => {}} />);
+    expect(screen.getByTestId('shadowing-record')).toBeInTheDocument();
+    expect(screen.getByTestId('shadowing-play')).toBeInTheDocument();
+  });
+
+  it('ProductionDrillScreen renders production-drill-input + production-drill-submit testids', async () => {
+    const { default: ProductionDrillScreen } =
+      await import('../components/practice/ProductionDrillScreen');
+    render(<ProductionDrillScreen goBack={() => {}} award={() => {}} />);
+    expect(screen.getByTestId('production-drill-input')).toBeInTheDocument();
+    expect(screen.getByTestId('production-drill-submit')).toBeInTheDocument();
+  });
+
+  it('GradedInputScreen list view renders graded-story-card-gs_a1_1 testid', async () => {
+    const { default: GradedInputScreen } = await import('../components/learn/GradedInputScreen');
+    render(<GradedInputScreen goBack={() => {}} />);
+    expect(screen.getByTestId('graded-story-card-gs_a1_1')).toBeInTheDocument();
+  });
+
+  it('TabBar renders nav-home / nav-learn / nav-practice / nav-croatia / nav-profile testids', async () => {
+    const { default: TabBar } = await import('../components/shared/TabBar');
+    render(<TabBar tab="home" setTab={() => {}} />);
+    expect(screen.getByTestId('nav-home')).toBeInTheDocument();
+    expect(screen.getByTestId('nav-learn')).toBeInTheDocument();
+    expect(screen.getByTestId('nav-practice')).toBeInTheDocument();
+    expect(screen.getByTestId('nav-croatia')).toBeInTheDocument();
+    expect(screen.getByTestId('nav-profile')).toBeInTheDocument();
+  });
+});

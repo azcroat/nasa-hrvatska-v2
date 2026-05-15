@@ -95,6 +95,7 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }: WaveformPane
 
   return (
     <div
+      data-testid="shadowing-result"
       style={{
         marginTop: 20,
         background: '#f8fafc',
@@ -274,7 +275,12 @@ function RecordingPanel({ state, countdown, onStart, onPlayBack, onReset }: Reco
 
   if (state === 'idle') {
     return (
-      <button className="b bs" style={{ marginTop: 12 }} onClick={onStart}>
+      <button
+        data-testid="shadowing-record"
+        className="b bs"
+        style={{ marginTop: 12 }}
+        onClick={onStart}
+      >
         🎤 Record My Attempt
       </button>
     );
@@ -550,7 +556,9 @@ export default function ShadowingScreen({
             flexWrap: 'wrap',
           }}
         >
-          <Spk text={item.hr} label="Listen Normal" />
+          <span data-testid="shadowing-play">
+            <Spk text={item.hr} label="Listen Normal" />
+          </span>
           <button
             onClick={() => {
               speakSlow(item.hr);
