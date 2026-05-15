@@ -1,6 +1,6 @@
 import React from 'react';
 import { PHONEME_HINTS, scoreColor, scoreEmoji, scoreLabel } from './pronunciationUtils.js';
-import PhonemeBreakdown from './PhonemeBreakdown';
+import PhonemeHeatMap from './PhonemeHeatMap';
 import PhonemeGuideCard from './PhonemeGuideCard';
 
 // ── Azure Assessment results panel ────────────────────────────────────────────
@@ -132,7 +132,6 @@ export default function AzureResultPanel({ azureResult, onRetry }: AzureResultPa
                   {w.word}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--subtext,#94a3b8)' }}>{w.score}%</div>
-                <PhonemeBreakdown phonemes={w.phonemes ?? []} />
               </div>
             ))}
           </div>
@@ -160,6 +159,10 @@ export default function AzureResultPanel({ azureResult, onRetry }: AzureResultPa
           )}
           <PhonemeGuideCard phoneme={worstPhoneme} />
         </div>
+      )}
+
+      {azureResult.word_scores && azureResult.word_scores.length > 0 && (
+        <PhonemeHeatMap wordScores={azureResult.word_scores} />
       )}
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
