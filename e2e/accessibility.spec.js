@@ -19,6 +19,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { TID } from './fixtures/testids.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -288,16 +289,11 @@ test.describe('Accessibility — keyboard navigation', () => {
 });
 
 // ── SP6 — CorrectionDiff a11y ──────────────────────────────────────────────
-// FIXME (SP10): consistently flaky in CI despite the SP6 cleanup testid retrofit.
-// The UI-navigation chain (Practice tab → Free Writing entry → submit) still
-// times out under CI environment timing. The 20 unit + 7 component tests in
-// src/tests/correctionDiff.*.test.* exhaustively cover diff projection,
-// component behavior, popover dismissal, keyboard accessibility, etc. The
-// browser-level a11y check can be re-enabled in SP10 once e2e fixtures
-// stabilise (deterministic auth seeding, mockable navigation, etc).
-test.describe.skip('SP6 — CorrectionDiff accessibility', () => {
+test.describe('SP6 — CorrectionDiff accessibility', () => {
   test.beforeEach(async ({ page }) => {
-    // Stub /api/correct so the writing screen shows a canned correction
+    await seedAuth(page);
+    await blockFirebase(page);
+    await mockTTS(page);
     await page.route('**/api/correct', async (route) => {
       await route.fulfill({
         status: 200,
@@ -318,25 +314,22 @@ test.describe.skip('SP6 — CorrectionDiff accessibility', () => {
     });
   });
 
-  test('rendered diff has no critical or serious WCAG violations', async ({ page }) => {
+  async function navigateAndSubmit(page) {
     await page.goto('/');
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-      timeout: 15_000,
-    });
-
-    await page.getByRole('button', { name: /practice/i }).first().click();
-    await page.locator('[data-testid="exercise-card-writing"]').click();
-
-    await page.locator('[data-testid="writing-input"]').fill(
-      'Imam mama i tata svaki dan svaki dan svaki dan.',
-    );
-
-    await page.locator('[data-testid="writing-submit"]').click();
-
+    await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
+    await page.getByTestId(TID.NAV_PRACTICE).click();
+    await page.getByTestId(TID.EXERCISE_CARD('writing')).click();
+    await page
+      .getByTestId(TID.WRITING_INPUT)
+      .fill('Imam mama i tata svaki dan svaki dan svaki dan.');
+    await page.getByTestId(TID.WRITING_SUBMIT).click();
     await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
       timeout: 15_000,
     });
+  }
 
+  test('rendered diff has no critical or serious WCAG violations', async ({ page }) => {
+    await navigateAndSubmit(page);
     const results = await new AxeBuilder({ page }).analyze();
     const violations = results.violations.filter(
       (v) => v.impact === 'critical' || v.impact === 'serious',
@@ -345,28 +338,7 @@ test.describe.skip('SP6 — CorrectionDiff accessibility', () => {
   });
 
   test('keyboard reaches each DiffSpan and Enter opens the popover', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-      timeout: 15_000,
-    });
-
-    await page.getByRole('button', { name: /practice/i }).first().click();
-    await page
-      .getByRole('button', { name: /free writing|writing|napi[sš]i|grade my writing/i })
-      .first()
-      .click();
-
-    const textarea = page.getByRole('textbox').first();
-    await textarea.fill('Imam mama i tata svaki dan svaki dan svaki dan.');
-    await page
-      .getByRole('button', { name: /check|correct|submit|provjeri|grade my/i })
-      .first()
-      .click();
-
-    await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
-      timeout: 15_000,
-    });
-
+    await navigateAndSubmit(page);
     let focusedIsDiffSpan = false;
     for (let i = 0; i < 40; i++) {
       await page.keyboard.press('Tab');
@@ -380,37 +352,14 @@ test.describe.skip('SP6 — CorrectionDiff accessibility', () => {
       }
     }
     expect(focusedIsDiffSpan).toBe(true);
-
     await page.keyboard.press('Enter');
     await expect(page.getByRole('tooltip')).toBeVisible();
   });
 
   test('Escape key dismisses an open popover', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-      timeout: 15_000,
-    });
-
-    await page.getByRole('button', { name: /practice/i }).first().click();
-    await page
-      .getByRole('button', { name: /free writing|writing|napi[sš]i|grade my writing/i })
-      .first()
-      .click();
-
-    const textarea = page.getByRole('textbox').first();
-    await textarea.fill('Imam mama i tata svaki dan svaki dan svaki dan.');
-    await page
-      .getByRole('button', { name: /check|correct|submit|provjeri|grade my/i })
-      .first()
-      .click();
-
-    await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
-      timeout: 15_000,
-    });
-
+    await navigateAndSubmit(page);
     await page.locator('[data-diff-span-index]').first().click();
     await expect(page.getByRole('tooltip')).toBeVisible();
-
     await page.keyboard.press('Escape');
     await expect(page.getByRole('tooltip')).not.toBeVisible();
   });
