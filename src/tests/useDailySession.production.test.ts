@@ -83,3 +83,86 @@ describe('selectProductionExercise — CEFR gating', () => {
     expect(result?.screen).toBe('speaking_sprint');
   });
 });
+
+describe('selectProductionExercise — mic state filtering', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('mic denied at B1 → returns Writing or Dictation only', () => {
+    const result = selectProductionExercise({
+      cefr: 'B1',
+      micState: 'denied',
+      recentScreens: [],
+    });
+    expect(['writing', 'dictation']).toContain(result?.screen);
+  });
+
+  it('mic unsupported at B1 → returns Writing or Dictation only', () => {
+    const result = selectProductionExercise({
+      cefr: 'B1',
+      micState: 'unsupported',
+      recentScreens: [],
+    });
+    expect(['writing', 'dictation']).toContain(result?.screen);
+  });
+
+  it('mic unknown → fail-open (treated as available)', () => {
+    const result = selectProductionExercise({
+      cefr: 'B1',
+      micState: 'unknown',
+      recentScreens: [],
+    });
+    expect(result).not.toBeNull();
+    // With rnd()=0 and B1 unlocking all, picks the first: speaking_sprint
+    expect(result?.screen).toBe('speaking_sprint');
+  });
+
+  it('mic denied at A2 → returns null (no keyboard-only exercises at A2)', () => {
+    // Writing + Dictation both require B1; A2 user with denied mic gets nothing.
+    const result = selectProductionExercise({
+      cefr: 'A2',
+      micState: 'denied',
+      recentScreens: [],
+    });
+    expect(result).toBeNull();
+  });
+});
+
+describe('selectProductionExercise — recent-exclusion', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('excludes recent screens from selection', () => {
+    // With rnd()=0 and B1 user, normally returns speaking_sprint.
+    // Pre-seeded recent excludes it → returns shadowing (next in pool).
+    const result = selectProductionExercise({
+      cefr: 'B1',
+      micState: 'available',
+      recentScreens: ['speaking_sprint'],
+    });
+    expect(result?.screen).toBe('shadowing');
+  });
+
+  it('falls back to full pool when recent-exclusion empties it', () => {
+    // All 5 in recent list — fallback returns pre-exclusion first item.
+    const result = selectProductionExercise({
+      cefr: 'B1',
+      micState: 'available',
+      recentScreens: ['speaking_sprint', 'shadowing', 'productiondrill', 'writing', 'dictation'],
+    });
+    expect(result).not.toBeNull();
+    expect(result?.screen).toBe('speaking_sprint'); // first in pool with rnd()=0
+  });
+
+  it('mic-denied + recent-eliminates-keyboard → falls back to keyboard pool', () => {
+    // Mic denied filters to writing+dictation. Both in recent list — fallback returns writing.
+    const result = selectProductionExercise({
+      cefr: 'B1',
+      micState: 'denied',
+      recentScreens: ['writing', 'dictation'],
+    });
+    expect(['writing', 'dictation']).toContain(result?.screen);
+  });
+});
