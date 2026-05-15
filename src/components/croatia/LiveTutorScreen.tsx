@@ -8,6 +8,7 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import LiveTutorSetup from './LiveTutorSetup';
 import LiveTutorDebrief from './LiveTutorDebrief';
 import LiveTutorControls from './LiveTutorControls';
+import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
 
 // ── Keyframe for debrief spinner (injected once alongside TUTOR_CSS) ──
 const DEBRIEF_EXTRA_CSS = `
@@ -1214,16 +1215,28 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
         </div>
       )}
 
-      {/* ── Mic blocked banner (active session) ── */}
-      {useFallbackInput && (micPermission === 'denied' || micPermission === 'unavailable') && (
+      {/* ── Mic permission explainer (active session) ── */}
+      {useFallbackInput && micPermission === 'denied' && (
+        <div style={{ margin: '0 16px 8px' }}>
+          <MicPermissionDeniedExplainer
+            onRetry={() => {
+              setUseFallbackInput(false);
+              setMicPermission('unknown');
+              startRecording();
+            }}
+          />
+        </div>
+      )}
+
+      {/* ── Mic-unavailable banner (no hardware detected) ── */}
+      {useFallbackInput && micPermission === 'unavailable' && (
         <div
           style={{
             margin: '0 16px 8px',
             padding: '10px 14px',
             borderRadius: 10,
-            background: micPermission === 'denied' ? 'rgba(220,38,38,.07)' : 'rgba(0,0,0,.04)',
-            border:
-              '1px solid ' + (micPermission === 'denied' ? 'rgba(220,38,38,.2)' : 'var(--card-b)'),
+            background: 'rgba(0,0,0,.04)',
+            border: '1px solid var(--card-b)',
             fontSize: 'var(--text-xs)',
             color: 'var(--subtext)',
             display: 'flex',
@@ -1232,11 +1245,7 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
           }}
         >
           <span>🎙️</span>
-          <span style={{ flex: 1 }}>
-            {micPermission === 'denied'
-              ? 'Microphone blocked — type your Croatian below. To enable voice, allow microphone access in your browser site settings and reload.'
-              : 'No microphone detected — type your Croatian below.'}
-          </span>
+          <span style={{ flex: 1 }}>No microphone detected — type your Croatian below.</span>
         </div>
       )}
 
