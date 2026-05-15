@@ -708,6 +708,7 @@ export default function ClozeEngine({ goBack, award }: Props) {
           {!isAnswered ? (
             <>
               <input
+                data-testid="cloze-input"
                 type="text"
                 placeholder="Type the Croatian word..."
                 value={typedAnswer}
@@ -728,6 +729,7 @@ export default function ClozeEngine({ goBack, award }: Props) {
                 autoFocus
               />
               <button
+                data-testid="cloze-submit"
                 onClick={handleTypedSubmit}
                 style={{
                   marginTop: 8,

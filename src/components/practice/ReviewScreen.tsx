@@ -341,7 +341,7 @@ export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenPro
         <span style={{ opacity: 0.6 }}>keys 1-4 to answer, Space to continue</span>
       </p>
       <Bar v={idx + 1} mx={questions.length} color="#7c3aed" h={6} />
-      <div className="c" style={{ marginTop: 16, padding: '20px' }}>
+      <div data-testid="review-flip" className="c" style={{ marginTop: 16, padding: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <Spk text={q.word[0]} label={q.word[0]} />
           <p
@@ -365,6 +365,7 @@ export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenPro
           return (
             <button
               key={i}
+              data-testid={'review-grade-' + i}
               className={cls}
               onClick={() => {
                 if (answered) return;
