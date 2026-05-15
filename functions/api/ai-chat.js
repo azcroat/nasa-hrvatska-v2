@@ -5,9 +5,27 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
+import { parseUserContext, renderContextPrompt } from './_userContext.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
+
+// SP5: Only these three modes receive userContext personalization.
+// All other modes (translate, eval, correct, convo, etc.) produce byte-identical prompts to pre-SP5.
+const PERSONALIZED_MODES = new Set(['hint', 'explain', 'story']);
+const MODE_TO_KIND = {
+  hint: 'ai-chat-hint',
+  explain: 'ai-chat-explain',
+  story: 'ai-chat-story',
+};
+
+function _maybePersonalize(baseSystem, mode, body) {
+  if (!PERSONALIZED_MODES.has(mode)) return baseSystem;
+  const userCtx = parseUserContext(body);
+  const kind = MODE_TO_KIND[mode];
+  const contextProse = renderContextPrompt(userCtx, kind);
+  return contextProse ? baseSystem + '\n\n' + contextProse : baseSystem;
+}
 
 // ── Security: sanitize user-supplied prompt parameters ────────────────────────
 function sanitizeParam(value, maxLen = 200) {
@@ -595,7 +613,7 @@ export async function onRequestPost(context) {
   // ── "explain" mode: no messages array needed — topic comes from params ──────
   if (mode === 'explain') {
     const topic = sanitizeParam(params?.topic || 'Croatian grammar', 80);
-    const systemPrompt = buildExplainPrompt(params || {});
+    const systemPrompt = _maybePersonalize(buildExplainPrompt(params || {}), 'explain', body);
     let explainRes;
     try {
       explainRes = await fetch(ANTHROPIC_URL, {
@@ -642,8 +660,9 @@ export async function onRequestPost(context) {
   // ── Single-prompt modes (no conversation history needed) ──────────────────
   const SINGLE_PROMPT_MODES = ['story', 'heritage', 'phrase_of_day', 'news_simplify', 'postcard'];
   if (SINGLE_PROMPT_MODES.includes(mode)) {
-    const systemPrompt = buildSystemPrompt(mode, params);
-    if (!systemPrompt) return err(400, 'Unknown mode: ' + mode, origin);
+    const baseSystem = buildSystemPrompt(mode, params);
+    if (!baseSystem) return err(400, 'Unknown mode: ' + mode, origin);
+    const systemPrompt = _maybePersonalize(baseSystem, mode, body);
     const userContent =
       messages && messages[0]?.content
         ? String(messages[0].content).slice(0, 2000)
@@ -703,10 +722,11 @@ export async function onRequestPost(context) {
     return err(400, 'Too many messages: max 50 allowed', origin);
   }
 
-  const systemPrompt = buildSystemPrompt(mode, params);
-  if (!systemPrompt) {
+  const baseSystem = buildSystemPrompt(mode, params);
+  if (!baseSystem) {
     return err(400, 'Unknown mode: ' + mode, origin);
   }
+  const systemPrompt = _maybePersonalize(baseSystem, mode, body);
 
   let anthropicMsgs = messages
     .filter((m) => m.role === 'user' || m.role === 'assistant')

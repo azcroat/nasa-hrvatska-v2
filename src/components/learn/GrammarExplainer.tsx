@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { H } from '../../data';
 import { speak } from '../../lib/audio.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 
@@ -281,14 +282,9 @@ export default function GrammarExplainer({
     setPhase('loading');
     setError(null);
     try {
-      const res = await apiFetch('/api/ai-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: 'explain',
-          params: { topic: selectedTopic.title, level },
-        }),
-        signal: AbortSignal.timeout(25000),
+      const res = await _aiPost('/api/ai-chat', {
+        mode: 'explain',
+        params: { topic: selectedTopic.title, level },
       });
       if (!res.ok) throw new Error('API error ' + res.status);
       const data = await res.json();
