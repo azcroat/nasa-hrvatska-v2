@@ -4,6 +4,7 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
+import { parseUserContext, renderContextPrompt } from './_userContext.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -182,14 +183,14 @@ export async function onRequestPost({ request, env }) {
   if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);
 
   // Parse body
-  let body;
+  let reqBody;
   try {
-    body = await request.json();
+    reqBody = await request.json();
   } catch {
     return err(400, 'Invalid JSON in request body', origin);
   }
 
-  const { level, srMistakes, majaPatterns, writingMistakes } = body;
+  const { level, srMistakes, majaPatterns, writingMistakes } = reqBody;
 
   // Validate level
   const safeLevel = sanitizeLevel(typeof level === 'string' ? level.trim() : '');
@@ -221,9 +222,14 @@ export async function onRequestPost({ request, env }) {
   // Build compact summary
   const summary = buildMistakeSummary(cappedSrMistakes, safeMajaPatterns, safeWritingMistakes);
 
+  const userCtx = parseUserContext(reqBody);
+  const contextProse = renderContextPrompt(userCtx, 'grammar-diagnosis');
+
   // ── Build prompts ──
-  const systemPrompt =
+  const basePrompt =
     "You are a Croatian language learning coach analyzing a student's mistake patterns. Return ONLY valid JSON.";
+
+  const systemPrompt = contextProse ? basePrompt + '\n\n' + contextProse : basePrompt;
 
   const userMessage =
     `Based on this mistake data for a CEFR ${safeLevel} learner: ${summary}. ` +

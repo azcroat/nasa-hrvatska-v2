@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { H, getSR } from '../../data';
-import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 
 interface GrammarDrill {
   prompt?: string;
@@ -147,10 +147,11 @@ export default function GrammarDiagnosisScreen({
     } catch (_) {}
 
     try {
-      const res = await apiFetch('/api/grammar-diagnosis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level, srMistakes, majaPatterns, writingMistakes }),
+      const res = await _aiPost('/api/grammar-diagnosis', {
+        level,
+        srMistakes,
+        majaPatterns,
+        writingMistakes,
       });
       if (!res.ok) throw new Error('api_error');
       const data = await res.json();
