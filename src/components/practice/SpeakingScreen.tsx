@@ -4,6 +4,7 @@ import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import SpeakingSummaryScreen from './SpeakingSummaryScreen';
 import SpeakingPracticePanel from './SpeakingPracticePanel';
+import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission';
 import { isNative } from '../../lib/platform.js';
@@ -198,6 +199,7 @@ export default function SpeakingScreen({
   const [listening, setListening] = useState(false);
   const [recResult, setRecResult] = useState<string | null>(null);
   const [recMsg, setRecMsg] = useState('');
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [langIdx, setLangIdx] = useState(0);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recRef = useRef<any>(null);
@@ -529,6 +531,11 @@ export default function SpeakingScreen({
       stopRecording();
       stopWaveform();
       const code = e.error || '';
+      if (code === 'not-allowed' || code === 'permission-denied') {
+        setPermissionDenied(true);
+        setListening(false);
+        return; // Suppress generic recMsg banner — explainer above handles UX.
+      }
       // If language not supported, try next fallback
       if (
         (code === 'language-not-supported' || code === 'service-not-allowed') &&
@@ -579,6 +586,12 @@ export default function SpeakingScreen({
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((t) => t.stop()); // permission check only - stop immediately
     } catch (e) {
+      const errName = e instanceof Error ? e.name : '';
+      if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+        // Render the dedicated explainer instead of the generic recMsg banner.
+        setPermissionDenied(true);
+        return;
+      }
       setRecResult('error');
       setRecMsg(
         isNative()
@@ -881,6 +894,15 @@ export default function SpeakingScreen({
       {H(isOpenEnded ? '🗣️ Speaking Practice' : '🎤 Pronunciation Practice', '', goBack)}
       <Bar v={sx + 1} mx={si.length} color="var(--success)" h={6} />
       {renderPromptContext()}
+      {permissionDenied && (
+        <MicPermissionDeniedExplainer
+          onRetry={() => {
+            setPermissionDenied(false);
+            setRecResult(null);
+            setRecMsg('');
+          }}
+        />
+      )}
       <SpeakingPracticePanel
         sw={sw}
         si={si}

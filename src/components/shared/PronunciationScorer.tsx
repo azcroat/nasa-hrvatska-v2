@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import AzureResultPanel from './AzureResultPanel';
 import WebSpeechResultPanel from './WebSpeechResultPanel';
+import MicPermissionDeniedExplainer from './MicPermissionDeniedExplainer';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { isNative } from '../../lib/platform.js';
 
@@ -36,6 +37,7 @@ export default function PronunciationScorer({
   const [result, setResult] = useState<ScoredResult | null>(null);
   const [coaching, setCoaching] = useState<CoachingResult | 'loading' | null>(null);
   const [srErrorMsg, setSrErrorMsg] = useState<string | null>(null);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [azureResult, setAzureResult] = useState<Record<string, unknown> | null>(null);
   const [mode, setMode] = useState<'auto' | 'webspeech' | 'azure'>('auto');
 
@@ -190,6 +192,7 @@ export default function PronunciationScorer({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onerror = (e: any) => {
       const code = e?.error || '';
+      if (code === 'not-allowed' || code === 'permission-denied') setPermissionDenied(true);
       const msg =
         code === 'not-allowed' || code === 'permission-denied'
           ? isNative()
@@ -232,6 +235,9 @@ export default function PronunciationScorer({
       streamRef.current = stream;
     } catch (e) {
       const errName = e instanceof Error ? e.name : '';
+      if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+        setPermissionDenied(true);
+      }
       const msg =
         errName === 'NotAllowedError' || errName === 'PermissionDeniedError'
           ? isNative()
@@ -442,19 +448,28 @@ export default function PronunciationScorer({
           >
             🎙️ Test My Pronunciation
           </button>
-          {srErrorMsg && (
-            <div
-              style={{
-                marginTop: 6,
-                fontSize: 12,
-                color: '#dc2626',
-                background: '#fee2e2',
-                borderRadius: 8,
-                padding: '6px 10px',
+          {permissionDenied ? (
+            <MicPermissionDeniedExplainer
+              onRetry={() => {
+                setPermissionDenied(false);
+                setSrErrorMsg(null);
               }}
-            >
-              ⚠️ {srErrorMsg}
-            </div>
+            />
+          ) : (
+            srErrorMsg && (
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 12,
+                  color: '#dc2626',
+                  background: '#fee2e2',
+                  borderRadius: 8,
+                  padding: '6px 10px',
+                }}
+              >
+                ⚠️ {srErrorMsg}
+              </div>
+            )
           )}
         </>
       )}
