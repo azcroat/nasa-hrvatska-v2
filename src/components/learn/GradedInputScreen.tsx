@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { speak } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { unlockAudio } from '../../lib/audio.js';
@@ -6,6 +6,8 @@ import { getVoicePreference } from '../../lib/soundSettings.js';
 import { GRADED_STORIES } from '../../data/gradedStories.js';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
+import { useRecorder } from '../../hooks/useRecorder';
+import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
 
 const LEVELS = ['All', 'A1', 'A2', 'B1'];
 const LEVEL_COLOR: Record<string, string> = { A1: '#166534', A2: '#1e40af', B1: '#92400e' };
@@ -266,7 +268,10 @@ interface AssessResult {
   fluency: number;
   word_scores?: { word: string; score: number }[];
 }
-function StoryReader({
+// Exported for unit tests — the mic flow + per-paragraph assessment lives
+// here, not in the outer GradedInputScreen which only handles list/reader/quiz
+// view routing.
+export function StoryReader({
   story,
   onStartQuiz,
   goBack,
@@ -281,8 +286,40 @@ function StoryReader({
   const [recordingIdx, setRecordingIdx] = useState<number | null>(null);
   const [assessResults, setAssessResults] = useState<Record<number, AssessResult>>({});
   const [assessError, setAssessError] = useState<string | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Shared mic recorder. Per-paragraph dispatch tracked via recordingIdx +
+  // the paraText we captured at startRecording time (paragraphTextRef).
+  const recorder = useRecorder();
+  const paragraphTextRef = useRef<string>('');
+
+  // When recorder reaches 'done', call assessPronunciation with the captured
+  // blob + the paragraph text we stored when recording started.
+  useEffect(() => {
+    if (recorder.state !== 'done' || !recorder.audioBlob || recordingIdx === null) return;
+    const paraIdx = recordingIdx;
+    const paraText = paragraphTextRef.current;
+    const blob = recorder.audioBlob;
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await assessPronunciation(blob, paraText);
+        if (!cancelled) setAssessResults((r) => ({ ...r, [paraIdx]: result }));
+      } catch (_e) {
+        if (!cancelled) {
+          setAssessError('Assessment unavailable — check your connection and try again.');
+        }
+      }
+      if (!cancelled) {
+        setRecordingIdx(null);
+        recorder.reset();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recorder.state]);
 
   const handlePlay = useCallback(async (text: string, idx: number) => {
     setPlayingIdx(idx);
@@ -290,42 +327,20 @@ function StoryReader({
     setPlayingIdx(null);
   }, []);
 
-  const startRecording = useCallback(async (paraIdx: number, paraText: string) => {
-    setAssessError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const chunks: Blob[] = [];
-      const mr = new MediaRecorder(stream, {
-        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg',
-      });
-      mr.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-      mr.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(chunks, { type: mr.mimeType });
-        try {
-          const result = await assessPronunciation(blob, paraText);
-          setAssessResults((r) => ({ ...r, [paraIdx]: result }));
-        } catch (e) {
-          setAssessError('Assessment unavailable — check your connection and try again.');
-        }
-        setRecordingIdx(null);
-      };
-      mediaRecorderRef.current = mr;
-      mr.start();
+  const startRecording = useCallback(
+    (paraIdx: number, paraText: string) => {
+      setAssessError(null);
+      paragraphTextRef.current = paraText;
       setRecordingIdx(paraIdx);
-    } catch (e) {
-      setAssessError('Microphone access denied. Allow microphone to assess pronunciation.');
-      setRecordingIdx(null);
-    }
-  }, []);
+      // No countdown — match existing per-paragraph instant-record UX.
+      recorder.startRecording({ countdown: 0 });
+    },
+    [recorder],
+  );
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      mediaRecorderRef.current.stop();
-    }
-  }, []);
+    recorder.stopRecording();
+  }, [recorder]);
 
   return (
     <div className="scr-wrap">
@@ -449,8 +464,18 @@ function StoryReader({
         </div>
       )}
 
-      {/* Assessment error */}
-      {assessError && (
+      {/* Permission-denied explainer takes priority over generic assess error */}
+      {recorder.state === 'denied' && (
+        <MicPermissionDeniedExplainer
+          onRetry={() => {
+            recorder.reset();
+            setRecordingIdx(null);
+          }}
+        />
+      )}
+
+      {/* Generic assessment error (network, API, mic-unsupported) */}
+      {assessError && recorder.state !== 'denied' && (
         <div
           style={{
             background: '#fee2e2',
