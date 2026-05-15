@@ -466,6 +466,37 @@ export const PRODUCTION_SCREEN_IDS: ReadonlySet<string> = new Set(
   PRODUCTION_POOL.map((p) => p.screen),
 );
 
+// ── Production exercise selector (SP4b) ──────────────────────────────────────
+// Pure function — returns one SessionActivity from PRODUCTION_POOL, applying
+// CEFR / mic / recent filters. Returns null when the unlocked pool is empty
+// (e.g., A1 user with all 5 exercises locked).
+export function selectProductionExercise(opts: {
+  cefr: string;
+  micState: MicState;
+  recentScreens: string[];
+}): SessionActivity | null {
+  const { cefr, micState, recentScreens } = opts;
+  // Step 1 — CEFR gate
+  let pool = PRODUCTION_POOL.filter((p) => isUnlocked(p.cefr, cefr));
+  // Step 2 — mic-required filter (keyboard-only when denied/unsupported)
+  if (micState === 'denied' || micState === 'unsupported') {
+    pool = pool.filter((p) => !p.micRequired);
+  }
+  if (pool.length === 0) return null;
+  // Step 3 — recent-exclusion (fall back to pre-filter if it empties)
+  let candidates = pool.filter((p) => !recentScreens.includes(p.screen));
+  if (candidates.length === 0) candidates = pool;
+  // Step 4 — random uniform pick
+  const idx = Math.min(Math.floor(rnd() * candidates.length), candidates.length - 1);
+  const picked = candidates[idx]!;
+  return {
+    id: picked.id,
+    label: picked.label,
+    screen: picked.screen,
+    category: picked.category,
+  };
+}
+
 export function recordProductionExercise(screen: string): void {
   if (!screen || typeof screen !== 'string') return;
   try {
