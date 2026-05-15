@@ -274,3 +274,65 @@ SP4a is complete when:
 5. Tier 3 Playwright spec passes on all 5 projects in CI.
 6. Global vitest branches coverage threshold remains at 80 (not lowered).
 7. A short follow-up section is added to this spec listing any platforms that automated tests could not exercise (real-device Capacitor on iOS/Android) plus the manual-verification record for each.
+
+---
+
+## Follow-up — what actually shipped (2026-05-14)
+
+### Scope adjustment: Option A approved by jschr mid-execution
+
+During execution, audit revealed that the 9 "consumer files" are not architecturally uniform. Three groups emerged:
+
+| Group | Files | Treatment |
+|---|---|---|
+| **Clean MediaRecorder consumers** | `ShadowingScreen` (Task 16), `GradedInputScreen.StoryReader` (Task 21) | Full migration: replaced local `getUserMedia` + `MediaRecorder` with `useRecorder()`. |
+| **SpeechRecognition-only (no recorder)** | `SpeakingSprintScreen` → `SprintSpeakingPhase` (Task 17) | Explainer-only. Web Speech API has its own permission flow; the value here is consistent denied UX, not consolidating the recorder. |
+| **Complex dual-path consumers** | `SpeakingScreen`, `SpeakingPracticePanel`, `PronunciationScorer`, `AIConversation`, `LiveTutorScreen`, `MajaScreen`, `useWhisperSTT` (Tasks 18–20, 22–25) | Explainer-only. These have intentional dual-path code (Web Speech for Chrome/Edge, MediaRecorder + Azure for Android WebView, VAD-driven continuous listening for Whisper). A clean `useRecorder` migration would erase the platform dispatch that makes them work cross-platform today. |
+
+The user explicitly approved Option A: full migration of the clean files, MicPermissionDeniedExplainer for the rest. Documented here so the next engineer doesn't misread the orphan `getUserMedia` call count as a regression.
+
+### Acceptance gate — actual results
+
+| Gate | Result | Evidence |
+|---|---|---|
+| 1. All consumers use `useRecorder` (no orphans) | **PARTIAL — by design** | 18 `getUserMedia`/`new MediaRecorder` sites remain across 9 files. ALL of them belong to "Complex dual-path" group (table above) and have the explainer wired. ShadowingScreen + GradedInputScreen.StoryReader are fully on `useRecorder`. |
+| 2. `MicPermissionDeniedExplainer` is the only denied-state component | **PASS** | Verified across `shadowingMic`, `speakingSprintMic`, `gradedInputMic` integration tests + manual code review on the 7 explainer-only consumers. |
+| 3. ≥90% branch coverage on `useRecorder.ts` | **PASS — 90.69%** | 29 unit tests in `src/tests/useRecorder.test.ts`. |
+| 4. Consumer integration tests pass | **PASS** | 60/60 tests across 7 SP4a test files (`useRecorder`, `MicPermissionDeniedExplainer`, `platform-mic`, `shadowingMic`, `speakingSprintMic`, `gradedInputMic`, `useWhisperSTT`). |
+| 5. Playwright passes on all projects | **PASS — 12/12** | `e2e/mic-recording.spec.js` smoke-checks /practice + /croatia route boots across Desktop Chrome / Firefox / WebKit / Pixel 5 / iPhone 14 / iPad Pro. |
+| 6. Global branches threshold stays at 80 | **PASS** | `vitest.config.js` unchanged at 80 (preserved from FIX-15 restoration). |
+| 7. Follow-up section in spec | **PASS** | This section. |
+
+### Platforms automated tests could not exercise
+
+| Platform | Status | Notes |
+|---|---|---|
+| Desktop Chrome | ✅ Automated | Playwright, Vitest |
+| Desktop Firefox | ✅ Automated | Playwright |
+| Desktop Safari (WebKit) | ✅ Automated | Playwright |
+| Android Chrome (Pixel 5 emulation) | ✅ Automated | Playwright Pixel 5 project |
+| iOS Safari (iPhone 14 emulation) | ✅ Automated | Playwright Mobile Safari project |
+| iPad Safari (iPad Pro emulation) | ✅ Automated | Playwright Tablet Safari project |
+| iOS Safari (real iPhone) | ❌ Not in CI | Manual verification by jschr required |
+| iOS Capacitor app (real iPhone) | ❌ Not in CI | Manual verification by jschr required |
+| Android Capacitor app (real Pixel) | ❌ Not in CI | Manual verification by jschr required |
+| Samsung Internet (real Galaxy) | ❌ Not in CI | Manual verification by jschr required |
+
+Real-device verification (last 4 rows) is the gating step before SP4b begins. The user should:
+
+1. Sideload the latest AAB and verify mic flow on at least one real iOS device + one real Android device.
+2. Confirm the `MicPermissionDeniedExplainer` instructions match the actual Settings paths on each OS version.
+3. If a divergence is found, file the deviation as a follow-up to this spec — do not patch incrementally without a written test.
+
+### Test count summary
+
+- 29 unit tests on `useRecorder.ts` (≥90% branches)
+- 10 component tests on `MicPermissionDeniedExplainer.tsx`
+- 6 unit tests on `getMicPermissionPlatform()`
+- 7 integration tests on `ShadowingScreen` (per-state UI assertion)
+- 3 integration tests on `SprintSpeakingPhase` (explainer wiring)
+- 2 integration tests on `GradedInputScreen.StoryReader` (idle + denied)
+- 3 hook tests on `useWhisperSTT.permissionDenied`
+- 12 Playwright cross-browser smoke tests
+
+**Total: 72 new automated tests for SP4a.**
