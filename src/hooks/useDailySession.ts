@@ -195,6 +195,21 @@ export function buildSessionActivities(userCefr: string): SessionActivity[] {
     }
   }
 
+  // Build usedScreens once, here, so P2.5 and P3 both dedup against it.
+  const usedScreens = new Set(activities.map((a) => a.screen));
+
+  // Priority 2.5: Production — guarantee one speaking/writing slot per session
+  // SP4b. Uses pure helper that filters by CEFR + mic state + recent exclusion.
+  const productionActivity = selectProductionExercise({
+    cefr: userCefr,
+    micState: readMicState(),
+    recentScreens: getRecentProduction(),
+  });
+  if (productionActivity && !usedScreens.has(productionActivity.screen)) {
+    activities.push(productionActivity);
+    usedScreens.add(productionActivity.screen);
+  }
+
   // Priority 3: CEFR-appropriate fill (skip recent, exclude already queued screens)
   const recentScreens: string[] = (() => {
     try {
@@ -203,7 +218,6 @@ export function buildSessionActivities(userCefr: string): SessionActivity[] {
       return [];
     }
   })();
-  const usedScreens = new Set(activities.map((a) => a.screen));
 
   let pool = CEFR_EXERCISE_POOL.filter(
     (ex) =>
