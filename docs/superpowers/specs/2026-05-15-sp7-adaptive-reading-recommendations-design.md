@@ -366,3 +366,40 @@ Uses stable testids (`story-of-the-day-card`, `story-of-the-day-cta`) — no UI 
 - **SP7d:** author 6 C2-level stories so the highest band has reading content
 - **SP7e:** instrument click-through and completion events to measure recommendation lift
 - **SP7f:** evolve to a multi-story "today's reading list" with re-ranking after each completion
+
+---
+
+## Follow-up — what shipped (2026-05-15)
+
+### Acceptance gate — actual results
+
+| Gate | Result | Evidence |
+|---|---|---|
+| 1. Scorer correctness | PASS | 13 cases green in `src/tests/storyRecommendation.test.ts` |
+| 2. Recency layer correctness | PASS | 6 cases green in `src/tests/recentReads.test.ts` |
+| 3. Card renders + clicks | PASS | 5 cases green in `src/tests/storyOfTheDayCard.test.tsx` |
+| 4. GradedInputScreen accepts `initialStoryId` | PASS | 2 cases green in `src/tests/gradedInputScreen.initial.test.tsx` |
+| 5. Determinism | PASS | Scorer tests assert deterministic tiebreak by alphabetical title |
+| 6. Brand-new user has no empty state | PASS | Cold-start test confirms A1 user with empty `weakTopics` + empty `recentReads` always gets a recommendation |
+| 7. Recency window is exactly 7 days | PASS | `getRecentReads` boundary tests assert 6d (included) vs 8d (excluded) |
+| 8. No regression on home screen | PASS | Full vitest suite green; new card is purely additive (HomeTab `launchStory` prop made optional to keep existing test passing without modification) |
+| 9. Cross-browser e2e | PENDING | `e2e/sp7-story-of-day.spec.js` shipped (2 tests using stable testids `story-of-the-day-card` / `story-of-the-day-cta`); CI runs on Desktop Chrome on push |
+| 10. Bundle size | PASS | Three new source files (recentReads + storyRecommendation + StoryOfTheDayCard) total ~270 lines source; minified+gzipped delta well under the 4 KB target |
+
+### Commits
+
+- `48effb4` feat(sp7): recentReads.ts — recordStoryRead + getRecentReads with 6 tests
+- `bbb54c3` feat(sp7): storyRecommendation.ts + 13 unit tests
+- `7ef8e69` feat(sp7): StoryOfTheDayCard component + 5 tests
+- `e3dfc7a` feat(sp7): GradedInputScreen accepts initialStoryId + records story reads
+- `6c92213` feat(sp7): wire launchStory from HomeTab → AppRouter → GradedInputScreen
+- `68a5dca` test(e2e/sp7): Story of the Day card renders + CTA navigates
+
+Full unit + integration suite: **2847 passed**, 25 skipped, 0 failed (155 test files).
+
+### Notable adaptations made during execution
+
+1. **HomeTab `launchStory` prop made optional** — the existing test file `src/tests/components.test.tsx:277` smoke-renders `<HomeTab>` without props. Making `launchStory` required would have forced editing that test. Optional prop + `{launchStory && <StoryOfTheDayCard ... />}` guard preserves behavior when present, harmless when absent (test environments).
+2. **Test mock path correction** — Task 3's spec used `'../../data/gradedStories.js'` for the mock; from `src/tests/`, the correct relative path is `'../data/gradedStories.js'`. The implementer caught this during the red-phase and corrected.
+3. **`useState` added to AppRouter's React import** — AppRouter didn't previously import `useState`. Added it as part of Task 5's plumbing.
+4. **Task 2 inline mock test pattern** — the scorer test uses a synthetic `TestStory` catalog rather than mocking `GRADED_STORIES`, so the unit tests are independent of real story content changes.
