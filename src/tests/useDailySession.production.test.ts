@@ -47,3 +47,39 @@ describe('selectProductionExercise — happy path', () => {
     );
   });
 });
+
+describe('selectProductionExercise — CEFR gating', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('A1 user → returns null (all exercises require A2+)', () => {
+    const result = selectProductionExercise({
+      cefr: 'A1',
+      micState: 'available',
+      recentScreens: [],
+    });
+    expect(result).toBeNull();
+  });
+
+  it('A2 user → has access to 2 of 5 (speaking_sprint, shadowing)', () => {
+    // With rnd()=0 mocked, returns the first eligible item: speaking_sprint
+    const result = selectProductionExercise({
+      cefr: 'A2',
+      micState: 'available',
+      recentScreens: [],
+    });
+    expect(result?.screen).toBe('speaking_sprint');
+  });
+
+  it('B1 user → has access to all 5', () => {
+    const result = selectProductionExercise({
+      cefr: 'B1',
+      micState: 'available',
+      recentScreens: [],
+    });
+    expect(result).not.toBeNull();
+    // With rnd()=0, returns first item: speaking_sprint
+    expect(result?.screen).toBe('speaking_sprint');
+  });
+});
