@@ -6,7 +6,7 @@ import { markPracticed } from '../../hooks/useNotifications';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { logError } from '../../lib/learnerErrors.js';
-import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 import { playFanfare as _playFanfare } from '../../lib/soundSettings.js';
 import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
@@ -384,16 +384,12 @@ export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenPro
                   });
                   // Fetch AI explanation for wrong answers (fire-and-forget, non-blocking)
                   setAiExplain('loading' as const);
-                  apiFetch('/api/explain-error', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      wrong: opt,
-                      correct: q.correct,
-                      context: q.word[0],
-                      type: 'flashcard',
-                      level: 'B1',
-                    }),
+                  _aiPost('/api/explain-error', {
+                    wrong: opt,
+                    correct: q.correct,
+                    context: q.word[0],
+                    type: 'flashcard',
+                    level: 'B1',
                   })
                     .then((r) => (r.ok ? r.json() : null))
                     .then((d) => {

@@ -3,7 +3,7 @@ import { H, speak, stopAudio, srMark } from '../../data';
 import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
-import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 
 // Sentence bank — fill-in-the-blank Croatian sentences covering cases, prepositions, and grammar
 // Format: { sentence: 'full sentence', blank: 'word to hide', options: [correct, wrong1, wrong2, wrong3], translation: 'English', hint: 'grammar note' }
@@ -242,11 +242,12 @@ export default function ClozeEngine({ goBack, award }: Props) {
     async (wrong: string, correct: string, context: string) => {
       setAiExplain('loading');
       try {
-        const res = await apiFetch('/api/explain-error', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ wrong, correct, context, type: 'cloze', level: level || 'B1' }),
-          signal: AbortSignal.timeout(20000),
+        const res = await _aiPost('/api/explain-error', {
+          wrong,
+          correct,
+          context,
+          type: 'cloze',
+          level: level || 'B1',
         });
         if (!mountedRef.current) return;
         if (!res.ok) throw new Error('API error');

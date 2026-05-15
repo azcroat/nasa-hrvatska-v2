@@ -5,6 +5,7 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
+import { parseUserContext, renderContextPrompt } from './_userContext.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-haiku-4-5-20251001';
@@ -96,14 +97,14 @@ export async function onRequestPost({ request, env }) {
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) return err(400, 'Invalid content type', origin);
 
-  let body;
+  let reqBody;
   try {
-    body = await request.json();
+    reqBody = await request.json();
   } catch {
     return err(400, 'Invalid JSON in request body', origin);
   }
 
-  const { wrong, correct, context: ctx, type, level } = body;
+  const { wrong, correct, context: ctx, type, level } = reqBody;
 
   if (!VALID_TYPES.includes(type)) return err(400, 'Invalid type', origin);
   if (typeof correct !== 'string' || !correct.trim())
@@ -113,6 +114,9 @@ export async function onRequestPost({ request, env }) {
   const safeCorrect = sanitizeParam(correct, 200);
   const safeCtx = sanitizeParam(ctx || '', 300);
   const safeLevel = VALID_LEVELS.includes(level) ? level : 'B1';
+
+  const userCtx = parseUserContext(reqBody);
+  const contextProse = renderContextPrompt(userCtx, 'explain-error');
 
   const TYPE_DESCS = {
     cloze: 'fill-in-the-blank grammar exercise',
@@ -134,6 +138,12 @@ Correct answer: "${safeCorrect}"${safeWrong ? `\nLearner answered: "${safeWrong}
 
 Explain the grammar rule. Be specific about case, tense, or pattern.`;
 
+  const basePrompt = `You are a Croatian grammar teacher. Give a concise explanation (2-3 sentences) of why an answer is correct.
+Return ONLY valid JSON (no markdown, no code blocks):
+{"explanation":"2-3 sentences explaining the grammar rule","rule":"short rule name e.g. 'Accusative case' or 'Negation genitive'","tip":"one memorable tip max 100 chars","example":"one short example sentence in Croatian showing the rule"}`;
+
+  const systemPrompt = contextProse ? basePrompt + '\n\n' + contextProse : basePrompt;
+
   // Block 1: fetch — catches network errors only
   let res;
   try {
@@ -148,9 +158,7 @@ Explain the grammar rule. Be specific about case, tense, or pattern.`;
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 180,
-        system: `You are a Croatian grammar teacher. Give a concise explanation (2-3 sentences) of why an answer is correct.
-Return ONLY valid JSON (no markdown, no code blocks):
-{"explanation":"2-3 sentences explaining the grammar rule","rule":"short rule name e.g. 'Accusative case' or 'Negation genitive'","tip":"one memorable tip max 100 chars","example":"one short example sentence in Croatian showing the rule"}`,
+        system: systemPrompt,
         messages: [{ role: 'user', content: userMsg }],
       }),
     });

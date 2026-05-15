@@ -10,7 +10,7 @@ import McGameOver from './McGameOver';
 import McQuestionArea from './McQuestionArea';
 import { knightSpeak, knightFlash } from '../../lib/knightSpeak.js';
 import { useMcGameReducer } from '../../hooks/useMcGameReducer';
-import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 import { markQuest } from '../../lib/quests.js';
 
 const XP_PER_CORRECT = 3;
@@ -228,16 +228,12 @@ export default function McGame({
       // Fetch AI explanation for this error (fire-and-forget, non-blocking)
       const wrongOpt = currentQ.opts[i] ?? '';
       setAiExplain('loading' as const);
-      apiFetch('/api/explain-error', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          wrong: wrongOpt,
-          correct: currentQ.correct,
-          context: currentQ.hr || currentQ.q || '',
-          type: 'multiple_choice',
-          level: localStorage.getItem('nh_level') || 'B1',
-        }),
+      _aiPost('/api/explain-error', {
+        wrong: wrongOpt,
+        correct: currentQ.correct,
+        context: currentQ.hr || currentQ.q || '',
+        type: 'multiple_choice',
+        level: localStorage.getItem('nh_level') || 'B1',
       })
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => {

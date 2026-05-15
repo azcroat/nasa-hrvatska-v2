@@ -3,7 +3,7 @@ import { H, Bar, speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
-import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 import { recordTopicResult } from '../../lib/adaptive.js';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function shLocal(a: any[]) {
@@ -140,16 +140,11 @@ export default function DictationScreen({ goBack, award }: Props) {
     async (wrong: string, correctText: string, level: string) => {
       setAiExplain('loading');
       try {
-        const res = await apiFetch('/api/explain-error', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            wrong,
-            correct: correctText,
-            type: 'dictation',
-            level: level || 'A2',
-          }),
-          signal: AbortSignal.timeout(20000),
+        const res = await _aiPost('/api/explain-error', {
+          wrong,
+          correct: correctText,
+          type: 'dictation',
+          level: level || 'A2',
         });
         if (!mountedRef.current) return;
         if (!res.ok) throw new Error('API error');
