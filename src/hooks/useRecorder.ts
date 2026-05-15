@@ -100,6 +100,7 @@ export function useRecorder(): UseRecorderResult {
     }
 
     const maxDurationMs = opts?.maxDurationMs;
+    const countdownDuration = opts?.countdown ?? 3;
 
     navigator.mediaDevices
       .getUserMedia({ audio: true })
@@ -111,17 +112,9 @@ export function useRecorder(): UseRecorderResult {
         }
         streamRef.current = stream;
         setMicAvailable(true);
-        setCountdown(3);
-        setState('countdown');
 
-        let secs = 3;
-        countdownTimerRef.current = setInterval(() => {
-          secs -= 1;
+        const beginRecording = () => {
           if (!mountedRef.current) return;
-          if (secs > 0) {
-            setCountdown(secs);
-            return;
-          }
           if (countdownTimerRef.current) {
             clearInterval(countdownTimerRef.current);
             countdownTimerRef.current = null;
@@ -176,7 +169,25 @@ export function useRecorder(): UseRecorderResult {
               }
             }, maxDurationMs);
           }
-        }, 1000);
+        };
+
+        if (countdownDuration <= 0) {
+          setCountdown(0);
+          beginRecording();
+        } else {
+          setCountdown(countdownDuration);
+          setState('countdown');
+          let secs = countdownDuration;
+          countdownTimerRef.current = setInterval(() => {
+            secs -= 1;
+            if (!mountedRef.current) return;
+            if (secs > 0) {
+              setCountdown(secs);
+              return;
+            }
+            beginRecording();
+          }, 1000);
+        }
       })
       .catch((err: Error & { name?: string }) => {
         if (!mountedRef.current) {
