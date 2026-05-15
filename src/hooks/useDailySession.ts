@@ -343,3 +343,21 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
 
   return { session, isComplete, progress, markDone, nextActivity, tomorrowLabel };
 }
+
+// ── Mic-state persistence (SP4b) ─────────────────────────────────────────────
+// useRecorder writes 'available' | 'denied' | 'unsupported' on terminal state
+// transitions. selectProductionExercise reads this to decide whether
+// mic-required exercises are eligible. Unknown values fail-open to 'unknown'.
+const MIC_STATE_KEY = 'nh_mic_state';
+const VALID_MIC_STATES = new Set(['available', 'denied', 'unsupported']);
+export type MicState = 'available' | 'denied' | 'unsupported' | 'unknown';
+
+export function readMicState(): MicState {
+  try {
+    const v = localStorage.getItem(MIC_STATE_KEY);
+    if (v && VALID_MIC_STATES.has(v)) return v as MicState;
+  } catch (_) {
+    // localStorage unavailable (iOS private browsing) — fall through
+  }
+  return 'unknown';
+}
