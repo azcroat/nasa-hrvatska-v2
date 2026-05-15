@@ -306,3 +306,38 @@ SP4b is complete when:
 8. `recordProductionExercise()` is called from `markDone(curEx)` when curEx.screen is in the pool (verified by integration test).
 9. Playwright `sp4b-production-slot.spec.js` passes on all 5 projects.
 10. Global vitest branches coverage threshold remains 80.
+
+---
+
+## Follow-up — what shipped (2026-05-15)
+
+### Acceptance gate — actual results
+
+| Gate | Result | Evidence |
+|---|---|---|
+| 1. selectProductionExercise comprehensive branch coverage | PASS | 16 unit tests covering all 4 filter steps + null/fallback paths (`useDailySession.production.test.ts`) |
+| 2. P2.5 inserted between P2 and P3 | PASS | `useDailySession.ts` buildSessionActivities |
+| 3. A2+ users always get one production exercise | PASS | integration test green (`buildSessionActivities — P2.5`) |
+| 4. A1 users gracefully get 4 activities | PASS | integration test green (zero production matches at A1) |
+| 5. Mic-denied → Writing or Dictation | PASS | integration test + 4 unit tests; e2e shipped, validated by CI |
+| 6. Recent-exclusion 3-day window | PASS | 11 unit tests in `recentProduction.test.ts` covering pruning, dedup, window |
+| 7. useRecorder writes nh_mic_state | PASS | 3 new hook tests covering denied/unsupported/recording transitions |
+| 8. markDone calls recordProductionExercise | PASS | 3 integration tests on PRODUCTION_SCREEN_IDS membership |
+| 9. Playwright passes on all 5 projects | PENDING | spec committed `e2e/sp4b-production-slot.spec.js`; CI Desktop Chrome + Firefox/WebKit smoke validate on push |
+| 10. Global branches threshold remains 80 | PASS | `vitest.config.js` unchanged |
+
+### Commits
+
+- `a7a2fca` feat(sp4b): readMicState() helper + 5 unit tests
+- `511e19d` feat(sp4b): getRecentProduction + recordProductionExercise + 11 unit tests
+- `b0c0596` feat(sp4b): PRODUCTION_POOL constant — 5 production exercises
+- `859eee9` feat(sp4b): selectProductionExercise() skeleton + happy-path test
+- `9c6ee2a` test(sp4b): selectProductionExercise CEFR-gating cases
+- `599ff27` test(sp4b): selectProductionExercise mic-state + recent-exclusion cases
+- `38fd340` feat(sp4b): insert P2.5 production slot in buildSessionActivities
+- `486b0f9` feat(sp4b): wire recordProductionExercise into markDone flow
+- `0258d79` feat(sp4b): useRecorder persists mic state to localStorage
+- `9234a3e` test(sp4b): determinism + index-clamp coverage notes
+- `4f000e7` test(e2e): SP4b production-slot cross-browser spec
+
+Full unit suite: **2734 passed**, 25 skipped, 0 failed (138 test files).
