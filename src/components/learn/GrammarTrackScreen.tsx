@@ -299,6 +299,106 @@ const LEVELS = [
         screen: 'svojmoj',
         qs: 15,
       },
+      {
+        id: 'futur-ii',
+        icon: '⏳',
+        title: 'Futur II — Future Perfect',
+        desc: 'Time-clause conditionals — kad/ako/čim/dok',
+        screen: 'grammar_unit_detail',
+        unitId: 'futur-ii',
+        qs: 5,
+      },
+      {
+        id: 'relative-clauses',
+        icon: '🔗',
+        title: 'Relativne rečenice (koji)',
+        desc: 'koji/koja/koje + cases — the biggest B1→B2 leap',
+        screen: 'grammar_unit_detail',
+        unitId: 'relative-clauses',
+        qs: 5,
+      },
+      {
+        id: 'passive-voice',
+        icon: '🔄',
+        title: 'Trpni — Passive Voice',
+        desc: 'je napisana, bio prodan — biti + past passive participle',
+        screen: 'grammar_unit_detail',
+        unitId: 'passive-voice',
+        qs: 5,
+      },
+      {
+        id: 'participles',
+        icon: '📜',
+        title: 'Glagolski pridjevi — Participles',
+        desc: 'Past + passive participle declension and agreement',
+        screen: 'grammar_unit_detail',
+        unitId: 'participles',
+        qs: 5,
+      },
+      {
+        id: 'reported-speech',
+        icon: '💬',
+        title: 'Indirektni govor — Reported Speech',
+        desc: 'da + present clauses, embedded questions, no backshift',
+        screen: 'grammar_unit_detail',
+        unitId: 'reported-speech',
+        qs: 5,
+      },
+    ],
+  },
+  {
+    id: 'C1',
+    label: 'C1 — Advanced',
+    color: '#7e22ce',
+    bg: 'linear-gradient(135deg,#faf5ff,#f3e8ff)',
+    border: '#e9d5ff',
+    headerBg: 'linear-gradient(135deg,#7e22ce,#6b21a8)',
+    units: [
+      {
+        id: 'kondicional-ii',
+        icon: '🌀',
+        title: 'Kondicional II — Conditional Perfect',
+        desc: 'bio bih došao — counterfactual past',
+        screen: 'grammar_unit_detail',
+        unitId: 'kondicional-ii',
+        qs: 5,
+      },
+      {
+        id: 'business-register',
+        icon: '📨',
+        title: 'Poslovni jezik — Business & Formal',
+        desc: 'Business correspondence, advanced honorifics, polite imperatives',
+        screen: 'grammar_unit_detail',
+        unitId: 'business-register',
+        qs: 5,
+      },
+      {
+        id: 'verbal-nouns',
+        icon: '📝',
+        title: 'Glagolske imenice — Verbal Nouns',
+        desc: 'pisanje, čitanje, putovanje — -nje gerunds',
+        screen: 'grammar_unit_detail',
+        unitId: 'verbal-nouns',
+        qs: 5,
+      },
+      {
+        id: 'reflexive-constructions',
+        icon: '🔁',
+        title: 'Povratni glagoli — Reflexive Constructions',
+        desc: 'se vs sebe, reciprocals, middle voice, inherent reflexives',
+        screen: 'grammar_unit_detail',
+        unitId: 'reflexive-constructions',
+        qs: 5,
+      },
+      {
+        id: 'word-order',
+        icon: '🔀',
+        title: 'Red riječi — Complex Word Order',
+        desc: 'Clitic placement, topicalization, fronting',
+        screen: 'grammar_unit_detail',
+        unitId: 'word-order',
+        qs: 5,
+      },
     ],
   },
 ];
@@ -319,6 +419,7 @@ interface Unit {
   title: string;
   desc: string;
   screen: string;
+  unitId?: string;
   qs: number;
 }
 
@@ -341,7 +442,13 @@ function markDone(unitId: string): void {
   } catch (_e) {}
 }
 
-export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
+export default function GrammarTrackScreen({
+  goBack,
+  launchGrammarUnit,
+}: {
+  goBack: () => void;
+  launchGrammarUnit?: (unitId: string) => void;
+}) {
   const { setScr, sCurEx } = useApp();
   const [activeLevel, setActiveLevel] = useState('A1');
   const [done, setDone] = useState(getProgress);
@@ -381,6 +488,11 @@ export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
     // written by screens that opt into fine-grained completion tracking (e.g. QuestionWords).
     markDone(unit.id);
     setDone(getProgress());
+    // SP9: B2/C1 advanced units route via grammar_unit_detail with a unitId payload.
+    if (unit.screen === 'grammar_unit_detail' && unit.unitId && launchGrammarUnit) {
+      launchGrammarUnit(unit.unitId);
+      return;
+    }
     try {
       sessionStorage.setItem('nh_grammar_unit_pending', unit.id);
     } catch {}
@@ -446,7 +558,8 @@ export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
           Grammar Track
         </div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,.65)', marginBottom: 14 }}>
-          A1 → B2 · 38 units · Structured grammar progression
+          A1 → C1 · {LEVELS.reduce((s, l) => s + l.units.length, 0)} units · Structured grammar
+          progression
         </div>
 
         {/* Overall progress bar */}
@@ -750,7 +863,7 @@ export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
             {level.id} Complete!
           </div>
           <div style={{ fontSize: 13, color: '#059669' }}>
-            {activeLevel !== 'B2'
+            {activeLevel !== 'C1'
               ? `Move on to ${LEVELS[LEVELS.findIndex((l) => l.id === activeLevel) + 1]?.id} when ready`
               : "You've mastered Croatian grammar — Odlično!"}
           </div>
@@ -770,10 +883,11 @@ export default function GrammarTrackScreen({ goBack }: { goBack: () => void }) {
         >
           <div style={{ fontSize: 32, marginBottom: 8 }}>🏆</div>
           <div style={{ fontSize: 16, fontWeight: 900, color: 'white', marginBottom: 4 }}>
-            A1 → B2 Complete!
+            A1 → C1 Complete!
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,.7)' }}>
-            All 38 grammar units visited. Bravo — Odlično!
+            All {LEVELS.reduce((s, l) => s + l.units.length, 0)} grammar units visited. Bravo —
+            Odlično!
           </div>
         </div>
       )}

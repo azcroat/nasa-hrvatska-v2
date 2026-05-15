@@ -246,6 +246,7 @@ const PhonemePracticeScreen = lazyWithReload(() => import('./learn/PhonemePracti
 const PracticalCroatianScreen = lazyWithReload(() => import('./learn/PracticalCroatianScreen'));
 const FrequencyTrackScreen = lazyWithReload(() => import('./learn/FrequencyTrackScreen'));
 const GrammarTrackScreen = lazyWithReload(() => import('./learn/GrammarTrackScreen'));
+const GrammarUnitDetail = lazyWithReload(() => import('./learn/GrammarUnitDetail'));
 const ListeningComprehensionScreen = lazyWithReload(
   () => import('./practice/ListeningComprehensionScreen'),
 );
@@ -515,6 +516,8 @@ export default function AppRouter(props: Record<string, any>) {
   // SP7: deep-link target story for GradedInputScreen (e.g. from Story of the Day card).
   // Cleared on goBack so future entries via the Practice tab start on the catalog.
   const [pendingStoryId, setPendingStoryId] = useState<string | null>(null);
+  // SP9: deep-link target grammar unit for GrammarUnitDetail (set by GrammarTrackScreen).
+  const [pendingGrammarUnitId, setPendingGrammarUnitId] = useState<string | null>(null);
 
   return (
     <AnimatePresence mode="wait">
@@ -1906,7 +1909,24 @@ export default function AppRouter(props: Record<string, any>) {
         )}
         {currentScreen === 'grammar_track' && (
           <ScreenErrorBoundary key="grammar_track" name="grammar_track">
-            <GrammarTrackScreen goBack={goBack} />
+            <GrammarTrackScreen
+              goBack={goBack}
+              launchGrammarUnit={(unitId: string) => {
+                setPendingGrammarUnitId(unitId);
+                setScr('grammar_unit_detail');
+              }}
+            />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'grammar_unit_detail' && pendingGrammarUnitId && (
+          <ScreenErrorBoundary key="grammar_unit_detail" name="grammar_unit_detail">
+            <GrammarUnitDetail
+              unitId={pendingGrammarUnitId}
+              goBack={() => {
+                setPendingGrammarUnitId(null);
+                goBack();
+              }}
+            />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'listening_comprehension' && (
