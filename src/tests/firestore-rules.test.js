@@ -148,12 +148,62 @@ describe('/users/{userId}', () => {
     await assertSucceeds(db.doc(`users/${docId}`).update({ xp: 100, progress: maxSize }));
   });
 
-  it('any authed user can update only friendUids on another user doc', async () => {
+  it('any authed user can add THEIR OWN uid to friendUids on another user doc', async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '', friendUids: [] });
     });
     const db = authed('other_user', 'bob@test.com').firestore();
     await assertSucceeds(db.doc(`users/${docId}`).update({ friendUids: ['other_user'] }));
+  });
+
+  it('any authed user can REMOVE their own uid from friendUids on another user doc', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx
+        .firestore()
+        .doc(`users/${docId}`)
+        .set({ xp: 100, progress: '', friendUids: ['other_user', 'third_user'] });
+    });
+    const db = authed('other_user', 'bob@test.com').firestore();
+    await assertSucceeds(db.doc(`users/${docId}`).update({ friendUids: ['third_user'] }));
+  });
+
+  it("rejects adding SOMEONE ELSE's uid to another user doc (friendUids injection)", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '', friendUids: [] });
+    });
+    const db = authed('other_user', 'bob@test.com').firestore();
+    // Attacker bob tries to make alice "friends" with someone she didn't add.
+    await assertFails(db.doc(`users/${docId}`).update({ friendUids: ['stranger'] }));
+  });
+
+  it('rejects bloating friendUids with many uids (DoS via 200KB cap)', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '', friendUids: [] });
+    });
+    const db = authed('other_user', 'bob@test.com').firestore();
+    const bloat = Array.from({ length: 1000 }, (_, i) => `uid_${i}`);
+    await assertFails(db.doc(`users/${docId}`).update({ friendUids: bloat }));
+  });
+
+  it('rejects adding self + others simultaneously', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().doc(`users/${docId}`).set({ xp: 100, progress: '', friendUids: [] });
+    });
+    const db = authed('other_user', 'bob@test.com').firestore();
+    // Even though 'other_user' is in the new list, 'extra' is also added without consent.
+    await assertFails(db.doc(`users/${docId}`).update({ friendUids: ['other_user', 'extra'] }));
+  });
+
+  it('rejects removing someone else from friendUids', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx
+        .firestore()
+        .doc(`users/${docId}`)
+        .set({ xp: 100, progress: '', friendUids: ['third_user'] });
+    });
+    const db = authed('other_user', 'bob@test.com').firestore();
+    // Bob has never been in alice's friendUids; removing 'third_user' isn't bob's right.
+    await assertFails(db.doc(`users/${docId}`).update({ friendUids: [] }));
   });
 
   it('delete is always denied', async () => {

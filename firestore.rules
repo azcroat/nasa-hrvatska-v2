@@ -77,6 +77,28 @@ service cloud.firestore {
           || request.resource.data.levelQuizPasses is map;
     }
 
+    // FRIEND-EXCEPTION GUARD: when a non-owner writes friendUids on someone else's
+    // user doc, restrict the change to ONLY adding or removing the writer's OWN UID.
+    // Without this, any authenticated user could replace the target's friendUids array
+    // wholesale — bloat it past the 200KB progress cap (DoS), or wipe the target's
+    // friend list entirely.
+    //
+    // Allowed diffs (set semantics):
+    //   added   == {request.auth.uid} AND removed == {}    (writer adds self)
+    //   removed == {request.auth.uid} AND added   == {}    (writer removes self)
+    //
+    // Rejects: replacing array contents, adding multiple UIDs, adding someone
+    // else's UID, removing UIDs other than the writer's own.
+    function isFriendUidDiffSelf() {
+      let oldList = resource.data.get('friendUids', []);
+      let newList = request.resource.data.get('friendUids', []);
+      let added   = newList.toSet().difference(oldList.toSet());
+      let removed = oldList.toSet().difference(newList.toSet());
+      let selfSet = [request.auth.uid].toSet();
+      return (added == selfSet && removed.size() == 0)
+          || (removed == selfSet && added.size() == 0);
+    }
+
     // ─── User documents ────────────────────────────────────────────────────
     // Owner reads/writes their own document only.
     // UPDATE validates the top-level xp field to prevent client-side XP inflation.
@@ -89,7 +111,8 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) && validXpUpdate() && validProgressSize() && validLevelQuizPasses()
         || (isAuthenticated()
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendUids']));
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendUids'])
+            && isFriendUidDiffSelf());
       allow delete: if false;
     }
 
