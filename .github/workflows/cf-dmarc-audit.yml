@@ -23,12 +23,11 @@ jobs:
           T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
-          set -e
-          echo "=== TXT records for nasahrvatska.com ==="
+          set +e
+          echo "=== Raw response from DNS list endpoint ==="
           curl -sS \
             "https://api.cloudflare.com/client/v4/zones/$Z/dns_records?type=TXT&per_page=100" \
-            -H "Authorization: Bearer $T" \
-            | jq '.result[] | {name, content, ttl}'
+            -H "Authorization: Bearer $T" | jq .
 
       - name: Specifically check _dmarc record
         env:
