@@ -1,0 +1,121 @@
+name: cf-security-tighten
+on:
+  workflow_dispatch:
+jobs:
+  tighten:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve zone ID + clean token
+        id: zone
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          Z=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones?name=nasahrvatska.com" \
+            -H "Authorization: Bearer $T" | jq -r '.result[0].id')
+          echo "zone-id=$Z" >> "$GITHUB_OUTPUT"
+          echo "token-clean=$T" >> "$GITHUB_OUTPUT"
+          echo "Zone: $Z"
+
+      - name: Locate the /api/* skip rule
+        id: rule
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set -e
+          # Custom rules live under the http_request_firewall_custom phase ruleset.
+          RS_ID=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/rulesets" \
+            -H "Authorization: Bearer $T" \
+            | jq -r '.result[] | select(.phase == "http_request_firewall_custom") | .id' | head -n1)
+          echo "Ruleset ID: $RS_ID"
+          echo "ruleset-id=$RS_ID" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$RS_ID" ] || [ "$RS_ID" = "null" ]; then
+            echo "::warning::No http_request_firewall_custom ruleset found"
+            exit 0
+          fi
+
+          # Dump all rules from the ruleset, find the one matching /api/* skip.
+          RULES=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/rulesets/$RS_ID" \
+            -H "Authorization: Bearer $T")
+          echo "Rules in custom ruleset:"
+          echo "$RULES" | jq '.result.rules[] | {id, description, action, expression}'
+
+          # Find the rule that:
+          #   - has action "skip"
+          #   - expression mentions /api/
+          #   - does NOT mention an IP address
+          TARGET_ID=$(echo "$RULES" | jq -r '.result.rules[]
+            | select(.action == "skip")
+            | select(.expression | contains("/api/"))
+            | select(.expression | contains("ip.src") | not)
+            | .id' | head -n1)
+
+          if [ -z "$TARGET_ID" ] || [ "$TARGET_ID" = "null" ]; then
+            echo "::warning::No /api/* skip rule found — possibly already deleted"
+            echo "rule-id=" >> "$GITHUB_OUTPUT"
+          else
+            echo "Target rule ID: $TARGET_ID"
+            echo "rule-id=$TARGET_ID" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Delete the /api/* skip rule
+        if: steps.rule.outputs.rule-id != ''
+        continue-on-error: true
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+          RS: ${{ steps.rule.outputs.ruleset-id }}
+          R: ${{ steps.rule.outputs.rule-id }}
+        run: |
+          set +e
+          RESP=$(curl -sS -i -X DELETE \
+            "https://api.cloudflare.com/client/v4/zones/$Z/rulesets/$RS/rules/$R" \
+            -H "Authorization: Bearer $T" \
+            -w '\n--- HTTP %{http_code} ---\n')
+          echo "$RESP"
+
+      - name: Revert browser_check to on
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set -e
+          curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$Z/settings/browser_check" \
+            -H "Authorization: Bearer $T" \
+            -H "Content-Type: application/json" \
+            -d '{"value":"on"}' \
+            -w '\n--- HTTP %{http_code} ---\n' | tail -8
+
+      - name: Revert challenge_ttl to 1800 (30min default)
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set -e
+          curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$Z/settings/challenge_ttl" \
+            -H "Authorization: Bearer $T" \
+            -H "Content-Type: application/json" \
+            -d '{"value":1800}' \
+            -w '\n--- HTTP %{http_code} ---\n' | tail -8
+
+      - name: Verification — curl /api/tts from GHA runner (should be 401 auth, not WAF block)
+        run: |
+          set +e
+          RESP=$(curl -sS -X POST \
+            "https://nasahrvatska.com/api/tts" \
+            -H "Content-Type: application/json" \
+            -d '{"text":"bok","slow":false}' \
+            -w '\n--- HTTP %{http_code} | CT %{content_type} | size %{size_download}B ---\n')
+          echo "$RESP" | tail -5
+          echo ""
+          echo "Expected: HTTP 401 + JSON body — means request reached the function"
+          echo "         (Firebase auth gate fired = good; CF didn't block; tightening is safe)"
+          echo "Bad:     HTTP 403 + HTML body — means CF WAF or Bot Fight Mode blocked the request"
