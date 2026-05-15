@@ -5,6 +5,7 @@
 
 import { checkRateLimit } from './_rateLimit.js';
 import { corsHeaders, isAllowedOrigin } from './_helpers.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
@@ -29,6 +30,20 @@ export async function onRequestPost(context) {
       status: 429,
       headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
     });
+  }
+
+  // Require Firebase auth — even though MyMemory is free, the quota is shared.
+  // Without auth, a rotating-IP attacker can exhaust the daily translation quota
+  // for all real users.
+  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  if (FIREBASE_PROJECT_ID) {
+    const _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+    if (!_uid) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+      });
+    }
   }
 
   try {

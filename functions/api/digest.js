@@ -4,6 +4,7 @@
 // POST /api/digest  { email, name, xp, lessons, streakDays, wordsLearned }
 
 import { checkRateLimit } from './_rateLimit.js';
+import { getFirebaseUid } from './_verifyToken.js';
 
 function isAllowedOrigin(origin, isDev) {
   // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
@@ -49,6 +50,13 @@ export async function onRequestPost(ctx) {
   const allowed = await checkRateLimit(ctx.request, 5, ctx.env); // 5 per minute max
   if (!allowed) {
     return errJson('Rate limit exceeded', 429, hdrs);
+  }
+
+  // Require Firebase auth — Resend is paid + reputation risk if abused for spam.
+  const FIREBASE_PROJECT_ID = ctx.env.VITE_FIREBASE_PROJECT_ID || ctx.env.FIREBASE_PROJECT_ID || '';
+  if (FIREBASE_PROJECT_ID) {
+    const _uid = await getFirebaseUid(ctx.request, FIREBASE_PROJECT_ID);
+    if (!_uid) return errJson('unauthorized', 401, hdrs);
   }
 
   const RESEND_KEY = ctx.env.RESEND_API_KEY;
