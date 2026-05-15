@@ -578,13 +578,672 @@ export const REPORTED_SPEECH = {
   ],
 };
 
-// Aggregated array — Tasks 2-3 will extend this to all 10 units.
+export const KONDICIONAL_II = {
+  id: 'kondicional-ii',
+  cefr: 'C1',
+  title: 'Kondicional II — Conditional Perfect',
+  subtitle: 'bio bih + past participle — counterfactual past',
+  focus: 'kondicional ii, conditional perfect, counterfactual, bio bih dosao, da je',
+  intro:
+    'Kondicional II expresses past counterfactuals — "I would have come" (but didn\'t). It is formed with the Kondicional I of `biti` (bio bih / bila bih) PLUS the past participle of the main verb. It is typically paired with a `da` clause stating the unfulfilled condition: `Da sam imao vremena, bio bih došao` ("If I had had time, I would have come"). Distinct from Kondicional I (`došao bih` — "I would come"), Kondicional II is firmly literary / formal and is increasingly replaced in speech by Kondicional I in past contexts.',
+  forms: [
+    { label: 'ja (m. / f.)', hr: 'bio bih došao / bila bih došla', en: 'I would have come' },
+    { label: 'ti (m. / f.)', hr: 'bio bi došao / bila bi došla', en: 'you would have come' },
+    {
+      label: 'on / ona / ono',
+      hr: 'bio bi došao / bila bi došla / bilo bi došlo',
+      en: 's/he/it would have come',
+    },
+    { label: 'mi (m. / f.)', hr: 'bili bismo došli / bile bismo došle', en: 'we would have come' },
+    {
+      label: 'vi (m. / f.)',
+      hr: 'bili biste došli / bile biste došle',
+      en: 'you (pl) would have come',
+    },
+    {
+      label: 'oni / one / ona',
+      hr: 'bili bi došli / bile bi došle / bila bi došla',
+      en: 'they would have come',
+    },
+    {
+      label: 'Negative',
+      hr: 'ne bih bio došao / ne bismo bili došli',
+      en: 'I/we would not have come',
+    },
+  ],
+  examples: [
+    {
+      hr: 'Da sam imao vremena, bio bih došao.',
+      en: 'If I had had time, I would have come.',
+      note: 'Classic counterfactual pairing: `da` + Perfekt (unreal past condition) → Kondicional II in main clause.',
+    },
+    {
+      hr: 'Da nije kasnila, ne bismo zakasnili na vlak.',
+      en: 'If she had not been late, we would not have missed the train.',
+      note: 'Negative Kondicional II: `ne bismo + bili + zakasnili`. Plural masculine participle.',
+    },
+    {
+      hr: 'Bilo bi lakše da smo to znali ranije.',
+      en: 'It would have been easier if we had known that earlier.',
+      note: 'Impersonal neuter: `bilo bi` + adverb. The `da` clause comes second.',
+    },
+    {
+      hr: 'Da si ga vidio, ne bi mu vjerovao.',
+      en: 'If you had seen him, you would not have believed him.',
+      note: '2nd sg.: enclitic `bi` (the same form across persons 2/3 sg.) + masc. sg. participle.',
+    },
+    {
+      hr: 'Bio bih ti pomogao da si me pitao.',
+      en: 'I would have helped you had you asked me.',
+      note: 'Note clitic order: `bih ti pomogao` — `bih` (aux) before `ti` (dat. pron.).',
+    },
+    {
+      hr: 'Da nisu intervenirali, situacija bi bila gora.',
+      en: 'Had they not intervened, the situation would have been worse.',
+      note: 'Fem. sg. `bila` — agrees with `situacija`.',
+    },
+  ],
+  tips: [
+    'Almost always paired with a `da` + Perfekt clause stating the unfulfilled past condition. Without that pairing, Croatians often default to Kondicional I.',
+    'The participle agrees in gender AND number with the subject — same rules as Perfekt: bio (m. sg.), bila (f. sg.), bilo (n. sg.), bili / bile / bila (plurals).',
+    'Distinct from Kondicional I: `došao bih` = "I would come" (present hypothetical); `bio bih došao` = "I would have come" (past counterfactual).',
+    'Register: firmly literary / formal. In everyday speech Kondicional I (`došao bih`) is often used for past counterfactuals too — context disambiguates.',
+    'Clitic order in the full form: `bih` (aux) → other clitics (mu, joj, ga, je, se) → participle. Example: `bio bih mu rekao`.',
+  ],
+  drills: [
+    {
+      q: 'Da sam imao vremena, ____ došao.',
+      qEn: 'If I had had time, I would have come.',
+      opts: ['bih', 'bio bih', 'bit ću', 'bio sam'],
+      correct: 1,
+      explain:
+        'Kondicional II = `bio bih` + participle. `bih došao` alone is Kondicional I; the past counterfactual needs `bio bih došao`.',
+    },
+    {
+      q: 'Fem. sg.: "Ona ____ došla da je znala."',
+      qEn: 'She would have come had she known.',
+      opts: ['bio bi', 'bila bi', 'bili bi', 'bilo bi'],
+      correct: 1,
+      explain:
+        'Feminine singular auxiliary participle = `bila` + clitic `bi` (3rd sg.) → `bila bi došla`.',
+    },
+    {
+      q: 'Plural masc.: "Oni ____ pomogli."',
+      qEn: 'They would have helped.',
+      opts: ['bili bi pomogao', 'bila bi pomogli', 'bili bi pomogli', 'bilo bi pomoglo'],
+      correct: 2,
+      explain: 'Plural masc.: `bili bi` + plural masc. participle `pomogli`.',
+    },
+    {
+      q: 'Which sentence uses Kondicional II correctly?',
+      opts: [
+        'Da budem znao, došao bih.',
+        'Da sam znao, bio bih došao.',
+        'Da znam, bio bih dolazio.',
+        'Da bih znao, dolazim.',
+      ],
+      correct: 1,
+      explain:
+        'Counterfactual past: `da` + Perfekt (`sam znao`) → Kondicional II main clause (`bio bih došao`).',
+    },
+    {
+      q: 'Negative: "Da ga nisi pitao, ne ____ ti pomogao."',
+      qEn: 'Had you not asked him, he would not have helped you.',
+      opts: ['bih bio', 'bi bio', 'bi se bio', 'budu bili'],
+      correct: 1,
+      explain:
+        '3rd sg. masc.: `ne bi bio` + `pomogao` (with `ti` dat. clitic in between). Clitic order: `ne bi ti bio pomogao`.',
+    },
+    {
+      q: 'Translate: "We would have known."',
+      opts: ['Znali bismo.', 'Bili bismo znali.', 'Bili smo znali.', 'Bit ćemo znali.'],
+      correct: 1,
+      explain:
+        '`Znali bismo` is Kondicional I ("we would know"). `Bili bismo znali` is Kondicional II ("we would have known").',
+    },
+  ],
+};
+
+export const BUSINESS_REGISTER = {
+  id: 'business-register',
+  cefr: 'C1',
+  title: 'Poslovni jezik — Business Correspondence',
+  subtitle: 'Formal letters, polite imperatives, advanced gospodin/gospođa usage',
+  focus:
+    'business register, formal correspondence, gospodin, gospodja, polite imperative, business email',
+  intro:
+    'Croatian business and formal correspondence relies on specific honorific patterns that go beyond the basic Ti/Vi distinction. Address lines use the vocative case of `gospodin` / `gospođa` with a capital G (`Poštovani gospodine Horvate`, `Poštovana gospođo Kovač`). In formal writing the pronouns Vi, Vam, Vas, Vaš are capitalized to signal respect. Requests are softened with `Molim Vas da` + present (subjunctive-like) rather than a bare imperative. Standard openings (`Poštovani`), sign-offs (`Srdačan pozdrav`, `S poštovanjem`), and email templates are tightly conventionalized — deviation reads as either rude or amateurish.',
+  forms: [
+    {
+      label: 'Address (m. sg.)',
+      hr: 'Poštovani gospodine Horvate,',
+      en: 'Dear Mr. Horvat,',
+    },
+    {
+      label: 'Address (f. sg.)',
+      hr: 'Poštovana gospođo Kovač,',
+      en: 'Dear Mrs. Kovač,',
+    },
+    {
+      label: 'Address (group)',
+      hr: 'Poštovani / Cijenjeni klijenti,',
+      en: 'Dear / Esteemed clients,',
+    },
+    {
+      label: 'Polite request',
+      hr: 'Molim Vas da pošaljete dokumente.',
+      en: 'Please send the documents.',
+    },
+    {
+      label: 'Thanks',
+      hr: 'Hvala Vam na razumijevanju.',
+      en: 'Thank You for your understanding.',
+    },
+    {
+      label: 'Sign-off (neutral)',
+      hr: 'Srdačan pozdrav,',
+      en: 'Kind regards,',
+    },
+    {
+      label: 'Sign-off (formal)',
+      hr: 'S poštovanjem,',
+      en: 'Yours sincerely,',
+    },
+  ],
+  examples: [
+    {
+      hr: 'Poštovani gospodine Horvate, hvala Vam na brzom odgovoru.',
+      en: 'Dear Mr. Horvat, thank You for your prompt reply.',
+      note: 'Vocative `gospodine Horvate`; capitalized `Vam` marks formal Vi.',
+    },
+    {
+      hr: 'Molim Vas da nam dostavite ponudu do petka.',
+      en: 'Please send us the offer by Friday.',
+      note: 'Polite imperative via `Molim Vas da` + present — never bare `Pošaljite!` in business context.',
+    },
+    {
+      hr: 'Cijenjeni klijenti, obavještavamo Vas o promjeni radnog vremena.',
+      en: 'Esteemed clients, we inform You of a change in business hours.',
+      note: 'Group address `Cijenjeni klijenti` — used in newsletters and notices.',
+    },
+    {
+      hr: 'U privitku dostavljam tražene dokumente.',
+      en: 'Attached you will find the requested documents.',
+      note: 'Standard email phrase; `u privitku` (or `u prilogu`) = "attached".',
+    },
+    {
+      hr: 'S poštovanjem, Ivana Marić, direktorica prodaje.',
+      en: 'Yours sincerely, Ivana Marić, Director of Sales.',
+      note: 'Formal sign-off + name + title. Feminine title `direktorica`, not `direktor`.',
+    },
+    {
+      hr: 'Ako imate dodatnih pitanja, slobodno mi se obratite.',
+      en: 'If You have any further questions, please feel free to contact me.',
+      note: 'Standard closing courtesy line; `slobodno + imperative` softens the offer.',
+    },
+  ],
+  tips: [
+    'Capitalize Vi, Vam, Vas, Vaš throughout formal correspondence — this is a sign of respect, not a typo.',
+    'Vocative of names: `gospodine Horvate` (m. sg. voc. of `Horvat`), `gospođo Kovač` (f. sg. voc. — surnames in -ić, -ač often stay unchanged for women).',
+    'Never start a business email with the bare imperative `Pošaljite!`. Use `Molim Vas da pošaljete…` or `Bili bismo Vam zahvalni ako biste poslali…`.',
+    'Sign-off hierarchy: `S poštovanjem` (most formal) > `Srdačan pozdrav` (neutral business) > `Pozdrav` (informal, internal). Match the opening.',
+    'Use feminine professional titles for women: `direktorica`, `profesorica`, `inženjerka`, `voditeljica`. Using masculine forms (`direktor`) for a woman is increasingly considered tone-deaf in modern Croatian.',
+  ],
+  drills: [
+    {
+      q: 'Choose the correct opening for a letter to Mr. Horvat:',
+      opts: ['Bok Horvat,', 'Poštovani gospodine Horvate,', 'Dragi Horvat,', 'Gospodin Horvat,'],
+      correct: 1,
+      explain:
+        '`Poštovani` + vocative `gospodine Horvate`. `Bok` and `Dragi` are informal; `Gospodin Horvat` (nominative) is not an address form.',
+    },
+    {
+      q: 'In a formal email, which spelling of "you" is correct?',
+      opts: ['vi', 'Vi', 'VI', 'tebe'],
+      correct: 1,
+      explain:
+        'Formal Vi is capitalized in correspondence: Vi, Vam, Vas, Vaš. Lowercase `vi` is for plural informal you.',
+    },
+    {
+      q: 'Most polite way to ask a client to send documents:',
+      opts: [
+        'Pošalji dokumente.',
+        'Pošaljite dokumente!',
+        'Molim Vas da pošaljete dokumente.',
+        'Hoćeš poslati dokumente?',
+      ],
+      correct: 2,
+      explain:
+        '`Molim Vas da` + present is the standard polite-request frame. The bare imperative is too direct for business.',
+    },
+    {
+      q: 'Which sign-off matches the most formal register?',
+      opts: ['Pozdrav,', 'Srdačan pozdrav,', 'S poštovanjem,', 'Bok,'],
+      correct: 2,
+      explain:
+        '`S poštovanjem` ("Yours sincerely") is the most formal. `Pozdrav` and `Bok` are informal; `Srdačan pozdrav` is neutral business.',
+    },
+    {
+      q: 'How do you address a female sales director named Marić?',
+      opts: [
+        'gospodina direktora Marić',
+        'gospođo direktorice Marić',
+        'gospođa direktor Marić',
+        'gospodin Marić',
+      ],
+      correct: 1,
+      explain:
+        'Vocative + feminine title: `gospođo direktorice Marić`. Use feminine `direktorica` for a woman.',
+    },
+    {
+      q: 'Translate the email phrase "Attached you will find the requested documents":',
+      opts: [
+        'Dokumenti su u kuhinji.',
+        'U privitku dostavljam tražene dokumente.',
+        'Zatraženi su dokumenti.',
+        'Pošaljite tražene dokumente.',
+      ],
+      correct: 1,
+      explain:
+        '`U privitku dostavljam…` is the standard business email phrase. Note `tražene` (passive participle) agreeing with `dokumente`.',
+    },
+  ],
+};
+
+export const VERBAL_NOUNS = {
+  id: 'verbal-nouns',
+  cefr: 'C1',
+  title: 'Glagolske imenice — Verbal Nouns',
+  subtitle: 'pisanje, čitanje, putovanje — gerund-like nouns from verbs',
+  focus: 'verbal nouns, glagolska imenica, gerund, pisanje, citanje, -nje suffix',
+  intro:
+    'Verbal nouns (glagolske imenice) are nominalized verbs ending in -nje (pisanje "writing", čitanje "reading", putovanje "travelling"). They are formed productively from almost any imperfective verb by replacing the infinitive ending with -nje, often with phonological adjustments. They decline as neuter `-e/-a` nouns through all seven cases and are extremely frequent in formal Croatian (legal, academic, journalistic). Crucially, a verbal noun in a phrase like `umoran od putovanja` takes the case governed by the preposition (`od` → genitive), NOT the case the source verb would have demanded.',
+  forms: [
+    { label: 'N (nominativ)', hr: 'pisanje', en: 'writing (subject)' },
+    { label: 'G (genitiv)', hr: 'pisanja', en: 'of writing' },
+    { label: 'D (dativ)', hr: 'pisanju', en: 'to writing' },
+    { label: 'A (akuzativ)', hr: 'pisanje', en: 'writing (object)' },
+    { label: 'V (vokativ)', hr: 'pisanje', en: '— rarely used' },
+    { label: 'L (lokativ)', hr: 'pisanju', en: 'about / in writing' },
+    { label: 'I (instrumental)', hr: 'pisanjem', en: 'by / with writing' },
+  ],
+  examples: [
+    {
+      hr: 'Umoran sam od putovanja.',
+      en: 'I am tired from travelling.',
+      note: 'Preposition `od` governs genitive → `putovanja` (gen. sg. of `putovanje`).',
+    },
+    {
+      hr: 'Prije pisanja izvještaja, pregledaj podatke.',
+      en: 'Before writing the report, review the data.',
+      note: '`prije` + genitive → `pisanja`. Note `izvještaja` (gen. of `izvještaj`) — verbal nouns govern genitive for their object.',
+    },
+    {
+      hr: 'Tijekom čitanja knjige pravim bilješke.',
+      en: 'During the reading of the book I take notes.',
+      note: '`tijekom` + genitive → `čitanja`; `knjige` also genitive (object of the verbal noun).',
+    },
+    {
+      hr: 'Nakon razgovora otišli smo kući.',
+      en: 'After the conversation we went home.',
+      note: '`nakon` + genitive → `razgovora` (verbal noun from `razgovarati`).',
+    },
+    {
+      hr: 'U pjevanju nalazi mir.',
+      en: 'She finds peace in singing.',
+      note: '`u` + locative → `pjevanju`. Verbal noun from `pjevati`.',
+    },
+    {
+      hr: 'Učenjem hrvatskog razvijaš um.',
+      en: 'By learning Croatian you develop your mind.',
+      note: 'Instrumental of means: `učenjem` (ins. sg.). Note `hrvatskog` — verbal noun takes genitive for its object.',
+    },
+  ],
+  tips: [
+    'Formation: drop the `-ti` of the infinitive, add `-nje`, with sound changes — pisati → pisanje, čitati → čitanje, putovati → putovanje, govoriti → govorenje (vowel shift), pjevati → pjevanje.',
+    'Aspect of the source verb is preserved: imperfective `pisanje` (writing as activity) vs perfective-derived `napisanje` (the act of having written) — but imperfective forms are far more common.',
+    'Object of a verbal noun goes into the GENITIVE: `pisanje pisma` (writing a letter), `čitanje knjige` (reading of the book). The original verb might have governed accusative, but in nominalized form it takes genitive.',
+    'Case is determined by the preposition or syntactic role, not by the source verb: `od putovanja` (gen.), `pri pisanju` (loc.), `pisanjem` (ins.).',
+    'In formal Croatian, verbal nouns often replace `da` + present clauses: `mogućnost dolaska` (the possibility of arrival) instead of `mogućnost da dođe`.',
+  ],
+  drills: [
+    {
+      q: 'Form the verbal noun from `čitati`:',
+      opts: ['čitalo', 'čitanje', 'čitanost', 'čitač'],
+      correct: 1,
+      explain:
+        '`čitati` → `čitanje` (-ti dropped, -nje added). `čitač` is an agent noun (reader = person).',
+    },
+    {
+      q: '"Umoran sam ____ ."',
+      qEn: 'I am tired from travelling.',
+      opts: ['od putovanju', 'od putovanja', 'od putovanje', 'od putovanjem'],
+      correct: 1,
+      explain: '`od` requires genitive → `putovanja` (gen. sg. of `putovanje`).',
+    },
+    {
+      q: '"Tijekom ____ knjige pravim bilješke."',
+      qEn: 'During the reading of the book I take notes.',
+      opts: ['čitanje', 'čitanja', 'čitanju', 'čitanjem'],
+      correct: 1,
+      explain: '`tijekom` governs genitive → `čitanja`.',
+    },
+    {
+      q: 'The object of a verbal noun in Croatian goes into which case?',
+      opts: ['accusative', 'genitive', 'dative', 'instrumental'],
+      correct: 1,
+      explain:
+        'Verbal nouns take genitive for their object: `pisanje pisma` (not `pismo`), `čitanje knjige` (not `knjigu`).',
+    },
+    {
+      q: '"____ hrvatskog razvijaš um."',
+      qEn: 'By learning Croatian you develop your mind.',
+      opts: ['Učenje', 'Učenju', 'Učenjem', 'Učenja'],
+      correct: 2,
+      explain: 'Instrumental of means: `učenjem` (ins. sg. of `učenje`).',
+    },
+    {
+      q: 'Which sentence uses the verbal noun + object correctly?',
+      opts: ['pisanje pismo', 'pisanje pismu', 'pisanje pisma', 'pisanje pismom'],
+      correct: 2,
+      explain:
+        'Verbal noun governs genitive on its object → `pisanje pisma` (writing of a letter).',
+    },
+  ],
+};
+
+export const REFLEXIVE_CONSTRUCTIONS = {
+  id: 'reflexive-constructions',
+  cefr: 'C1',
+  title: 'Povratni glagoli — Reflexive Constructions',
+  subtitle: 'se vs sebe, true reflexives, reciprocals, passives',
+  focus: 'reflexive, povratni, se vs sebe, reciprocal, povratni glagoli',
+  intro:
+    'The Croatian clitic `se` is dramatically overloaded. It marks (1) TRUE reflexive action where subject = object (`umivati se` "to wash oneself"); (2) RECIPROCAL action ("each other") with plural subjects (`vidjeli smo se` "we saw each other"); (3) MIDDLE / passive voice (`knjiga se prodaje` "the book is being sold"); and (4) INHERENTLY reflexive verbs that simply require `se` lexically (`smijati se`, `bojati se` — there is no version without `se`). The full pronoun `sebe` replaces `se` for emphasis or when governed by a preposition. Distinguishing these four `se` functions is a hallmark of C1 fluency.',
+  forms: [
+    { label: 'True reflexive', hr: 'umivati se / oblačiti se', en: 'to wash / dress oneself' },
+    { label: 'Reciprocal', hr: 'voljeti se / vidjeti se', en: 'to love / see each other' },
+    {
+      label: 'Middle (passive)',
+      hr: 'knjiga se prodaje / vrata se zatvaraju',
+      en: 'is sold / are closed',
+    },
+    {
+      label: 'Inherently reflexive',
+      hr: 'smijati se / bojati se / nadati se',
+      en: 'to laugh / fear / hope (always with se)',
+    },
+    {
+      label: 'Emphatic sebe',
+      hr: 'Voli sebe iznad svega.',
+      en: 'He loves himself above all.',
+    },
+    {
+      label: 'sebe with preposition',
+      hr: 'razgovarati sa sobom / misliti na sebe',
+      en: 'to talk to oneself / think about oneself',
+    },
+    {
+      label: 'Clitic placement (Wackernagel)',
+      hr: 'Smijem se. — Marko se smije.',
+      en: 'I am laughing. — Marko is laughing.',
+    },
+  ],
+  examples: [
+    {
+      hr: 'Ujutro se umivam hladnom vodom.',
+      en: 'In the morning I wash myself with cold water.',
+      note: 'TRUE reflexive: subject = patient. `se` is the unstressed reflexive clitic.',
+    },
+    {
+      hr: 'Vidjeli su se na koncertu.',
+      en: 'They saw each other at the concert.',
+      note: 'RECIPROCAL: plural subject + `se` = "each other". Without context could also mean "they saw themselves", but the reciprocal reading is default with plural humans.',
+    },
+    {
+      hr: 'Ta se knjiga prodaje već godinama.',
+      en: 'That book has been selling for years.',
+      note: 'MIDDLE / passive `se`: `knjiga` is the patient promoted to subject; no overt agent.',
+    },
+    {
+      hr: 'Smijem se tvojoj šali.',
+      en: 'I am laughing at your joke.',
+      note: 'INHERENTLY reflexive: `smijati se` always carries `se`. There is no verb `*smijati` without it.',
+    },
+    {
+      hr: 'Voli sebe iznad svega.',
+      en: 'He loves himself above all.',
+      note: 'EMPHATIC `sebe` (full pronoun) instead of clitic `se`. Use sebe when contrasting or stressing the reflexive.',
+    },
+    {
+      hr: 'Često razgovara sama sa sobom.',
+      en: 'She often talks to herself.',
+      note: 'After preposition `sa`, the clitic form is impossible — must use full instrumental `sobom`.',
+    },
+  ],
+  tips: [
+    'Four functions of `se`: TRUE reflexive (umivati se), RECIPROCAL (vidjeti se), MIDDLE/passive (prodaje se), INHERENTLY reflexive (smijati se, bojati se). Ask: "is the subject also the patient? are there two parties? is this a middle voice? is this lexically frozen?"',
+    'Some verbs ONLY exist with `se`: smijati se, bojati se, nadati se, brinuti se, sjećati se, čuditi se. There is no version without `se`.',
+    'Use full `sebe` (acc./gen.) or `sebi` (dat./loc.) or `sobom` (ins.) for EMPHASIS or after PREPOSITIONS: `sa sobom`, `o sebi`, `na sebe`, `za sebe`. Clitic `se` cannot follow a preposition.',
+    '`se` is a second-position clitic — Wackernagel position. It cluster with other clitics in a fixed order: `je/sam/etc → mu/joj/mi → ga/je/ih → se`. Example: `Marko mu se nasmijao` ("Marko laughed at him").',
+    'Verbs like `voljeti` (transitive) and `voljeti se` (reciprocal/reflexive) are formally distinct: `Marko voli Anu` (active) vs `Marko i Ana se vole` (reciprocal) vs `Marko voli sebe` (true reflexive, emphatic).',
+  ],
+  drills: [
+    {
+      q: 'Identify the function of `se`: "Knjiga se prodaje dobro."',
+      qEn: 'The book sells well.',
+      opts: ['true reflexive', 'reciprocal', 'middle / passive', 'inherently reflexive'],
+      correct: 2,
+      explain:
+        'MIDDLE / passive `se`: `knjiga` is the patient promoted to subject; no overt agent. Common in Croatian everyday speech for the passive.',
+    },
+    {
+      q: 'Identify the function of `se`: "Smijem se tvojoj šali."',
+      qEn: 'I am laughing at your joke.',
+      opts: ['true reflexive', 'reciprocal', 'middle / passive', 'inherently reflexive'],
+      correct: 3,
+      explain:
+        '`smijati se` is INHERENTLY reflexive — there is no `*smijati` without `se`. The `se` is lexically frozen.',
+    },
+    {
+      q: 'Which sentence requires `sebe` (NOT `se`)?',
+      opts: ['Marko ____ umiva.', 'Razgovara sa ____ .', 'Vidjeli ____ jučer.', 'Ne ____ smijem.'],
+      correct: 1,
+      explain:
+        'After a preposition (`sa`), the clitic `se` is impossible — must use instrumental `sobom` (full form): `sa sobom`.',
+    },
+    {
+      q: '"Voli ____ iznad svega" (emphatic):',
+      qEn: 'He loves himself above all.',
+      opts: ['se', 'sebe', 'sobom', 'sebi'],
+      correct: 1,
+      explain:
+        'EMPHATIC reflexive uses full `sebe` (acc.). Clitic `se` would be neutral and harder to stress.',
+    },
+    {
+      q: 'Which is RECIPROCAL ("each other")?',
+      opts: ['On se brije.', 'Pas se boji.', 'Marko i Ana se vole.', 'Knjiga se čita.'],
+      correct: 2,
+      explain:
+        'Plural human subject + `se` = reciprocal. A is true reflexive; B is inherently reflexive; D is middle/passive.',
+    },
+    {
+      q: 'Which verb is INHERENTLY reflexive (must always carry `se`)?',
+      opts: ['umivati', 'voljeti', 'bojati', 'pisati'],
+      correct: 2,
+      explain:
+        '`bojati se` ("to fear") never appears without `se`. The others can be transitive without `se`.',
+    },
+  ],
+};
+
+export const WORD_ORDER = {
+  id: 'word-order',
+  cefr: 'C1',
+  title: 'Red riječi — Complex Word Order',
+  subtitle: 'Clitic placement, topicalization, fronting for emphasis',
+  focus: 'word order, red rijeci, clitic placement, topicalization, fronting, second position',
+  intro:
+    'Croatian word order is famously "free" — but this freedom is governed by strict rules. Unstressed clitics (sam, si, je, smo, ste, su, bih/bi, ću/ćeš, me/te/ga/je/nas/vas/ih, mi/ti/mu/joj/nam/vam/im, se, li) must occupy the SECOND POSITION of their clause (Wackernagel\'s Law) and follow a fixed internal order. Sentence-initial elements carry topic / contrastive prominence: fronting an object marks contrast, fronting an adverbial backgrounds the action. Mastery of word order is the single most discriminating marker between competent B2 speakers and fluent C1 speakers — and the source of more written-Croatian mistakes than any other phenomenon.',
+  forms: [
+    {
+      label: 'Clitic cluster order',
+      hr: 'li → je/sam/etc → mi/ti/mu/joj → ga/je/ih → se',
+      en: 'fixed internal order',
+    },
+    {
+      label: 'Neutral SVO',
+      hr: 'Marko je dao Ani knjigu.',
+      en: 'Marko gave Ana the book.',
+    },
+    {
+      label: 'Topicalized object',
+      hr: 'Knjigu je Marko dao Ani.',
+      en: 'The book, Marko gave to Ana.',
+    },
+    {
+      label: 'Question with li',
+      hr: 'Je li Marko došao?',
+      en: 'Has Marko arrived?',
+    },
+    {
+      label: 'Three clitics together',
+      hr: 'Ja sam mu je dao.',
+      en: 'I gave it to him.',
+    },
+    {
+      label: 'Subordinate clause',
+      hr: '… da mu ga je dao …',
+      en: '… that he gave it to him …',
+    },
+    {
+      label: 'Wrong (clitic-initial)',
+      hr: '✗ Mu sam dao knjigu.',
+      en: 'WRONG — clitic cannot be first.',
+    },
+  ],
+  examples: [
+    {
+      hr: 'Ja sam mu to dala.',
+      en: 'I gave that to him.',
+      note: 'Neutral: subject `ja` fills position 1; clitics `sam mu` follow in position 2; `to dala` continues.',
+    },
+    {
+      hr: 'Dala sam mu to ja.',
+      en: 'I (and not someone else) gave that to him.',
+      note: 'Subject `ja` postposed for CONTRASTIVE emphasis. The verb starts the clause; clitics follow in second position.',
+    },
+    {
+      hr: 'Knjigu sam mu dala.',
+      en: 'The book — that is what I gave him.',
+      note: 'Object `knjigu` fronted as TOPIC / contrast; clitics `sam mu` still in second position.',
+    },
+    {
+      hr: 'Je li ti Marko to rekao?',
+      en: 'Did Marko tell you that?',
+      note: '`li` opens the clitic cluster in yes/no questions; `je li ti` = clitic chain (3sg `je`, particle `li`, dat. `ti`).',
+    },
+    {
+      hr: 'Rekao sam ti da mu ga je dao.',
+      en: 'I told you that he gave it to him.',
+      note: 'Each clause has its own second-position cluster: main `sam ti`; subordinate `mu ga je` (after `da`).',
+    },
+    {
+      hr: 'Jučer mu je Marko dao knjigu.',
+      en: 'Yesterday Marko gave him the book.',
+      note: 'Adverb `jučer` in position 1 (topical setting); clitics `mu je` in position 2; subject `Marko` follows.',
+    },
+  ],
+  tips: [
+    'Clitics MUST be second-position. The first position can be any phrase (subject, object, adverb, fronted PP) — but it cannot be empty, and clitics cannot lead the clause.',
+    'Fixed clitic order: (1) `li` → (2) auxiliary `je/sam/si/smo/ste/su/bih/bi/ću` → (3) dative pronoun `mi/ti/mu/joj/nam/vam/im` → (4) accusative pronoun `me/te/ga/je/nas/vas/ih` → (5) reflexive `se`. The 3sg `je` is exceptional and moves to the END of the cluster (`mu ga je dao`, not `je mu ga dao`).',
+    'Topicalization: fronting an object (`Knjigu sam mu dala`) marks contrast or theme. Fronting an adverb (`Jučer sam ga vidio`) sets the scene. SVO is the unmarked / neutral order.',
+    'After conjunctions like `da`, `kad`, `ako`, `što`, the clitic cluster snaps to the position right after the conjunction: `da mu ga je dao`, NOT `da dao mu ga je`.',
+    'A common error: putting a clitic in first position — `*Mu sam dao knjigu` is ungrammatical. Always front a non-clitic element first.',
+  ],
+  drills: [
+    {
+      q: 'Which sentence has CORRECT clitic placement?',
+      opts: [
+        'Mu sam dao knjigu.',
+        'Sam mu dao knjigu.',
+        'Dao sam mu knjigu.',
+        'Dao mu sam knjigu.',
+      ],
+      correct: 2,
+      explain:
+        'Clitics `sam mu` must be in second position. `Dao` opens the clause; `sam mu` follows; `knjigu` ends it. Options A and B start with a clitic; D has wrong internal order.',
+    },
+    {
+      q: 'Choose the correct clitic order: "Ja ____ to dala."',
+      qEn: 'I gave that to him.',
+      opts: ['mu sam', 'sam mu', 'mu je', 'sam ga'],
+      correct: 1,
+      explain: 'Internal order: auxiliary `sam` → dative `mu`. So `sam mu` (NOT `mu sam`).',
+    },
+    {
+      q: 'Where does `je` (3sg of biti) go in a clitic cluster?',
+      opts: [
+        'first in the cluster',
+        'second in the cluster',
+        'at the end of the cluster',
+        'it never combines',
+      ],
+      correct: 2,
+      explain:
+        '3sg `je` is the EXCEPTION — it moves to the end of the cluster: `mu ga je dao`, not `*je mu ga dao`.',
+    },
+    {
+      q: 'After `da`, where do the clitics go?',
+      opts: [
+        'before `da`',
+        'immediately after `da`',
+        'at the end of the clause',
+        'optional, any position',
+      ],
+      correct: 1,
+      explain:
+        'After conjunctions like `da`, `kad`, `ako`, the clitic cluster comes RIGHT AFTER the conjunction: `da mu ga je dao`.',
+    },
+    {
+      q: 'Choose the topicalized version of "Marko je dao Ani knjigu" emphasizing the BOOK:',
+      opts: [
+        'Marko je Ani dao knjigu.',
+        'Knjigu je Marko dao Ani.',
+        'Ani je Marko dao knjigu.',
+        'Dao je Marko Ani knjigu.',
+      ],
+      correct: 1,
+      explain:
+        'Fronting `knjigu` (the object) puts it in TOPIC / contrastive position. Clitic `je` still occupies second position.',
+    },
+    {
+      q: 'In "Je li ti Marko to rekao?", what is the role of `li`?',
+      opts: [
+        'it is the verb',
+        'it is the subject',
+        'it is a yes/no question particle in the clitic cluster',
+        'it is an object pronoun',
+      ],
+      correct: 2,
+      explain:
+        '`li` is a yes/no question particle that opens the clitic cluster. Order here: `je li ti` = aux `je` + `li` + dat. `ti`.',
+    },
+  ],
+};
+
+// Aggregated array — all 10 SP9 units (5 B2 + 5 C1).
 export const ADVANCED_UNITS = [
   FUTUR_II,
   RELATIVE_CLAUSES,
   PASSIVE_VOICE,
   PARTICIPLES,
   REPORTED_SPEECH,
+  KONDICIONAL_II,
+  BUSINESS_REGISTER,
+  VERBAL_NOUNS,
+  REFLEXIVE_CONSTRUCTIONS,
+  WORD_ORDER,
 ];
 
 // O(1) lookup by id for GrammarUnitDetail.
