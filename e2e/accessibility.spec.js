@@ -286,3 +286,130 @@ test.describe('Accessibility — keyboard navigation', () => {
     await expect(firstPill).toBeFocused();
   });
 });
+
+// ── SP6 — CorrectionDiff a11y ──────────────────────────────────────────────
+test.describe('SP6 — CorrectionDiff accessibility', () => {
+  test.beforeEach(async ({ page }) => {
+    // Stub /api/correct so the writing screen shows a canned correction
+    await page.route('**/api/correct', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          corrected_text: 'Imam majku i tatu svaki dan svaki dan svaki dan.',
+          score: 80,
+          level_demonstrated: 'B1 - Intermediate',
+          changes: [
+            { original: 'mama', corrected: 'majku', note: 'Accusative ending.' },
+            { original: 'tata', corrected: 'tatu', note: 'Accusative ending.' },
+          ],
+          strengths: ['Good sentence structure'],
+          improvements: ['Practice accusative endings'],
+          encouragement: 'Bravo!',
+        }),
+      });
+    });
+  });
+
+  test('rendered diff has no critical or serious WCAG violations', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await page.getByRole('button', { name: /practice/i }).first().click();
+    await page
+      .getByRole('button', { name: /free writing|writing|napi[sš]i|grade my writing/i })
+      .first()
+      .click();
+
+    const textarea = page.getByRole('textbox').first();
+    await textarea.fill('Imam mama i tata svaki dan svaki dan svaki dan.');
+
+    await page
+      .getByRole('button', { name: /check|correct|submit|provjeri|grade my/i })
+      .first()
+      .click();
+
+    await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    const results = await new AxeBuilder({ page }).analyze();
+    const violations = results.violations.filter(
+      (v) => v.impact === 'critical' || v.impact === 'serious',
+    );
+    expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);
+  });
+
+  test('keyboard reaches each DiffSpan and Enter opens the popover', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await page.getByRole('button', { name: /practice/i }).first().click();
+    await page
+      .getByRole('button', { name: /free writing|writing|napi[sš]i|grade my writing/i })
+      .first()
+      .click();
+
+    const textarea = page.getByRole('textbox').first();
+    await textarea.fill('Imam mama i tata svaki dan svaki dan svaki dan.');
+    await page
+      .getByRole('button', { name: /check|correct|submit|provjeri|grade my/i })
+      .first()
+      .click();
+
+    await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    let focusedIsDiffSpan = false;
+    for (let i = 0; i < 40; i++) {
+      await page.keyboard.press('Tab');
+      const isDiff = await page.evaluate(() => {
+        const el = document.activeElement;
+        return Boolean(el && el.getAttribute('data-diff-span-index') !== null);
+      });
+      if (isDiff) {
+        focusedIsDiffSpan = true;
+        break;
+      }
+    }
+    expect(focusedIsDiffSpan).toBe(true);
+
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('tooltip')).toBeVisible();
+  });
+
+  test('Escape key dismisses an open popover', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await page.getByRole('button', { name: /practice/i }).first().click();
+    await page
+      .getByRole('button', { name: /free writing|writing|napi[sš]i|grade my writing/i })
+      .first()
+      .click();
+
+    const textarea = page.getByRole('textbox').first();
+    await textarea.fill('Imam mama i tata svaki dan svaki dan svaki dan.');
+    await page
+      .getByRole('button', { name: /check|correct|submit|provjeri|grade my/i })
+      .first()
+      .click();
+
+    await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await page.locator('[data-diff-span-index]').first().click();
+    await expect(page.getByRole('tooltip')).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('tooltip')).not.toBeVisible();
+  });
+});
