@@ -9,6 +9,7 @@ import MajaOrb from './MajaOrb';
 import ConversationBubble from './ConversationBubble';
 import DebriefScreen from './MajaDebrief';
 import MajaIdleCard from './MajaIdleCard';
+import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
 import {
   MAJA_STYLES,
   PERSONA_CONFIG,
@@ -802,38 +803,10 @@ export default function MajaScreen() {
               </div>
             )}
 
-            {/* ── Mic denied banner ── */}
+            {/* ── Mic denied explainer ── */}
             {micDenied && SR_SUPPORTED && (
-              <div
-                style={{
-                  background: 'rgba(220,38,38,0.08)',
-                  border: '1px solid rgba(220,38,38,0.25)',
-                  borderRadius: 10,
-                  padding: '12px 14px',
-                  marginBottom: 14,
-                  fontSize: 13,
-                  color: '#991b1b',
-                  lineHeight: 1.5,
-                }}
-              >
-                <strong>Pristup mikrofonu odbijen.</strong> Dopusti pristup mikrofonu u postavkama
-                preglednika ili koristi tekstualni unos ispod.
-                <br />
-                <button
-                  onClick={() => setMicDenied(false)}
-                  style={{
-                    marginTop: 8,
-                    background: '#D4002D',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 6,
-                    padding: '5px 12px',
-                    fontSize: 12,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Pokušaj ponovo
-                </button>
+              <div style={{ marginBottom: 14 }}>
+                <MicPermissionDeniedExplainer onRetry={() => setMicDenied(false)} />
               </div>
             )}
 
