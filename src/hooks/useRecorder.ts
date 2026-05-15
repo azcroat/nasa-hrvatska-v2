@@ -62,6 +62,22 @@ export function useRecorder(): UseRecorderResult {
   useEffect(() => {
     audioUrlRef.current = audioUrl;
   }, [audioUrl]);
+
+  // SP4b: persist mic state for selectProductionExercise to read on next session build.
+  // Writes on terminal state transitions only — 'idle' and 'requesting' are non-informative.
+  useEffect(() => {
+    let value: string | null = null;
+    if (state === 'denied') value = 'denied';
+    else if (state === 'unsupported') value = 'unsupported';
+    else if (state === 'recording' || state === 'countdown' || state === 'done')
+      value = 'available';
+    if (value === null) return;
+    try {
+      localStorage.setItem('nh_mic_state', value);
+    } catch (_) {
+      // localStorage unavailable — non-fatal
+    }
+  }, [state]);
   useEffect(() => {
     return () => {
       mountedRef.current = false;

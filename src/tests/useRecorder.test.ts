@@ -654,3 +654,55 @@ describe('useRecorder', () => {
     (globalThis as unknown as { FileReader: unknown }).FileReader = MockFileReader;
   });
 });
+
+describe('useRecorder — mic state persistence (SP4b)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('writes "denied" to localStorage when state goes to denied', async () => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () =>
+          Promise.reject(Object.assign(new Error('denied'), { name: 'NotAllowedError' })),
+      },
+    });
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('denied');
+    expect(localStorage.getItem('nh_mic_state')).toBe('denied');
+  });
+
+  it('writes "unsupported" to localStorage when state goes to unsupported', () => {
+    Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: undefined });
+    const { result } = renderHook(() => useRecorder());
+    act(() => {
+      result.current.startRecording();
+    });
+    expect(result.current.state).toBe('unsupported');
+    expect(localStorage.getItem('nh_mic_state')).toBe('unsupported');
+  });
+
+  it('writes "available" to localStorage when state goes to recording', async () => {
+    vi.useFakeTimers();
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(result.current.state).toBe('recording');
+    expect(localStorage.getItem('nh_mic_state')).toBe('available');
+    vi.useRealTimers();
+  });
+});
