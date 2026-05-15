@@ -341,6 +341,10 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
       if (prev.completedIds.includes(match.id)) return prev;
       const updated = markDoneInSession(prev, match.id);
       persistSession(updated);
+      // SP4b: track production exercises for recent-exclusion rotation
+      if (PRODUCTION_SCREEN_IDS.has(match.screen)) {
+        recordProductionExercise(match.screen);
+      }
       // Check for session completion
       if (updated.completedIds.length === updated.activities.length) {
         recordSessionComplete(updated.date);

@@ -5,6 +5,8 @@ import {
   readMicState,
   selectProductionExercise,
   buildSessionActivities,
+  recordProductionExercise as recordFn,
+  PRODUCTION_SCREEN_IDS,
 } from '../hooks/useDailySession';
 
 vi.mock('../lib/random.js', () => ({ rnd: () => 0 }));
@@ -211,5 +213,24 @@ describe('buildSessionActivities — P2.5 production slot', () => {
       ),
     );
     expect(['writing', 'dictation']).toContain(productionMatch?.screen);
+  });
+});
+
+describe('PRODUCTION_SCREEN_IDS — markDone integration surface', () => {
+  it('includes all five production screens', () => {
+    expect(PRODUCTION_SCREEN_IDS.has('speaking_sprint')).toBe(true);
+    expect(PRODUCTION_SCREEN_IDS.has('shadowing')).toBe(true);
+    expect(PRODUCTION_SCREEN_IDS.has('productiondrill')).toBe(true);
+    expect(PRODUCTION_SCREEN_IDS.has('writing')).toBe(true);
+    expect(PRODUCTION_SCREEN_IDS.has('dictation')).toBe(true);
+  });
+
+  it('excludes a non-production screen', () => {
+    expect(PRODUCTION_SCREEN_IDS.has('cloze')).toBe(false);
+    expect(PRODUCTION_SCREEN_IDS.has('mcgame')).toBe(false);
+  });
+
+  it('recordProductionExercise is a function callable from markDone', () => {
+    expect(typeof recordFn).toBe('function');
   });
 });
