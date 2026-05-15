@@ -361,3 +361,78 @@ export function readMicState(): MicState {
   }
   return 'unknown';
 }
+
+// ── Recent-production tracking (SP4b) ────────────────────────────────────────
+// Tracks which production exercises the user has done in the last 3 days to
+// avoid back-to-back repeats. Device-local by design — cross-device sync is
+// out of scope per SP4b spec.
+const PRODUCTION_RECENT_KEY = 'nh_recent_production';
+const PRODUCTION_RECENT_WINDOW_DAYS = 3;
+
+interface RecentProductionEntry {
+  screen: string;
+  date: string; // YYYY-MM-DD
+}
+
+function _todayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function _daysBetween(a: string, b: string): number {
+  // Returns absolute day difference between two YYYY-MM-DD strings.
+  // ISO-string parse is timezone-stable for date-only values.
+  const aMs = new Date(a + 'T00:00:00Z').getTime();
+  const bMs = new Date(b + 'T00:00:00Z').getTime();
+  return Math.round(Math.abs(aMs - bMs) / 86400000);
+}
+
+export function getRecentProduction(): string[] {
+  try {
+    const raw = localStorage.getItem(PRODUCTION_RECENT_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const today = _todayStr();
+    return parsed
+      .filter(
+        (e): e is RecentProductionEntry =>
+          e &&
+          typeof e === 'object' &&
+          typeof e.screen === 'string' &&
+          typeof e.date === 'string' &&
+          _daysBetween(today, e.date) < PRODUCTION_RECENT_WINDOW_DAYS,
+      )
+      .map((e) => e.screen);
+  } catch (_) {
+    return [];
+  }
+}
+
+export function recordProductionExercise(screen: string): void {
+  if (!screen || typeof screen !== 'string') return;
+  try {
+    const raw = localStorage.getItem(PRODUCTION_RECENT_KEY);
+    const arr: RecentProductionEntry[] = (() => {
+      try {
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    })();
+    const today = _todayStr();
+    // Same-day re-record doesn't duplicate
+    const existsToday = arr.some((e) => e.screen === screen && e.date === today);
+    if (!existsToday) arr.push({ screen, date: today });
+    // Prune entries older than the window before saving
+    const pruned = arr.filter(
+      (e) =>
+        e &&
+        typeof e.date === 'string' &&
+        _daysBetween(today, e.date) < PRODUCTION_RECENT_WINDOW_DAYS,
+    );
+    localStorage.setItem(PRODUCTION_RECENT_KEY, JSON.stringify(pruned));
+  } catch (_) {
+    // QuotaExceededError or localStorage unavailable — non-fatal
+  }
+}
