@@ -4,6 +4,7 @@ import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 import { getAudioContext } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { STORY_CITIES, GOAL_META } from './StoryModeData.js';
@@ -199,26 +200,22 @@ export default function StoryModeScreen({
     awardFired.current = false;
     setTappedWords(0);
     try {
-      const res = await apiFetch('/api/ai-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: 'story',
-          messages: [
-            {
-              role: 'user',
-              content: `Generate an immersive Croatian story set in ${selectedCity.name}`,
-            },
-          ],
-          params: {
-            city: selectedCity.name,
-            region: selectedCity.region,
-            level: selectedLevel,
-            character_name: characterName || 'you',
-            goal: userGoal || undefined,
-            goal_theme: goalMeta?.theme || undefined,
+      const res = await _aiPost('/api/ai-chat', {
+        mode: 'story',
+        messages: [
+          {
+            role: 'user',
+            content: `Generate an immersive Croatian story set in ${selectedCity.name}`,
           },
-        }),
+        ],
+        params: {
+          city: selectedCity.name,
+          region: selectedCity.region,
+          level: selectedLevel,
+          character_name: characterName || 'you',
+          goal: userGoal || undefined,
+          goal_theme: goalMeta?.theme || undefined,
+        },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
