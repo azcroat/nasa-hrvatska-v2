@@ -318,18 +318,13 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     });
 
     await page.getByRole('button', { name: /practice/i }).first().click();
-    await page
-      .getByRole('button', { name: /free writing|writing|napi[sš]i|grade my writing/i })
-      .first()
-      .click();
+    await page.locator('[data-testid="exercise-card-writing"]').click();
 
-    const textarea = page.getByRole('textbox').first();
-    await textarea.fill('Imam mama i tata svaki dan svaki dan svaki dan.');
+    await page.locator('[data-testid="writing-input"]').fill(
+      'Imam mama i tata svaki dan svaki dan svaki dan.',
+    );
 
-    await page
-      .getByRole('button', { name: /check|correct|submit|provjeri|grade my/i })
-      .first()
-      .click();
+    await page.locator('[data-testid="writing-submit"]').click();
 
     await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
       timeout: 15_000,

@@ -1477,7 +1477,12 @@ export default function PracticeTab({
     const catColor = (CATEGORY_COLORS as Record<string, string>)[category ?? ''] || 'var(--bar-bg)';
     const cefrClass = cefr ? `cefr cefr-${cefr.toLowerCase().replace(/[^a-z]/g, '')}` : '';
     return (
-      <button onClick={action} className="exercise-card" style={{ borderLeftColor: catColor }}>
+      <button
+        data-testid={`exercise-card-${id}`}
+        onClick={action}
+        className="exercise-card"
+        style={{ borderLeftColor: catColor }}
+      >
         <div className="exercise-card-icon">{icon}</div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="exercise-card-label">{label}</div>

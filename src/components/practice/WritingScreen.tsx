@@ -466,6 +466,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
 
       <div className="c" style={{ padding: '16px' }}>
         <textarea
+          data-testid="writing-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Write in Croatian here... (Piši na hrvatskom...)"
@@ -521,6 +522,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
           🔒 Your text is sent to an AI for grammar feedback. It is not stored or used for training.
         </div>
         <button
+          data-testid="writing-submit"
           className="b bp"
           style={{
             width: '100%',
