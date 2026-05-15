@@ -18,6 +18,7 @@ import { apiFetch } from '../../lib/apiFetch.js';
 import { stopAudio } from '../../lib/audio.ts';
 import AIConversationHeader from './AIConversationHeader';
 import AIConversationWriteSetup from './AIConversationWriteSetup';
+import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
 import AIConversationWriteResult from './AIConversationWriteResult';
 import AIConversationConvoSetup from './AIConversationConvoSetup';
 import AIConversationResult from './AIConversationResult';
@@ -1440,6 +1441,16 @@ export default function AIConversation({
   if (!scenario) return null;
   return (
     <>
+      {stt.permissionDenied && (
+        <div style={{ padding: '0 16px' }}>
+          <MicPermissionDeniedExplainer
+            onRetry={() => {
+              stt.clearPermissionDenied();
+              stt.toggle();
+            }}
+          />
+        </div>
+      )}
       <AIConversationChat
         scenario={scenario}
         level={level}
