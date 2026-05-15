@@ -6,6 +6,7 @@ import { rnd } from '../../lib/random.js';
 import { useStats } from '../../context/StatsContext';
 import { logError } from '../../lib/learnerErrors.js';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { addWordToSRS } from '../../lib/srs.js';
@@ -254,15 +255,11 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
     setError('');
     setResult(null);
     try {
-      const res = await apiFetch('/api/correct', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: 'writeeval',
-          prompt: effectivePrompt.en,
-          text: text.trim(),
-          params: { level: userLevel, writingPrompt: effectivePrompt.en },
-        }),
+      const res = await _aiPost('/api/correct', {
+        mode: 'writeeval',
+        prompt: effectivePrompt.en,
+        text: text.trim(),
+        params: { level: userLevel, writingPrompt: effectivePrompt.en },
       });
       if (!res.ok) throw new Error('API error ' + res.status);
       const data = await res.json();
