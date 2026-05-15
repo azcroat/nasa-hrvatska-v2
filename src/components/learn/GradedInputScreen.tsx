@@ -191,6 +191,7 @@ function StoryList({
         return (
           <div
             key={story.id}
+            data-testid={'graded-story-card-' + story.id}
             role="button"
             tabIndex={0}
             onClick={() => onSelect(story)}
@@ -664,7 +665,12 @@ export function StoryReader({
         );
       })}
 
-      <button className="b bp" style={{ width: '100%', marginTop: 8 }} onClick={onStartQuiz}>
+      <button
+        data-testid="graded-story-start-quiz"
+        className="b bp"
+        style={{ width: '100%', marginTop: 8 }}
+        onClick={onStartQuiz}
+      >
         Comprehension Quiz →
       </button>
     </div>
@@ -881,6 +887,7 @@ function StoryQuiz({
           return (
             <button
               key={i}
+              data-testid={'graded-story-quiz-option-' + i}
               onClick={() => choose(i)}
               style={{
                 width: '100%',

@@ -164,7 +164,7 @@ export default function SessionCard({
   const inProgress = completedCount > 0 && !isComplete;
 
   return (
-    <div>
+    <div data-testid="session-card">
       {/* ── SESSION CARD ── */}
       {isComplete ? (
         /* ── STATE C: COMPLETE ── */
@@ -425,6 +425,7 @@ export default function SessionCard({
           {/* CTA button wrapper */}
           <div style={{ padding: '14px 18px 18px', position: 'relative' }}>
             <button
+              data-testid="session-begin-cta"
               onClick={onStart}
               disabled={!nextActivity}
               style={{

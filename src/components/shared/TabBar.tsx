@@ -239,6 +239,7 @@ export default function TabBar({
             return (
               <button
                 key={t.id}
+                data-testid={'nav-' + t.id}
                 className={'nav-btn' + (isActive ? ' active' : '')}
                 onClick={() => {
                   if (t.id === 'croatia') {
