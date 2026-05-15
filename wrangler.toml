@@ -63,14 +63,11 @@ crons = ["0 13 * * *"]   # 8am Eastern daily — streak reminder push
 binding    = "PUSH_SUBSCRIPTIONS"
 id         = "4652e2388967424db09395a2be0aad81"
 
-# ── D1 database binding (AI quota — globally consistent) ─────────────────────
-# Create with: wrangler d1 create nasa-hrvatska-quota
-# Then replace REPLACE_WITH_D1_DATABASE_ID below with the returned database_id.
-# Run schema: wrangler d1 execute nasa-hrvatska-quota --file=migrations/0001_quota_schema.sql
-[[d1_databases]]
-binding     = "AI_QUOTA_DB"
-database_name = "nasa-hrvatska-quota"
-database_id   = "REPLACE_WITH_D1_DATABASE_ID"
+# ── D1 database binding ──────────────────────────────────────────────────────
+# The scheduled worker (this config) does NOT use AI_QUOTA_DB — only the Pages
+# Functions need it (for /api/_aiQuota.js). Binding here is intentionally
+# omitted because the placeholder ID fails wrangler validation. AI_QUOTA_DB
+# is bound to the Pages project separately via the Cloudflare dashboard.
 
 # ── Environment variables (placeholders) ─────────────────────────────────────
 # Set actual values in Cloudflare dashboard — never commit secrets here
