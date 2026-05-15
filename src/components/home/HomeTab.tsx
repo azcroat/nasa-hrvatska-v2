@@ -53,6 +53,7 @@ interface HomeTabProps {
   daysSinceJoin?: number | null;
   resumeLesson?: (() => void) | null;
   launchActivity?: (screen: string) => void | Promise<void>;
+  launchStory?: (storyId: string) => void;
 }
 
 import {
@@ -66,6 +67,7 @@ import {
 import { getWordOfDay, getPhraseOfDay } from '../../lib/wordOfDay.js';
 import WordOfDayCard from './WordOfDayCard';
 import PhraseOfDayCard from './PhraseOfDayCard';
+import { StoryOfTheDayCard } from './StoryOfTheDayCard';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
@@ -147,6 +149,7 @@ export default function HomeTab({
   daysSinceJoin = null,
   resumeLesson = null,
   launchActivity,
+  launchStory,
 }: HomeTabProps) {
   const { setScr, doSignUp, currentScreen } = useApp();
   const { stats: st, award } = useStats();
@@ -546,6 +549,9 @@ export default function HomeTab({
 
       {/* ── PHRASE OF THE DAY ── */}
       {pod && <PhraseOfDayCard phrase={pod} />}
+
+      {/* ── STORY OF THE DAY (SP7) ── */}
+      {launchStory && <StoryOfTheDayCard launchStory={launchStory} />}
     </React.Fragment>
   );
 }
