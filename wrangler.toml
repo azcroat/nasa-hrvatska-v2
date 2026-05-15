@@ -50,7 +50,11 @@ workers_dev           = false
 preview_urls          = false
 
 [triggers]
-crons = ["0 9 * * *"]    # 9am UTC daily — streak reminder push
+# 13:00 UTC = 8 AM Eastern Daylight / 9 AM Eastern Standard / 5 AM Pacific Daylight.
+# Picked for the current US-based audience cohort — was 9 UTC (5 AM ET / 4 AM CT),
+# which fired in dead-of-night for Central/Mountain/Pacific users.
+# When audience expands beyond US: implement per-user TZ-aware sends in scheduled.js.
+crons = ["0 13 * * *"]   # 8am Eastern daily — streak reminder push
 
 # ── KV namespace binding ───────────────────────────────────────────────────────
 # Replace REPLACE_WITH_ACTUAL_NAMESPACE_ID with output of:
