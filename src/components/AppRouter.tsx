@@ -1,4 +1,4 @@
-import React, { lazy, useRef, useEffect } from 'react';
+import React, { lazy, useRef, useEffect, useState } from 'react';
 import { AnimatePresence, motion, type TargetAndTransition } from 'framer-motion';
 import { useSwipeBack } from '../hooks/useSwipeBack.js';
 import { isChunkLoadError, reloadWithCachePurge } from '../lib/chunkErrors';
@@ -512,6 +512,10 @@ export default function AppRouter(props: Record<string, any>) {
   const swipeEnabled = currentScreen !== 'flashcards';
   useSwipeBack(goBack, swipeEnabled);
 
+  // SP7: deep-link target story for GradedInputScreen (e.g. from Story of the Day card).
+  // Cleared on goBack so future entries via the Practice tab start on the catalog.
+  const [pendingStoryId, setPendingStoryId] = useState<string | null>(null);
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -751,6 +755,10 @@ export default function AppRouter(props: Record<string, any>) {
                           isNewUserWindow={isNewUserWindow}
                           daysSinceJoin={daysSinceJoin}
                           resumeLesson={resumeLesson}
+                          launchStory={(storyId: string) => {
+                            setPendingStoryId(storyId);
+                            setScr('graded_input');
+                          }}
                         />
                       </ScreenErrorBoundary>
                     </React.Suspense>
@@ -1806,7 +1814,14 @@ export default function AppRouter(props: Record<string, any>) {
         )}
         {currentScreen === 'graded_input' && (
           <ScreenErrorBoundary key="graded_input" name="graded_input">
-            <GradedInputScreen goBack={goBack} award={award} />
+            <GradedInputScreen
+              goBack={() => {
+                setPendingStoryId(null);
+                goBack();
+              }}
+              award={award}
+              initialStoryId={pendingStoryId ?? undefined}
+            />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'pronunciation_course' && (
