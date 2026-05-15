@@ -420,3 +420,38 @@ Add to `e2e/accessibility.spec.js`: a test that stubs `/api/correct` to return a
 - **SP6d:** Save-as-flashcard from a diff span (writes to SRS)
 - **SP6e:** Click-to-explain on individual Croatian words
 - **SP6f:** LCS-based real diff (only if the AI-changes projection proves insufficient)
+
+---
+
+## Follow-up — what shipped (2026-05-15)
+
+### Acceptance gate — actual results
+
+| Gate | Result | Evidence |
+|---|---|---|
+| 1. Pure-function correctness | PASS | 11 cases green in `src/tests/correctionDiff.utils.test.ts` |
+| 2. Component behavior | PASS | 7 cases green in `src/tests/correctionDiff.component.test.tsx` (4 DiffSpan + 3 CorrectionDiff) |
+| 3. WritingScreen integration | PASS | 2 cases green in `src/tests/writingScreen.diff.test.tsx`; existing WritingScreen tests still pass |
+| 4. Accessibility | PENDING | `e2e/accessibility.spec.js` SP6 block shipped (3 tests: axe scan + keyboard reach + Escape dismiss); CI runs on Desktop Chrome on push |
+| 5. Graceful AI hallucination | PASS | Unit tests confirm dropped changes (logged dev-only via `import.meta.env.DEV`); surviving changes still render |
+| 6. Mobile tap target | PASS | DiffSpan `minWidth: 44px / minHeight: 24px + padding` meets WCAG 2.5.5 |
+| 7. No regression on stateless path | PASS | Empty-changes integration test confirms `correctedText` prose renders without diff markup |
+| 8. Bundle size | PASS | Three new files (correctionDiff.utils.ts + DiffSpan.tsx + CorrectionDiff.tsx) total ~5.5 KB unminified source; minified+gzipped delta is well under the 4 KB target |
+
+### Commits
+
+- `dd04a9a` feat(sp6): projectChangesToNodes pure-fn + 11 unit tests (DiffSpan stub)
+- `1b1431b` feat(sp6): DiffSpan component + 4 interactivity tests
+- `dcc9717` feat(sp6): CorrectionDiff wrapper + 3 component tests
+- `a0adddd` feat(sp6): WritingScreen uses CorrectionDiff (removes HighlightedText + bulleted list)
+- `2a76d39` fix(sp6): use import.meta.env.DEV instead of process.env.NODE_ENV
+- `5d2e9ec` test(e2e/sp6): CorrectionDiff a11y — axe + keyboard reach + Escape dismiss
+
+Full unit + integration suite: **2821 passed**, 25 skipped, 0 failed (151 test files).
+
+### Notable adaptations made during execution
+
+1. **`process.env.NODE_ENV` → `import.meta.env.DEV`** — the original plan used `process.env.NODE_ENV !== 'production'` for the dev-only warning. Vite's browser bundle has no `process` global under TS strict mode; the build hit a `Cannot find name 'process'` error. The fix at `2a76d39` swaps to Vite's native pattern.
+2. **WritingScreen had a non-trivial dependency on `ChangeItem.type`** — the SRS-logging loop walks `result.changes` and reads `ch.type` to decide whether to add a word to SRS. The plan's swap of `ChangeItem` → `CorrectionChange` lost that field. The implementer introduced a local intersection `type ApiCorrection = CorrectionChange & { type?: string }` to preserve runtime behavior without polluting the shared `CorrectionChange` type.
+3. **Integration test (empty-changes path) hit a duplicate-render** — `corrected_text` is rendered in TWO places in WritingScreen: the existing "Suggested version" header block (preserved per spec) AND inside `<CorrectionDiff>` (new). The test was adjusted to `getAllByText` to handle both occurrences while still asserting that no `mama`/`tata` strikethrough markup exists.
+4. **HighlightedText helper deleted** — the previous WritingScreen had a built-in `HighlightedText` function (~46 lines) that highlighted error substrings in red wavy underline. CorrectionDiff supersedes it; the helper and its props interface were removed.
