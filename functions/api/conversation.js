@@ -19,6 +19,7 @@
 import { checkRateLimit } from './_rateLimit.js';
 import { getFirebaseUid } from './_verifyToken.js';
 import { checkAIQuota } from './_aiQuota.js';
+import { parseUserContext, renderContextPrompt } from './_userContext.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -588,6 +589,13 @@ export async function onRequestPost(context) {
     memoryContext: safeMemoryContext,
   });
 
+  // SP5: append userContext prose (LEARNER NOTES) alongside any conversationMemory.
+  // This is additive — conversationMemory stays untouched; LEARNER NOTES is appended
+  // only when the client supplies a valid userContext payload.
+  const userCtx = parseUserContext(body);
+  const contextProse = renderContextPrompt(userCtx, 'maja');
+  const finalSystem = contextProse ? systemPrompt + '\n\n' + contextProse : systemPrompt;
+
   // ── Stream from Anthropic API ──────────────────────────────────────────────
   // We use the raw fetch + SSE approach rather than the Anthropic SDK because
   // Cloudflare Workers must return a streaming Response immediately. We pipe
@@ -616,7 +624,7 @@ export async function onRequestPost(context) {
         model: MODEL,
         max_tokens: 900, // B2/C1 responses need more room for rich JSON with correction + gloss
         stream: true,
-        system: systemPrompt,
+        system: finalSystem,
         messages: anthropicMessages,
       }),
       signal: AbortSignal.timeout(30000),

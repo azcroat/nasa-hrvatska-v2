@@ -7,6 +7,8 @@ import { buildUserContext } from './userContext';
 
 export interface AiPostOptions {
   skipUserContext?: boolean;
+  /** Optional AbortSignal — required for cancelable streaming endpoints (e.g. /api/conversation). */
+  signal?: AbortSignal;
 }
 
 export async function _aiPost(
@@ -24,5 +26,6 @@ export async function _aiPost(
     method: 'POST',
     headers,
     body: JSON.stringify(enrichedBody),
+    ...(opts?.signal ? { signal: opts.signal } : {}),
   });
 }
