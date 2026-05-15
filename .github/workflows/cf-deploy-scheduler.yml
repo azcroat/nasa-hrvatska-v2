@@ -1,0 +1,25 @@
+name: cf-deploy-scheduler
+# One-shot workflow_dispatch — redeploys the scheduled Worker so wrangler.toml
+# changes (especially [triggers].crons) take effect.
+#
+# The Pages auto-deploy does NOT redeploy this Worker. This must be run after
+# any wrangler.toml change that affects the scheduled cron.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy scheduled worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -e
+          # Trim any whitespace in the token (paste-from-clipboard hazard).
+          CLEAN=$(echo -n "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')
+          CLOUDFLARE_API_TOKEN="$CLEAN" \
+            npx --yes wrangler@3 deploy --config wrangler.toml
