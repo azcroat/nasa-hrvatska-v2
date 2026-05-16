@@ -12,6 +12,7 @@ import {
   type GrammarCatalogEntry,
   type Story,
   type GrammarUnit,
+  type Grammar,
 } from '../types/content';
 
 const ANON_NS = 'anon';
@@ -102,4 +103,9 @@ export async function getGrammarUnit(id: string): Promise<GrammarUnit> {
     `grammar:${id}`,
     `/api/content/grammar-units/${encodeURIComponent(id)}`,
   );
+}
+
+export async function getGrammar(): Promise<Grammar> {
+  const uid = await namespaceUid();
+  return fetchAndCache<Grammar>(uid, 'grammar:all', '/api/content/grammar');
 }

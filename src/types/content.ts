@@ -64,3 +64,23 @@ export class ContentFetchError extends Error {
     this.name = 'ContentFetchError';
   }
 }
+
+// SP11b: full grammar module shape (all 13 exports).
+// Subfields are intentionally loose (Record<string, unknown> | unknown[]) - drill
+// components type-narrow as needed. Tightening here would require duplicating
+// every nested schema in functions/api/content/_data/grammar.js.
+export interface Grammar {
+  PADEZI: Record<string, unknown>;
+  GRAM: Record<string, unknown>;
+  CONJ: Record<string, unknown>;
+  MODAL: Record<string, unknown>;
+  TENSES: Record<string, unknown>;
+  ASPECT: Record<string, unknown>;
+  ASPECT_PAIRS: unknown[];
+  CONDITIONAL: Record<string, unknown>;
+  FORMAL_REGISTER: Record<string, unknown>;
+  IMPERSONAL: Record<string, unknown>;
+  PHONOLOGY: Record<string, unknown>;
+  PITCH_ACCENT: unknown[];
+  PADEZI_FULL: Record<string, unknown>;
+}
