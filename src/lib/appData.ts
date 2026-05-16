@@ -15,8 +15,10 @@
 // EVENTS, KINGS, REGIONS, DIALECTS, CROATIAN_CITIES, FOODORDER, TRANSPORT,
 // GROCERY, RECIPES, PRACTICAL, SCENES, LEVEL_NARRATIVE, SHADOWING) moved
 // server-side. Use useContent() hook (components) or contentClient.getContent()
-// (non-components) instead. LEARN_PATH and SEASONAL_CAMPAIGNS deferred to
-// SP11e (function-valued fields need data/function split).
+// (non-components) instead.
+// SP11e: LEARN_PATH (97 items, ckRule JSON DSL) and SEASONAL_CAMPAIGNS (4
+// entries, windowKind discriminator) also moved server-side via the same
+// /api/content/core endpoint.
 
 export {
   // Non-SP11d/b data — still client-side
@@ -85,10 +87,8 @@ export {
   MEDIA,
   BASKETBALL,
   // App structure (still client-side)
-  LEARN_PATH,
   BADGES,
   DAILY_QUESTS,
-  SEASONAL_CAMPAIGNS,
   PLACE,
   // Theme colors
   BG_LIGHT,

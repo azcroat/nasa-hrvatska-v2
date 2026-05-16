@@ -7,15 +7,11 @@ import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
-// 13 distinctive Croatian-language curriculum strings from the now-server-side
-// data files (5 SP11 stories/grammar-units + 3 SP11b grammar + 3 SP11c lessons
-// + 2 SP11d core content). If any turn up in dist/assets/*.js, the closure has
-// regressed and the curriculum is leaking back into the public bundle.
-//
-// SP11d partial-closure note: PROVERBS, CROATIAN_CITIES, V are still bundled
-// via content.tsx body helpers (getProverbOfDay, getCityOfDay, V composition).
-// The 2 SP11d needles below are from KINGS and HISTORY which ARE fully
-// tree-shaken after the SP11d closure commit.
+// 18 distinctive curriculum strings from the now-server-side data files
+// (5 SP11 stories/grammar-units + 3 SP11b grammar + 3 SP11c lessons +
+// 2 SP11d core content + 5 SP11e LEARN_PATH/SEASONAL_CAMPAIGNS). If any
+// turn up in dist/assets/*.js, the closure has regressed and curriculum
+// is leaking back into the public bundle.
 const NEEDLES = [
   'Ana ide na tržnicu svake subote',
   'Peka je jedan od najstarijih načina kuhanja u Dalmaciji',
@@ -31,6 +27,17 @@ const NEEDLES = [
   // SP11d
   'Long before foreign powers ruled over Croatian lands',
   'Domovinski Rat — Homeland War',
+  // SP11e — LEARN_PATH item-specific descriptions and SEASONAL_CAMPAIGNS
+  // blurbs/dynamicWindow that only existed in the deleted client-side blocks.
+  // Server side ships these via /api/content/core. (Strings like 'Uskrs u
+  // Hrvatskoj' and 'uskrs_q1' are NOT used as needles because they're also
+  // hardcoded in EasterScreen/CultureTab/quest-tracking — pick uniquely
+  // worded blurbs and item descs instead.)
+  'lp_listen_basics',
+  'Train your ear — listen to basic Croatian phrases',
+  'Learn Easter traditions — pisanice, lamb, holiday greetings',
+  'Celebrate Midsummer with bonfire traditions and Croatian folklore',
+  'dynamicWindow',
 ];
 
 test.describe('SP11 — content endpoints + bundle audit', () => {
