@@ -15,6 +15,7 @@ function buildCatalog() {
     focus: s.focus,
     icon: s.icon,
     duration: s.duration,
+    intro: s.intro, // English-language teaser summary (~100 chars), not curriculum prose
     levelColor: s.levelColor,
     levelBg: s.levelBg,
     etag: ETAGS.stories[s.id],
