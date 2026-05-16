@@ -78,7 +78,6 @@ import {
   BG_DARK,
 } from '../lib/appUtils.js';
 import * as _vocab from './vocabulary.js';
-import * as _grammar from './grammar.js';
 import * as _cultural from './cultural.js';
 import * as _exercises from './exercises.js';
 import * as _scenarios from './scenarios.js';
@@ -98,21 +97,6 @@ const {
   BUREAUCRATIC,
   V_B2,
 } = _vocab;
-const {
-  PADEZI,
-  PADEZI_FULL,
-  GRAM,
-  CONJ,
-  MODAL,
-  TENSES,
-  ASPECT,
-  ASPECT_PAIRS,
-  CONDITIONAL,
-  FORMAL_REGISTER,
-  IMPERSONAL,
-  PHONOLOGY,
-  PITCH_ACCENT,
-} = _grammar;
 const {
   HISTORY,
   EVENTS,
@@ -3317,7 +3301,6 @@ const LEVEL_NARRATIVE = {
 
 export {
   V,
-  PADEZI,
   PROVERBS,
   HIST_FACTS,
   MEDIA,
@@ -3335,7 +3318,6 @@ export {
   WEATHER,
   CLOTHES,
   BODYDESC,
-  PHONOLOGY,
   SCENES,
   FILL_STORIES,
   PRONOUNCASE,
@@ -3368,14 +3350,11 @@ export {
   TOP100,
   HISTORY,
   EVENTS,
-  MODAL,
-  GRAM,
   PLACE,
   READ,
   ALPHA,
   ZNAM,
   BOJE,
-  CONJ,
   UNJUMBLE,
   IDIOMS,
   PREPS,
@@ -3384,7 +3363,6 @@ export {
   STORIES,
   NUMTIME,
   NUMCOUNT,
-  ASPECT,
   FALSEFR,
   VOCATIVE,
   PREPDRILL,
@@ -3394,7 +3372,6 @@ export {
   DIMWORDS,
   WORDFORM,
   COLORQUIRK,
-  PADEZI_FULL,
   SCHOOL,
   TEXTING,
   FRIENDS,
@@ -3405,20 +3382,14 @@ export {
   POPCULTURE,
   PRACTICAL,
   REGIONS,
-  TENSES,
   GROCERY,
   RECIPES,
   ROLEPLAY,
   BG_LIGHT,
   BG_DARK,
-  CONDITIONAL,
-  FORMAL_REGISTER,
-  IMPERSONAL,
   TECH_VOC,
   BUREAUCRATIC,
-  PITCH_ACCENT,
   SHADOWING,
-  ASPECT_PAIRS,
   SEASONAL_CAMPAIGNS,
   LEVEL_NARRATIVE,
 };
