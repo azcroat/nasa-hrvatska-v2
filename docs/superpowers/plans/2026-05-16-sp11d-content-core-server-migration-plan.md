@@ -90,13 +90,30 @@ missing (Task 2 follows to extract them from content.tsx)."
 
 ---
 
-## Task 2: Extract 27 exports from content.tsx to functions/api/content/_data/core.js
+## Task 2: Move source files server-side + create core.js aggregator
+
+**REVISED 2026-05-16:** Pre-implementation grep revealed the 27 exports are NOT defined in content.tsx — they live in 11 source files. content.tsx is a barrel that re-exports them. Updated task: move the 11 source files verbatim (like SP11c lessons.js) and build core.js as an aggregator that re-exports from the server-side copies.
+
+**Source file inventory:**
+- `src/data/vocabulary.js` → `functions/api/content/_data/vocabulary.js` (V, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, TECH_VOC, BUREAUCRATIC — 8 exports)
+- `src/data/cultural/proverbs.js` → `.../_data/cultural/proverbs.js` (PROVERBS)
+- `src/data/cultural/history.js` → `.../_data/cultural/history.js` (HISTORY, KINGS)
+- `src/data/cultural/events.js` → `.../_data/cultural/events.js` (EVENTS)
+- `src/data/cultural/regions.js` → `.../_data/cultural/regions.js` (REGIONS)
+- `src/data/cultural/language.js` → `.../_data/cultural/language.js` (DIALECTS, SHADOWING)
+- `src/data/cultural/geography.js` → `.../_data/cultural/geography.js` (CROATIAN_CITIES)
+- `src/data/scenarios.js` → `.../_data/scenarios.js` (FOODORDER, TRANSPORT, GROCERY, RECIPES, PRACTICAL)
+- `src/data/exercises.js` → `.../_data/exercises.js` (IDIOMS, BRZALICE)
+- `src/components/learn/VocabSceneData.js` → `.../_data/vocabScenes.js` (SCENES — renamed for clarity)
+- `src/data/content.tsx` body: LEARN_PATH (line 1019) + LEVEL_NARRATIVE (line 3254) — extracted as inline consts in core.js
+- `src/lib/appUtils.ts` line 100: SEASONAL_CAMPAIGNS — extracted as inline const in core.js
 
 **Files:**
-- Create: `functions/api/content/_data/core.js`
-- Modify: nothing in `src/data/content.tsx` (yet — deletion at Task 7)
+- Create: 10 source-file copies under `functions/api/content/_data/`
+- Create: `functions/api/content/_data/core.js` (aggregator + 3 inline-extracted consts)
+- Modify: nothing in `src/data/*` yet (deletion at Task 7)
 
-This task creates a NEW file with the 27 exports copied verbatim from content.tsx. The source remains in content.tsx as a fallback through the refactor batches.
+This task adds new server-side copies. The source files in `src/data/`, `src/components/learn/VocabSceneData.js`, and the in-place definitions in `content.tsx` and `appUtils.ts` remain as fallback through the refactor batches.
 
 - [ ] **Step 1: Verify the 27 names appear only in import + export blocks of content.tsx**
 
