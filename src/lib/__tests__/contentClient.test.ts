@@ -7,6 +7,7 @@ import {
   ContentRateLimitError,
   ContentOfflineError,
   ContentFetchError,
+  type Grammar,
 } from '../../types/content';
 
 vi.mock('../audio', () => ({
@@ -18,7 +19,7 @@ vi.mock('../firebaseUid', () => ({
 }));
 
 import * as cache from '../contentCache';
-import { getStory, getStoryCatalog, getGrammarUnit } from '../contentClient';
+import { getStory, getStoryCatalog, getGrammarUnit, getGrammar } from '../contentClient';
 
 const STORY_BODY = { id: 'gs_a1_1', title: 'Test', paragraphs: ['a', 'b'] };
 
@@ -77,6 +78,28 @@ async function seedStaleCache(): Promise<void> {
       lastValidatedAt: staleTs,
     },
     'uid_uid_test:story:gs_a1_1',
+  );
+  db.close();
+}
+
+async function seedStaleCacheForGrammar(body: Grammar): Promise<void> {
+  const db = await openDB('nh-content-cache', 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains('resources')) {
+        db.createObjectStore('resources');
+      }
+    },
+  });
+  const staleTs = Date.now() - cache.STALE_AFTER_MS - 60_000;
+  await db.put(
+    'resources',
+    {
+      etag: 'g1',
+      body,
+      fetchedAt: staleTs,
+      lastValidatedAt: staleTs,
+    },
+    'uid_uid_test:grammar:all',
   );
   db.close();
 }
@@ -209,5 +232,58 @@ describe('contentClient.getStoryCatalog + getGrammarUnit', () => {
     const u = await getGrammarUnit('futur_ii');
     expect(u.id).toBe('futur_ii');
     expect(capturedUrl).toContain('/api/content/grammar-units/futur_ii');
+  });
+});
+
+describe('contentClient.getGrammar', () => {
+  it('200 path writes cache and returns grammar', async () => {
+    const BODY: Grammar = {
+      PADEZI: { nom: 'ja' },
+      GRAM: {},
+      CONJ: {},
+      MODAL: {},
+      TENSES: {},
+      ASPECT: {},
+      ASPECT_PAIRS: [],
+      CONDITIONAL: {},
+      FORMAL_REGISTER: {},
+      IMPERSONAL: {},
+      PHONOLOGY: {},
+      PITCH_ACCENT: [],
+      PADEZI_FULL: {},
+    };
+    mockFetch([
+      async () =>
+        new Response(JSON.stringify({ data: BODY, etag: 'g1' }), {
+          status: 200,
+          headers: { ETag: '"g1"' },
+        }),
+    ]);
+    const g = await getGrammar();
+    expect(g).toEqual(BODY);
+    const cached = await cache.readCached('uid_test', 'grammar:all');
+    expect(cached?.etag).toBe('g1');
+  });
+
+  it('304 path returns cached grammar', async () => {
+    const BODY: Grammar = {
+      PADEZI: { nom: 'ja' },
+      GRAM: {},
+      CONJ: {},
+      MODAL: {},
+      TENSES: {},
+      ASPECT: {},
+      ASPECT_PAIRS: [],
+      CONDITIONAL: {},
+      FORMAL_REGISTER: {},
+      IMPERSONAL: {},
+      PHONOLOGY: {},
+      PITCH_ACCENT: [],
+      PADEZI_FULL: {},
+    };
+    await seedStaleCacheForGrammar(BODY);
+    mockFetch([async () => new Response(null, { status: 304 })]);
+    const g = await getGrammar();
+    expect(g).toEqual(BODY);
   });
 });
