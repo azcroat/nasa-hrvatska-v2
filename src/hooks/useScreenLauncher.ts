@@ -10,8 +10,9 @@ import { markExerciseDone } from './useAward.js';
 import type { Stats, StatsDelta } from '../types/index.js';
 import type { AwardActivityType } from '../lib/activityXp.js';
 
-// V, GRAM, and LESSONS are only needed when launching exercises — lazy import keeps chunk-data
-// out of the startup bundle. sh is a local Fisher-Yates using Math.random().
+// V and LESSONS are only needed when launching exercises — lazy import keeps chunk-data
+// out of the startup bundle. GRAM is fetched server-side via getGrammar() (SP11b).
+// sh is a local Fisher-Yates using Math.random().
 function _sh<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
@@ -519,8 +520,12 @@ export function useScreenLauncher({
         setScr('lesson');
         sCurEx('vocab_' + topic);
       } else if (item.go === 'grammar') {
-        const { GRAM } = (await _getData()) as {
-          GRAM: { beginner: unknown[]; intermediate: unknown[]; advanced: unknown[] };
+        const { getGrammar } = await import('../lib/contentClient');
+        const grammar = await getGrammar();
+        const GRAM = grammar.GRAM as unknown as {
+          beginner: unknown[];
+          intermediate: unknown[];
+          advanced: unknown[];
         };
         // Flatten all grammar lessons and cycle via gc so each quest visit advances to the next lesson
         const allGramLessons = [

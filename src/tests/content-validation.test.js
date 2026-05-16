@@ -43,9 +43,6 @@ vi.mock('firebase/firestore', () => ({
 
 import {
   V,
-  ASPECT,
-  ASPECT_PAIRS,
-  PADEZI,
   STORIES,
   PROVERBS,
   VOCATIVE,
@@ -56,6 +53,8 @@ import {
   PREPDRILL,
   UNJUMBLE,
 } from '../lib/appData.js';
+// Grammar data moved server-side in SP11b — import directly from _data/.
+import { ASPECT, ASPECT_PAIRS, PADEZI } from '../../functions/api/content/_data/grammar.js';
 import { TRANSLATE_DRILLS } from '../data/exercises.js';
 import { V_B2 } from '../data/vocabulary.js';
 import { LESSONS } from '../data/lessons.js';

@@ -10,7 +10,8 @@ const _isNative =
   window.location.hostname === 'localhost' &&
   !window.location.port;
 // Local Fisher-Yates shuffle — keeps chunk-data out of AppRouter's startup import.
-// Screens that need data (V, GRAM, PITCH_ACCENT, SHADOWING, ASPECT_PAIRS) import it directly.
+// Screens that need data (V, SHADOWING) import it directly. Grammar moved
+// to /api/content/grammar (SP11b); use useGrammar() hook for those.
 function _sh<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
