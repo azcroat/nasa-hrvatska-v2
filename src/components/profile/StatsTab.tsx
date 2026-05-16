@@ -233,7 +233,6 @@ export default function StatsTab({
               key={i}
               aria-label={`${s.value} ${s.label}`}
               className="stat-card-v3"
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               style={{ background: bgs[i], '--stat-accent': accents[i] } as any}
             >
               <span className="stat-icon">{s.icon}</span>

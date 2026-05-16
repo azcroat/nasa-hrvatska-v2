@@ -3,7 +3,6 @@ import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function shLocal(a: any[]) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {

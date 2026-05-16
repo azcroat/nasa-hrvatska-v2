@@ -27,7 +27,6 @@ interface ReviewScreenProps {
 interface ReviewStateRef {
   answered: boolean;
   idx: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   questions: any[];
   score: number;
 }

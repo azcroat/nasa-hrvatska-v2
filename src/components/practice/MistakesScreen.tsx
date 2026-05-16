@@ -3,7 +3,6 @@ import { H, getMistakes, clearMistake, clearAllMistakes, speak } from '../../dat
 import { markQuest } from '../../lib/quests.js';
 
 // ── Flip card ──────────────────────────────────────────────────────────────────
-/* eslint-disable @typescript-eslint/no-explicit-any */
 function FlipCard({
   mistake,
   onGotIt,
@@ -13,7 +12,6 @@ function FlipCard({
   onGotIt: () => void;
   onStudyAgain: () => void;
 }) {
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   const [flipped, setFlipped] = useState(false);
 
   function handleFlip() {
@@ -197,7 +195,6 @@ function FlipCard({
 }
 
 // ── List item ──────────────────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MistakeListItem({ mistake, onClear }: { mistake: any; onClear: (hr: string) => void }) {
   return (
     <div className="c" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
@@ -274,15 +271,12 @@ export default function MistakesScreen({
   goBack: () => void;
   award?: (xp: number, bonus?: boolean, activityType?: string) => void;
 }) {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   const [mistakes, setMistakes] = useState<any[]>(() =>
     getMistakes().sort((a: any, b: any) => b.count - a.count),
   );
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   const [mode, setMode] = useState('list'); // 'list' | 'review'
   const [reviewIdx, setReviewIdx] = useState(0);
   const [mastered, setMastered] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [reviewDeck, setReviewDeck] = useState<any[]>([]);
 
   function startReview() {
@@ -302,7 +296,6 @@ export default function MistakesScreen({
     const word = reviewDeck[reviewIdx];
     if (!word) return;
     clearMistake(word.hr);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setMistakes(getMistakes().sort((a: any, b: any) => b.count - a.count));
     const newMastered = mastered + 1;
     setMastered(newMastered);
@@ -334,7 +327,6 @@ export default function MistakesScreen({
 
   function clearOne(hr: string) {
     clearMistake(hr);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setMistakes(getMistakes().sort((a: any, b: any) => b.count - a.count));
   }
 
@@ -425,7 +417,6 @@ export default function MistakesScreen({
               <button
                 className="b bp"
                 onClick={() => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   setMistakes(getMistakes().sort((a: any, b: any) => b.count - a.count));
                   setMode('list');
                 }}
@@ -520,7 +511,6 @@ export default function MistakesScreen({
               Clear All
             </button>
           </div>
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {mistakes.map((m: any) => (
             <MistakeListItem key={m.hr} mistake={m} onClear={clearOne} />
           ))}

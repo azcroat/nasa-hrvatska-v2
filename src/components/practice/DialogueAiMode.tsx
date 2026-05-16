@@ -1,7 +1,6 @@
 import React from 'react';
 import DialogueAvatar from './DialogueAvatar';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface Props {
   scenario: any;
   aiHistory: any[];
@@ -18,7 +17,6 @@ interface Props {
   finishFired: React.MutableRefObject<boolean>;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 export default function DialogueAiMode({
   scenario,
   aiHistory,
@@ -63,7 +61,6 @@ export default function DialogueAiMode({
 
       {/* Conversation history */}
       <div style={{ marginBottom: 12 }}>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {aiHistory.map((msg: any) => (
           <div
             key={msg.id}

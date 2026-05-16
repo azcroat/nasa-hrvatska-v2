@@ -1158,7 +1158,6 @@ function QuizView({ scenario, onBack }: { scenario: Scenario; onBack: () => void
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PCSProps = { goBack: () => void; stats?: Record<string, any> };
 export default function PracticalCroatianScreen({ goBack, stats }: PCSProps) {
   void stats;

@@ -195,9 +195,18 @@ function ClothesScreen({ goBack }: ClothesScreenProps) {
   const { content, loading, error } = useContent();
   const [tab, setTab] = useState('Clothing');
   const [catIdx, setCatIdx] = useState(0);
-  if (error) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
-  if (loading || !content) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
+  if (error)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
   const d = content.CLOTHES as {
     title: string;
     intro: string;
@@ -206,7 +215,6 @@ function ClothesScreen({ goBack }: ClothesScreenProps) {
     phrases: any[];
     quiz: any[];
   };
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   const cat = d.categories[catIdx];
   return (
     <WRAP>
@@ -246,8 +254,7 @@ function ClothesScreen({ goBack }: ClothesScreenProps) {
             {cat?.icon} {cat?.cat}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {(cat?.items ?? []).map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (item: any, i: number) => (
+            {(cat?.items ?? []).map((item: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -293,8 +300,7 @@ function ClothesScreen({ goBack }: ClothesScreenProps) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (p: any, i: number) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"

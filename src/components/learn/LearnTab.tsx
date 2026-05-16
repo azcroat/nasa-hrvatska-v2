@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { V, LEARN_PATH } from '../../data';
+import { LEARN_PATH } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import LearnPathWidget from './LearnPathWidget';
@@ -58,32 +59,24 @@ interface PendingLesson {
 }
 
 interface LearnTabProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   allCats: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icons: Record<string, any>;
   sCurEx: (ex: string) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sh: (arr: any[]) => any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sLt: (t: any) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sLi: (items: any[]) => void;
   sLx: (x: number) => void;
   sLs: (s: number) => void;
   sLp: (p: string) => void;
   sLa: (a: boolean) => void;
   sLsl: (sl: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sGl: (l: any) => void;
   sGp: (p: string) => void;
   sGx: (x: number) => void;
   sGs: (s: number) => void;
   sGa: (a: boolean) => void;
   sGsl: (sl: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   launchPathItem: (item: any) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   launchAnimLesson: (lesson: any) => void;
 }
 
@@ -111,6 +104,8 @@ export default function LearnTab({
 }: LearnTabProps) {
   const { setScr, setTab } = useApp();
   const { stats: st } = useStats();
+  const { content } = useContent();
+  const V = (content?.V ?? {}) as Record<string, unknown[]>;
   const [showBrowse, setShowBrowse] = useState(false);
   const [pendingLesson, setPendingLesson] = useState<PendingLesson | null>(null);
 
@@ -434,7 +429,6 @@ export default function LearnTab({
       </div>
       <LearnPathWidget
         sc={sc}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         currentStage={currentStage as any}
         currentStageDone={currentStageDone}
         overallPct={overallPct}

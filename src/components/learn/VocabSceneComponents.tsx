@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { H } from '../../data';
-import { SCENES, TOTAL_WORDS } from './VocabSceneData.js';
+import { useContent } from '../../hooks/useContent';
 
 interface SceneItem {
   id: string;
@@ -177,7 +177,6 @@ export function ProgressBar({
 
 // ─── Scene Picker ─────────────────────────────────────────────────────────────
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export function ScenePicker({
   onSelect,
   allDiscovered,
@@ -185,7 +184,9 @@ export function ScenePicker({
   onSelect: (scene: any) => void;
   allDiscovered: Record<string, Set<string>>;
 }) {
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  const { content } = useContent();
+  const SCENES = useMemo(() => (content?.SCENES ?? []) as any[], [content]);
+  const TOTAL_WORDS = useMemo(() => SCENES.reduce((s, sc) => s + sc.items.length, 0), [SCENES]);
   const totalDiscovered = SCENES.reduce((s, sc) => s + (allDiscovered[sc.id]?.size ?? 0), 0);
 
   return (

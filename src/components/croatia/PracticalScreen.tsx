@@ -16,7 +16,6 @@ function PracticalScreen({ goBack }: Props) {
     );
   if (loading || !content)
     return <div className="scr-wrap">{H('💼 Practical Life in Croatia', 'Loading…', goBack)}</div>;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   const PRACTICAL = content.PRACTICAL as {
     oib: { title: string; desc: string };
     mbo: { title: string; desc: string };
@@ -24,7 +23,6 @@ function PracticalScreen({ goBack }: Props) {
     customs: any[];
     schoolCalendar: string;
   };
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   return (
     <div className="scr-wrap">
       {H('💼 Practical Life in Croatia', 'Documents, customs, culture', goBack)}

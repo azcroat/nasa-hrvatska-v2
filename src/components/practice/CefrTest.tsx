@@ -3,7 +3,6 @@ import { H, Bar } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function shLocal(a: any[]) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
@@ -574,7 +573,6 @@ function gradeMessage(pct: number) {
 // storing the correct answer by value so index checks remain valid.
 function shuffleLevel(levelKey: string) {
   const raw = (LEVELS as Record<string, typeof LEVELS.A1>)[levelKey]!.questions;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return shLocal([...raw]).map((q: any) => {
     const correctText = q.opts[q.answer];
     const shuffledOpts = shLocal([...q.opts]);
@@ -591,7 +589,6 @@ export default function CefrTest({
   const finishFired = useRef(false);
   const [levelKey, setLevelKey] = useState<string | null>(null);
   // Shuffled questions for the active level — rebuilt each time a level is started
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [shuffledQuestions, setShuffledQuestions] = useState<any[]>([]);
   const [qIdx, setQIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -841,7 +838,6 @@ export default function CefrTest({
 
       {/* Options */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {q.opts.map((opt: any, i: number) => {
           let bg = 'var(--card)';
           let border = '1.5px solid var(--card-b)';

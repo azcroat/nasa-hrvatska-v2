@@ -25,7 +25,6 @@ const LISTENING_TIPS = [
   },
 ];
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export default function ListeningScreen({
   questions,
   goBack,
@@ -35,7 +34,6 @@ export default function ListeningScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);

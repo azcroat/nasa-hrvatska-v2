@@ -25,7 +25,6 @@ function normCro(s: string) {
 }
 
 // Build a shuffled options array for a single turn; returns { opts, correctIdx }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function shuffleTurnOpts(turn: any) {
   const indices = turn.opts.map((_: unknown, i: number) => i);
   for (let i = indices.length - 1; i > 0; i--) {
@@ -44,10 +43,8 @@ export default function DialogueSim({
 }) {
   const { level: userLevel } = useStats();
   const finishFired = useRef(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [scenario, setScenario] = useState<any>(null);
   const [turnIdx, setTurnIdx] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [shuffledTurns, setShuffledTurns] = useState<any[]>([]);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
@@ -55,16 +52,13 @@ export default function DialogueSim({
   const [done, setDone] = useState(false);
   const [freeMode, setFreeMode] = useState(false);
   const [freeInput, setFreeInput] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [freeResult, setFreeResult] = useState<any>(null);
 
   // AI Conversation Mode state
   const [aiMode, setAiMode] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [aiHistory, setAiHistory] = useState<any[]>([]);
   const [aiInput, setAiInput] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [aiCoaching, setAiCoaching] = useState<any>(null);
   const [aiTurns, setAiTurns] = useState(0);
   const [aiDone, setAiDone] = useState(false);
@@ -77,7 +71,6 @@ export default function DialogueSim({
     if (line && !line.startsWith('[')) speak(line);
   }, [scenario, turnIdx, aiMode]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function startScenario(s: any) {
     finishFired.current = false;
     setScenario(s);

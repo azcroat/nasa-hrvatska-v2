@@ -181,7 +181,6 @@ export default function MajaScreen() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioCtxRef.current = ctx;
       const source = ctx.createMediaStreamSource(stream);
@@ -443,7 +442,6 @@ export default function MajaScreen() {
 
     if (!SR_SUPPORTED) return; // fallback text input handles it
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SpeechRec = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
     const rec = new SpeechRec();
     rec.lang = 'hr-HR';

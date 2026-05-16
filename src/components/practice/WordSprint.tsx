@@ -45,7 +45,6 @@ interface ResultItem {
   chosen: string;
   correct: boolean;
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ShuffleFn = (a: any[]) => any[];
 
 function buildPool(cats: string[], sh: ShuffleFn): WordItem[] {

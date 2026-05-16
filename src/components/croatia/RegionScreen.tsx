@@ -16,11 +16,9 @@ function RegionScreen({ regionKey, goBack }: Props) {
   const [quizDone, setQuizDone] = useState(false);
   const [expandedPerson, setExpandedPerson] = useState<number | null>(null);
   // SP11d: REGIONS is async-loaded; provide safe fallback for useMemo deps until ready.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const REGIONS = (content?.REGIONS ?? {}) as Record<string, any>;
   const r = REGIONS[regionKey];
   const frozenOpts = useMemo(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     () => (r ? (r.quiz as any[]).map((q: any) => sh([q.a, ...q.al])) : []),
     [r],
   );

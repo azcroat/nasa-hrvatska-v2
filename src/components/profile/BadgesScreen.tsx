@@ -7,7 +7,6 @@ interface BadgeDef {
   id: string;
   n: string;
   d: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   r: (stats: any) => boolean;
   i: string;
 }

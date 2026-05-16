@@ -22,7 +22,6 @@ export default function ReadingScreen({
   award,
   setSt,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rp: Record<string, any> | null;
   rph: string;
   rqi: number;
@@ -39,7 +38,6 @@ export default function ReadingScreen({
   goBack: () => void;
   setScr: (v: string) => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSt: (fn: (s: Record<string, any>) => Record<string, any>) => void;
 }) {
   const { stats, writeDelta } = useStats();

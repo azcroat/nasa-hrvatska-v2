@@ -102,7 +102,6 @@ export default function PadezifullScreen({
       {pfTab === 'sing' &&
         pfMode === 'learn' &&
         (() => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const data = (PADEZI_FULL.singEndings as Record<string, any>)[pfGender];
           return (
             <React.Fragment>
@@ -132,7 +131,6 @@ export default function PadezifullScreen({
                   </div>
                 )}
               </div>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {data.words.map((w: any, wi: number) => (
                 <div
                   key={wi}
@@ -196,7 +194,6 @@ export default function PadezifullScreen({
       {pfTab === 'plur' &&
         pfMode === 'learn' &&
         (() => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const data = (PADEZI_FULL.plurEndings as Record<string, any>)[pfGender];
           return (
             <React.Fragment>
@@ -224,7 +221,6 @@ export default function PadezifullScreen({
                   Adj: {data.adjEnd.join(' / ')}
                 </div>
               </div>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {data.words.map((w: any, wi: number) => (
                 <div
                   key={wi}

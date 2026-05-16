@@ -2,7 +2,6 @@ import React from 'react';
 import TipContent from './DialogueTipContent';
 import DialogueAvatar from './DialogueAvatar';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface GuidedProps {
   scenario: any;
   turnIdx: number;
@@ -23,7 +22,6 @@ interface GuidedProps {
   onToggleFreeMode: () => void;
   onSwitchToAi: () => void;
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 export default function DialogueGuidedMode({
   scenario,
   turnIdx,
@@ -203,7 +201,6 @@ export default function DialogueGuidedMode({
       ) : (
         /* Multiple choice options */
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {shuffled.opts.map((opt: any, i: number) => {
             let bg = 'var(--card)';
             let border = '1.5px solid var(--card-b)';

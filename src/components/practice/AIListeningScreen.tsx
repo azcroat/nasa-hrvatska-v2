@@ -31,7 +31,6 @@ export default function AIListeningScreen({
   const [phase, setPhase] = useState('setup');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [style, setStyle] = useState('dialogue');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [content, setContent] = useState<any>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -39,7 +38,6 @@ export default function AIListeningScreen({
   const [showTranscript, setShowTranscript] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [qIndex, setQIndex] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [answers, setAnswers] = useState<any[]>([]);
   const [score, setScore] = useState(0);
   const xpAwarded = useRef(false);
@@ -93,10 +91,8 @@ export default function AIListeningScreen({
       // Build TTS text
       let fullText = '';
       if (style === 'dialogue' && data.speakers) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data.speakers.forEach((spk: any) => {
           if (!Array.isArray(spk.lines)) return;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           spk.lines.forEach((line: any) => {
             fullText += `${spk.name}: ${line}\n\n`;
           });
@@ -203,7 +199,6 @@ export default function AIListeningScreen({
     if (!content?.questions?.[qIndex]) return;
     const correct = content.questions[qIndex].correct;
     const isRight = optionIndex === correct;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setAnswers((prev: any[]) => {
       const a = [...prev];
       a[qIndex] = optionIndex;
@@ -255,12 +250,9 @@ export default function AIListeningScreen({
   function buildTranscript() {
     if (!content) return '';
     if (style === 'dialogue' && content.speakers) {
-      return (
-        content.speakers
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((spk: any) => (spk.lines || []).map((l: any) => `${spk.name}: ${l}`).join('\n'))
-          .join('\n\n')
-      );
+      return content.speakers
+        .map((spk: any) => (spk.lines || []).map((l: any) => `${spk.name}: ${l}`).join('\n'))
+        .join('\n\n');
     }
     return content.narrator || '';
   }
@@ -609,7 +601,6 @@ export default function AIListeningScreen({
               Vocabulary
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {content.vocab.map((v: any, i: number) => (
                 <span
                   key={i}
@@ -654,7 +645,6 @@ export default function AIListeningScreen({
 
         {/* Progress dots */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {content.questions.map((_: any, i: number) => (
             <div
               key={i}
@@ -676,7 +666,6 @@ export default function AIListeningScreen({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {q.options.map((opt: any, oi: number) => {
             let bg = 'var(--card)',
               border = 'var(--bar-bg)',
@@ -802,7 +791,6 @@ export default function AIListeningScreen({
             >
               Vocabulary from this exercise
             </div>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {content.vocab.map((v: any, i: number) => (
               <div
                 key={i}

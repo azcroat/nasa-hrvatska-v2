@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { TECH_VOC } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 
@@ -148,8 +148,24 @@ function TechVocScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { content, loading, error } = useContent();
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('💻 Tech Vocabulary', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('💻 Tech Vocabulary', 'Loading…', goBack)}</div>;
+  const TECH_VOC = content.TECH_VOC as {
+    title: string;
+    intro: string;
+    categories: any[];
+    phrases: any[];
+    quiz: any[];
+  };
   const cat = TECH_VOC.categories[catIdx]!;
 
   return (
@@ -183,7 +199,7 @@ function TechVocScreen({
       {tab === 'vocab' && (
         <div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-            {TECH_VOC.categories.map(function (c, i) {
+            {TECH_VOC.categories.map(function (c: any, i: number) {
               return (
                 <button
                   key={i}
@@ -200,7 +216,7 @@ function TechVocScreen({
             {cat.icon} {cat.name}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {cat.words.map(function (w, i) {
+            {(cat.words as any[]).map(function (w: any, i: number) {
               return (
                 <button
                   key={i}
@@ -230,7 +246,7 @@ function TechVocScreen({
 
       {tab === 'phrases' && (
         <div>
-          {TECH_VOC.phrases.map(function (p, i) {
+          {TECH_VOC.phrases.map(function (p: any, i: number) {
             return (
               <button
                 key={i}

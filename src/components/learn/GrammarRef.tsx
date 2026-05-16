@@ -1,16 +1,8 @@
 import React, { useState } from 'react';
 import { H, speak, shMemo } from '../../data';
-import {
-  FALSEFR,
-  DECL,
-  BRZALICE,
-  DIALECTS,
-  DIMWORDS,
-  WORDFORM,
-  COLORQUIRK,
-  SVOJMOJ,
-} from '../../data';
+import { FALSEFR, DECL, DIMWORDS, WORDFORM, COLORQUIRK, SVOJMOJ } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
+import { useContent } from '../../hooks/useContent';
 
 interface AspectPair {
   impf: string;
@@ -184,6 +176,10 @@ export function DeclensionScreen({ goBack }: { goBack: () => void }) {
 }
 
 export function BrzaliceScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const BRZALICE = content.BRZALICE as Array<{ hr: string; en: string; focus: string }>;
   return (
     <div className="scr-wrap">
       {H('😝 Brzalice', 'Croatian Tongue Twisters', goBack)}
@@ -224,6 +220,10 @@ export function BrzaliceScreen({ goBack }: { goBack: () => void }) {
 }
 
 export function DialectsScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const DIALECTS = content.DIALECTS as { types: any[]; examples: any[] };
   return (
     <div className="scr-wrap">
       {H('🗺️ Regional Dialects', 'Štokavski, Kajkavski, Čakavski', goBack)}

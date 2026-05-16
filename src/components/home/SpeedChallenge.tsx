@@ -86,10 +86,7 @@ const LS_KEY_PLAYED = 'nh_speed_challenge_played';
 export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }) {
   const { award } = useStats();
   const { content } = useContent();
-  const V = useMemo(
-    () => (content?.V ?? {}) as Record<string, unknown>,
-    [content],
-  );
+  const V = useMemo(() => (content?.V ?? {}) as Record<string, unknown>, [content]);
   const [phase, setPhase] = useState('idle'); // idle | playing | done
   const [timeLeft, setTimeLeft] = useState(DURATION);
   const [qIdx, setQIdx] = useState(0);

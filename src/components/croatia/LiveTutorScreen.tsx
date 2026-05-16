@@ -213,7 +213,6 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
     try {
       // Use existing unlocked context if available, otherwise create a temporary one
       if (!ctx) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
         tempCtx = true;
       }

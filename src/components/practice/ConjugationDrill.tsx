@@ -32,7 +32,6 @@ export default function ConjugationDrill({ goBack, award }: Props) {
   const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [cjMode, sCjMode] = useState('menu');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [cjQ, sCjQ] = useState<any[]>([]);
   const [cjI, sCjI] = useState(0);
   const [cjS, sCjS] = useState(0);
@@ -46,9 +45,7 @@ export default function ConjugationDrill({ goBack, award }: Props) {
 
   function startQuiz(tense: string) {
     const pool = tense === 'all' ? CONJ.verbs : CONJ.verbs.filter((v) => v.tense === tense);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const qs: any[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pool.forEach((v: any) => {
       CONJ.persons.forEach((p, pi) => {
         qs.push({ verb: v.inf, en: v.en, tense: v.tense, person: p, pi, answer: v.forms[pi] });

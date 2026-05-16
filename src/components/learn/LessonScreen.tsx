@@ -1,8 +1,9 @@
 import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react';
 import MicroQuiz from './MicroQuiz';
 import { useStats } from '../../context/StatsContext.tsx';
-import { H, Bar, speak, srMark, sh, shuffleArr, V, CROATIAN_CITIES } from '../../data';
+import { H, Bar, speak, srMark, sh, shuffleArr } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
+import { useContent } from '../../hooks/useContent';
 import { playCorrect, playWrong, haptic, playFanfare } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { markPracticed } from '../../hooks/useNotifications';
@@ -32,29 +33,23 @@ const CONFETTI_COLORS = [
 
 interface LessonScreenProps {
   lt: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   li: any[];
   lx: number;
   ls: number;
   lp: string;
   la: boolean;
   lsl: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   qi: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icons: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sLi: (items: any[]) => void;
   sLx: (x: number | ((prev: number) => number)) => void;
   sLs: (s: number | ((prev: number) => number)) => void;
   sLp: (p: string) => void;
   sLa: (a: boolean) => void;
   sLsl: (sl: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sQi: (qi: any[]) => void;
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSt: (fn: (prev: any) => any) => void;
   setScr: (screen: string) => void;
   goToPractice?: () => void;
@@ -84,6 +79,9 @@ export default function LessonScreen({
   goToPractice,
 }: LessonScreenProps) {
   const { grammar, loading, error } = useGrammar();
+  const { content } = useContent();
+  const V = (content?.V ?? {}) as Record<string, unknown[]>;
+  const CROATIAN_CITIES = (content?.CROATIAN_CITIES ?? []) as any[];
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
 
@@ -173,7 +171,6 @@ export default function LessonScreen({
       // Capture the last 3 items just completed
       microQuizItemsSeenRef.current = qi
         .slice(Math.max(0, newIdx - 3), newIdx)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map((it: any) => ({ hr: it[0] as string, en: it[1] as string }));
       setShowMicroQuiz(true);
       return; // Don't advance yet; advance after MicroQuiz completes
@@ -195,13 +192,13 @@ export default function LessonScreen({
   const culturalCity = useMemo(() => {
     if (!CROATIAN_CITIES || !CROATIAN_CITIES.length) return null;
     return CROATIAN_CITIES[Math.floor(Math.random() * CROATIAN_CITIES.length)];
-  }, []); // stable per lesson session
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // stable per lesson session — intentionally pin to first non-empty load
 
   // Build a lookup from Croatian infinitive → aspect pair info
   const aspectMap = useMemo(() => {
     const map: Record<string, unknown> = {};
     const pairs = (grammar?.ASPECT_PAIRS ?? []) as unknown[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pairs.forEach((pair: any) => {
       if (pair.impf) map[pair.impf as string] = pair;
       if (pair.pf) map[pair.pf as string] = pair;
@@ -233,7 +230,6 @@ export default function LessonScreen({
           playWrong();
           haptic([40, 30, 40]);
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         srMark((qi[lx] as any)?.[0], ok, undefined);
         recordTopicResult('vocabulary', ok);
       }
@@ -275,7 +271,6 @@ export default function LessonScreen({
   /* ── MICROQUIZ OVERLAY ────────────────────────────────────────── */
   if (showMicroQuiz) {
     const distractors = qi
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((it: any) => ({ hr: it[0] as string, en: it[1] as string }))
       .filter((d) => !microQuizItemsSeenRef.current.some((s) => s.hr === d.hr));
     return (
@@ -408,7 +403,6 @@ export default function LessonScreen({
                   )}
                   {/* Aspect pair */}
                   {(() => {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const pair = aspectMap[w[0]] as any;
                     if (!pair) return null;
                     const partner =
@@ -733,7 +727,6 @@ export default function LessonScreen({
                     playWrong();
                     haptic([40, 30, 40]);
                   }
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   srMark((qi[lx] as any)?.[0], ok, undefined);
                   recordTopicResult('vocabulary', ok);
                 }

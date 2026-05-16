@@ -21,11 +21,9 @@ export function RegionScreen({ regionKey, goBack }: RegionProps) {
   const [expandedPerson, setExpandedPerson] = useState<number | null>(null);
   const quizFinishFired = useRef(false);
   // SP11d: REGIONS is async-loaded; safe fallback until ready.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const REGIONS = (content?.REGIONS ?? {}) as Record<string, any>;
   const r = REGIONS[regionKey];
   const frozenOpts = useMemo(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     () => (r ? (r.quiz as any[]).map((q: any) => sh([q.a, ...q.al])) : []),
     [r],
   );
@@ -611,7 +609,6 @@ export function RecipesScreen({ goBack }: RecipesProps) {
     );
   if (loading || !content)
     return <div className="scr-wrap">{H('🍳 Croatian Recipes', 'Loading…', goBack)}</div>;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   const RECIPES = content.RECIPES as Array<{
     name: string;
     en: string;
@@ -620,7 +617,6 @@ export function RecipesScreen({ goBack }: RecipesProps) {
     ing: any[];
     steps: any[];
   }>;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   const r = RECIPES[rcIdx]!;
   const effectiveServ = rcServ || r.servings;
   const scale = effectiveServ / r.servings;

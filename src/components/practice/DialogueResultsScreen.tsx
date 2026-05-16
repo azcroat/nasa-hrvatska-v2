@@ -1,7 +1,6 @@
 import React from 'react';
 import { H } from '../../data';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export default function DialogueResultsScreen({
   scenario,
   score,
@@ -13,7 +12,6 @@ export default function DialogueResultsScreen({
   totalTurns: number;
   onBack: () => void;
 }) {
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   const pct = Math.round((score / totalTurns) * 100);
   const isExcellent = pct > 80;
   return (

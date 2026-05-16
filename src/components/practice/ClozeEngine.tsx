@@ -203,7 +203,6 @@ const SENTENCE_BANK = [
   },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function shuffle(arr: any[]) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {

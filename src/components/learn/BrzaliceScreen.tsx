@@ -8,7 +8,9 @@ interface Props {
 function BrzaliceScreen({ goBack }: Props) {
   const { content, loading, error } = useContent();
   if (error)
-    return <div className="scr-wrap">{H('😝 Brzalice', "Couldn't load — please retry.", goBack)}</div>;
+    return (
+      <div className="scr-wrap">{H('😝 Brzalice', "Couldn't load — please retry.", goBack)}</div>
+    );
   if (loading || !content)
     return <div className="scr-wrap">{H('😝 Brzalice', 'Loading…', goBack)}</div>;
   const BRZALICE = content.BRZALICE as Array<{ hr: string; en: string; focus: string }>;
