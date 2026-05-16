@@ -20,6 +20,42 @@ vi.mock('../data', () => ({
   getDueReviews: () => [],
 }));
 
+// SP11d: TypingScreen now reads V via useContent().
+vi.mock('../hooks/useContent', () => ({
+  useContent: () => ({
+    content: {
+      V: { test: [['bok', 'hi']] },
+      COUNTRIES: [],
+      PROFESSIONS: [],
+      WEATHER: {},
+      CLOTHES: {},
+      BODYDESC: [],
+      TECH_VOC: {},
+      BUREAUCRATIC: {},
+      PROVERBS: [],
+      IDIOMS: [],
+      BRZALICE: [],
+      HISTORY: {},
+      EVENTS: [],
+      KINGS: {},
+      REGIONS: {},
+      DIALECTS: {},
+      CROATIAN_CITIES: [],
+      FOODORDER: {},
+      TRANSPORT: [],
+      GROCERY: {},
+      RECIPES: [],
+      PRACTICAL: {},
+      SCENES: [],
+      LEVEL_NARRATIVE: {},
+      SHADOWING: [],
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
+
 vi.mock('../lib/adaptive.js', () => ({ recordTopicResult: vi.fn() }));
 vi.mock('../lib/knightSpeak.js', () => ({ knightFlash: vi.fn(), knightSpeak: vi.fn() }));
 

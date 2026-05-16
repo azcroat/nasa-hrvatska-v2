@@ -19,6 +19,42 @@ vi.mock('../data', () => ({
   SHADOWING: [{ hr: 'Dobar dan', en: 'Good day', tip: 'Listen for the d sounds' }],
 }));
 
+// SP11d: ShadowingScreen fetches SHADOWING via useContent().
+vi.mock('../hooks/useContent', () => ({
+  useContent: () => ({
+    content: {
+      V: {},
+      COUNTRIES: [],
+      PROFESSIONS: [],
+      WEATHER: {},
+      CLOTHES: {},
+      BODYDESC: [],
+      TECH_VOC: {},
+      BUREAUCRATIC: {},
+      PROVERBS: [],
+      IDIOMS: [],
+      BRZALICE: [],
+      HISTORY: {},
+      EVENTS: [],
+      KINGS: {},
+      REGIONS: {},
+      DIALECTS: {},
+      CROATIAN_CITIES: [],
+      FOODORDER: {},
+      TRANSPORT: [],
+      GROCERY: {},
+      RECIPES: [],
+      PRACTICAL: {},
+      SCENES: [],
+      LEVEL_NARRATIVE: {},
+      SHADOWING: [{ hr: 'Dobar dan', en: 'Good day', tip: 'Listen for the d sounds' }],
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
+
 vi.mock('../lib/audio.js', () => ({ unlockAudio: vi.fn() }));
 vi.mock('../lib/adaptive.js', () => ({ recordTopicResult: vi.fn() }));
 vi.mock('../components/shared/PronunciationScorer', () => ({

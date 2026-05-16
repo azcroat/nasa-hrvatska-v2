@@ -94,6 +94,50 @@ vi.mock('../data', async (importOriginal) => {
   };
 });
 
+// SP11d: TypingScreen now reads V via useContent() instead of the barrel.
+vi.mock('../hooks/useContent', () => ({
+  useContent: () => ({
+    content: {
+      V: {
+        basic: [
+          ['zdravo', 'Hello'],
+          ['molim', 'Please'],
+          ['hvala', 'Thank you'],
+          ['da', 'Yes'],
+          ['ne', 'No'],
+        ],
+      },
+      COUNTRIES: [],
+      PROFESSIONS: [],
+      WEATHER: {},
+      CLOTHES: {},
+      BODYDESC: [],
+      TECH_VOC: {},
+      BUREAUCRATIC: {},
+      PROVERBS: [],
+      IDIOMS: [],
+      BRZALICE: [],
+      HISTORY: {},
+      EVENTS: [],
+      KINGS: {},
+      REGIONS: {},
+      DIALECTS: {},
+      CROATIAN_CITIES: [],
+      FOODORDER: {},
+      TRANSPORT: [],
+      GROCERY: {},
+      RECIPES: [],
+      PRACTICAL: {},
+      SCENES: [],
+      LEVEL_NARRATIVE: {},
+      SHADOWING: [],
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
+
 import TypingScreen from '../components/practice/TypingScreen';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
