@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { CONDITIONAL } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 
@@ -8,6 +8,42 @@ interface QuizQuestion {
   q: string;
   opts: string[];
   a: string;
+}
+
+interface ConditionalForm {
+  pro: string;
+  form: string;
+  en: string;
+}
+interface ConditionalExample {
+  hr: string;
+  en: string;
+  note: string;
+}
+interface ConditionalIfThen {
+  hr: string;
+  en: string;
+}
+interface ConditionalPolite {
+  situation: string;
+  hr: string;
+  en: string;
+}
+interface ConditionalShape {
+  title: string;
+  intro: string;
+  forms: ConditionalForm[];
+  examples: ConditionalExample[];
+  ifThen: ConditionalIfThen[];
+  polite: ConditionalPolite[];
+  quiz: QuizQuestion[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
 }
 interface QuizBlockProps {
   questions: QuizQuestion[];
@@ -143,6 +179,7 @@ interface ScreenProps {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function ConditionalScreen({ goBack, award }: ScreenProps) {
+  const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('forms');
   const tabs = [
     { k: 'forms', l: 'Forms' },
@@ -151,6 +188,10 @@ function ConditionalScreen({ goBack, award }: ScreenProps) {
     { k: 'polite', l: 'Polite Use' },
     { k: 'quiz', l: 'Quiz' },
   ];
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const CONDITIONAL = grammar.CONDITIONAL as unknown as ConditionalShape;
 
   return (
     <div className="scr-wrap">

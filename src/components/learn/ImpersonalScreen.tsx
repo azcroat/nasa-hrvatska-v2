@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { IMPERSONAL } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 
@@ -8,6 +8,31 @@ interface QuizQuestion {
   q: string;
   opts: string[];
   a: string;
+}
+
+interface ImpersonalConstruction {
+  hr: string;
+  en: string;
+  note: string;
+  example: string;
+}
+interface ImpersonalSign {
+  sign: string;
+  en: string;
+}
+interface ImpersonalShape {
+  title: string;
+  intro: string;
+  constructions: ImpersonalConstruction[];
+  signs: ImpersonalSign[];
+  quiz: QuizQuestion[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
 }
 
 function QuizBlock({
@@ -148,12 +173,17 @@ function ImpersonalScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('constructions');
   const tabs = [
     { k: 'constructions', l: 'Constructions' },
     { k: 'signs', l: 'Signs' },
     { k: 'quiz', l: 'Quiz' },
   ];
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const IMPERSONAL = grammar.IMPERSONAL as unknown as ImpersonalShape;
 
   return (
     <div className="scr-wrap">

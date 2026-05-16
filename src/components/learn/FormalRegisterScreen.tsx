@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { FORMAL_REGISTER } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
 
@@ -8,6 +8,47 @@ interface QuizQuestion {
   q: string;
   opts: string[];
   a: string;
+}
+
+interface FormalRule {
+  icon: string;
+  rule: string;
+  examples: string[];
+}
+interface FormalComparisonRow {
+  situation: string;
+  ti: string;
+  vi: string;
+}
+interface FormalVerbRow {
+  pronoun: string;
+  biti: string;
+  imati: string;
+  ići: string;
+  moći: string;
+  htjeti: string;
+  govoriti: string;
+}
+interface FormalEmailPhrase {
+  label: string;
+  hr: string;
+  en: string;
+}
+interface FormalRegisterShape {
+  title: string;
+  intro: string;
+  rules: FormalRule[];
+  comparison: FormalComparisonRow[];
+  verbForms: FormalVerbRow[];
+  emailPhrases: FormalEmailPhrase[];
+  quiz: QuizQuestion[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
 }
 interface QuizBlockProps {
   questions: QuizQuestion[];
@@ -140,6 +181,7 @@ interface ScreenProps {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function FormalRegisterScreen({ goBack, award }: ScreenProps) {
+  const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('rules');
   const tabs = [
     { k: 'rules', l: 'Rules' },
@@ -148,6 +190,10 @@ function FormalRegisterScreen({ goBack, award }: ScreenProps) {
     { k: 'email', l: 'Email' },
     { k: 'quiz', l: 'Quiz' },
   ];
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const FORMAL_REGISTER = grammar.FORMAL_REGISTER as unknown as FormalRegisterShape;
 
   return (
     <div className="scr-wrap">
