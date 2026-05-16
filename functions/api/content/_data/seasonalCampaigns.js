@@ -1,0 +1,152 @@
+// SP11e: SEASONAL_CAMPAIGNS server-side. Easter's dynamicWindow function is
+// replaced by a discriminator (`windowKind: 'easterRelative'`) plus offsets
+// from Easter Sunday (`windowOffsets: [-7, 1]` for Palm Sunday → Easter Monday).
+// Client-side resolveCampaignWindow() in src/lib/seasonalCampaign.ts handles
+// the math using the pure Meeus/Jones/Butcher easterSunday() algorithm
+// (8 lines, zero IP — stays client-side).
+
+export const SEASONAL_CAMPAIGNS = [
+  {
+    id: 'easter',
+    name: 'Uskrs u Hrvatskoj',
+    icon: '🥚',
+    color: '#16a34a',
+    bg: '#f0fdf4',
+    border: '#86efac',
+    windowKind: 'easterRelative',
+    windowOffsets: [-7, 1],
+    multiplier: 1.5,
+    blurb: 'Learn Easter traditions — pisanice, lamb, holiday greetings',
+    quests: [
+      {
+        id: 'uskrs_q1',
+        label: 'Learn 5 Easter words',
+        desc: 'Browse the Easter vocabulary',
+        xp: 30,
+        screen: 'easter',
+      },
+      {
+        id: 'uskrs_q2',
+        label: 'Practice family vocab',
+        desc: 'Family flashcards',
+        xp: 25,
+        screen: 'flashcards',
+      },
+      {
+        id: 'uskrs_q3',
+        label: 'Easter challenge',
+        desc: 'Score 80%+ on any quiz',
+        xp: 50,
+        screen: 'mcgame',
+      },
+    ],
+  },
+  {
+    id: 'midsummer',
+    name: 'Ivanjdan',
+    icon: '🔥',
+    color: '#ea580c',
+    bg: '#fff7ed',
+    border: '#fed7aa',
+    windowKind: 'fixed',
+    start: [6, 20],
+    end: [6, 25],
+    multiplier: 1.5,
+    blurb: 'Celebrate Midsummer with bonfire traditions and Croatian folklore',
+    quests: [
+      {
+        id: 'ivanjdan_q1',
+        label: 'Learn bonfire words',
+        desc: 'Complete the culture lesson',
+        xp: 30,
+        screen: 'lesson',
+      },
+      {
+        id: 'ivanjdan_q2',
+        label: 'Explore Croatian folklore',
+        desc: 'Read a Croatian story',
+        xp: 25,
+        screen: 'readlist',
+      },
+      {
+        id: 'ivanjdan_q3',
+        label: 'Midsummer quiz',
+        desc: 'Score 80%+ on any quiz',
+        xp: 50,
+        screen: 'mcgame',
+      },
+    ],
+  },
+  {
+    id: 'domovina',
+    name: 'Dan domovine',
+    icon: '🇭🇷',
+    color: '#b61800',
+    bg: '#fff1f0',
+    border: '#fca5a5',
+    windowKind: 'fixed',
+    start: [7, 25],
+    end: [8, 6],
+    multiplier: 2.0,
+    blurb: "Honor Croatia's liberation — learn history, heroes, and homeland pride",
+    quests: [
+      {
+        id: 'domovina_q1',
+        label: 'Learn 5 history words',
+        desc: 'Complete the Domovinski Rat lesson',
+        xp: 40,
+        screen: 'history',
+      },
+      {
+        id: 'domovina_q2',
+        label: 'Read about Operation Storm',
+        desc: 'Complete a history reading passage',
+        xp: 35,
+        screen: 'readlist',
+      },
+      {
+        id: 'domovina_q3',
+        label: 'Homeland pride quiz',
+        desc: 'Score 80%+ on the history quiz',
+        xp: 60,
+        screen: 'mcgame',
+      },
+    ],
+  },
+  {
+    id: 'bozic',
+    name: 'Božić',
+    icon: '🎄',
+    color: '#0e7490',
+    bg: '#f0f9ff',
+    border: '#bae6fd',
+    windowKind: 'fixed',
+    start: [12, 1],
+    end: [12, 31],
+    multiplier: 2.0,
+    blurb: 'Croatian Christmas — fritule, pokloni, carols, and family traditions',
+    quests: [
+      {
+        id: 'bozic_q1',
+        label: 'Learn Christmas vocab',
+        desc: 'Complete the greetings lesson',
+        xp: 30,
+        screen: 'lesson',
+      },
+      {
+        id: 'bozic_q2',
+        label: 'Practice holiday phrases',
+        desc: 'Complete a speaking exercise',
+        xp: 25,
+        screen: 'speaking',
+      },
+      {
+        id: 'bozic_q3',
+        label: 'Christmas challenge',
+        desc: 'Score 80%+ on any quiz',
+        xp: 50,
+        screen: 'mcgame',
+      },
+    ],
+  },
+];
