@@ -106,6 +106,19 @@ jobs:
             -d '{"value":1800}' \
             -w '\n--- HTTP %{http_code} ---\n' | tail -8
 
+      - name: Revert security_level to medium (default)
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set -e
+          curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$Z/settings/security_level" \
+            -H "Authorization: Bearer $T" \
+            -H "Content-Type: application/json" \
+            -d '{"value":"medium"}' \
+            -w '\n--- HTTP %{http_code} ---\n' | tail -8
+
       - name: Verification — curl /api/tts from GHA runner (should be 401 auth, not WAF block)
         run: |
           set +e
