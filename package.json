@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "convert-images": "node scripts/convert-images.js",
-    "prebuild": "node scripts/convert-images.js && node scripts/generate-icons.cjs",
+    "prebuild": "node scripts/convert-images.js && node scripts/generate-icons.cjs && node scripts/generate-content-etags.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
