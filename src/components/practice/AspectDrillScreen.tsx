@@ -1,11 +1,27 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { H, Bar, sh, ASPECT_PAIRS } from '../../data';
+import { H, Bar, sh } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import AspectPhaseBar from './AspectPhaseBar';
 import AspectRuleCard from './AspectRuleCard';
 import AspectQuestionPanel from './AspectQuestionPanel';
 import { useStats } from '../../context/StatsContext.tsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
+
+interface AspectPair {
+  impf: string;
+  pf: string;
+  en: string;
+  rule?: string;
+  ctx?: string;
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The 6 core aspect rules every Croatian learner MUST internalize.
@@ -201,6 +217,7 @@ export default function AspectDrillScreen({
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
+  const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
 
   const [sessionMode, setSessionMode] = useState('drill');
@@ -233,9 +250,10 @@ export default function AspectDrillScreen({
   }
 
   const allItems = useMemo(() => {
-    if (!ASPECT_PAIRS?.length) return [];
-    return sh([...ASPECT_PAIRS]);
-  }, []);
+    const pairs = (grammar?.ASPECT_PAIRS ?? []) as unknown as AspectPair[];
+    if (!pairs?.length) return [];
+    return sh([...pairs]);
+  }, [grammar]);
 
   const items = useMemo(() => {
     if (mistakesOnly && mistakeIds.size > 0) {
@@ -410,6 +428,8 @@ export default function AspectDrillScreen({
     }
   }
 
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
   if (!allItems.length) return null;
 
   // ── Reference mode ───────────────────────────────────────────────────────

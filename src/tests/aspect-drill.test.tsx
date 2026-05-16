@@ -100,23 +100,46 @@ vi.mock('../context/StatsContext', () => ({
     React.createElement(React.Fragment, null, children),
 }));
 
-// ── data mock — 1 ASPECT_PAIR for feasible testing ───────────────────────────
+// ── data mock — keep all real exports; ASPECT_PAIRS now comes from useGrammar ─
 vi.mock('../data', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
     srMark: vi.fn(),
-    ASPECT_PAIRS: [
-      {
-        impf: 'pisati',
-        pf: 'napisati',
-        en: 'to write',
-        rule: 'na- prefix marks completion',
-        ctx: 'Svaki dan pišem pisma. / Napisao sam pismo majci.',
-      },
-    ],
   };
 });
+
+// ── useGrammar mock — 1 ASPECT_PAIR for feasible testing ─────────────────────
+vi.mock('../hooks/useGrammar', () => ({
+  useGrammar: () => ({
+    grammar: {
+      PADEZI: {},
+      GRAM: {},
+      CONJ: {},
+      MODAL: {},
+      TENSES: {},
+      ASPECT: {},
+      ASPECT_PAIRS: [
+        {
+          impf: 'pisati',
+          pf: 'napisati',
+          en: 'to write',
+          rule: 'na- prefix marks completion',
+          ctx: 'Svaki dan pišem pisma. / Napisao sam pismo majci.',
+        },
+      ],
+      CONDITIONAL: {},
+      FORMAL_REGISTER: {},
+      IMPERSONAL: {},
+      PHONOLOGY: {},
+      PITCH_ACCENT: [],
+      PADEZI_FULL: {},
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
 
 import AspectDrillScreen from '../components/practice/AspectDrillScreen';
 

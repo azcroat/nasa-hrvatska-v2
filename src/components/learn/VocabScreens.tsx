@@ -1,5 +1,43 @@
 import React, { useState } from 'react';
-import { COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, PHONOLOGY, speak } from '../../data';
+import { COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, speak } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
+
+interface PhonologyLetter {
+  letter: string;
+  name: string;
+  ipa: string;
+  color: string;
+  like: string;
+  memory: string;
+  examples: { hr: string; en: string }[];
+}
+interface PhonologyConfusedPair {
+  a: string;
+  b: string;
+  example_a: string;
+  example_b: string;
+  tip: string;
+}
+interface PhonologyRule {
+  rule: string;
+  detail: string;
+}
+interface PhonologyShape {
+  title: string;
+  intro: string;
+  tip: string;
+  letters: PhonologyLetter[];
+  confusedPairs: PhonologyConfusedPair[];
+  rules: PhonologyRule[];
+  quiz: VsQuizItem[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 // Shows a pronunciation difficulty badge for words with Croatian diacritics
 function PronDifficulty({ word }: { word: string }) {
@@ -952,9 +990,12 @@ export function BodyDescScreen({ goBack }: { goBack: () => void }) {
 }
 
 export function PhonologyScreen({ goBack }: { goBack: () => void }) {
+  const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('Letters');
   const [selLetter, setSelLetter] = useState<number | null>(null);
-  const d = PHONOLOGY;
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const d = grammar.PHONOLOGY as unknown as PhonologyShape;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
