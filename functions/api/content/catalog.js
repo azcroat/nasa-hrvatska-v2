@@ -3,11 +3,20 @@ import { ETAGS } from './_data/_etags.js';
 import { GRADED_STORIES } from './_data/gradedStories.js';
 import { ADVANCED_UNITS } from './_data/grammarAdvanced.js';
 
+// Display metadata fields safe to expose in the catalog. The IP (paragraphs,
+// vocabulary, quiz, intro, drills, examples, forms, tips) stays server-only —
+// reachable only via /api/content/stories/{id} and /api/content/grammar-units/{id}.
 function buildCatalog() {
   const stories = GRADED_STORIES.map((s) => ({
     id: s.id,
     level: s.level,
     title: s.title,
+    titleEn: s.titleEn,
+    focus: s.focus,
+    icon: s.icon,
+    duration: s.duration,
+    levelColor: s.levelColor,
+    levelBg: s.levelBg,
     etag: ETAGS.stories[s.id],
   }));
   // Grammar units use `cefr` field name internally; expose as `level` for stable contract.
@@ -15,6 +24,8 @@ function buildCatalog() {
     id: u.id,
     level: u.cefr,
     title: u.title,
+    subtitle: u.subtitle,
+    focus: u.focus,
     etag: ETAGS.grammarUnits[u.id],
   }));
   return { data: { stories, grammarUnits } };
