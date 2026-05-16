@@ -35,7 +35,8 @@ describe('GET /api/content/catalog', () => {
     const res = await onRequestGet(makeContext());
     const json = await res.json();
     const s = json.data.stories[0];
-    // Display metadata used by StoryOfTheDayCard + recommendStory()
+    // Display metadata used by StoryOfTheDayCard + recommendStory() + BonusStoryCard.
+    // `intro` is a short English-language teaser (~100 chars), not curriculum prose, safe to expose.
     for (const k of [
       'id',
       'level',
@@ -44,14 +45,15 @@ describe('GET /api/content/catalog', () => {
       'focus',
       'icon',
       'duration',
+      'intro',
       'levelColor',
       'levelBg',
       'etag',
     ]) {
       expect(s, `story catalog entry missing "${k}"`).toHaveProperty(k);
     }
-    // The IP: must NEVER appear in the catalog (actual field names from gradedStories.js)
-    for (const k of ['paragraphs', 'vocabulary', 'quiz', 'intro']) {
+    // The IP: actual Croatian-language curriculum content must NEVER appear in the catalog.
+    for (const k of ['paragraphs', 'vocabulary', 'quiz']) {
       expect(s, `story catalog entry leaks IP field "${k}"`).not.toHaveProperty(k);
     }
   });

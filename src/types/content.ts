@@ -7,6 +7,7 @@ export interface StoryCatalogEntry {
   focus: string;
   icon: string;
   duration: number;
+  intro: string;
   levelColor: string;
   levelBg: string;
   etag: string;
