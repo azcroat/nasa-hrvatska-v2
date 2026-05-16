@@ -1,20 +1,18 @@
 import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react';
 import MicroQuiz from './MicroQuiz';
 import { useStats } from '../../context/StatsContext.tsx';
-import {
-  H,
-  Bar,
-  speak,
-  srMark,
-  sh,
-  shuffleArr,
-  V,
-  ASPECT_PAIRS,
-  CROATIAN_CITIES,
-} from '../../data';
+import { H, Bar, speak, srMark, sh, shuffleArr, V, CROATIAN_CITIES } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { playCorrect, playWrong, haptic, playFanfare } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { markPracticed } from '../../hooks/useNotifications';
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import { CelebrationScene } from '../illustrations';
@@ -85,6 +83,7 @@ export default function LessonScreen({
   setScr,
   goToPractice,
 }: LessonScreenProps) {
+  const { grammar, loading, error } = useGrammar();
   const resultFired = useRef(false);
   const [showQuit, setShowQuit] = useState(false);
 
@@ -201,13 +200,14 @@ export default function LessonScreen({
   // Build a lookup from Croatian infinitive → aspect pair info
   const aspectMap = useMemo(() => {
     const map: Record<string, unknown> = {};
+    const pairs = (grammar?.ASPECT_PAIRS ?? []) as unknown[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (ASPECT_PAIRS || []).forEach((pair: any) => {
+    pairs.forEach((pair: any) => {
       if (pair.impf) map[pair.impf as string] = pair;
       if (pair.pf) map[pair.pf as string] = pair;
     });
     return map;
-  }, []);
+  }, [grammar]);
 
   // ── Quiz keyboard shortcuts ────────────────────────────────────────────────
   // Press 1–4 to select an answer; Enter or Space to advance after answering.
@@ -268,6 +268,9 @@ export default function LessonScreen({
     return () => window.removeEventListener('keydown', handleKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lp, lx, la, ls, qi, advanceQuizItem]);
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
 
   /* ── MICROQUIZ OVERLAY ────────────────────────────────────────── */
   if (showMicroQuiz) {

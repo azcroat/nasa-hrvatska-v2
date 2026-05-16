@@ -76,6 +76,30 @@ vi.mock('../data', async (importOriginal) => {
   };
 });
 
+// ── useGrammar mock — LessonScreen now reads ASPECT_PAIRS via useGrammar ─────
+vi.mock('../hooks/useGrammar', () => ({
+  useGrammar: () => ({
+    grammar: {
+      PADEZI: {},
+      GRAM: {},
+      CONJ: {},
+      MODAL: {},
+      TENSES: {},
+      ASPECT: {},
+      ASPECT_PAIRS: [],
+      CONDITIONAL: {},
+      FORMAL_REGISTER: {},
+      IMPERSONAL: {},
+      PHONOLOGY: {},
+      PITCH_ACCENT: [],
+      PADEZI_FULL: {},
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
+
 import LessonScreen from '../components/learn/LessonScreen';
 
 // ── Test data ─────────────────────────────────────────────────────────────────

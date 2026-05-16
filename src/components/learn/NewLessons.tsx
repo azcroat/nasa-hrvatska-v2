@@ -1,11 +1,55 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { CONDITIONAL, FORMAL_REGISTER, IMPERSONAL, TECH_VOC, BUREAUCRATIC } from '../../data';
+import { TECH_VOC, BUREAUCRATIC } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 
 interface QuizQuestion {
   q: string;
   opts: string[];
   a: string;
+}
+
+interface ConditionalShape {
+  title: string;
+  intro: string;
+  forms: { pro: string; form: string; en: string }[];
+  examples: { hr: string; en: string; note: string }[];
+  ifThen: { hr: string; en: string }[];
+  polite: { situation: string; hr: string; en: string }[];
+  quiz: QuizQuestion[];
+}
+
+interface FormalRegisterShape {
+  title: string;
+  intro: string;
+  rules: { icon: string; rule: string; examples: string[] }[];
+  comparison: { situation: string; ti: string; vi: string }[];
+  verbForms: {
+    pronoun: string;
+    biti: string;
+    imati: string;
+    ići: string;
+    moći: string;
+    htjeti: string;
+    govoriti: string;
+  }[];
+  emailPhrases: { label: string; hr: string; en: string }[];
+  quiz: QuizQuestion[];
+}
+
+interface ImpersonalShape {
+  title: string;
+  intro: string;
+  constructions: { hr: string; en: string; note: string; example: string }[];
+  signs: { sign: string; en: string }[];
+  quiz: QuizQuestion[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
 }
 
 // ── shared quiz engine ────────────────────────────────────────────────────────
@@ -137,6 +181,7 @@ export function ConditionalScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('forms');
   const tabs = [
     { k: 'forms', l: 'Forms' },
@@ -145,6 +190,10 @@ export function ConditionalScreen({
     { k: 'polite', l: 'Polite Use' },
     { k: 'quiz', l: 'Quiz' },
   ];
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const CONDITIONAL = grammar.CONDITIONAL as unknown as ConditionalShape;
 
   return (
     <div className="scr-wrap">
@@ -400,6 +449,7 @@ export function FormalRegisterScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('rules');
   const tabs = [
     { k: 'rules', l: 'Rules' },
@@ -408,6 +458,10 @@ export function FormalRegisterScreen({
     { k: 'email', l: 'Email' },
     { k: 'quiz', l: 'Quiz' },
   ];
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const FORMAL_REGISTER = grammar.FORMAL_REGISTER as unknown as FormalRegisterShape;
 
   return (
     <div className="scr-wrap">
@@ -694,12 +748,17 @@ export function ImpersonalScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('constructions');
   const tabs = [
     { k: 'constructions', l: 'Constructions' },
     { k: 'signs', l: 'Signs' },
     { k: 'quiz', l: 'Quiz' },
   ];
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const IMPERSONAL = grammar.IMPERSONAL as unknown as ImpersonalShape;
 
   return (
     <div className="scr-wrap">

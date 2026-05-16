@@ -1,5 +1,19 @@
 import React from 'react';
-import { V, GRAM } from '../../data';
+import { V } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
+
+interface GramShape {
+  beginner?: unknown[];
+  intermediate?: unknown[];
+  advanced?: unknown[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 // CEFR mapping for vocabulary categories — mirrors DuoLingo's level-aware content labels
 const VOCAB_CEFR = {
@@ -207,6 +221,10 @@ export default function BrowseContentModal({
   launchAnimLesson,
   onClose,
 }: BrowseContentModalProps) {
+  const { grammar, loading, error } = useGrammar();
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const GRAM = grammar.GRAM as unknown as GramShape;
   return (
     <div
       style={{
@@ -412,7 +430,7 @@ export default function BrowseContentModal({
                       ...(GRAM.advanced || []),
                     ];
                     const _gc = (st && st.gc) || 0;
-                    sGl(_all.length > 0 ? _all[_gc % _all.length] : GRAM.beginner[0]);
+                    sGl(_all.length > 0 ? _all[_gc % _all.length] : (GRAM.beginner || [])[0]);
                     sGp('learn');
                     sGx(0);
                     sGs(0);
