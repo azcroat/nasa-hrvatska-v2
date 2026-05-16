@@ -108,6 +108,9 @@ export default [
       // Same Croatian data files (grammar.js etc.) now live under functions/api/content/_data/
       // for Cloudflare Functions consumption; escapes are harmless string literals.
       'no-useless-escape': 'off',
+      // SP11d: vocabScenes.js (originally src/components/learn/VocabSceneData.js) uses
+      // try { ... } catch {} idioms for localStorage best-effort. Harmless empty catches.
+      'no-empty': ['error', { allowEmptyCatch: true }],
     },
   },
 
