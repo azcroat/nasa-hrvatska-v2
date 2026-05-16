@@ -17,7 +17,6 @@ import { apiFetch } from '../../lib/apiFetch.js';
 const MAX_CACHE_ENTRIES = 20;
 const QUIZ_XP_BASE = 10;
 const QUIZ_XP_PER_CORRECT = 5;
-/* eslint-disable @typescript-eslint/no-explicit-any */
 function evictCache(cacheRef: React.MutableRefObject<any>) {
   const keys = Object.keys(cacheRef.current);
   if (keys.length > MAX_CACHE_ENTRIES) {

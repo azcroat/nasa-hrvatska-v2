@@ -29,7 +29,6 @@ export default function KingsScreen({ goBack, award, setSt }: Props) {
     );
   if (loading || !content)
     return <div className="scr-wrap">{H('👑 Kings of Croatia', 'Loading…', goBack)}</div>;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   const KINGS = content.KINGS as {
     title: string;
     subtitle: string;
@@ -43,7 +42,6 @@ export default function KingsScreen({ goBack, award, setSt }: Props) {
     royalCities: any[];
     vocabulary: any[];
   };
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   return (
     <div className="scr-wrap">
       {H('👑 ' + KINGS.title, KINGS.subtitle, goBack)}

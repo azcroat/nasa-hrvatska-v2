@@ -146,7 +146,6 @@ const ASPECT_KEYFRAMES = `
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function guessRule(item: any) {
   const ctx = (item.ctx || '').toLowerCase();
   const rule = (item.rule || '').toLowerCase();
@@ -380,7 +379,6 @@ export default function AspectDrillScreen({
     return null;
   }, [item, phase, idx]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleAnswer(opt: any) {
     if (answered) return;
     setSelected(opt);

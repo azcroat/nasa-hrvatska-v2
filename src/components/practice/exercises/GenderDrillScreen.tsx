@@ -12,7 +12,6 @@ interface GenderEntry {
 interface Props {
   goBack: () => void;
   award: (n: number, celebrate?: boolean, activityType?: string) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSt?: (fn: (s: any) => any) => void;
 }
 
@@ -62,7 +61,6 @@ function GenderDrillScreen({ goBack, award, setSt }: Props) {
       if (writeDelta) writeDelta({ gc: 1, vs: ['gender'] });
     }
     if (setSt) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setSt((s: any) => ({ ...s, gc: s.gc + 1 }));
     }
     goBack();

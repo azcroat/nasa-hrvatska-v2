@@ -4,7 +4,6 @@ import { V, sh } from '../../data';
 import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface McResultProps {
   questions: any[];
   score: number;
@@ -14,7 +13,6 @@ interface McResultProps {
   onNewGame: (items: any[]) => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 export default function McResult({
   questions,
   score,
@@ -75,7 +73,6 @@ export default function McResult({
     const ratio = score / total;
     if (ratio >= 0.6) {
       const fire = (origin: { x: number; y: number }) =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (confetti as any)({
           particleCount: ratio >= 1.0 ? 80 : 50,
           spread: 55,
@@ -123,7 +120,6 @@ export default function McResult({
   }
 
   function playAgain() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pool = allCats.flatMap((c) => (V as Record<string, any[]>)[c] || []);
     const items = sh(pool)
       .slice(0, 15)

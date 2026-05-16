@@ -15,9 +15,7 @@ export default function BojeGame({ goBack, award }: Props) {
   const [bjSc, sBjSc] = useState(0);
   const [bjAns, sBjAns] = useState(false);
   const [bjSel, sBjSel] = useState(-1);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [bjOpts, sBjOpts] = useState<any[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [bjQ, sBjQ] = useState<any[]>([]);
 
   function startQuiz() {
@@ -32,7 +30,6 @@ export default function BojeGame({ goBack, award }: Props) {
     sBjOpts(q.length ? getOpts(q[0]) : []);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getOpts(q: any) {
     const allForms = BOJE.colors.flatMap((c) => {
       if (q.g === 'f') return [c.f];

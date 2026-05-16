@@ -6,7 +6,6 @@ import { useStats } from '../../context/StatsContext';
 
 // Q-4: State moved into component — App.jsx no longer owns mp/mm/msl/gph/gsc.
 // PracticeTab passes initPool (the shuffled card array) as the only init prop.
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export default function MatchGame({
   initPool,
   goBack,

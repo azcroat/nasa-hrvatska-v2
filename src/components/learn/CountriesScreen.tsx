@@ -199,11 +199,19 @@ interface CountriesScreenProps {
 function CountriesScreen({ goBack }: CountriesScreenProps) {
   const { content, loading, error } = useContent();
   const [tab, setTab] = useState('Countries');
-  if (error) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
-  if (loading || !content) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
+  if (error)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
   const d = content.COUNTRIES as any;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
@@ -222,8 +230,7 @@ function CountriesScreen({ goBack }: CountriesScreenProps) {
             Tap the flag to hear the country name. Nationality adjectives:{' '}
             <strong>m / f / n</strong>. Demonyms: person of that nationality.
           </div>
-          {d.countries.map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (c: any, i: number) => (
+          {d.countries.map((c: any, i: number) => (
             <div
               key={i}
               style={{
@@ -292,7 +299,12 @@ function CountriesScreen({ goBack }: CountriesScreenProps) {
                   </div>
                   {c.note && (
                     <div
-                      style={{ marginTop: 4, fontSize: 11, color: '#78716c', fontStyle: 'italic' }}
+                      style={{
+                        marginTop: 4,
+                        fontSize: 11,
+                        color: '#78716c',
+                        fontStyle: 'italic',
+                      }}
                     >
                       {c.note}
                     </div>
@@ -306,8 +318,7 @@ function CountriesScreen({ goBack }: CountriesScreenProps) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (p: any, i: number) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"

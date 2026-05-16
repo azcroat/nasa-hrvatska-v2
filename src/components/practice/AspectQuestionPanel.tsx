@@ -3,9 +3,7 @@ import AspectTimeline from './AspectTimeline';
 import AspectRuleCard from './AspectRuleCard';
 
 interface Props {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   item: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   question: any;
   answered: boolean;
   selected: string | null;
@@ -13,7 +11,6 @@ interface Props {
   revealRule: boolean;
   phase: number;
   idx: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items: any[];
   onAnswer: (opt: string) => void;
   onNext: () => void;
@@ -250,7 +247,6 @@ export default function AspectQuestionPanel({
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {question.opts.map((opt: any, i: number) => {
               let bg = 'var(--card)';
               let border = '2px solid var(--card-b)';
@@ -312,7 +308,6 @@ export default function AspectQuestionPanel({
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {question.opts.map((opt: any, i: number) => {
               let bg = 'var(--card)';
               let border = '2px solid var(--card-b)';

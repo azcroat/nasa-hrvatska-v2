@@ -223,8 +223,7 @@ export default function BrowseContentModal({
 }: BrowseContentModalProps) {
   const { grammar, loading, error } = useGrammar();
   const { content: coreContent, loading: coreLoading, error: coreError } = useContent();
-  if (error || coreError)
-    return <ErrorState message="Couldn't load content - please retry." />;
+  if (error || coreError) return <ErrorState message="Couldn't load content - please retry." />;
   if (loading || coreLoading || !grammar || !coreContent) return <LoadingState />;
   const V = coreContent.V as Record<string, string[][]>;
   const GRAM = grammar.GRAM as unknown as GramShape;

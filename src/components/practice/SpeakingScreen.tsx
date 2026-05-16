@@ -126,7 +126,6 @@ const LANG_FALLBACKS = ['hr-HR', 'hr', 'en-US'];
 // Browser speech recognition globals
 declare global {
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     webkitSpeechRecognition: any;
     webkitAudioContext: typeof AudioContext;
   }
@@ -163,21 +162,17 @@ function srError(code: string) {
 }
 
 interface SpeakingScreenProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sw: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   si: any[];
   sx: number;
   sr: string | null;
   ssc: number;
   sSr: (v: string | null) => void;
   sSx: (v: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sSw: (v: any) => void;
   sSsc: (fn: (s: number) => number) => void;
   goBack: () => void;
   award: (n: number, celebrate?: boolean, activityType?: string) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSt: (fn: (s: any) => any) => void;
 }
 export default function SpeakingScreen({
@@ -201,7 +196,6 @@ export default function SpeakingScreen({
   const [recMsg, setRecMsg] = useState('');
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [langIdx, setLangIdx] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recRef = useRef<any>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const finishFired = useRef(false);
@@ -423,7 +417,6 @@ export default function SpeakingScreen({
         setPronScore({
           score: 70,
           match_quality: 'close',
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           phonetic_tips: (data.drills || []).map((d: any) => d.tip).filter(Boolean),
           encouragement: data.feedback,
         });
@@ -472,13 +465,11 @@ export default function SpeakingScreen({
       setRecMsg('No speech detected within 12 seconds. Try again or use self-assessment.');
     }, 12000);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onresult = (e: any) => {
       if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
       stopRecording();
       stopWaveform();
       if (!e.results || !e.results.length) return;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const alts = Array.from(e.results[0]).map((r: any) => r.transcript.toLowerCase().trim());
       const isOpenEnded = OPEN_ENDED_TYPES.includes(sw[2] as string);
       if (isOpenEnded) {
@@ -525,7 +516,6 @@ export default function SpeakingScreen({
       analyzePronunciation(alts[0] ?? '', sw[0] as string);
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onerror = (e: any) => {
       if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
       stopRecording();

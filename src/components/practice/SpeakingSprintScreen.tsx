@@ -231,7 +231,6 @@ export default function SpeakingSprintScreen({ goBack, award }: Props) {
   const [micDenied, setMicDenied] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recRef = useRef<any>(null);
   const finishFired = useRef(false);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -325,7 +324,6 @@ export default function SpeakingSprintScreen({ goBack, award }: Props) {
       }, 3000);
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onresult = (e: any) => {
       let full = '';
       for (let i = 0; i < e.results.length; i++) {
@@ -336,7 +334,6 @@ export default function SpeakingSprintScreen({ goBack, award }: Props) {
       resetSilence();
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onerror = (e: any) => {
       if (e.error === 'not-allowed' || e.error === 'permission-denied') {
         setMicDenied(true);

@@ -12,7 +12,6 @@ interface JournalWord {
 }
 
 // ── Dexie (IndexedDB) — unlimited offline storage, syncs seamlessly ──────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = new Dexie('NasaHrvatska') as any;
 db.version(1).stores({ journal: '++id,date' });
 // v2 — adds examples column (nullable JSON array of {hr,en,note}).

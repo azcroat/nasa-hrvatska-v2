@@ -5,8 +5,6 @@ import { playCorrect, playWrong } from '../../lib/soundSettings.js';
 import { knightSpeak, knightFlash } from '../../lib/knightSpeak.js';
 import { useStats } from '../../context/StatsContext';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 const QUIZ_SIZE = 5;
 const XP_BASE = 10;
 const XP_PER_CORRECT = 5;

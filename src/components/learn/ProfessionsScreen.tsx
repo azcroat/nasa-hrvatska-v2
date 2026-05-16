@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { PROFESSIONS, speak } from '../../data';
+import { speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 const BACK_BTN = ({ goBack }: { goBack: () => void }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
@@ -185,9 +186,29 @@ const QUIZ_SECTION = ({ quiz, accent }: { quiz: QuizItem[]; accent: string }) =>
 };
 
 function ProfessionsScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading, error } = useContent();
   const [tab, setTab] = useState('Jobs');
   const [catIdx, setCatIdx] = useState(0);
-  const d = PROFESSIONS;
+  if (error)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  const d = content.PROFESSIONS as {
+    title: string;
+    intro: string;
+    tip: string;
+    categories: any[];
+    phrases: any[];
+    quiz: any[];
+  };
   const cat = d.categories[catIdx]!;
   return (
     <WRAP>
@@ -224,7 +245,7 @@ function ProfessionsScreen({ goBack }: { goBack: () => void }) {
             ))}
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
-            {cat.jobs.map((j, i) => (
+            {(cat.jobs as any[]).map((j: any, i: number) => (
               <div
                 key={i}
                 style={{

@@ -194,7 +194,6 @@ export default function LearnPath({
   goBack: () => void;
   onLaunchItem?: (item: LearnPathItem) => void;
   onLaunchLegendary?: (item: LearnPathItem) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onLaunchCheckpoint?: (levelIndex: number, items: any[]) => void;
 }) {
   const activeRef = useRef<HTMLDivElement | null>(null);

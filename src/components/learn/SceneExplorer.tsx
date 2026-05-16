@@ -114,7 +114,6 @@ export default function SceneExplorer({
 
     // Persist to SRS queue
     const queue = loadSRSQueue();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exists = (queue as any[]).some((q) => q.hr === activeItem.hr && q.en === activeItem.en);
     if (!exists) {
       queue.push({ hr: activeItem.hr, en: activeItem.en, note: activeItem.note });
@@ -234,7 +233,6 @@ export default function SceneExplorer({
         }}
       >
         {/* SVG illustration background */}
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {(SCENE_SVGS as Record<string, any>)[scene.id] || (
           <div
             style={{

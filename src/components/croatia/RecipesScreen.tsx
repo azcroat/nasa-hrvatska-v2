@@ -20,7 +20,6 @@ function RecipesScreen({ goBack }: Props) {
     );
   if (loading || !content)
     return <div className="scr-wrap">{H('🍳 Croatian Recipes', 'Loading…', goBack)}</div>;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   const RECIPES = content.RECIPES as Array<{
     name: string;
     en: string;
@@ -29,7 +28,6 @@ function RecipesScreen({ goBack }: Props) {
     ing: any[];
     steps: any[];
   }>;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   const r = RECIPES[rcIdx]!;
   const effectiveServ = rcServ || r.servings;
   const scale = effectiveServ / r.servings;

@@ -196,9 +196,18 @@ function BodyDescScreen({ goBack }: BodyDescScreenProps) {
   const { content, loading, error } = useContent();
   const [tab, setTab] = useState('Description');
   const [secIdx, setSecIdx] = useState(0);
-  if (error) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
-  if (loading || !content) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
+  if (error)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
   const d = content.BODYDESC as {
     title: string;
     intro: string;
@@ -207,7 +216,6 @@ function BodyDescScreen({ goBack }: BodyDescScreenProps) {
     phrases: any[];
     quiz: any[];
   };
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   const sec = d.sections[secIdx];
   return (
     <WRAP>
@@ -245,8 +253,7 @@ function BodyDescScreen({ goBack }: BodyDescScreenProps) {
             ))}
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
-            {(sec?.items ?? []).map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (item: any, i: number) => (
+            {(sec?.items ?? []).map((item: any, i: number) => (
               <div
                 key={i}
                 role="button"
@@ -278,7 +285,12 @@ function BodyDescScreen({ goBack }: BodyDescScreenProps) {
                   <div style={{ fontSize: 12, color: '#78716c' }}>{item.en}</div>
                   {item.note && (
                     <div
-                      style={{ fontSize: 11, color: '#0369a1', fontStyle: 'italic', marginTop: 2 }}
+                      style={{
+                        fontSize: 11,
+                        color: '#0369a1',
+                        fontStyle: 'italic',
+                        marginTop: 2,
+                      }}
                     >
                       {item.note}
                     </div>
@@ -292,8 +304,7 @@ function BodyDescScreen({ goBack }: BodyDescScreenProps) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (p: any, i: number) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"

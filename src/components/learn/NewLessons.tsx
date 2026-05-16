@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { TECH_VOC, BUREAUCRATIC } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { useGrammar } from '../../hooks/useGrammar';
 
 interface QuizQuestion {
@@ -82,7 +82,7 @@ function QuizBlock({
       <h3 className="sh" style={{ marginTop: 4 }}>
         🎯 Quick Quiz
       </h3>
-      {questions.map(function (q, qi) {
+      {questions.map(function (q: any, qi: number) {
         const ans = answers[qi];
         return (
           <div key={qi} className="c" style={{ marginBottom: 12 }}>
@@ -91,7 +91,7 @@ function QuizBlock({
             >
               {qi + 1}. {q.q}
             </div>
-            {q.opts.map(function (opt, oi) {
+            {q.opts.map(function (opt: any, oi: number) {
               let bg = 'white',
                 bc = '#e7e5e4',
                 col = '#1c1917';
@@ -262,7 +262,7 @@ export function ConditionalScreen({
               </tr>
             </thead>
             <tbody>
-              {CONDITIONAL.forms.map(function (f, i) {
+              {CONDITIONAL.forms.map(function (f: any, i: number) {
                 return (
                   <tr
                     key={i}
@@ -288,7 +288,7 @@ export function ConditionalScreen({
 
       {tab === 'examples' && (
         <div>
-          {CONDITIONAL.examples.map(function (ex, i) {
+          {CONDITIONAL.examples.map(function (ex: any, i: number) {
             return (
               <div
                 key={i}
@@ -354,7 +354,7 @@ export function ConditionalScreen({
             <strong>Pattern:</strong> Da + present tense → conditional result. "Da imam..." = "If I
             had..."
           </div>
-          {CONDITIONAL.ifThen.map(function (ex, i) {
+          {CONDITIONAL.ifThen.map(function (ex: any, i: number) {
             return (
               <button
                 key={i}
@@ -394,7 +394,7 @@ export function ConditionalScreen({
             The conditional is the <strong>standard polite register</strong> in Croatia. Using the
             present tense to ask for things (e.g. "Hoću kavu") sounds blunt.
           </div>
-          {CONDITIONAL.polite.map(function (p, i) {
+          {CONDITIONAL.polite.map(function (p: any, i: number) {
             return (
               <button
                 key={i}
@@ -482,7 +482,7 @@ export function FormalRegisterScreen({
 
       {tab === 'rules' && (
         <div>
-          {FORMAL_REGISTER.rules.map(function (r, i) {
+          {FORMAL_REGISTER.rules.map(function (r: any, i: number) {
             const colors = ['#0e7490', '#7c3aed', '#ca8a04'];
             const bgs = ['rgba(14,116,144,.06)', 'rgba(124,58,237,.06)', 'rgba(202,138,68,.06)'];
             return (
@@ -499,7 +499,7 @@ export function FormalRegisterScreen({
                 <div style={{ fontSize: 16, fontWeight: 800, color: colors[i], marginBottom: 8 }}>
                   {r.icon} {r.rule}
                 </div>
-                {r.examples.map(function (ex, ei) {
+                {r.examples.map(function (ex: any, ei: number) {
                   return (
                     <div
                       key={ei}
@@ -545,7 +545,7 @@ export function FormalRegisterScreen({
                 </tr>
               </thead>
               <tbody>
-                {FORMAL_REGISTER.comparison.map(function (row, i) {
+                {FORMAL_REGISTER.comparison.map(function (row: any, i: number) {
                   return (
                     <tr
                       key={i}
@@ -645,7 +645,7 @@ export function FormalRegisterScreen({
                 </tr>
               </thead>
               <tbody>
-                {FORMAL_REGISTER.verbForms.map(function (row, i) {
+                {FORMAL_REGISTER.verbForms.map(function (row: any, i: number) {
                   return (
                     <tr
                       key={i}
@@ -710,7 +710,7 @@ export function FormalRegisterScreen({
             Croatian formal emails use Vi throughout. Starting with just "Zdravo" to an official is
             considered unprofessional.
           </div>
-          {FORMAL_REGISTER.emailPhrases.map(function (p, i) {
+          {FORMAL_REGISTER.emailPhrases.map(function (p: any, i: number) {
             return (
               <button
                 key={i}
@@ -779,7 +779,7 @@ export function ImpersonalScreen({
 
       {tab === 'constructions' && (
         <div>
-          {IMPERSONAL.constructions.map(function (c, i) {
+          {IMPERSONAL.constructions.map(function (c: any, i: number) {
             return (
               <div
                 key={i}
@@ -865,7 +865,7 @@ export function ImpersonalScreen({
             them instantly will save you a lot of confusion.
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {IMPERSONAL.signs.map(function (s, i) {
+            {IMPERSONAL.signs.map(function (s: any, i: number) {
               return (
                 <button
                   key={i}
@@ -912,8 +912,24 @@ export function TechVocScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { content, loading, error } = useContent();
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('💻 Tech Vocabulary', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('💻 Tech Vocabulary', 'Loading…', goBack)}</div>;
+  const TECH_VOC = content.TECH_VOC as {
+    title: string;
+    intro: string;
+    categories: any[];
+    phrases: any[];
+    quiz: any[];
+  };
   const cat = TECH_VOC.categories[catIdx]!;
 
   return (
@@ -947,7 +963,7 @@ export function TechVocScreen({
       {tab === 'vocab' && (
         <div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-            {TECH_VOC.categories.map(function (c, i) {
+            {TECH_VOC.categories.map(function (c: any, i: number) {
               return (
                 <button
                   key={i}
@@ -964,7 +980,7 @@ export function TechVocScreen({
             {cat.icon} {cat.name}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {cat.words.map(function (w, i) {
+            {(cat.words as any[]).map(function (w: any, i: number) {
               return (
                 <button
                   key={i}
@@ -994,7 +1010,7 @@ export function TechVocScreen({
 
       {tab === 'phrases' && (
         <div>
-          {TECH_VOC.phrases.map(function (p, i) {
+          {TECH_VOC.phrases.map(function (p: any, i: number) {
             return (
               <button
                 key={i}
@@ -1031,8 +1047,24 @@ export function BureaucraticScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { content, loading, error } = useContent();
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('🏛️ Bureaucratic', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('🏛️ Bureaucratic', 'Loading…', goBack)}</div>;
+  const BUREAUCRATIC = content.BUREAUCRATIC as {
+    title: string;
+    intro: string;
+    categories: any[];
+    phrases: any[];
+    quiz: any[];
+  };
   const cat = BUREAUCRATIC.categories[catIdx]!;
 
   return (
@@ -1066,7 +1098,7 @@ export function BureaucraticScreen({
       {tab === 'vocab' && (
         <div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-            {BUREAUCRATIC.categories.map(function (c, i) {
+            {BUREAUCRATIC.categories.map(function (c: any, i: number) {
               return (
                 <button
                   key={i}
@@ -1082,7 +1114,7 @@ export function BureaucraticScreen({
           <div style={{ fontSize: 13, fontWeight: 700, color: '#0e7490', marginBottom: 10 }}>
             {cat.icon} {cat.name}
           </div>
-          {cat.words.map(function (w, i) {
+          {cat.words.map(function (w: any, i: number) {
             return (
               <button
                 key={i}
@@ -1124,7 +1156,7 @@ export function BureaucraticScreen({
             💡 Tip: Use Vi (formal address) in all government offices, healthcare facilities, and
             with landlords.
           </div>
-          {BUREAUCRATIC.phrases.map(function (p, i) {
+          {BUREAUCRATIC.phrases.map(function (p: any, i: number) {
             return (
               <button
                 key={i}

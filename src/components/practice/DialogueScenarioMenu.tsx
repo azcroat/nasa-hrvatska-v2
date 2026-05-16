@@ -4,7 +4,6 @@ import { H } from '../../data';
 const DIFF_COLORS = { A1: '#dcfce7', A2: '#dbeafe', B1: '#fef3c7', B2: '#fce7f3' };
 const DIFF_TEXT = { A1: '#166534', A2: '#1e40af', B1: '#92400e', B2: '#9d174d' };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export default function DialogueScenarioMenu({
   scenarios,
   onSelect,
@@ -12,12 +11,10 @@ export default function DialogueScenarioMenu({
   scenarios: any[];
   onSelect: (s: any) => void;
 }) {
-  /* eslint-enable @typescript-eslint/no-explicit-any */
   return (
     <div className="scr-wrap">
       {H('💬 Dialogue Simulator', 'Real conversations, real Croatian', undefined)}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {scenarios.map((s: any) => (
           <button
             key={s.id}

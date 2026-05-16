@@ -11,18 +11,15 @@ const LEVEL_META = {
 
 type LevelMeta = { badge: string; color: string; label: string };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Passage = Record<string, any>;
 
 interface LaunchSetters {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sRp: (p: any) => void;
   sRph: (v: string) => void;
   sRqi: (v: number) => void;
   sRsc: (v: number) => void;
   sRa: (v: boolean) => void;
   sRsl: (v: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sHw: (v: any) => void;
   setScr: (v: string) => void;
   sCurEx: (v: string) => void;

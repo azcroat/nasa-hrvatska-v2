@@ -146,7 +146,6 @@ export default function MicroLessonScreen({
     xpFiredRef.current = false;
 
     // Build weak words from the enriched mistakes store (has English meanings)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mistakes: any[] = getMistakes();
     const sorted: WeakWord[] = [...mistakes]
       .filter((m) => (m.count || 0) >= 2 && m.hr && m.en)
@@ -202,7 +201,6 @@ export default function MicroLessonScreen({
   // ── Preview words visible during loading ─────────────────────────────────────
   const loadingPreview = (() => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (getMistakes() as any[])
         .filter((m) => (m.count || 0) >= 2 && m.hr)
         .sort((a, b) => (b.count || 0) - (a.count || 0))
@@ -257,7 +255,6 @@ export default function MicroLessonScreen({
               Words being analyzed
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {loadingPreview.map((m: any, i: number) => (
                 <div
                   key={i}

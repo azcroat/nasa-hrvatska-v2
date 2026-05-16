@@ -132,7 +132,6 @@ export default function SettingsTab({
   }
 
   function handleBuyFreeze() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = purchaseFreeze(statsCtx.xp || 0, setStats as any);
     if (result.ok) {
       setFreezesStored(result.stored ?? 0);

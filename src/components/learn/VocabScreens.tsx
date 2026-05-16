@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, speak } from '../../data';
+import { speak } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
+import { useContent } from '../../hooks/useContent';
 
 interface PhonologyLetter {
   letter: string;
@@ -252,8 +253,15 @@ const QUIZ_SECTION = ({ quiz, accent }: { quiz: VsQuizItem[]; accent: string }) 
 };
 
 export function CountriesScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading } = useContent();
   const [tab, setTab] = useState('Countries');
-  const d = COUNTRIES;
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  const d = content.COUNTRIES as any;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
@@ -272,7 +280,7 @@ export function CountriesScreen({ goBack }: { goBack: () => void }) {
             Tap the flag to hear the country name. Nationality adjectives:{' '}
             <strong>m / f / n</strong>. Demonyms: person of that nationality.
           </div>
-          {d.countries.map((c, i) => (
+          {d.countries.map((c: any, i: number) => (
             <div
               key={i}
               style={{
@@ -316,7 +324,7 @@ export function CountriesScreen({ goBack }: { goBack: () => void }) {
                     <span style={{ fontSize: 11, color: '#78716c' }}>{c.en}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
-                    {[c.adj_m, c.adj_f, c.adj_n].map((adj, ai) => (
+                    {[c.adj_m, c.adj_f, c.adj_n].map((adj: any, ai: number) => (
                       <span
                         key={ai}
                         style={{
@@ -355,7 +363,7 @@ export function CountriesScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"
@@ -398,9 +406,16 @@ export function CountriesScreen({ goBack }: { goBack: () => void }) {
 }
 
 export function ProfessionsScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading } = useContent();
   const [tab, setTab] = useState('Jobs');
   const [catIdx, setCatIdx] = useState(0);
-  const d = PROFESSIONS;
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  const d = content.PROFESSIONS as any;
   const cat = d.categories[catIdx]!;
   return (
     <WRAP>
@@ -417,7 +432,7 @@ export function ProfessionsScreen({ goBack }: { goBack: () => void }) {
       {tab === 'Jobs' && (
         <div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-            {d.categories.map((c, i) => (
+            {d.categories.map((c: any, i: number) => (
               <button
                 key={i}
                 onClick={() => setCatIdx(i)}
@@ -437,7 +452,7 @@ export function ProfessionsScreen({ goBack }: { goBack: () => void }) {
             ))}
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
-            {cat.jobs.map((j, i) => (
+            {cat.jobs.map((j: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -502,7 +517,7 @@ export function ProfessionsScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"
@@ -545,8 +560,15 @@ export function ProfessionsScreen({ goBack }: { goBack: () => void }) {
 }
 
 export function WeatherScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading } = useContent();
   const [tab, setTab] = useState('Vocabulary');
-  const d = WEATHER;
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  const d = content.WEATHER as any;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
@@ -564,7 +586,7 @@ export function WeatherScreen({ goBack }: { goBack: () => void }) {
           <div
             style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}
           >
-            {d.vocab.map((v, i) => (
+            {d.vocab.map((v: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -600,7 +622,7 @@ export function WeatherScreen({ goBack }: { goBack: () => void }) {
           <div style={{ fontSize: 13, fontWeight: 800, color: '#164e63', marginBottom: 10 }}>
             Opposites
           </div>
-          {d.adjectives.map((a, i) => (
+          {d.adjectives.map((a: any, i: number) => (
             <div
               key={i}
               style={{
@@ -640,7 +662,7 @@ export function WeatherScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Seasons' && (
         <div>
-          {d.seasons.map((s, i) => (
+          {d.seasons.map((s: any, i: number) => (
             <div
               key={i}
               style={{
@@ -674,7 +696,7 @@ export function WeatherScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"
@@ -717,9 +739,16 @@ export function WeatherScreen({ goBack }: { goBack: () => void }) {
 }
 
 export function ClothesScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading } = useContent();
   const [tab, setTab] = useState('Clothing');
   const [catIdx, setCatIdx] = useState(0);
-  const d = CLOTHES;
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  const d = content.CLOTHES as any;
   const cat = d.categories[catIdx]!;
   return (
     <WRAP>
@@ -736,7 +765,7 @@ export function ClothesScreen({ goBack }: { goBack: () => void }) {
       {tab === 'Clothing' && (
         <div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-            {d.categories.map((c, i) => (
+            {d.categories.map((c: any, i: number) => (
               <button
                 key={i}
                 onClick={() => setCatIdx(i)}
@@ -759,7 +788,7 @@ export function ClothesScreen({ goBack }: { goBack: () => void }) {
             {cat.icon} {cat.cat}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {cat.items.map((item, i) => (
+            {cat.items.map((item: any, i: number) => (
               <div
                 key={i}
                 role="button"
@@ -815,7 +844,7 @@ export function ClothesScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"
@@ -858,9 +887,16 @@ export function ClothesScreen({ goBack }: { goBack: () => void }) {
 }
 
 export function BodyDescScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading } = useContent();
   const [tab, setTab] = useState('Description');
   const [secIdx, setSecIdx] = useState(0);
-  const d = BODYDESC;
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  const d = content.BODYDESC as any;
   const sec = d.sections[secIdx]!;
   return (
     <WRAP>
@@ -877,7 +913,7 @@ export function BodyDescScreen({ goBack }: { goBack: () => void }) {
       {tab === 'Description' && (
         <div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-            {d.sections.map((s, i) => (
+            {d.sections.map((s: any, i: number) => (
               <button
                 key={i}
                 onClick={() => setSecIdx(i)}
@@ -898,7 +934,7 @@ export function BodyDescScreen({ goBack }: { goBack: () => void }) {
             ))}
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
-            {sec.items.map((item, i) => (
+            {sec.items.map((item: any, i: number) => (
               <div
                 key={i}
                 role="button"
@@ -947,7 +983,7 @@ export function BodyDescScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"
@@ -1018,7 +1054,7 @@ export function PhonologyScreen({ goBack }: { goBack: () => void }) {
               marginBottom: 16,
             }}
           >
-            {d.letters.map((l, i) => (
+            {d.letters.map((l: any, i: number) => (
               <button
                 key={i}
                 onClick={() => setSelLetter(selLetter === i ? null : i)}
@@ -1097,7 +1133,7 @@ export function PhonologyScreen({ goBack }: { goBack: () => void }) {
                     Examples:
                   </div>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    {l.examples.map((ex, j) => (
+                    {l.examples.map((ex: any, j: number) => (
                       <div
                         key={j}
                         style={{
@@ -1129,7 +1165,7 @@ export function PhonologyScreen({ goBack }: { goBack: () => void }) {
           <div style={{ fontSize: 13, color: '#78716c', marginBottom: 14, lineHeight: 1.6 }}>
             These letter pairs cause the most confusion. Tap each word to hear the difference.
           </div>
-          {d.confusedPairs.map((p, i) => (
+          {d.confusedPairs.map((p: any, i: number) => (
             <div
               key={i}
               style={{
@@ -1195,7 +1231,7 @@ export function PhonologyScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Rules' && (
         <div>
-          {d.rules.map((r, i) => (
+          {d.rules.map((r: any, i: number) => (
             <div
               key={i}
               style={{
