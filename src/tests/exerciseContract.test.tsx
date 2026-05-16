@@ -16,6 +16,37 @@ vi.mock('../lib/quests.js', () => ({
   markQuest: (...args: unknown[]) => markQuestMock(...args),
 }));
 
+// SP11b: ConjugationDrill (and other grammar-dependent drills under contract test) now
+// fetch grammar data via useGrammar(). Mock with real CONJ from the server-side data
+// so the drill renders past its loading state and the contract checks (award, markQuest)
+// actually fire.
+vi.mock('../hooks/useGrammar', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const grammarMod = (await vi.importActual('../../functions/api/content/_data/grammar.js')) as any;
+  return {
+    useGrammar: () => ({
+      grammar: {
+        PADEZI: grammarMod.PADEZI ?? {},
+        GRAM: grammarMod.GRAM ?? {},
+        CONJ: grammarMod.CONJ,
+        MODAL: grammarMod.MODAL ?? {},
+        TENSES: grammarMod.TENSES ?? {},
+        ASPECT: grammarMod.ASPECT ?? {},
+        ASPECT_PAIRS: grammarMod.ASPECT_PAIRS ?? [],
+        CONDITIONAL: grammarMod.CONDITIONAL ?? {},
+        FORMAL_REGISTER: grammarMod.FORMAL_REGISTER ?? {},
+        IMPERSONAL: grammarMod.IMPERSONAL ?? {},
+        PHONOLOGY: grammarMod.PHONOLOGY ?? {},
+        PITCH_ACCENT: grammarMod.PITCH_ACCENT ?? [],
+        PADEZI_FULL: grammarMod.PADEZI_FULL ?? {},
+      },
+      loading: false,
+      error: null,
+      reload: () => {},
+    }),
+  };
+});
+
 function makeCtx() {
   const setStats = vi.fn();
   const writeDelta = vi.fn();

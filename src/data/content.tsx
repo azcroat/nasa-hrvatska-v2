@@ -145,7 +145,12 @@ const {
   AKUFOOD,
   AKUCLOTHES,
   CONVMATCH,
+  // SP11d: TRANSPORT/FOODORDER/GROCERY not re-exported via barrel (consumers use
+  // useContent), but content.tsx body still uses them in the V composition section
+  // below (lines 957+). Tightening requires moving V composition server-side.
   TRANSPORT,
+  FOODORDER,
+  GROCERY,
 } = _scenarios;
 
 function sh(a) {
