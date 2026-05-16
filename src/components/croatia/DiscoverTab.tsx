@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { getCityOfDay } from '../../data';
+import { useContent } from '../../hooks/useContent';
+import { getCityOfDay } from '../../lib/dailyPickers';
 import CroatianKnight from '../shared/CroatianKnight';
 
 const KNIGHT_MESSAGES = [
@@ -53,16 +54,30 @@ function aaButtonBg(hex: string): string {
 
 export default function DiscoverTab() {
   const { setScr } = useApp();
-  const city = getCityOfDay();
+  const { content } = useContent();
+  type CityLike = {
+    name?: string;
+    color?: string;
+    icon?: string;
+    region?: string;
+    tagline?: string;
+    intro?: string;
+    didYouKnow?: string;
+  };
+  const city = getCityOfDay((content?.CROATIAN_CITIES ?? []) as CityLike[]);
+
+  // Content still hydrating from /api/content/core — render nothing until ready.
+  // useContent re-renders when fetch lands.
+  if (!city) return null;
 
   // Safe field access — 36/365 cities are stubs
-  const cityColor: string = (city as { color?: string }).color || '#0e7490';
-  const cityIcon: string = (city as { icon?: string }).icon || '🏙️';
-  const cityRegion: string = (city as { region?: string }).region || 'Croatia';
-  const cityTagline: string = (city as { tagline?: string }).tagline || '';
+  const cityColor: string = city.color || '#0e7490';
+  const cityIcon: string = city.icon || '🏙️';
+  const cityRegion: string = city.region || 'Croatia';
+  const cityTagline: string = city.tagline || '';
   const cityIntro: string =
-    (city as { intro?: string }).intro || `${city.name} is a remarkable city in ${cityRegion}.`;
-  const cityDidYouKnow: string = (city as { didYouKnow?: string }).didYouKnow || '';
+    city.intro || `${city.name ?? 'This city'} is a remarkable city in ${cityRegion}.`;
+  const cityDidYouKnow: string = city.didYouKnow || '';
 
   // Rotating knight message
   const [kMsgIdx, setKMsgIdx] = useState(0);

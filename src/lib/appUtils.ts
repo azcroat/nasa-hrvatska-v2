@@ -308,14 +308,18 @@ export function activateXPBoost(): number {
   return expires;
 }
 
-export function lXPgain(xp: number): number {
+/**
+ * Apply XP multipliers (campaign + boost). SP11e: campaign multiplier is now
+ * passed in by the caller (resolved from useContent + getActiveCampaign), not
+ * pulled from the deleted appUtils SEASONAL_CAMPAIGNS array.
+ *
+ * Boost and campaign DO NOT stack — take the higher of the two.
+ */
+export function lXPgain(xp: number, campaignMultiplier?: number): number {
   if (xp <= 0) return xp;
-  // Take the higher of campaign or boost multiplier — do NOT multiply them together.
-  // Stacking both (e.g. 2.0× campaign × 2.0× boost = 4.0×) breaks the XP economy.
   let multiplier = 1;
-  const campaign = getActiveCampaign();
-  if (campaign && campaign.multiplier && campaign.multiplier > 1) {
-    multiplier = campaign.multiplier;
+  if (campaignMultiplier && campaignMultiplier > 1) {
+    multiplier = campaignMultiplier;
   }
   try {
     const boostExp = parseInt(localStorage.getItem('nh_xp_boost_expires') || '0', 10);
