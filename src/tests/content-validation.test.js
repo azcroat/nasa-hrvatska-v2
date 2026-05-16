@@ -57,7 +57,7 @@ import {
 import { ASPECT, ASPECT_PAIRS, PADEZI } from '../../functions/api/content/_data/grammar.js';
 import { TRANSLATE_DRILLS } from '../data/exercises.js';
 import { V_B2 } from '../data/vocabulary.js';
-import { LESSONS } from '../data/lessons.js';
+import { LESSONS } from '../../functions/api/content/_data/lessons.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // V — Vocabulary object (keys → arrays of [hr, en, ...optional] tuples)
