@@ -1,11 +1,29 @@
 import React from 'react';
-import { H, IDIOMS, speak } from '../../data';
+import { H, speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface IdiomsScreenProps {
   goBack: () => void;
 }
 
+interface Idiom {
+  hr: string;
+  en: string;
+  lit: string;
+  ctx: string;
+}
+
 export default function IdiomsScreen({ goBack }: IdiomsScreenProps) {
+  const { content, loading, error } = useContent();
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('🗣️ Idioms & Slang', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('🗣️ Idioms & Slang', 'Loading…', goBack)}</div>;
+  const IDIOMS = content.IDIOMS as unknown as Idiom[];
   return (
     <div className="scr-wrap">
       {H('🗣️ Idioms & Slang', 'Speak like a real Croatian!', goBack)}

@@ -1,16 +1,38 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { RECIPES } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface Props {
   goBack: () => void;
 }
 
 function RecipesScreen({ goBack }: Props) {
+  const { content, loading, error } = useContent();
   const [rcIdx, setRcIdx] = useState(0);
-  const [rcServ, setRcServ] = useState(RECIPES[0]!.servings);
+  // SP11d: cannot read RECIPES[0]?.servings synchronously at init (content is async-loaded).
+  // Use 0 as sentinel; effective servings falls back to current recipe's default until user adjusts.
+  const [rcServ, setRcServ] = useState(0);
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('🍳 Croatian Recipes', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('🍳 Croatian Recipes', 'Loading…', goBack)}</div>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const RECIPES = content.RECIPES as Array<{
+    name: string;
+    en: string;
+    time: number;
+    servings: number;
+    ing: any[];
+    steps: any[];
+  }>;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const r = RECIPES[rcIdx]!;
-  const scale = rcServ / r.servings;
+  const effectiveServ = rcServ || r.servings;
+  const scale = effectiveServ / r.servings;
   return (
     <div className="scr-wrap">
       {H('🍳 Croatian Recipes', 'Cook & learn vocabulary', goBack)}
@@ -53,13 +75,13 @@ function RecipesScreen({ goBack }: Props) {
               cursor: 'pointer',
             }}
             onClick={function () {
-              if (rcServ > 1) setRcServ(rcServ - 1);
+              if (effectiveServ > 1) setRcServ(effectiveServ - 1);
             }}
           >
             -
           </button>
           <span style={{ fontSize: 20, fontWeight: 800, minWidth: 30, textAlign: 'center' }}>
-            {rcServ}
+            {effectiveServ}
           </span>
           <button
             style={{
@@ -73,7 +95,7 @@ function RecipesScreen({ goBack }: Props) {
               cursor: 'pointer',
             }}
             onClick={function () {
-              setRcServ(rcServ + 1);
+              setRcServ(effectiveServ + 1);
             }}
           >
             +

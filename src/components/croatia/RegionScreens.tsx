@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { H, speak, sh } from '../../data';
-import { REGIONS, ROLEPLAY, RECIPES } from '../../data';
+import { ROLEPLAY } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { markQuest } from '../../lib/quests.js';
 import { useApp } from '../../context/AppContext';
 
@@ -10,6 +11,7 @@ interface RegionProps {
 }
 
 export function RegionScreen({ regionKey, goBack }: RegionProps) {
+  const { content, loading, error } = useContent();
   const { award } = useApp();
   const [tab, setTab] = useState('overview');
   const [quizI, setQuizI] = useState(0);
@@ -17,10 +19,28 @@ export function RegionScreen({ regionKey, goBack }: RegionProps) {
   const [quizScore, setQuizScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
   const [expandedPerson, setExpandedPerson] = useState<number | null>(null);
-  const r = (REGIONS as Record<string, (typeof REGIONS)[keyof typeof REGIONS]>)[regionKey]!;
-
   const quizFinishFired = useRef(false);
-  const frozenOpts = useMemo(() => r.quiz.map((q) => sh([q.a, ...q.al])), [r]);
+  // SP11d: REGIONS is async-loaded; safe fallback until ready.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const REGIONS = (content?.REGIONS ?? {}) as Record<string, any>;
+  const r = REGIONS[regionKey];
+  const frozenOpts = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => (r ? (r.quiz as any[]).map((q: any) => sh([q.a, ...q.al])) : []),
+    [r],
+  );
+  if (error)
+    return (
+      <div className="scr-wrap" style={{ padding: 24 }}>
+        Couldn&apos;t load — please retry.
+      </div>
+    );
+  if (loading || !content || !r)
+    return (
+      <div className="scr-wrap" style={{ padding: 24 }}>
+        Loading…
+      </div>
+    );
 
   const TABS = [
     { id: 'overview', label: 'Overview', icon: '📖' },
@@ -580,10 +600,30 @@ interface RecipesProps {
 }
 
 export function RecipesScreen({ goBack }: RecipesProps) {
+  const { content, loading, error } = useContent();
   const [rcIdx, setRcIdx] = useState(0);
-  const [rcServ, setRcServ] = useState(RECIPES[0]!.servings);
+  const [rcServ, setRcServ] = useState(0);
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('🍳 Croatian Recipes', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('🍳 Croatian Recipes', 'Loading…', goBack)}</div>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const RECIPES = content.RECIPES as Array<{
+    name: string;
+    en: string;
+    time: number;
+    servings: number;
+    ing: any[];
+    steps: any[];
+  }>;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const r = RECIPES[rcIdx]!;
-  const scale = rcServ / r.servings;
+  const effectiveServ = rcServ || r.servings;
+  const scale = effectiveServ / r.servings;
   return (
     <div className="scr-wrap">
       {H('🍳 Croatian Recipes', 'Cook & learn vocabulary', goBack)}
@@ -626,13 +666,13 @@ export function RecipesScreen({ goBack }: RecipesProps) {
               cursor: 'pointer',
             }}
             onClick={function () {
-              if (rcServ > 1) setRcServ(rcServ - 1);
+              if (effectiveServ > 1) setRcServ(effectiveServ - 1);
             }}
           >
             -
           </button>
           <span style={{ fontSize: 20, fontWeight: 800, minWidth: 30, textAlign: 'center' }}>
-            {rcServ}
+            {effectiveServ}
           </span>
           <button
             style={{
@@ -646,7 +686,7 @@ export function RecipesScreen({ goBack }: RecipesProps) {
               cursor: 'pointer',
             }}
             onClick={function () {
-              setRcServ(rcServ + 1);
+              setRcServ(effectiveServ + 1);
             }}
           >
             +

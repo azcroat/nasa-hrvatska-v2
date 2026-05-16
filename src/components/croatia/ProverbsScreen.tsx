@@ -1,11 +1,28 @@
 import React from 'react';
-import { H, PROVERBS, speak } from '../../data';
+import { H, speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface Props {
   goBack: () => void;
 }
 
+interface Proverb {
+  hr: string;
+  en: string;
+  meaning?: string;
+}
+
 export default function ProverbsScreen({ goBack }: Props) {
+  const { content, loading, error } = useContent();
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('🌟 Hrvatske Poslovice', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('🌟 Hrvatske Poslovice', 'Loading…', goBack)}</div>;
+  const PROVERBS = content.PROVERBS as unknown as Proverb[];
   return (
     <div className="scr-wrap">
       {H('🌟 Hrvatske Poslovice', 'Croatian Proverbs — Tap to hear', goBack)}

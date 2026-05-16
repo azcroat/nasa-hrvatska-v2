@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { sh } from '../../data';
-import { REGIONS } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface Props {
   regionKey: string;
@@ -8,14 +8,34 @@ interface Props {
 }
 
 function RegionScreen({ regionKey, goBack }: Props) {
+  const { content, loading, error } = useContent();
   const [tab, setTab] = useState('overview');
   const [quizI, setQuizI] = useState(0);
   const [quizSel, setQuizSel] = useState<string | null>(null);
   const [quizScore, setQuizScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
   const [expandedPerson, setExpandedPerson] = useState<number | null>(null);
-  const r = (REGIONS as Record<string, (typeof REGIONS)[keyof typeof REGIONS]>)[regionKey]!;
-  const frozenOpts = useMemo(() => r.quiz.map((q) => sh([q.a, ...q.al])), [r]);
+  // SP11d: REGIONS is async-loaded; provide safe fallback for useMemo deps until ready.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const REGIONS = (content?.REGIONS ?? {}) as Record<string, any>;
+  const r = REGIONS[regionKey];
+  const frozenOpts = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => (r ? (r.quiz as any[]).map((q: any) => sh([q.a, ...q.al])) : []),
+    [r],
+  );
+  if (error)
+    return (
+      <div className="scr-wrap" style={{ padding: 24 }}>
+        Couldn&apos;t load — please retry.
+      </div>
+    );
+  if (loading || !content || !r)
+    return (
+      <div className="scr-wrap" style={{ padding: 24 }}>
+        Loading…
+      </div>
+    );
 
   const TABS = [
     { id: 'overview', label: 'Overview', icon: '📖' },
