@@ -17,34 +17,41 @@ vi.mock('../lib/platform.js', () => ({
   NATIVE_API_ENDPOINTS: [''],
 }));
 
-// Mock data module for usePlacement's lazy import
+// SP11e: usePlacement loads LEARN_PATH via contentClient.getContent() instead of
+// importing from ../data. Mock contentClient to return a fake LEARN_PATH.
+vi.mock('../lib/contentClient', () => ({
+  getContent: vi.fn().mockResolvedValue({
+    LEARN_PATH: [
+      {
+        items: [
+          { topic: 'greetings' },
+          { topic: 'numbers' },
+          { topic: 'colors' },
+          { topic: 'family' },
+          { topic: 'food' },
+          { topic: 'time' },
+          { topic: 'travel' },
+          { topic: 'weather' },
+          { topic: 'house' },
+          { topic: 'body' },
+          { topic: 'work' },
+          { topic: 'nature' },
+          { topic: 'sports' },
+          { topic: 'shopping' },
+          { topic: 'city' },
+          { topic: 'health' },
+          { topic: 'culture' },
+          { topic: 'emotions' },
+          { topic: 'animals' },
+          { topic: 'transport' },
+        ],
+      },
+    ],
+  }),
+}));
+
+// Mock data module for any remaining usePlacement / utility imports
 vi.mock('../data', () => ({
-  LEARN_PATH: [
-    {
-      items: [
-        { topic: 'greetings' },
-        { topic: 'numbers' },
-        { topic: 'colors' },
-        { topic: 'family' },
-        { topic: 'food' },
-        { topic: 'time' },
-        { topic: 'travel' },
-        { topic: 'weather' },
-        { topic: 'house' },
-        { topic: 'body' },
-        { topic: 'work' },
-        { topic: 'nature' },
-        { topic: 'sports' },
-        { topic: 'shopping' },
-        { topic: 'city' },
-        { topic: 'health' },
-        { topic: 'culture' },
-        { topic: 'emotions' },
-        { topic: 'animals' },
-        { topic: 'transport' },
-      ],
-    },
-  ],
   buildSearchIndex: () => [],
 }));
 

@@ -25,13 +25,15 @@ export function usePlacement(): {
   const [placementXp, setPlacementXp] = useState(-1);
   const [placementQ, setPlacementQ] = useState<unknown[]>([]);
 
-  // LEARN_PATH is only needed when placement completes — lazy import keeps it out of startup bundle.
+  // SP11e: LEARN_PATH ships from /api/content/core via contentClient. Hydration
+  // is cached + Bearer-gated, so this stays cheap even after the data move.
   async function getPlacementCt(level: number): Promise<string[]> {
-    const { LEARN_PATH } = await import('../data');
+    const { getContent } = await import('../lib/contentClient');
+    const { LEARN_PATH } = await getContent();
     const ct: string[] = [];
     const targets = [0, 0, 5, 10, 15, 20];
     const max = targets[level] || 0;
-    for (const lv of LEARN_PATH as { items: { topic?: string }[] }[]) {
+    for (const lv of LEARN_PATH) {
       for (const it of lv.items) {
         if (it.topic && ct.length < max) ct.push(it.topic);
       }

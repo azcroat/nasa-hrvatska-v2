@@ -1263,18 +1263,21 @@ function App() {
     return () => clearInterval(iv);
   }, [authScreen, authUser, doSyncNow]);
 
-  // Self-healing: reconstruct ct from LEARN_PATH if lost (lazy-import keeps chunk-data off startup)
+  // Self-healing: reconstruct ct from LEARN_PATH if lost. SP11e: LEARN_PATH
+  // ships from /api/content/core via contentClient (cached + Bearer-gated).
   useEffect(() => {
     if (!authUser || authScreen !== 'app' || stats.lc === 0 || (stats.ct?.length ?? 0) > 0) return;
-    import('./data').then(({ LEARN_PATH }) => {
-      const recovered: string[] = [];
-      for (const lv of LEARN_PATH) {
-        for (const it of lv.items) {
-          if (it.topic && recovered.length < stats.lc) recovered.push(it.topic as string);
+    import('./lib/contentClient').then(({ getContent }) => {
+      getContent().then(({ LEARN_PATH }) => {
+        const recovered: string[] = [];
+        for (const lv of LEARN_PATH) {
+          for (const it of lv.items) {
+            if (it.topic && recovered.length < stats.lc) recovered.push(it.topic);
+          }
         }
-      }
-      if (recovered.length > 0)
-        setStats((prev) => ({ ...prev, ct: [...new Set([...prev.ct, ...recovered])] }));
+        if (recovered.length > 0)
+          setStats((prev) => ({ ...prev, ct: [...new Set([...prev.ct, ...recovered])] }));
+      });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authScreen, authUser, stats.lc, stats.ct]);
