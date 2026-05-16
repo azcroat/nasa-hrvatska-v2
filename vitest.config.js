@@ -10,7 +10,11 @@ export default defineConfig({
     // Coverage instrumentation significantly slows UI loop-tests (14–29 question cycles,
     // word-tile builds). 30 s covers these while still catching genuine infinite loops.
     testTimeout: 30000,
-    include: ['src/**/*.test.{js,jsx,ts,tsx}', 'scripts/**/*.test.mjs'],
+    include: [
+      'src/**/*.test.{js,jsx,ts,tsx}',
+      'scripts/**/*.test.mjs',
+      'functions/api/**/*.test.{js,mjs}',
+    ],
     exclude: [
       'e2e/**',
       'node_modules/**',
