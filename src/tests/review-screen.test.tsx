@@ -145,6 +145,49 @@ vi.mock('../data', async (importOriginal) => {
   };
 });
 
+// SP11d: ReviewScreen reads V via useContent(). Pull real V from server-side vocab.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyVocab = any;
+vi.mock('../hooks/useContent', async () => {
+  const vocabMod = (await vi.importActual(
+    '../../functions/api/content/_data/vocabulary.js',
+  )) as AnyVocab;
+  return {
+    useContent: () => ({
+      content: {
+        V: vocabMod.V ?? {},
+        COUNTRIES: [],
+        PROFESSIONS: [],
+        WEATHER: {},
+        CLOTHES: {},
+        BODYDESC: [],
+        TECH_VOC: {},
+        BUREAUCRATIC: {},
+        PROVERBS: [],
+        IDIOMS: [],
+        BRZALICE: [],
+        HISTORY: {},
+        EVENTS: [],
+        KINGS: {},
+        REGIONS: {},
+        DIALECTS: {},
+        CROATIAN_CITIES: [],
+        FOODORDER: {},
+        TRANSPORT: [],
+        GROCERY: {},
+        RECIPES: [],
+        PRACTICAL: {},
+        SCENES: [],
+        LEVEL_NARRATIVE: {},
+        SHADOWING: [],
+      },
+      loading: false,
+      error: null,
+      reload: () => {},
+    }),
+  };
+});
+
 import ReviewScreen from '../components/practice/ReviewScreen';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

@@ -97,6 +97,42 @@ vi.mock('../data', async (importOriginal) => {
   return { ...actual, speakSlow: mockSpeakSlow, SHADOWING: MOCK_SHADOWING };
 });
 
+// SP11d: ShadowingScreen now fetches SHADOWING via useContent().
+vi.mock('../hooks/useContent', () => ({
+  useContent: () => ({
+    content: {
+      V: {},
+      COUNTRIES: [],
+      PROFESSIONS: [],
+      WEATHER: {},
+      CLOTHES: {},
+      BODYDESC: [],
+      TECH_VOC: {},
+      BUREAUCRATIC: {},
+      PROVERBS: [],
+      IDIOMS: [],
+      BRZALICE: [],
+      HISTORY: {},
+      EVENTS: [],
+      KINGS: {},
+      REGIONS: {},
+      DIALECTS: {},
+      CROATIAN_CITIES: [],
+      FOODORDER: {},
+      TRANSPORT: [],
+      GROCERY: {},
+      RECIPES: [],
+      PRACTICAL: {},
+      SCENES: [],
+      LEVEL_NARRATIVE: {},
+      SHADOWING: MOCK_SHADOWING,
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
+
 import ShadowingScreen from '../components/practice/ShadowingScreen';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

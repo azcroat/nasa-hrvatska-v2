@@ -41,20 +41,11 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(),
 }));
 
-import {
-  V,
-  STORIES,
-  PROVERBS,
-  VOCATIVE,
-  NUMCOUNT,
-  FALSEFR,
-  BRZALICE,
-  DECL,
-  PREPDRILL,
-  UNJUMBLE,
-} from '../lib/appData.js';
+import { STORIES, VOCATIVE, NUMCOUNT, FALSEFR, DECL, PREPDRILL, UNJUMBLE } from '../lib/appData.js';
 // Grammar data moved server-side in SP11b — import directly from _data/.
 import { ASPECT, ASPECT_PAIRS, PADEZI } from '../../functions/api/content/_data/grammar.js';
+// SP11d: V, PROVERBS, BRZALICE moved server-side — import from _data/.
+import { V, PROVERBS, BRZALICE } from '../../functions/api/content/_data/core.js';
 import { TRANSLATE_DRILLS } from '../data/exercises.js';
 import { V_B2 } from '../data/vocabulary.js';
 import { LESSONS } from '../../functions/api/content/_data/lessons.js';
