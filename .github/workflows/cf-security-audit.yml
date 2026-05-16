@@ -125,12 +125,46 @@ jobs:
             echo "::warning::/api/tts unexpected HTTP $CODE"
           fi
 
+      - name: GitHub 2FA status check (API-readable)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          USER_JSON=$(gh api user 2>/dev/null)
+          TWO_FA=$(echo "$USER_JSON" | jq -r '.two_factor_authentication // "unknown"')
+          echo "GitHub two_factor_authentication: $TWO_FA"
+          if [ "$TWO_FA" = "true" ]; then
+            echo "::notice::GitHub MFA enabled"
+          elif [ "$TWO_FA" = "false" ]; then
+            echo "::warning::GitHub MFA is DISABLED — enable at github.com/settings/security"
+          else
+            echo "::notice::GitHub MFA status not visible to this token scope"
+          fi
+
+      - name: Turnstile endpoint liveness — confirm secret is wired
+        run: |
+          set +e
+          RESP=$(curl -sS -X POST \
+            "https://nasahrvatska.com/api/turnstile/verify" \
+            -H "Content-Type: application/json" \
+            -d '{"token":"audit-fake","action":"signup"}' \
+            -w '\nHTTP %{http_code}\n')
+          echo "$RESP"
+          if echo "$RESP" | grep -q 'invalid-input-response'; then
+            echo "::notice::Turnstile ACTIVE — CF siteverify rejecting fake tokens"
+          elif echo "$RESP" | grep -q '"skipped":true'; then
+            echo "::warning::Turnstile INACTIVE — TURNSTILE_SECRET_KEY not set in Pages env"
+          else
+            echo "::warning::Turnstile endpoint returned unexpected response"
+          fi
+
       - name: Summary
         run: |
           echo "## CF Security Audit Summary"
           echo ""
-          echo "This workflow is read-only and verifies the active posture matches knowledge_nh_cf_security_posture.md."
+          echo "This workflow is read-only and verifies the active posture."
           echo ""
-          echo "Items NOT verified here (require user action or design):"
-          echo "  - MFA on jschreiner75@gmail.com — user must enable in CF dashboard > My Profile"
-          echo "  - Turnstile widget on auth/signup forms — needs sitekey + integration code"
+          echo "Items NOT verifiable via API (user dashboard action only):"
+          echo "  - CF account MFA (jschreiner75@gmail.com) — dash.cloudflare.com/profile/authentication"
+          echo "  - Google account MFA — myaccount.google.com/signinoptions/two-step-verification"
+          echo "  - Dropbox MFA — dropbox.com/account/security"
