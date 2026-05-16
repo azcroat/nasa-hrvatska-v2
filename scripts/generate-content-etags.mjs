@@ -98,7 +98,7 @@ async function main() {
   // and SEASONAL_CAMPAIGNS (4 entries, windowKind discriminator) added in SP11e
   // — both now serialize cleanly via the function/data split documented in
   // docs/superpowers/specs/2026-05-16-sp11e-final-closure-design.md.
-  const CORE_KEYS = ['V','COUNTRIES','PROFESSIONS','WEATHER','CLOTHES','BODYDESC','TECH_VOC','BUREAUCRATIC','PROVERBS','IDIOMS','BRZALICE','HISTORY','EVENTS','KINGS','REGIONS','DIALECTS','CROATIAN_CITIES','FOODORDER','TRANSPORT','GROCERY','RECIPES','PRACTICAL','SCENES','LEVEL_NARRATIVE','SHADOWING','LEARN_PATH','SEASONAL_CAMPAIGNS'];
+  const CORE_KEYS = ['V','COUNTRIES','PROFESSIONS','WEATHER','CLOTHES','BODYDESC','TECH_VOC','BUREAUCRATIC','PROVERBS','IDIOMS','BRZALICE','HISTORY','EVENTS','KINGS','REGIONS','DIALECTS','CROATIAN_CITIES','FOODORDER','TRANSPORT','GROCERY','RECIPES','PRACTICAL','SCENES','LEVEL_NARRATIVE','SHADOWING','LEARN_PATH','SEASONAL_CAMPAIGNS','V_B2','V_C1'];
   const coreExports = {};
   for (const k of CORE_KEYS) {
     if (coreMod[k] === undefined) throw new Error(`[generate-content-etags] core.js missing export: ${k}`);

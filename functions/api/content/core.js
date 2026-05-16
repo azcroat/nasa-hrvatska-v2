@@ -31,6 +31,9 @@ const KEYS = [
   // SP11e: function/data split shipped — both names now serialize cleanly.
   'LEARN_PATH',
   'SEASONAL_CAMPAIGNS',
+  // SP11f: advanced-vocab tiers migrated (consumed by AdvancedVocabScreen).
+  'V_B2',
+  'V_C1',
 ];
 
 function buildBody() {

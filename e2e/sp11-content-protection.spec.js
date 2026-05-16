@@ -38,6 +38,13 @@ const NEEDLES = [
   'Learn Easter traditions — pisanice, lamb, holiday greetings',
   'Celebrate Midsummer with bonfire traditions and Croatian folklore',
   'dynamicWindow',
+  // SP11f — V_B2 / V_C1 advanced-vocab category keys (orphans from SP11d).
+  // AdvancedVocabScreen now consumes them via useContent, so the production
+  // bundle should not contain these category names anymore.
+  'media & journalism',
+  'philosophy & ethics',
+  'academic language',
+  'abstract concepts',
 ];
 
 test.describe('SP11 — content endpoints + bundle audit', () => {

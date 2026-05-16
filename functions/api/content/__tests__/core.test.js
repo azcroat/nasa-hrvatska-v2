@@ -50,6 +50,9 @@ const ALL_KEYS = [
   // SP11e: function/data split shipped — both names now serialize cleanly.
   'LEARN_PATH',
   'SEASONAL_CAMPAIGNS',
+  // SP11f: advanced-vocab tiers (V_B2, V_C1) — last orphans from SP11d.
+  'V_B2',
+  'V_C1',
 ];
 
 describe('GET /api/content/core', () => {
