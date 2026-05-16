@@ -47,14 +47,18 @@ export function getCityOfDay<T>(cities: T[]): T | undefined {
   const dayOfYear = Math.floor((Number(n) - Number(new Date(year, 0, 1))) / 86_400_000);
 
   // Fisher-Yates shuffle seeded by year
-  const idx = cities.map((_, i) => i);
+  const idx: number[] = cities.map((_, i) => i);
   let seed = (year * 2654435761) >>> 0;
   for (let i = idx.length - 1; i > 0; i--) {
     seed = (seed * 1103515245 + 12345) >>> 0;
     const j = seed % (i + 1);
-    [idx[i], idx[j]] = [idx[j], idx[i]];
+    const a = idx[i] as number;
+    const b = idx[j] as number;
+    idx[i] = b;
+    idx[j] = a;
   }
-  const city = cities[idx[dayOfYear % cities.length]];
+  const slot = idx[dayOfYear % cities.length] as number;
+  const city = cities[slot] as T;
   _cotdCache = { key: dateKey, city };
   return city;
 }

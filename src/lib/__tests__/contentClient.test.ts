@@ -403,6 +403,8 @@ describe('contentClient.getContent', () => {
     SCENES: [],
     LEVEL_NARRATIVE: { heritage: ['First Words'] },
     SHADOWING: [],
+    LEARN_PATH: [],
+    SEASONAL_CAMPAIGNS: [],
   };
 
   it('200 path writes cache and returns content', async () => {
