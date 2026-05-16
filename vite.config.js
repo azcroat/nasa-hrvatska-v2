@@ -124,7 +124,6 @@ export default defineConfig({
           '**/chunk-vocabulary*.js',
           '**/chunk-grammar*.js',
           '**/chunk-exercises*.js',
-          '**/chunk-lessons*.js',
           '**/chunk-scenarios*.js',
           '**/chunk-cultural*.js',
           '**/chunk-geo*.js',
@@ -162,7 +161,6 @@ export default defineConfig({
           if (id.includes('src/data/vocabulary')) return 'chunk-vocabulary';
           if (id.includes('src/data/grammar')) return 'chunk-grammar';
           if (id.includes('src/data/exercises')) return 'chunk-exercises';
-          if (id.includes('src/data/lessons')) return 'chunk-lessons';
           if (id.includes('src/data/scenarios')) return 'chunk-scenarios';
           if (id.includes('src/data/cultural/geography')) return 'chunk-geo';  // 557 kB 365-city file — isolated
           if (id.includes('src/data/cultural')) return 'chunk-cultural';
