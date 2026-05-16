@@ -9,53 +9,48 @@
 // FORMAL_REGISTER, IMPERSONAL, CONJ, PITCH_ACCENT, ASPECT_PAIRS, PHONOLOGY,
 // TENSES) was moved server-side in SP11b. Use useGrammar() hook (components)
 // or contentClient.getGrammar() (non-components) instead.
+//
+// SP11d: 25 high-IP exports (V, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES,
+// BODYDESC, TECH_VOC, BUREAUCRATIC, PROVERBS, IDIOMS, BRZALICE, HISTORY,
+// EVENTS, KINGS, REGIONS, DIALECTS, CROATIAN_CITIES, FOODORDER, TRANSPORT,
+// GROCERY, RECIPES, PRACTICAL, SCENES, LEVEL_NARRATIVE, SHADOWING) moved
+// server-side. Use useContent() hook (components) or contentClient.getContent()
+// (non-components) instead. LEARN_PATH and SEASONAL_CAMPAIGNS deferred to
+// SP11e (function-valued fields need data/function split).
 
 export {
-  // Vocabulary & situational content
-  V,
-  FOODORDER,
+  // Non-SP11d/b data — still client-side
   EMERGENCY,
-  TRANSPORT,
-  GROCERY,
-  RECIPES,
   SCHOOL,
   FRIENDS,
   GYM,
   TEXTING,
-  PRACTICAL,
   FOOTBALL,
   POPCULTURE,
   ROLEPLAY,
-  SCENES,
-  // Grammar structures
+  // Grammar structures (still client-side)
   VOCATIVE,
   NUMCOUNT,
   NUMTIME,
   FALSEFR,
-  DIALECTS,
   DECL,
   PREPDRILL,
-  BRZALICE,
   DIMWORDS,
   WORDFORM,
   REFLEXIVE,
   SVOJMOJ,
-  TECH_VOC,
-  BUREAUCRATIC,
-  // Stories & practice content
+  // Stories & practice content (still client-side)
   STORIES,
-  PROVERBS,
   LISTEN,
   HIST_FACTS,
   FILL_STORIES,
   ZNAM,
   BOJE,
   UNJUMBLE,
-  IDIOMS,
   PREPS,
   ALPHA,
   READ,
-  // Exercises
+  // Exercises (still client-side)
   RIDDLES,
   LOGICQUIZ,
   ORDINALS,
@@ -84,28 +79,16 @@ export {
   SENTBUILD,
   PRONOUNCASE,
   COLORQUIRK,
-  SHADOWING,
-  // Cultural & geographic data
-  HISTORY,
-  EVENTS,
-  KINGS,
+  // Cultural & geographic data (still client-side)
   TOP100,
-  REGIONS,
-  CROATIAN_CITIES,
-  COUNTRIES,
   MAPPLACES,
   MEDIA,
-  PROFESSIONS,
-  WEATHER,
-  CLOTHES,
-  BODYDESC,
   BASKETBALL,
-  // App structure
+  // App structure (still client-side)
   LEARN_PATH,
   BADGES,
   DAILY_QUESTS,
   SEASONAL_CAMPAIGNS,
-  LEVEL_NARRATIVE,
   PLACE,
   // Theme colors
   BG_LIGHT,

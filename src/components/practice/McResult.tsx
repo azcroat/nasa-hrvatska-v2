@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { V, sh } from '../../data';
+import { sh } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import CroatianKnight from '../shared/CroatianKnight';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
@@ -22,6 +23,8 @@ export default function McResult({
   onNewGame,
   award,
 }: McResultProps) {
+  const { content } = useContent();
+  const V = (content?.V ?? {}) as Record<string, any[]>;
   const total = questions.length;
   const allCats = Object.keys(V);
   const targetXP = score * 3 + 5;

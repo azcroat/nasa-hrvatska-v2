@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { H, Bar, Spk, speakSlow, SHADOWING } from '../../data';
+import { H, Bar, Spk, speakSlow } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import PronunciationScorer from '../shared/PronunciationScorer';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
@@ -380,6 +381,8 @@ export default function ShadowingScreen({
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
+  const { content } = useContent();
+  const SHADOWING = (content?.SHADOWING ?? []) as any[];
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [said, setSaid] = useState(false);

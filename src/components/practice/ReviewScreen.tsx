@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { H, Bar, Spk, srMark, getSR, sh, V } from '../../data';
+import { H, Bar, Spk, srMark, getSR, sh } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { getPrioritizedReviewQueue } from '../../lib/srs.js';
 import { useHaptic } from '../../hooks/useHaptic';
 import { markPracticed } from '../../hooks/useNotifications';
@@ -34,12 +35,11 @@ interface ReviewStateRef {
 export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenProps) {
   const haptic = useHaptic();
   const { stats, setStats, writeDelta } = useStats();
+  const { content } = useContent();
+  const V = useMemo(() => (content?.V ?? {}) as Record<string, string[][]>, [content]);
   const finishFired = useRef(false);
   const _cats = allCats || Object.keys(V);
-  const pool = useMemo(
-    () => _cats.flatMap((t: string) => (V as Record<string, string[][]>)[t] || []),
-    [_cats],
-  );
+  const pool = useMemo(() => _cats.flatMap((t: string) => V[t] || []), [_cats, V]);
 
   const dueWords = useMemo(() => {
     return getPrioritizedReviewQueue(pool);
