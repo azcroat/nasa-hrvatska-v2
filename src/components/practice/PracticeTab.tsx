@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import type { AwardActivityType } from '../../lib/activityXp.js';
 import { isUnlocked, getUserCefr } from '../../lib/cefr';
-import { V, LISTEN, getSR, getDueReviews, lvl, getStreak } from '../../data';
+import { LISTEN, getSR, getDueReviews, lvl, getStreak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
@@ -59,6 +60,8 @@ export default function PracticeTab({
 }: PracticeTabProps) {
   const { setScr, authUser } = useApp();
   const { stats: st } = useStats();
+  const { content } = useContent();
+  const V = useMemo(() => (content?.V ?? {}) as Record<string, any[]>, [content]);
   const lc = st?.lc ?? 0;
 
   const userCefr = getUserCefr(st?.xp ?? 0, st?.lc ?? 0, st?.gc ?? 0);
@@ -127,7 +130,7 @@ export default function PracticeTab({
   // recomputing the flatMap on every parent render.
   const pool = useMemo(
     () => allCats.flatMap((cc) => (V as Record<string, string[][]>)[cc] || []),
-    [allCats],
+    [allCats, V],
   );
 
   function startQuiz() {

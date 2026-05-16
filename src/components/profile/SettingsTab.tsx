@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import { fbDeleteAccount, fbLeaveFamily, getLocalFamily, V, sh } from '../../data';
+import { fbDeleteAccount, fbLeaveFamily, getLocalFamily, sh } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { fbExportUserData } from '../../lib/firebase.js';
 import type { LogEntry } from '../../lib/debugLog.js';
 import {
@@ -107,6 +108,8 @@ export default function SettingsTab({
     launchSpeaking,
   } = useApp();
   const { stats: statsCtx, setStats } = useStats();
+  const { content } = useContent();
+  const V = (content?.V ?? {}) as Record<string, any[]>;
 
   const [freezesStored, setFreezesStored] = useState(() => getFreezesStored());
   const [freezeMsg, setFreezeMsg] = useState('');

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { WEATHER, speak } from '../../data';
+import { speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 const BACK_BTN = ({ goBack }: { goBack: () => void }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
@@ -110,7 +111,7 @@ const QUIZ_SECTION = ({ quiz, accent }: { quiz: QuizItem[]; accent: string }) =>
   const [answers, setAnswers] = useState<Record<number, number>>({});
   return (
     <div>
-      {quiz.map((q, i) => (
+      {quiz.map((q: any, i: number) => (
         <div
           key={i}
           style={{
@@ -126,7 +127,7 @@ const QUIZ_SECTION = ({ quiz, accent }: { quiz: QuizItem[]; accent: string }) =>
             {i + 1}. {q.q}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {q.opts.map((opt, j) => {
+            {q.opts.map((opt: string, j: number) => {
               const sel = answers[i];
               const correct = opt === q.a;
               let bg = '#f5f5f4',
@@ -185,8 +186,15 @@ const QUIZ_SECTION = ({ quiz, accent }: { quiz: QuizItem[]; accent: string }) =>
 };
 
 function WeatherScreen({ goBack }: { goBack: () => void }) {
+  const { content, loading } = useContent();
   const [tab, setTab] = useState('Vocabulary');
-  const d = WEATHER;
+  if (loading || !content)
+    return (
+      <WRAP>
+        <BACK_BTN goBack={goBack} />
+      </WRAP>
+    );
+  const d = content.WEATHER as any;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
@@ -204,7 +212,7 @@ function WeatherScreen({ goBack }: { goBack: () => void }) {
           <div
             style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}
           >
-            {d.vocab.map((v, i) => (
+            {d.vocab.map((v: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -237,7 +245,7 @@ function WeatherScreen({ goBack }: { goBack: () => void }) {
           <div style={{ fontSize: 13, fontWeight: 800, color: '#164e63', marginBottom: 10 }}>
             Opposites
           </div>
-          {d.adjectives.map((a, i) => (
+          {d.adjectives.map((a: any, i: number) => (
             <div
               key={i}
               style={{
@@ -277,7 +285,7 @@ function WeatherScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Seasons' && (
         <div>
-          {d.seasons.map((s, i) => (
+          {d.seasons.map((s: any, i: number) => (
             <div
               key={i}
               style={{
@@ -311,7 +319,7 @@ function WeatherScreen({ goBack }: { goBack: () => void }) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map((p: any, i: number) => (
             <div
               key={i}
               role="button"

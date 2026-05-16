@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { H, Bar, V, srMark, speak } from '../../data';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { H, Bar, srMark, speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { rnd } from '../../lib/random.js';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
@@ -47,9 +48,9 @@ interface ResultItem {
 }
 type ShuffleFn = (a: any[]) => any[];
 
-function buildPool(cats: string[], sh: ShuffleFn): WordItem[] {
+function buildPool(V: Record<string, string[][]>, cats: string[], sh: ShuffleFn): WordItem[] {
   const all = cats.flatMap((c: string) =>
-    ((V as Record<string, string[][]>)[c] || []).map((w: string[]) => ({
+    (V[c] || []).map((w: string[]) => ({
       hr: w[0]!,
       en: w[1]!,
       cat: c,
@@ -130,6 +131,8 @@ interface WordSprintProps {
 }
 export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
   const { stats, setStats, writeDelta } = useStats();
+  const { content } = useContent();
+  const V = useMemo(() => (content?.V ?? {}) as Record<string, string[][]>, [content]);
   const finishFired = useRef(false);
   const catList = Object.keys(V);
   const [phase, setPhase] = useState('menu');
@@ -152,7 +155,7 @@ export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
 
   const startGame = useCallback(() => {
     const cats = selectedCats.length > 0 ? selectedCats : catList.slice(0, 5);
-    const pool = buildPool(cats, sh);
+    const pool = buildPool(V, cats, sh);
     if (pool.length < 4) return;
     const qs: Question[] = [];
     const shuffled: WordItem[] = sh(pool) as WordItem[];
@@ -173,7 +176,7 @@ export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
     consecWrongRef.current = 0;
     worriedFiredRef.current = false;
     setPhase('playing');
-  }, [selectedCats, sh, catList]);
+  }, [selectedCats, sh, catList, V]);
 
   // Speak the Croatian word whenever a new question loads (Croatian prompt only)
   useEffect(() => {

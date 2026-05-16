@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { H, Bar, V, sh, srMark, speak, getDueReviews } from '../../data';
+import { H, Bar, sh, srMark, speak, getDueReviews } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import CroatianKeyboard from '../shared/CroatianKeyboard';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
@@ -64,7 +65,8 @@ function checkAnswer(input: string, target: string) {
 // ── Pool builder ──────────────────────────────────────────────────────────────
 
 /** Build a 15-word pool. Due SRS words come first, then fresh shuffled words. */
-function buildPool() {
+// SP11d: V is now passed in (loaded async via useContent at component level).
+function buildPool(V: Record<string, any[]>) {
   const allWords = Object.values(V).flat();
   try {
     const dueSet = new Set(getDueReviews());
@@ -120,13 +122,15 @@ export default function TypingScreen({
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
+  const { content } = useContent();
+  const V = (content?.V ?? {}) as Record<string, any[]>;
   const finishFired = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const startTsRef = useRef(0); // tracks when current word was presented
   const consecCorrectRef = useRef(0);
   const consecWrongRef = useRef(0);
 
-  const [tyPool] = useState(() => buildPool());
+  const [tyPool] = useState(() => buildPool(V));
   const [tyI, sTyI] = useState(0);
   const [tyS, sTyS] = useState(0); // correct count (perfect + close accepted)
   const [tyIn, sTyIn] = useState('');
