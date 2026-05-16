@@ -2,7 +2,7 @@
 // Walks functions/api/content/_data/{gradedStories,grammarAdvanced}.js,
 // computes SHA-1 of each resource's stable JSON, writes _etags.js.
 import { writeFile, access } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 
@@ -39,8 +39,8 @@ async function main() {
     }
   }
 
-  const storiesMod = await import(storiesPath);
-  const grammarMod = await import(grammarPath);
+  const storiesMod = await import(pathToFileURL(storiesPath).href);
+  const grammarMod = await import(pathToFileURL(grammarPath).href);
 
   const GRADED_STORIES = storiesMod.GRADED_STORIES || storiesMod.default;
   const ADVANCED_UNITS = grammarMod.ADVANCED_UNITS || grammarMod.default;
@@ -73,7 +73,7 @@ export const ETAGS = ${JSON.stringify({ stories, grammarUnits, catalog }, null, 
   console.log(`[generate-content-etags] wrote ${Object.keys(stories).length} stories + ${Object.keys(grammarUnits).length} grammar units`);
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}` || import.meta.url.endsWith(process.argv[1] ?? '');
+const isMain = process.argv[1] ? import.meta.url === pathToFileURL(process.argv[1]).href : false;
 if (isMain) {
   main().catch((e) => {
     console.error(e);
