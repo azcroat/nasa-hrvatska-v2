@@ -93,9 +93,10 @@ vi.mock('../data', async (importOriginal) => {
 });
 
 // ── useGrammar mock — re-uses real CONJ from grammar.js ──────────────────────
+// SP11b: grammar.js moved to functions/api/content/_data/grammar.js
 vi.mock('../hooks/useGrammar', async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const grammarMod = (await vi.importActual('../data/grammar.js')) as any;
+  const grammarMod = (await vi.importActual('../../functions/api/content/_data/grammar.js')) as any;
   return {
     useGrammar: () => ({
       grammar: {

@@ -142,6 +142,68 @@ vi.mock('../hooks/useAdaptiveSession', () => ({
 }));
 vi.mock('../components/shared/PronunciationScorer', () => ({ default: () => null }));
 
+// SP11d: ShadowingScreen + AspectDrillScreen + others now consume useContent().
+// Mock the hook to return loaded state synchronously (no useSyncExternalStore
+// loading flicker) so the testid assertions don't race.
+vi.mock('../hooks/useContent', () => ({
+  useContent: () => ({
+    content: {
+      V: {},
+      COUNTRIES: [],
+      PROFESSIONS: [],
+      WEATHER: {},
+      CLOTHES: {},
+      BODYDESC: [],
+      TECH_VOC: {},
+      BUREAUCRATIC: {},
+      PROVERBS: [],
+      IDIOMS: [],
+      BRZALICE: [],
+      HISTORY: {},
+      EVENTS: [],
+      KINGS: {},
+      REGIONS: {},
+      DIALECTS: {},
+      CROATIAN_CITIES: [],
+      FOODORDER: {},
+      TRANSPORT: [],
+      GROCERY: {},
+      RECIPES: [],
+      PRACTICAL: {},
+      SCENES: [],
+      LEVEL_NARRATIVE: {},
+      SHADOWING: [{ hr: 'Dobar dan', en: 'Good day', slow: 'Do-bar dan' }],
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
+
+// SP11b: AspectDrillScreen consumes useGrammar() for ASPECT_PAIRS.
+vi.mock('../hooks/useGrammar', () => ({
+  useGrammar: () => ({
+    grammar: {
+      PADEZI: {},
+      GRAM: {},
+      CONJ: {},
+      MODAL: {},
+      TENSES: {},
+      ASPECT: {},
+      ASPECT_PAIRS: [{ imperfective: 'pisati', perfective: 'napisati', rule: 'test' }],
+      CONDITIONAL: {},
+      FORMAL_REGISTER: {},
+      IMPERSONAL: {},
+      PHONOLOGY: {},
+      PITCH_ACCENT: [],
+      PADEZI_FULL: {},
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
+
 // contentClient mock — GradedInputScreen fetches catalog + body via this module
 vi.mock('../lib/contentClient', () => ({
   getStoryCatalog: vi.fn(async () => [
@@ -170,6 +232,52 @@ vi.mock('../lib/contentClient', () => ({
     vocabulary: [],
     paragraphs: [],
     quiz: [],
+  })),
+  // SP11b/c/d additions — keep mock surface in sync with the live contentClient.
+  getGrammar: vi.fn(async () => ({
+    PADEZI: {},
+    GRAM: {},
+    CONJ: {},
+    MODAL: {},
+    TENSES: {},
+    ASPECT: {},
+    ASPECT_PAIRS: [],
+    CONDITIONAL: {},
+    FORMAL_REGISTER: {},
+    IMPERSONAL: {},
+    PHONOLOGY: {},
+    PITCH_ACCENT: [],
+    PADEZI_FULL: {},
+  })),
+  getGrammarUnit: vi.fn(async (id: string) => ({ id, title: id, drills: [] })),
+  getGrammarUnitCatalog: vi.fn(async () => []),
+  getLessons: vi.fn(async () => []),
+  getContent: vi.fn(async () => ({
+    V: {},
+    COUNTRIES: [],
+    PROFESSIONS: [],
+    WEATHER: {},
+    CLOTHES: {},
+    BODYDESC: [],
+    TECH_VOC: {},
+    BUREAUCRATIC: {},
+    PROVERBS: [],
+    IDIOMS: [],
+    BRZALICE: [],
+    HISTORY: {},
+    EVENTS: [],
+    KINGS: {},
+    REGIONS: {},
+    DIALECTS: {},
+    CROATIAN_CITIES: [],
+    FOODORDER: {},
+    TRANSPORT: [],
+    GROCERY: {},
+    RECIPES: [],
+    PRACTICAL: {},
+    SCENES: [],
+    LEVEL_NARRATIVE: {},
+    SHADOWING: [],
   })),
 }));
 

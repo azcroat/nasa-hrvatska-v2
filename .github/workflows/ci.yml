@@ -23,6 +23,11 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm ci
+      # Content endpoint tests import ETAGS from _etags.js (auto-generated, gitignored).
+      # Generator runs as prebuild during npm run build, but this job doesn't build —
+      # invoke directly so the file exists before vitest imports the endpoints.
+      - name: Generate content ETags (required by endpoint tests)
+        run: node scripts/generate-content-etags.mjs
       - name: TypeScript check
         run: npx tsc --noEmit
       - name: Unit tests
@@ -74,6 +79,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Generate content ETags (required by endpoint tests)
+        run: node scripts/generate-content-etags.mjs
 
       - name: Run tests with coverage
         run: npm run test:coverage
