@@ -143,4 +143,7 @@ export interface Content {
   SHADOWING: unknown[];
   LEARN_PATH: LearnPathLevel[];
   SEASONAL_CAMPAIGNS: SeasonalCampaign[];
+  // SP11f: advanced-vocab tiers consumed by AdvancedVocabScreen.
+  V_B2: Record<string, unknown>;
+  V_C1: Record<string, unknown>;
 }

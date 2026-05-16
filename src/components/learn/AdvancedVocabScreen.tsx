@@ -1,10 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { speak } from '../../data';
-import { V_B2, V_C1 } from '../../data/vocabulary.js';
+import { useContent } from '../../hooks/useContent';
 
-type LevelKey = keyof typeof LEVEL_DATA;
-
-const LEVEL_DATA = { B2: V_B2, C1: V_C1 };
+type LevelKey = 'B2' | 'C1';
 const LS_KEY = 'nh_adv_vocab_learned';
 
 function loadLearned() {
@@ -27,8 +25,20 @@ interface Props {
 }
 
 export default function AdvancedVocabScreen({ goBack, award }: Props) {
+  const { content } = useContent();
+  // SP11f: V_B2 / V_C1 ship from /api/content/core. While content hydrates,
+  // fall back to empty objects so the screen renders the empty state rather
+  // than crashing.
+  const LEVEL_DATA = useMemo(
+    () => ({
+      B2: (content?.V_B2 ?? {}) as Record<string, unknown>,
+      C1: (content?.V_C1 ?? {}) as Record<string, unknown>,
+    }),
+    [content?.V_B2, content?.V_C1],
+  );
+
   const [level, setLevel] = useState<LevelKey>('B2');
-  const [activeCat, setActiveCat] = useState<string>(() => Object.keys(V_B2)[0] ?? '');
+  const [activeCat, setActiveCat] = useState<string>('');
   const [search, setSearch] = useState('');
   const [learned, setLearned] = useState(loadLearned);
 

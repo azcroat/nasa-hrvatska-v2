@@ -17,6 +17,7 @@ import {
   BUREAUCRATIC,
   TOP100,
   V_B2,
+  V_C1,
   ALPHA,
 } from './vocabulary.js';
 import { PROVERBS } from './cultural/proverbs.js';
@@ -71,7 +72,7 @@ V['Grocery Shopping'] = [].concat(GROCERY.vocab, GROCERY.phrases);
 V['Alphabet'] = ALPHA.map((a) => [a[0], a[1] + ' — ' + a[2] + ' (' + a[3] + ')']);
 V['Emergency'] = [].concat(EMERGENCY.phrases, EMERGENCY.bodyParts);
 
-// === The 27 exports ===
+// === The 29 exports (SP11f: +V_B2 +V_C1 advanced-vocab tiers) ===
 export {
   V,
   COUNTRIES,
@@ -99,6 +100,8 @@ export {
   SCENES,
   LEARN_PATH,
   SEASONAL_CAMPAIGNS,
+  V_B2,
+  V_C1,
 };
 
 export const LEVEL_NARRATIVE = {

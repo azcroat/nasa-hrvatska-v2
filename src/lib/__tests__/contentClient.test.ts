@@ -405,6 +405,8 @@ describe('contentClient.getContent', () => {
     SHADOWING: [],
     LEARN_PATH: [],
     SEASONAL_CAMPAIGNS: [],
+    V_B2: {},
+    V_C1: {},
   };
 
   it('200 path writes cache and returns content', async () => {
