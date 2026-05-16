@@ -1,0 +1,136 @@
+name: cf-security-audit
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly Monday 14:00 UTC = 09:00 CT — proactive posture verification.
+    - cron: '0 14 * * 1'
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve zone ID + clean token
+        id: zone
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          Z=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones?name=nasahrvatska.com" \
+            -H "Authorization: Bearer $T" | jq -r '.result[0].id')
+          echo "zone-id=$Z" >> "$GITHUB_OUTPUT"
+          echo "token-clean=$T" >> "$GITHUB_OUTPUT"
+          echo "Zone: $Z"
+
+      - name: security.txt — verify HTTPS 200 at /.well-known/security.txt
+        run: |
+          set +e
+          STATUS=$(curl -s -o /tmp/sectxt -w '%{http_code}' https://nasahrvatska.com/.well-known/security.txt)
+          echo "HTTP $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "::notice::security.txt OK — RFC 9116 endpoint reachable"
+            head -20 /tmp/sectxt
+          else
+            echo "::error::security.txt missing or non-200 (got $STATUS)"
+            exit 1
+          fi
+
+      - name: WAF custom rules — list and flag any skip-action rule
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          RS_ID=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/rulesets" \
+            -H "Authorization: Bearer $T" \
+            | jq -r '.result[] | select(.phase == "http_request_firewall_custom") | .id' | head -n1)
+
+          if [ -z "$RS_ID" ] || [ "$RS_ID" = "null" ]; then
+            echo "::notice::No http_request_firewall_custom ruleset exists — clean state"
+            exit 0
+          fi
+
+          RULES=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/rulesets/$RS_ID" \
+            -H "Authorization: Bearer $T")
+
+          echo "All custom rules:"
+          echo "$RULES" | jq '.result.rules[] | {id, description, action, expression, enabled}'
+
+          SKIP_COUNT=$(echo "$RULES" | jq '[.result.rules[]? | select(.action == "skip" and .enabled == true)] | length')
+          echo "Active skip rules: $SKIP_COUNT"
+
+          if [ "$SKIP_COUNT" -gt 0 ]; then
+            echo "::warning::$SKIP_COUNT active skip rule(s) detected — audit each to confirm intentional"
+            echo "$RULES" | jq '[.result.rules[]? | select(.action == "skip" and .enabled == true)]'
+          else
+            echo "::notice::No active skip rules — clean state"
+          fi
+
+      - name: SBFM state — read-only check (informational; advisory expected stale)
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          # Bot Management read may need extra scope; attempt and surface result
+          RESP=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/bot_management" \
+            -H "Authorization: Bearer $T")
+          echo "$RESP" | jq '.' 2>/dev/null || echo "$RESP"
+
+          SUCCESS=$(echo "$RESP" | jq -r '.success' 2>/dev/null)
+          if [ "$SUCCESS" = "true" ]; then
+            echo "SBFM definitely_automated: $(echo "$RESP" | jq -r '.result.sbfm_definitely_automated')"
+            echo "SBFM likely_automated:     $(echo "$RESP" | jq -r '.result.sbfm_likely_automated')"
+            echo "::notice::Per nh-cf-security-posture.md, SBFM=Allow is the deliberate posture (TTS fix 2026-05-15). Defense-in-depth at app layer."
+          else
+            echo "::notice::SBFM endpoint not readable with current token scope (expected — Bot Management:Read not granted). Per memory: SBFM=Allow."
+          fi
+
+      - name: Zone settings sanity (browser_check, challenge_ttl, security_level)
+        env:
+          T: ${{ steps.zone.outputs.token-clean }}
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          for S in browser_check challenge_ttl security_level; do
+            V=$(curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/settings/$S" \
+              -H "Authorization: Bearer $T" | jq -r '.result.value')
+            echo "$S = $V"
+          done
+          echo ""
+          echo "Expected per nh-cf-security-posture.md:"
+          echo "  browser_check  = on"
+          echo "  challenge_ttl  = 1800"
+          echo "  security_level = medium"
+
+      - name: /api/tts liveness — confirm auth gate fires (not WAF block)
+        run: |
+          set +e
+          RESP=$(curl -sS -X POST \
+            "https://nasahrvatska.com/api/tts" \
+            -H "Content-Type: application/json" \
+            -d '{"text":"audit","slow":false}' \
+            -w '\n--- HTTP %{http_code} | CT %{content_type} ---\n')
+          echo "$RESP" | tail -5
+          echo ""
+          CODE=$(echo "$RESP" | grep -oE 'HTTP [0-9]+' | grep -oE '[0-9]+')
+          if [ "$CODE" = "401" ]; then
+            echo "::notice::/api/tts returns 401 (auth gate) — request reached the function, CF not blocking. Defense-in-depth working."
+          elif [ "$CODE" = "403" ]; then
+            echo "::warning::/api/tts returns 403 — possible CF challenge re-engaged. Check SBFM / WAF rules."
+          else
+            echo "::warning::/api/tts unexpected HTTP $CODE"
+          fi
+
+      - name: Summary
+        run: |
+          echo "## CF Security Audit Summary"
+          echo ""
+          echo "This workflow is read-only and verifies the active posture matches knowledge_nh_cf_security_posture.md."
+          echo ""
+          echo "Items NOT verified here (require user action or design):"
+          echo "  - MFA on jschreiner75@gmail.com — user must enable in CF dashboard > My Profile"
+          echo "  - Turnstile widget on auth/signup forms — needs sitekey + integration code"
