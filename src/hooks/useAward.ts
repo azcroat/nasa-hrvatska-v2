@@ -16,6 +16,8 @@ import {
   getStreak,
   recordJourneyMilestone,
 } from '../lib/appUtils.js';
+import { useContent } from './useContent';
+import { getActiveCampaign } from '../lib/seasonalCampaign';
 import { trackComplete } from '../lib/learnerStyle.js';
 import {
   trackLessonComplete,
@@ -170,6 +172,12 @@ export function useAward({
   const [nB, setNB] = useState<{ id: string; n: string; d: string } | null>(null);
   const [sB, setSB] = useState(false);
 
+  // SP11e: active campaign multiplier comes from server-shipped SEASONAL_CAMPAIGNS
+  // via useContent → getActiveCampaign. Passed into lXPgain so the utility stays
+  // pure (no module-level data dependency).
+  const { content } = useContent();
+  const activeMultiplier = getActiveCampaign(content?.SEASONAL_CAMPAIGNS ?? [])?.multiplier;
+
   const award = useCallback(
     async (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => {
       if (!Number.isFinite(amt) || amt === 0) return;
@@ -190,7 +198,7 @@ export function useAward({
           }
         } catch {}
       }
-      let totalAmt = lXPgain(amt);
+      let totalAmt = lXPgain(amt, activeMultiplier);
       const _today = _localDateStr();
       if (
         comebackBonus &&
@@ -565,7 +573,7 @@ export function useAward({
         }
       }
     },
-    [curEx, comebackBonus, setStats, stats, writeDelta],
+    [curEx, comebackBonus, setStats, stats, writeDelta, activeMultiplier],
   );
 
   return {

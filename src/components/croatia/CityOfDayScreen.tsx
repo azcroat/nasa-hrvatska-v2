@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { speak } from '../../data';
-import { getCityOfDay } from '../../data';
+import { useContent } from '../../hooks/useContent';
+import { getCityOfDay } from '../../lib/dailyPickers';
 
 // Normalize city name to lookup key — strip diacritics, lowercase, collapse spaces
 // Handles: Šibenik→sibenik, Varaždin→varazdin, Korčula→korcula, Poreč→porec,
@@ -67,9 +68,25 @@ interface CityOfDayScreenProps {
   goBack: () => void;
 }
 
+type CityLike = {
+  name: string;
+  region?: string;
+  vocab?: unknown[];
+  facts?: unknown[];
+  intro?: string;
+  history?: string;
+  didYouKnow?: string;
+  color?: string;
+  icon?: string;
+  subtitle?: string;
+  tagline?: string;
+  [key: string]: unknown;
+};
+
 function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
   const [tab, setTab] = useState('overview');
-  const city = getCityOfDay();
+  const { content } = useContent();
+  const city = getCityOfDay((content?.CROATIAN_CITIES ?? []) as CityLike[]);
   const _tomorrow = (function () {
     const d = new Date();
     d.setDate(d.getDate() + 1);
@@ -82,10 +99,14 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
     { id: 'facts', label: 'Fast Facts', icon: '⚡' },
   ];
 
+  // Content still hydrating from /api/content/core — render nothing rather
+  // than crashing on undefined city. useContent re-renders when fetch lands.
+  if (!city) return null;
+
   // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro.
   // Render safe fallbacks rather than crashing.
-  const safeVocab = Array.isArray(city.vocab) ? city.vocab : [];
-  const safeFacts = Array.isArray(city.facts) ? city.facts : [];
+  const safeVocab: unknown[] = Array.isArray(city.vocab) ? city.vocab : [];
+  const safeFacts: unknown[] = Array.isArray(city.facts) ? city.facts : [];
   const safeIntro = city.intro || `${city.name} is a city in ${city.region || 'Croatia'}.`;
   const safeHistory = city.history || '';
   const safeDidYouKnow = city.didYouKnow || '';
@@ -495,8 +516,8 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
       {tab === 'facts' &&
         (function () {
           const half = Math.ceil(safeFacts.length / 2);
-          const fastFacts = safeFacts.slice(half);
-          const allFacts = [safeDidYouKnow].concat(fastFacts).filter(Boolean);
+          const fastFacts = safeFacts.slice(half) as string[];
+          const allFacts = ([safeDidYouKnow] as string[]).concat(fastFacts).filter(Boolean);
           return (
             <div>
               <div

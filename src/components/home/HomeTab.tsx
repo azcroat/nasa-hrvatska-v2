@@ -312,7 +312,14 @@ export default function HomeTab({
       }
     }
     if (!activeLv) {
-      const lastLv = LEARN_PATH[LEARN_PATH.length - 1]! as PathLevel;
+      // SP11e: when LEARN_PATH is empty (content still hydrating from
+      // /api/content/core), fall back to a placeholder level rather than
+      // crashing on LEARN_PATH[-1]!. useContent re-renders when fetch lands.
+      const lastLv = (LEARN_PATH[LEARN_PATH.length - 1] as PathLevel | undefined) ?? {
+        level: 1,
+        title: '',
+        items: [],
+      };
       activeLv = lastLv;
       activeLvDone = lastLv.items.length;
       activeLvItemDone = lastLv.items.map(() => true);
@@ -321,7 +328,7 @@ export default function HomeTab({
       totalDone,
       totalItems,
       // (LEARN_PATH dep covers content hydration; st captures progress changes)
-      pct: Math.round((totalDone / totalItems) * 100),
+      pct: totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0,
       activeLv,
       activeLvDone,
       activeLvItemDone,
