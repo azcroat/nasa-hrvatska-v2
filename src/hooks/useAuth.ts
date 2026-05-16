@@ -51,6 +51,10 @@ interface AuthCallbacks {
   onBeforeSignOut?: () => Promise<void>;
 }
 
+const TURNSTILE_ENABLED = Boolean(
+  (import.meta.env?.VITE_TURNSTILE_SITEKEY as string | undefined) || '',
+);
+
 export function useAuth({
   onSignedIn,
   onSignedOut,
@@ -79,6 +83,8 @@ export function useAuth({
   authLoading: boolean;
   emailUnverified: boolean;
   setEmailUnverified: React.Dispatch<React.SetStateAction<boolean>>;
+  turnstileToken: string;
+  setTurnstileToken: React.Dispatch<React.SetStateAction<string>>;
   resendVerification: () => Promise<void>;
   doReg: () => Promise<void>;
   doLog: () => Promise<void>;
@@ -140,6 +146,9 @@ export function useAuth({
 
   // ── Email verification ───────────────────────────────────────────────────
   const [emailUnverified, setEmailUnverified] = useState(false);
+
+  // ── Turnstile (signup bot gate) ──────────────────────────────────────────
+  const [turnstileToken, setTurnstileToken] = useState('');
 
   // ── Firebase auth listener (runs once on mount) ──────────────────────────
   useEffect(() => {
@@ -477,6 +486,35 @@ export function useAuth({
     } else {
       localStorage.setItem(regKey, JSON.stringify({ count: 1, since: now }));
     }
+    if (TURNSTILE_ENABLED) {
+      if (!turnstileToken) {
+        setAuthError('Please complete the verification challenge.');
+        setAuthLoading(false);
+        return;
+      }
+      try {
+        const verifyRes = await fetch('/api/turnstile/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: turnstileToken, action: 'signup' }),
+        });
+        const verifyJson = (await verifyRes.json().catch(() => ({}))) as {
+          ok?: boolean;
+          error?: string;
+        };
+        if (!verifyRes.ok || !verifyJson.ok) {
+          setAuthError(verifyJson.error || 'Verification failed. Please try again.');
+          setTurnstileToken('');
+          setAuthLoading(false);
+          return;
+        }
+      } catch (_) {
+        setAuthError('Could not verify the challenge. Please try again.');
+        setTurnstileToken('');
+        setAuthLoading(false);
+        return;
+      }
+    }
     try {
       const k = authEmail.trim().toLowerCase();
       isNewReg.current = true;
@@ -484,6 +522,7 @@ export function useAuth({
       if (!fb.ok) {
         isNewReg.current = false;
         setAuthError(fb.err || 'Registration failed. Please try again.');
+        setTurnstileToken('');
         setAuthLoading(false);
         return;
       }
@@ -491,9 +530,11 @@ export function useAuth({
       setPw('');
       setPc('');
       setDisplayName('');
+      setTurnstileToken('');
     } catch (e) {
       isNewReg.current = false;
       setAuthError('Registration failed. Please try again.');
+      setTurnstileToken('');
     }
     setAuthLoading(false);
   }
@@ -672,6 +713,8 @@ export function useAuth({
     authLoading,
     emailUnverified,
     setEmailUnverified,
+    turnstileToken,
+    setTurnstileToken,
     resendVerification,
     doReg,
     doLog,
