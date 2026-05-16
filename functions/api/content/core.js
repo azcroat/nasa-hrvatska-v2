@@ -28,6 +28,9 @@ const KEYS = [
   'SCENES',
   'LEVEL_NARRATIVE',
   'SHADOWING',
+  // SP11e: function/data split shipped — both names now serialize cleanly.
+  'LEARN_PATH',
+  'SEASONAL_CAMPAIGNS',
 ];
 
 function buildBody() {
