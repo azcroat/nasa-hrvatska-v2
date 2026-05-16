@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- AUDIT 2026-05-15 (SP11): no /api/content/* paths included (those would 401 anyway). -->
   <url>
     <loc>https://nasahrvatska.com/</loc>
     <changefreq>weekly</changefreq>
