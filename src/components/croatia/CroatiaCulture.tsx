@@ -3,18 +3,72 @@ import { H, speak } from '../../data';
 import {
   TEXTING,
   FRIENDS,
-  FOODORDER,
-  TRANSPORT,
   EMERGENCY,
   FOOTBALL,
   POPCULTURE,
-  PRACTICAL,
   SCHOOL,
-  GROCERY,
-  HISTORY,
   BASKETBALL,
   GYM,
 } from '../../data';
+import { useContent } from '../../hooks/useContent';
+
+interface FoodOrderItem {
+  title: string;
+  items: Array<[string, string]>;
+  phrases: string[];
+}
+interface FoodOrderShape {
+  bakery: FoodOrderItem;
+  fastfood: FoodOrderItem;
+  icecream: FoodOrderItem;
+  restaurant: { tip: string; phrases: Array<[string, string]> };
+}
+interface TransportEntry {
+  hr: string;
+  en: string;
+}
+interface PracticalShape {
+  oib: { title: string; desc: string };
+  mbo: { title: string; desc: string };
+  documents: Array<[string, string]>;
+  schoolCalendar: string;
+  customs: Array<{ rule: string; desc: string }>;
+}
+interface GroceryShape {
+  stores: Array<{ name: string; desc: string; color: string }>;
+  brands: Array<[string, string]>;
+  vocab: Array<[string, string]>;
+  phrases: Array<[string, string]>;
+}
+interface HistoryHero {
+  name: string;
+  role: string;
+  desc: string;
+}
+interface HistoryTimelineEntry {
+  emoji: string;
+  year: string;
+  title: string;
+  text: string;
+}
+interface HistoryShape {
+  title: string;
+  subtitle: string;
+  intro: string;
+  quote: string;
+  quote2: string;
+  timeline: HistoryTimelineEntry[];
+  heroes: HistoryHero[];
+  keyDates: Array<[string, string, string]>;
+  vocabulary: Array<[string, string]>;
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 export function TextingScreen({ goBack }: { goBack?: () => void }) {
   return (
@@ -72,6 +126,10 @@ export function FriendsScreen({ goBack }: { goBack?: () => void }) {
 }
 
 export function FoodOrderScreen({ goBack }: { goBack?: () => void }) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const FOODORDER = content.FOODORDER as unknown as FoodOrderShape;
   return (
     <div className="scr-wrap">
       {H('🍕 Ordering Food', 'Bakery, fast food, ice cream, restaurants', goBack)}
@@ -178,6 +236,10 @@ export function FoodOrderScreen({ goBack }: { goBack?: () => void }) {
 }
 
 export function TransportScreen({ goBack }: { goBack?: () => void }) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const TRANSPORT = content.TRANSPORT as unknown as TransportEntry[];
   return (
     <div className="scr-wrap">
       {H('🚌 Getting Around', 'Bus, tram, taxi phrases', goBack)}
@@ -376,6 +438,10 @@ export function PopCultureScreen({ goBack }: { goBack?: () => void }) {
 }
 
 export function PracticalScreen({ goBack }: { goBack?: () => void }) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const PRACTICAL = content.PRACTICAL as unknown as PracticalShape;
   return (
     <div className="scr-wrap">
       {H('💼 Practical Life in Croatia', 'Documents, customs, culture', goBack)}
@@ -522,6 +588,10 @@ export function SchoolScreen({ goBack }: { goBack?: () => void }) {
 }
 
 export function GroceryScreen({ goBack }: { goBack?: () => void }) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const GROCERY = content.GROCERY as unknown as GroceryShape;
   return (
     <div className="scr-wrap">
       {H('🛒 Grocery Shopping', 'Stores, brands & essential vocab', goBack)}
@@ -806,6 +876,10 @@ function HimnaPlayer() {
 }
 
 export function HistoryScreen({ goBack }: { goBack?: () => void }) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const HISTORY = content.HISTORY as unknown as HistoryShape;
   return (
     <div className="scr-wrap">
       {H('🇭🇷 ' + HISTORY.title, HISTORY.subtitle, goBack)}

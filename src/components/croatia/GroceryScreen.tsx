@@ -1,12 +1,30 @@
 import React from 'react';
 import { H, speak } from '../../data';
-import { GROCERY } from '../../data';
+import { useContent } from '../../hooks/useContent';
+
+interface GroceryShape {
+  stores: Array<{ name: string; desc: string; color: string }>;
+  brands: Array<[string, string]>;
+  vocab: Array<[string, string]>;
+  phrases: Array<[string, string]>;
+}
 
 interface GroceryScreenProps {
   goBack: () => void;
 }
 
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
+
 function GroceryScreen({ goBack }: GroceryScreenProps) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const GROCERY = content.GROCERY as unknown as GroceryShape;
   return (
     <div className="scr-wrap">
       {H('🛒 Grocery Shopping', 'Stores, brands & essential vocab', goBack)}

@@ -1,6 +1,36 @@
 import React, { useState, useRef } from 'react';
 import { H, speak } from '../../data';
-import { HISTORY } from '../../data';
+import { useContent } from '../../hooks/useContent';
+
+interface HistoryHero {
+  name: string;
+  role: string;
+  desc: string;
+}
+interface HistoryTimelineEntry {
+  emoji: string;
+  year: string;
+  title: string;
+  text: string;
+}
+interface HistoryShape {
+  title: string;
+  subtitle: string;
+  intro: string;
+  quote: string;
+  quote2: string;
+  timeline: HistoryTimelineEntry[];
+  heroes: HistoryHero[];
+  keyDates: Array<[string, string, string]>;
+  vocabulary: Array<[string, string]>;
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 function HimnaPlayer() {
   const [playing, setPlaying] = useState(false);
@@ -206,6 +236,10 @@ function HimnaPlayer() {
 }
 
 function CroatiaHistoryScreen({ goBack }: { goBack?: () => void }) {
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const HISTORY = content.HISTORY as unknown as HistoryShape;
   return (
     <div className="scr-wrap">
       {H('🇭🇷 ' + HISTORY.title, HISTORY.subtitle, goBack)}
