@@ -15,8 +15,11 @@ vi.mock('../lib/quests.js', () => ({ markQuest: vi.fn() }));
 vi.mock('../lib/platform', () => ({
   getMicPermissionPlatform: () => 'desktop',
 }));
-vi.mock('../data/gradedStories.js', () => ({
-  GRADED_STORIES: [],
+vi.mock('../lib/contentClient', () => ({
+  getStoryCatalog: vi.fn(async () => []),
+  getStory: vi.fn(async () => {
+    throw new Error('not_found');
+  }),
 }));
 
 const recorderMock = vi.fn();
