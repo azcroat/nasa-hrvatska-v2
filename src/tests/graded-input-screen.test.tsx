@@ -125,9 +125,23 @@ vi.mock('../data', async (importOriginal) => {
   return { ...actual, speak: vi.fn() };
 });
 
-// ── gradedStories mock — single story with 3-question quiz ───────────────────
-vi.mock('../data/gradedStories.js', () => ({
-  GRADED_STORIES: [MOCK_STORY_HOISTED],
+// ── contentClient mock — single story with 3-question quiz ──────────────────
+vi.mock('../lib/contentClient', () => ({
+  getStoryCatalog: vi.fn(async () => [
+    {
+      id: MOCK_STORY_HOISTED.id,
+      level: MOCK_STORY_HOISTED.level,
+      title: MOCK_STORY_HOISTED.title,
+      titleEn: MOCK_STORY_HOISTED.titleEn,
+      focus: MOCK_STORY_HOISTED.focus,
+      icon: MOCK_STORY_HOISTED.icon,
+      duration: MOCK_STORY_HOISTED.duration,
+      levelColor: MOCK_STORY_HOISTED.levelColor,
+      levelBg: MOCK_STORY_HOISTED.levelBg,
+      etag: 'e1',
+    },
+  ]),
+  getStory: vi.fn(async () => MOCK_STORY_HOISTED),
 }));
 
 import GradedInputScreen from '../components/learn/GradedInputScreen';

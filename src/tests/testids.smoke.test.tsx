@@ -142,6 +142,37 @@ vi.mock('../hooks/useAdaptiveSession', () => ({
 }));
 vi.mock('../components/shared/PronunciationScorer', () => ({ default: () => null }));
 
+// contentClient mock — GradedInputScreen fetches catalog + body via this module
+vi.mock('../lib/contentClient', () => ({
+  getStoryCatalog: vi.fn(async () => [
+    {
+      id: 'gs_a1_1',
+      level: 'A1',
+      title: 'A1 Story 1',
+      titleEn: 'A1 Story 1',
+      focus: 'Present tense',
+      icon: '📖',
+      duration: 3,
+      levelColor: '#166534',
+      levelBg: '#dcfce7',
+      etag: 'e1',
+    },
+  ]),
+  getStory: vi.fn(async (id: string) => ({
+    id,
+    level: 'A1',
+    icon: '📖',
+    title: 'A1 Story 1',
+    titleEn: 'A1 Story 1',
+    duration: 3,
+    focus: 'Present tense',
+    intro: 'Intro text',
+    vocabulary: [],
+    paragraphs: [],
+    quiz: [],
+  })),
+}));
+
 // SHADOWING data mock — keep H/Bar/Spk real but inject deterministic SHADOWING list
 const MOCK_SHADOWING = vi.hoisted(() => [
   { hr: 'Dobar dan.', en: 'Good day.', tip: 'Focus on the melody of the greeting' },
@@ -201,7 +232,7 @@ describe('SP10 testid smoke tests — BLOCKER screens', () => {
   it('GradedInputScreen list view renders graded-story-card-gs_a1_1 testid', async () => {
     const { default: GradedInputScreen } = await import('../components/learn/GradedInputScreen');
     render(<GradedInputScreen goBack={() => {}} />);
-    expect(screen.getByTestId('graded-story-card-gs_a1_1')).toBeInTheDocument();
+    expect(await screen.findByTestId('graded-story-card-gs_a1_1')).toBeInTheDocument();
   });
 
   it('TabBar renders nav-home / nav-learn / nav-practice / nav-croatia / nav-profile testids', async () => {

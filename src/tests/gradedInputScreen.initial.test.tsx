@@ -2,7 +2,7 @@
 // SP7 Task 4: Verify initialStoryId prop routes directly to the reader view
 // for matching IDs, and falls through to the catalog list for unknown IDs.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 // Firebase mocks — defensive in case any indirect import pulls them in.
@@ -55,41 +55,77 @@ vi.mock('../lib/recentReads', () => ({
   getRecentReadsExtended: vi.fn(() => []),
 }));
 
-// Mock GRADED_STORIES with two known stories so we can verify initialStoryId routing
-vi.mock('../data/gradedStories.js', () => ({
-  GRADED_STORIES: [
-    {
-      id: 'gs_test_a',
-      level: 'A1',
-      title: 'Test Story A',
-      titleEn: 'Test Story A',
-      focus: 'Present tense',
-      icon: '🅰️',
-      duration: 3,
-      levelBg: '#dcfce7',
-      levelColor: '#166534',
-      intro: 'Story A intro.',
-      paragraphs: [{ hr: 'Hello A', en: 'Hello A' }],
-      vocabulary: [],
-      quiz: [{ q: 'A?', qEn: 'A?', opts: ['x', 'y'], correct: 0 }],
-    },
-    {
-      id: 'gs_test_b',
-      level: 'A1',
-      title: 'Test Story B',
-      titleEn: 'Test Story B',
-      focus: 'Numbers',
-      icon: '🅱️',
-      duration: 4,
-      levelBg: '#dcfce7',
-      levelColor: '#166534',
-      intro: 'Story B intro.',
-      paragraphs: [{ hr: 'Hello B', en: 'Hello B' }],
-      vocabulary: [],
-      quiz: [],
-    },
-  ],
+// Mock contentClient with two known stories so we can verify initialStoryId routing
+const STORY_A_HOISTED = vi.hoisted(() => ({
+  id: 'gs_test_a',
+  level: 'A1',
+  title: 'Test Story A',
+  titleEn: 'Test Story A',
+  focus: 'Present tense',
+  icon: '🅰️',
+  duration: 3,
+  levelBg: '#dcfce7',
+  levelColor: '#166534',
+  intro: 'Story A intro.',
+  paragraphs: [{ hr: 'Hello A', en: 'Hello A' }],
+  vocabulary: [],
+  quiz: [{ q: 'A?', qEn: 'A?', opts: ['x', 'y'], correct: 0 }],
 }));
+const STORY_B_HOISTED = vi.hoisted(() => ({
+  id: 'gs_test_b',
+  level: 'A1',
+  title: 'Test Story B',
+  titleEn: 'Test Story B',
+  focus: 'Numbers',
+  icon: '🅱️',
+  duration: 4,
+  levelBg: '#dcfce7',
+  levelColor: '#166534',
+  intro: 'Story B intro.',
+  paragraphs: [{ hr: 'Hello B', en: 'Hello B' }],
+  vocabulary: [],
+  quiz: [],
+}));
+
+vi.mock('../lib/contentClient', () => {
+  const FIXTURES: Record<string, unknown> = {
+    gs_test_a: STORY_A_HOISTED,
+    gs_test_b: STORY_B_HOISTED,
+  };
+  return {
+    getStoryCatalog: vi.fn(async () => [
+      {
+        id: STORY_A_HOISTED.id,
+        level: STORY_A_HOISTED.level,
+        title: STORY_A_HOISTED.title,
+        titleEn: STORY_A_HOISTED.titleEn,
+        focus: STORY_A_HOISTED.focus,
+        icon: STORY_A_HOISTED.icon,
+        duration: STORY_A_HOISTED.duration,
+        levelColor: STORY_A_HOISTED.levelColor,
+        levelBg: STORY_A_HOISTED.levelBg,
+        etag: 'e1',
+      },
+      {
+        id: STORY_B_HOISTED.id,
+        level: STORY_B_HOISTED.level,
+        title: STORY_B_HOISTED.title,
+        titleEn: STORY_B_HOISTED.titleEn,
+        focus: STORY_B_HOISTED.focus,
+        icon: STORY_B_HOISTED.icon,
+        duration: STORY_B_HOISTED.duration,
+        levelColor: STORY_B_HOISTED.levelColor,
+        levelBg: STORY_B_HOISTED.levelBg,
+        etag: 'e2',
+      },
+    ]),
+    getStory: vi.fn(async (id: string) => {
+      const fixture = FIXTURES[id];
+      if (!fixture) throw new Error('not_found');
+      return fixture;
+    }),
+  };
+});
 
 import GradedInputScreen from '../components/learn/GradedInputScreen';
 
@@ -98,16 +134,20 @@ describe('GradedInputScreen — initialStoryId prop', () => {
     vi.clearAllMocks();
   });
 
-  it('with initialStoryId, auto-opens the matching story (skips the list view)', () => {
+  it('with initialStoryId, auto-opens the matching story (skips the list view)', async () => {
     render(<GradedInputScreen goBack={() => {}} initialStoryId="gs_test_b" />);
-    expect(screen.getByText(/Story B intro/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Story B intro/i)).toBeInTheDocument();
+    });
     expect(screen.queryByText(/Story A intro/i)).not.toBeInTheDocument();
   });
 
-  it('with initialStoryId pointing to a missing ID, falls through to the catalog list', () => {
+  it('with initialStoryId pointing to a missing ID, falls through to the catalog list', async () => {
     render(<GradedInputScreen goBack={() => {}} initialStoryId="does-not-exist" />);
     // Each story title renders twice (hr title + English subtitle) — use getAllByText.
-    expect(screen.getAllByText(/Test Story A/i).length).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(screen.getAllByText(/Test Story A/i).length).toBeGreaterThan(0);
+    });
     expect(screen.getAllByText(/Test Story B/i).length).toBeGreaterThan(0);
     // And the reader's intro text must NOT be visible (we're on the list view).
     expect(screen.queryByText(/Story A intro/i)).not.toBeInTheDocument();

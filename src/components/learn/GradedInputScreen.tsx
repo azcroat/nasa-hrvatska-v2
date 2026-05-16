@@ -1,9 +1,10 @@
-import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { speak } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { unlockAudio } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
-import { GRADED_STORIES } from '../../data/gradedStories.js';
+import { getStoryCatalog, getStory } from '../../lib/contentClient';
+import type { StoryCatalogEntry } from '../../types/content';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { useRecorder } from '../../hooks/useRecorder';
@@ -125,17 +126,48 @@ async function playTTS(text: string, audioRef: React.MutableRefObject<HTMLAudioE
 }
 
 // ─── List view ────────────────────────────────────────────────────────────────
-function StoryList({
-  onSelect,
-  goBack,
-}: {
-  onSelect: (story: GradedStory) => void;
-  goBack: () => void;
-}) {
+function StoryList({ onSelect, goBack }: { onSelect: (id: string) => void; goBack: () => void }) {
   const [filter, setFilter] = useState('All');
+  const [catalog, setCatalog] = useState<StoryCatalogEntry[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const done = getDone();
 
-  const visible = GRADED_STORIES.filter((s) => filter === 'All' || s.level === filter);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const cat = await getStoryCatalog();
+        if (!cancelled) setCatalog(cat);
+      } catch {
+        if (!cancelled) setLoadError(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loadError) {
+    return (
+      <div className="scr-wrap" data-testid="graded-input-screen-error">
+        <BackBtn onClick={goBack} />
+        <div style={{ padding: 20 }}>
+          Couldn&#39;t load stories. Check your connection and retry.
+        </div>
+      </div>
+    );
+  }
+
+  if (!catalog) {
+    return (
+      <div className="scr-wrap" data-testid="graded-input-screen-loading">
+        <BackBtn onClick={goBack} />
+        <div style={{ padding: 20 }}>Loading stories…</div>
+      </div>
+    );
+  }
+
+  const visible = catalog.filter((s) => filter === 'All' || s.level === filter);
 
   return (
     <div className="scr-wrap">
@@ -194,11 +226,11 @@ function StoryList({
             data-testid={'graded-story-card-' + story.id}
             role="button"
             tabIndex={0}
-            onClick={() => onSelect(story)}
+            onClick={() => onSelect(story.id)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                onSelect(story);
+                onSelect(story.id);
               }
             }}
             style={{
@@ -929,21 +961,45 @@ export default function GradedInputScreen({
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
   initialStoryId?: string;
 }) {
-  // SP7: when launched with initialStoryId, skip the catalog and open the
-  // matching story directly. Unknown IDs fall through to the list view.
-  const initialStory = useMemo(() => {
-    if (!initialStoryId) return null;
-    return GRADED_STORIES.find((s: GradedStory) => s.id === initialStoryId) ?? null;
-  }, [initialStoryId]);
-
-  const [view, setView] = useState(initialStory ? 'reader' : 'list'); // 'list' | 'reader' | 'quiz'
-  const [story, setStory] = useState<GradedStory | null>(initialStory);
+  const [view, setView] = useState<'list' | 'reader' | 'quiz'>('list');
+  const [story, setStory] = useState<GradedStory | null>(null);
+  const [loadingStory, setLoadingStory] = useState<boolean>(!!initialStoryId);
   const completeFired = useRef(false);
   const { stats, setStats, writeDelta } = useStats();
 
-  function selectStory(s: GradedStory) {
-    setStory(s);
-    setView('reader');
+  // SP11: when launched with initialStoryId, fetch the full body via
+  // getStory() and open reader view. Unknown IDs fall through to list.
+  useEffect(() => {
+    if (!initialStoryId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const full = await getStory(initialStoryId);
+        if (cancelled) return;
+        setStory(full as unknown as GradedStory);
+        setView('reader');
+      } catch {
+        if (!cancelled) setView('list');
+      } finally {
+        if (!cancelled) setLoadingStory(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [initialStoryId]);
+
+  async function selectStory(id: string) {
+    setLoadingStory(true);
+    try {
+      const full = await getStory(id);
+      setStory(full as unknown as GradedStory);
+      setView('reader');
+    } catch {
+      // fall through silently; user remains on list view
+    } finally {
+      setLoadingStory(false);
+    }
   }
 
   function startQuiz() {
@@ -963,6 +1019,20 @@ export default function GradedInputScreen({
     }
     writeDelta({ lc: 1, vs: ['story-comprehension'] });
     goBack();
+  }
+
+  if (loadingStory && !story) {
+    return (
+      <div className="scr-wrap" data-testid="graded-input-screen-loading-story">
+        <BackBtn
+          onClick={() => {
+            setView('list');
+            setLoadingStory(false);
+          }}
+        />
+        <div style={{ padding: 20 }}>Loading story…</div>
+      </div>
+    );
   }
 
   if (view === 'reader' && story) {
