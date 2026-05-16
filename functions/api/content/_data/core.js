@@ -1,11 +1,77 @@
-// SP11d: aggregator for 25 high-IP-density "core" content exports.
-// 8 vocab + 9 cultural + 5 situational + 1 scenes + 2 misc (inline + appUtils) = 25.
+// SP11d + SP11e: aggregator for 27 high-IP-density "core" content exports.
+// 8 vocab + 9 cultural + 5 situational + 1 scenes + 1 misc (LEVEL_NARRATIVE)
+// + 1 LEARN_PATH (SP11e) + 1 SEASONAL_CAMPAIGNS (SP11e) + 2 composed names = 27.
 //
-// Deferred to SP11e (function-valued, need data/function split before JSON serialization):
-//   LEARN_PATH (97 items × ck function)
-//   SEASONAL_CAMPAIGNS (easter entry has dynamicWindow arrow function)
+// SP11e composition: V is mutated at module load with TOP100 spread + B2
+// aliases + LEARN_PATH topic aliases. Composition runs once at function cold
+// start. Result: a single bulk payload, same ETag, same Bearer gate.
 
-// === Vocab pools (8 — from vocabulary.js) ===
+import {
+  V as V_RAW,
+  COUNTRIES,
+  PROFESSIONS,
+  WEATHER,
+  CLOTHES,
+  BODYDESC,
+  TECH_VOC,
+  BUREAUCRATIC,
+  TOP100,
+  V_B2,
+  ALPHA,
+} from './vocabulary.js';
+import { PROVERBS } from './cultural/proverbs.js';
+import { HISTORY, KINGS } from './cultural/history.js';
+import { EVENTS } from './cultural/events.js';
+import { REGIONS } from './cultural/regions.js';
+import { DIALECTS, SHADOWING } from './cultural/language.js';
+import { CROATIAN_CITIES } from './cultural/geography.js';
+import { IDIOMS, BRZALICE } from './exercises.js';
+import {
+  FOODORDER,
+  TRANSPORT,
+  GROCERY,
+  RECIPES,
+  PRACTICAL,
+  SCHOOL,
+  FRIENDS,
+  EMERGENCY,
+} from './scenarios.js';
+import { SCENES } from './vocabScenes.js';
+import { LEARN_PATH } from './learnPath.js';
+import { SEASONAL_CAMPAIGNS } from './seasonalCampaigns.js';
+
+// SP11e: V composition. Mutates V_RAW in place at module load — runs once at
+// cold start. Composition logic moved verbatim from src/data/content.tsx
+// (lines 169-179 + 962-979).
+
+const V = { ...V_RAW };
+
+// TOP 100 WORDS BY SITUATION — quizzable
+Object.keys(TOP100).forEach((k) => {
+  V[k] = TOP100[k];
+});
+
+// LEARN_PATH vocabulary aliases — B2 topics + civic→politics
+V['journalism'] = (V_B2 && V_B2['media & journalism']) || []; // lp68
+V['philosophy'] = (V_B2 && V_B2['philosophy & ethics']) || []; // lp67
+V['literature'] = (V_B2 && V_B2['academic language']) || []; // lp64
+V['politics'] = V['civic'] || []; // lp58
+
+// LEARN_PATH topic aliases — wire scenarios into V for lesson+quiz support
+V['Order Food'] = [].concat(
+  FOODORDER.bakery.items,
+  FOODORDER.fastfood.items,
+  FOODORDER.icecream.items,
+  FOODORDER.restaurant.phrases,
+);
+V['Getting Around'] = TRANSPORT.map((t) => [t.hr, t.en]);
+V['School Kit'] = [].concat(SCHOOL.classroom, SCHOOL.phrases);
+V['Making Friends'] = FRIENDS.map((f) => [f.hr, f.en]);
+V['Grocery Shopping'] = [].concat(GROCERY.vocab, GROCERY.phrases);
+V['Alphabet'] = ALPHA.map((a) => [a[0], a[1] + ' — ' + a[2] + ' (' + a[3] + ')']);
+V['Emergency'] = [].concat(EMERGENCY.phrases, EMERGENCY.bodyParts);
+
+// === The 27 exports ===
 export {
   V,
   COUNTRIES,
@@ -15,24 +81,26 @@ export {
   BODYDESC,
   TECH_VOC,
   BUREAUCRATIC,
-} from './vocabulary.js';
+  PROVERBS,
+  HISTORY,
+  KINGS,
+  EVENTS,
+  REGIONS,
+  DIALECTS,
+  SHADOWING,
+  CROATIAN_CITIES,
+  IDIOMS,
+  BRZALICE,
+  FOODORDER,
+  TRANSPORT,
+  GROCERY,
+  RECIPES,
+  PRACTICAL,
+  SCENES,
+  LEARN_PATH,
+  SEASONAL_CAMPAIGNS,
+};
 
-// === Cultural (9 — from cultural/* and exercises.js for IDIOMS/BRZALICE) ===
-export { PROVERBS } from './cultural/proverbs.js';
-export { HISTORY, KINGS } from './cultural/history.js';
-export { EVENTS } from './cultural/events.js';
-export { REGIONS } from './cultural/regions.js';
-export { DIALECTS, SHADOWING } from './cultural/language.js';
-export { CROATIAN_CITIES } from './cultural/geography.js';
-export { IDIOMS, BRZALICE } from './exercises.js';
-
-// === Situational (5 — from scenarios.js) ===
-export { FOODORDER, TRANSPORT, GROCERY, RECIPES, PRACTICAL } from './scenarios.js';
-
-// === Scenes (1 — from vocabScenes.js, originally VocabSceneData.js) ===
-export { SCENES } from './vocabScenes.js';
-
-// === Inline-extracted from src/data/content.tsx lines 3254-3299 ===
 export const LEVEL_NARRATIVE = {
   heritage: [
     'First Words',
