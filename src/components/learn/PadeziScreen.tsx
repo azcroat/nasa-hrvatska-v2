@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
-import { H, Bar, speak, sh, PADEZI, PREPS } from '../../data';
+import { H, Bar, speak, sh, PREPS } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 
@@ -8,6 +9,27 @@ interface PadeziQuizQ {
   q: string;
   a: string;
   al: string[];
+}
+
+interface PadeziCase {
+  name: string;
+  q: string;
+  en: string;
+  use: string;
+  exs: string[];
+  tip: string;
+}
+
+interface PadeziShape {
+  cases: PadeziCase[];
+  quiz: PadeziQuizQ[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
 }
 
 export default function PadeziScreen({
@@ -20,6 +42,7 @@ export default function PadeziScreen({
   setSt?: (fn: (s: Record<string, number>) => Record<string, number>) => void;
 }) {
   const { writeDelta } = useStats();
+  const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [czMode, sCzMode] = useState('learn');
   const [czQ, sCzQ] = useState<PadeziQuizQ[]>([]);
@@ -28,6 +51,10 @@ export default function PadeziScreen({
   const [czA, sCzA] = useState(false);
   const [czSl, sCzSl] = useState(-1);
   const [czO, sCzO] = useState<string[]>([]);
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const PADEZI = grammar.PADEZI as unknown as PadeziShape;
 
   function startQuiz(): void {
     const q = sh(PADEZI.quiz) as PadeziQuizQ[];

@@ -1,15 +1,33 @@
 import React from 'react';
 import { H, speak } from '../../data';
-import { ASPECT } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
+
+interface AspectPair {
+  impf: string;
+  perf: string;
+  en: string;
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 interface Props {
   goBack: () => void;
 }
 function AspectScreen({ goBack }: Props) {
+  const { grammar, loading, error } = useGrammar();
   const userLevel =
     typeof localStorage !== 'undefined' ? localStorage.getItem('nh_level') || 'A1' : 'A1';
   const isA1 = userLevel === 'A1';
   const isPreB1 = ['A1', 'A2'].includes(userLevel);
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const ASPECT = grammar.ASPECT as { pairs: AspectPair[] };
 
   return (
     <div className="scr-wrap">
