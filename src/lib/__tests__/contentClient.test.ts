@@ -9,6 +9,7 @@ import {
   ContentFetchError,
   type Grammar,
   type Lesson,
+  type Content,
 } from '../../types/content';
 
 vi.mock('../audio', () => ({
@@ -26,6 +27,7 @@ import {
   getGrammarUnit,
   getGrammar,
   getLessons,
+  getContent,
 } from '../contentClient';
 
 const STORY_BODY = { id: 'gs_a1_1', title: 'Test', paragraphs: ['a', 'b'] };
@@ -127,6 +129,25 @@ async function seedStaleCacheForLessons(body: Lesson[]) {
       lastValidatedAt: Date.now() - cache.STALE_AFTER_MS - 60_000,
     },
     'uid_uid_test:lessons:all',
+  );
+}
+
+async function seedStaleCacheForContent(body: Content) {
+  const idb = await import('idb');
+  const db = await idb.openDB('nh-content-cache', 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains('resources')) db.createObjectStore('resources');
+    },
+  });
+  await db.put(
+    'resources',
+    {
+      etag: 'c1',
+      body,
+      fetchedAt: Date.now() - cache.STALE_AFTER_MS - 60_000,
+      lastValidatedAt: Date.now() - cache.STALE_AFTER_MS - 60_000,
+    },
+    'uid_uid_test:core:all',
   );
 }
 
@@ -352,5 +373,56 @@ describe('contentClient.getLessons', () => {
     mockFetch([async () => new Response(null, { status: 304 })]);
     const lessons = await getLessons();
     expect(lessons).toEqual(BODY);
+  });
+});
+
+describe('contentClient.getContent', () => {
+  const FIXTURE: Content = {
+    V: {},
+    COUNTRIES: [],
+    PROFESSIONS: [],
+    WEATHER: {},
+    CLOTHES: {},
+    BODYDESC: [],
+    TECH_VOC: {},
+    BUREAUCRATIC: {},
+    PROVERBS: [{ hr: 'Tko rano rani, dvije sreće grabi.', en: 'test' }],
+    IDIOMS: [],
+    BRZALICE: [],
+    HISTORY: {},
+    EVENTS: [],
+    KINGS: {},
+    REGIONS: {},
+    DIALECTS: {},
+    CROATIAN_CITIES: [],
+    FOODORDER: {},
+    TRANSPORT: [],
+    GROCERY: {},
+    RECIPES: [],
+    PRACTICAL: {},
+    SCENES: [],
+    LEVEL_NARRATIVE: { heritage: ['First Words'] },
+    SHADOWING: [],
+  };
+
+  it('200 path writes cache and returns content', async () => {
+    mockFetch([
+      async () =>
+        new Response(JSON.stringify({ data: FIXTURE, etag: 'c1' }), {
+          status: 200,
+          headers: { ETag: '"c1"' },
+        }),
+    ]);
+    const content = await getContent();
+    expect(content).toEqual(FIXTURE);
+    const cached = await cache.readCached('uid_test', 'core:all');
+    expect(cached?.etag).toBe('c1');
+  });
+
+  it('304 path returns cached content', async () => {
+    await seedStaleCacheForContent(FIXTURE);
+    mockFetch([async () => new Response(null, { status: 304 })]);
+    const content = await getContent();
+    expect(content).toEqual(FIXTURE);
   });
 });

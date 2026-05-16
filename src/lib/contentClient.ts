@@ -14,6 +14,7 @@ import {
   type GrammarUnit,
   type Grammar,
   type Lesson,
+  type Content,
 } from '../types/content';
 
 const ANON_NS = 'anon';
@@ -114,4 +115,9 @@ export async function getGrammar(): Promise<Grammar> {
 export async function getLessons(): Promise<Lesson[]> {
   const uid = await namespaceUid();
   return fetchAndCache<Lesson[]>(uid, 'lessons:all', '/api/content/lessons');
+}
+
+export async function getContent(): Promise<Content> {
+  const uid = await namespaceUid();
+  return fetchAndCache<Content>(uid, 'core:all', '/api/content/core');
 }

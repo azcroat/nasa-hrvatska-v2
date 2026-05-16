@@ -107,3 +107,35 @@ export interface Lesson {
   bg?: string;
   slides: LessonSlide[];
 }
+
+// SP11d: 25 high-IP-density "core" content exports (vocab + cultural +
+// situational + scenes + LEVEL_NARRATIVE + SHADOWING). LEARN_PATH and
+// SEASONAL_CAMPAIGNS deferred to SP11e (function/data split needed).
+// Loose Record/unknown[] per field; consumers narrow at consumption.
+export interface Content {
+  V: Record<string, unknown>;
+  COUNTRIES: Record<string, unknown> | unknown[];
+  PROFESSIONS: Record<string, unknown> | unknown[];
+  WEATHER: Record<string, unknown>;
+  CLOTHES: Record<string, unknown>;
+  BODYDESC: Record<string, unknown> | unknown[];
+  TECH_VOC: Record<string, unknown>;
+  BUREAUCRATIC: Record<string, unknown>;
+  PROVERBS: unknown[];
+  IDIOMS: unknown[];
+  BRZALICE: unknown[];
+  HISTORY: Record<string, unknown>;
+  EVENTS: unknown[];
+  KINGS: Record<string, unknown>;
+  REGIONS: Record<string, unknown>;
+  DIALECTS: Record<string, unknown>;
+  CROATIAN_CITIES: unknown[];
+  FOODORDER: Record<string, unknown>;
+  TRANSPORT: unknown[];
+  GROCERY: Record<string, unknown>;
+  RECIPES: unknown[];
+  PRACTICAL: Record<string, unknown>;
+  SCENES: unknown[];
+  LEVEL_NARRATIVE: Record<string, string[]>;
+  SHADOWING: unknown[];
+}
