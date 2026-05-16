@@ -31,17 +31,41 @@ describe('GET /api/content/catalog', () => {
     expect(json.etag).toMatch(/^[0-9a-f]{40}$/);
   });
 
-  it('catalog entries include id, level, title, etag - never full body', async () => {
+  it('story catalog entries include display metadata but never the IP body', async () => {
     const res = await onRequestGet(makeContext());
     const json = await res.json();
     const s = json.data.stories[0];
-    expect(s).toHaveProperty('id');
-    expect(s).toHaveProperty('level');
-    expect(s).toHaveProperty('title');
-    expect(s).toHaveProperty('etag');
-    // Catalog must NOT leak full content
-    expect(s).not.toHaveProperty('paragraphs');
-    expect(s).not.toHaveProperty('quizzes');
-    expect(s).not.toHaveProperty('vocab');
+    // Display metadata used by StoryOfTheDayCard + recommendStory()
+    for (const k of [
+      'id',
+      'level',
+      'title',
+      'titleEn',
+      'focus',
+      'icon',
+      'duration',
+      'levelColor',
+      'levelBg',
+      'etag',
+    ]) {
+      expect(s, `story catalog entry missing "${k}"`).toHaveProperty(k);
+    }
+    // The IP: must NEVER appear in the catalog (actual field names from gradedStories.js)
+    for (const k of ['paragraphs', 'vocabulary', 'quiz', 'intro']) {
+      expect(s, `story catalog entry leaks IP field "${k}"`).not.toHaveProperty(k);
+    }
+  });
+
+  it('grammar-unit catalog entries include display metadata but never the IP body', async () => {
+    const res = await onRequestGet(makeContext());
+    const json = await res.json();
+    const u = json.data.grammarUnits[0];
+    for (const k of ['id', 'level', 'title', 'subtitle', 'focus', 'etag']) {
+      expect(u, `grammar catalog entry missing "${k}"`).toHaveProperty(k);
+    }
+    // The IP: must NEVER appear in the catalog (actual field names from grammarAdvanced.js)
+    for (const k of ['intro', 'forms', 'examples', 'tips', 'drills']) {
+      expect(u, `grammar catalog entry leaks IP field "${k}"`).not.toHaveProperty(k);
+    }
   });
 });

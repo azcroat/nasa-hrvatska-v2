@@ -1,7 +1,14 @@
+// Display metadata only — full body lives behind /api/content/stories/{id}.
 export interface StoryCatalogEntry {
   id: string;
   level: string;
   title: string;
+  titleEn: string;
+  focus: string;
+  icon: string;
+  duration: number;
+  levelColor: string;
+  levelBg: string;
   etag: string;
 }
 
@@ -9,6 +16,8 @@ export interface GrammarCatalogEntry {
   id: string;
   level: string;
   title: string;
+  subtitle: string;
+  focus: string;
   etag: string;
 }
 
