@@ -154,7 +154,6 @@ export default defineConfig({
           if (id.includes('node_modules/@sentry')) return 'vendor-sentry';
           if (id.includes('node_modules/dexie')) return 'vendor-dexie';
           // Large agent-generated data files — each in its own lazy chunk.
-          if (id.includes('src/data/gradedStories')) return 'chunk-stories';
           if (id.includes('src/data/pitchAccentContent')) return 'chunk-pitch-data';
           if (id.includes('src/data/daily-content')) return 'chunk-daily';
           if (id.includes('croatia/LyricsSongData')) return 'chunk-songs';
