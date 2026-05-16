@@ -1,5 +1,19 @@
 import React, { useState } from 'react';
-import { PHONOLOGY, speak } from '../../data';
+import { speak } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
+
+interface PhonologyShape {
+  tip?: string;
+  letters?: PronLetter[];
+  [key: string]: unknown;
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 interface PronLetter {
   letter: string;
@@ -38,10 +52,12 @@ const BackBtn = ({ onClick }: { onClick: () => void }) => (
 // ─── Letter overview list ─────────────────────────────────────────────────────
 function LetterList({
   letters,
+  tip,
   onSelect,
   goBack,
 }: {
   letters: PronLetter[];
+  tip: string;
   onSelect: (l: PronLetter) => void;
   goBack: () => void;
 }) {
@@ -89,7 +105,7 @@ function LetterList({
         }}
       >
         <strong>💡 </strong>
-        {PHONOLOGY.tip}
+        {tip}
       </div>
 
       {/* Letter grid */}
@@ -573,10 +589,15 @@ export default function PronunciationCourse({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { grammar, loading, error } = useGrammar();
   const [selected, setSelected] = useState<PronLetter | null>(null);
   const [completedThis, setCompletedThis] = useState(new Set());
 
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const PHONOLOGY = grammar.PHONOLOGY as unknown as PhonologyShape;
   const letters = PHONOLOGY?.letters || [];
+  const tip = PHONOLOGY?.tip || '';
 
   function onComplete() {
     if (!selected) return;
@@ -598,5 +619,5 @@ export default function PronunciationCourse({
     );
   }
 
-  return <LetterList letters={letters} onSelect={setSelected} goBack={goBack} />;
+  return <LetterList letters={letters} tip={tip} onSelect={setSelected} goBack={goBack} />;
 }

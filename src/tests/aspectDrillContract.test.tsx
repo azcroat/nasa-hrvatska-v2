@@ -15,25 +15,39 @@ import type { Stats, StatsContextValue } from '../types';
 // ─── Freeze shuffle so opts[0] is always the answer ──────────────────────────
 vi.mock('../lib/random.js', () => ({ rnd: () => 0.9999 }));
 
-// ─── 1-pair fixture via data barrel mock ─────────────────────────────────────
-// We re-export everything else verbatim so sub-components (H, Bar, sh, …) work.
-vi.mock('../data', async (importOriginal) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const real = (await importOriginal()) as any;
-  return {
-    ...real,
-    ASPECT_PAIRS: [
-      {
-        impf: 'pisati',
-        pf: 'napisati',
-        en: 'to write',
-        rule: 'na- prefix marks completion',
-        ctx: 'Svaki dan pišem pisma. / Napisao sam pismo majci.',
-        cefr: 'B1',
-      },
-    ],
-  };
-});
+// ─── 1-pair fixture via useGrammar hook mock ─────────────────────────────────
+// We keep ../data as-is so sub-components (H, Bar, sh, …) work.
+vi.mock('../hooks/useGrammar', () => ({
+  useGrammar: () => ({
+    grammar: {
+      PADEZI: {},
+      GRAM: {},
+      CONJ: {},
+      MODAL: {},
+      TENSES: {},
+      ASPECT: {},
+      ASPECT_PAIRS: [
+        {
+          impf: 'pisati',
+          pf: 'napisati',
+          en: 'to write',
+          rule: 'na- prefix marks completion',
+          ctx: 'Svaki dan pišem pisma. / Napisao sam pismo majci.',
+          cefr: 'B1',
+        },
+      ],
+      CONDITIONAL: {},
+      FORMAL_REGISTER: {},
+      IMPERSONAL: {},
+      PHONOLOGY: {},
+      PITCH_ACCENT: [],
+      PADEZI_FULL: {},
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
+}));
 
 // ─── Quest mock ──────────────────────────────────────────────────────────────
 const markQuestMock = vi.fn();

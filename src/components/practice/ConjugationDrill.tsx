@@ -1,8 +1,27 @@
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
-import { H, Bar, speak, sh, CONJ } from '../../data';
+import { H, Bar, speak, sh } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
+
+interface ConjVerb {
+  inf: string;
+  en: string;
+  tense: string;
+  forms: string[];
+}
+interface ConjShape {
+  verbs: ConjVerb[];
+  persons: string[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 interface Props {
   goBack: () => void;
@@ -10,6 +29,7 @@ interface Props {
 }
 export default function ConjugationDrill({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
+  const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [cjMode, sCjMode] = useState('menu');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,6 +39,10 @@ export default function ConjugationDrill({ goBack, award }: Props) {
   const [cjA, sCjA] = useState(false);
   const [cjSl, sCjSl] = useState(-1);
   const [cjO, sCjO] = useState<string[]>([]);
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const CONJ = grammar.CONJ as unknown as ConjShape;
 
   function startQuiz(tense: string) {
     const pool = tense === 'all' ? CONJ.verbs : CONJ.verbs.filter((v) => v.tense === tense);

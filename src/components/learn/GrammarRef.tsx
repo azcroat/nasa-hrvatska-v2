@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak, shMemo } from '../../data';
 import {
-  ASPECT,
   FALSEFR,
   DECL,
   BRZALICE,
@@ -11,8 +10,29 @@ import {
   COLORQUIRK,
   SVOJMOJ,
 } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
+
+interface AspectPair {
+  impf: string;
+  perf: string;
+  en: string;
+}
+interface AspectShape {
+  pairs: AspectPair[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 export function AspectScreen({ goBack }: { goBack: () => void }) {
+  const { grammar, loading, error } = useGrammar();
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const ASPECT = grammar.ASPECT as unknown as AspectShape;
   return (
     <div className="scr-wrap">
       {H('🔄 Verb Aspect', 'Perfective vs Imperfective', goBack)}
