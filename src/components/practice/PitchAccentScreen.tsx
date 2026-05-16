@@ -1,7 +1,23 @@
 import React, { useState, useRef } from 'react';
-import { H, Bar, Spk, PITCH_ACCENT } from '../../data';
+import { H, Bar, Spk } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { useStats } from '../../context/StatsContext.tsx';
 import { markQuest } from '../../lib/quests.js';
+
+interface PitchAccentItem {
+  hr: string;
+  en: string;
+  type: string;
+  mark: string;
+  tip: string;
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 const ACCENT_TYPES = [
   {
@@ -42,6 +58,7 @@ export default function PitchAccentScreen({
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
+  const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [idx, setIdx] = useState(0);
   const [answered, setAnswered] = useState(false);
@@ -49,6 +66,9 @@ export default function PitchAccentScreen({
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
 
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const PITCH_ACCENT = grammar.PITCH_ACCENT as unknown as PitchAccentItem[];
   if (!PITCH_ACCENT || PITCH_ACCENT.length === 0) return null;
   const items = PITCH_ACCENT;
 

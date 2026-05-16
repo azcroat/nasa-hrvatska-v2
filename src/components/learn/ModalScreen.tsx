@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
-import { H, Bar, Spk, speak, sh, MODAL } from '../../data';
+import { H, Bar, Spk, speak, sh } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 
 interface ModalQuizQ {
   q: string;
@@ -8,6 +9,29 @@ interface ModalQuizQ {
   al: string[];
   v?: string;
   en?: string;
+}
+
+interface ModalVerb {
+  icon: string;
+  inf: string;
+  en: string;
+  forms: string[];
+  neg: string[];
+  tip: string;
+}
+
+interface ModalShape {
+  verbs: ModalVerb[];
+  persons: string[];
+  fillBlanks: ModalQuizQ[];
+  masterQuiz: ModalQuizQ[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
 }
 
 export default function ModalScreen({
@@ -20,6 +44,7 @@ export default function ModalScreen({
   setSt?: (fn: (s: Record<string, number>) => Record<string, number>) => void;
 }) {
   const { writeDelta } = useStats();
+  const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [m7, sM7] = useState('menu');
   const [m7v, sM7v] = useState(0);
@@ -29,6 +54,10 @@ export default function ModalScreen({
   const [m7a, sM7a] = useState(false);
   const [m7sl, sM7sl] = useState(-1);
   const [m7o, sM7o] = useState<string[]>([]);
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const MODAL = grammar.MODAL as unknown as ModalShape;
 
   function resetMode(mode: string): void {
     sM7(mode);

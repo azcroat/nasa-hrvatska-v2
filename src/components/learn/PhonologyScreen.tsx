@@ -1,5 +1,47 @@
 import React, { useState } from 'react';
-import { PHONOLOGY, speak } from '../../data';
+import { speak } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
+
+interface PhonExample {
+  hr: string;
+  en: string;
+}
+interface PhonLetter {
+  letter: string;
+  name: string;
+  ipa: string;
+  like: string;
+  memory: string;
+  color: string;
+  examples: PhonExample[];
+}
+interface PhonConfusedPair {
+  a: string;
+  b: string;
+  example_a: string;
+  example_b: string;
+  tip: string;
+}
+interface PhonRule {
+  rule: string;
+  detail: string;
+}
+interface PhonologyShape {
+  title: string;
+  intro: string;
+  tip: string;
+  letters: PhonLetter[];
+  confusedPairs: PhonConfusedPair[];
+  rules: PhonRule[];
+  quiz: PhonQuizItem[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 const BACK_BTN = ({ goBack }: { goBack: () => void }) => (
   <button className="b bg" style={{ marginBottom: 16, fontSize: 13 }} onClick={goBack}>
@@ -184,9 +226,12 @@ const QUIZ_SECTION = ({ quiz, accent }: { quiz: PhonQuizItem[]; accent: string }
 };
 
 function PhonologyScreen({ goBack }: { goBack: () => void }) {
+  const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('Letters');
   const [selLetter, setSelLetter] = useState<number | null>(null);
-  const d = PHONOLOGY;
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const d = grammar.PHONOLOGY as unknown as PhonologyShape;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />

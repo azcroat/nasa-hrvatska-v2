@@ -14,9 +14,31 @@ vi.mock('../data', () => ({
   H: () => null,
   Bar: () => null,
   Spk: () => null,
-  PITCH_ACCENT: [
-    { hr: 'ja', en: 'I', type: 'kratkosilazni', mark: 'jȁ', tip: 'short falling on a' },
-  ],
+}));
+
+vi.mock('../hooks/useGrammar', () => ({
+  useGrammar: () => ({
+    grammar: {
+      PADEZI: {},
+      GRAM: {},
+      CONJ: {},
+      MODAL: {},
+      TENSES: {},
+      ASPECT: {},
+      ASPECT_PAIRS: [],
+      CONDITIONAL: {},
+      FORMAL_REGISTER: {},
+      IMPERSONAL: {},
+      PHONOLOGY: {},
+      PITCH_ACCENT: [
+        { hr: 'ja', en: 'I', type: 'kratkosilazni', mark: 'jȁ', tip: 'short falling on a' },
+      ],
+      PADEZI_FULL: {},
+    },
+    loading: false,
+    error: null,
+    reload: () => {},
+  }),
 }));
 
 const markQuestMock = vi.fn();
