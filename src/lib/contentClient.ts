@@ -13,6 +13,7 @@ import {
   type Story,
   type GrammarUnit,
   type Grammar,
+  type Lesson,
 } from '../types/content';
 
 const ANON_NS = 'anon';
@@ -108,4 +109,9 @@ export async function getGrammarUnit(id: string): Promise<GrammarUnit> {
 export async function getGrammar(): Promise<Grammar> {
   const uid = await namespaceUid();
   return fetchAndCache<Grammar>(uid, 'grammar:all', '/api/content/grammar');
+}
+
+export async function getLessons(): Promise<Lesson[]> {
+  const uid = await namespaceUid();
+  return fetchAndCache<Lesson[]>(uid, 'lessons:all', '/api/content/lessons');
 }

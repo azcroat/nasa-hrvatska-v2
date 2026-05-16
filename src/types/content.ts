@@ -84,3 +84,26 @@ export interface Grammar {
   PITCH_ACCENT: unknown[];
   PADEZI_FULL: Record<string, unknown>;
 }
+
+// SP11c: lesson list shape. slides[] is the IP body.
+export interface LessonSlide {
+  type: string;
+  title?: string;
+  body?: string;
+  icon?: string;
+  // Slide-type-specific fields are read by AnimatedLesson via discriminated-union
+  // narrowing on `type`. Keep this interface loose.
+  [key: string]: unknown;
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  subtitle?: string;
+  icon: string;
+  level: string;
+  duration?: number;
+  color?: string;
+  bg?: string;
+  slides: LessonSlide[];
+}
