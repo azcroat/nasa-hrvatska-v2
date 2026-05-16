@@ -105,6 +105,9 @@ export default [
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'no-console': ['warn', { allow: ['error', 'warn'] }],
+      // Same Croatian data files (grammar.js etc.) now live under functions/api/content/_data/
+      // for Cloudflare Functions consumption; escapes are harmless string literals.
+      'no-useless-escape': 'off',
     },
   },
 
