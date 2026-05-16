@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 import { speak, speakSlow, stopAudio } from '../../lib/audio.ts';
-import { GRADED_STORIES } from '../../data/gradedStories.js';
+import { getStoryCatalog, getStory } from '../../lib/contentClient';
+import type { StoryCatalogEntry } from '../../types/content';
 
 // ── Storage key ────────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'nh_listen_comp_v2';
@@ -980,12 +981,17 @@ function _makeQId(levelId: string, setIdx: number, qIdx: number) {
   return `${levelId}__s${setIdx}__q${qIdx}`;
 }
 
-/** Find the graded story closest to the given CEFR level */
-function getBonusStory(levelId: string) {
-  const stories = GRADED_STORIES.filter((s) => s.level === levelId);
-  if (stories.length > 0) return stories[Math.floor(Math.random() * stories.length)];
-  // fallback: any story
-  if (GRADED_STORIES.length > 0) return GRADED_STORIES[0];
+/** Find the graded story closest to the given CEFR level (from async-loaded catalog) */
+function getBonusStoryFromCatalog(
+  catalog: StoryCatalogEntry[],
+  levelId: string,
+): StoryCatalogEntry | null {
+  const stories = catalog.filter((s) => s.level === levelId);
+  if (stories.length > 0) {
+    const idx = Math.floor(Math.random() * stories.length);
+    return stories[idx] ?? null;
+  }
+  if (catalog.length > 0) return catalog[0] ?? null;
   return null;
 }
 
@@ -1259,17 +1265,34 @@ function WeakWordsPanel({
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function BonusStoryCard({
+  catalog,
   levelId,
-  accentColor,
+  accentColor: _accentColor,
   onOpen,
 }: {
+  catalog: StoryCatalogEntry[];
   levelId: string;
   accentColor: string;
   onOpen: (story: any) => void;
 }) {
   /* eslint-enable @typescript-eslint/no-explicit-any */
-  const story = getBonusStory(levelId);
+  const [loading, setLoading] = useState(false);
+  const story = getBonusStoryFromCatalog(catalog, levelId);
   if (!story) return null;
+
+  async function handleClick() {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const full = await getStory(story!.id);
+      onOpen(full);
+    } catch {
+      // Silent — user can retry
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div
       style={{
@@ -1307,7 +1330,8 @@ function BonusStoryCard({
         {story.intro}
       </div>
       <button
-        onClick={() => onOpen(story)}
+        onClick={handleClick}
+        disabled={loading}
         style={{
           width: '100%',
           padding: '11px',
@@ -1317,11 +1341,12 @@ function BonusStoryCard({
           color: 'white',
           fontSize: 14,
           fontWeight: 800,
-          cursor: 'pointer',
+          cursor: loading ? 'wait' : 'pointer',
           fontFamily: "'Outfit',sans-serif",
+          opacity: loading ? 0.7 : 1,
         }}
       >
-        Listen to story →
+        {loading ? 'Loading…' : 'Listen to story →'}
       </button>
     </div>
   );
@@ -1772,6 +1797,24 @@ export default function ListeningComprehensionScreen({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [bonusStory, setBonusStory] = useState<any | null>(null);
 
+  // Story catalog (async-loaded for BonusStoryCard)
+  const [storyCatalog, setStoryCatalog] = useState<StoryCatalogEntry[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const cat = await getStoryCatalog();
+        if (!cancelled) setStoryCatalog(cat);
+      } catch {
+        // BonusStoryCard renders null when catalog is empty — fine
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Persist progress
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [progress, setProgress] = useState<any>(() => loadProgress());
@@ -1974,7 +2017,12 @@ export default function ListeningComprehensionScreen({
           onAddToFlashcards={handleAddToFlashcards}
         />
 
-        <BonusStoryCard levelId={selectedLevel!} accentColor={ld.color} onOpen={setBonusStory} />
+        <BonusStoryCard
+          catalog={storyCatalog}
+          levelId={selectedLevel!}
+          accentColor={ld.color}
+          onOpen={setBonusStory}
+        />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '20px 0 0' }}>
           <button className="b bp" onClick={reset} style={{ width: '100%' }}>
@@ -2391,6 +2439,7 @@ export default function ListeningComprehensionScreen({
 
         {lvlComplete && (
           <BonusStoryCard
+            catalog={storyCatalog}
             levelId={selectedLevel}
             accentColor={levelData.color}
             onOpen={setBonusStory}
