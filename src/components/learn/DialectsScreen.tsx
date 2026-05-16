@@ -1,10 +1,28 @@
 import React from 'react';
-import { H, DIALECTS } from '../../data';
+import { H } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface Props {
   goBack: () => void;
 }
 function DialectsScreen({ goBack }: Props) {
+  const { content, loading, error } = useContent();
+  if (error)
+    return (
+      <div className="scr-wrap">{H('🗺️ Regional Dialects', "Couldn't load — please retry.", goBack)}</div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('🗺️ Regional Dialects', 'Loading…', goBack)}</div>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const DIALECTS = content.DIALECTS as {
+    intro: string;
+    types: any[];
+    examples: any[];
+    chakavianNote: string;
+    heritageNote: string;
+    mutualIntelligibility: string;
+  };
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   return (
     <div className="scr-wrap">
       {H('🗺️ Regional Dialects', 'Štokavski, Kajkavski, Čakavski', goBack)}

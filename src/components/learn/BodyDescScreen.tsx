@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { BODYDESC, speak } from '../../data';
+import { speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface BackBtnProps {
   goBack: () => void;
@@ -192,9 +193,21 @@ interface BodyDescScreenProps {
   goBack: () => void;
 }
 function BodyDescScreen({ goBack }: BodyDescScreenProps) {
+  const { content, loading, error } = useContent();
   const [tab, setTab] = useState('Description');
   const [secIdx, setSecIdx] = useState(0);
-  const d = BODYDESC;
+  if (error) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
+  if (loading || !content) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const d = content.BODYDESC as {
+    title: string;
+    intro: string;
+    tip: string;
+    sections: any[];
+    phrases: any[];
+    quiz: any[];
+  };
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const sec = d.sections[secIdx];
   return (
     <WRAP>
@@ -232,7 +245,8 @@ function BodyDescScreen({ goBack }: BodyDescScreenProps) {
             ))}
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
-            {(sec?.items ?? []).map((item, i) => (
+            {(sec?.items ?? []).map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (item: any, i: number) => (
               <div
                 key={i}
                 role="button"
@@ -278,7 +292,8 @@ function BodyDescScreen({ goBack }: BodyDescScreenProps) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (p: any, i: number) => (
             <div
               key={i}
               role="button"

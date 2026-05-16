@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CLOTHES, speak } from '../../data';
+import { speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface BackBtnProps {
   goBack: () => void;
@@ -191,9 +192,21 @@ interface ClothesScreenProps {
   goBack: () => void;
 }
 function ClothesScreen({ goBack }: ClothesScreenProps) {
+  const { content, loading, error } = useContent();
   const [tab, setTab] = useState('Clothing');
   const [catIdx, setCatIdx] = useState(0);
-  const d = CLOTHES;
+  if (error) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
+  if (loading || !content) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const d = content.CLOTHES as {
+    title: string;
+    intro: string;
+    tip: string;
+    categories: any[];
+    phrases: any[];
+    quiz: any[];
+  };
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const cat = d.categories[catIdx];
   return (
     <WRAP>
@@ -233,7 +246,8 @@ function ClothesScreen({ goBack }: ClothesScreenProps) {
             {cat?.icon} {cat?.cat}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {(cat?.items ?? []).map((item, i) => (
+            {(cat?.items ?? []).map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (item: any, i: number) => (
               <div
                 key={i}
                 style={{
@@ -279,7 +293,8 @@ function ClothesScreen({ goBack }: ClothesScreenProps) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (p: any, i: number) => (
             <div
               key={i}
               role="button"

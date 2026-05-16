@@ -11,7 +11,8 @@ const _isNative =
   typeof window !== 'undefined' &&
   window.location.hostname === 'localhost' &&
   !window.location.port;
-import { lXP, nXP, earnFreeze, getStreakFreezes, LEVEL_NARRATIVE, speak } from '../../data';
+import { lXP, nXP, earnFreeze, getStreakFreezes, speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import {
   getDailyXP,
   getDailyXPGoal,
@@ -806,6 +807,8 @@ export default function HeroSection({
 }) {
   const { name } = useApp();
   const { level, stats: st, award, setStats } = useStats();
+  const { content: coreContent } = useContent();
+  const LEVEL_NARRATIVE = (coreContent?.LEVEL_NARRATIVE ?? {}) as Record<string, string[]>;
 
   const [freezes, setFreezes] = useState(getStreakFreezes);
   const [freezeMsg, setFreezeMsg] = useState('');
@@ -1336,8 +1339,7 @@ export default function HeroSection({
                     letterSpacing: '.02em',
                   }}
                 >
-                  {(LEVEL_NARRATIVE as Record<string, string[]>)[userGoal ?? '']?.[level - 1] ||
-                    'Learning'}
+                  {LEVEL_NARRATIVE[userGoal ?? '']?.[level - 1] || 'Learning'}
                 </span>
               </span>
             </div>

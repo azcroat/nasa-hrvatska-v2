@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useStats } from '../../context/StatsContext';
 import { getSR, getSRScore } from '../../lib/srs.js';
-import { V } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { playCorrect, playWrong, haptic } from '../../lib/soundSettings.js';
 
 const DURATION = 60; // seconds
@@ -10,7 +10,8 @@ const XP_FAST_BONUS = 1; // extra XP if answered in <3s
 const QUESTIONS_PER_GAME = 15;
 
 // Build a question pool from vocabulary + SRS weak words
-function buildQuestionPool() {
+// SP11d: V is now passed in (async-loaded via useContent at the component level).
+function buildQuestionPool(V: Record<string, unknown> | null | undefined) {
   // Flatten all vocab
   const allVocab = [];
   try {
@@ -84,6 +85,11 @@ const LS_KEY_PLAYED = 'nh_speed_challenge_played';
 
 export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }) {
   const { award } = useStats();
+  const { content } = useContent();
+  const V = useMemo(
+    () => (content?.V ?? {}) as Record<string, unknown>,
+    [content],
+  );
   const [phase, setPhase] = useState('idle'); // idle | playing | done
   const [timeLeft, setTimeLeft] = useState(DURATION);
   const [qIdx, setQIdx] = useState(0);
@@ -111,7 +117,7 @@ export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }
   const allVocab = useRef<VocabWord[]>([]);
 
   const start = useCallback(() => {
-    pool.current = buildQuestionPool();
+    pool.current = buildQuestionPool(V);
     allVocab.current = pool.current;
     if (pool.current.length < 4) {
       setNoVocab(true);
@@ -129,7 +135,7 @@ export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }
     setAnswered(null);
     setTotalEarned(0);
     questionStartRef.current = Date.now();
-  }, []);
+  }, [V]);
 
   // Timer
   useEffect(() => {
