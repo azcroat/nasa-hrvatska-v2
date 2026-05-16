@@ -29,4 +29,11 @@ describe('generate-content-etags', () => {
     expect(typeof a).toBe('string');
     expect(a).toMatch(/^[0-9a-f]{40}$/);
   });
+
+  it('computeEtag handles lessons-array input deterministically', async () => {
+    const a = await computeEtag([{ id: 'alphabet', slides: [] }]);
+    const b = await computeEtag([{ id: 'alphabet', slides: [] }]);
+    expect(a).toBe(b);
+    expect(a).toMatch(/^[0-9a-f]{40}$/);
+  });
 });
