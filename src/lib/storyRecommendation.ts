@@ -15,10 +15,13 @@ export interface GradedStoryLike {
   icon: string;
   titleEn: string;
   duration: number;
-  intro: string;
-  paragraphs: { hr: string; en: string }[];
-  vocabulary: { hr: string; en: string; ex: string }[];
-  quiz: { q: string; qEn: string; opts: string[]; correct: number }[];
+  // SP11: IP fields are NOT used by recommendStory(); kept optional so
+  // StoryCatalogEntry (display-only) satisfies the type. Full bodies still
+  // available via getStory(id) when actually needed.
+  intro?: string;
+  paragraphs?: { hr: string; en: string }[];
+  vocabulary?: { hr: string; en: string; ex: string }[];
+  quiz?: { q: string; qEn: string; opts: string[]; correct: number }[];
 }
 
 export interface RankedStory {

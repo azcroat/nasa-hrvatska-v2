@@ -1,10 +1,14 @@
 // src/components/home/StoryOfTheDayCard.tsx
-// SP7: home-screen card that surfaces the highest-scoring story for this learner.
-import React, { useMemo } from 'react';
-import { GRADED_STORIES } from '../../data/gradedStories.js';
+// SP7 + SP11: home-screen card that surfaces the highest-scoring story for this
+// learner. SP11 moved story content server-side; this card now fetches lightweight
+// catalog metadata via contentClient and only loads full story bodies on user action
+// (via parent's launchStory handler).
+import React, { useEffect, useState } from 'react';
+import { getStoryCatalog } from '../../lib/contentClient';
 import { buildUserContext } from '../../lib/userContext';
 import { getRecentReads } from '../../lib/recentReads';
 import { recommendStory } from '../../lib/storyRecommendation';
+import type { RankedStory } from '../../lib/storyRecommendation';
 
 export interface StoryOfTheDayCardProps {
   launchStory: (storyId: string) => void;
@@ -80,11 +84,30 @@ const STYLES = {
 export function StoryOfTheDayCard({
   launchStory,
 }: StoryOfTheDayCardProps): React.ReactElement | null {
-  const recommendation = useMemo(() => {
-    const ctx = buildUserContext();
-    return recommendStory(ctx, GRADED_STORIES, getRecentReads());
+  const [recommendation, setRecommendation] = useState<RankedStory | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const catalog = await getStoryCatalog();
+        if (cancelled) return;
+        const ctx = buildUserContext();
+        const rec = recommendStory(ctx, catalog, getRecentReads());
+        setRecommendation(rec);
+      } catch {
+        // Decorative widget — silently hide on error (auth, offline, rate limit)
+      } finally {
+        if (!cancelled) setReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
+  if (!ready) return null; // skeleton-free render — card just doesn't appear yet
   if (!recommendation) return null;
 
   const { story, rationale } = recommendation;
