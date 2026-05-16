@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
-import { V, speak } from '../../data';
+import { speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { markQuest } from '../../lib/quests.js';
+
+interface VShape {
+  easter?: Array<[string, string] | string[]>;
+  [key: string]: unknown;
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
 
 function _shuffleOpts(opts: string[]) {
   const a = [...opts];
@@ -220,7 +233,9 @@ export default function EasterScreen({
   const [quizDone, setQuizDone] = useState(kvizPermanentlyDone);
   const xpAwarded = useRef(kvizPermanentlyDone);
 
-  const easterVocab = V.easter || [];
+  const { content, loading, error } = useContent();
+  const V = (content?.V as VShape | undefined) ?? {};
+  const easterVocab = (V.easter ?? []) as Array<[string, string] | string[]>;
 
   // Shuffle opts once per quiz session so correct answer isn't always first
   const shuffledQuestions = useMemo(
@@ -240,6 +255,9 @@ export default function EasterScreen({
       } catch {}
     }
   }, [tab, easterVocab.length]);
+
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
 
   function handleAnswer(opt: string) {
     if (selected !== null) return;

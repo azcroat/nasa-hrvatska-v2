@@ -1,13 +1,32 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { EVENTS } from '../../data';
+import { useContent } from '../../hooks/useContent';
+
+interface EventItem {
+  month: number;
+  day: number;
+  name: string;
+  en: string;
+  desc: string;
+}
 
 interface EventsCalendarProps {
   goBack: () => void;
 }
 
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
+
 function EventsCalendar({ goBack }: EventsCalendarProps) {
   const [evM, sEvM] = useState(new Date().getMonth() + 1 || 1);
+  const { content, loading, error } = useContent();
+  if (error) return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || !content) return <LoadingState />;
+  const EVENTS = content.EVENTS as unknown as EventItem[];
   return (
     <div className="scr-wrap">
       {H('📅 Croatian Events & Holidays', 'Traditional celebrations throughout the year', goBack)}
