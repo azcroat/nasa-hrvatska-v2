@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { Stats, AuthUser } from '../../types';
+import type { AuthUser } from '../../types';
 
 interface LearnPathItem {
   id?: string;
@@ -56,14 +56,10 @@ interface HomeTabProps {
   launchStory?: (storyId: string) => void;
 }
 
-import {
-  LEARN_PATH,
-  getStreak,
-  getDailyChallenge,
-  preloadAudio,
-  DAILY_QUESTS,
-  getActiveCampaign,
-} from '../../data';
+import { getStreak, getDailyChallenge, preloadAudio, DAILY_QUESTS } from '../../data';
+import { useContent } from '../../hooks/useContent';
+import { evalCk } from '../../lib/learnPathRules';
+import { getActiveCampaign } from '../../lib/seasonalCampaign';
 import { getWordOfDay, getPhraseOfDay } from '../../lib/wordOfDay.js';
 import WordOfDayCard from './WordOfDayCard';
 import PhraseOfDayCard from './PhraseOfDayCard';
@@ -206,9 +202,13 @@ export default function HomeTab({
     })() ||
     'fluent';
 
-  // st.lc signals lesson completion; force campaign recompute when it changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const activeCampaign = useMemo(() => getActiveCampaign(), [st.lc]);
+  const { content } = useContent();
+  const LEARN_PATH = useMemo(() => content?.LEARN_PATH ?? [], [content?.LEARN_PATH]);
+  const SEASONAL_CAMPAIGNS = useMemo(
+    () => content?.SEASONAL_CAMPAIGNS ?? [],
+    [content?.SEASONAL_CAMPAIGNS],
+  );
+  const activeCampaign = useMemo(() => getActiveCampaign(SEASONAL_CAMPAIGNS), [SEASONAL_CAMPAIGNS]);
 
   // Goal-setter modal: show for any user who hasn't set a goal yet
   const [showGoalModal, setShowGoalModal] = useState(() => !localStorage.getItem('nh_goal_set'));
@@ -295,16 +295,14 @@ export default function HomeTab({
       nextItem: LearnPathItem | null = null;
     for (const lv of LEARN_PATH) {
       let lvd = 0;
-      const itemDone = (
-        lv.items as Array<Record<string, unknown> & { ck: (s: Stats) => boolean }>
-      ).map((it) => {
+      const itemDone = lv.items.map((it) => {
         totalItems++;
-        const done = it.ck(st);
+        const done = evalCk(it.ckRule, st);
         if (done) {
           totalDone++;
           lvd++;
         } else if (!nextItem)
-          nextItem = { ...(it as LearnPathItem), levelTitle: lv.title } as LearnPathItem;
+          nextItem = { ...(it as unknown as LearnPathItem), levelTitle: lv.title };
         return done;
       });
       if (!activeLv && lvd < lv.items.length) {
@@ -322,13 +320,14 @@ export default function HomeTab({
     return {
       totalDone,
       totalItems,
+      // (LEARN_PATH dep covers content hydration; st captures progress changes)
       pct: Math.round((totalDone / totalItems) * 100),
       activeLv,
       activeLvDone,
       activeLvItemDone,
       nextItem,
     };
-  }, [st]);
+  }, [st, LEARN_PATH]);
 
   const activePalette: Palette =
     LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length]!;

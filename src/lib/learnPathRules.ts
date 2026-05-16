@@ -29,15 +29,19 @@ export type CkNode = CkLeaf | CkRule;
 
 export type CkRule = { anyOf: CkNode[] } | { allOf: CkNode[] };
 
-export interface Stats {
+/**
+ * Minimum subset of the app Stats that evalCk reads. Defined as a structural
+ * type with all-optional fields so it accepts the app's stricter `Stats` from
+ * `src/types/index.ts` without re-exporting.
+ */
+export type Stats = {
   ct?: string[];
   vs?: string[];
   lc?: number;
   gc?: number;
   xp?: number;
   sp?: number;
-  [key: string]: unknown;
-}
+};
 
 export interface LearnPathItem {
   id: string;

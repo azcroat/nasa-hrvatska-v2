@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { LEARN_PATH } from '../../data';
 import { useContent } from '../../hooks/useContent';
+import { evalCk } from '../../lib/learnPathRules';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import LearnPathWidget from './LearnPathWidget';
@@ -106,6 +106,7 @@ export default function LearnTab({
   const { stats: st } = useStats();
   const { content } = useContent();
   const V = (content?.V ?? {}) as Record<string, unknown[]>;
+  const LEARN_PATH = content?.LEARN_PATH ?? [];
   const [showBrowse, setShowBrowse] = useState(false);
   const [pendingLesson, setPendingLesson] = useState<PendingLesson | null>(null);
 
@@ -119,7 +120,7 @@ export default function LearnTab({
     let lvd = 0;
     for (const it of lv.items) {
       totalItems++;
-      if (st && it.ck(st)) {
+      if (st && evalCk(it.ckRule, st)) {
         totalDone++;
         lvd++;
       } else if (!nextItem) nextItem = { ...it, stageTitle: lv.title };
@@ -1117,7 +1118,7 @@ export default function LearnTab({
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
               {LEARN_PATH.map((lv, i) => {
-                const lvDone = lv.items.filter((it) => st && it.ck(st)).length;
+                const lvDone = lv.items.filter((it) => st && evalCk(it.ckRule, st)).length;
                 const isComplete = lvDone === lv.items.length;
                 const isCurrent = lv === currentStage;
                 const color = STAGE_COLORS[i % STAGE_COLORS.length]!;

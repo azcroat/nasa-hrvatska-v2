@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { H, LEARN_PATH } from '../../data';
+import { H } from '../../data';
+import { useContent } from '../../hooks/useContent';
+import { evalCk, type CkRule } from '../../lib/learnPathRules';
 import type { Stats, LearnPathItem } from '../../types';
 import type { LevelQuizQuestion } from '../learn/LevelQuiz';
 
@@ -7,11 +9,11 @@ import type { LevelQuizQuestion } from '../learn/LevelQuiz';
 // Returns true when targetLevel is unlocked.
 // Rules (all must hold):
 //   1. Level 1 is always unlocked.
-//   2. Prev level >= 80% items complete (using ck()).
+//   2. Prev level >= 80% items complete (using evalCk(item.ckRule)).
 //   3. Prev level quiz passed (score >= 7/10).
 //   Grandfather: if prev level is 100% complete AND no quiz record exists,
 //   treat as auto-passed so existing progress is never blocked.
-type ItemWithCk = { ck: (s: Partial<Stats>) => boolean; topic?: string };
+type ItemWithCk = { ckRule?: CkRule; topic?: string };
 function canUnlockLevel(
   targetLevel: number,
   prevLevelItems: ItemWithCk[],
@@ -19,7 +21,7 @@ function canUnlockLevel(
 ): boolean {
   if (targetLevel <= 1) return true;
   const prevLevel = targetLevel - 1;
-  const completedCount = prevLevelItems.filter((it) => it.ck(stats)).length;
+  const completedCount = prevLevelItems.filter((it) => evalCk(it.ckRule, stats)).length;
   const threshold80 = Math.ceil(prevLevelItems.length * 0.8);
   if (completedCount < threshold80) return false;
   const quizRecord = stats.levelQuizPasses?.[prevLevel];
@@ -76,12 +78,12 @@ async function buildLevelQuizQuestions(levelItems: ItemWithCk[]): Promise<LevelQ
 
 // Returns a Set of topic keys whose FSRS words are mostly overdue (skill decay signal).
 // A topic is "decayed" when >40% of its reviewed words are past their due date.
-function getDecayedTopics() {
+function getDecayedTopics(learnPath: ReadonlyArray<{ items: ReadonlyArray<{ topic?: string }> }>) {
   try {
     const srData = JSON.parse(localStorage.getItem('nh_sr') || '{}');
     const now = Date.now();
     const decayed = new Set();
-    LEARN_PATH.forEach((lv) =>
+    learnPath.forEach((lv) =>
       lv.items.forEach((it) => {
         if (!it.topic) return;
         const cards = Object.entries(srData).filter(([, v]) => v && typeof v === 'object') as [
@@ -199,8 +201,10 @@ export default function LearnPath({
   const activeRef = useRef<HTMLDivElement | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [quizLaunching, setQuizLaunching] = useState(false);
-  const decayedTopics = useMemo(() => getDecayedTopics(), []);
   const passedCheckpoints = useMemo(() => getPassedCheckpoints(), []);
+  const { content } = useContent();
+  const LEARN_PATH = useMemo(() => content?.LEARN_PATH ?? [], [content?.LEARN_PATH]);
+  const decayedTopics = useMemo(() => getDecayedTopics(LEARN_PATH), [LEARN_PATH]);
 
   // Launch the LevelQuiz screen for the given 1-based level number
   async function launchLevelQuiz(levelNumber: number): Promise<void> {
@@ -224,7 +228,7 @@ export default function LearnPath({
   LEARN_PATH.forEach((lv) =>
     lv.items.forEach((it) => {
       totalAll++;
-      if (it.ck(st)) totalDone++;
+      if (evalCk(it.ckRule, st)) totalDone++;
     }),
   );
 
@@ -233,7 +237,7 @@ export default function LearnPath({
     activeItem = -1;
   outer: for (let li = 0; li < LEARN_PATH.length; li++) {
     for (let ii = 0; ii < LEARN_PATH[li]!.items.length; ii++) {
-      if (!LEARN_PATH[li]!.items[ii]!.ck(st)) {
+      if (!evalCk(LEARN_PATH[li]!.items[ii]!.ckRule, st)) {
         activeLevel = li;
         activeItem = ii;
         break outer;
@@ -369,7 +373,7 @@ export default function LearnPath({
       {/* ── THE WINDING PATH ────────────────────────────────────────────── */}
       {LEARN_PATH.map((lv, li) => {
         const col = LEVEL_COLORS[li % LEVEL_COLORS.length]!;
-        const levelDone = lv.items.filter((it) => it.ck(st)).length;
+        const levelDone = lv.items.filter((it) => evalCk(it.ckRule, st)).length;
         const levelPct = Math.round((levelDone / lv.items.length) * 100);
         const prevItems = li > 0 ? (LEARN_PATH[li - 1]!.items as unknown as ItemWithCk[]) : [];
         const isUnlocked = canUnlockLevel(lv.level, prevItems, st);
@@ -486,7 +490,7 @@ export default function LearnPath({
                 {/* Path line visual (vertical dashed or solid) */}
                 <div style={{ position: 'relative' }}>
                   {lv.items.map((it, ii) => {
-                    const isDone = it.ck(st);
+                    const isDone = evalCk(it.ckRule, st);
                     const isActive = li === activeLevel && ii === activeItem;
                     const isRight = ii % 2 === 0; // alternating alignment
 
