@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import TurnstileWidget from './TurnstileWidget';
+
+const TURNSTILE_SITEKEY = (import.meta.env?.VITE_TURNSTILE_SITEKEY as string | undefined) || '';
 
 // On Android, scroll the focused input into view when the soft keyboard opens.
 // adjustResize resizes the viewport but WebView doesn't always reposition the
@@ -32,6 +35,8 @@ interface LoginScreenProps {
   pc: string;
   displayName: string;
   sp: boolean;
+  turnstileToken: string;
+  setTurnstileToken: (token: string) => void;
   setAuthScreen: (screen: string) => void;
   setAuthError: (err: string) => void;
   setAuthEmail: (email: string) => void;
@@ -55,6 +60,8 @@ export default function LoginScreen({
   pc,
   displayName,
   sp,
+  turnstileToken,
+  setTurnstileToken,
   setAuthScreen,
   setAuthError,
   setAuthEmail,
@@ -70,6 +77,18 @@ export default function LoginScreen({
 }: LoginScreenProps) {
   const isR = authScreen === 'register';
   const strength = isR ? pwStrength(pw) : 0;
+  const turnstileEnabled = isR && Boolean(TURNSTILE_SITEKEY);
+  const turnstileReady = !turnstileEnabled || Boolean(turnstileToken);
+  const submitDisabled = authLoading || (isR && !turnstileReady);
+  const handleVerify = useCallback(
+    (token: string) => {
+      setTurnstileToken(token);
+    },
+    [setTurnstileToken],
+  );
+  const handleExpire = useCallback(() => {
+    setTurnstileToken('');
+  }, [setTurnstileToken]);
   // Padding-based layout (NOT flex centering). Flex align-items:center with min-height:100vh
   // breaks on Android WebView: adjustResize shrinks the viewport but the flex container
   // doesn't reflow, hiding inputs behind the keyboard. Padding + overflow-y:auto fixes this.
@@ -493,6 +512,15 @@ export default function LoginScreen({
               </button>
             </div>
           )}
+          {turnstileEnabled && (
+            <TurnstileWidget
+              sitekey={TURNSTILE_SITEKEY}
+              action="signup"
+              onVerify={handleVerify}
+              onExpire={handleExpire}
+              onError={handleExpire}
+            />
+          )}
           <button
             type="submit"
             className="b bp"
@@ -502,9 +530,15 @@ export default function LoginScreen({
               padding: '14px 24px',
               marginTop: 4,
             }}
-            disabled={authLoading}
+            disabled={submitDisabled}
           >
-            {authLoading ? 'Loading...' : isR ? 'Create Account' : 'Sign In'}
+            {authLoading
+              ? 'Loading...'
+              : isR
+                ? turnstileEnabled && !turnstileReady
+                  ? 'Complete the check above'
+                  : 'Create Account'
+                : 'Sign In'}
           </button>
           <p
             style={{

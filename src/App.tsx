@@ -631,6 +631,8 @@ function App() {
     authLoading,
     emailUnverified,
     setEmailUnverified,
+    turnstileToken,
+    setTurnstileToken,
     resendVerification,
     doReg,
     doLog,
@@ -1794,6 +1796,8 @@ function App() {
         pc={pc}
         displayName={displayName}
         sp={sp}
+        turnstileToken={turnstileToken}
+        setTurnstileToken={setTurnstileToken}
         setAuthScreen={setAuthScreen}
         setAuthError={setAuthError}
         setAuthEmail={setAuthEmail}
