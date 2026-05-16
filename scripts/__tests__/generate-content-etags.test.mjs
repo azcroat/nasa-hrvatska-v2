@@ -36,4 +36,11 @@ describe('generate-content-etags', () => {
     expect(a).toBe(b);
     expect(a).toMatch(/^[0-9a-f]{40}$/);
   });
+
+  it('computeEtag handles core-object input (27 exports) deterministically', async () => {
+    const a = await computeEtag({ V: { test: 'x' }, LEARN_PATH: [] });
+    const b = await computeEtag({ V: { test: 'x' }, LEARN_PATH: [] });
+    expect(a).toBe(b);
+    expect(a).toMatch(/^[0-9a-f]{40}$/);
+  });
 });
