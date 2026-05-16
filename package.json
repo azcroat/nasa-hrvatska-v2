@@ -51,6 +51,7 @@
     "dexie": "~4.3.0",
     "firebase": "~12.10.0",
     "framer-motion": "~12.38.0",
+    "idb": "^8.0.3",
     "posthog-js": "~1.360.2",
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
@@ -77,6 +78,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-security": "^4.0.0",
+    "fake-indexeddb": "^6.2.5",
     "firebase-admin": "^13.7.0",
     "globals": "^15.15.0",
     "husky": "^9.1.7",
@@ -108,8 +110,14 @@
     "protobufjs": ">=7.5.8 <8"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx,js,jsx}": ["prettier --write", "eslint --max-warnings=0"],
-    "functions/**/*.js": ["prettier --write", "eslint --max-warnings=0"]
+    "src/**/*.{ts,tsx,js,jsx}": [
+      "prettier --write",
+      "eslint --max-warnings=0"
+    ],
+    "functions/**/*.js": [
+      "prettier --write",
+      "eslint --max-warnings=0"
+    ]
   },
   "size-limit": [
     {
