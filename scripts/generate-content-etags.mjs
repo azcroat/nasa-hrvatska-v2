@@ -94,12 +94,11 @@ async function main() {
   const lessons = await computeEtag(LESSONS);
 
   const coreMod = await import(pathToFileURL(corePath).href);
-  // SP11d: 25 high-IP-density exports. Two deferred to SP11e for function/data split:
-  //   - LEARN_PATH: 97 items each have `ck: function (s) { ... }` (path-item completion check)
-  //   - SEASONAL_CAMPAIGNS: easter entry has `dynamicWindow: (year) => { ... }` (Easter date)
-  // Both don't survive JSON.stringify; SP11e designs the split (client-side function registry +
-  // server-side pure data).
-  const CORE_KEYS = ['V','COUNTRIES','PROFESSIONS','WEATHER','CLOTHES','BODYDESC','TECH_VOC','BUREAUCRATIC','PROVERBS','IDIOMS','BRZALICE','HISTORY','EVENTS','KINGS','REGIONS','DIALECTS','CROATIAN_CITIES','FOODORDER','TRANSPORT','GROCERY','RECIPES','PRACTICAL','SCENES','LEVEL_NARRATIVE','SHADOWING'];
+  // SP11d + SP11e: 27 high-IP-density exports. LEARN_PATH (97 items, ckRule JSON DSL)
+  // and SEASONAL_CAMPAIGNS (4 entries, windowKind discriminator) added in SP11e
+  // — both now serialize cleanly via the function/data split documented in
+  // docs/superpowers/specs/2026-05-16-sp11e-final-closure-design.md.
+  const CORE_KEYS = ['V','COUNTRIES','PROFESSIONS','WEATHER','CLOTHES','BODYDESC','TECH_VOC','BUREAUCRATIC','PROVERBS','IDIOMS','BRZALICE','HISTORY','EVENTS','KINGS','REGIONS','DIALECTS','CROATIAN_CITIES','FOODORDER','TRANSPORT','GROCERY','RECIPES','PRACTICAL','SCENES','LEVEL_NARRATIVE','SHADOWING','LEARN_PATH','SEASONAL_CAMPAIGNS'];
   const coreExports = {};
   for (const k of CORE_KEYS) {
     if (coreMod[k] === undefined) throw new Error(`[generate-content-etags] core.js missing export: ${k}`);
