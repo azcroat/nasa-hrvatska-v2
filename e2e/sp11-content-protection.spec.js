@@ -7,10 +7,15 @@ import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
-// 11 distinctive Croatian-language curriculum strings from the now-server-side
-// data files (5 SP11 stories/grammar-units + 3 SP11b grammar + 3 SP11c lessons).
-// If any of these turn up in dist/assets/*.js, the closure has regressed and
-// the curriculum is leaking back into the public bundle.
+// 13 distinctive Croatian-language curriculum strings from the now-server-side
+// data files (5 SP11 stories/grammar-units + 3 SP11b grammar + 3 SP11c lessons
+// + 2 SP11d core content). If any turn up in dist/assets/*.js, the closure has
+// regressed and the curriculum is leaking back into the public bundle.
+//
+// SP11d partial-closure note: PROVERBS, CROATIAN_CITIES, V are still bundled
+// via content.tsx body helpers (getProverbOfDay, getCityOfDay, V composition).
+// The 2 SP11d needles below are from KINGS and HISTORY which ARE fully
+// tree-shaken after the SP11d closure commit.
 const NEEDLES = [
   'Ana ide na tržnicu svake subote',
   'Peka je jedan od najstarijih načina kuhanja u Dalmaciji',
@@ -23,6 +28,9 @@ const NEEDLES = [
   'Croatian is almost perfectly phonetic',
   'Glagoljica je naš otisak prsta u povijesti',
   'Accompaniment — s/sa + Instrumental',
+  // SP11d
+  'Long before foreign powers ruled over Croatian lands',
+  'Domovinski Rat — Homeland War',
 ];
 
 test.describe('SP11 — content endpoints + bundle audit', () => {
@@ -48,6 +56,11 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
 
   test('anonymous GET /api/content/lessons returns 401', async ({ request }) => {
     const res = await request.get('/api/content/lessons');
+    expect(res.status()).toBe(401);
+  });
+
+  test('anonymous GET /api/content/core returns 401', async ({ request }) => {
+    const res = await request.get('/api/content/core');
     expect(res.status()).toBe(401);
   });
 
