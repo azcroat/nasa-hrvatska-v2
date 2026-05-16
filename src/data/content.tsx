@@ -82,40 +82,20 @@ import * as _cultural from './cultural.js';
 import * as _exercises from './exercises.js';
 import * as _scenarios from './scenarios.js';
 // ═══ RE-EXPORTS FROM DOMAIN MODULES ═══
-const {
-  V,
-  TOP100,
-  BOJE,
-  ALPHA,
-  ZNAM,
-  COUNTRIES,
-  PROFESSIONS,
-  WEATHER,
-  CLOTHES,
-  BODYDESC,
-  TECH_VOC,
-  BUREAUCRATIC,
-  V_B2,
-} = _vocab;
-const {
-  HISTORY,
-  EVENTS,
-  PROVERBS,
-  KINGS,
-  HIST_FACTS,
-  REGIONS,
-  MAPPLACES,
-  MEDIA,
-  POPCULTURE,
-  DIALECTS,
-  SHADOWING,
-  CROATIAN_CITIES,
-} = _cultural;
+// SP11d: 25 high-IP names no longer destructured here. They were:
+//   _vocab: V, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, TECH_VOC, BUREAUCRATIC
+//   _cultural: HISTORY, EVENTS, PROVERBS, KINGS, REGIONS, DIALECTS, SHADOWING, CROATIAN_CITIES
+//   _exercises: IDIOMS, BRZALICE
+//   _scenarios: FOODORDER, TRANSPORT, GROCERY, RECIPES, PRACTICAL
+// Plus SCENES (local) and LEVEL_NARRATIVE (local) — deleted below.
+// Body helpers that previously used these (getProverbOfDay, getCityOfDay,
+// V composition) are accessed via _vocab/_cultural namespaces directly.
+const { V, TOP100, BOJE, ALPHA, ZNAM, V_B2 } = _vocab;
+const { HIST_FACTS, MAPPLACES, MEDIA, POPCULTURE, PROVERBS, CROATIAN_CITIES } = _cultural;
 const {
   PLACE,
   READ,
   UNJUMBLE,
-  IDIOMS,
   PREPS,
   LISTEN,
   NUMTIME,
@@ -124,7 +104,6 @@ const {
   VOCATIVE,
   PREPDRILL,
   DECL,
-  BRZALICE,
   DIMWORDS,
   WORDFORM,
   COLORQUIRK,
@@ -155,14 +134,9 @@ const {
   SCHOOL,
   TEXTING,
   FRIENDS,
-  FOODORDER,
-  TRANSPORT,
   EMERGENCY,
   FOOTBALL,
-  PRACTICAL,
   RESTCONV,
-  GROCERY,
-  RECIPES,
   ROLEPLAY,
   BASKETBALL,
   GYM,
@@ -171,6 +145,7 @@ const {
   AKUFOOD,
   AKUCLOTHES,
   CONVMATCH,
+  TRANSPORT,
 } = _scenarios;
 
 function sh(a) {
@@ -2616,8 +2591,8 @@ const SVOJMOJ = {
 };
 // ═══ BASKETBALL PRACTICE ═══
 // ═══ AT THE GYM ═══
-// ═══ SCENE DESCRIPTION EXERCISES ═══
-const SCENES = [
+// ═══ SCENE DESCRIPTION EXERCISES ═══ (SP11d: moved server-side; local copy kept for fallback)
+const _SCENES = [
   {
     title: 'U kuhinji',
     desc: 'A family scene in the kitchen',
@@ -3250,8 +3225,9 @@ class _ErrorBoundary extends React.Component {
 // section heading visible for orientation while reading this file.
 
 // SEASONAL_CAMPAIGNS, getActiveCampaign — imported from ../lib/appUtils.js
-// LEVEL_NARRATIVE is still used only in screen components via data.jsx barrel — keep it here:
-const LEVEL_NARRATIVE = {
+// SP11d: LEVEL_NARRATIVE moved server-side. Local copy kept (renamed _LEVEL_NARRATIVE)
+// for fallback during the migration window; consumers use useContent().LEVEL_NARRATIVE.
+const _LEVEL_NARRATIVE = {
   heritage: [
     'First Words',
     'Finding Your Voice',
@@ -3299,9 +3275,15 @@ const LEVEL_NARRATIVE = {
 };
 // recordJourneyMilestone, getJourneyMilestones — imported from ../lib/appUtils.js
 
+// SP11d: 25 high-IP exports moved server-side. Consumers use useContent() hook
+// or contentClient.getContent(). Deleted from re-export block:
+//   V, COUNTRIES, PROFESSIONS, WEATHER, CLOTHES, BODYDESC, TECH_VOC, BUREAUCRATIC,
+//   PROVERBS, IDIOMS, BRZALICE, HISTORY, EVENTS, KINGS, REGIONS, DIALECTS,
+//   CROATIAN_CITIES, FOODORDER, TRANSPORT, GROCERY, RECIPES, PRACTICAL, SCENES,
+//   LEVEL_NARRATIVE, SHADOWING.
+// LEARN_PATH and SEASONAL_CAMPAIGNS retained (deferred to SP11e — function-valued
+// fields need data/function split before JSON serialization).
 export {
-  V,
-  PROVERBS,
   HIST_FACTS,
   MEDIA,
   MAPPLACES,
@@ -3312,13 +3294,6 @@ export {
   SVOJMOJ,
   BASKETBALL,
   GYM,
-  CROATIAN_CITIES,
-  COUNTRIES,
-  PROFESSIONS,
-  WEATHER,
-  CLOTHES,
-  BODYDESC,
-  SCENES,
   FILL_STORIES,
   PRONOUNCASE,
   GENDERDRILL,
@@ -3348,17 +3323,13 @@ export {
   AKUCLOTHES,
   CONVMATCH,
   TOP100,
-  HISTORY,
-  EVENTS,
   PLACE,
   READ,
   ALPHA,
   ZNAM,
   BOJE,
   UNJUMBLE,
-  IDIOMS,
   PREPS,
-  KINGS,
   LISTEN,
   STORIES,
   NUMTIME,
@@ -3367,31 +3338,19 @@ export {
   VOCATIVE,
   PREPDRILL,
   DECL,
-  BRZALICE,
-  DIALECTS,
   DIMWORDS,
   WORDFORM,
   COLORQUIRK,
   SCHOOL,
   TEXTING,
   FRIENDS,
-  FOODORDER,
-  TRANSPORT,
   EMERGENCY,
   FOOTBALL,
   POPCULTURE,
-  PRACTICAL,
-  REGIONS,
-  GROCERY,
-  RECIPES,
   ROLEPLAY,
   BG_LIGHT,
   BG_DARK,
-  TECH_VOC,
-  BUREAUCRATIC,
-  SHADOWING,
   SEASONAL_CAMPAIGNS,
-  LEVEL_NARRATIVE,
 };
 export { _fbReady };
 export { H, Bar, Spk };
