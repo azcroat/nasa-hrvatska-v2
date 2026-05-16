@@ -4,6 +4,11 @@
 //
 // This module is mapped to the same 'chunk-data' Vite chunk as data.jsx
 // (see vite.config.js manualChunks), so no bundle-size regression occurs.
+//
+// Grammar data (ASPECT, PADEZI, PADEZI_FULL, MODAL, GRAM, CONDITIONAL,
+// FORMAL_REGISTER, IMPERSONAL, CONJ, PITCH_ACCENT, ASPECT_PAIRS, PHONOLOGY,
+// TENSES) was moved server-side in SP11b. Use useGrammar() hook (components)
+// or contentClient.getGrammar() (non-components) instead.
 
 export {
   // Vocabulary & situational content
@@ -23,26 +28,18 @@ export {
   ROLEPLAY,
   SCENES,
   // Grammar structures
-  ASPECT,
   VOCATIVE,
   NUMCOUNT,
   NUMTIME,
   FALSEFR,
   DIALECTS,
   DECL,
-  PADEZI,
-  PADEZI_FULL,
   PREPDRILL,
   BRZALICE,
   DIMWORDS,
   WORDFORM,
-  MODAL,
-  GRAM,
   REFLEXIVE,
   SVOJMOJ,
-  CONDITIONAL,
-  FORMAL_REGISTER,
-  IMPERSONAL,
   TECH_VOC,
   BUREAUCRATIC,
   // Stories & practice content
@@ -53,7 +50,6 @@ export {
   FILL_STORIES,
   ZNAM,
   BOJE,
-  CONJ,
   UNJUMBLE,
   IDIOMS,
   PREPS,
@@ -88,9 +84,7 @@ export {
   SENTBUILD,
   PRONOUNCASE,
   COLORQUIRK,
-  PITCH_ACCENT,
   SHADOWING,
-  ASPECT_PAIRS,
   // Cultural & geographic data
   HISTORY,
   EVENTS,
@@ -105,8 +99,6 @@ export {
   WEATHER,
   CLOTHES,
   BODYDESC,
-  PHONOLOGY,
-  TENSES,
   BASKETBALL,
   // App structure
   LEARN_PATH,
