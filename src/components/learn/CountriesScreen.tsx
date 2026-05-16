@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { COUNTRIES, speak } from '../../data';
+import { speak } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface BackBtnProps3 {
   goBack: () => void;
@@ -196,8 +197,13 @@ interface CountriesScreenProps {
   goBack: () => void;
 }
 function CountriesScreen({ goBack }: CountriesScreenProps) {
+  const { content, loading, error } = useContent();
   const [tab, setTab] = useState('Countries');
-  const d = COUNTRIES;
+  if (error) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
+  if (loading || !content) return <WRAP><BACK_BTN goBack={goBack} /></WRAP>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const d = content.COUNTRIES as any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
@@ -216,7 +222,8 @@ function CountriesScreen({ goBack }: CountriesScreenProps) {
             Tap the flag to hear the country name. Nationality adjectives:{' '}
             <strong>m / f / n</strong>. Demonyms: person of that nationality.
           </div>
-          {d.countries.map((c, i) => (
+          {d.countries.map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (c: any, i: number) => (
             <div
               key={i}
               style={{
@@ -299,7 +306,8 @@ function CountriesScreen({ goBack }: CountriesScreenProps) {
 
       {tab === 'Phrases' && (
         <div>
-          {d.phrases.map((p, i) => (
+          {d.phrases.map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (p: any, i: number) => (
             <div
               key={i}
               role="button"

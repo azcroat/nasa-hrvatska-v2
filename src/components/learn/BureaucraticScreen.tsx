@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { H, speak } from '../../data';
-import { BUREAUCRATIC } from '../../data';
+import { useContent } from '../../hooks/useContent';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 
@@ -137,8 +137,24 @@ interface ScreenProps {
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
 function BureaucraticScreen({ goBack, award }: ScreenProps) {
+  const { content, loading, error } = useContent();
   const [catIdx, setCatIdx] = useState(0);
   const [tab, setTab] = useState('vocab');
+  if (error)
+    return (
+      <div className="scr-wrap">{H('🏛️ Bureaucratic', "Couldn't load — please retry.", goBack)}</div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('🏛️ Bureaucratic', 'Loading…', goBack)}</div>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const BUREAUCRATIC = content.BUREAUCRATIC as {
+    title: string;
+    intro: string;
+    categories: any[];
+    phrases: any[];
+    quiz: QuizQuestion[];
+  };
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const cat = BUREAUCRATIC.categories[catIdx];
 
   return (
@@ -188,7 +204,8 @@ function BureaucraticScreen({ goBack, award }: ScreenProps) {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#0e7490', marginBottom: 10 }}>
             {cat?.icon} {cat?.name}
           </div>
-          {(cat?.words ?? []).map(function (w, i) {
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {(cat?.words ?? []).map(function (w: any, i: number) {
             return (
               <button
                 key={i}

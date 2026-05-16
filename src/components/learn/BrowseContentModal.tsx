@@ -1,6 +1,6 @@
 import React from 'react';
-import { V } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
+import { useContent } from '../../hooks/useContent';
 
 interface GramShape {
   beginner?: unknown[];
@@ -222,8 +222,11 @@ export default function BrowseContentModal({
   onClose,
 }: BrowseContentModalProps) {
   const { grammar, loading, error } = useGrammar();
-  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
-  if (loading || !grammar) return <LoadingState />;
+  const { content: coreContent, loading: coreLoading, error: coreError } = useContent();
+  if (error || coreError)
+    return <ErrorState message="Couldn't load content - please retry." />;
+  if (loading || coreLoading || !grammar || !coreContent) return <LoadingState />;
+  const V = coreContent.V as Record<string, string[][]>;
   const GRAM = grammar.GRAM as unknown as GramShape;
   return (
     <div
