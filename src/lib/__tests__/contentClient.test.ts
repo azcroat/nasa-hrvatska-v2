@@ -8,6 +8,7 @@ import {
   ContentOfflineError,
   ContentFetchError,
   type Grammar,
+  type Lesson,
 } from '../../types/content';
 
 vi.mock('../audio', () => ({
@@ -19,7 +20,13 @@ vi.mock('../firebaseUid', () => ({
 }));
 
 import * as cache from '../contentCache';
-import { getStory, getStoryCatalog, getGrammarUnit, getGrammar } from '../contentClient';
+import {
+  getStory,
+  getStoryCatalog,
+  getGrammarUnit,
+  getGrammar,
+  getLessons,
+} from '../contentClient';
 
 const STORY_BODY = { id: 'gs_a1_1', title: 'Test', paragraphs: ['a', 'b'] };
 
@@ -102,6 +109,25 @@ async function seedStaleCacheForGrammar(body: Grammar): Promise<void> {
     'uid_uid_test:grammar:all',
   );
   db.close();
+}
+
+async function seedStaleCacheForLessons(body: Lesson[]) {
+  const idb = await import('idb');
+  const db = await idb.openDB('nh-content-cache', 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains('resources')) db.createObjectStore('resources');
+    },
+  });
+  await db.put(
+    'resources',
+    {
+      etag: 'l1',
+      body,
+      fetchedAt: Date.now() - cache.STALE_AFTER_MS - 60_000,
+      lastValidatedAt: Date.now() - cache.STALE_AFTER_MS - 60_000,
+    },
+    'uid_uid_test:lessons:all',
+  );
 }
 
 describe('contentClient.getStory', () => {
@@ -285,5 +311,46 @@ describe('contentClient.getGrammar', () => {
     mockFetch([async () => new Response(null, { status: 304 })]);
     const g = await getGrammar();
     expect(g).toEqual(BODY);
+  });
+});
+
+describe('contentClient.getLessons', () => {
+  it('200 path writes cache and returns lessons array', async () => {
+    const BODY: Lesson[] = [
+      {
+        id: 'alphabet',
+        title: 'Alphabet',
+        icon: 'A',
+        level: 'A1',
+        slides: [{ type: 'intro', body: 'test' }],
+      },
+    ];
+    mockFetch([
+      async () =>
+        new Response(JSON.stringify({ data: BODY, etag: 'l1' }), {
+          status: 200,
+          headers: { ETag: '"l1"' },
+        }),
+    ]);
+    const lessons = await getLessons();
+    expect(lessons).toEqual(BODY);
+    const cached = await cache.readCached('uid_test', 'lessons:all');
+    expect(cached?.etag).toBe('l1');
+  });
+
+  it('304 path returns cached lessons', async () => {
+    const BODY: Lesson[] = [
+      {
+        id: 'alphabet',
+        title: 'Alphabet',
+        icon: 'A',
+        level: 'A1',
+        slides: [{ type: 'intro', body: 'test' }],
+      },
+    ];
+    await seedStaleCacheForLessons(BODY);
+    mockFetch([async () => new Response(null, { status: 304 })]);
+    const lessons = await getLessons();
+    expect(lessons).toEqual(BODY);
   });
 });
