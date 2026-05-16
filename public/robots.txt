@@ -2,3 +2,33 @@ User-agent: *
 Allow: /
 
 Sitemap: https://nasahrvatska.com/sitemap.xml
+
+# AI scraping disallows (added SP11 - 2026-05-15)
+# Crawlers that respect robots.txt will skip the entire site. Endpoint-level
+# Bearer auth (functions/api/content/*) still blocks non-honoring crawlers.
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Claude-SearchBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
