@@ -1,9 +1,10 @@
 // src/components/learn/GrammarUnitDetail.tsx
-// SP9: generic detail renderer for a B2/C1 grammar unit. Reads from
-// GRAMMAR_UNIT_BY_ID by unitId, renders intro/forms/examples/tips/drills.
-// Inline MCQ flow — no extracted shared component (refactor in SP9b if duplication grows).
-import React, { useState } from 'react';
-import { GRAMMAR_UNIT_BY_ID } from '../../data/grammar-advanced.js';
+// SP9: generic detail renderer for a B2/C1 grammar unit. SP11: data now
+// loaded asynchronously via contentClient.getGrammarUnit(unitId).
+// Renders intro/forms/examples/tips/drills. Inline MCQ flow — no extracted
+// shared component (refactor in SP9b if duplication grows).
+import React, { useEffect, useState } from 'react';
+import { getGrammarUnit } from '../../lib/contentClient';
 
 export interface GrammarUnitDetailProps {
   unitId: string;
@@ -108,12 +109,61 @@ export default function GrammarUnitDetail({
   unitId,
   goBack,
 }: GrammarUnitDetailProps): React.ReactElement {
-  const lookup = GRAMMAR_UNIT_BY_ID as Record<string, GrammarUnit | undefined>;
-  const unit = lookup[unitId];
+  const [unit, setUnit] = useState<GrammarUnit | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'not-found' | 'error'>('loading');
   const [drillIdx, setDrillIdx] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
 
-  if (!unit) {
+  useEffect(() => {
+    let cancelled = false;
+    setStatus('loading');
+    setUnit(null);
+    setDrillIdx(0);
+    setChosen(null);
+    (async () => {
+      try {
+        const u = (await getGrammarUnit(unitId)) as unknown as GrammarUnit;
+        if (cancelled) return;
+        setUnit(u);
+        setStatus('ready');
+      } catch (e) {
+        if (cancelled) return;
+        const name = (e as Error)?.name ?? '';
+        if (name === 'ContentNotFoundError') {
+          setStatus('not-found');
+        } else {
+          setStatus('error');
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [unitId]);
+
+  if (status === 'loading') {
+    return (
+      <div style={STYLES.wrap} data-testid="grammar-unit-detail-loading">
+        <button style={STYLES.back} onClick={goBack}>
+          ← Back
+        </button>
+        <div style={STYLES.notFound}>Loading unit…</div>
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <div style={STYLES.wrap} data-testid="grammar-unit-detail-error">
+        <button style={STYLES.back} onClick={goBack}>
+          ← Back
+        </button>
+        <div style={STYLES.notFound}>Couldn't load unit. Check connection and retry.</div>
+      </div>
+    );
+  }
+
+  if (status === 'not-found' || !unit) {
     return (
       <div style={STYLES.wrap}>
         <button style={STYLES.back} onClick={goBack}>

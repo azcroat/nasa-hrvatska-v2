@@ -1,6 +1,9 @@
 // src/tests/grammarAdvanced.aggregation.test.js
 import { describe, it, expect } from 'vitest';
-import { ADVANCED_UNITS, GRAMMAR_UNIT_BY_ID } from '../data/grammar-advanced.js';
+import {
+  ADVANCED_UNITS,
+  GRAMMAR_UNIT_BY_ID,
+} from '../../functions/api/content/_data/grammarAdvanced.js';
 
 describe('grammar-advanced.js aggregation', () => {
   it('GRAMMAR_UNIT_BY_ID has an entry for every unit in ADVANCED_UNITS', () => {

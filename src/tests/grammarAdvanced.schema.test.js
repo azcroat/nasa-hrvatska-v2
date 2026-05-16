@@ -1,6 +1,6 @@
 // src/tests/grammarAdvanced.schema.test.js
 import { describe, it, expect } from 'vitest';
-import { ADVANCED_UNITS } from '../data/grammar-advanced.js';
+import { ADVANCED_UNITS } from '../../functions/api/content/_data/grammarAdvanced.js';
 
 describe('grammar-advanced.js schema', () => {
   it('all units have required top-level fields', () => {
