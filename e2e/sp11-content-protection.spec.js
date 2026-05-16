@@ -7,10 +7,10 @@ import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
-// 8 distinctive Croatian-language curriculum strings from the now-server-side
-// data files (5 SP11 stories/grammar-units + 3 SP11b grammar). If any of these
-// turn up in dist/assets/*.js, the closure has regressed and the curriculum is
-// leaking back into the public bundle.
+// 11 distinctive Croatian-language curriculum strings from the now-server-side
+// data files (5 SP11 stories/grammar-units + 3 SP11b grammar + 3 SP11c lessons).
+// If any of these turn up in dist/assets/*.js, the closure has regressed and
+// the curriculum is leaking back into the public bundle.
 const NEEDLES = [
   'Ana ide na tržnicu svake subote',
   'Peka je jedan od najstarijih načina kuhanja u Dalmaciji',
@@ -20,6 +20,9 @@ const NEEDLES = [
   'na- prefix marks completion',
   'Getting this wrong is one of the most noticeable foreigner errors in Croatia',
   'Kondicionalni — Would/Could/Should',
+  'Croatian is almost perfectly phonetic',
+  'Glagoljica je naš otisak prsta u povijesti',
+  'Accompaniment — s/sa + Instrumental',
 ];
 
 test.describe('SP11 — content endpoints + bundle audit', () => {
@@ -40,6 +43,11 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
 
   test('anonymous GET /api/content/grammar returns 401', async ({ request }) => {
     const res = await request.get('/api/content/grammar');
+    expect(res.status()).toBe(401);
+  });
+
+  test('anonymous GET /api/content/lessons returns 401', async ({ request }) => {
+    const res = await request.get('/api/content/lessons');
     expect(res.status()).toBe(401);
   });
 
