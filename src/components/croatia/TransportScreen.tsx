@@ -1,12 +1,22 @@
 import React from 'react';
 import { H, speak } from '../../data';
-import { TRANSPORT } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface Props {
   goBack: () => void;
 }
 
 function TransportScreen({ goBack }: Props) {
+  const { content, loading, error } = useContent();
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('🚌 Getting Around', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('🚌 Getting Around', 'Loading…', goBack)}</div>;
+  const TRANSPORT = content.TRANSPORT as unknown as { hr: string; en: string }[];
   return (
     <div className="scr-wrap">
       {H('🚌 Getting Around', 'Bus, tram, taxi phrases', goBack)}

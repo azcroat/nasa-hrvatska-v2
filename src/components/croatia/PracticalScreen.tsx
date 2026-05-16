@@ -1,12 +1,30 @@
 import React from 'react';
 import { H, speak } from '../../data';
-import { PRACTICAL } from '../../data';
+import { useContent } from '../../hooks/useContent';
 
 interface Props {
   goBack: () => void;
 }
 
 function PracticalScreen({ goBack }: Props) {
+  const { content, loading, error } = useContent();
+  if (error)
+    return (
+      <div className="scr-wrap">
+        {H('💼 Practical Life in Croatia', "Couldn't load — please retry.", goBack)}
+      </div>
+    );
+  if (loading || !content)
+    return <div className="scr-wrap">{H('💼 Practical Life in Croatia', 'Loading…', goBack)}</div>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const PRACTICAL = content.PRACTICAL as {
+    oib: { title: string; desc: string };
+    mbo: { title: string; desc: string };
+    documents: any[];
+    customs: any[];
+    schoolCalendar: string;
+  };
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   return (
     <div className="scr-wrap">
       {H('💼 Practical Life in Croatia', 'Documents, customs, culture', goBack)}
