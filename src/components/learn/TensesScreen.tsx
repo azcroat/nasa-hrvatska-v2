@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { H, Bar, speak, sh, TENSES } from '../../data';
+import { H, Bar, speak, sh } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { rnd } from '../../lib/random.js';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext.tsx';
@@ -15,6 +16,36 @@ interface TensesQ {
   opts: string[];
 }
 
+interface TensesVerb {
+  inf: string;
+  en: string;
+  present: string[];
+  pastM: string[];
+  pastF: string[];
+  futureM: string[];
+  futureF: string[];
+  note?: string;
+}
+
+interface TensesGenderRule {
+  rule: string;
+  desc: string;
+}
+
+interface TensesShape {
+  verbs: TensesVerb[];
+  persons: string[];
+  personsEn: string[];
+  genderRules: TensesGenderRule[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
+
 export default function TensesScreen({
   goBack,
   award,
@@ -23,6 +54,7 @@ export default function TensesScreen({
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
+  const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [tnMode, setTnMode] = useState('learn');
   const [tnGender, setTnGender] = useState('m');
@@ -34,6 +66,10 @@ export default function TensesScreen({
   const [tnA, setTnA] = useState(false);
   const [tnSl, setTnSl] = useState(-1);
   const [tnO, setTnO] = useState<string[]>([]);
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const TENSES = grammar.TENSES as unknown as TensesShape;
 
   function buildQuiz(): void {
     const qs: TensesQ[] = [];

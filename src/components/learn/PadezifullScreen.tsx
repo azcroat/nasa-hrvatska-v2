@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { H, Bar, speak, sh, PADEZI_FULL } from '../../data';
+import { H, Bar, speak, sh } from '../../data';
+import { useGrammar } from '../../hooks/useGrammar';
 import { useStats } from '../../context/StatsContext.tsx';
 
 interface PfQuizQuestion {
@@ -11,6 +12,23 @@ interface PfQuizQuestion {
   opts: string[];
 }
 
+interface PadeziFullShape {
+  title: string;
+  subtitle: string;
+  caseNames: string[];
+  caseQs: string[];
+  singEndings: Record<string, unknown>;
+  plurEndings: Record<string, unknown>;
+  quiz: PfQuizQuestion[];
+}
+
+function LoadingState() {
+  return <div style={{ padding: 24, textAlign: 'center' }}>Loading…</div>;
+}
+function ErrorState({ message }: { message: string }) {
+  return <div style={{ padding: 24, textAlign: 'center', color: 'var(--info)' }}>{message}</div>;
+}
+
 export default function PadezifullScreen({
   goBack,
   award,
@@ -19,6 +37,7 @@ export default function PadezifullScreen({
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { stats, setStats, writeDelta } = useStats();
+  const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [pfTab, sPfTab] = useState('sing');
   const [pfMode, sPfMode] = useState('learn');
@@ -31,6 +50,10 @@ export default function PadezifullScreen({
   const [pfO, sPfO] = useState<string[]>([]);
   const [pfCaseA, sPfCaseA] = useState(false);
   const [_pfCaseSl, sPfCaseSl] = useState(-1);
+
+  if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
+  if (loading || !grammar) return <LoadingState />;
+  const PADEZI_FULL = grammar.PADEZI_FULL as unknown as PadeziFullShape;
 
   function startQuiz(): void {
     const q = sh(PADEZI_FULL.quiz) as PfQuizQuestion[];
