@@ -10,8 +10,9 @@ import { markExerciseDone } from './useAward.js';
 import type { Stats, StatsDelta } from '../types/index.js';
 import type { AwardActivityType } from '../lib/activityXp.js';
 
-// V and LESSONS are only needed when launching exercises — lazy import keeps chunk-data
-// out of the startup bundle. GRAM is fetched server-side via getGrammar() (SP11b).
+// V is only needed when launching exercises — lazy import keeps chunk-data
+// out of the startup bundle. GRAM and LESSONS are fetched server-side via
+// getGrammar()/getLessons() (SP11b/SP11c).
 // sh is a local Fisher-Yates using Math.random().
 function _sh<T>(a: T[]): T[] {
   const b = [...a];
@@ -301,8 +302,9 @@ export function useScreenLauncher({
 
   const launchAnimLesson = useCallback(
     async (lessonId: string): Promise<void> => {
-      const { LESSONS } = (await import('../data/lessons.js')) as { LESSONS: { id: string }[] };
-      const l = LESSONS.find((x) => x.id === lessonId);
+      const { getLessons } = await import('../lib/contentClient');
+      const lessons = await getLessons();
+      const l = lessons.find((x) => x.id === lessonId);
       if (l) {
         returnContextRef.current = { tab: tab || 'learn', screen: currentScreen || 'dashboard' };
         setAnimLesson(l);
@@ -591,8 +593,9 @@ export function useScreenLauncher({
         });
         launchMcGame(qs);
       } else if (item.go === 'animlesson' && item.lessonId) {
-        const { LESSONS } = (await import('../data/lessons.js')) as { LESSONS: { id: string }[] };
-        const l = LESSONS.find((x) => x.id === item.lessonId);
+        const { getLessons } = await import('../lib/contentClient');
+        const lessons = await getLessons();
+        const l = lessons.find((x) => x.id === item.lessonId);
         if (!l) return;
         sessionStorage.setItem('nh_ex_start', Date.now().toString());
         returnContextRef.current = { tab: 'learn', screen: 'learnpath' };
