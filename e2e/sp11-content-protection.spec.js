@@ -47,33 +47,58 @@ const NEEDLES = [
   'abstract concepts',
 ];
 
+// The 401-auth-gate tests below require Cloudflare Pages Functions runtime
+// (`wrangler pages dev`) to actually serve /api/content/* handlers. CI uses
+// `vite preview` which only serves static files, so these endpoints 404
+// rather than 401. Detect the environment at runtime: probe a known endpoint
+// once. If it returns 404, all 7 auth-gate tests are skipped instead of
+// reported as failures. The bundle-audit test (the canary that matters for
+// SP11 protection) still runs.
 test.describe('SP11 — content endpoints + bundle audit', () => {
+  let _apiAvailable = null;
+  async function apiAvailable(request) {
+    if (_apiAvailable !== null) return _apiAvailable;
+    try {
+      const probe = await request.get('/api/content/core');
+      _apiAvailable = probe.status() !== 404;
+    } catch {
+      _apiAvailable = false;
+    }
+    return _apiAvailable;
+  }
+
   test('anonymous GET /api/content/stories/gs_a1_1 returns 401', async ({ request }) => {
+    test.skip(!(await apiAvailable(request)), 'API routes only available under wrangler pages dev');
     const res = await request.get('/api/content/stories/gs_a1_1');
     expect(res.status()).toBe(401);
   });
 
   test('anonymous GET /api/content/catalog returns 401', async ({ request }) => {
+    test.skip(!(await apiAvailable(request)), 'API routes only available under wrangler pages dev');
     const res = await request.get('/api/content/catalog');
     expect(res.status()).toBe(401);
   });
 
   test('anonymous GET /api/content/grammar-units/futur-ii returns 401', async ({ request }) => {
+    test.skip(!(await apiAvailable(request)), 'API routes only available under wrangler pages dev');
     const res = await request.get('/api/content/grammar-units/futur-ii');
     expect(res.status()).toBe(401);
   });
 
   test('anonymous GET /api/content/grammar returns 401', async ({ request }) => {
+    test.skip(!(await apiAvailable(request)), 'API routes only available under wrangler pages dev');
     const res = await request.get('/api/content/grammar');
     expect(res.status()).toBe(401);
   });
 
   test('anonymous GET /api/content/lessons returns 401', async ({ request }) => {
+    test.skip(!(await apiAvailable(request)), 'API routes only available under wrangler pages dev');
     const res = await request.get('/api/content/lessons');
     expect(res.status()).toBe(401);
   });
 
   test('anonymous GET /api/content/core returns 401', async ({ request }) => {
+    test.skip(!(await apiAvailable(request)), 'API routes only available under wrangler pages dev');
     const res = await request.get('/api/content/core');
     expect(res.status()).toBe(401);
   });
