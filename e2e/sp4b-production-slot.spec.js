@@ -1,6 +1,6 @@
 // e2e/sp4b-production-slot.spec.js
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 import { forceCefr } from './fixtures/forceCefr.js';
 import { mockRnd } from './fixtures/mockRnd.js';
@@ -10,7 +10,6 @@ test.describe('SP4b — production slot in daily session', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await forceCefr(page, 'B1');     // deterministic CEFR
     await mockRnd(page, 0);          // deterministic selectProductionExercise pick
   });

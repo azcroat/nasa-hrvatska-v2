@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
 
 /**
  * Home screen smoke tests — verifies the authenticated home tab renders correctly.
@@ -11,7 +11,6 @@ test.describe('Home screen — authenticated', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   });

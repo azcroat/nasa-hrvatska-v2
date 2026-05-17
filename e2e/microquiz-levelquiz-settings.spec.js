@@ -10,7 +10,7 @@
  *   3. Clicking that CTA mounts the LevelQuiz screen with 10 questions.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Settings toggle persistence
@@ -21,7 +21,6 @@ test.describe('FIX-16 — Settings: MicroQuiz toggle persistence', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
@@ -120,7 +119,6 @@ test.describe('FIX-16 — LearnPath: Level Quiz CTA', () => {
     await seedFullLevel1Progress(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
   });
 
   test('LearnPath screen mounts after clicking "View full path"', async ({ page }) => {

@@ -1,12 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_NAME, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_NAME } from './fixtures/seed-auth.js';
 
 test.describe('Home tab', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     await page.waitForLoadState('networkidle', { timeout: 12_000 }).catch(() => {});

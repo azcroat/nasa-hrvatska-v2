@@ -21,7 +21,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
 // Hard cap: every test in this file must finish within 12 seconds.
 // isVisible timeouts and waitForTimeout values are trimmed to match.
@@ -121,7 +121,6 @@ async function setup(page, words) {
   await seedAuth(page);
   await blockFirebase(page);
   await mockTTS(page);
-  await mockContent(page);
   // Mock pronunciation-assess (Azure) to return not-ok so it falls back to WebSpeech
   await page.route('/api/pronunciation-assess', route => route.fulfill({
     status: 503,
@@ -187,7 +186,6 @@ test.describe('Self-assessment path', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.route('/api/pronunciation-assess', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false }) }));
     await page.route('/api/pronunciation-coach', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ feedback: 'Good!', issue: '', phonetic_guide: '', drills: [] }) }));
     await page.goto('/practice');
@@ -222,7 +220,6 @@ test.describe('PronunciationScorer WebSpeech mode', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.route('/api/pronunciation-assess', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false }) }));
     await page.route('/api/pronunciation-coach', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ feedback: 'Great pronunciation!', issue: '', phonetic_guide: '/dɔ.bar/', drills: [] }) }));
     await page.goto('/practice');
@@ -314,7 +311,6 @@ test.describe('English-translation recognition (četiri → four bug fix)', () =
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.route('/api/pronunciation-assess', r => r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false }) }));
     await page.route('/api/pronunciation-coach', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ feedback: 'You recognized the meaning correctly!', issue: '', phonetic_guide: '/tʃe.ti.ri/', drills: [] }) }));
 
@@ -381,7 +377,6 @@ test.describe('English-translation recognition (četiri → four bug fix)', () =
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.route('/api/pronunciation-assess', r => r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false }) }));
     await page.route('/api/pronunciation-coach', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ feedback: 'Excellent!', issue: '', phonetic_guide: '', drills: [] }) }));
 
@@ -437,7 +432,6 @@ test.describe('Microphone error handling', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.route('/api/pronunciation-assess', r => r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false }) }));
     await page.route('/api/pronunciation-coach', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ feedback: 'Good!', issue: '', phonetic_guide: '', drills: [] }) }));
 
@@ -496,7 +490,6 @@ test.describe('Score badge thresholds', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.route('/api/pronunciation-assess', r => r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false }) }));
     await page.route('/api/pronunciation-coach', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ feedback: 'Keep practicing!', issue: '', phonetic_guide: '', drills: [] }) }));
     await page.goto('/practice');
@@ -549,7 +542,6 @@ test.describe('Score badge thresholds', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.route('/api/pronunciation-assess', r => r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false }) }));
     await page.route('/api/pronunciation-coach', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ feedback: 'Excellent!', issue: '', phonetic_guide: '', drills: [] }) }));
     await page.goto('/practice');
@@ -586,7 +578,6 @@ test.describe('Listening screen', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     // Mock AI listening endpoint
     await page.route('/api/ai-listen*', route => route.fulfill({
       contentType: 'application/json',
@@ -668,7 +659,6 @@ test.describe('Flashcards', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/practice');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   });
@@ -734,7 +724,6 @@ test.describe('McGame (Multiple Choice quiz)', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/practice');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   });
@@ -806,7 +795,6 @@ test.describe('Profile persistence', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/me');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   });
@@ -853,7 +841,6 @@ test.describe('Streak mechanics', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
   });
 
   test('streak earn-back token visible when yesterday streak broke', async ({ page }) => {
@@ -1000,7 +987,6 @@ test.describe('LearnPath sequential flow', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/learn');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   });
@@ -1057,7 +1043,6 @@ test.describe('Navigation smoke test', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   });
@@ -1103,7 +1088,6 @@ test.describe('Croatia tab', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/croatia');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   });
@@ -1155,8 +1139,7 @@ test.describe('Offline resilience', () => {
     await blockFirebase(page);
     // Block ALL API calls
     await page.route('/api/**', route => route.abort());
-    await mockTTS(page);
-    await mockContent(page); // override — TTS needs to work
+    await mockTTS(page); // override — TTS needs to work
 
     const jsErrors = [];
     page.on('pageerror', e => jsErrors.push(e.message));
@@ -1187,7 +1170,6 @@ test.describe('XP and level boundary conditions', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
   });

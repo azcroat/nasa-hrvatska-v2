@@ -5,7 +5,7 @@
 // story. Uses stable testids (introduced as part of SP6 cleanup pattern) so
 // the spec is not coupled to UI labels.
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
 test.describe('SP7 — Story of the Day', () => {
   test.beforeEach(async ({ page }) => {
@@ -13,7 +13,6 @@ test.describe('SP7 — Story of the Day', () => {
     await seedAuth(page, { xp: 3000 });
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.addInitScript(() => {
       localStorage.removeItem('nh_recent_reads');
       localStorage.setItem(

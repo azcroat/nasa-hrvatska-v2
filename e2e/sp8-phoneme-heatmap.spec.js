@@ -5,7 +5,7 @@
 // machine without real audio, mockAiPost for /api/pronunciation-assess, and
 // TID constants for navigation.
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 import { forceCefr } from './fixtures/forceCefr.js';
 import { mockAiPost, CANNED } from './fixtures/mockAiPost.js';
@@ -16,7 +16,6 @@ test.describe('SP8 — Phoneme Heat Map', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await forceCefr(page, 'B1');
     await mockMediaRecorder(page);
     await mockAiPost(page, {

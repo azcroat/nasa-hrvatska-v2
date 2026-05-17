@@ -5,7 +5,7 @@
  * directly to a protected route.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -80,7 +80,6 @@ test.describe('Auth edge cases', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/');
 
     // earlyRestore reads localStorage synchronously — nav bar must appear
@@ -97,7 +96,6 @@ test.describe('Auth edge cases', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/');
 
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
@@ -107,7 +105,6 @@ test.describe('Auth edge cases', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
 
     // Use page.goto('/') instead of page.reload() — addInitScript seeds run on every
     // navigation, and reload() can fail on WebKit/SW environments with ERR_ABORTED or
@@ -126,7 +123,6 @@ test.describe('Auth edge cases', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     await page.goto('/practice');
 
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
@@ -195,7 +191,6 @@ test.describe('Auth edge cases', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
 
     for (const route of ['/', '/learn', '/practice', '/croatia', '/profile']) {
       // Catch SPA-internal navigation race: React Router may fire navigate('/') as the
