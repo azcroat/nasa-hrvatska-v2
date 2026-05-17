@@ -66,18 +66,17 @@ export default function DiscoverTab() {
   };
   const city = getCityOfDay((content?.CROATIAN_CITIES ?? []) as CityLike[]);
 
-  // Content still hydrating from /api/content/core — render nothing until ready.
-  // useContent re-renders when fetch lands.
-  if (!city) return null;
-
-  // Safe field access — 36/365 cities are stubs
-  const cityColor: string = city.color || '#0e7490';
-  const cityIcon: string = city.icon || '🏙️';
-  const cityRegion: string = city.region || 'Croatia';
-  const cityTagline: string = city.tagline || '';
+  // Defensive: if content is still hydrating OR the picker returned nothing,
+  // render the rest of DiscoverTab (Knight messages etc.) but skip the city
+  // section. Previously this `return null` would nuke the entire tab when
+  // useContent was empty — that's how City of the Day "disappeared".
+  const cityColor: string = city?.color || '#0e7490';
+  const cityIcon: string = city?.icon || '🏙️';
+  const cityRegion: string = city?.region || 'Croatia';
+  const cityTagline: string = city?.tagline || '';
   const cityIntro: string =
-    city.intro || `${city.name ?? 'This city'} is a remarkable city in ${cityRegion}.`;
-  const cityDidYouKnow: string = city.didYouKnow || '';
+    city?.intro || `${city?.name ?? 'This city'} is a remarkable city in ${cityRegion}.`;
+  const cityDidYouKnow: string = city?.didYouKnow || '';
 
   // Rotating knight message
   const [kMsgIdx, setKMsgIdx] = useState(0);
@@ -99,130 +98,133 @@ export default function DiscoverTab() {
   }, []);
 
   const kMsg = KNIGHT_MESSAGES[kMsgIdx]!;
+  const cityName = city?.name ?? 'Croatia';
 
   return (
     <div style={{ paddingBottom: 16 }}>
       {/* ── CITY OF THE DAY (text-only, always visible) ── */}
-      <div
-        style={{
-          borderRadius: 18,
-          overflow: 'hidden',
-          marginBottom: 16,
-          boxShadow: '0 4px 20px rgba(0,0,0,.1)',
-          border: `1.5px solid ${cityColor}35`,
-        }}
-      >
-        {/* Accent bar */}
-        <div style={{ height: 4, background: cityColor }} />
-
+      {city && (
         <div
           style={{
-            background: `linear-gradient(135deg, ${cityColor}12, ${cityColor}05)`,
-            padding: '16px 18px 18px',
+            borderRadius: 18,
+            overflow: 'hidden',
+            marginBottom: 16,
+            boxShadow: '0 4px 20px rgba(0,0,0,.1)',
+            border: `1.5px solid ${cityColor}35`,
           }}
         >
-          {/* Header row */}
+          {/* Accent bar */}
+          <div style={{ height: 4, background: cityColor }} />
+
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 12,
+              background: `linear-gradient(135deg, ${cityColor}12, ${cityColor}05)`,
+              padding: '16px 18px 18px',
             }}
           >
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 900,
-                color: cityColor,
-                textTransform: 'uppercase',
-                letterSpacing: '.12em',
-              }}
-            >
-              🗓️ City of the Day
-            </span>
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: cityColor,
-                background: `${cityColor}18`,
-                border: `1px solid ${cityColor}35`,
-                borderRadius: 20,
-                padding: '3px 10px',
-              }}
-            >
-              📍 {cityRegion}
-            </span>
-          </div>
-
-          {/* City name */}
-          <div
-            style={{
-              fontSize: 24,
-              fontWeight: 900,
-              color: 'var(--heading)',
-              fontFamily: "'Playfair Display', serif",
-              lineHeight: 1.15,
-              marginBottom: cityTagline ? 6 : 12,
-            }}
-          >
-            {cityIcon} {city.name}
-          </div>
-
-          {/* Tagline */}
-          {cityTagline ? (
+            {/* Header row */}
             <div
               style={{
-                fontSize: 12,
-                color: cityColor,
-                fontStyle: 'italic',
-                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 marginBottom: 12,
-                lineHeight: 1.5,
               }}
             >
-              &ldquo;{cityTagline}&rdquo;
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 900,
+                  color: cityColor,
+                  textTransform: 'uppercase',
+                  letterSpacing: '.12em',
+                }}
+              >
+                🗓️ City of the Day
+              </span>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: cityColor,
+                  background: `${cityColor}18`,
+                  border: `1px solid ${cityColor}35`,
+                  borderRadius: 20,
+                  padding: '3px 10px',
+                }}
+              >
+                📍 {cityRegion}
+              </span>
             </div>
-          ) : null}
 
-          {/* Intro snippet — 3-line clamp */}
-          <div
-            style={{
-              fontSize: 13,
-              color: 'var(--body)',
-              lineHeight: 1.65,
-              marginBottom: 16,
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-            }}
-          >
-            {cityIntro}
+            {/* City name */}
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 900,
+                color: 'var(--heading)',
+                fontFamily: "'Playfair Display', serif",
+                lineHeight: 1.15,
+                marginBottom: cityTagline ? 6 : 12,
+              }}
+            >
+              {cityIcon} {cityName}
+            </div>
+
+            {/* Tagline */}
+            {cityTagline ? (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: cityColor,
+                  fontStyle: 'italic',
+                  fontWeight: 600,
+                  marginBottom: 12,
+                  lineHeight: 1.5,
+                }}
+              >
+                &ldquo;{cityTagline}&rdquo;
+              </div>
+            ) : null}
+
+            {/* Intro snippet — 3-line clamp */}
+            <div
+              style={{
+                fontSize: 13,
+                color: 'var(--body)',
+                lineHeight: 1.65,
+                marginBottom: 16,
+                overflow: 'hidden',
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
+              {cityIntro}
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={() => setScr('cityofday')}
+              style={{
+                width: '100%',
+                background: aaButtonBg(cityColor),
+                color: '#fff',
+                border: 'none',
+                borderRadius: 12,
+                padding: '11px 0',
+                fontSize: 13,
+                fontWeight: 800,
+                cursor: 'pointer',
+                fontFamily: "'Outfit', sans-serif",
+                letterSpacing: '.025em',
+              }}
+            >
+              Explore {cityName} →
+            </button>
           </div>
-
-          {/* CTA */}
-          <button
-            onClick={() => setScr('cityofday')}
-            style={{
-              width: '100%',
-              background: aaButtonBg(cityColor),
-              color: '#fff',
-              border: 'none',
-              borderRadius: 12,
-              padding: '11px 0',
-              fontSize: 13,
-              fontWeight: 800,
-              cursor: 'pointer',
-              fontFamily: "'Outfit', sans-serif",
-              letterSpacing: '.025em',
-            }}
-          >
-            Explore {city.name} →
-          </button>
         </div>
-      </div>
+      )}
 
       {/* ── DID YOU KNOW ── */}
       {cityDidYouKnow ? (

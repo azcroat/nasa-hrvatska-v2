@@ -63,6 +63,7 @@ import { getActiveCampaign } from '../../lib/seasonalCampaign';
 import { getWordOfDay, getPhraseOfDay } from '../../lib/wordOfDay.js';
 import WordOfDayCard from './WordOfDayCard';
 import PhraseOfDayCard from './PhraseOfDayCard';
+import CityOfDayCard from './CityOfDayCard';
 import { StoryOfTheDayCard } from './StoryOfTheDayCard';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
@@ -555,6 +556,9 @@ export default function HomeTab({
 
       {/* ── PHRASE OF THE DAY ── */}
       {pod && <PhraseOfDayCard phrase={pod} />}
+
+      {/* ── CITY OF THE DAY (surfaced from Croatia tab to home) ── */}
+      <CityOfDayCard setScr={setScr} />
 
       {/* ── STORY OF THE DAY (SP7) ── */}
       {launchStory && <StoryOfTheDayCard launchStory={launchStory} />}
