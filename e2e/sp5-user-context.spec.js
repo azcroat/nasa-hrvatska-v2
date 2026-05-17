@@ -65,6 +65,13 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     await page.goto('/');
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
     await page.getByTestId(TID.NAV_PRACTICE).click();
+    // Practice tab UX: exercise cards live inside collapsible category tiles
+    // (see PracticeTab.tsx browse grid). Need to switch to the Drill panel
+    // and expand the Advanced tile before the "writing" card is in the DOM.
+    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
+    await advTile.scrollIntoViewIfNeeded();
+    await advTile.click();
     await page.getByTestId(TID.EXERCISE_CARD('writing')).click();
     await page
       .getByTestId(TID.WRITING_INPUT)
