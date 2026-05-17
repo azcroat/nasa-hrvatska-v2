@@ -6,6 +6,7 @@
  * and to window.onerror (Sentry, etc.) in production.
  */
 import React from 'react';
+import { reportBoundaryError } from '../../lib/errorReporter';
 
 interface ErrorBoundaryProps {
   children?: React.ReactNode;
@@ -26,11 +27,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('[ErrorBoundary]', error, info.componentStack);
-    // Forward to any global error handler (Sentry, Datadog, etc.)
-    try {
-      window.__nhReportError?.(error, info);
-    } catch (_) {}
+    // SP3b: shared boundary reporting — single sendBeacon path for both
+    // ErrorBoundary (scope='root') and ScreenErrorBoundary (scope=screenName).
+    reportBoundaryError(error, info, 'root');
   }
 
   render() {
