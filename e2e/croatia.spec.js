@@ -1,12 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
 test.describe('Croatia tab', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
-    await mockContent(page);
     // Navigate directly to /croatia to avoid post-auth navigate('/') race on tab click.
     await page.goto('/croatia');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
