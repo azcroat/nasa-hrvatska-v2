@@ -82,43 +82,6 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     const writingText = 'Imam mama svaki dan svaki dan svaki dan svaki dan.';
     await page.getByTestId(TID.WRITING_INPUT).fill(writingText);
     await expect(page.getByTestId(TID.WRITING_INPUT)).toHaveValue(writingText);
-    // Re-stamp profile.st and nh_recent_errors right before submit.
-    //
-    // Why: in test-only environments we seed an authenticated session via
-    // localStorage (uS/uA/uP_) and forceCefr() patches profile.st via
-    // addInitScript. App.tsx's auto-save useEffect (line 1159) writes
-    // React state -> uP_<email> on every dependency change. During the
-    // brief window between initial render (stats=DS={xp:0}) and useAuth's
-    // MERGE_REMOTE dispatching from the seeded localStorage, the
-    // useEffect can clobber forceCefr's values with the DS defaults.
-    // readLevel() in src/lib/userContext.ts reads localStorage DIRECTLY,
-    // so if buildUserContext() runs during that window the cefr falls
-    // back to A1. In production this window doesn't exist: real Firebase
-    // auth delivers a non-empty `progress` payload synchronously with
-    // the auth state change. Re-stamping here guarantees the seeded
-    // values are present at the exact moment readLevel() runs.
-    await page.evaluate(() => {
-      const uS = JSON.parse(localStorage.getItem('uS') || '{}');
-      const email = uS.u;
-      if (!email) return;
-      const profileKey = 'uP_' + email;
-      const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
-      profile.st = { ...(profile.st || {}), xp: 2000, lc: 0, gc: 0 };
-      localStorage.setItem(profileKey, JSON.stringify(profile));
-      const fiveMinAgo = Date.now() - 5 * 60 * 1000;
-      localStorage.setItem(
-        'nh_recent_errors',
-        JSON.stringify([
-          {
-            topic: 'accusative',
-            prompt: 'Vidim ____ knjigu',
-            userAnswer: 'knjiga',
-            correctAnswer: 'knjigu',
-            at: fiveMinAgo,
-          },
-        ]),
-      );
-    });
     // Set up waitForRequest BEFORE the click so an in-flight POST cannot slip past.
     const correctRequest = page.waitForRequest('**/api/correct', { timeout: 15_000 });
     await page.getByTestId(TID.WRITING_SUBMIT).click();
