@@ -86,6 +86,9 @@ export default [
       'prefer-const': 'off',        // Style preference — deferred
       'no-empty': 'off',            // Intentional empty catch blocks exist throughout
       'no-useless-escape': 'off',   // Escaped characters in Croatian data strings — harmless
+      // SP3a: cap new files at 800 lines (excluding blank + comment lines).
+      // Grandfathered offenders are in their own override block at the bottom.
+      'max-lines': ['error', { max: 800, skipBlankLines: true, skipComments: true }],
     },
   },
 
@@ -143,6 +146,8 @@ export default [
       'prefer-const': 'off',
       'no-var': 'off',
       'no-empty': 'off',
+      // SP3a: cap new files at 800 lines (matches .js/.jsx block above).
+      'max-lines': ['error', { max: 800, skipBlankLines: true, skipComments: true }],
     },
   },
   // React hooks plugin for TypeScript files (mirrors .js/.jsx block above)
@@ -172,6 +177,92 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
     },
+  },
+
+  // SP3a: src/data/** is curriculum content (vocabulary, scenarios, exercises,
+  // cultural). Length is determined by curriculum scope, not code complexity.
+  // Wholesale exempt — splitting would not improve maintainability.
+  {
+    files: ['src/data/**/*.{js,ts,tsx}'],
+    rules: { 'max-lines': 'off' },
+  },
+  // SP3a: grandfathered files over the 800-line threshold (audit 2026-05-16).
+  // New files added after this date must respect the rule. Each entry here
+  // represents a deliberate scope decision to NOT split this file in SP3a.
+  // To remove a file from this list: split it into smaller modules first.
+  {
+    files: [
+      'src/components/practice/PracticeTab.tsx',
+      'src/components/practice/ListeningComprehensionScreen.tsx',
+      'src/components/AppRouter.tsx',
+      'src/App.tsx',
+      'src/components/home/HeroSection.tsx',
+      'src/components/profile/SettingsTab.tsx',
+      'src/components/learn/LearnTab.tsx',
+      'src/components/croatia/CroatiaCulture.tsx',
+      'src/components/croatia/AIConversation.tsx',
+      'src/components/practice/ProductionDrillScreen.tsx',
+      'src/components/learn/GrammarExplainer.tsx',
+      'src/components/learn/LessonScreen.tsx',
+      'src/components/learn/PitchAccentMastery.tsx',
+      'src/lib/firebase.ts',
+      'src/components/croatia/HeritagePathScreen.tsx',
+      'src/components/croatia/LiveTutorScreen.tsx',
+      'src/components/shared/CroatianKnight.tsx',
+      'src/components/learn/VocabScreens.tsx',
+      'src/components/practice/SpeakingScreen.tsx',
+      'src/components/practice/FlashcardCardFront.tsx',
+      'src/components/croatia/CroatiaHistoryScreen.tsx',
+      'src/components/profile/LearnPath.tsx',
+      'src/components/profile/PrivacyScreen.tsx',
+      // 800–1500 line offenders from full lint audit
+      'src/components/croatia/AIConversationChat.tsx',
+      'src/components/croatia/ConversationScenarios.js',
+      'src/components/croatia/CroatiaToday.tsx',
+      'src/components/croatia/CultureTab.tsx',
+      'src/components/croatia/DialectAwarenessScreen.tsx',
+      'src/components/croatia/HeritageStoryScreen.tsx',
+      'src/components/croatia/HNLScreen.tsx',
+      'src/components/croatia/ImmersionHub.tsx',
+      'src/components/croatia/MajaScreen.tsx',
+      'src/components/croatia/MediaTab.tsx',
+      'src/components/croatia/PhraseOfDayScreen.tsx',
+      'src/components/croatia/PostcardScreen.tsx',
+      'src/components/home/GrammarDiagnosisScreen.tsx',
+      'src/components/home/WelcomeScreen.tsx',
+      'src/components/illustrations/DalmatianCoast.tsx',
+      'src/components/learn/BrowseContentModal.tsx',
+      'src/components/learn/FutureTenseLessonScreen.tsx',
+      'src/components/learn/GradedInputScreen.tsx',
+      'src/components/learn/GrammarTrackScreen.tsx',
+      'src/components/learn/HeritageModeScreen.tsx',
+      'src/components/learn/MicroLessonScreen.tsx',
+      'src/components/learn/NewLessons.tsx',
+      'src/components/learn/PracticalCroatianScreen.tsx',
+      'src/components/learn/VocabSceneSVGs.tsx',
+      'src/components/practice/CefrTest.tsx',
+      'src/components/practice/ClozeEngine.tsx',
+      'src/components/practice/slangData.js',
+      'src/components/practice/VideoLessonScreen.tsx',
+      'src/components/profile/StatsTab.tsx',
+      'src/components/shared/KnightSpeech.tsx',
+    ],
+    rules: { 'max-lines': 'off' },
+  },
+  // SP3a: tests can legitimately exceed 800 lines (parametrized describes).
+  {
+    files: [
+      'src/**/__tests__/**',
+      'src/**/*.test.{ts,tsx,js,jsx}',
+      'src/**/*.spec.{ts,tsx,js,jsx}',
+      'src/tests/**',
+    ],
+    rules: { 'max-lines': 'off' },
+  },
+  // SP3a: config + e2e files exempt.
+  {
+    files: ['*.config.{js,mjs,ts}', 'vite.config.*', 'playwright.*.config.*', 'e2e/**'],
+    rules: { 'max-lines': 'off' },
   },
 
   // Test files — relax some rules
