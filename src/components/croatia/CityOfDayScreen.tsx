@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { speak } from '../../data';
 import { useContent } from '../../hooks/useContent';
 import { getCityOfDay } from '../../lib/dailyPickers';
+import { FALLBACK_CITIES } from '../../lib/fallbackCities';
 
 // Normalize city name to lookup key — strip diacritics, lowercase, collapse spaces
 // Handles: Šibenik→sibenik, Varaždin→varazdin, Korčula→korcula, Poreč→porec,
@@ -86,7 +87,13 @@ type CityLike = {
 function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
   const [tab, setTab] = useState('overview');
   const { content } = useContent();
-  const city = getCityOfDay((content?.CROATIAN_CITIES ?? []) as CityLike[]);
+  // SP11+ defensive: when content.CROATIAN_CITIES is empty (slow hydration,
+  // stale cache, offline), fall back to the shared curated city pool so the
+  // screen ALWAYS renders. Previously this returned null when the user tapped
+  // the home City-of-Day card → empty screen / appears broken.
+  const serverCities = (content?.CROATIAN_CITIES ?? []) as CityLike[];
+  const pool: CityLike[] = serverCities.length > 0 ? serverCities : (FALLBACK_CITIES as CityLike[]);
+  const city = getCityOfDay(pool);
   const _tomorrow = (function () {
     const d = new Date();
     d.setDate(d.getDate() + 1);
@@ -99,8 +106,9 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
     { id: 'facts', label: 'Fast Facts', icon: '⚡' },
   ];
 
-  // Content still hydrating from /api/content/core — render nothing rather
-  // than crashing on undefined city. useContent re-renders when fetch lands.
+  // Defensive: only bail if even the fallback is somehow empty (should never
+  // happen now). useContent re-renders when /api/content/core lands and the
+  // picker switches from fallback → server data automatically.
   if (!city) return null;
 
   // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro.

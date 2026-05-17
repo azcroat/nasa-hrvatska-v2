@@ -14,86 +14,9 @@
 import React from 'react';
 import { useContent } from '../../hooks/useContent';
 import { getCityOfDay } from '../../lib/dailyPickers';
+import { FALLBACK_CITIES } from '../../lib/fallbackCities';
 
 const CROATIAN_RED = '#CC0000';
-
-// Curated fallback pool — 12 of Croatia's most culturally significant cities.
-// Used ONLY when content.CROATIAN_CITIES isn't available yet. Names + regions
-// are public knowledge (not curriculum IP) so safe to bundle client-side.
-const FALLBACK_CITIES: CityLike[] = [
-  {
-    name: 'Zagreb',
-    region: 'Continental Croatia',
-    tagline: 'The capital and cultural heart of Croatia.',
-    icon: '🏛️',
-  },
-  {
-    name: 'Split',
-    region: 'Dalmatia',
-    tagline: "Diocletian's palace and Adriatic gateway.",
-    icon: '🏖️',
-  },
-  {
-    name: 'Dubrovnik',
-    region: 'Dalmatia',
-    tagline: 'Pearl of the Adriatic — UNESCO World Heritage.',
-    icon: '🏰',
-  },
-  {
-    name: 'Rijeka',
-    region: 'Kvarner',
-    tagline: 'Croatia’s third-largest city and major port.',
-    icon: '⚓',
-  },
-  {
-    name: 'Zadar',
-    region: 'Dalmatia',
-    tagline: 'Sea Organ and the most beautiful sunset in the world.',
-    icon: '🌅',
-  },
-  {
-    name: 'Pula',
-    region: 'Istria',
-    tagline: 'Roman amphitheater older than the Colosseum.',
-    icon: '🏟️',
-  },
-  {
-    name: 'Osijek',
-    region: 'Slavonia',
-    tagline: 'Baroque fortress city on the Drava river.',
-    icon: '🏞️',
-  },
-  {
-    name: 'Šibenik',
-    region: 'Dalmatia',
-    tagline: 'Cathedral of St. James — Renaissance masterpiece.',
-    icon: '⛪',
-  },
-  {
-    name: 'Trogir',
-    region: 'Dalmatia',
-    tagline: 'Medieval island town, UNESCO-listed.',
-    icon: '🏝️',
-  },
-  {
-    name: 'Varaždin',
-    region: 'Continental Croatia',
-    tagline: 'Baroque capital, once Croatia’s political center.',
-    icon: '🎻',
-  },
-  {
-    name: 'Rovinj',
-    region: 'Istria',
-    tagline: 'Venetian-flavored fishing town and artist colony.',
-    icon: '🎨',
-  },
-  {
-    name: 'Korčula',
-    region: 'Dalmatia',
-    tagline: 'Marco Polo’s legendary birthplace.',
-    icon: '🗺️',
-  },
-];
 
 interface CityOfDayCardProps {
   setScr: (screen: string) => void;
