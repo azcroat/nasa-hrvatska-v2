@@ -5,7 +5,7 @@
  * exercises. Also tests that dual storage-key formats don't break the app.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL, mockContent } from './fixtures/seed-auth.js';
 
 const INITIAL_XP = 250;
 const INITIAL_LC = 10;
@@ -16,6 +16,7 @@ test.describe('Progress integrity', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
   });
 
   // ── 1. Streak displayed correctly on home tab ─────────────────────────────
@@ -88,6 +89,7 @@ test.describe('Progress integrity', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
 
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 15_000 });
 
@@ -161,6 +163,7 @@ test.describe('Progress integrity', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
 
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 15_000 });
 

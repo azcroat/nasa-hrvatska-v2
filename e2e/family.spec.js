@@ -13,7 +13,7 @@
  * the live-login E2E suite instead.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 
 async function goToFamilyGroup(page) {
   // Profile defaults to Stats — Friends & Family is in Insights subtab
@@ -31,6 +31,7 @@ test.describe('Family Group', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     // Navigate directly to /profile to avoid post-auth navigate('/') race.
     await page.goto('/profile');
     await expect(

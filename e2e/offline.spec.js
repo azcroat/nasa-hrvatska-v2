@@ -15,7 +15,7 @@
  * is covered hermetically by auth-edge-cases.spec.js and is CI-safe.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL, mockContent } from './fixtures/seed-auth.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -34,6 +34,7 @@ async function goOfflineAfterCaching(page) {
   await seedAuth(page);
   await blockFirebase(page);
   await mockTTS(page);
+  await mockContent(page);
   await page.goto('/');
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
     timeout: 20_000,
@@ -45,6 +46,7 @@ async function goOfflineAfterCaching(page) {
   await seedAuth(page);
   await blockFirebase(page);
   await mockTTS(page);
+  await mockContent(page);
 
   // Cut the network
   await page.context().setOffline(true);

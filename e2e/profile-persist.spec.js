@@ -12,7 +12,7 @@
  * Use page.goto('/') instead — addInitScript seeds run on every navigation.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL, mockContent } from './fixtures/seed-auth.js';
 
 /** Read stats from localStorage, handling both { st: {...} } and { stats: {...} } formats.
  * Retries up to 3 times to survive React Router's internal history.pushState() calls
@@ -41,6 +41,7 @@ test.describe('Progress persistence across sessions', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
   });
 
   test('XP value persists across page reload', async ({ page }) => {
@@ -167,6 +168,7 @@ test.describe('Profile screen', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     // Navigate directly to /profile to avoid post-auth navigate('/') race on tab click.
     await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });

@@ -5,7 +5,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 
 // 18 distinctive curriculum strings from the now-server-side data files
 // (5 SP11 stories/grammar-units + 3 SP11b grammar + 3 SP11c lessons +
@@ -82,6 +82,7 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
 
     // Mock the grammar endpoint with a tiny fixture
     await page.route('**/api/content/grammar', (route) =>
@@ -140,6 +141,7 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
 
     // Mock the catalog so the card has data to render
     await page.route('**/api/content/catalog', (route) =>

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 
 // Helper: always click tabs via the nav bar to avoid ambiguous matches with Jump In buttons.
 // Waits for the button to be visible before clicking so Firefox/WebKit don't miss a racing
@@ -16,6 +16,7 @@ test.describe('Tab navigation', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     // Wait for the app's post-auth internal navigate() calls to fully settle before each test.

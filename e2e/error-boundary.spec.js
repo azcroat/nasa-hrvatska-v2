@@ -17,7 +17,7 @@
  * All tests use seedAuth + blockFirebase + mockTTS so they are hermetic.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -72,6 +72,7 @@ test.describe('ScreenErrorBoundary — smoke tests (no boundary on healthy rende
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
   });
 
   // ── 1. Home / Today tab ───────────────────────────────────────────────────
@@ -234,6 +235,7 @@ test.describe('ScreenErrorBoundary — smoke tests (no boundary on healthy rende
       await seedAuth(page);
       await blockFirebase(page);
       await mockTTS(page);
+      await mockContent(page);
       // Catch SPA-internal navigation race on WebKit: React Router may fire navigate('/')
       // simultaneously with the test's goto(), causing "interrupted by another navigation".
       await page.goto(route).catch(() => {});

@@ -25,13 +25,14 @@
  *     src/tests/MicPermissionDeniedExplainer.test.tsx).
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 
 test.describe('SP4a — mic infrastructure smoke', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
   });
 
   test('boots /practice without console errors', async ({ page }) => {

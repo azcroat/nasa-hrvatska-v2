@@ -6,7 +6,7 @@
  * Seeded data (from seedAuth): XP=250, lc=10, streak=5, gc=5, sp=3
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_NAME } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_NAME, mockContent } from './fixtures/seed-auth.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -29,6 +29,7 @@ test.describe('Me tab (Profile)', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
