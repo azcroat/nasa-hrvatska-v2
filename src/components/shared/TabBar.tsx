@@ -208,8 +208,13 @@ export default function TabBar({
   // both stay in DOM at all viewports — visibility is purely CSS. Emitting the
   // testid on both causes Playwright getByTestId('nav-practice') strict-mode to
   // resolve to 2 elements. Gate on the matching viewport so exactly one owns it.
+  // Test-env bypass: JSDOM's matchMedia always returns matches:false regardless
+  // of query, which would suppress all testids and break testids.smoke.test.tsx
+  // (which renders TabBar in isolation). Vite sets import.meta.env.MODE === 'test'
+  // under Vitest, so emit unconditionally there.
   const emitNavTestids =
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
+    import.meta.env.MODE === 'test' ||
+    (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches);
   const indicatorWidth = `${(1 / tabCount) * 100}%`;
 
   // Croatia tab uses Croatian red; all others use teal

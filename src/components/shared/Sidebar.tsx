@@ -215,8 +215,13 @@ export default function Sidebar({
   // (visibility is purely CSS). Emitting nav-* testids on both causes Playwright's
   // strict-mode getByTestId('nav-practice') to resolve to 2 elements and fail.
   // Gate the testid on the matching viewport so exactly one element owns it.
+  // Test-env bypass: JSDOM's matchMedia always returns matches:false regardless
+  // of query, which would suppress all testids and break unit smoke tests that
+  // render Sidebar/TabBar in isolation. Vite sets import.meta.env.MODE === 'test'
+  // under Vitest, so emit unconditionally there.
   const emitNavTestids =
-    typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
+    import.meta.env.MODE === 'test' ||
+    (typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches);
 
   // setScr, darkMode, setDarkMode kept in interface for parent API compatibility;
   // dark mode toggle + bug report moved to SettingsTab.
