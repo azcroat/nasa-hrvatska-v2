@@ -51,10 +51,13 @@ import {
   srMark,
   getStreak,
   updateStreak,
-  getProverbOfDay,
   getDailyChallenge,
   shMemo,
 } from '../data';
+// SP11e: getProverbOfDay moved to lib/dailyPickers.ts with parameter-passing
+// signature getProverbOfDay(proverbs[]). Imported separately for the tests
+// below that now pass a small synthetic proverbs array.
+import { getProverbOfDay } from '../lib/dailyPickers';
 
 // ── localStorage helpers ─────────────────────────────────────────────────────
 function clearLS() {
@@ -312,18 +315,25 @@ describe('XP cooldown (localStorage contract)', () => {
   });
 });
 
-// ── getProverbOfDay ───────────────────────────────────────────────────────────
+// ── getProverbOfDay (SP11e — now parameter-passing) ───────────────────────────
 describe('getProverbOfDay', () => {
-  it('returns an object', () => {
-    const p = getProverbOfDay();
+  const proverbs = [
+    { hr: 'Tko rano rani, dvije sreće grabi.', en: 'Early bird gets the worm.' },
+    { hr: 'Bolje vrabac u ruci nego golub na grani.', en: 'A bird in hand.' },
+    { hr: 'Sve što sija nije zlato.', en: 'All that glitters.' },
+  ];
+
+  it('returns an element from the provided array', () => {
+    const p = getProverbOfDay(proverbs);
     expect(typeof p).toBe('object');
     expect(p).not.toBeNull();
+    expect(proverbs).toContain(p);
   });
   it('returns same proverb for same day (deterministic)', () => {
-    expect(getProverbOfDay()).toEqual(getProverbOfDay());
+    expect(getProverbOfDay(proverbs)).toEqual(getProverbOfDay(proverbs));
   });
   it('proverb has hr field', () => {
-    expect(typeof getProverbOfDay().hr).toBe('string');
+    expect(typeof getProverbOfDay(proverbs).hr).toBe('string');
   });
 });
 
