@@ -49,18 +49,21 @@ const NEEDLES = [
 
 // The 401-auth-gate tests below require Cloudflare Pages Functions runtime
 // (`wrangler pages dev`) to actually serve /api/content/* handlers. CI uses
-// `vite preview` which only serves static files, so these endpoints 404
-// rather than 401. Detect the environment at runtime: probe a known endpoint
-// once. If it returns 404, all 7 auth-gate tests are skipped instead of
-// reported as failures. The bundle-audit test (the canary that matters for
-// SP11 protection) still runs.
+// `vite preview`, which has SPA fallback and returns 200 with index.html for
+// any unknown route — so a plain "status !== 404" check incorrectly concludes
+// the API is available. The only reliable signal that the CF Functions server
+// is up is a 401 response to an anonymous /api/content/core request: that's
+// exactly what the authedRead helper does. If we see anything else (200,
+// 404, network error) we treat the API as unavailable and skip all 7
+// auth-gate tests. The bundle-audit test (the canary that matters for SP11
+// protection) still runs.
 test.describe('SP11 — content endpoints + bundle audit', () => {
   let _apiAvailable = null;
   async function apiAvailable(request) {
     if (_apiAvailable !== null) return _apiAvailable;
     try {
       const probe = await request.get('/api/content/core');
-      _apiAvailable = probe.status() !== 404;
+      _apiAvailable = probe.status() === 401;
     } catch {
       _apiAvailable = false;
     }

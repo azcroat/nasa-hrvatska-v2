@@ -28,6 +28,13 @@ test.describe('SP8 — Phoneme Heat Map', () => {
     await page.goto('/');
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
     await page.getByTestId(TID.NAV_PRACTICE).click();
+    // Practice tab UX: exercise cards live inside collapsible category tiles
+    // (see PracticeTab.tsx browse grid). Need to switch to the Drill panel
+    // and expand the Advanced tile before the "speaking_sprint" card is in DOM.
+    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
+    await advTile.scrollIntoViewIfNeeded();
+    await advTile.click();
     // Launch SpeakingScreen via the practice card. The card id matches the
     // PRODUCTION_POOL entry id 'speaking_sprint'.
     await page.getByTestId(TID.EXERCISE_CARD('speaking_sprint')).click();

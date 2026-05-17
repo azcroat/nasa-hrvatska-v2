@@ -60,6 +60,9 @@ export function seedAuth(page, statOverrides = {}) {
     localStorage.setItem('nh_ceremony_streak_30', '1');
     localStorage.setItem('nh_ceremony_streak_50', '1');
     localStorage.setItem('nh_ceremony_streak_100', '1');
+    // Pre-dismiss the Premium-welcome banner (role="dialog" aria-modal) which
+    // otherwise overlays buttons and breaks click targeting in Practice tests.
+    localStorage.setItem('nh_premium_welcome_shown', '1');
   }, {
     email: TEST_EMAIL,
     name: TEST_NAME,
