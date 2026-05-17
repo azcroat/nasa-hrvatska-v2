@@ -12,9 +12,11 @@
 // which shows the deeper profile.
 
 import React from 'react';
-import { useContent } from '../../hooks/useContent';
 import { getCityOfDay } from '../../lib/dailyPickers';
-import { FALLBACK_CITIES } from '../../lib/fallbackCities';
+// Direct import of the full 365-city pool from the client bundle — same data
+// the server endpoint serves, but always available regardless of auth/hydration
+// state. Cities + tagline + intro + history + vocab + facts all bundled.
+import { CROATIAN_CITIES } from '../../data/cultural/geography.js';
 
 const CROATIAN_RED = '#CC0000';
 
@@ -31,14 +33,10 @@ interface CityLike {
 }
 
 export default function CityOfDayCard({ setScr }: CityOfDayCardProps) {
-  const { content } = useContent();
-  const serverCities = (content?.CROATIAN_CITIES ?? []) as CityLike[];
-  // Use server data when available; otherwise pick from the bundled fallback so
-  // the card always renders.
-  const pool = serverCities.length > 0 ? serverCities : FALLBACK_CITIES;
-  const city = getCityOfDay(pool);
-
-  // Only bail if even the fallback is somehow empty (defensive — should never happen).
+  // Direct client-side pool — 365 cities, fully populated. Identical data to
+  // the server endpoint but never depends on auth or hydration state, so the
+  // card always works. Same daily picker (deterministic per-date selection).
+  const city = getCityOfDay(CROATIAN_CITIES as CityLike[]);
   if (!city || !city.name) return null;
 
   const cityName = city.name;

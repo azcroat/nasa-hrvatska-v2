@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { speak } from '../../data';
-import { useContent } from '../../hooks/useContent';
 import { getCityOfDay } from '../../lib/dailyPickers';
-import { FALLBACK_CITIES } from '../../lib/fallbackCities';
+// Direct import of the full 365-city pool from the client bundle — same data
+// the server endpoint serves, but always available regardless of auth/hydration
+// state. All 4 tabs (Overview / History / Vocab / Fast Facts) populated.
+import { CROATIAN_CITIES } from '../../data/cultural/geography.js';
 
 // Normalize city name to lookup key — strip diacritics, lowercase, collapse spaces
 // Handles: Šibenik→sibenik, Varaždin→varazdin, Korčula→korcula, Poreč→porec,
@@ -86,49 +88,31 @@ type CityLike = {
 
 function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
   const [tab, setTab] = useState('overview');
-  const { content } = useContent();
-  // SP11+ defensive: when content.CROATIAN_CITIES is empty (slow hydration,
-  // stale cache, offline), fall back to the shared curated city pool so the
-  // screen ALWAYS renders. Previously this returned null when the user tapped
-  // the home City-of-Day card → empty screen / appears broken.
-  const serverCities = (content?.CROATIAN_CITIES ?? []) as CityLike[];
-  const pool: CityLike[] = serverCities.length > 0 ? serverCities : (FALLBACK_CITIES as CityLike[]);
-  const city = getCityOfDay(pool);
+  // Direct client-side pool — 365 cities with full data (intro, history,
+  // vocab, facts, didYouKnow). Always populated, no auth dependency, no
+  // hydration race. Same daily picker.
+  const city = getCityOfDay(CROATIAN_CITIES as CityLike[]);
   const _tomorrow = (function () {
     const d = new Date();
     d.setDate(d.getDate() + 1);
     return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   })();
-  // Defensive: only bail if even the fallback is somehow empty (should never
-  // happen now). useContent re-renders when /api/content/core lands and the
-  // picker switches from fallback → server data automatically.
   if (!city) return null;
 
-  // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro,
-  // plus the home-fallback cities only carry overview-level data. Render safe
-  // fallbacks rather than crashing.
+  // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro.
+  // Render safe fallbacks rather than crashing.
   const safeVocab: unknown[] = Array.isArray(city.vocab) ? city.vocab : [];
   const safeFacts: unknown[] = Array.isArray(city.facts) ? city.facts : [];
   const safeIntro = city.intro || `${city.name} is a city in ${city.region || 'Croatia'}.`;
   const safeHistory = city.history || '';
   const safeDidYouKnow = city.didYouKnow || '';
 
-  // SP11+: only show tabs that actually have content for this city. Server-side
-  // cities are fully populated (all 4 tabs); fallback cities only have overview
-  // data, so History/Vocab/Fast Facts are hidden until the full server payload
-  // hydrates. Prevents the "click tab → empty page" footgun.
-  const isFallbackCity = !serverCities.find((c) => (c as { name?: string }).name === city.name);
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: '📖', hasContent: true },
-    { id: 'history', label: 'History', icon: '🏛️', hasContent: safeHistory.length > 0 },
-    { id: 'vocab', label: 'Vocabulary', icon: '💬', hasContent: safeVocab.length > 0 },
-    { id: 'facts', label: 'Fast Facts', icon: '⚡', hasContent: safeFacts.length > 0 },
-  ].filter((t) => t.hasContent);
-
-  // If the active tab was hidden by the filter (e.g. user landed on history
-  // but only overview has content), snap back to overview so the screen
-  // never renders an unselected/empty state.
-  const activeTab = tabs.some((t) => t.id === tab) ? tab : 'overview';
+    { id: 'overview', label: 'Overview', icon: '📖' },
+    { id: 'history', label: 'History', icon: '🏛️' },
+    { id: 'vocab', label: 'Vocabulary', icon: '💬' },
+    { id: 'facts', label: 'Fast Facts', icon: '⚡' },
+  ];
   const cityKey = normKey(city.name);
   const photoUrl = (CITY_PHOTOS as Record<string, string>)[cityKey] ?? CITY_PHOTOS.default;
 
@@ -244,26 +228,8 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
       </div>
 
       {/* Overview */}
-      {activeTab === 'overview' && (
+      {tab === 'overview' && (
         <div>
-          {isFallbackCity && (
-            <div
-              style={{
-                marginBottom: 12,
-                padding: '10px 14px',
-                background: '#fffbeb',
-                border: '1.5px solid #f59e0b40',
-                borderRadius: 10,
-                fontSize: 12,
-                lineHeight: 1.5,
-                color: '#92400e',
-              }}
-            >
-              ⏳ Loading full city profile from server… History, Vocabulary, and Fast Facts tabs
-              will appear once content finishes loading. Try a hard refresh if they don’t show up
-              shortly.
-            </div>
-          )}
           <div
             style={{
               marginBottom: 16,
@@ -378,7 +344,7 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
       )}
 
       {/* History */}
-      {activeTab === 'history' &&
+      {tab === 'history' &&
         (function () {
           const half = Math.ceil(safeFacts.length / 2);
           const histFacts = safeFacts.slice(0, half);
@@ -452,7 +418,7 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
         })()}
 
       {/* Vocabulary */}
-      {activeTab === 'vocab' && (
+      {tab === 'vocab' && (
         <div>
           <div
             style={{
@@ -550,7 +516,7 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
       )}
 
       {/* Fast Facts */}
-      {activeTab === 'facts' &&
+      {tab === 'facts' &&
         (function () {
           const half = Math.ceil(safeFacts.length / 2);
           const fastFacts = safeFacts.slice(half) as string[];
