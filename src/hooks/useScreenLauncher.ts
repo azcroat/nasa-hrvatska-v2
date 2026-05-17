@@ -274,7 +274,8 @@ export function useScreenLauncher({
         topic?: string;
       } | null;
       if (!r || !r.topic) return;
-      const { V } = (await _getData()) as { V: Record<string, VocabWord[]> };
+      const _d = (await _getData()) as { V?: Record<string, VocabWord[]> };
+      const V: Record<string, VocabWord[]> = _d.V ?? {};
       const vocabPool = V[r.topic];
       if (!vocabPool || vocabPool.length < 2) {
         // Stale resume token referencing an unknown topic — clear it and go to learn path
@@ -330,7 +331,8 @@ export function useScreenLauncher({
 
   const launchCheckpoint = useCallback(
     async (levelIndex: number, levelItems: LearnPathItem[]): Promise<void> => {
-      const { V } = (await _getData()) as { V: Record<string, VocabWord[]> };
+      const _d = (await _getData()) as { V?: Record<string, VocabWord[]> };
+      const V: Record<string, VocabWord[]> = _d.V ?? {};
       const topics = levelItems.map((it) => it.topic).filter(Boolean) as string[];
       const pool =
         topics.length > 0
@@ -367,7 +369,8 @@ export function useScreenLauncher({
 
   const launchLegendary = useCallback(
     async (item: LearnPathItem): Promise<void> => {
-      const { V } = (await _getData()) as { V: Record<string, VocabWord[]> };
+      const _d = (await _getData()) as { V?: Record<string, VocabWord[]> };
+      const V: Record<string, VocabWord[]> = _d.V ?? {};
       const topicPool = item.topic ? V[item.topic] || [] : [];
       const globalPool = allCats.flatMap((t) => V[t] || []).filter((w) => w && w[0] && w[1]);
       const basePool =
@@ -494,7 +497,8 @@ export function useScreenLauncher({
         if (!alreadyTracked && writeDelta) writeDelta({ vs: [item.id!] });
       }
       if (item.go === 'lesson') {
-        const { V } = (await _getData()) as { V: Record<string, VocabWord[]> };
+        const _d = (await _getData()) as { V?: Record<string, VocabWord[]> };
+        const V: Record<string, VocabWord[]> = _d.V ?? {};
         const raw = item.topic ? V[item.topic] : undefined;
         // Fall back to global pool when topic is missing or has too little vocabulary — never silent-fail
         const pool =
@@ -561,7 +565,8 @@ export function useScreenLauncher({
         trackStart('listening');
         setScr('listening');
       } else if (item.go === 'speaking') {
-        const { V } = (await _getData()) as { V: Record<string, VocabWord[]> };
+        const _d = (await _getData()) as { V?: Record<string, VocabWord[]> };
+        const V: Record<string, VocabWord[]> = _d.V ?? {};
         const pool = allCats.flatMap((t) => V[t] || []).filter((w) => w && w[0] && w[1]);
         const items = _sh(pool).slice(0, 6);
         if (items.length === 0) return;
@@ -576,7 +581,8 @@ export function useScreenLauncher({
         trackStart('speaking');
         setScr('speaking');
       } else if (item.go === 'mcgame') {
-        const { V } = (await _getData()) as { V: Record<string, VocabWord[]> };
+        const _d = (await _getData()) as { V?: Record<string, VocabWord[]> };
+        const V: Record<string, VocabWord[]> = _d.V ?? {};
         const pool = allCats.flatMap((t) => V[t] || []).filter((w) => w && w[0] && w[1]);
         const adaptivePool = _buildAdaptivePool(pool);
         const seen = new Set<string>();
@@ -715,7 +721,8 @@ export function useScreenLauncher({
       returnContextRef.current = { tab: 'home', screen: 'dashboard' };
 
       if (screen === 'flashcards' || screen === 'mcgame' || screen === 'match') {
-        const { V } = (await _getData()) as { V: Record<string, string[][]> };
+        const _d = (await _getData()) as { V?: Record<string, string[][]> };
+        const V: Record<string, string[][]> = _d.V ?? {};
         const globalPool = allCats
           .flatMap((t) => (V[t] ?? []) as string[][])
           .filter((w) => w?.[0] && w?.[1]);
