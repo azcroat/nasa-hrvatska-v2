@@ -209,6 +209,15 @@ export default function Sidebar({
   const LEVEL_PALETTE = ['#b45309', '#059669', '#1d4ed8', '#6d28d9', '#dc2626'];
   const levelColor = LEVEL_PALETTE[(level - 1) % LEVEL_PALETTE.length] ?? '#0e7490';
 
+  // Sidebar is visible only on viewports >=768px (see src/index.css:1365 .nav-bar
+  // {display:none} media query). TabBar renders the same data-testid="nav-<id>"
+  // values for its buttons. Both components stay in the DOM at all viewports
+  // (visibility is purely CSS). Emitting nav-* testids on both causes Playwright's
+  // strict-mode getByTestId('nav-practice') to resolve to 2 elements and fail.
+  // Gate the testid on the matching viewport so exactly one element owns it.
+  const emitNavTestids =
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
+
   // setScr, darkMode, setDarkMode kept in interface for parent API compatibility;
   // dark mode toggle + bug report moved to SettingsTab.
   void setScr;
@@ -429,7 +438,7 @@ export default function Sidebar({
         {TABS.map((t) => (
           <button
             key={t.id}
-            data-testid={'nav-' + t.id}
+            data-testid={emitNavTestids ? 'nav-' + t.id : undefined}
             className={
               'sb-btn' +
               (tab === t.id ? ' active' : '') +
