@@ -1,6 +1,6 @@
 import React from 'react';
 import CroatianKnight from './CroatianKnight';
-import { reportError } from '../../lib/errorReporter.js';
+import { reportBoundaryError } from '../../lib/errorReporter';
 
 /** Props for ScreenErrorBoundary — exported so AppRouter.tsx can use typed JSX. */
 export interface ScreenErrorBoundaryProps {
@@ -34,9 +34,10 @@ export default class ScreenErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
+    // SP3b: shared boundary reporting — emits [boundary] scope tag and
+    // forwards to /api/report-error via the existing sendBeacon path.
     const screenName = String(this.props.name || 'Screen');
-    console.error('Screen crashed:', screenName, error, info);
-    reportError(error, screenName);
+    reportBoundaryError(error, info, screenName, this.state.retries);
   }
 
   render() {
