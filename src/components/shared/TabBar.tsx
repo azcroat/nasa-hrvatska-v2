@@ -202,6 +202,14 @@ export default function TabBar({
   const activeIdx = TABS.findIndex((t) => t.id === tab);
   const tabCount = TABS.length;
   const indicatorLeft = `${(activeIdx / tabCount) * 100}%`;
+
+  // TabBar is the mobile bottom nav (visible <768px); Sidebar is the desktop nav
+  // (visible >=768px). Both render the same data-testid="nav-<id>" buttons and
+  // both stay in DOM at all viewports — visibility is purely CSS. Emitting the
+  // testid on both causes Playwright getByTestId('nav-practice') strict-mode to
+  // resolve to 2 elements. Gate on the matching viewport so exactly one owns it.
+  const emitNavTestids =
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
   const indicatorWidth = `${(1 / tabCount) * 100}%`;
 
   // Croatia tab uses Croatian red; all others use teal
@@ -239,7 +247,7 @@ export default function TabBar({
             return (
               <button
                 key={t.id}
-                data-testid={'nav-' + t.id}
+                data-testid={emitNavTestids ? 'nav-' + t.id : undefined}
                 className={'nav-btn' + (isActive ? ' active' : '')}
                 onClick={() => {
                   if (t.id === 'croatia') {
