@@ -99,25 +99,36 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
     d.setDate(d.getDate() + 1);
     return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   })();
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: '📖' },
-    { id: 'history', label: 'History', icon: '🏛️' },
-    { id: 'vocab', label: 'Vocabulary', icon: '💬' },
-    { id: 'facts', label: 'Fast Facts', icon: '⚡' },
-  ];
-
   // Defensive: only bail if even the fallback is somehow empty (should never
   // happen now). useContent re-renders when /api/content/core lands and the
   // picker switches from fallback → server data automatically.
   if (!city) return null;
 
-  // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro.
-  // Render safe fallbacks rather than crashing.
+  // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro,
+  // plus the home-fallback cities only carry overview-level data. Render safe
+  // fallbacks rather than crashing.
   const safeVocab: unknown[] = Array.isArray(city.vocab) ? city.vocab : [];
   const safeFacts: unknown[] = Array.isArray(city.facts) ? city.facts : [];
   const safeIntro = city.intro || `${city.name} is a city in ${city.region || 'Croatia'}.`;
   const safeHistory = city.history || '';
   const safeDidYouKnow = city.didYouKnow || '';
+
+  // SP11+: only show tabs that actually have content for this city. Server-side
+  // cities are fully populated (all 4 tabs); fallback cities only have overview
+  // data, so History/Vocab/Fast Facts are hidden until the full server payload
+  // hydrates. Prevents the "click tab → empty page" footgun.
+  const isFallbackCity = !serverCities.find((c) => (c as { name?: string }).name === city.name);
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: '📖', hasContent: true },
+    { id: 'history', label: 'History', icon: '🏛️', hasContent: safeHistory.length > 0 },
+    { id: 'vocab', label: 'Vocabulary', icon: '💬', hasContent: safeVocab.length > 0 },
+    { id: 'facts', label: 'Fast Facts', icon: '⚡', hasContent: safeFacts.length > 0 },
+  ].filter((t) => t.hasContent);
+
+  // If the active tab was hidden by the filter (e.g. user landed on history
+  // but only overview has content), snap back to overview so the screen
+  // never renders an unselected/empty state.
+  const activeTab = tabs.some((t) => t.id === tab) ? tab : 'overview';
   const cityKey = normKey(city.name);
   const photoUrl = (CITY_PHOTOS as Record<string, string>)[cityKey] ?? CITY_PHOTOS.default;
 
@@ -233,15 +244,33 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
       </div>
 
       {/* Overview */}
-      {tab === 'overview' && (
+      {activeTab === 'overview' && (
         <div>
+          {isFallbackCity && (
+            <div
+              style={{
+                marginBottom: 12,
+                padding: '10px 14px',
+                background: '#fffbeb',
+                border: '1.5px solid #f59e0b40',
+                borderRadius: 10,
+                fontSize: 12,
+                lineHeight: 1.5,
+                color: '#92400e',
+              }}
+            >
+              ⏳ Loading full city profile from server… History, Vocabulary, and Fast Facts tabs
+              will appear once content finishes loading. Try a hard refresh if they don’t show up
+              shortly.
+            </div>
+          )}
           <div
             style={{
               marginBottom: 16,
               padding: '16px',
-              background: city.color + '0e',
+              background: (city.color || '#0e7490') + '0e',
               borderRadius: 14,
-              borderLeft: '4px solid ' + city.color,
+              borderLeft: '4px solid ' + (city.color || '#0e7490'),
               fontSize: 14,
               lineHeight: 1.8,
               color: 'var(--heading)',
@@ -349,7 +378,7 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
       )}
 
       {/* History */}
-      {tab === 'history' &&
+      {activeTab === 'history' &&
         (function () {
           const half = Math.ceil(safeFacts.length / 2);
           const histFacts = safeFacts.slice(0, half);
@@ -423,7 +452,7 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
         })()}
 
       {/* Vocabulary */}
-      {tab === 'vocab' && (
+      {activeTab === 'vocab' && (
         <div>
           <div
             style={{
@@ -521,7 +550,7 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
       )}
 
       {/* Fast Facts */}
-      {tab === 'facts' &&
+      {activeTab === 'facts' &&
         (function () {
           const half = Math.ceil(safeFacts.length / 2);
           const fastFacts = safeFacts.slice(half) as string[];
