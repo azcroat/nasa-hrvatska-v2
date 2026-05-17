@@ -50,11 +50,10 @@ Read this before scheduling the next sprint.
 - **Pre-work:** diff the two, document why they exist, decide if one supersedes the other or if both have legitimate reasons.
 - **Risk:** consolidating wrong could break crash recovery on specific screens. Read consumers carefully before merging.
 
-### 5. Enterprise Quality — Firebase SDK bundling optimization
-- **Effort:** ~3h (audit imports, switch to modular SDK, verify bundle delta).
-- **Why:** Enterprise-quality plan listed as out-of-scope. Modular Firebase imports can save 100-200KB.
-- **Pre-work:** `npm run build` → check current Firebase chunk size. If <80KB already gzipped, skip — diminishing returns.
-- **Approach:** replace `import firebase from 'firebase/app'` with named tree-shakeable imports (`import { initializeApp } from 'firebase/app'`).
+### ~~5. Enterprise Quality — Firebase SDK bundling optimization~~ → moved to SKIP
+- **Status:** Already optimized as of 2026-05-16 (audit confirms modular SDK in use).
+- **Audit:** All Firebase imports already use the modular form (`import { initializeApp } from 'firebase/app'`, `import { getAuth } from 'firebase/auth'`, etc.). The 725KB `vendor-firebase-rPnESfkF.js` chunk is the minimum for app + auth + firestore + messaging. Further reductions would require either dropping a service (messaging unused?) or lazy-loading firestore — both are architectural changes, not "bundling optimization."
+- **If still desired later:** treat as a PLAN-tier sprint to lazy-load firestore for users who never sync.
 
 ---
 
