@@ -13,7 +13,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 
 // ---------------------------------------------------------------------------
 // Shared mock data
@@ -70,6 +70,7 @@ test.describe('Practice tab structure', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await gotoPractice(page);
   });
 
@@ -152,6 +153,7 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     // Mock /api/explain-error so "Why is … correct?" button works without real API
     await page.route('**/api/explain-error', route => route.fulfill({
       status: 200,
@@ -302,6 +304,7 @@ test.describe('DictationScreen', () => {
     await seedAuth(page, { xp: 1500 });
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await page.route('**/api/explain-error', route => route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -401,6 +404,7 @@ test.describe('AIListeningScreen', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     // Mock the /api/listening endpoint to return our fixture immediately
     await page.route('**/api/listening', route => route.fulfill({
       status: 200,
@@ -532,6 +536,7 @@ test.describe('VideoLessonScreen', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await page.route('**/api/listening', route => route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -663,6 +668,7 @@ test.describe('SpeedChallenge — Practice tab', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     // Clear the "played today" flag so the Play → button is always shown
     await page.addInitScript(() => {
       localStorage.removeItem('nh_speed_challenge_played');

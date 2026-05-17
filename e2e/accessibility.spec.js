@@ -18,7 +18,7 @@
  */
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -81,6 +81,7 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
     await seedAuth(page, { xp: 8000 });
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
   });
 
   // ── 1. Home / Today tab ───────────────────────────────────────────────────
@@ -249,6 +250,7 @@ test.describe('Accessibility — keyboard navigation', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
@@ -272,6 +274,7 @@ test.describe('Accessibility — keyboard navigation', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await page.goto('/profile');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
@@ -294,6 +297,7 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await page.route('**/api/correct', async (route) => {
       await route.fulfill({
         status: 200,
