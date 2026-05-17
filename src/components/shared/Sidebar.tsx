@@ -421,10 +421,11 @@ export default function Sidebar({
       </div>
 
       {/* Nav items */}
-      <nav style={{ padding: '6px 12px', flex: 1 }}>
+      <nav role="navigation" aria-label="Main navigation" style={{ padding: '6px 12px', flex: 1 }}>
         {TABS.map((t) => (
           <button
             key={t.id}
+            data-testid={'nav-' + t.id}
             className={
               'sb-btn' +
               (tab === t.id ? ' active' : '') +
