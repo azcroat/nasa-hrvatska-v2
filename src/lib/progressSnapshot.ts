@@ -105,6 +105,8 @@ export function buildProgressSnapshot({
     nh_sound_enabled: localStorage.getItem('nh_sound_enabled'),
     nh_haptic_enabled: localStorage.getItem('nh_haptic_enabled'),
     nh_voice_pref: localStorage.getItem('nh_voice_pref'),
+    // SP8e: playback rate (0.5 | 0.75 | 1, default 1 → unset)
+    nh_speech_rate: localStorage.getItem('nh_speech_rate'),
     nh_font_size: localStorage.getItem('nh_font_size'),
     nh_reduce_motion: localStorage.getItem('nh_reduce_motion') === 'true',
     nh_autotts: localStorage.getItem('nh_autotts') === 'true',

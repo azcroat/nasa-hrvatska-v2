@@ -10,6 +10,9 @@ import {
   setHapticEnabled,
   getVoicePreference,
   setVoicePreference,
+  getSpeechRate,
+  setSpeechRate,
+  type SpeechRate,
 } from '../../lib/soundSettings.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext.tsx';
@@ -166,6 +169,7 @@ export default function SettingsTab({
     () => localStorage.getItem('nh_hearts_always_on') === 'true',
   );
   const [voicePref, setVoicePref] = useState(() => getVoicePreference());
+  const [speechRate, setSpeechRateState] = useState<SpeechRate>(() => getSpeechRate());
   const [fontSize, setFontSize] = useState(() => localStorage.getItem('nh_font_size') || 'medium');
   const [reduceMotion, setReduceMotion] = useState(
     () => localStorage.getItem('nh_reduce_motion') === 'true',
@@ -807,6 +811,53 @@ export default function SettingsTab({
           {voicePref === 'charlotte'
             ? '📌 ElevenLabs Charlotte — natural modern voice, slight non-native accent on Croatian'
             : '📌 Azure hr-HR-GabrijelaNeural — native Croatian pronunciation, phonemically accurate'}
+        </div>
+      </div>
+
+      {/* SP8e: Speech playback rate */}
+      <div style={{ padding: '14px 0', borderBottom: '1px solid var(--card-b)' }}>
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>⏱️ Playback Speed</div>
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}>
+            Slow Croatian audio down for listening practice. Natives speak fast — B2/C1 learners
+            often want to slow it down.
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }} data-testid="speech-rate-selector">
+          {[
+            { rate: 0.5 as SpeechRate, label: '0.5×' },
+            { rate: 0.75 as SpeechRate, label: '0.75×' },
+            { rate: 1 as SpeechRate, label: '1× (Normal)' },
+          ].map((opt) => (
+            <button
+              key={opt.rate}
+              data-testid={`speech-rate-${opt.rate}`}
+              onClick={() => {
+                setSpeechRateState(opt.rate);
+                setSpeechRate(opt.rate);
+              }}
+              style={{
+                flex: 1,
+                padding: '8px 4px',
+                borderRadius: 9,
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+                fontWeight: 700,
+                fontSize: 11,
+                background:
+                  speechRate === opt.rate ? 'var(--info-bg,#e0f2fe)' : 'var(--bar-bg,#f1f5f9)',
+                color: speechRate === opt.rate ? 'var(--info,#0284c7)' : 'var(--subtext,#64748b)',
+                outline: speechRate === opt.rate ? '2px solid var(--info,#0284c7)' : 'none',
+                transition: 'all .15s',
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        <div style={{ fontSize: 10, color: 'var(--subtext)', marginTop: 6, lineHeight: 1.4 }}>
+          📌 Applies to all Croatian audio playback (lessons, examples, story narration)
         </div>
       </div>
 
