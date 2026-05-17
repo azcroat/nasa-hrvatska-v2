@@ -32,15 +32,22 @@ function canUnlockLevel(
 }
 
 // ── Level Quiz question builder ──────────────────────────────────────────────
-async function buildLevelQuizQuestions(levelItems: ItemWithCk[]): Promise<LevelQuizQuestion[]> {
-  const { V } = (await import('../../data')) as unknown as { V: Record<string, string[][]> };
+// V is passed in by the caller (sourced from useContent()) rather than
+// dynamic-imported. SP11d moved V from the client `src/data/content.tsx`
+// barrel to the server-side `/api/content/core` endpoint, so the old
+// `await import('../../data')` returned `undefined` for V — questions came
+// back empty and the LevelQuiz screen rendered no counter / no quiz body.
+async function buildLevelQuizQuestions(
+  levelItems: ItemWithCk[],
+  V: Record<string, unknown[]>,
+): Promise<LevelQuizQuestion[]> {
   const pool: { hr: string; en: string }[] = [];
   for (const item of levelItems) {
     if (!item.topic) continue;
-    const vocab = V[item.topic] ?? [];
+    const vocab = (V[item.topic] ?? []) as string[][];
     pool.push(
       ...vocab
-        .filter((w) => w[0] != null && w[1] != null)
+        .filter((w) => Array.isArray(w) && w[0] != null && w[1] != null)
         .slice(0, 6)
         .map((w) => ({ hr: w[0]!, en: w[1]! })),
     );
@@ -204,6 +211,7 @@ export default function LearnPath({
   const passedCheckpoints = useMemo(() => getPassedCheckpoints(), []);
   const { content } = useContent();
   const LEARN_PATH = useMemo(() => content?.LEARN_PATH ?? [], [content?.LEARN_PATH]);
+  const V = useMemo(() => (content?.V ?? {}) as Record<string, unknown[]>, [content?.V]);
   const decayedTopics = useMemo(() => getDecayedTopics(LEARN_PATH), [LEARN_PATH]);
 
   // Launch the LevelQuiz screen for the given 1-based level number
@@ -213,7 +221,10 @@ export default function LearnPath({
     try {
       const levelData = LEARN_PATH[levelNumber - 1];
       if (!levelData) return;
-      const questions = await buildLevelQuizQuestions(levelData.items as unknown as ItemWithCk[]);
+      const questions = await buildLevelQuizQuestions(
+        levelData.items as unknown as ItemWithCk[],
+        V,
+      );
       sessionStorage.setItem('nh_level_quiz', JSON.stringify({ levelNumber, questions }));
       sessionStorage.setItem('nh_ex_start', Date.now().toString());
       setScr('levelquiz');
