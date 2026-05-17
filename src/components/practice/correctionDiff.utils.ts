@@ -6,10 +6,24 @@
 import React from 'react';
 import { DiffSpan } from './DiffSpan';
 
+// SP6b: classification of the underlying grammar mistake. Drives the
+// colored dot + popover header tag in DiffSpan. Optional — when the AI
+// correction doesn't provide one, the span falls back to a neutral gray.
+export type ErrorType =
+  | 'case'
+  | 'aspect'
+  | 'agreement'
+  | 'tense'
+  | 'word_order'
+  | 'vocab'
+  | 'spelling'
+  | 'other';
+
 export interface CorrectionChange {
   original: string;
   corrected: string;
   note?: string;
+  errorType?: ErrorType;
 }
 
 interface Marker {
@@ -19,6 +33,7 @@ interface Marker {
   original: string;
   corrected: string;
   note?: string;
+  errorType?: ErrorType;
 }
 
 export function projectChangesToNodes(
@@ -63,6 +78,7 @@ export function projectChangesToNodes(
       original: c.original,
       corrected: typeof c.corrected === 'string' ? c.corrected : '',
       note: c.note,
+      errorType: c.errorType,
     });
     consumed.push([at, end]);
   });
@@ -81,6 +97,7 @@ export function projectChangesToNodes(
         original: m.original,
         corrected: m.corrected,
         note: m.note,
+        errorType: m.errorType,
         index: m.changeIndex,
       }),
     );

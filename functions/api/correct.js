@@ -134,7 +134,7 @@ Analyze their Croatian text and respond with ONLY valid JSON (no markdown, no co
   "score": 75,
   "level_demonstrated": "B1 - Intermediate",
   "changes": [
-    {"original": "wrong word or phrase as written", "corrected": "correct form", "note": "brief grammar rule explanation"}
+    {"original": "wrong word or phrase as written", "corrected": "correct form", "note": "brief grammar rule explanation", "errorType": "case"}
   ],
   "strengths": [
     "One specific thing the student did well"
@@ -147,7 +147,18 @@ Analyze their Croatian text and respond with ONLY valid JSON (no markdown, no co
 
 Score 0-100 based on grammar accuracy, vocabulary, and natural expression.
 level_demonstrated: A1 (Beginner), A2 (Elementary), B1 (Intermediate), B2 (Upper-Intermediate), C1 (Advanced).
-List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be encouraging and specific.`;
+List up to 5 most important changes. List 1-3 strengths and 1-2 improvements. Be encouraging and specific.
+
+For each item in "changes", set "errorType" to exactly one of these tokens:
+- "case" — wrong noun case (nominativ/akuzativ/genitiv/lokativ/instrumental/dativ/vokativ)
+- "aspect" — wrong verb aspect (imperfective vs perfective)
+- "agreement" — gender/number/case agreement between adjective+noun, subject+verb, etc.
+- "tense" — wrong tense (present/past/future/conditional)
+- "word_order" — words in the wrong order
+- "vocab" — wrong word choice (right form, wrong meaning)
+- "spelling" — typo or diacritic mistake
+- "other" — anything else
+If unsure, use "other". This field is required.`;
 
   const systemPrompt = contextProse ? basePrompt + '\n\n' + contextProse : basePrompt;
 

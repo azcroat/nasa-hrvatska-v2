@@ -34,6 +34,44 @@ describe('DiffSpan', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
     expect(screen.getByText('mama').tagName).toBe('DEL');
   });
+
+  // SP6b: error-type color coding
+  it('SP6b: renders a colored dot when errorType is provided', () => {
+    render(<DiffSpan original="mama" corrected="majku" errorType="case" index={0} />);
+    expect(screen.getByTestId('diff-dot-0')).toBeInTheDocument();
+  });
+
+  it('SP6b: no dot when errorType is omitted (backward compat)', () => {
+    render(<DiffSpan original="mama" corrected="majku" index={0} />);
+    expect(screen.queryByTestId('diff-dot-0')).not.toBeInTheDocument();
+  });
+
+  it('SP6b: popover shows an error-type tag when both note and errorType are present', () => {
+    render(
+      <DiffSpan
+        original="mama"
+        corrected="majku"
+        note="accusative ending"
+        errorType="case"
+        index={0}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByTestId('diff-tag-0')).toBeInTheDocument();
+    expect(screen.getByTestId('diff-tag-0')).toHaveTextContent(/case/i);
+  });
+
+  it('SP6b: errorType is reflected in data-diff-error-type for analytics', () => {
+    const { container } = render(
+      <DiffSpan original="mama" corrected="majku" errorType="aspect" index={0} />,
+    );
+    expect(container.querySelector('[data-diff-error-type="aspect"]')).toBeInTheDocument();
+  });
+
+  it('SP6b: data-diff-error-type is "unspecified" when errorType is absent', () => {
+    const { container } = render(<DiffSpan original="mama" corrected="majku" index={0} />);
+    expect(container.querySelector('[data-diff-error-type="unspecified"]')).toBeInTheDocument();
+  });
 });
 
 describe('CorrectionDiff', () => {
