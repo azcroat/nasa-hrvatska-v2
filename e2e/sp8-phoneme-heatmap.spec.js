@@ -11,21 +11,7 @@ import { forceCefr } from './fixtures/forceCefr.js';
 import { mockAiPost, CANNED } from './fixtures/mockAiPost.js';
 import { mockMediaRecorder } from './fixtures/mockMediaRecorder.js';
 
-// TODO(sp8): SpeakingScreen (which hosts the phoneme heat map via
-// SpeakingPracticePanel + the speaking-record testid) is not reachable
-// from the current Practice tab UI. The 'speaking_sprint' exercise card
-// routes to SpeakingSprintScreen (a separate 60-second sprint flow that
-// does not expose phoneme-level scoring). To restore this test:
-//   1. Decide product intent: should clicking "Speaking Sprint" open
-//      SpeakingScreen (with phoneme heatmap) or SpeakingSprintScreen?
-//   2. Either re-route 'speaking_sprint' to setScr('speaking') and pass
-//      items, OR add a separate Advanced-category card "Speaking Practice"
-//      that calls launchSpeaking(...), OR mount SpeakingPracticePanel
-//      inside one of the sprint phases.
-//   3. Update this test's navigation to match the chosen path.
-// Skipping until that decision is made; the SP8 feature unit tests
-// (src/tests/...) still cover the heat-map render logic in isolation.
-test.describe.skip('SP8 — Phoneme Heat Map', () => {
+test.describe('SP8 — Phoneme Heat Map', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
     await blockFirebase(page);
