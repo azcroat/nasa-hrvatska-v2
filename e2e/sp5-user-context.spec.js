@@ -3,7 +3,7 @@
 // SP5 — verifies the user-context payload is attached to a real /api/correct
 // POST. Drives the actual Writing screen UI via SP6/SP10 testids.
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 import { forceCefr } from './fixtures/forceCefr.js';
 
@@ -12,6 +12,7 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await forceCefr(page, 'B1');
     await page.addInitScript(() => {
       const fiveMinAgo = Date.now() - 5 * 60 * 1000;

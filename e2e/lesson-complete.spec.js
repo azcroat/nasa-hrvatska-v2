@@ -4,7 +4,7 @@
  * Guards against the setSt prop regression and double-award bug.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, TEST_EMAIL } from './fixtures/seed-auth.js';
 
 const INITIAL_XP = 250;
 
@@ -16,6 +16,7 @@ test.describe('Full lesson completion flow', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     // Navigate directly to /learn to avoid post-auth navigate('/') race on tab click.
     await page.goto('/learn');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });

@@ -106,3 +106,97 @@ export async function mockTTS(page) {
     body: JSON.stringify({ text: 'Zdravo! Kako si?' }),
   }));
 }
+
+/**
+ * Mock all 6 /api/content/* endpoints with the same payloads the production
+ * CF Functions serve.
+ *
+ * Why: e2e tests run against `vite preview`, which serves static files only
+ * and does NOT execute CF Pages Functions. Without this mock, every
+ * /api/content/* request returns 404, the useContent/useGrammar/useLessons/
+ * catalog/stories/grammar-units hooks never hydrate, and any UI that
+ * consumes them (lesson screens, vocab pills, history Timeline, LearnPath
+ * screen, Story of the Day card, SpeedChallenge, GradedInput, etc.) stays
+ * stuck in LoadingState — blocking ~24 e2e tests across 12 spec files.
+ *
+ * Endpoints handled:
+ *   GET /api/content/core                 → CONTENT_FIXTURE
+ *   GET /api/content/grammar              → GRAMMAR_FIXTURE
+ *   GET /api/content/lessons              → LESSONS_FIXTURE
+ *   GET /api/content/catalog              → CATALOG_FIXTURE
+ *   GET /api/content/stories/{id}         → matched via regex
+ *   GET /api/content/grammar-units/{id}   → matched via regex
+ *
+ * Payloads come from the same server-side modules the production endpoints
+ * compose (functions/api/content/_data/*.js). Playwright's page.route
+ * intercepts browser fetches in node — nothing here ships to the client
+ * bundle, so the SP11 bundle-audit test is unaffected.
+ *
+ * Call AFTER seedAuth/blockFirebase/mockTTS and BEFORE page.goto in beforeEach.
+ */
+export async function mockContent(page) {
+  const {
+    CONTENT_FIXTURE,
+    GRAMMAR_FIXTURE,
+    LESSONS_FIXTURE,
+    CATALOG_FIXTURE,
+    STORIES_BY_ID,
+    GRAMMAR_UNITS_BY_ID,
+  } = await import('./content-fixture.js');
+
+  // 4 fixed-path endpoints
+  const fixedRoutes = [
+    ['**/api/content/core', CONTENT_FIXTURE, 'mock-core'],
+    ['**/api/content/grammar', GRAMMAR_FIXTURE, 'mock-grammar'],
+    ['**/api/content/lessons', LESSONS_FIXTURE, 'mock-lessons'],
+    ['**/api/content/catalog', CATALOG_FIXTURE, 'mock-catalog'],
+  ];
+  for (const [pattern, data, etag] of fixedRoutes) {
+    await page.route(pattern, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data, etag }),
+        headers: { ETag: `"${etag}"` },
+      }),
+    );
+  }
+
+  // 2 dynamic-path endpoints: regex match the id, look it up in the map, 404 if missing
+  await page.route(/\/api\/content\/stories\/([^/?]+)/, (route) => {
+    const m = route.request().url().match(/\/api\/content\/stories\/([^/?#]+)/);
+    const id = m ? decodeURIComponent(m[1]) : '';
+    const story = STORIES_BY_ID.get(id);
+    if (!story) {
+      return route.fulfill({
+        status: 404,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'not_found' }),
+      });
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ data: story, etag: `mock-story-${id}` }),
+      headers: { ETag: `"mock-story-${id}"` },
+    });
+  });
+  await page.route(/\/api\/content\/grammar-units\/([^/?]+)/, (route) => {
+    const m = route.request().url().match(/\/api\/content\/grammar-units\/([^/?#]+)/);
+    const id = m ? decodeURIComponent(m[1]) : '';
+    const unit = GRAMMAR_UNITS_BY_ID.get(id);
+    if (!unit) {
+      return route.fulfill({
+        status: 404,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'not_found' }),
+      });
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ data: unit, etag: `mock-gu-${id}` }),
+      headers: { ETag: `"mock-gu-${id}"` },
+    });
+  });
+}
