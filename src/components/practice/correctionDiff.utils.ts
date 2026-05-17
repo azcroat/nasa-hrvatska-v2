@@ -5,26 +5,11 @@
 
 import React from 'react';
 import { DiffSpan } from './DiffSpan';
+import type { CorrectionChange, ErrorType } from './correctionDiff.types';
 
-// SP6b: classification of the underlying grammar mistake. Drives the
-// colored dot + popover header tag in DiffSpan. Optional — when the AI
-// correction doesn't provide one, the span falls back to a neutral gray.
-export type ErrorType =
-  | 'case'
-  | 'aspect'
-  | 'agreement'
-  | 'tense'
-  | 'word_order'
-  | 'vocab'
-  | 'spelling'
-  | 'other';
-
-export interface CorrectionChange {
-  original: string;
-  corrected: string;
-  note?: string;
-  errorType?: ErrorType;
-}
+// Re-export so existing consumers that import { ErrorType, CorrectionChange }
+// from `./correctionDiff.utils` keep working unchanged.
+export type { CorrectionChange, ErrorType };
 
 interface Marker {
   start: number;

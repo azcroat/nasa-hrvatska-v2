@@ -3,7 +3,7 @@
 // SP6b: optional colored dot per `errorType` + tag in the popover header.
 // When `note` is present, becomes a keyboard-accessible button that toggles a popover.
 import React, { useState, useRef, useEffect } from 'react';
-import type { ErrorType } from './correctionDiff.utils';
+import type { ErrorType } from './correctionDiff.types';
 
 export interface DiffSpanProps {
   original: string;
