@@ -16,7 +16,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 2,
-  workers: 1,
+  // SP10d-prep: on CI, run 4 parallel workers — cuts 30-min serial runs to
+  // ~8-10 min while still keeping 1 worker locally (avoids dev confusion
+  // from interleaved test output). 4 matches GitHub Actions ubuntu-latest's
+  // 4-core runner; bump to '50%' for self-hosted runners with more cores.
+  workers: process.env.CI ? 4 : 1,
   timeout: 60_000,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
