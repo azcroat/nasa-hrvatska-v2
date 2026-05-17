@@ -16,7 +16,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 
 // ---------------------------------------------------------------------------
 // SSE response body — a complete single-event stream that signals a finished
@@ -154,6 +154,7 @@ test.describe('Navigation — AI Conversations from Croatia tab', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await mockConversationAPIs(page);
     await gotoCroatia(page);
   });
@@ -195,6 +196,7 @@ test.describe('Mode selection', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await mockConversationAPIs(page);
     await openAIConvoFromPractice(page);
   });
@@ -239,6 +241,7 @@ test.describe('Write mode', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await mockConversationAPIs(page);
     await openAIConvoFromPractice(page);
     // Switch to write mode
@@ -323,6 +326,7 @@ test.describe('Conversation mode setup', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await mockConversationAPIs(page);
     await openAIConvoFromPractice(page);
   });
@@ -394,6 +398,7 @@ test.describe('Conversation chat', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await mockConversationAPIs(page);
     await openAIConvoFromPractice(page);
   });
@@ -466,6 +471,7 @@ test.describe('Double-evaluation guard', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    await mockContent(page);
     await mockConversationAPIs(page);
     await openAIConvoFromPractice(page);
   });
