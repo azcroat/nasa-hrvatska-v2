@@ -106,14 +106,7 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     expect(res.status()).toBe(401);
   });
 
-  // TODO(sp11): this test was written when /api/content/grammar fetched on
-  // initial page load via an eager preload. Since SP11b moved the grammar
-  // fetch behind useGrammar() (lazy, mounted only when a grammar-consuming
-  // screen — AspectDrill, CaseTransformer, etc. — renders), goto('/') alone
-  // never triggers the request. To restore: either re-introduce an eager
-  // /api/content/grammar prefetch on app boot (defeats the SP11b lazy goal)
-  // or update this test to navigate to a grammar-consuming screen first.
-  test.skip('AspectDrill renders aspect pair via mocked /api/content/grammar', async ({ page }) => {
+  test('AspectDrill renders aspect pair via mocked /api/content/grammar', async ({ page }) => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
