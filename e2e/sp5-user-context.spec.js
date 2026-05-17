@@ -73,11 +73,19 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
     await page.getByTestId(TID.EXERCISE_CARD('writing')).click();
-    await page
-      .getByTestId(TID.WRITING_INPUT)
-      .fill('Imam mama svaki dan svaki dan svaki dan svaki dan.');
+    // Confirm WritingScreen mounted and textarea is interactable before fill —
+    // exercise-card click triggers a lazy chunk; without this wait the fill can
+    // race the React mount and the controlled-input state never registers the
+    // value, leaving checkWithAI() to bail at its `text.trim().length < 10`
+    // guard and never firing the POST that the test waits for.
+    await expect(page.getByTestId(TID.WRITING_INPUT)).toBeVisible({ timeout: 10_000 });
+    const writingText = 'Imam mama svaki dan svaki dan svaki dan svaki dan.';
+    await page.getByTestId(TID.WRITING_INPUT).fill(writingText);
+    await expect(page.getByTestId(TID.WRITING_INPUT)).toHaveValue(writingText);
+    // Set up waitForRequest BEFORE the click so an in-flight POST cannot slip past.
+    const correctRequest = page.waitForRequest('**/api/correct', { timeout: 15_000 });
     await page.getByTestId(TID.WRITING_SUBMIT).click();
-    await page.waitForRequest('**/api/correct', { timeout: 15_000 });
+    await correctRequest;
 
     expect(bodies.length, 'expected at least one /api/correct POST body captured').toBeGreaterThan(0);
     const body = bodies[bodies.length - 1];

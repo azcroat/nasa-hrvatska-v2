@@ -330,9 +330,13 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
     await page.getByTestId(TID.EXERCISE_CARD('writing')).click();
-    await page
-      .getByTestId(TID.WRITING_INPUT)
-      .fill('Imam mama i tata svaki dan svaki dan svaki dan.');
+    // Wait for WritingScreen lazy chunk + textarea mount before filling, otherwise
+    // fill() can race the React mount and the controlled-input state never
+    // registers the value (checkWithAI() bails at its length guard, no POST fires).
+    await expect(page.getByTestId(TID.WRITING_INPUT)).toBeVisible({ timeout: 10_000 });
+    const writingText = 'Imam mama i tata svaki dan svaki dan svaki dan.';
+    await page.getByTestId(TID.WRITING_INPUT).fill(writingText);
+    await expect(page.getByTestId(TID.WRITING_INPUT)).toHaveValue(writingText);
     await page.getByTestId(TID.WRITING_SUBMIT).click();
     await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
       timeout: 15_000,
