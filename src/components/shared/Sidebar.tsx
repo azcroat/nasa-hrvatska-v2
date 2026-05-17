@@ -420,8 +420,12 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Nav items */}
-      <nav role="navigation" aria-label="Main navigation" style={{ padding: '6px 12px', flex: 1 }}>
+      {/* Nav items — accessible name is owned by the outer <nav aria-label="Main navigation">.
+          We render this inner container as a plain <div> on purpose: a nested <nav> with the
+          same aria-label produces TWO landmarks with the same accessible name, which makes
+          Playwright's getByRole('navigation', {name:'Main navigation'}) match >1 element and
+          fail in strict mode. */}
+      <div style={{ padding: '6px 12px', flex: 1 }}>
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -451,7 +455,7 @@ export default function Sidebar({
             {badges && (badges[t.id] ?? 0) > 0 && <span className="sb-badge">{badges[t.id]}</span>}
           </button>
         ))}
-      </nav>
+      </div>
 
       {/* Bottom: sign out only — dark mode + bug report live in Settings */}
       {doOut && (
