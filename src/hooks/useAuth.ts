@@ -27,12 +27,15 @@ import {
   fbLoadProgress,
   fbLoadUserFamily,
   fbOnAuthStateChanged,
+} from '../data';
+import {
   initFirebase,
   getLocalFamily,
   saveLocalFamily,
   fbSaveProgress,
   type FamilyData,
 } from '../lib/firebase.js';
+import { setSentryUser } from '../lib/sentryUserContext';
 import { updateStreak } from '../lib/appUtils.js';
 import { getSR } from '../lib/srs.js';
 import type { AuthUser } from '../types/index.js';
@@ -166,6 +169,7 @@ export function useAuth({
         earlyRestored = true;
         const user: AuthUser = { u: s.u, d: s.d || s.u, e: s.u };
         setAuthUser(user);
+        setSentryUser({ id: user.u, email: user.e });
         touchSession();
         updateStreak();
         const lf = getLocalFamily();
@@ -201,6 +205,7 @@ export function useAuth({
           watchRef.current = null;
         }
         setAuthUser(null);
+        setSentryUser(null);
         setAuthScreen('login');
         return;
       }
@@ -215,6 +220,7 @@ export function useAuth({
       cb.current.setSyncReady(false);
 
       setAuthUser(user);
+      setSentryUser({ id: user.u, email: user.e });
       sS({ u: k, d: dn });
       touchSession();
       updateStreak();
@@ -680,6 +686,7 @@ export function useAuth({
       sessionStorage.removeItem(k),
     );
     setAuthUser(null);
+    setSentryUser(null);
     setAuthScreen('login');
     cb.current.onSignedOut();
   }

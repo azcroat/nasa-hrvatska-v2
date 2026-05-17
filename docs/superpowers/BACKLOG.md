@@ -170,10 +170,9 @@ These are too large to ship in a single execution session. Each should get the f
 
 ## PRODUCT — Needs your decision before any engineering
 
-### 18. Paywall / AI-tab consolidation
-- SP11 spec called out as separate work tracked elsewhere.
-- Engineering complexity: medium (Stripe + entitlement gating).
-- **Decision needed:** what's gated, what's free, what's the pricing tier?
+### ~~18. Paywall / AI-tab consolidation~~ → moved to SKIP
+- **Status:** Explicitly deferred by jschr 2026-05-16. App will not have monetization at this time.
+- **Reverse this** only when jschr says it's time. Don't re-raise unprompted.
 
 ### 19. Server-side XP admin endpoint
 - Why useful: legitimate XP correction/reset for users who hit edge cases.

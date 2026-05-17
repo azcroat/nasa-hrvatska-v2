@@ -109,6 +109,9 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   import('@sentry/react')
     .then((Sentry) => {
       _sentry = Sentry;
+      // SP10b: expose Sentry to setSentryUser helper so useAuth can tag
+      // subsequent events with Firebase uid on sign-in (cleared on sign-out).
+      (window as Window & { __nhSentry?: typeof Sentry }).__nhSentry = Sentry;
       Sentry.init({
         dsn: import.meta.env.VITE_SENTRY_DSN,
         environment: import.meta.env.MODE,
