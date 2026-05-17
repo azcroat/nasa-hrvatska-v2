@@ -1,18 +1,99 @@
 // src/components/home/CityOfDayCard.tsx
 //
 // Compact City-of-the-Day card for HomeTab. Picks a city deterministically
-// per calendar day (server-shipped CROATIAN_CITIES via useContent + the
-// dailyPickers.getCityOfDay helper). Visual language mirrors WordOfDayCard
-// (red Croatian accent bar, Playfair display name, Outfit overlines).
+// per calendar day. Primary data: server-shipped CROATIAN_CITIES via
+// useContent + dailyPickers.getCityOfDay. Falls back to a small curated
+// pool baked into this component so the card ALWAYS renders, even when
+// /api/content/core hasn't responded yet, returns empty, or the client
+// is offline. The full city profile (deeper data — region, vocab,
+// history, did-you-know) only appears once useContent hydrates.
 //
 // Tap → navigates to the full CityOfDayScreen via setScr('cityofday'),
-// which shows the deeper profile (history, vocab, fast facts).
+// which shows the deeper profile.
 
 import React from 'react';
 import { useContent } from '../../hooks/useContent';
 import { getCityOfDay } from '../../lib/dailyPickers';
 
 const CROATIAN_RED = '#CC0000';
+
+// Curated fallback pool — 12 of Croatia's most culturally significant cities.
+// Used ONLY when content.CROATIAN_CITIES isn't available yet. Names + regions
+// are public knowledge (not curriculum IP) so safe to bundle client-side.
+const FALLBACK_CITIES: CityLike[] = [
+  {
+    name: 'Zagreb',
+    region: 'Continental Croatia',
+    tagline: 'The capital and cultural heart of Croatia.',
+    icon: '🏛️',
+  },
+  {
+    name: 'Split',
+    region: 'Dalmatia',
+    tagline: "Diocletian's palace and Adriatic gateway.",
+    icon: '🏖️',
+  },
+  {
+    name: 'Dubrovnik',
+    region: 'Dalmatia',
+    tagline: 'Pearl of the Adriatic — UNESCO World Heritage.',
+    icon: '🏰',
+  },
+  {
+    name: 'Rijeka',
+    region: 'Kvarner',
+    tagline: 'Croatia’s third-largest city and major port.',
+    icon: '⚓',
+  },
+  {
+    name: 'Zadar',
+    region: 'Dalmatia',
+    tagline: 'Sea Organ and the most beautiful sunset in the world.',
+    icon: '🌅',
+  },
+  {
+    name: 'Pula',
+    region: 'Istria',
+    tagline: 'Roman amphitheater older than the Colosseum.',
+    icon: '🏟️',
+  },
+  {
+    name: 'Osijek',
+    region: 'Slavonia',
+    tagline: 'Baroque fortress city on the Drava river.',
+    icon: '🏞️',
+  },
+  {
+    name: 'Šibenik',
+    region: 'Dalmatia',
+    tagline: 'Cathedral of St. James — Renaissance masterpiece.',
+    icon: '⛪',
+  },
+  {
+    name: 'Trogir',
+    region: 'Dalmatia',
+    tagline: 'Medieval island town, UNESCO-listed.',
+    icon: '🏝️',
+  },
+  {
+    name: 'Varaždin',
+    region: 'Continental Croatia',
+    tagline: 'Baroque capital, once Croatia’s political center.',
+    icon: '🎻',
+  },
+  {
+    name: 'Rovinj',
+    region: 'Istria',
+    tagline: 'Venetian-flavored fishing town and artist colony.',
+    icon: '🎨',
+  },
+  {
+    name: 'Korčula',
+    region: 'Dalmatia',
+    tagline: 'Marco Polo’s legendary birthplace.',
+    icon: '🗺️',
+  },
+];
 
 interface CityOfDayCardProps {
   setScr: (screen: string) => void;
@@ -28,9 +109,13 @@ interface CityLike {
 
 export default function CityOfDayCard({ setScr }: CityOfDayCardProps) {
   const { content } = useContent();
-  const city = getCityOfDay((content?.CROATIAN_CITIES ?? []) as CityLike[]);
+  const serverCities = (content?.CROATIAN_CITIES ?? []) as CityLike[];
+  // Use server data when available; otherwise pick from the bundled fallback so
+  // the card always renders.
+  const pool = serverCities.length > 0 ? serverCities : FALLBACK_CITIES;
+  const city = getCityOfDay(pool);
 
-  // Hidden during initial hydration — card pops in as soon as content lands.
+  // Only bail if even the fallback is somehow empty (defensive — should never happen).
   if (!city || !city.name) return null;
 
   const cityName = city.name;
