@@ -5,6 +5,7 @@
 // shared component (refactor in SP9b if duplication grows).
 import React, { useEffect, useState } from 'react';
 import { getGrammarUnit } from '../../lib/contentClient';
+import { speak } from '../../lib/audio.js';
 
 export interface GrammarUnitDetailProps {
   unitId: string;
@@ -211,7 +212,29 @@ export default function GrammarUnitDetail({
         <div style={STYLES.sectionLabel}>Examples</div>
         {unit.examples.map((e, i) => (
           <div key={`ex-${i}`} style={STYLES.exCard}>
-            <div style={{ fontWeight: 600 }}>{e.hr}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontWeight: 600, flex: 1 }}>{e.hr}</div>
+              <button
+                onClick={() => speak(e.hr)}
+                aria-label={`Play audio for ${e.hr}`}
+                data-testid={`unit-example-speak-${i}`}
+                style={{
+                  flexShrink: 0,
+                  background: 'var(--accent)',
+                  border: 'none',
+                  borderRadius: 8,
+                  width: 34,
+                  height: 34,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  fontSize: 16,
+                }}
+              >
+                🔊
+              </button>
+            </div>
             <div style={{ color: 'var(--subtext)', marginTop: 4 }}>{e.en}</div>
             {e.note ? (
               <div style={{ fontSize: 12, color: 'var(--info)', marginTop: 6 }}>💡 {e.note}</div>
