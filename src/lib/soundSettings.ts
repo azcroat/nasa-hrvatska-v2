@@ -2,6 +2,39 @@
 const SOUND_KEY = 'nh_sound_enabled';
 const HAPTIC_KEY = 'nh_haptic_enabled';
 const VOICE_KEY = 'nh_voice_pref';
+const SPEECH_RATE_KEY = 'nh_speech_rate';
+
+// SP8e: allowed playback rates. Three discrete settings cover the useful
+// range — natives speak fast, B2/C1 listeners want slower review without
+// going so slow that prosody breaks down.
+export type SpeechRate = 0.5 | 0.75 | 1;
+const ALLOWED_RATES: SpeechRate[] = [0.5, 0.75, 1];
+
+/**
+ * Read the user's preferred speech rate (default 1.0 = normal speed).
+ * Used by audio.ts as a multiplier on HTMLAudio.playbackRate,
+ * AudioBufferSourceNode.playbackRate.value, and SpeechSynthesisUtterance.rate.
+ */
+export function getSpeechRate(): SpeechRate {
+  try {
+    const raw = Number(localStorage.getItem(SPEECH_RATE_KEY) ?? '1');
+    const found = ALLOWED_RATES.find((r) => r === raw);
+    return found ?? 1;
+  } catch {
+    return 1;
+  }
+}
+
+export function setSpeechRate(rate: SpeechRate): void {
+  try {
+    if (rate === 1) {
+      // Normal speed is the default — no need to persist.
+      localStorage.removeItem(SPEECH_RATE_KEY);
+    } else {
+      localStorage.setItem(SPEECH_RATE_KEY, String(rate));
+    }
+  } catch {}
+}
 
 // Voice preference options:
 //   'gabrijela' — Azure hr-HR-GabrijelaNeural (native Croatian, phonemically accurate) [DEFAULT]

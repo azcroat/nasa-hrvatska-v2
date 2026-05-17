@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════
 // Audio Engine — Native Croatian Pronunciation
 // ═══════════════════════════════════════════════════════════
-import { getVoicePreference } from './soundSettings';
+import { getVoicePreference, getSpeechRate } from './soundSettings';
 import { isNative, isIos } from './platform';
 import { dbgInfo, dbgWarn, dbgError } from './debugLog';
 
@@ -454,6 +454,8 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
         if (_speakGen !== myGen) return false;
         const src = _ctx.createBufferSource();
         src.buffer = decoded;
+        // SP8e: apply user's playback-rate preference (default 1.0).
+        src.playbackRate.value = getSpeechRate();
         src.connect(_ctx.destination);
         _currentAudio = {
           pause: () => {
@@ -495,6 +497,8 @@ export async function speakAzure(text: string, slow?: boolean): Promise<boolean>
       _htmlAudio.currentTime = 0;
     }
     a.volume = 1.0;
+    // SP8e: apply user's playback-rate preference (default 1.0).
+    a.playbackRate = getSpeechRate();
     _currentAudio = a;
     a.src = url;
     try {
@@ -537,7 +541,8 @@ export function speakSynth(text: string, rate: number): Promise<void> {
   return new Promise((resolve) => {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'hr-HR';
-    u.rate = rate;
+    // SP8e: multiply by user's playback-rate preference (default 1.0).
+    u.rate = rate * getSpeechRate();
     u.pitch = 1.0;
     u.volume = 1.0;
     const best = getBestVoice();
