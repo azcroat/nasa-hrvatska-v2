@@ -32,7 +32,7 @@ function isAllowedOrigin(origin, isDev) {
   }
 }
 
-const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/; // eslint-disable-line no-useless-escape
+const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
 const TYPE_COLORS = {
   bug: { bg: '#fef2f2', border: '#fca5a5', badge: '#dc2626', label: '🐛 Bug Report' },
