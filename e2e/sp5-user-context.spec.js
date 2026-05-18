@@ -117,6 +117,12 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     const correctRequest = page.waitForRequest('**/api/correct', { timeout: 15_000 });
     await page.getByTestId(TID.WRITING_SUBMIT).click();
     await correctRequest;
+    // waitForRequest resolves when the request is initiated, which can be BEFORE
+    // the route handler's bodies.push() runs. Poll the bodies array so we don't
+    // assert on an empty array just because the route handler hasn't fired yet.
+    await expect
+      .poll(() => bodies.length, { timeout: 5_000, message: 'route handler captured POST body' })
+      .toBeGreaterThan(0);
 
     expect(bodies.length, 'expected at least one /api/correct POST body captured').toBeGreaterThan(0);
     const body = bodies[bodies.length - 1];
