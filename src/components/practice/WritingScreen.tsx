@@ -637,9 +637,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
           {/* Strengths */}
           {result.strengths && result.strengths.length > 0 && (
             <div style={{ marginBottom: 16 }}>
-              <p
-                style={{ fontWeight: 700, fontSize: 13, color: '#15803d', marginBottom: 8 }}
-              >
+              <p style={{ fontWeight: 700, fontSize: 13, color: '#15803d', marginBottom: 8 }}>
                 ✅ What you did well:
               </p>
               {result.strengths.map((s, i) => (
