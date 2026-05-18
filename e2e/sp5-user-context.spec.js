@@ -3,13 +3,7 @@
 // SP5 — verifies the user-context payload is attached to a real /api/correct
 // POST. Drives the actual Writing screen UI via SP6/SP10 testids.
 import { test, expect } from '@playwright/test';
-import {
-  seedAuth,
-  blockFirebase,
-  mockTTS,
-  mockContent,
-  waitForStatsHydration,
-} from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 import { forceCefr } from './fixtures/forceCefr.js';
 
@@ -70,10 +64,6 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
 
     await page.goto('/');
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
-    // Wait for forceCefr's xp=2000 to actually land in localStorage. Without
-    // this, the Practice tab's availableExercises filter still sees A1 stats
-    // and the writing card (cefr 'B1') is filtered out.
-    await waitForStatsHydration(page, 2000);
     await page.getByTestId(TID.NAV_PRACTICE).click();
     // Use Drill → Advanced tile to reach the writing card (proven path in
     // practice.spec.js:125). Wait for the tile to actually expand before
@@ -83,8 +73,11 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
     await expect(advTile).toHaveAttribute('aria-expanded', 'true', { timeout: 5_000 });
+    // 20s timeout: covers the React MERGE_REMOTE hydration window where stats
+    // transition from DS=A1 to the forceCefr-seeded B1, which is when the
+    // writing card (cefr 'B1') joins availableExercises and appears in DOM.
     const writingCard = page.getByTestId(TID.EXERCISE_CARD('writing'));
-    await expect(writingCard).toBeVisible({ timeout: 10_000 });
+    await expect(writingCard).toBeVisible({ timeout: 20_000 });
     await writingCard.scrollIntoViewIfNeeded();
     await writingCard.click();
     // Confirm WritingScreen mounted and textarea is interactable before fill —
