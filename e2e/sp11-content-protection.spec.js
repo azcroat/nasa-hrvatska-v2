@@ -156,8 +156,12 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice' }).click();
-    // Drill → Advanced tile (proven path in practice.spec.js:125).
-    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    // Drill → Advanced tile (proven path in practice.spec.js:125). Wait for
+    // Drill pill to be visible before click — workers:4 CI runs occasionally
+    // have a 60s first-render lag where pill click would silently no-op.
+    const drillPill = page.locator('button').filter({ hasText: /^Drill$/ });
+    await expect(drillPill).toBeVisible({ timeout: 15_000 });
+    await drillPill.click();
     const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
