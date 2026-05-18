@@ -18,13 +18,7 @@
  */
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import {
-  seedAuth,
-  blockFirebase,
-  mockTTS,
-  mockContent,
-  waitForStatsHydration,
-} from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -327,9 +321,6 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
   async function navigateAndSubmit(page) {
     await page.goto('/');
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
-    // Wait for seedAuth(xp:8000)'s C1 stats to hydrate into localStorage so
-    // availableExercises filter sees the right CEFR by the time we navigate.
-    await waitForStatsHydration(page, 8000);
     await page.getByTestId(TID.NAV_PRACTICE).click();
     // Drill → Advanced tile (proven path in practice.spec.js:125).
     await page.locator('button').filter({ hasText: /^Drill$/ }).click();
@@ -337,8 +328,11 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
     await expect(advTile).toHaveAttribute('aria-expanded', 'true', { timeout: 5_000 });
+    // 20s timeout: covers the React MERGE_REMOTE hydration window where stats
+    // transition from DS=A1 to seedAuth's C1 (xp:8000), which is when the
+    // writing card (cefr 'B1') joins availableExercises and appears in DOM.
     const writingCard = page.getByTestId(TID.EXERCISE_CARD('writing'));
-    await expect(writingCard).toBeVisible({ timeout: 10_000 });
+    await expect(writingCard).toBeVisible({ timeout: 20_000 });
     await writingCard.scrollIntoViewIfNeeded();
     await writingCard.click();
     // Wait for WritingScreen lazy chunk + textarea mount before filling, otherwise

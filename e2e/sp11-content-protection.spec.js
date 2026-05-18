@@ -5,7 +5,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { seedAuth, blockFirebase, mockTTS, waitForStatsHydration } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 import { forceCefr } from './fixtures/forceCefr.js';
 
 // 18 distinctive curriculum strings from the now-server-side data files
@@ -154,8 +154,6 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     const requestPromise = page.waitForRequest('**/api/content/grammar', { timeout: 15_000 });
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    // Wait for forceCefr's xp=5000 (B2) to hydrate so aspectdrill card unlocks.
-    await waitForStatsHydration(page, 5000);
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice' }).click();
     // Drill → Advanced tile (proven path in practice.spec.js:125).
@@ -164,8 +162,11 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
     await expect(advTile).toHaveAttribute('aria-expanded', 'true', { timeout: 5_000 });
+    // 20s timeout: covers the React MERGE_REMOTE hydration window where stats
+    // transition from DS=A1 to forceCefr's B2 (xp:5000), which is when the
+    // aspectdrill card (cefr 'B1+') joins availableExercises and appears in DOM.
     const aspectDrillCard = page.getByTestId('exercise-card-aspectdrill');
-    await expect(aspectDrillCard).toBeVisible({ timeout: 10_000 });
+    await expect(aspectDrillCard).toBeVisible({ timeout: 20_000 });
     await aspectDrillCard.scrollIntoViewIfNeeded();
     await aspectDrillCard.click();
     await requestPromise; // throws if no /api/content/grammar request fires within 15s
