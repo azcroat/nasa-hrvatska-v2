@@ -66,9 +66,12 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
     await page.getByTestId(TID.NAV_PRACTICE).click();
     // Use Drill → Advanced tile to reach the writing card (proven path in
-    // practice.spec.js:125). Wait for the tile to actually expand before
-    // looking for the specific card.
-    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    // practice.spec.js:125). Wait for the Drill pill to be visible AND
+    // enabled before clicking — workers:4 CI runs occasionally have a 60s
+    // first-render lag where pill click would silently no-op.
+    const drillPill = page.locator('button').filter({ hasText: /^Drill$/ });
+    await expect(drillPill).toBeVisible({ timeout: 15_000 });
+    await drillPill.click();
     const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
@@ -89,6 +92,27 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     const writingText = 'Imam mama svaki dan svaki dan svaki dan svaki dan.';
     await page.getByTestId(TID.WRITING_INPUT).fill(writingText);
     await expect(page.getByTestId(TID.WRITING_INPUT)).toHaveValue(writingText);
+    // Re-seed nh_recent_errors right before submit. WritingScreen.checkWithAI
+    // logs corrections to nh_learner_errors (different key) but App startup +
+    // various screen lifecycles can mutate nh_recent_errors via
+    // appendRecentError. Ensure the assertion at line 97 sees exactly the
+    // 'accusative' entry we seeded in beforeEach, not whatever else may have
+    // accumulated during navigation.
+    await page.evaluate(() => {
+      const fiveMinAgo = Date.now() - 5 * 60 * 1000;
+      localStorage.setItem(
+        'nh_recent_errors',
+        JSON.stringify([
+          {
+            topic: 'accusative',
+            prompt: 'Vidim ____ knjigu',
+            userAnswer: 'knjiga',
+            correctAnswer: 'knjigu',
+            at: fiveMinAgo,
+          },
+        ]),
+      );
+    });
     // Set up waitForRequest BEFORE the click so an in-flight POST cannot slip past.
     const correctRequest = page.waitForRequest('**/api/correct', { timeout: 15_000 });
     await page.getByTestId(TID.WRITING_SUBMIT).click();

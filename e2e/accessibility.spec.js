@@ -322,8 +322,12 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     await page.goto('/');
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
     await page.getByTestId(TID.NAV_PRACTICE).click();
-    // Drill → Advanced tile (proven path in practice.spec.js:125).
-    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    // Drill → Advanced tile (proven path in practice.spec.js:125). Wait for
+    // Drill pill to be visible before click — workers:4 CI runs occasionally
+    // have a 60s first-render lag where pill click would silently no-op.
+    const drillPill = page.locator('button').filter({ hasText: /^Drill$/ });
+    await expect(drillPill).toBeVisible({ timeout: 15_000 });
+    await drillPill.click();
     const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
     await advTile.scrollIntoViewIfNeeded();
     await advTile.click();
