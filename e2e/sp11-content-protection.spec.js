@@ -5,7 +5,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, waitForStatsHydration } from './fixtures/seed-auth.js';
 import { forceCefr } from './fixtures/forceCefr.js';
 
 // 18 distinctive curriculum strings from the now-server-side data files
@@ -154,9 +154,16 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     const requestPromise = page.waitForRequest('**/api/content/grammar', { timeout: 15_000 });
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    // Wait for forceCefr's xp=5000 (B2) to hydrate so aspectdrill card unlocks.
+    await waitForStatsHydration(page, 5000);
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice' }).click();
-    await page.locator('button').filter({ hasText: /^All Exercises$/ }).click();
+    // Drill → Advanced tile (proven path in practice.spec.js:125).
+    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
+    await advTile.scrollIntoViewIfNeeded();
+    await advTile.click();
+    await expect(advTile).toHaveAttribute('aria-expanded', 'true', { timeout: 5_000 });
     const aspectDrillCard = page.getByTestId('exercise-card-aspectdrill');
     await expect(aspectDrillCard).toBeVisible({ timeout: 10_000 });
     await aspectDrillCard.scrollIntoViewIfNeeded();

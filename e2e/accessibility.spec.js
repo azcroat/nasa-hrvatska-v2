@@ -18,7 +18,13 @@
  */
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import {
+  seedAuth,
+  blockFirebase,
+  mockTTS,
+  mockContent,
+  waitForStatsHydration,
+} from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -321,14 +327,16 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
   async function navigateAndSubmit(page) {
     await page.goto('/');
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
+    // Wait for seedAuth(xp:8000)'s C1 stats to hydrate into localStorage so
+    // availableExercises filter sees the right CEFR by the time we navigate.
+    await waitForStatsHydration(page, 8000);
     await page.getByTestId(TID.NAV_PRACTICE).click();
-    // Practice tab UX: switch to the "All Exercises" intent panel which
-    // renders every available exercise card flat (no category-tile
-    // expansion). This is the most reliable surface to find the writing
-    // card across CEFR levels — Drill→Advanced collapsing was racing with
-    // animation/render timing at higher levels (C1) where the Advanced
-    // tile contains many cards.
-    await page.locator('button').filter({ hasText: /^All Exercises$/ }).click();
+    // Drill → Advanced tile (proven path in practice.spec.js:125).
+    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
+    const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
+    await advTile.scrollIntoViewIfNeeded();
+    await advTile.click();
+    await expect(advTile).toHaveAttribute('aria-expanded', 'true', { timeout: 5_000 });
     const writingCard = page.getByTestId(TID.EXERCISE_CARD('writing'));
     await expect(writingCard).toBeVisible({ timeout: 10_000 });
     await writingCard.scrollIntoViewIfNeeded();

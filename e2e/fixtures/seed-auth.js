@@ -111,6 +111,36 @@ export async function mockTTS(page) {
 }
 
 /**
+ * Wait for the test user's stats to actually hydrate into localStorage with
+ * the seeded XP value. App.tsx's onSignedIn dispatches MERGE_REMOTE from the
+ * seeded uP_<email>, but that runs asynchronously after page load. Tests that
+ * depend on CEFR-gated UI (Practice tab availableExercises filter, etc.) must
+ * wait for this hydration to complete OR the cards they expect won't be in
+ * the DOM.
+ *
+ * Pass `minXp` >= the value forceCefr seeded (or seedAuth's default 250).
+ * Polls localStorage for up to `timeout` ms. Throws on timeout.
+ */
+export async function waitForStatsHydration(page, minXp, timeout = 10_000) {
+  await page.waitForFunction(
+    (min) => {
+      try {
+        const uS = JSON.parse(localStorage.getItem('uS') || '{}');
+        const email = uS.u;
+        if (!email) return false;
+        const profile = JSON.parse(localStorage.getItem('uP_' + email) || '{}');
+        const xp = profile && profile.st && typeof profile.st.xp === 'number' ? profile.st.xp : 0;
+        return xp >= min;
+      } catch {
+        return false;
+      }
+    },
+    minXp,
+    { timeout },
+  );
+}
+
+/**
  * Mock all 6 /api/content/* endpoints with the same payloads the production
  * CF Functions serve.
  *
