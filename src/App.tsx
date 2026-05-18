@@ -1193,7 +1193,18 @@ function App() {
       console.warn('localStorage quota:', e);
     }
     touchSession();
-  }, [stats, currentScreen, name, authUser, authScreen, statsHydrated, jWords, favs, dchlA, dchlSl]);
+  }, [
+    stats,
+    currentScreen,
+    name,
+    authUser,
+    authScreen,
+    statsHydrated,
+    jWords,
+    favs,
+    dchlA,
+    dchlSl,
+  ]);
 
   // Sync to Firebase on lesson/grammar completion.
   // _syncReady guard is critical: without it, a lesson completed before Firebase delivers
