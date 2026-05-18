@@ -65,14 +65,13 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     await page.goto('/');
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
     await page.getByTestId(TID.NAV_PRACTICE).click();
-    // Practice tab UX: exercise cards live inside collapsible category tiles
-    // (see PracticeTab.tsx browse grid). Need to switch to the Drill panel
-    // and expand the Advanced tile before the "writing" card is in the DOM.
-    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
-    const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
-    await advTile.scrollIntoViewIfNeeded();
-    await advTile.click();
-    await page.getByTestId(TID.EXERCISE_CARD('writing')).click();
+    // Use the "All Exercises" panel — flat list of every available card, no
+    // category-tile expansion (avoids animation/timing races at varying CEFR).
+    await page.locator('button').filter({ hasText: /^All Exercises$/ }).click();
+    const writingCard = page.getByTestId(TID.EXERCISE_CARD('writing'));
+    await expect(writingCard).toBeVisible({ timeout: 10_000 });
+    await writingCard.scrollIntoViewIfNeeded();
+    await writingCard.click();
     // Confirm WritingScreen mounted and textarea is interactable before fill —
     // exercise-card click triggers a lazy chunk; without this wait the fill can
     // race the React mount and the controlled-input state never registers the

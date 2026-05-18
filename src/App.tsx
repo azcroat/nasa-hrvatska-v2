@@ -379,6 +379,15 @@ function App() {
   );
   const [name, setName] = useState('');
   const [stats, dispatch] = useReducer(statsReducer, DS);
+  // Hydration guard for the auto-save useEffect below. useReducer initializes
+  // `stats` to DS={xp:0,...} on the first render. Without this guard, the
+  // auto-save effect would fire that first render and write DS back to
+  // localStorage as `uP_<email>` — clobbering any non-empty progress the
+  // auth provider is about to merge in via MERGE_REMOTE on the next render.
+  // We set this to true exactly once on the first onSignedIn callback (or
+  // RESET on sign-out), so the auto-save only persists state after the
+  // initial hydration has completed.
+  const [statsHydrated, setStatsHydrated] = useState(false);
   const setStats = useCallback(
     (fnOrValue: ((prev: Stats) => Stats) | Stats) =>
       dispatch(
@@ -660,6 +669,7 @@ function App() {
           dispatch({ type: 'MERGE_REMOTE', payload: st, ds: DS });
           if (progress.name) setName(progress.name);
         }
+        setStatsHydrated(true);
         return;
       }
       if (progress) {
@@ -673,6 +683,9 @@ function App() {
       } else {
         setName(user.d);
       }
+      // Unblock the auto-save effect now that any pre-existing progress has
+      // had a chance to merge in (or we've explicitly determined there is none).
+      setStatsHydrated(true);
       if (isNew) setScr('welcome');
       else _goPostAuth(true);
       grantFreeAnnual(user.u);
@@ -680,6 +693,7 @@ function App() {
     },
     onSignedOut() {
       dispatch({ type: 'RESET', payload: DS });
+      setStatsHydrated(false);
       setScr('welcome');
       setName('');
       setFamData(null);
@@ -1155,9 +1169,15 @@ function App() {
     return () => clearTimeout(t);
   }, [emailUnverified, setEmailUnverified]);
 
-  // Auto-save to localStorage on every state change (Firebase handled by useSyncManager)
+  // Auto-save to localStorage on every state change (Firebase handled by useSyncManager).
+  // statsHydrated guards the FIRST render: without it the effect fires while
+  // stats is still the DS={xp:0,...} initial state and writes a zeroed
+  // snapshot to uP_<email> — clobbering any existing progress on disk before
+  // the auth provider's MERGE_REMOTE has had a chance to dispatch. Set to
+  // true by onSignedIn (and false by onSignedOut), so the persistence path
+  // only runs after the initial-hydration handshake completes.
   useEffect(() => {
-    if (!authUser || authScreen !== 'app') return;
+    if (!authUser || authScreen !== 'app' || !statsHydrated) return;
     const snap = buildProgressSnapshot({
       uid: authUser.u,
       name,
@@ -1173,7 +1193,7 @@ function App() {
       console.warn('localStorage quota:', e);
     }
     touchSession();
-  }, [stats, currentScreen, name, authUser, authScreen, jWords, favs, dchlA, dchlSl]);
+  }, [stats, currentScreen, name, authUser, authScreen, statsHydrated, jWords, favs, dchlA, dchlSl]);
 
   // Sync to Firebase on lesson/grammar completion.
   // _syncReady guard is critical: without it, a lesson completed before Firebase delivers

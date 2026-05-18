@@ -322,22 +322,15 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     await page.goto('/');
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
     await page.getByTestId(TID.NAV_PRACTICE).click();
-    // Practice tab UX: exercise cards live inside collapsible category tiles
-    // (see PracticeTab.tsx browse grid). Switch to Drill panel and expand the
-    // Advanced tile before the "writing" card is in the DOM. Wait for the
-    // tile to actually report aria-expanded=true so the card list has rendered
-    // before we try to scroll the writing card into view.
-    await page.locator('button').filter({ hasText: /^Drill$/ }).click();
-    const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
-    await advTile.scrollIntoViewIfNeeded();
-    await advTile.click();
-    await expect(advTile).toHaveAttribute('aria-expanded', 'true');
-    // Wait for at least one exercise-card to actually render under the Advanced
-    // tile — the tile reports expanded immediately, but the card list mounts a
-    // tick later. Without this beat the next getByTestId('exercise-card-writing')
-    // can fire before the cards are in the DOM and time out.
-    await expect(page.locator('button.exercise-card').first()).toBeVisible({ timeout: 5_000 });
+    // Practice tab UX: switch to the "All Exercises" intent panel which
+    // renders every available exercise card flat (no category-tile
+    // expansion). This is the most reliable surface to find the writing
+    // card across CEFR levels — Drill→Advanced collapsing was racing with
+    // animation/render timing at higher levels (C1) where the Advanced
+    // tile contains many cards.
+    await page.locator('button').filter({ hasText: /^All Exercises$/ }).click();
     const writingCard = page.getByTestId(TID.EXERCISE_CARD('writing'));
+    await expect(writingCard).toBeVisible({ timeout: 10_000 });
     await writingCard.scrollIntoViewIfNeeded();
     await writingCard.click();
     // Wait for WritingScreen lazy chunk + textarea mount before filling, otherwise

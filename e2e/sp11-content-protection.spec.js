@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { forceCefr } from './fixtures/forceCefr.js';
 
 // 18 distinctive curriculum strings from the now-server-side data files
 // (5 SP11 stories/grammar-units + 3 SP11b grammar + 3 SP11c lessons +
@@ -110,6 +111,8 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
+    // AspectDrill card is cefr 'B1+'; bump test user past A2 so the card unlocks.
+    await forceCefr(page, 'B2');
 
     // Mock the grammar endpoint with a tiny fixture
     await page.route('**/api/content/grammar', (route) =>
@@ -144,23 +147,20 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
       }),
     );
 
-    // Verify the mocked endpoint is called when grammar data is needed.
-    // The simplest signal: navigate to the home page, wait for the request.
-    // We don't drive deep into AspectDrill UI (testid chain may vary) — the
-    // mocked request firing is sufficient evidence the contentClient path is wired.
+    // Navigate to a grammar-consuming screen — AspectDrill uses useGrammar()
+    // which lazily fetches /api/content/grammar on mount. SP11b moved grammar
+    // behind this lazy hook, so goto('/') alone no longer fires the request.
+    // Practice → All Exercises → Aspect Drill card is the most reliable path.
     const requestPromise = page.waitForRequest('**/api/content/grammar', { timeout: 15_000 });
     await page.goto('/');
-    // Click into any path that triggers grammar fetch. If AspectDrill is reachable
-    // via a known testid, click it; otherwise just rely on the catalog/initial-load
-    // path also firing the grammar fetch via lazy-loaded screens.
-    try {
-      const aspectDrillCard = page.getByTestId('exercise-card-aspect_drill');
-      if (await aspectDrillCard.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await aspectDrillCard.click();
-      }
-    } catch {
-      /* card not visible — fall through */
-    }
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
+    await page.getByRole('navigation', { name: 'Main navigation' })
+      .getByRole('button', { name: 'Practice' }).click();
+    await page.locator('button').filter({ hasText: /^All Exercises$/ }).click();
+    const aspectDrillCard = page.getByTestId('exercise-card-aspectdrill');
+    await expect(aspectDrillCard).toBeVisible({ timeout: 10_000 });
+    await aspectDrillCard.scrollIntoViewIfNeeded();
+    await aspectDrillCard.click();
     await requestPromise; // throws if no /api/content/grammar request fires within 15s
   });
 
