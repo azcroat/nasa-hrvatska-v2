@@ -37,7 +37,9 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     });
   });
 
-  test('writing submit POST to /api/correct includes a v1 userContext payload', async ({ page }) => {
+  test('writing submit POST to /api/correct includes a v1 userContext payload', async ({
+    page,
+  }) => {
     const bodies = [];
     await page.route('**/api/correct', async (route) => {
       try {
@@ -52,9 +54,7 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
           corrected_text: 'Imam majku i tatu svaki dan svaki dan svaki dan.',
           score: 80,
           level_demonstrated: 'B1 - Intermediate',
-          changes: [
-            { original: 'mama', corrected: 'majku', note: 'Accusative ending.' },
-          ],
+          changes: [{ original: 'mama', corrected: 'majku', note: 'Accusative ending.' }],
           strengths: ['Good sentence structure'],
           improvements: ['Practice accusative endings'],
           encouragement: 'Bravo!',
@@ -112,6 +112,19 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
           },
         ]),
       );
+      // Also re-stamp profile.st.xp=2000 (B1). App.tsx's auto-save effect can
+      // clobber forceCefr's addInitScript value with DS={xp:0} during the
+      // brief mount window, and buildUserContext.readLevel() reads
+      // localStorage directly. This guarantees cefr resolves to B1 at the
+      // exact moment of submit.
+      const uS = JSON.parse(localStorage.getItem('uS') || '{}');
+      const email = uS.u;
+      if (email) {
+        const profileKey = 'uP_' + email;
+        const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
+        profile.st = { ...(profile.st || {}), xp: 2000, lc: 0, gc: 0 };
+        localStorage.setItem(profileKey, JSON.stringify(profile));
+      }
     });
     // Set up waitForRequest BEFORE the click so an in-flight POST cannot slip past.
     const correctRequest = page.waitForRequest('**/api/correct', { timeout: 15_000 });
@@ -124,7 +137,9 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
       .poll(() => bodies.length, { timeout: 5_000, message: 'route handler captured POST body' })
       .toBeGreaterThan(0);
 
-    expect(bodies.length, 'expected at least one /api/correct POST body captured').toBeGreaterThan(0);
+    expect(bodies.length, 'expected at least one /api/correct POST body captured').toBeGreaterThan(
+      0,
+    );
     const body = bodies[bodies.length - 1];
     expect(body.userContext, 'expected userContext field on body').toBeDefined();
     expect(body.userContext.version).toBe(1);
