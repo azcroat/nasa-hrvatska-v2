@@ -638,7 +638,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
           {result.strengths && result.strengths.length > 0 && (
             <div style={{ marginBottom: 16 }}>
               <p
-                style={{ fontWeight: 700, fontSize: 13, color: 'var(--success)', marginBottom: 8 }}
+                style={{ fontWeight: 700, fontSize: 13, color: '#15803d', marginBottom: 8 }}
               >
                 ✅ What you did well:
               </p>
