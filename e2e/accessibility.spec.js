@@ -294,7 +294,12 @@ test.describe('Accessibility — keyboard navigation', () => {
 // ── SP6 — CorrectionDiff a11y ──────────────────────────────────────────────
 test.describe('SP6 — CorrectionDiff accessibility', () => {
   test.beforeEach(async ({ page }) => {
-    await seedAuth(page);
+    // xp=2000 lifts the user to B1; the writing card (cefr 'B1') only
+    // renders in the unlocked exercise-card list at B1+. Default seedAuth
+    // produces A2, where the writing card sits in the LOCKED section
+    // (no data-testid) — that's why navigateAndSubmit's
+    // getByTestId('exercise-card-writing') was timing out.
+    await seedAuth(page, { xp: 2000 });
     await blockFirebase(page);
     await mockTTS(page);
     await mockContent(page);
