@@ -342,7 +342,7 @@ export default function HomeTab({
 
   // ── Daily Session Hub ──────────────────────────────────────────────────────
   const userCefr = getUserCefr(st.xp, st.lc, st.gc);
-  const { session, isComplete, progress, markDone, nextActivity, tomorrowLabel } =
+  const { session, isComplete, progress, markDone, nextActivity, tomorrowLabel, bonusActivities } =
     useDailySession(userCefr);
   const dueCount = getDueReviews().length;
   const xpThisWeek = (() => {
@@ -548,6 +548,18 @@ export default function HomeTab({
           // launchPathItem() handles vocab pool load, dwell timer, and returnContext.
           // NEVER use setScr() directly here — see feedback_learnpath_launch.md.
           void launchPathItem(item as Parameters<typeof launchPathItem>[0]);
+        }}
+        bonusActivities={bonusActivities}
+        onBonusStart={(act) => {
+          try {
+            sessionStorage.setItem('nh_session_started', act.screen);
+          } catch {}
+          if (launchActivity) {
+            void launchActivity(act.screen);
+          } else {
+            setScr(act.screen);
+            if (sCurEx) sCurEx(act.screen);
+          }
         }}
       />
 
