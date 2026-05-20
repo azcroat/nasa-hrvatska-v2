@@ -5,6 +5,7 @@ const TABS = [
   { id: 'home', label: 'Today' },
   { id: 'learn', label: 'Learn' },
   { id: 'practice', label: 'Practice' },
+  { id: 'ai', label: 'AI Tutor' },
   { id: 'croatia', label: 'Discover Croatia' },
   { id: 'profile', label: 'Me' },
 ];

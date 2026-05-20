@@ -48,6 +48,7 @@ function lazyWithReload(fn: () => Promise<any>) {
 const HomeTab = lazyWithReload(() => import('./home/HomeTab'));
 const LearnTab = lazyWithReload(() => import('./learn/LearnTab'));
 const CroatiaTab = lazyWithReload(() => import('./croatia/CroatiaTab'));
+const AITab = lazyWithReload(() => import('./ai/AITab'));
 const ImmersionHub = lazyWithReload(() => import('./croatia/ImmersionHub'));
 const AIConversation = lazyWithReload(() => import('./croatia/AIConversation'));
 const MajaScreen = lazyWithReload(() => import('./croatia/MajaScreen'));
@@ -830,6 +831,18 @@ export default function AppRouter(props: Record<string, any>) {
                           award={award}
                           launchPathItem={launchPathItem}
                         />
+                      </ScreenErrorBoundary>
+                    </React.Suspense>
+                  </div>
+                )
+              }
+              {
+                // ═══ TAB: AI TUTOR ═══
+                tab === 'ai' && (
+                  <div key="tab-ai" className={tabSlideClass}>
+                    <React.Suspense fallback={null}>
+                      <ScreenErrorBoundary name="AITab">
+                        <AITab setScr={setScr} sCurEx={sCurEx} />
                       </ScreenErrorBoundary>
                     </React.Suspense>
                   </div>

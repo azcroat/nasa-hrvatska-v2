@@ -197,6 +197,7 @@ const TAB_PATHS: Record<string, string> = {
   home: '/',
   learn: '/learn',
   practice: '/practice',
+  ai: '/ai',
   croatia: '/croatia',
   profile: '/profile',
 };
@@ -204,6 +205,7 @@ const PATH_TO_TAB: Record<string, string> = {
   '/': 'home',
   '/learn': 'learn',
   '/practice': 'practice',
+  '/ai': 'ai',
   '/croatia': 'croatia',
   '/profile': 'profile',
 };
@@ -1472,6 +1474,7 @@ function App() {
     const tbp: Record<string, string> = {
       '/learn': 'learn',
       '/practice': 'practice',
+      '/ai': 'ai',
       '/croatia': 'croatia',
       '/profile': 'profile',
     };
