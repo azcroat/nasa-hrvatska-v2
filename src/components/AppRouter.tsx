@@ -548,6 +548,17 @@ export default function AppRouter(props: Record<string, any>) {
           <PlacementTest
             onComplete={function (level: number) {
               localStorage.setItem('placement_done', '1');
+              // ALSO flag user as onboarded so Firebase sync persists this
+              // across devices. buildProgressSnapshot reads `onboarded` and
+              // `nh_placement_done` from localStorage and writes them into
+              // the Firebase profile; applyRemoteProgress on a new device
+              // sets localStorage from those fields, which short-circuits
+              // the App.tsx:1303 placement-trigger check. Without these two
+              // writes, a user who completed placement on device A would be
+              // re-prompted on device B until Firebase MERGE_REMOTE happened
+              // to land xp > 0 before the 1200ms placement timer fired.
+              localStorage.setItem('nh_placement_done', 'true');
+              localStorage.setItem('onboarded', 'true');
               setStats(function (prev) {
                 return {
                   ...prev,
@@ -1968,6 +1979,17 @@ export default function AppRouter(props: Record<string, any>) {
               <PlacementTest
                 onComplete={function (level: number) {
                   localStorage.setItem('placement_done', '1');
+                  // ALSO flag user as onboarded so Firebase sync persists this
+                  // across devices. buildProgressSnapshot reads `onboarded` and
+                  // `nh_placement_done` from localStorage and writes them into
+                  // the Firebase profile; applyRemoteProgress on a new device
+                  // sets localStorage from those fields, which short-circuits
+                  // the App.tsx:1303 placement-trigger check. Without these two
+                  // writes, a user who completed placement on device A would be
+                  // re-prompted on device B until Firebase MERGE_REMOTE happened
+                  // to land xp > 0 before the 1200ms placement timer fired.
+                  localStorage.setItem('nh_placement_done', 'true');
+                  localStorage.setItem('onboarded', 'true');
                   setStats(function (prev) {
                     return {
                       ...prev,
