@@ -1505,7 +1505,7 @@ function App() {
     setDueCount(getDueReviews().length);
   }, [stats]);
   const badges = useMemo(
-    () => ({ home: 0, learn: 0, practice: dueCount, croatia: 0, profile: 0 }),
+    () => ({ home: 0, learn: 0, practice: dueCount, ai: 0, croatia: 0, profile: 0 }),
     [dueCount],
   );
   const doSidebarSearch = useCallback(() => {
