@@ -32,6 +32,14 @@ interface SessionCardProps {
   onLearnPathStart?: (item: LearnPathChipItem) => void;
   /** Whether the current next LearnPath item has already been completed (greyed chip). */
   learnPathItemDone?: boolean;
+  /**
+   * Extra activities surfaced when isComplete=true. Each item launches the
+   * corresponding exercise screen on click, so users have specific next
+   * steps instead of a generic "come back tomorrow" dead-end.
+   */
+  bonusActivities?: SessionActivity[];
+  /** Click handler for a bonus activity — receives the activity, parent decides routing. */
+  onBonusStart?: (activity: SessionActivity) => void;
 }
 
 // ── Šahovnica Croatian coat of arms crest ──
@@ -158,6 +166,8 @@ export default function SessionCard({
   nextLearnPathItem = null,
   onLearnPathStart,
   learnPathItemDone = false,
+  bonusActivities = [],
+  onBonusStart,
 }: SessionCardProps) {
   const completedCount = session.completedIds.length;
   const totalCount = session.activities.length;
@@ -215,13 +225,55 @@ export default function SessionCard({
               fontFamily: "'Outfit',sans-serif",
               display: 'block',
               width: '100%',
-              marginBottom: 8,
+              marginBottom: bonusActivities.length > 0 ? 16 : 8,
             }}
           >
             {wordsdue > 0
               ? `📚 Review ${wordsdue} word${wordsdue !== 1 ? 's' : ''} →`
               : 'Practice more →'}
           </button>
+          {bonusActivities.length > 0 && onBonusStart && (
+            <div data-testid="bonus-activities" style={{ textAlign: 'left', marginBottom: 8 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: CROATIAN_RED,
+                  letterSpacing: '.18em',
+                  textTransform: 'uppercase',
+                  marginBottom: 8,
+                  textAlign: 'center',
+                  fontFamily: "'Outfit',sans-serif",
+                }}
+              >
+                Keep going →
+              </div>
+              {bonusActivities.map((act) => (
+                <button
+                  key={act.id}
+                  onClick={() => onBonusStart(act)}
+                  data-testid={'bonus-' + act.id}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    background: 'var(--card)',
+                    border: '1.5px solid #e8ecf2',
+                    borderRadius: 12,
+                    padding: '10px 14px',
+                    marginBottom: 6,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: 'var(--heading)',
+                    cursor: 'pointer',
+                    fontFamily: "'Outfit',sans-serif",
+                  }}
+                >
+                  ▶ {act.label}
+                </button>
+              ))}
+            </div>
+          )}
           <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
             {tomorrowLabel}
           </div>

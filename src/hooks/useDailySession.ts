@@ -34,6 +34,14 @@ export interface UseDailySessionReturn {
   markDone: (screenOrId: string) => void;
   nextActivity: SessionActivity | null;
   tomorrowLabel: string;
+  /**
+   * Extra activities to suggest AFTER the curated daily session is done.
+   * Solves the "Session Complete → nothing else to do" dead-end: users who
+   * want to keep learning get 3–5 hand-picked next steps drawn from the
+   * unlocked CEFR pool (excluding activities already in the daily session
+   * and any done in the last 24h). Empty array when session is incomplete.
+   */
+  bonusActivities: SessionActivity[];
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -359,7 +367,50 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
   const nextActivity = session.activities.find((a) => !session.completedIds.includes(a.id)) ?? null;
   const tomorrowLabel = '4–6 activities tomorrow';
 
-  return { session, isComplete, progress, markDone, nextActivity, tomorrowLabel };
+  // Bonus activities — show only when the curated daily session is complete,
+  // so users who want to keep learning have specific next steps instead of a
+  // generic "come back tomorrow" message. Draws from CEFR_EXERCISE_POOL,
+  // excluding screens already in today's session and any used in the last
+  // 24h (recentScreens). Capped at 5.
+  const bonusActivities: SessionActivity[] = isComplete
+    ? (() => {
+        const sessionScreens = new Set(session.activities.map((a) => a.screen));
+        const recentScreens: string[] = (() => {
+          try {
+            return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]') as string[];
+          } catch {
+            return [];
+          }
+        })();
+        const recentSet = new Set(recentScreens);
+        let pool = CEFR_EXERCISE_POOL.filter(
+          (ex) =>
+            isUnlocked(ex.cefr, userCefr) &&
+            !sessionScreens.has(ex.screen) &&
+            !recentSet.has(ex.screen),
+        );
+        if (pool.length === 0) {
+          pool = CEFR_EXERCISE_POOL.filter(
+            (ex) => isUnlocked(ex.cefr, userCefr) && !sessionScreens.has(ex.screen),
+          );
+        }
+        const shuffled = [...pool];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(rnd() * (i + 1));
+          const tmp = shuffled[i] as (typeof shuffled)[0];
+          shuffled[i] = shuffled[j] as (typeof shuffled)[0];
+          shuffled[j] = tmp;
+        }
+        return shuffled.slice(0, 5).map((ex) => ({
+          id: 'bonus_' + ex.id,
+          label: ex.label,
+          screen: ex.screen,
+          category: ex.category,
+        }));
+      })()
+    : [];
+
+  return { session, isComplete, progress, markDone, nextActivity, tomorrowLabel, bonusActivities };
 }
 
 // ── Mic-state persistence (SP4b) ─────────────────────────────────────────────
