@@ -7,6 +7,34 @@ import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { unlockAudio } from '../../lib/audio.js';
 
+/**
+ * Interleave dialogue lines turn-by-turn across speakers, so the rendered
+ * transcript (and the TTS audio built from the same string) plays as a
+ * real back-and-forth conversation instead of "all speaker A's lines,
+ * then all speaker B's lines". Backend returns each speaker with a
+ * `lines` array in time order; turn N for everyone goes before turn N+1.
+ */
+interface DialogueSpeaker {
+  name?: string;
+  lines?: unknown[];
+}
+function interleaveDialogue(speakers: DialogueSpeaker[] | undefined | null): string {
+  if (!Array.isArray(speakers) || speakers.length === 0) return '';
+  const maxTurns = speakers.reduce(
+    (max, s) => Math.max(max, Array.isArray(s.lines) ? s.lines.length : 0),
+    0,
+  );
+  const out: string[] = [];
+  for (let i = 0; i < maxTurns; i++) {
+    for (const spk of speakers) {
+      const line = Array.isArray(spk.lines) ? spk.lines[i] : undefined;
+      if (line == null) continue;
+      out.push(`${spk.name || 'Speaker'}: ${String(line)}`);
+    }
+  }
+  return out.join('\n\n');
+}
+
 const TOPICS = [
   { key: 'cafe', emoji: '☕', hr: 'U kafiću', en: 'At the Café' },
   { key: 'market', emoji: '🛒', hr: 'Na tržnici', en: 'At the Market' },
@@ -91,12 +119,10 @@ export default function AIListeningScreen({
       // Build TTS text
       let fullText = '';
       if (style === 'dialogue' && data.speakers) {
-        data.speakers.forEach((spk: any) => {
-          if (!Array.isArray(spk.lines)) return;
-          spk.lines.forEach((line: any) => {
-            fullText += `${spk.name}: ${line}\n\n`;
-          });
-        });
+        // Interleave by line index — turn-by-turn — so the audio sounds like
+        // a real back-and-forth conversation (Ana: …, Marko: …, Ana: …)
+        // instead of all of Ana's lines followed by all of Marko's lines.
+        fullText = interleaveDialogue(data.speakers);
       } else {
         fullText = data.narrator || '';
       }
@@ -250,9 +276,7 @@ export default function AIListeningScreen({
   function buildTranscript() {
     if (!content) return '';
     if (style === 'dialogue' && content.speakers) {
-      return content.speakers
-        .map((spk: any) => (spk.lines || []).map((l: any) => `${spk.name}: ${l}`).join('\n'))
-        .join('\n\n');
+      return interleaveDialogue(content.speakers);
     }
     return content.narrator || '';
   }
