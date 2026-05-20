@@ -351,7 +351,14 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     const writingText = 'Imam mama i tata svaki dan svaki dan svaki dan.';
     await page.getByTestId(TID.WRITING_INPUT).fill(writingText);
     await expect(page.getByTestId(TID.WRITING_INPUT)).toHaveValue(writingText);
-    await page.getByTestId(TID.WRITING_SUBMIT).click();
+    // KnightCompanion uses `kn-breathe 3.4s infinite` + `kn-aura-pulse 2.4s infinite`
+    // CSS animations on a position:fixed mascot. Those infinite transforms cause
+    // Playwright's bbox-stability check to false-positive on every nearby button —
+    // the trace shows the button resolved + visible + enabled, with the click
+    // retrying 110× over 55s on "element is not stable" alone. The button itself
+    // never moves; only the mascot does. Dispatch the click via DOM to bypass
+    // the stability gate (still fires React's onClick handler).
+    await page.getByTestId(TID.WRITING_SUBMIT).evaluate((el) => el.click());
     await expect(page.locator('del').filter({ hasText: 'mama' })).toBeVisible({
       timeout: 15_000,
     });
