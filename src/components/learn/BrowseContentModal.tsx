@@ -668,7 +668,7 @@ export default function BrowseContentModal({
                   Reading Passages
                 </div>
                 <div style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)', marginTop: 1 }}>
-                  100+ stories · A1 to B2
+                  30 stories · A1 to C1
                 </div>
               </div>
               <div style={{ fontSize: 'var(--text-xl)', color: 'var(--subtext)', opacity: 0.35 }}>

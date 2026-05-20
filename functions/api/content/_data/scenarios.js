@@ -441,7 +441,7 @@ export const RECIPES = [
       'Dodaj jaja, mlijeko, koricu limuna, rum. (Add wet ingredients.)',
       'Umiješaj grožđice. (Fold in raisins.)',
       'Zagrij ulje na 170°C. (Heat oil to 170°C.)',
-      'Kašikom stavljaj tijesto u ulje. (Drop spoonfuls into oil.)',
+      'Žlicom stavljaj tijesto u ulje. (Drop spoonfuls into oil.)',
       'Prži dok ne postanu zlatne. (Fry until golden.)',
       'Pospi prah šećerom! (Dust with powdered sugar!)',
     ],
@@ -1380,7 +1380,7 @@ export const STORIES = [
     cefr: 'A2',
     scenes: [
       {
-        text: 'Ne osjećaš se dobro. Nazivaš ordinaciju i dogovaraš termin. Stijedeći dan sjediš u čekaonici.',
+        text: 'Ne osjećaš se dobro. Nazivaš ordinaciju i dogovaraš termin. Sljedeći dan sjediš u čekaonici.',
         en: "You don't feel well. You call the clinic and arrange an appointment. The next day you are sitting in the waiting room.",
         choices: [
           { text: 'Ulaziš k liječniku kada te pozovu.', next: 1 },
@@ -1513,7 +1513,7 @@ export const STORIES = [
         ],
       },
       {
-        text: "Referentica završava transakciju i kaže: 'Sve je u redu. Potvrda stize na vašu e-mail adresu.' Zahvaljuješ se i odlaziš.",
+        text: "Referentica završava transakciju i kaže: 'Sve je u redu. Potvrda stiže na vašu e-mail adresu.' Zahvaljuješ se i odlaziš.",
         en: "The clerk completes the transaction and says: 'Everything is in order. A confirmation will arrive to your email address.' You thank her and leave.",
         choices: [],
       },
@@ -1533,7 +1533,7 @@ export const STORIES = [
         ],
       },
       {
-        text: "Mirko odgovara: 'Aha, hvala što ste javili. Je li donosila neku poruku o grešci?' Ti opišeš što si vidio/vidjela.",
+        text: "Mirko odgovara: 'Aha, hvala što ste javili. Je li prikazala neku poruku o grešci?' Ti opišeš što si vidio/vidjela.",
         en: "Mirko replies: 'Ah, thanks for letting me know. Did it show any error message?' You describe what you saw.",
         choices: [
           { text: 'Da, trepćuće je crveno svjetlo i ne odvodi vodu.', next: 3 },
@@ -1578,7 +1578,7 @@ export const STORIES = [
         ],
       },
       {
-        text: "Ana odgovara: 'Dobar instinkt. Preporučujem da razgovaraš s HR-om neformalno, antes nego apliciraš. Koji su ti dugoročni ciljevi?'",
+        text: "Ana odgovara: 'Dobar instinkt. Preporučujem da razgovaraš s HR-om neformalno, prije nego što apliciraš. Koji su ti dugoročni ciljevi?'",
         en: "Ana replies: 'Good instinct. I recommend talking to HR informally before you apply. What are your long-term goals?'",
         choices: [
           { text: 'Za pet godina bih volio/htjela voditi vlastiti projekt.', next: 3 },
@@ -1622,7 +1622,7 @@ export const STORIES = [
         ],
       },
       {
-        text: "Doktor kaže: 'Preporučujem aerobnu aktivnost trideset minuta dnevno i smanjenje soli. Ako se tlak ne normalizira za miesec dana, razgovarat ćemo o terapiji.' Prihvaćaš preporuke.",
+        text: "Doktor kaže: 'Preporučujem aerobnu aktivnost trideset minuta dnevno i smanjenje soli. Ako se tlak ne normalizira za mjesec dana, razgovarat ćemo o terapiji.' Prihvaćaš preporuke.",
         en: "The doctor says: 'I recommend thirty minutes of aerobic activity daily and reducing salt intake. If the blood pressure does not normalise in a month, we will discuss medication.' You accept the recommendations.",
         choices: [],
       },

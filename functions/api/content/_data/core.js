@@ -112,7 +112,6 @@ export const LEVEL_NARRATIVE = {
     'Bridging Worlds',
     'Coming Home',
     'Naš Čovjek',
-    'Naš Čovjek',
   ],
   family: [
     'Hello Family',
@@ -120,7 +119,6 @@ export const LEVEL_NARRATIVE = {
     'Conversations',
     'Deep Talks',
     'Native Flow',
-    'Naš Čovjek',
     'Naš Čovjek',
   ],
   travel: [
@@ -130,7 +128,6 @@ export const LEVEL_NARRATIVE = {
     'Off the Map',
     'Croatian Soul',
     'Naš Čovjek',
-    'Naš Čovjek',
   ],
   culture: [
     'First Steps',
@@ -139,9 +136,8 @@ export const LEVEL_NARRATIVE = {
     'Deep Diver',
     'Living Croatia',
     'Naš Čovjek',
-    'Naš Čovjek',
   ],
-  fluent: ['Beginner', 'Elementary', 'Intermediate', 'Upper-Int', 'Advanced', 'Fluent', 'Fluent'],
+  fluent: ['Beginner', 'Elementary', 'Intermediate', 'Upper-Int', 'Advanced', 'Fluent'],
   partner: [
     'Curious Spouse',
     'Family Observer',
