@@ -677,7 +677,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
                 borderRadius: 10,
                 padding: '12px 14px',
                 fontSize: 13,
-                color: 'var(--success)',
+                color: '#14532d',
                 fontWeight: 600,
               }}
             >
