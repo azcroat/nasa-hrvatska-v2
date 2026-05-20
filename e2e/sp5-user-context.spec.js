@@ -128,7 +128,11 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     });
     // Set up waitForRequest BEFORE the click so an in-flight POST cannot slip past.
     const correctRequest = page.waitForRequest('**/api/correct', { timeout: 15_000 });
-    await page.getByTestId(TID.WRITING_SUBMIT).click();
+    // KnightCompanion's `kn-breathe`/`kn-aura-pulse` infinite CSS animations
+    // false-positive Playwright's bbox-stability gate on writing-submit
+    // (see f7eb120 / accessibility.spec.js navigateAndSubmit for full diagnosis).
+    // Dispatch via DOM to bypass the stability check; React onClick still fires.
+    await page.getByTestId(TID.WRITING_SUBMIT).evaluate((el) => el.click());
     await correctRequest;
     // waitForRequest resolves when the request is initiated, which can be BEFORE
     // the route handler's bodies.push() runs. Poll the bodies array so we don't
