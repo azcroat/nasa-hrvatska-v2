@@ -11,13 +11,25 @@ test.describe('SP4b — production slot in daily session', () => {
     await blockFirebase(page);
     await mockTTS(page);
     await mockContent(page);
-    await forceCefr(page, 'B1');     // deterministic CEFR
-    await mockRnd(page, 0);          // deterministic selectProductionExercise pick
+    await forceCefr(page, 'B1'); // deterministic CEFR
+    await mockRnd(page, 0); // deterministic selectProductionExercise pick
   });
 
-  test('daily session contains the expected production exercise (mic available)', async ({ page }) => {
+  test('daily session contains the expected production exercise (mic available)', async ({
+    page,
+  }) => {
     await page.addInitScript(() => {
       localStorage.setItem('nh_mic_state', 'available');
+      // Lock-in profile.st.xp=2000 (B1) so HomeTab's production selector
+      // unconditionally sees a B1 user (Speaking Sprint needs A2+).
+      const uS = JSON.parse(localStorage.getItem('uS') || '{}');
+      const email = uS.u;
+      if (email) {
+        const profileKey = 'uP_' + email;
+        const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
+        profile.st = { ...(profile.st || {}), xp: 2000, lc: 0, gc: 0 };
+        localStorage.setItem(profileKey, JSON.stringify(profile));
+      }
     });
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
@@ -32,6 +44,16 @@ test.describe('SP4b — production slot in daily session', () => {
   test('mic-denied user sees keyboard-only production label', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('nh_mic_state', 'denied');
+      // Lock-in profile.st.xp=2000 (B1) so HomeTab's production selector
+      // sees a B1 user — keeps Free Writing in the eligible pool.
+      const uS = JSON.parse(localStorage.getItem('uS') || '{}');
+      const email = uS.u;
+      if (email) {
+        const profileKey = 'uP_' + email;
+        const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
+        profile.st = { ...(profile.st || {}), xp: 2000, lc: 0, gc: 0 };
+        localStorage.setItem(profileKey, JSON.stringify(profile));
+      }
     });
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
