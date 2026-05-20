@@ -1,0 +1,877 @@
+{
+  "newCities": [
+    {
+      "name": "Rogoznica",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Marina Frapa and the Dragon's Eye",
+      "intro": "Rogoznica is a small Dalmatian coastal town between Šibenik and Trogir, built on a former island connected to the mainland by a causeway. It is best known for Marina Frapa, one of the largest and most awarded nautical marinas on the Adriatic, and for the unusual saltwater lake Zmajevo Oko (Dragon's Eye).",
+      "history": "Rogoznica was first mentioned in 1390 as Rogosnica, a fishing settlement under the Šibenik commune during Venetian and later Habsburg rule. For centuries it was a poor village of fishermen and olive growers, its small island connected to the mainland only by a wooden bridge until the 20th century. The opening of Marina Frapa in 1995 transformed Rogoznica into a major nautical-tourism centre, while the village core around the parish church of the Assumption preserves the older Dalmatian fabric.",
+      "facts": [
+        "Marina Frapa, opened in 1995 in the Soline bay, has won the ADAC and TOMAS awards for best Croatian marina multiple times",
+        "Zmajevo Oko is a karst saltwater lake about 15 metres deep, separated from the sea only by a thin limestone wall",
+        "Rogoznica was originally an island, joined to the mainland by a causeway built in the 18th century",
+        "The parish church of the Assumption of Mary sits on the highest point of the old island core",
+        "The protected Cape Ploča (Punta Planka) south of Rogoznica is the boundary between northern and central Dalmatian waters in classical Adriatic geography"
+      ],
+      "vocab": [
+        {"hr": "marina", "en": "yacht marina", "note": "Marina Frapa in Rogoznica — one of Croatia's largest, with around 450 berths in Soline bay"},
+        {"hr": "oko", "en": "eye", "note": "Zmajevo oko — Dragon's Eye — Rogoznica's circular saltwater karst lake hidden behind a thin limestone rim"},
+        {"hr": "rt", "en": "cape, headland", "note": "Rt Ploča south of Rogoznica — classical dividing point between northern and central Adriatic"}
+      ],
+      "didYouKnow": "Ancient Greek and Roman sailors considered Cape Ploča near Rogoznica so dangerous that they built a small sanctuary to the hero Diomedes there — Greek inscriptions to Diomedes were excavated on the cape in the 1990s."
+    },
+    {
+      "name": "Ražanj",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0284c7",
+      "tagline": "Quiet Fishing Cove West of Rogoznica",
+      "intro": "Ražanj is a small fishing village on the coast just west of Rogoznica, in Šibenik-Knin County. With a few hundred permanent residents, it consists of a single sheltered harbour, the parish church of Saint Nicholas, and a string of stone houses behind the waterfront. The name comes from ražanj, meaning roasting spit, referring to the long narrow shape of the peninsula.",
+      "history": "Ražanj developed as a fishing and olive-growing settlement under the Šibenik commune in the Venetian period, populated mainly by families from the Rogoznica hinterland who built summer houses near their fishing grounds. The village remained tiny throughout the 19th and 20th centuries, dependent on small-scale fishing and seasonal olive harvests. Like the rest of the coastal belt, Ražanj escaped front-line damage in the Homeland War but lost younger residents to nearby towns. Tourism in apartments and small konobe is now the main income.",
+      "facts": [
+        "Ražanj's name derives from the Croatian word ražanj — a long roasting spit — describing the narrow peninsula",
+        "The parish church is dedicated to Saint Nicholas, patron of sailors, common across small Dalmatian fishing villages",
+        "Administratively Ražanj belongs to the Rogoznica municipality in Šibenik-Knin County",
+        "The settlement has under 400 permanent residents, swelling many times over in summer"
+      ],
+      "vocab": [
+        {"hr": "ražanj", "en": "roasting spit", "note": "The village name itself — describing the long thin peninsula shape, like a spit"},
+        {"hr": "ribar", "en": "fisherman", "note": "Ražanj has always been a ribarsko selo — fishing village — of the Šibenik commune"},
+        {"hr": "konoba", "en": "tavern / cellar restaurant", "note": "Ražanj's konobe serve grilled fish straight from the morning's local catch"}
+      ],
+      "didYouKnow": "The narrow peninsula on which Ražanj sits is part of the same coastal indentation that includes the famous Dragon's Eye saltwater lake at Rogoznica only a few kilometres east."
+    },
+    {
+      "name": "Žirje",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0e7490",
+      "tagline": "Outermost Island of the Šibenik Archipelago",
+      "intro": "Žirje is the most distant inhabited island of the Šibenik archipelago, lying about 22 kilometres from Šibenik in the open Adriatic. With under 100 permanent residents in two villages — Muna and Brbinjšćak — and connected by a roughly two-hour ferry from Šibenik, Žirje is one of the least populated yet historically most strategic Croatian islands.",
+      "history": "Žirje has been inhabited since prehistoric times; Roman and early Christian remains have been found at Gradina and Velika Gospa. In the early Byzantine period the island held two fortresses, Gradina and Gustijerna, controlling the maritime approach to the mainland against Slavic incursions in the 6th century. Under the Šibenik commune through the Venetian and Habsburg eras, Žirje was farmed for vineyards, olives, and figs. In World War II it was an Allied submarine base; today it is best known for diving, fishing, and the Stupica beaches.",
+      "facts": [
+        "Žirje is the most remote inhabited island of the Šibenik archipelago, roughly 22 km from Šibenik harbour",
+        "Two early-Byzantine fortresses — Gradina and Gustijerna — survive on the island from the 6th century",
+        "The two settlements Muna and Brbinjšćak together hold under 100 year-round residents",
+        "Velika and Mala Stupica on the south coast are among the most-photographed coves in the Šibenik archipelago",
+        "The island's name derives from žir — acorn — referring to dense oak woods used for pig-fattening in earlier centuries"
+      ],
+      "vocab": [
+        {"hr": "žir", "en": "acorn", "note": "Origin of the island's name — Žirje was once covered in oak forests grazed by pigs"},
+        {"hr": "otok", "en": "island", "note": "Otok Žirje — the outermost otok of the Šibenik archipelago, far from any other inhabited land"},
+        {"hr": "uvala", "en": "cove, bay", "note": "Stupica uvala on Žirje — one of the most-loved diving and sailing coves in the region"}
+      ],
+      "didYouKnow": "During the Cretan War of 1645–1669, the Venetian fleet used Žirje's deep coves as a forward anchorage against the Ottomans, and Byzantine-era walls on Gradina hill still display reused Roman building blocks."
+    },
+    {
+      "name": "Brodarica",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0284c7",
+      "tagline": "Šibenik's Sponge-Diving Gateway to Krapanj",
+      "intro": "Brodarica is a coastal settlement south of Šibenik, directly across a narrow channel from the island of Krapanj. Historically the mainland base for Krapanj's famous sponge divers, Brodarica is now a sprawling residential and tourist suburb of Šibenik, with a small port from which a five-minute boat connects to Krapanj.",
+      "history": "Brodarica was founded as a mainland settlement of Krapanj islanders who needed pastureland and freshwater wells unavailable on their tiny island. Through the Venetian and Habsburg periods the two communities were a single economic unit, with Brodarica supplying agricultural produce and Krapanj specializing in sponge-diving. The name comes from brod (boat or ship), reflecting the constant ferrying between mainland and island. In the second half of the 20th century Brodarica grew rapidly as a Šibenik suburb, absorbing summer-house tourism along the channel.",
+      "facts": [
+        "Brodarica's name comes from brod (boat) — referring to ferrying between mainland and Krapanj island",
+        "The channel between Brodarica and Krapanj is barely 300 metres wide, the shortest island crossing in Dalmatia",
+        "Most Brodarica families historically also owned property and graves on Krapanj",
+        "The parish church of Saint Christopher (Sveti Krševan) faces the Krapanj channel",
+        "Brodarica is now effectively a southern suburb of Šibenik along the D8 coastal road"
+      ],
+      "vocab": [
+        {"hr": "brod", "en": "boat / ship", "note": "Root of Brodarica's name — the place of boats ferrying to Krapanj across the channel"},
+        {"hr": "brodar", "en": "boatman / ferryman", "note": "The brodari of Brodarica historically rowed islanders to and from Krapanj all day"},
+        {"hr": "kanal", "en": "channel, strait", "note": "Krapanjski kanal — barely 300 m wide, the shortest island ferry crossing in Croatia"}
+      ],
+      "didYouKnow": "The Brodarica–Krapanj ferry is among the shortest scheduled boat lines in the world: the crossing takes less than five minutes, and during the busiest summer months boats run almost continuously through the day."
+    },
+    {
+      "name": "Krapanj",
+      "region": "Dalmatia",
+      "icon": "💧",
+      "color": "#0e7490",
+      "tagline": "Adriatic's Lowest Island and Sponge Capital",
+      "intro": "Krapanj is the smallest inhabited Croatian island and the lowest above sea level — barely 1.25 metres at its highest point. Lying just 300 metres off Brodarica south of Šibenik, the island measures about 0.36 square kilometres yet was once the most densely populated island in the Adriatic. Krapanj is internationally known for its centuries-old tradition of sponge diving.",
+      "history": "Krapanj was settled in 1436 when Šibenik craftsman Juraj Mirojević donated land to Franciscan friars fleeing Ottoman advances in Bosnia. The friars built the Franciscan monastery and the church of the Holy Cross, still the island's centre. Sponge diving was introduced to Krapanj in the 18th century by a Greek Franciscan friar from Crete, and the island became the leading sponge-harvesting community on the Adriatic. By the 19th century almost every adult male was a sponge diver. The industry declined after disease and synthetic substitutes hit in the 1980s, but a workshop still produces processed natural sponges.",
+      "facts": [
+        "Krapanj is the lowest island in the Adriatic — only 1.25 metres above sea level at its highest point",
+        "The island covers just 0.36 km² yet once held over 1,500 residents, the densest island population in the Adriatic",
+        "The Franciscan monastery on Krapanj was founded in 1436 by Šibenik citizen Juraj Mirojević",
+        "Sponge diving was brought to Krapanj in the 18th century by Franciscan friar Antun of Crete",
+        "Krapanj sponges were exported across the Mediterranean and the 1888 Šibenik–Krapanj exhibition made the trade famous"
+      ],
+      "vocab": [
+        {"hr": "spužva", "en": "sponge", "note": "Krapanj is the historical centre of Croatian spužve harvesting — natural Adriatic sponges"},
+        {"hr": "ronilac", "en": "diver", "note": "Krapanj ronioci — the famous sponge divers who worked from rowed boats with stone weights"},
+        {"hr": "samostan", "en": "monastery", "note": "The 1436 Franciscan samostan is the cultural anchor of tiny Krapanj island"}
+      ],
+      "didYouKnow": "Because Krapanj rises barely a metre above the sea, the entire island has no natural freshwater source: islanders for centuries collected rainwater in stone cisterns called gustirne built into every household."
+    },
+    {
+      "name": "Betina",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#92400e",
+      "tagline": "Wooden Shipbuilding Capital of Murter Island",
+      "intro": "Betina is a coastal village on the eastern side of Murter island in the Šibenik archipelago, internationally recognized for its three-centuries-old tradition of building wooden boats, particularly the Adriatic gajeta and leut. The Betina Museum of Wooden Shipbuilding, opened in 2015, is the only museum in Croatia dedicated entirely to the craft and won European Museum of the Year recognition.",
+      "history": "Betina was founded in 1718 by refugee families fleeing the Ottoman wars in the Bosnian hinterland and from Kornati workers needing closer ground for olives and vines. The first registered shipbuilder, Paško Filipi Betina, began constructing wooden vessels in 1740 and his descendants kept the trade alive for over 200 years. By the 19th century Betina builders supplied much of the Šibenik fishing fleet with gajete and leuti. The Betina Museum of Wooden Shipbuilding opened in 2015 and was named Council of Europe Museum Prize Special Mention in 2019.",
+      "facts": [
+        "Betina was founded in 1718 by refugees displaced by Ottoman wars in the hinterland",
+        "Wooden shipbuilding in Betina is documented from 1740, when master Paško Filipi launched his first gajeta",
+        "The Betina Museum of Wooden Shipbuilding opened in 2015 — the only such museum in Croatia",
+        "The museum received the Council of Europe Museum Prize Special Mention in 2019",
+        "The Betina gajeta is registered on the Croatian list of intangible cultural heritage"
+      ],
+      "vocab": [
+        {"hr": "brodogradilište", "en": "shipyard", "note": "Betinsko brodogradilište — Betina's traditional wooden brodogradilište has been continuous since the 18th century"},
+        {"hr": "gajeta", "en": "traditional Adriatic wooden fishing boat", "note": "The betinska gajeta is a registered cultural-heritage boat type with distinctive curved stern"},
+        {"hr": "drvodjelac", "en": "wood-craftsman / carpenter", "note": "Generations of Betina drvodjelci — shipwrights — passed the gajeta-building craft father to son"}
+      ],
+      "didYouKnow": "The Betina shipbuilding tradition is so distinctive that the Murter Council of the Republic of Croatia inscribed mastery of the betinska gajeta on the national list of protected intangible cultural heritage in 2016."
+    },
+    {
+      "name": "Kaštel Kambelovac",
+      "region": "Dalmatia",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "The Kambelo Tower Among Seven Castles",
+      "intro": "Kaštel Kambelovac is the fourth of the seven Kaštela settlements strung along the coast between Trogir and Split. Named after the Kambelo (Cambi) family of Split nobles who built the fortified residence here at the end of the 15th century, the village preserves a small old core with Renaissance houses along the seafront.",
+      "history": "The Cambi family, Split patricians, built a fortified manor here around 1500 as protection against Ottoman raids and as the centre of their estate of olive groves and vineyards. Around this fortified core, peasant tenants from the slopes of Kozjak moved down to the coast and built dense stone houses along narrow streets. Through the Venetian and Habsburg periods Kaštel Kambelovac remained a small farming village. Industrial growth in 20th-century Split absorbed the seven Kaštela into a single urban agglomeration, though each retains a distinct historic core.",
+      "facts": [
+        "Kaštel Kambelovac was founded around 1500 by the Cambi (Kambelo) family of Split as a fortified estate",
+        "It is the fourth of the seven Kaštela villages along the Trogir–Split coastline",
+        "The historic Kambelovac tower still stands on the seafront, integrated into the village fabric",
+        "The parish church of Saint Michael (Sveti Mihovil) is the centre of the village",
+        "Kaštel Kambelovac is part of the unified town of Kaštela, formed by merger of the seven settlements"
+      ],
+      "vocab": [
+        {"hr": "kaštel", "en": "fortified castle / manor", "note": "Kaštel — the fortified noble residence type that gave the seven Kaštela their collective name"},
+        {"hr": "plemić", "en": "nobleman / patrician", "note": "Split plemići like the Cambi family built kaštele along the bay as protection from Ottoman raids"},
+        {"hr": "selo", "en": "village", "note": "Kambelovac was a tenant selo around the Cambi tower — the model for all seven Kaštela"}
+      ],
+      "didYouKnow": "The Cambi family kept their fortified seat at Kaštel Kambelovac while continuing to maintain their main palace in Split, and the surname is still active among Croatian and Italian descendants of the Split nobility."
+    },
+    {
+      "name": "Kaštel Novi",
+      "region": "Dalmatia",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "The Newest of Seven Castles on Kozjak Slope",
+      "intro": "Kaštel Novi is the second-westernmost of the seven Kaštela settlements between Trogir and Split. Built around the fortified house of the Cipiko family of Trogir at the end of the 15th century, it takes its name novi — new — because it was completed shortly after the older Cipiko tower at neighbouring Kaštel Stari.",
+      "history": "Kaštel Novi was founded in 1512 when the Trogir noble Pavao Antunov Cipiko built a fortified residence west of his family's existing tower in Kaštel Stari. As Ottoman raids intensified across the Dalmatian hinterland in the early 16th century, the Trogir patricians moved tenants from their Kozjak villages down to fortified coastal estates. The dense old core of stone houses around the tower grew through the Venetian and Habsburg periods. The parish church of Saint Peter (Sveti Petar) is the village landmark.",
+      "facts": [
+        "Kaštel Novi was founded in 1512 by Pavao Antunov Cipiko, a Trogir nobleman",
+        "Its name novi distinguishes it from the older Cipiko tower at neighbouring Kaštel Stari",
+        "It is one of two Cipiko-family kaštele in the seven-village chain",
+        "The parish church of Saint Peter dates from the village's early 16th-century foundation",
+        "Today Kaštel Novi is part of the unified town of Kaštela, joining all seven settlements"
+      ],
+      "vocab": [
+        {"hr": "novi", "en": "new", "note": "Kaštel Novi — the new Cipiko tower, built later than Kaštel Stari (the old one)"},
+        {"hr": "Cipiko", "en": "the Cipiko noble family of Trogir", "note": "The Cipiko (Cippico) — one of the leading Trogir patrician families, builders of two of the seven Kaštela"},
+        {"hr": "tvrđava", "en": "fortress, stronghold", "note": "The Kaštela coastal tvrđave were defensive estates built against Ottoman raids in the 1500s"}
+      ],
+      "didYouKnow": "The Cipiko family produced Coriolanus Cipiko, the 15th-century humanist whose Latin chronicle De bello Asiatico described Venetian naval campaigns against the Ottomans and remains an important Renaissance historical source."
+    },
+    {
+      "name": "Kaštel Štafilić",
+      "region": "Dalmatia",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Westernmost Kaštel and the 1,500-Year Olive",
+      "intro": "Kaštel Štafilić is the westernmost of the seven Kaštela villages, sitting at the eastern edge of Trogir bay. Founded around 1500 by the Stafileo (Štafilić) family of Trogir nobles, the village is famous for housing the Stari Maslina ancient olive tree, certified at over 1,500 years old and Croatia's oldest documented olive.",
+      "history": "Kaštel Štafilić was founded in 1500 by the Trogir patrician Stjepan Štafilić (Stafileo), who built a fortified tower as the seat of his estate against Ottoman raids. As with the other six Kaštela, the village grew around the tower with dense stone houses for the tenant farmers brought down from Kozjak. The Stafileo family, later prominent at the Venetian court, also produced Giovanni Stafileo, papal nuncio to Henry VIII of England. In the 20th century Split airport (Resnik) was built on the plain west of the village, making Kaštel Štafilić the air gateway to central Dalmatia.",
+      "facts": [
+        "Kaštel Štafilić was founded around 1500 by Stjepan Štafilić of Trogir, builder of the fortified tower",
+        "The Stari Maslina olive at Kaštel Štafilić is certified at over 1,500 years old — the oldest documented olive in Croatia",
+        "It is the westernmost of the seven Kaštela settlements, bordering Trogir municipality",
+        "Split airport (Resnik) sits in the territory of Kaštel Štafilić",
+        "Papal diplomat Giovanni Stafileo, nuncio to Henry VIII, came from this Trogir noble family"
+      ],
+      "vocab": [
+        {"hr": "maslina", "en": "olive tree", "note": "Stara Maslina in Kaštel Štafilić — over 1,500 years old, the oldest documented maslina in Croatia"},
+        {"hr": "zračna luka", "en": "airport", "note": "Zračna luka Split sits on the plain inside Kaštel Štafilić municipality"},
+        {"hr": "tisućljetni", "en": "millennial / thousand-year-old", "note": "The tisućljetna maslina of Kaštel Štafilić — described in old documents as already ancient in the 18th century"}
+      ],
+      "didYouKnow": "When Croatian botanists carbon-dated and ring-counted the Stari Maslina trunk in the 2000s, they confirmed an age of over 1,500 years — meaning the tree was already a mature olive when the city of Trogir was still part of the Eastern Roman Empire."
+    },
+    {
+      "name": "Vinišće",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Sheltered Bay Between Marina and Trogir",
+      "intro": "Vinišće is a small fishing and tourism village on a deeply indented bay on the Dalmatian coast between Marina and Trogir, in Split-Dalmatia County. With about 350 permanent residents, Vinišće hugs a long natural harbour at the foot of olive-terraced slopes, far enough from major roads to retain a quiet character.",
+      "history": "Vinišće was settled in the late medieval period as a fishing and agricultural village of the Trogir commune, with families farming olives, vines, and figs on the steep hinterland slopes. The name itself derives from vino (wine), pointing to its viticultural identity through the Venetian and Habsburg periods. Like much of the area, Vinišće depopulated during the 20th-century shift to Split's urban industries, but rebounded in the 21st century as a quiet tourism destination, with apartments and small konobe along the deep bay.",
+      "facts": [
+        "Vinišće's name comes from vino (wine) — the village historically lived from viticulture and olives",
+        "The settlement administratively belongs to the Marina municipality in Split-Dalmatia County",
+        "The bay of Vinišće is one of the deepest natural harbours between Trogir and Rogoznica",
+        "The parish church of Saint Peter sits on the western shore of the bay"
+      ],
+      "vocab": [
+        {"hr": "vino", "en": "wine", "note": "Root of Vinišće's name — the deep bay village of vineyards on terraced limestone slopes"},
+        {"hr": "uvala", "en": "deep bay / cove", "note": "Vinišćanska uvala — one of the longest sheltered uvale between Trogir and Šibenik"},
+        {"hr": "terasa", "en": "terrace", "note": "The hillsides above Vinišće are striped with stone terase for vines and olives"}
+      ],
+      "didYouKnow": "Because Vinišće's bay is long, narrow, and well-sheltered from the bura wind, it has long been used as a natural overnight anchorage by Croatian sailors crossing the Šibenik–Trogir passage in worsening weather."
+    },
+    {
+      "name": "Mimice",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0e7490",
+      "tagline": "Pebble Beaches East of Omiš",
+      "intro": "Mimice is a small village on the Omiš Riviera between Omiš and Pisak, set on a coastal plain where the slopes of the Biokovo massif meet the Adriatic. With around 300 permanent residents, Mimice consists of a single waterfront strip of houses, the parish church of Saint Roko, and a popular beach of white pebbles often used in tourism photographs of the riviera.",
+      "history": "Mimice originated as a coastal extension of the older inland village of Svinišće on the slopes of Mosor, settled by families who moved down to the sea for olives, fig groves, and fishing. Through the Venetian and Habsburg periods the population stayed under a few hundred, and the village was reached only by a narrow coastal path until the modern Adriatic Highway (Jadranska magistrala) was completed through the area in the 1960s. Tourism — overwhelmingly in small apartments and family campsites — has dominated the local economy since.",
+      "facts": [
+        "Mimice belongs to the Omiš municipality on the eastern stretch of the Omiš Riviera",
+        "Its mother village Svinišće lies inland on the Mosor slopes above the coast",
+        "The parish church is dedicated to Sveti Roko (Saint Roch), patron against plague",
+        "The Adriatic Highway through Mimice was completed in the 1960s as part of the coastal connection from Split to Dubrovnik"
+      ],
+      "vocab": [
+        {"hr": "šljunak", "en": "pebbles / gravel", "note": "Mimice beach — pure white šljunak — typical of the Omiš Riviera coves"},
+        {"hr": "magistrala", "en": "highway", "note": "Jadranska magistrala — the Adriatic Highway — finished through Mimice in the 1960s"},
+        {"hr": "primorje", "en": "coast / seaside", "note": "Omiš primorje — the strip of coast from Omiš east to Brela below the Biokovo and Mosor mountains"}
+      ],
+      "didYouKnow": "Mimice is one of the few Omiš Riviera villages that historically had a parish church separate from its inland mother-village's church — a sign that it grew large enough by the 19th century to support its own permanent religious life."
+    },
+    {
+      "name": "Pisak",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Last Village of the Omiš Riviera",
+      "intro": "Pisak is a small coastal village at the eastern end of the Omiš Riviera, marking the boundary between the municipality of Omiš and the Makarska Riviera proper. About 200 permanent residents live along the steep slope between the Adriatic Highway and the sea, in stone houses with terraced gardens.",
+      "history": "Pisak originated as a coastal settlement of the inland village of Mala Ostrvica, with families coming down from the karst hinterland for fishing and olive cultivation. The Venetian period left little documentary record of the village beyond Trogir-Omiš commune lists. Pisak remained isolated until the Adriatic Highway opened through it in the 1960s, after which apartment-based summer tourism gradually became the dominant economic activity. Today the village is best known for its calm pebble beaches and its position at the literal eastern end of the Omiš coast before the Makarska Riviera begins.",
+      "facts": [
+        "Pisak is the easternmost village of the Omiš Riviera, marking the boundary with the Makarska Riviera",
+        "It belongs administratively to the Omiš municipality in Split-Dalmatia County",
+        "The parish church of Saint Andrew (Sveti Andrija) sits above the coast road",
+        "The settlement has about 200 permanent residents on a steep slope between the Adriatic Highway and the sea"
+      ],
+      "vocab": [
+        {"hr": "selo", "en": "village", "note": "Pisak — a tiny primorsko selo (coastal village) of about 200 residents"},
+        {"hr": "kraj", "en": "edge / end / region", "note": "Pisak sits at the kraj of the Omiš Riviera before Brela begins"},
+        {"hr": "padina", "en": "slope / hillside", "note": "Pisak houses cling to the padina between the Adriatic Highway and the sea"}
+      ],
+      "didYouKnow": "Pisak and the cluster of Omiš Riviera villages east of it were among the last stretches of mainland Croatia where the Adriatic coastal road was completed — for most of history these settlements were reached only by sea or by mule path over the karst."
+    },
+    {
+      "name": "Promajna",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0e7490",
+      "tagline": "Long Pebble Beach Below Baška Voda",
+      "intro": "Promajna is a small Makarska Riviera village just south of Baška Voda, set on the narrow coastal strip between the Adriatic Highway and a long pebble beach. With roughly 400 permanent residents, Promajna has grown over the last decades from an offshoot of the inland village of Bast into one of the most family-oriented summer destinations on the riviera.",
+      "history": "Like most Makarska Riviera coastal villages, Promajna started as a fishing and olive-grove appendage of an inland mother village — in this case Bast on the Biokovo slopes. Its name comes from promaja, the cross-draft of cool air that flows between the mountain and the sea, a feature locals long valued in hot summers. The Adriatic Highway opened through Promajna in the 1960s, transforming it from a string of fishermen's houses into a tourist village. Today Promajna and Bratuš form a near-continuous coastal strip between Baška Voda and Krvavica.",
+      "facts": [
+        "Promajna takes its name from promaja — the cross-draft of cool air between mountain and sea",
+        "It is part of the Baška Voda municipality and lies on the Makarska Riviera",
+        "Its mother village Bast on the Biokovo slopes is the historic settlement above",
+        "Promajna's main beach is one of the longest continuous pebble beaches on the riviera",
+        "The settlement grew rapidly in tourism after the Adriatic Highway opened through in the 1960s"
+      ],
+      "vocab": [
+        {"hr": "promaja", "en": "cross-draft of air", "note": "Origin of the village name — the cooling promaja between Biokovo and the sea"},
+        {"hr": "rivijera", "en": "riviera, coastal strip", "note": "Makarska rivijera — the coastal strip from Brela south to Gradac, with Promajna near its northern end"},
+        {"hr": "plaža", "en": "beach", "note": "Promajnska plaža — one of the longest pebble plaže on the Makarska Riviera"}
+      ],
+      "didYouKnow": "Croatians use the word promaja not only as a place-name but as the name of a notorious feared household phenomenon — drafts caused by open windows are still widely believed to cause illness in older Croatian households."
+    },
+    {
+      "name": "Bratuš",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Small Cove Between Promajna and Krvavica",
+      "intro": "Bratuš is a small Makarska Riviera village between Promajna and Krvavica, on the narrow strip between the Biokovo mountain wall and the Adriatic. With about 150 permanent residents, Bratuš is one of the smallest village units on the riviera, consisting of a handful of stone houses, a small harbour, and a pebble cove backed by pine woods.",
+      "history": "Bratuš originated as a coastal annex of the inland village of Bast, settled by families who came down from the Biokovo slopes for olives, vines, and fishing. The village was historically too small to have its own parish, attending church up in Bast. Like the rest of the Makarska Riviera, Bratuš lived in semi-isolation until the Adriatic Highway opened in the 1960s, after which small-scale apartment tourism became the dominant local economic activity. The village retains a quieter character than its larger neighbours Promajna and Baška Voda.",
+      "facts": [
+        "Bratuš is one of the smallest settlements on the Makarska Riviera, with around 150 permanent residents",
+        "Administratively it belongs to the Baška Voda municipality",
+        "Its mother village Bast sits above on the Biokovo slopes",
+        "The village's small natural harbour was historically used by Bast olive-growers and fishermen"
+      ],
+      "vocab": [
+        {"hr": "lučica", "en": "small harbour", "note": "Bratuška lučica — the small fishing harbour of Bratuš used by Bast olive-growers for centuries"},
+        {"hr": "borova šuma", "en": "pine forest", "note": "Bratuš cove is backed by a dense borova šuma — the pine cover typical of the Makarska Riviera"},
+        {"hr": "majka selo", "en": "mother village", "note": "Bast is Bratuš's majka selo — the inland village that produced this coastal annex"}
+      ],
+      "didYouKnow": "Like several Makarska Riviera coastal villages, Bratuš only began to function as a year-round residential settlement in the second half of the 20th century — before then, most houses were occupied only seasonally during the olive harvest and summer fishing."
+    },
+    {
+      "name": "Igrane",
+      "region": "Dalmatia",
+      "icon": "⛪",
+      "color": "#92400e",
+      "tagline": "Green Cape and the Sixteen-Century Church",
+      "intro": "Igrane is a small village on the southern Makarska Riviera between Drašnice and Živogošće, built around a green wooded cape that projects into the Adriatic. With roughly 400 permanent residents, Igrane preserves an unusual concentration of historic religious buildings, including the late-medieval church of Saint Michael up on the slopes and a fortified residence tower near the harbour.",
+      "history": "Igrane is documented from the 13th century and was settled by Croats farming the narrow strip beneath the Biokovo wall. The pre-Romanesque church of Saint Michael (Sveti Mihovil) on the slopes above the village dates to around the 11th century, one of the oldest surviving small churches on the Makarska Riviera. In the early modern period Igrane belonged variously to Venice and the Ottoman Empire, with the Šimić-Ivanišević fortified tower built in the 17th century as protection. A small but distinctive village today, Igrane is known for its pine-covered cape, the tower, and the historic church.",
+      "facts": [
+        "The pre-Romanesque church of Sveti Mihovil above Igrane dates to roughly the 11th century",
+        "The 17th-century Šimić-Ivanišević fortified tower (kula) stands near the harbour",
+        "Igrane is documented from the 13th century in Bosnian and Hungarian-Croatian sources",
+        "The green wooded peninsula of Punta is the village's most distinctive natural feature",
+        "Igrane belongs to the Podgora municipality in Split-Dalmatia County"
+      ],
+      "vocab": [
+        {"hr": "kula", "en": "tower", "note": "Šimić-Ivanišević kula — Igrane's 17th-century fortified residential tower near the harbour"},
+        {"hr": "predromanika", "en": "pre-Romanesque (architectural style)", "note": "Sveti Mihovil at Igrane — a small predromanička church from around the 11th century"},
+        {"hr": "punta", "en": "point / cape", "note": "Igranska Punta — the green pine-covered cape that is Igrane's most distinctive landmark"}
+      ],
+      "didYouKnow": "The fortified tower in Igrane was built in the 17th century by a local Croatian family during the long Venetian-Ottoman frontier wars, when the Makarska Riviera repeatedly shifted between Venetian and Ottoman control."
+    },
+    {
+      "name": "Drašnice",
+      "region": "Dalmatia",
+      "icon": "⛪",
+      "color": "#92400e",
+      "tagline": "Pre-Romanesque Church on Biokovo Slope",
+      "intro": "Drašnice is a small village on the southern Makarska Riviera between Živogošće and Igrane. The village is split between an older inland nucleus on the Biokovo slopes and a newer coastal extension along the Adriatic Highway. Drašnice preserves one of the oldest surviving small churches on the Makarska coast, the 12th-century church of Saint George.",
+      "history": "Drašnice is documented from the medieval period and was settled by Croats farming the steep slopes for olives, vines, and pasture for sheep. The small pre-Romanesque church of Saint George (Sveti Juraj) on the hillside above the village dates to around the 12th century. Through the late medieval and early modern periods Drašnice belonged at various points to the Bosnian kingdom, the Ottoman Empire, and Venice. The village was hit hard by population loss in the 20th century but the parish, the church on the slope, and the coastal extension remain active.",
+      "facts": [
+        "The pre-Romanesque church of Sveti Juraj above Drašnice dates to roughly the 12th century",
+        "Drašnice is part of the Podgora municipality on the Makarska Riviera",
+        "The village has an inland nucleus on the Biokovo slope and a coastal extension on the Adriatic Highway",
+        "Drašnice and neighbouring Igrane preserve some of the oldest small churches on the Makarska coast"
+      ],
+      "vocab": [
+        {"hr": "crkvica", "en": "small church / chapel", "note": "Sveti Juraj crkvica at Drašnice — a 12th-century pre-Romanesque chapel on the Biokovo slope"},
+        {"hr": "Sveti Juraj", "en": "Saint George", "note": "Sveti Juraj is the patron of Drašnice — the saint of warriors and shepherds, common in Croatian villages"},
+        {"hr": "padina", "en": "slope, hillside", "note": "Drašnice sits on the steep padine of the Biokovo mountain wall above the Adriatic"}
+      ],
+      "didYouKnow": "Like several Makarska Riviera villages, Drašnice was originally built well above sea level on the Biokovo slopes for protection from pirate raids — the coastal extension along the modern road developed only in the 20th century when raiding was finally a thing of the past."
+    },
+    {
+      "name": "Krvavica",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#78716c",
+      "tagline": "Brutalist Children's Resort by Boris Magaš",
+      "intro": "Krvavica is a small Makarska Riviera village between Bratuš and Baška Voda, with under 200 permanent residents. The village is largely unknown to general tourists but architecturally notable for the abandoned modernist Children's Recovery Resort designed by Croatian architect Boris Magaš in 1961, one of the most striking examples of late-modernist concrete architecture on the Adriatic coast.",
+      "history": "Krvavica originated as a coastal annex of the inland village of Bast on the Biokovo slopes, settled by families coming down for olives and fishing. In the 1960s the Yugoslav People's Army commissioned a children's recovery resort here for children of military personnel suffering respiratory illness, and the architect Boris Magaš (designer of Split's Poljud stadium) completed his bold concrete-and-glass complex in 1964. The resort closed in 1991 at the start of the Homeland War and has stood abandoned ever since, becoming an iconic ruin of Yugoslav-modernist architecture.",
+      "facts": [
+        "Krvavica's Children's Recovery Resort was designed by Boris Magaš and completed in 1964",
+        "Boris Magaš also designed Split's Poljud Stadium — UEFA Five-Star ground for HNK Hajduk",
+        "The complex was built by the Yugoslav People's Army for children with respiratory illness",
+        "It has stood abandoned since 1991 and remains one of the iconic ruins of Yugoslav modernism",
+        "Krvavica is part of the Baška Voda municipality on the Makarska Riviera"
+      ],
+      "vocab": [
+        {"hr": "lječilište", "en": "sanatorium / health resort", "note": "Dječje lječilište Krvavica — children's health resort, Magaš's abandoned concrete masterwork"},
+        {"hr": "moderna", "en": "modernism (architectural)", "note": "Yugoslav moderna — the late-modernist concrete style of the Krvavica resort and Split's Poljud"},
+        {"hr": "napušten", "en": "abandoned, forsaken", "note": "Napušteno lječilište — abandoned sanatorium — Krvavica's defining contemporary identity"}
+      ],
+      "didYouKnow": "The Krvavica resort has been the subject of several international architectural conservation campaigns, including a petition to UNESCO and listing on Europa Nostra's most-endangered heritage register, but no restoration has yet been undertaken."
+    },
+    {
+      "name": "Zaostrog",
+      "region": "Dalmatia",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Andrija Kačić Miošić's Franciscan Monastery",
+      "intro": "Zaostrog is a Makarska Riviera village south of Drvenik, internationally significant in Croatian culture as the home of the Franciscan monastery where the 18th-century friar-poet Andrija Kačić Miošić lived, wrote, and is buried. The monastery itself was founded in 1468 and houses a rich library and an ethnographic museum.",
+      "history": "The Franciscan monastery at Zaostrog was founded in 1468, refounded after Ottoman destruction in the 17th century, and rebuilt in its present form in the early 18th century. Andrija Kačić Miošić (1704–1760), the friar from Brist who entered the order at Zaostrog, became one of the most influential Croatian writers of all time with his epic-popular collection Razgovor ugodni naroda slovinskoga (1756), which presented Croatian history in oral-folk verse for a mass audience. Kačić Miošić lived, wrote, and died at Zaostrog, where he is buried in the monastery church.",
+      "facts": [
+        "The Franciscan monastery at Zaostrog was founded in 1468",
+        "Andrija Kačić Miošić (1704–1760) lived, wrote, and is buried at the Zaostrog monastery",
+        "Kačić Miošić's Razgovor ugodni naroda slovinskoga (1756) was the most widely read Croatian book of the 18th and 19th centuries",
+        "The monastery houses an ethnographic museum with traditional Dalmatian rural artifacts",
+        "Zaostrog is part of the Gradac municipality on the southern Makarska Riviera"
+      ],
+      "vocab": [
+        {"hr": "fratar", "en": "friar (Franciscan)", "note": "Fra Andrija Kačić Miošić — the most famous Croatian fratar-writer, of the Zaostrog monastery"},
+        {"hr": "guslar", "en": "epic singer who plays the gusle", "note": "Kačić Miošić's verse was sung by Croatian guslari across the Dinaric lands for over a century"},
+        {"hr": "samostan", "en": "monastery", "note": "Franjevački samostan Zaostrog — Franciscan monastery founded 1468, Kačić Miošić's home"}
+      ],
+      "didYouKnow": "Razgovor ugodni naroda slovinskoga, written by Kačić Miošić at the Zaostrog monastery, was so popular that 19th-century Croatian sailors often carried a single copy bound together with a missal — the two essential books of Dalmatian life."
+    },
+    {
+      "name": "Brist",
+      "region": "Dalmatia",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Birthplace of Andrija Kačić Miošić",
+      "intro": "Brist is a small village on the southern Makarska Riviera between Zaostrog and Podaca. With about 300 permanent residents, Brist is best known in Croatian cultural history as the birthplace of the Franciscan friar-poet Andrija Kačić Miošić (1704–1760), one of the most widely read Croatian writers of all time.",
+      "history": "Brist appears in late-medieval Bosnian and Venetian documents as a small Croat settlement on the southern Makarska Riviera, populated by farmers and fishermen. The most famous son of Brist, Andrija Kačić Miošić, was born here in 1704, entered the Franciscan order, and later moved to the monastery at neighbouring Zaostrog where he wrote his celebrated Razgovor ugodni naroda slovinskoga. A monument to Kačić Miošić stands in the village. Today Brist remains a small coastal village with a modest tourism sector and continued recognition as Kačić Miošić's birthplace.",
+      "facts": [
+        "Andrija Kačić Miošić (1704–1760) was born in Brist",
+        "Brist is part of the Gradac municipality on the southern Makarska Riviera",
+        "A monument to Kačić Miošić stands in the village commemorating his birth",
+        "Kačić Miošić later entered the Franciscan monastery at neighbouring Zaostrog where he is buried",
+        "Brist preserves traditional Makarska Riviera stone-house architecture in its village core"
+      ],
+      "vocab": [
+        {"hr": "rodno mjesto", "en": "birthplace", "note": "Brist je rodno mjesto Andrije Kačića Miošića — Brist is the birthplace of Croatia's friar-poet"},
+        {"hr": "spomenik", "en": "monument", "note": "The Kačić Miošić spomenik in Brist village commemorates the friar-poet's birth there in 1704"},
+        {"hr": "pjesnik", "en": "poet", "note": "Pjesnik Kačić Miošić — the friar-pjesnik from Brist whose oral-style verse defined Croatian popular literature for over a century"}
+      ],
+      "didYouKnow": "Andrija Kačić Miošić's Razgovor ugodni naroda slovinskoga was so popular across the South Slavic world that it was reprinted dozens of times and translated into Italian, German, Latin, French, and Czech during the 18th and 19th centuries."
+    },
+    {
+      "name": "Podaca",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0e7490",
+      "tagline": "Long Beach at the Southern Makarska Riviera",
+      "intro": "Podaca is a coastal village on the southern Makarska Riviera between Brist and Gradac. With about 600 permanent residents, Podaca splits between an older inland nucleus on the Rilić mountain slopes and a long modern coastal extension along the Adriatic Highway, anchored by one of the longest pebble beaches on the riviera.",
+      "history": "Podaca was settled in the medieval period as a Croat farming village on the Rilić slopes, with families growing olives and vines on terraced ground and grazing sheep on the karst above. The village belonged variously to the Ottoman Empire and Venice during the early modern Ottoman-Venetian wars on this frontier. As elsewhere on the riviera, the coastal extension below grew only after the Adriatic Highway opened through in the 1960s. The parish church of Saint Stephen (Sveti Stjepan) sits in the inland village.",
+      "facts": [
+        "Podaca consists of an inland village on the Rilić slopes and a coastal extension along the highway",
+        "It is part of the Gradac municipality at the southern end of the Makarska Riviera",
+        "The parish church is dedicated to Sveti Stjepan (Saint Stephen) in the inland nucleus",
+        "Podaca has one of the longest pebble beaches on the southern stretch of the riviera",
+        "The settlement grew rapidly after the Adriatic Highway opened in the 1960s"
+      ],
+      "vocab": [
+        {"hr": "Rilić", "en": "Rilić mountain (above Podaca)", "note": "Planina Rilić — the karst mountain wall behind Podaca, the south-Makarska continuation of Biokovo"},
+        {"hr": "primorska crkva", "en": "coastal-type small Dalmatian church", "note": "Sveti Stjepan in old Podaca — a typical primorska crkva of the riviera tradition"},
+        {"hr": "Jadran", "en": "the Adriatic", "note": "Jadranska magistrala — the highway that runs along the Jadran through Podaca"}
+      ],
+      "didYouKnow": "Podaca's modern coastal extension developed so fast in the 1960s and 70s that by census in 1991 the majority of village residents lived along the highway rather than in the original mountain-slope settlement above."
+    },
+    {
+      "name": "Komarna",
+      "region": "Dalmatia",
+      "icon": "🌉",
+      "color": "#0284c7",
+      "tagline": "Mainland Foot of the Pelješac Bridge",
+      "intro": "Komarna is a small Croatian coastal settlement at the foot of the new Pelješac Bridge, in Dubrovnik-Neretva County. Before the bridge opened in 2022, Komarna was a sleepy village of around 100 residents; now it is the northern landing of one of the largest infrastructure projects in modern Croatian history.",
+      "history": "Komarna was historically a small settlement of farmers and fishermen on the southern Dalmatian coast, opposite the western end of the Pelješac peninsula. Its strategic importance grew in the late 20th century when the Croatian government planned a bridge to bypass the short Bosnian-Herzegovinian access to the sea at Neum, eliminating the need for border crossings on the road to Dubrovnik. The Pelješac Bridge, 2.4 km long, opened on 26 July 2022, with Komarna as its mainland anchor. The settlement now lives largely in the shadow of the bridge.",
+      "facts": [
+        "The Pelješac Bridge opened on 26 July 2022, with Komarna as its mainland anchor",
+        "The bridge is 2,404 metres long and was largely financed by the European Union",
+        "Komarna lies in Dubrovnik-Neretva County, just south of the Neretva delta",
+        "Before the bridge, Komarna had under 100 permanent residents",
+        "The bridge allows Croatia to reach Dubrovnik without crossing the Neum corridor of Bosnia and Herzegovina"
+      ],
+      "vocab": [
+        {"hr": "most", "en": "bridge", "note": "Pelješki most — the Pelješac Bridge, anchored on the mainland at Komarna, opened 2022"},
+        {"hr": "kopno", "en": "mainland", "note": "Komarna sits on the kopno where the Pelješac Bridge leaves the mainland for the peninsula"},
+        {"hr": "infrastruktura", "en": "infrastructure", "note": "The Pelješac Bridge — Croatia's biggest single infrastruktura project of the EU era"}
+      ],
+      "didYouKnow": "The Pelješac Bridge was largely financed by the European Union (about 85%) and built by a Chinese consortium — one of the few major EU-funded projects awarded to a Chinese contractor before EU procurement rules tightened."
+    },
+    {
+      "name": "Klek",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0e7490",
+      "tagline": "Croatian Beach Beside the Neum Corridor",
+      "intro": "Klek is a small Croatian coastal village just west of the Bosnia-Herzegovina border at Neum, in Dubrovnik-Neretva County. Sitting on a long shallow sandy bay, Klek is the last Croatian settlement before the brief Bosnian access to the sea splits Croatia into two parts. With about 200 permanent residents, Klek functions today as a quiet family beach destination.",
+      "history": "Klek takes its name from the karst hill above it called Klek, after the Croatian word for an ancient juniper. The village developed as a small fishing and farming settlement under the Republic of Ragusa (Dubrovnik) and later the Habsburgs. Its strategic importance increased only in the modern era because of its position adjacent to the Neum corridor — the small stretch of coast given to the Ottoman Empire in 1699 by the Republic of Ragusa as a buffer against Venetian expansion, and inherited by Bosnia and Herzegovina in modern times. Klek is now a quiet beach village with shallow warm water suited to families.",
+      "facts": [
+        "Klek is the last Croatian coastal village west of the Neum corridor in Bosnia-Herzegovina",
+        "The Neum corridor was ceded by the Republic of Ragusa to the Ottoman Empire in 1699",
+        "Klek sits in Dubrovnik-Neretva County and belongs to the Slivno municipality",
+        "Its long shallow sandy bay is unusual on the otherwise rocky Dalmatian coast",
+        "The village name derives from the Croatian word for an old juniper tree (klek)"
+      ],
+      "vocab": [
+        {"hr": "klek", "en": "juniper (Juniperus communis)", "note": "Origin of the village name — klek, the juniper, characteristic shrub of Dalmatian karst"},
+        {"hr": "koridor", "en": "corridor", "note": "Neumski koridor — the Neum corridor giving Bosnia-Herzegovina its only access to the sea, just east of Klek"},
+        {"hr": "pješčana plaža", "en": "sandy beach", "note": "Klek's pješčana plaža — a long shallow sand bay, rare along Croatia's otherwise rocky coast"}
+      ],
+      "didYouKnow": "The Neum corridor next to Klek has been a curiosity of European geography for over three centuries — the Republic of Ragusa deliberately ceded the strip to the Ottoman Empire in 1699 to keep Venice from sharing a land border with Ragusa."
+    },
+    {
+      "name": "Mlini",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0e7490",
+      "tagline": "Hotel Bay South of Dubrovnik",
+      "intro": "Mlini is a coastal village on the Dubrovnik Riviera between Dubrovnik and Cavtat, in the Župa Dubrovačka bay south-east of the city. With around 1,000 permanent residents, Mlini has been a major Yugoslav-era resort destination, with several large hotels along the bay, a sandy-pebble beach, and a small port from which water taxis connect to Dubrovnik.",
+      "history": "Mlini takes its name from the watermills (mlini) once driven by the Zavrelje stream that flows into the bay, recorded in Republic of Ragusa documents. Under the Republic of Ragusa (Dubrovnik) Mlini was a small mill-and-orchard village serving the city's hinterland, with summer villas of Ragusan patricians. Tourism began in the 19th-century Austrian period and accelerated under Yugoslavia, when several large hotels were built along the bay. Mlini's hotels were heavily damaged in the Homeland War siege of Dubrovnik in 1991–1992 and rebuilt afterwards.",
+      "facts": [
+        "Mlini takes its name from the watermills (mlini) historically powered by the Zavrelje stream",
+        "It belongs to the Župa Dubrovačka municipality in Dubrovnik-Neretva County",
+        "Several large hotels were built along Mlini bay during the Yugoslav tourism era",
+        "Mlini was heavily damaged during the 1991–1992 siege of Dubrovnik and later rebuilt",
+        "A small port at Mlini connects by water taxi to Dubrovnik old town"
+      ],
+      "vocab": [
+        {"hr": "mlin", "en": "mill", "note": "Plural mlini — the watermills that gave the village its name on the Zavrelje stream"},
+        {"hr": "potok", "en": "stream", "note": "Potok Zavrelje at Mlini — the stream that historically powered the village's watermills"},
+        {"hr": "rivijera", "en": "riviera, coastal strip", "note": "Dubrovačka rivijera — the coastal strip south-east of Dubrovnik including Mlini, Plat, and Cavtat"}
+      ],
+      "didYouKnow": "Mlini was an important supplier of flour to the Republic of Ragusa, and Ragusan documents record careful regulation of the watermills' grain-grinding rates to prevent millers from charging more than the city set."
+    },
+    {
+      "name": "Plat",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#78716c",
+      "tagline": "Once-Grand Resort of Hotel Croatia",
+      "intro": "Plat is a coastal village on the Dubrovnik Riviera south-east of Dubrovnik, between Mlini and Cavtat. With under 200 permanent residents, the village is best known for Hotel Croatia, a massive Yugoslav-era five-star hotel cut into the cliff above the sea, which dominated international tourism on the riviera in the 1970s and 80s.",
+      "history": "Plat takes its name from plat — a level plot of land — referring to the flat plateau on which the village sits. Under the Republic of Ragusa it was a small farming hamlet of the Konavle hinterland. Its modern history is dominated by Hotel Croatia, built in 1973 and famous as a venue for Yugoslav and international diplomatic gatherings. The hotel was occupied by Yugoslav People's Army forces during the 1991 siege of Dubrovnik and badly damaged. After restoration it reopened as Hotel Croatia Cavtat, today one of the largest hotels on the Croatian coast.",
+      "facts": [
+        "Hotel Croatia at Plat was built in 1973 and is one of the largest hotels on the Croatian coast",
+        "The hotel was occupied by Yugoslav People's Army forces during the 1991 siege of Dubrovnik",
+        "The village name derives from plat — flat, level ground — referring to the plateau site",
+        "Plat is part of the Konavle municipality in Dubrovnik-Neretva County",
+        "After Homeland War damage the hotel was restored and reopened as Hotel Croatia Cavtat"
+      ],
+      "vocab": [
+        {"hr": "plat", "en": "flat plot of land", "note": "Origin of the village name — the plat (flat ground) on the plateau above the sea"},
+        {"hr": "hotel", "en": "hotel", "note": "Hotel Croatia at Plat — built 1973, one of the largest hotels on the Croatian coast"},
+        {"hr": "kongresni turizam", "en": "conference tourism", "note": "Plat's Hotel Croatia was a major Yugoslav-era venue for kongresni turizam — political and diplomatic meetings"}
+      ],
+      "didYouKnow": "Hotel Croatia at Plat hosted multiple Non-Aligned Movement meetings during the Yugoslav era, and the bunker-like architecture cut into the cliff was deliberately designed to be discreet from the sea side and dramatic from the village above."
+    },
+    {
+      "name": "Mokošica",
+      "region": "Dalmatia",
+      "icon": "🏛️",
+      "color": "#78716c",
+      "tagline": "Modern Residential Quarter of Dubrovnik",
+      "intro": "Mokošica is a residential suburb of Dubrovnik, lying north-west of the old city on the slopes above the Rijeka Dubrovačka (the Ombla river estuary). With about 6,000 residents, Mokošica is one of the largest residential neighbourhoods of Dubrovnik, divided between an older village core (Stara Mokošica) and a 1970s socialist-era apartment quarter (Nova Mokošica).",
+      "history": "Mokošica's name comes from the Slavic goddess Mokoš, suggesting a pre-Christian settlement on the slopes above the Ombla. Through the Republic of Ragusa era it remained a small farming village producing for Dubrovnik. Its modern character was set in the late Yugoslav period when Nova Mokošica was planned in the 1970s as a new residential satellite of Dubrovnik for several thousand inhabitants. The neighbourhood was on the front line of the Homeland War siege of Dubrovnik in 1991–1992, with Yugoslav People's Army forces occupying the heights above. Today it is a primarily residential area connected to the city by frequent bus service.",
+      "facts": [
+        "Mokošica's name derives from the Slavic goddess Mokoš — a pre-Christian-rooted toponym",
+        "It is divided between Stara Mokošica (the historic village) and Nova Mokošica (1970s housing)",
+        "Nova Mokošica was planned in the 1970s as a residential satellite of Dubrovnik",
+        "It is one of the largest residential neighbourhoods of Dubrovnik with around 6,000 residents",
+        "Mokošica was on the front line of the 1991–1992 siege of Dubrovnik"
+      ],
+      "vocab": [
+        {"hr": "Mokoš", "en": "Mokoš (Slavic goddess)", "note": "Origin of Mokošica's name — Mokoš, the Slavic goddess of earth, water, fertility"},
+        {"hr": "naselje", "en": "settlement / neighbourhood", "note": "Nova Mokošica is a 1970s residential naselje — a planned satellite quarter of Dubrovnik"},
+        {"hr": "predgrađe", "en": "suburb", "note": "Mokošica — Dubrovnik's largest residential predgrađe, north-west of the city"}
+      ],
+      "didYouKnow": "Mokošica is one of relatively few Croatian place-names linked to a specific pre-Christian Slavic deity — Mokoš, the goddess of earth, water, and women's labour — preserving traces of pagan religion long after the area's Christianization."
+    },
+    {
+      "name": "Komolac",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0284c7",
+      "tagline": "ACI Marina at the Mouth of the Ombla",
+      "intro": "Komolac is a small settlement on the Rijeka Dubrovačka, the saltwater estuary of the karst spring-river Ombla, just north of Dubrovnik. The village is dominated by ACI Marina Dubrovnik, the largest yacht marina on the southern Adriatic, located in one of the most sheltered natural harbours on the Croatian coast.",
+      "history": "Komolac was historically a small mill-and-shipyard village at the spring of the Ombla, where the underground karst river emerges from the rock and flows just five kilometres to the sea. Under the Republic of Ragusa the area was a strategic source of freshwater and water-mill power, and several Ragusan summer residences and a small Renaissance gentleman's residence (Sorkočević villa) were built nearby. ACI Marina Dubrovnik was developed at Komolac in the late 1980s and remains today the main superyacht marina of the southern Adriatic.",
+      "facts": [
+        "ACI Marina Dubrovnik at Komolac is the largest yacht marina on the southern Adriatic",
+        "The Ombla river emerges as a powerful karst spring barely five kilometres from where it reaches the sea",
+        "The Sorkočević villa at the Ombla mouth is one of the most important Ragusan Renaissance summer residences",
+        "Komolac belongs to the Dubrovačko primorje municipality near Dubrovnik",
+        "The Rijeka Dubrovačka estuary was historically the freshwater source for the Republic of Ragusa"
+      ],
+      "vocab": [
+        {"hr": "izvor", "en": "spring / source", "note": "Ombla izvor — the karst spring at Komolac where the underground Ombla emerges from rock"},
+        {"hr": "Rijeka Dubrovačka", "en": "Dubrovnik's River (Ombla estuary)", "note": "Rijeka Dubrovačka — the saltwater estuary of the Ombla, with Komolac at its inland end"},
+        {"hr": "marina", "en": "yacht marina", "note": "ACI Marina Komolac — the largest superyacht marina of the southern Adriatic"}
+      ],
+      "didYouKnow": "The Ombla river is one of the shortest rivers in the world — about 30 metres of visible river above water at its spring before it merges with seawater in the Rijeka Dubrovačka estuary — yet drains a karst catchment of over 600 square kilometres in Bosnia-Herzegovina."
+    },
+    {
+      "name": "Konavle",
+      "region": "Konavle",
+      "icon": "🏛️",
+      "color": "#92400e",
+      "tagline": "Dubrovnik's Southern Frontier Region",
+      "intro": "Konavle is the southernmost region of Croatia, the long karst valley running from the Dubrovnik suburbs south-east to the Montenegrin border. Rather than a single settlement, Konavle is a historic region of villages, vineyards, and pastures, with its own distinctive folk costume, dialect, and identity. The administrative seat is Cavtat; other villages include Pridvorje, Gruda, Čilipi, and Molunat.",
+      "history": "Konavle takes its name from the Latin canalis, referring to a Roman-era canal that once ran through the valley. The region was purchased outright by the Republic of Ragusa in two stages — 1419 from the Bosnian king Stjepan Ostojić and 1426 from the Pavlović family — for 12,000 ducats and an annual tribute. Konavle then became Ragusa's most important agricultural hinterland for four centuries. The region's villages preserve some of the most distinctive Croatian folk costumes, embroidery, and music. In the 1991 Homeland War much of Konavle was occupied by Yugoslav and Serbian-Montenegrin forces and partially burned; it was liberated by autumn 1992.",
+      "facts": [
+        "Konavle was bought outright by the Republic of Ragusa in two stages in 1419 and 1426",
+        "The total purchase price was approximately 12,000 ducats plus an annual tribute",
+        "Konavle takes its name from the Latin canalis — the Roman-era valley canal",
+        "The Konavle folk costume with its distinctive red-and-black embroidery is among the most recognized in Croatia",
+        "Much of Konavle was occupied and burned during the 1991 Homeland War and liberated in 1992"
+      ],
+      "vocab": [
+        {"hr": "Konavle", "en": "the Konavle region", "note": "Konavle — the long valley running south-east from Dubrovnik to the Montenegrin border"},
+        {"hr": "dukat", "en": "ducat (gold coin)", "note": "Ragusa paid roughly 12,000 dukata for Konavle in 1419 and 1426 — its largest medieval purchase"},
+        {"hr": "nošnja", "en": "folk costume", "note": "Konavoska nošnja — the famous red-and-black embroidered Konavle folk costume"}
+      ],
+      "didYouKnow": "The Konavle dialect preserves several archaic Slavic linguistic features lost in standard Croatian, and the Republic of Ragusa maintained a distinct local administration over Konavle for nearly 400 years until the Republic itself was abolished by Napoleon in 1808."
+    },
+    {
+      "name": "Pridvorje",
+      "region": "Konavle",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Ragusa's Rector's Court in Konavle",
+      "intro": "Pridvorje is a Konavle village south-east of Dubrovnik, historically the seat of the Republic of Ragusa's Rector for Konavle (Knez od Konavala). The rector's residence and the surrounding old village preserve some of the most important Renaissance and Baroque buildings in the Konavle valley.",
+      "history": "After Ragusa acquired Konavle in 1419 and 1426, the Republic established a rectorial seat at Pridvorje, with a fortified residence (knežev dvor) for the Rector who governed the region on behalf of the Senate. The village name itself, Pridvorje, means by the court. The Franciscan monastery of Pridvorje, founded in the 15th century, is one of the oldest surviving in the Konavle. The village suffered serious damage during the 1991 Homeland War occupation but was rebuilt and the historic core conserved.",
+      "facts": [
+        "Pridvorje was the historic seat of Ragusa's Rector for Konavle (Knez od Konavala)",
+        "The village name means literally by the court — referring to the Rector's residence",
+        "The Franciscan monastery at Pridvorje dates from the 15th century",
+        "Pridvorje suffered serious damage in the 1991 Homeland War occupation of Konavle",
+        "It belongs administratively to the Konavle municipality, with Cavtat as the municipal seat"
+      ],
+      "vocab": [
+        {"hr": "knez", "en": "rector / count", "note": "Knez od Konavala — the Konavle Rector, Ragusa's appointed governor at Pridvorje"},
+        {"hr": "dvor", "en": "court, courtly residence", "note": "Pridvorje (pri + dvor) — by the court — village named for the Rector's residence"},
+        {"hr": "franjevački", "en": "Franciscan", "note": "Pridvorski franjevački samostan — the 15th-century Franciscan monastery at Pridvorje"}
+      ],
+      "didYouKnow": "The Rectors of Konavle served a fixed one-year term and were forbidden from serving two consecutive terms, an example of the Republic of Ragusa's deliberate anti-corruption rotation system that applied to all major regional appointments."
+    },
+    {
+      "name": "Gruda",
+      "region": "Konavle",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Konavle Crossroads in the Valley Floor",
+      "intro": "Gruda is the largest interior village of Konavle, set in the wide valley floor south-east of Dubrovnik. With around 600 permanent residents, Gruda is the commercial centre of the inland Konavle region, with a small marketplace, several restaurants, and a position at the crossroads where the road to the Konavle vineyards meets the main route from Cavtat to the Montenegrin border.",
+      "history": "Gruda developed as a Konavle valley village under the Republic of Ragusa after 1419, supplying produce, wine, and labour to Dubrovnik. The village's open central plain made it a natural marketplace for the surrounding hillside settlements. During World War II Konavle, including Gruda, hosted strong Partisan activity, and Josip Broz Tito briefly used Konavle hills as a transit area in 1943–1944. During the 1991–1992 Homeland War occupation of Konavle by Yugoslav forces, Gruda was burned and looted; the village was rebuilt after liberation in autumn 1992.",
+      "facts": [
+        "Gruda is the largest village in the interior of Konavle, with around 600 residents",
+        "It sits at the crossroads of routes from Cavtat to Montenegro and into the Konavle vineyards",
+        "Konavle hills around Gruda hosted Partisan activity in World War II",
+        "Gruda was burned during the 1991–1992 Homeland War occupation of Konavle",
+        "The village is part of the Konavle municipality with Cavtat as its administrative seat"
+      ],
+      "vocab": [
+        {"hr": "gruda", "en": "lump of earth / clod", "note": "Origin of the village name — a gruda, a fertile lump of earth on the valley floor"},
+        {"hr": "Konavoska polja", "en": "the Konavle fields / plains", "note": "Gruda sits on the Konavoska polja — the wide fertile valley floor of Konavle"},
+        {"hr": "Domovinski rat", "en": "Homeland War", "note": "Domovinski rat — Gruda was burned during the 1991–1992 occupation of Konavle"}
+      ],
+      "didYouKnow": "The Konavle wine produced around Gruda from indigenous grape varieties — particularly malvasija dubrovačka — has been documented in Ragusan archives back to the 15th century, making it one of the longest-recorded Croatian wine traditions."
+    },
+    {
+      "name": "Molunat",
+      "region": "Konavle",
+      "icon": "🏖️",
+      "color": "#0e7490",
+      "tagline": "Southernmost Coastal Village of Croatia",
+      "intro": "Molunat is the southernmost coastal village of mainland Croatia, in the Konavle region near the Montenegrin border. Built on a small peninsula with two sheltered bays, Molunat has about 200 permanent residents and is the last Croatian coastal community before the border with Montenegro at Prevlaka.",
+      "history": "Molunat has a long history as a small fishing village and a sheltered anchorage. Roman remains, including a Late Antique fortified site on the peninsula, indicate continuous occupation since at least the 4th century. Under the Republic of Ragusa it was a fishing and lookout point at the southern frontier, watching for galleys approaching from the Bay of Kotor. The peninsula's two bays gave shelter regardless of wind direction. During the 1991 Homeland War Molunat was occupied by Yugoslav and Serbian-Montenegrin forces and was the southernmost point of the Croatian coast to be reclaimed.",
+      "facts": [
+        "Molunat is the southernmost coastal village of mainland Croatia",
+        "The peninsula has two natural bays, allowing shelter regardless of wind direction",
+        "Late Antique fortifications on the peninsula indicate continuous occupation since at least the 4th century",
+        "The village watched the southern Ragusan frontier against the Bay of Kotor approach",
+        "Molunat was occupied in the 1991 Homeland War and the southernmost coast to be reclaimed"
+      ],
+      "vocab": [
+        {"hr": "jug", "en": "south", "note": "Molunat — najjužnije primorsko selo Hrvatske — Croatia's southernmost coastal village"},
+        {"hr": "rt", "en": "cape", "note": "Rt Molunat — the small peninsula on which Molunat is built"},
+        {"hr": "Konavle", "en": "Konavle region", "note": "Molunat — the coastal end of Konavle near the Prevlaka peninsula and Montenegro"}
+      ],
+      "didYouKnow": "The Prevlaka peninsula immediately south of Molunat was a demilitarized zone administered by United Nations observer missions from 1992 until 2002 — one of the longest-running small-scale UN missions in modern Europe."
+    },
+    {
+      "name": "Kuna",
+      "region": "Dalmatia",
+      "icon": "🍷",
+      "color": "#7c3aed",
+      "tagline": "Pelješac Wine Country Centre",
+      "intro": "Kuna Pelješka is a village on the western half of the Pelješac peninsula, set on the high karst plateau above the coast. With about 200 permanent residents, Kuna is one of the main villages of the Pelješac wine region, surrounded by vineyards of plavac mali — the indigenous Croatian red grape — and a major centre of the Pelješac wine cooperative tradition.",
+      "history": "Kuna takes its name from kuna, the Croatian word for pine marten — also the name of Croatia's pre-Euro currency. The village is recorded from the medieval period as a possession of the Republic of Ragusa, which acquired Pelješac in 1333. Through the Ragusan and later Habsburg periods, Kuna's identity was bound to viticulture; the village hosted one of the most prominent Pelješac wine cooperatives in the late 19th and early 20th centuries. The Franciscan monastery of Kuna preserves significant Baroque-era art.",
+      "facts": [
+        "Kuna Pelješka takes its name from kuna — the pine marten (also Croatia's pre-Euro currency)",
+        "It is one of the main villages of the Pelješac wine region producing plavac mali",
+        "Pelješac was acquired by the Republic of Ragusa in 1333",
+        "The Franciscan monastery of Kuna preserves Baroque-era religious art",
+        "Kuna is administratively part of the Janjina municipality on Pelješac"
+      ],
+      "vocab": [
+        {"hr": "kuna", "en": "pine marten / Croatian currency", "note": "Kuna — the small forest marten, source of the village name and Croatia's pre-Euro currency"},
+        {"hr": "plavac mali", "en": "plavac mali grape", "note": "Plavac mali — the indigenous Pelješac red grape, the parent of California's Zinfandel"},
+        {"hr": "vinarska zadruga", "en": "wine cooperative", "note": "Kuna hosted a major Pelješac vinarska zadruga from the late 19th century"}
+      ],
+      "didYouKnow": "DNA testing in the late 1990s confirmed that California's Zinfandel and Italy's Primitivo are both descendants of the Croatian grape crljenak kaštelanski, parent of Pelješac's plavac mali — making Kuna's wine country a direct ancestor of one of the world's most planted grape varieties."
+    },
+    {
+      "name": "Putniković",
+      "region": "Dalmatia",
+      "icon": "🍷",
+      "color": "#7c3aed",
+      "tagline": "Vineyard Village of Inland Pelješac",
+      "intro": "Putniković is a small inland village on the Pelješac peninsula, set on the karst plateau between Janjina and Ston in the heart of the Pelješac wine country. With about 150 permanent residents, Putniković is surrounded by stone-walled vineyards of plavac mali and pošip and is one of the small wine-growing villages that produce some of Croatia's most respected reds.",
+      "history": "Putniković appears in Ragusan documents from the late medieval period as part of the territory acquired by the Republic of Ragusa in 1333. Through the Ragusan and later Habsburg periods the village lived from viticulture, olives, and small-scale livestock farming. After phylloxera devastated European vineyards in the late 19th century, Pelješac including Putniković replanted with grafted vines and rebuilt the wine industry. Today small family wineries around Putniković produce highly regarded Pelješac plavac mali wines.",
+      "facts": [
+        "Putniković is part of the Janjina municipality on the Pelješac peninsula",
+        "The village is set in the heart of the Pelješac plavac mali wine country",
+        "Pelješac was acquired by the Republic of Ragusa in 1333",
+        "The village survived phylloxera in the late 19th century and replanted with grafted vines"
+      ],
+      "vocab": [
+        {"hr": "vinograd", "en": "vineyard", "note": "Putnikovićki vinogradi — the stone-walled vineyards of Pelješac around Putniković"},
+        {"hr": "filoksera", "en": "phylloxera (vine louse)", "note": "Filoksera devastated Pelješac vineyards in the late 19th century, requiring complete replanting"},
+        {"hr": "pošip", "en": "pošip grape", "note": "Pošip — the indigenous Croatian white grape, also grown on the Pelješac plateau"}
+      ],
+      "didYouKnow": "The drystone walls of Pelješac vineyards around Putniković are part of a UNESCO-recognized Mediterranean dry-stone walling tradition and helped preserve native rootstocks during the 19th-century phylloxera epidemic that wiped out most of Europe's ungrafted vines."
+    },
+    {
+      "name": "Babino Polje",
+      "region": "Dalmatia",
+      "icon": "🏛️",
+      "color": "#16a34a",
+      "tagline": "Largest Village on Mljet Island",
+      "intro": "Babino Polje is the largest village on the island of Mljet, set in a karst polje (field) in the centre of the island. With about 300 permanent residents, Babino Polje is the administrative seat of the Mljet municipality and the traditional cultural centre of the southern, less-protected half of the island, outside Mljet National Park.",
+      "history": "Babino Polje is documented from the 11th century as part of the Benedictine monastic territory of Mljet, when the entire island was held by the Benedictines of Saint Mary. After Ragusa took control of Mljet in the 15th century, the Babino Polje area was farmed by tenant families. The village preserves the Bishop's Palace, the historic seat of the Mljet noble assembly under Ragusan rule, and a cave traditionally identified as Odysseus' Cave — the cave in which Homer's Odysseus was supposed to have spent seven years with the nymph Calypso.",
+      "facts": [
+        "Babino Polje is the largest village and administrative seat of Mljet island",
+        "It sits in a karst polje — a fertile flat-floor depression — in central Mljet",
+        "The Bishop's Palace at Babino Polje was the historic seat of the Mljet noble assembly under Ragusan rule",
+        "Odysseus' Cave (Odisejeva špilja) on the coast below the village is locally identified with the cave of Calypso",
+        "Babino Polje belongs to the Dubrovnik-Neretva County"
+      ],
+      "vocab": [
+        {"hr": "polje", "en": "karst field / flat-floor valley", "note": "Babino polje — Granny's Field — the karst polje in central Mljet that gave the village its name"},
+        {"hr": "špilja", "en": "cave", "note": "Odisejeva špilja near Babino Polje — locally identified with Homer's cave of Calypso"},
+        {"hr": "općina", "en": "municipality", "note": "Babino Polje — sjedište općine Mljet — administrative seat of Mljet municipality"}
+      ],
+      "didYouKnow": "Mljet has been identified with the Homeric island of Ogygia, where Odysseus spent seven years with the nymph Calypso — and Babino Polje's coastal cave is the one local tradition points to as Calypso's cave, complete with an underwater entrance accessible by boat."
+    },
+    {
+      "name": "Goveđari",
+      "region": "Dalmatia",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Village Inside Mljet National Park",
+      "intro": "Goveđari is a small village on the western side of Mljet island, located inside Mljet National Park. With about 150 permanent residents, Goveđari is the main settlement of the protected park area, set on the karst slopes overlooking the two saltwater lakes (Veliko Jezero and Malo Jezero) that are the park's defining natural feature.",
+      "history": "Goveđari was settled in the medieval period as a small Benedictine-era farming and herding village; the name comes from govedo (cattle), reflecting the village's historical role as a herding settlement. Mljet was held by the Benedictines of Saint Mary, whose 12th-century monastery on the islet in Veliko Jezero is one of the most important pre-Romanesque buildings in Croatia. The Mljet National Park was established in 1960, covering the western third of the island including Goveđari and the two saltwater lakes; the village has since lived from park-related tourism, fishing, and small agriculture.",
+      "facts": [
+        "Goveđari lies inside Mljet National Park, established in 1960",
+        "Its name comes from govedo (cattle) — historically a herding village",
+        "The Benedictine monastery of Saint Mary on an islet in Veliko Jezero dates to the 12th century",
+        "Veliko Jezero and Malo Jezero are saltwater lakes connected to the sea by a narrow channel",
+        "The village belongs to the Mljet municipality in Dubrovnik-Neretva County"
+      ],
+      "vocab": [
+        {"hr": "nacionalni park", "en": "national park", "note": "Nacionalni park Mljet — established 1960, the second-oldest of Croatia's national parks"},
+        {"hr": "govedo", "en": "cattle (head of)", "note": "Origin of Goveđari — Govedari, the herders of govedo (cattle)"},
+        {"hr": "jezero", "en": "lake", "note": "Veliko Jezero and Malo Jezero — the saltwater jezera of Mljet National Park"}
+      ],
+      "didYouKnow": "The two lakes of Mljet are not freshwater lakes but karst saltwater basins connected to the sea by a single narrow channel, meaning the tide actually flows in and out of the lakes, creating gentle current that flows past the Benedictine monastery islet."
+    },
+    {
+      "name": "Pomena",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Mljet Ferry Port from Korčula",
+      "intro": "Pomena is a small port village on the western tip of Mljet island, inside Mljet National Park. With under 50 permanent residents, Pomena is one of the smallest officially-listed settlements in Croatia, but functions as the main ferry connection between Mljet and Korčula and a hotel base for park visitors.",
+      "history": "Pomena was historically a tiny coastal annex of Goveđari, with families using the natural harbour for fishing within the western Mljet coves. After Mljet National Park was established in 1960, Pomena gained importance as the western gateway to the park, with a small hotel and ferry quay developed in the late Yugoslav period. Catamaran connections from Korčula and Dubrovnik link Pomena to the rest of the southern Dalmatian network, and the village remains entirely tourism-dependent.",
+      "facts": [
+        "Pomena has under 50 permanent residents — one of Croatia's smallest officially-listed settlements",
+        "It is the main ferry connection between Mljet and Korčula",
+        "Pomena lies inside Mljet National Park, established in 1960",
+        "The village has one small hotel, developed in the late Yugoslav period as a park base",
+        "Pomena belongs to the Mljet municipality in Dubrovnik-Neretva County"
+      ],
+      "vocab": [
+        {"hr": "trajekt", "en": "ferry", "note": "Pomena — main trajekt and katamaran connection from Mljet to Korčula and Dubrovnik"},
+        {"hr": "katamaran", "en": "catamaran (passenger fast ferry)", "note": "Katamaran service from Korčula and Dubrovnik to Pomena is the main park access in summer"},
+        {"hr": "ulaz", "en": "entrance / gateway", "note": "Pomena — zapadni ulaz u Nacionalni park Mljet — western gateway to Mljet National Park"}
+      ],
+      "didYouKnow": "Pomena's hotel, built in the late Yugoslav era inside what is now Croatia's second-oldest national park, is one of very few hotels in Croatia that legally operates inside a national park's strictly protected zone — a status maintained under grandfathered construction permits."
+    },
+    {
+      "name": "Saplunara",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#16a34a",
+      "tagline": "Mljet's Rare Sandy Beach Cove",
+      "intro": "Saplunara is a tiny settlement on the southeastern tip of Mljet island, set on the rare sandy beach for which it is named. With under 30 permanent residents in a handful of houses behind the dunes, Saplunara protects a long arc of fine sand backed by pine forest — one of the few genuinely sandy beaches on the otherwise rocky Croatian coast.",
+      "history": "Saplunara takes its name from the Latin sablon (sand) via the Dalmatian Romance dialect, referring to the rare sandy character of the beach. Settlement here was always tiny because the eastern end of Mljet is far from the agricultural villages of the centre and west. Through the Ragusan and later Habsburg periods Saplunara was a remote fishermen's hamlet. In the late 20th century the beach became known to Yugoslav and Croatian holidaymakers and a small cluster of guesthouses developed behind the dunes, but the area is strictly limited in construction.",
+      "facts": [
+        "Saplunara takes its name from the Romance word sablon (sand)",
+        "The settlement has under 30 permanent residents in a handful of houses",
+        "It is on the southeastern tip of Mljet, far from the central villages",
+        "Saplunara beach is one of very few genuinely sandy beaches on the Croatian coast",
+        "The area is part of the Mljet municipality and is strictly limited in new construction"
+      ],
+      "vocab": [
+        {"hr": "pijesak", "en": "sand", "note": "Saplunara's beach — pješčana plaža — a rare sand-beach on the otherwise rocky Adriatic"},
+        {"hr": "dina", "en": "dune", "note": "Sand dine behind Saplunara beach — a rare formation on the Croatian coast"},
+        {"hr": "borova šuma", "en": "pine forest", "note": "Borova šuma behind Saplunara dune line — typical eastern-Mljet pine cover"}
+      ],
+      "didYouKnow": "Saplunara's name preserves an unusual linguistic fossil: it derives from the Dalmatian Romance language (related to Italian but distinct), once spoken along the eastern Adriatic coast and now entirely extinct — Croatian villagers kept the Romance name long after the language itself died out."
+    },
+    {
+      "name": "Stomorska",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0284c7",
+      "tagline": "Šolta's North Harbour of Captains",
+      "intro": "Stomorska is a small port village on the northeastern coast of Šolta island, opposite Split. With about 200 permanent residents, Stomorska has been Šolta's main fishing and seafaring harbour for centuries, and many island sea captains came from its old families. The deep sheltered inlet is filled with traditional wooden boats.",
+      "history": "Stomorska takes its name from a corruption of Santa Maria, after a small church dedicated to the Virgin Mary that once stood here. The village developed as a fishing harbour of the inland village of Gornje Selo on the Šolta plateau. Through the Venetian and Habsburg periods Stomorska families produced generations of sea captains who sailed Adriatic and Mediterranean trade routes. In the 20th century the village shifted from active seafaring to a quieter mix of small-scale fishing and tourism, but the captains' tradition is still commemorated in the village.",
+      "facts": [
+        "Stomorska's name derives from Santa Maria — referring to a former church dedicated to the Virgin Mary",
+        "It is the main fishing and seafaring harbour of Šolta island",
+        "Many generations of Šolta sea captains came from Stomorska families",
+        "The village is the coastal annex of inland Gornje Selo on the Šolta plateau",
+        "Stomorska belongs to the Šolta municipality in Split-Dalmatia County"
+      ],
+      "vocab": [
+        {"hr": "kapetan", "en": "ship's captain", "note": "Stomorska kapetani — the generations of Šolta sea captains who came from this village"},
+        {"hr": "Stomorija", "en": "Santa Maria (Croaticized name)", "note": "Stomorska from Stomorija — a Croaticization of Italian Santa Maria"},
+        {"hr": "luka", "en": "harbour, port", "note": "Stomorska luka — the deepest natural luka on the north coast of Šolta"}
+      ],
+      "didYouKnow": "Stomorska was so closely associated with Šolta's seafaring tradition that 19th-century shipping registers list dozens of long-distance Adriatic captains born in this single small village — a remarkable concentration of seafaring expertise for a community of only a few hundred people."
+    },
+    {
+      "name": "Maslinica",
+      "region": "Dalmatia",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Martinis Castle and the Seven Brothers",
+      "intro": "Maslinica is a small village on the western tip of Šolta island, the only settlement on Šolta's exposed west coast. Set on a sheltered bay opposite the Sedmero Brata (Seven Brothers) islets, Maslinica is dominated by an early-18th-century coastal castle — the Martinis-Marchi castle — and is now home to a small marina and a luxury heritage hotel.",
+      "history": "Maslinica was founded in 1708 by the Martinis brothers, a Šolta noble family who received permission from the Venetian authorities to build a fortified residence on the previously uninhabited west coast as protection against pirates. The five brothers built a coastal castle with five towers, one for each brother, and a small village grew around it. Olive cultivation (hence the village name from maslina, olive) supported the population. The Martinis-Marchi castle has been carefully restored in the 21st century as a luxury hotel and small marina, and the bay's seven small islets give the village its other landmark.",
+      "facts": [
+        "Maslinica was founded in 1708 by the Martinis (later Martinis-Marchi) noble family of Šolta",
+        "The Martinis-Marchi castle was built with five towers — one for each of the founding brothers",
+        "The village takes its name from maslina (olive) — referring to its olive groves",
+        "The Sedmero Brata (Seven Brothers) islets in the bay are the village's other landmark",
+        "Maslinica is the only settlement on the exposed western coast of Šolta"
+      ],
+      "vocab": [
+        {"hr": "maslina", "en": "olive tree", "note": "Source of the village name — Maslinica, the place of maslinici (olive groves)"},
+        {"hr": "kaštel", "en": "fortified castle", "note": "Kaštel Martinis-Marchi — Maslinica's 1708 five-tower coastal castle"},
+        {"hr": "Sedmero Brata", "en": "the Seven Brothers (islets)", "note": "Sedmero Brata — the seven small islets in Maslinica bay, a defining seascape feature"}
+      ],
+      "didYouKnow": "The Martinis-Marchi castle at Maslinica was built specifically because in the early 18th century pirate raids from North Africa were still a real danger along the Dalmatian coast, and the Venetian authorities approved fortified villages as private defensive outposts at the family's own expense."
+    },
+    {
+      "name": "Rogač",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0284c7",
+      "tagline": "Šolta's Ferry Port from Split",
+      "intro": "Rogač is the main ferry port of Šolta island, sitting in a small natural harbour on the north coast opposite Split. Although Rogač itself has under 100 permanent residents, the port is the gateway for all of Šolta's roughly 1,700 islanders and a major summer ferry route, with several daily car-ferry sailings from Split.",
+      "history": "Rogač developed as the coastal annex of the inland village of Grohote, the largest village on Šolta and the historic island capital. As the closest natural harbour to Split, Rogač was the natural choice for the ferry connection when scheduled steam ferries began linking Split with Šolta in the late 19th and early 20th century. The modern ro-ro ferry quay was built in the second half of the 20th century, and Rogač has since been Šolta's only major mainland connection.",
+      "facts": [
+        "Rogač is the main car-ferry port of Šolta island",
+        "Multiple daily ferry sailings link Rogač with Split harbour",
+        "It is the coastal annex of inland Grohote — the island capital",
+        "Rogač has under 100 permanent residents but serves the entire island of ~1,700",
+        "The village belongs to the Šolta municipality in Split-Dalmatia County"
+      ],
+      "vocab": [
+        {"hr": "trajektna luka", "en": "ferry port", "note": "Rogač — trajektna luka Šolte, the ferry port connecting Šolta to Split"},
+        {"hr": "trajekt", "en": "ferry", "note": "Splitski trajekt do Rogača — Split-to-Rogač car ferry, Šolta's main mainland link"},
+        {"hr": "rogač", "en": "carob tree", "note": "Rogač — also the name for the carob tree, a Mediterranean fruit-bearing tree common on Šolta"}
+      ],
+      "didYouKnow": "The Croatian word rogač means both this village's name and the carob tree — and carob beans from Šolta and other Dalmatian islands were historically used as the original standard for the carat weight unit, because the seeds are remarkably uniform in size."
+    },
+    {
+      "name": "Donje Selo",
+      "region": "Dalmatia",
+      "icon": "🏛️",
+      "color": "#92400e",
+      "tagline": "Šolta's Lower Plateau Village",
+      "intro": "Donje Selo is a traditional inland village on Šolta island, set on the lower terraces of the island's central plateau. With under 200 permanent residents, Donje Selo preserves traditional stone-house architecture, olive groves, and the rhythm of an older Dalmatian island life that the more tourist-developed coastal villages have largely lost.",
+      "history": "Donje Selo and its sister villages on the Šolta plateau — Gornje Selo, Srednje Selo, and the central Grohote — were the historical core of Šolta's population, with families farming olives, vines, and figs on terraced karst slopes. Coastal annexes like Stomorska and Maslinica grew later. Through the Venetian and Habsburg periods Donje Selo's economy was dominated by olive oil, which Šolta produced in significant quantities for Split and beyond. Population decline in the 20th century — typical of all Dalmatian islands — left the village quieter, but olive cultivation continues.",
+      "facts": [
+        "Donje Selo is one of the four traditional inland plateau villages of Šolta",
+        "Its name simply means lower village — sister to Gornje Selo (upper village) and Srednje Selo (middle village)",
+        "The village belongs to the Šolta municipality in Split-Dalmatia County",
+        "Donje Selo preserves traditional Dalmatian stone-house and olive-grove architecture",
+        "Šolta has historically been one of the most important olive-oil producing islands in Dalmatia"
+      ],
+      "vocab": [
+        {"hr": "donji", "en": "lower", "note": "Donje Selo — literally lower village, paired with Gornje Selo (upper) on Šolta plateau"},
+        {"hr": "ulje", "en": "oil", "note": "Maslinovo ulje — olive oil — the historic backbone of Šolta's economy including Donje Selo"},
+        {"hr": "selo", "en": "village", "note": "Selo on Šolta — Donje Selo, Gornje Selo, Srednje Selo — the inland-plateau village trio"}
+      ],
+      "didYouKnow": "Šolta olive oil was historically considered among the best in Dalmatia, and the island still produces small-batch single-variety oils from the indigenous Levantinka olive cultivar — a variety found almost only on Šolta and very rarely elsewhere in Croatia."
+    }
+  ]
+}
