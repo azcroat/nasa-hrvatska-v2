@@ -1315,7 +1315,7 @@ export const LESSONS = [
       {
         type: 'rule',
         title: 'Aspect Matters in the Future',
-        body: "Imperfective future describes an ongoing or habitual future action: 'Ću čitati' (I will be reading / I'll read — no defined endpoint). Perfective future describes a completed, bounded action: 'Ću pročitati' (I will have read / I'll finish reading). For promises and plans with a clear outcome, always use perfective. Imperfective future is for ongoing states or habits.",
+        body: "Imperfective future describes an ongoing or habitual future action: 'Čitat ću' (or 'Ja ću čitati') (I will be reading / I'll read — no defined endpoint). Perfective future describes a completed, bounded action: 'Pročitat ću' (or 'Ja ću pročitati') (I will have read / I'll finish reading). For promises and plans with a clear outcome, always use perfective. Imperfective future is for ongoing states or habits.",
         highlight: 'Perfective = completion · Imperfective = ongoing/habitual',
       },
       {
@@ -2178,7 +2178,7 @@ export const LESSONS = [
         title: 'Dative — Giving & Telling',
         items: [
           {
-            hr: 'Dao sam knjugu Ani.',
+            hr: 'Dao sam knjigu Ani.',
             en: 'I gave the book to Ana.',
             note: 'Ana → Ani (fem. dat.)',
           },
@@ -2396,7 +2396,7 @@ export const LESSONS = [
         options: ['Idem s majke.', 'Idem s majku.', 'Idem s majkom.', 'Idem s majki.'],
         correct: 2,
         explanation:
-          "'Idem s majkom.' — s/sa (with) + instrumental. Majka (mother) is feminine, instrumental ending -om: majka → majkom. This is the accusation for one of Croatian's most common preposition patterns.",
+          "'Idem s majkom.' — s/sa (with) + instrumental. Majka (mother) is feminine, instrumental ending -om: majka → majkom. This is the formation pattern for one of Croatian's most common preposition patterns.",
       },
       {
         type: 'quiz',

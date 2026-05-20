@@ -20,7 +20,7 @@ const SEARCH_INDEX = [
   { tab: 'learn', label: 'Numbers & Counting', icon: '🔢', desc: 'Core vocabulary lesson' },
   { tab: 'learn', label: 'Food & Eating', icon: '🍽️', desc: 'Core vocabulary lesson' },
   { tab: 'learn', label: 'Grammar Lessons', icon: '📝', desc: 'Foundation to Advanced' },
-  { tab: 'learn', label: 'Reading Passages', icon: '📖', desc: '11 stories A1 to B2' },
+  { tab: 'learn', label: 'Reading Passages', icon: '📖', desc: '30 stories A1 to C1' },
   { tab: 'learn', label: 'Quick Reference Guides', icon: '📋', desc: '13 reference guides' },
   { tab: 'learn', label: 'Vocabulary Categories', icon: '📚', desc: '41+ topic categories' },
   // Practice tab items

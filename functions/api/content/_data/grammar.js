@@ -1,7 +1,9 @@
 // grammar.js — pure data, no imports needed
 export const PADEZI = {
   title: 'Pade\u017ei \u2014 Croatian Cases',
-  cefr: 'A1',
+  // CEFR A2: rubric A1 is "nominative + accusative only"; PADEZI introduces all
+  // 7 cases, so it sits at A2 (cases-introduced) per the 2026-05-20 audit.
+  cefr: 'A2',
   cases: [
     {
       name: 'Nominativ',
@@ -3193,7 +3195,7 @@ export const PHONOLOGY = {
 export const PITCH_ACCENT = [
   {
     hr: 'vino',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'wine',
     type: 'kratkosilazni',
     mark: 'vìno',
@@ -3201,7 +3203,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'žena',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'woman',
     type: 'kratkosilazni',
     mark: 'žèna',
@@ -3209,7 +3211,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'ruka',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'hand/arm',
     type: 'kratkosilazni',
     mark: 'rùka',
@@ -3217,7 +3219,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'voda',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'water',
     type: 'kratkosilazni',
     mark: 'vòda',
@@ -3225,7 +3227,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'glava',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'head',
     type: 'kratkouzlazni',
     mark: 'gláva',
@@ -3233,7 +3235,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'noga',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'leg/foot',
     type: 'kratkouzlazni',
     mark: 'nóga',
@@ -3241,7 +3243,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'kuća',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'house',
     type: 'dugouzlazni',
     mark: 'kúća',
@@ -3249,7 +3251,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'more',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'sea',
     type: 'kratkouzlazni',
     mark: 'mòre',
@@ -3257,7 +3259,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'rijeka',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'river',
     type: 'dugosilazni',
     mark: 'rijêka',
@@ -3265,7 +3267,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'zvijezda',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'star',
     type: 'dugouzlazni',
     mark: 'zvijézda',
@@ -3273,7 +3275,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'prijatelj',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'friend',
     type: 'kratkosilazni',
     mark: 'prijàtelj',
@@ -3281,7 +3283,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'zemlja',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'earth/land',
     type: 'kratkosilazni',
     mark: 'zèmlja',
@@ -3289,7 +3291,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'srce',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'heart',
     type: 'kratkosilazni',
     mark: 'sȑce',
@@ -3297,7 +3299,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'grad',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'city',
     type: 'dugosilazni',
     mark: 'grȃd',
@@ -3305,7 +3307,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'brat',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'brother',
     type: 'kratkosilazni',
     mark: 'brȁt',
@@ -3313,7 +3315,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'majka',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'mother',
     type: 'kratkosilazni',
     mark: 'mȁjka',
@@ -3322,7 +3324,7 @@ export const PITCH_ACCENT = [
   { hr: 'koža', en: 'skin/leather', type: 'kratkosilazni', mark: 'kȍža', tip: 'Short falling' },
   {
     hr: 'jezik',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'language/tongue',
     type: 'kratkosilazni',
     mark: 'jèzik',
@@ -3330,7 +3332,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'učiti',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'to learn',
     type: 'dugouzlazni',
     mark: 'učíti',
@@ -3338,7 +3340,7 @@ export const PITCH_ACCENT = [
   },
   {
     hr: 'grad',
-    cefr: 'B1',
+    cefr: 'C1',
     en: 'city/town',
     type: 'dugosilazni',
     mark: 'grȃd',
