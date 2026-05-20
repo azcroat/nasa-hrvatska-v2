@@ -1,0 +1,884 @@
+{
+  "newCities": [
+    {
+      "name": "Banjole",
+      "region": "Istria",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Fishing village on Pula's southern peninsula",
+      "intro": "Banjole is a small fishing village on the southern Istrian peninsula a few kilometres south of Pula, facing the Medulin archipelago. The settlement sits along a series of small coves and a sheltered inlet (Centinera) traditionally used by local fishermen. The village retains a working fishing identity alongside summer tourism.",
+      "history": "Banjole grew up as a fishing and farming hamlet within the parish of Medulin under Venetian rule (1331–1797) and then Habsburg Austria. Like the rest of southern Istria, it had a mixed Croatian and Italian-speaking population, the latter largely emigrating after 1945 in the Istrian exodus. In the late 20th century Banjole developed campsites and small family-run apartments serving the Pula tourism market. The village remains administratively part of the Općina Medulin municipality.",
+      "facts": [
+        "Banjole is administratively part of Općina Medulin, the southernmost municipality on the Istrian peninsula",
+        "The Centinera inlet at Banjole has been used as a natural fishing harbour for centuries and still shelters small wooden boats called batane",
+        "The village faces the Medulin archipelago and the island of Ceja, popular with kayakers and divers",
+        "Banjole was, like the rest of southern Istria, bilingual Croatian-Italian until the 1945–1955 Istrian exodus emptied many Italian households",
+        "The Kažela campsite area between Banjole and Premantura is one of the largest naturist-friendly campsites in Croatia"
+      ],
+      "vocab": [
+        {"hr": "ribar", "en": "fisherman", "note": "Banjole's ribari still go out from Centinera cove at dawn in small wooden boats — a working fishing tradition"},
+        {"hr": "uvala", "en": "cove / inlet", "note": "Banjole sits along a chain of small uvale; the Centinera uvala is its traditional fishing harbour"},
+        {"hr": "batana", "en": "flat-bottomed wooden fishing boat", "note": "The batana is the traditional Istrian fishing boat — Banjole's fishermen still keep them in Centinera"}
+      ],
+      "didYouKnow": "The waters off Banjole and the nearby island of Ceja are known among Croatian divers for an unusually dense population of seahorses (morski konjic), and the area has been informally monitored by marine biologists from the Pula Aquarium."
+    },
+    {
+      "name": "Pomer",
+      "region": "Istria",
+      "icon": "⚓",
+      "color": "#0284c7",
+      "tagline": "Marina village on Medulin Bay",
+      "intro": "Pomer is a small village on the western shore of Medulin Bay (Medulinski zaljev) at the southern tip of Istria, a few kilometres east of Pula. It is best known today for the ACI Marina Pomer, one of the oldest ACI marinas on the Adriatic, and for shallow, sheltered waters that make the bay a popular sailing and windsurfing area.",
+      "history": "Pomer was a small Venetian-era farming and fishing hamlet in the parish of Medulin; like neighbouring villages it had a mixed Croatian and Italian population under Venice (until 1797) and then Habsburg Austria. After Italy's brief interwar rule, the area passed to Yugoslavia in 1947, with most Italian-speakers leaving during the Istrian exodus. In 1983 ACI (Adriatic Croatia International Club) opened a marina at Pomer, one of the first in its network, anchoring the village's modern identity around nautical tourism rather than fishing.",
+      "facts": [
+        "ACI Marina Pomer opened in 1983 and was among the founding marinas of the ACI chain — the largest Croatian nautical-tourism network",
+        "Pomer lies on the western shore of Medulinski zaljev, a shallow bay roughly 7 kilometres across and well-protected from the bora wind",
+        "The village is administratively part of Općina Medulin in Istria County",
+        "The shallow waters between Pomer and Medulin are popular with beginner windsurfers and kite-surfers",
+        "Pomer's parish church is dedicated to Saint Flor (Sveti Flor), an unusual dedication for southern Istria"
+      ],
+      "vocab": [
+        {"hr": "marina", "en": "marina / yacht harbour", "note": "ACI Marina Pomer — one of the founding marinas in Croatia's ACI nautical-tourism chain, opened 1983"},
+        {"hr": "zaljev", "en": "bay", "note": "Medulinski zaljev — the shallow bay Pomer sits on, well-known among Adriatic sailors"},
+        {"hr": "jedrenje", "en": "sailing", "note": "Jedrenje in Medulin Bay is popular because the shallow zaljev stays calm in the morning before afternoon winds"}
+      ],
+      "didYouKnow": "Roman-era ruins of a villa rustica with a fish-salting facility have been documented near Pomer — the same coast supplied salted fish and olive oil to Pula's Arena-era markets two thousand years ago."
+    },
+    {
+      "name": "Štinjan",
+      "region": "Istria",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Austro-Hungarian fortress suburb of Pula",
+      "intro": "Štinjan is a coastal settlement on the northwestern outskirts of Pula, set on a peninsula overlooking the entrance to Pula's natural harbour. The area is defined by its dense ring of late-19th-century Austro-Hungarian coastal fortifications, built to defend the imperial navy's main Adriatic base. Today Štinjan combines residential neighbourhoods with the protected Kašteljir-Punta Christo headland.",
+      "history": "Štinjan grew explosively in the second half of the 19th century after Vienna chose Pula in 1850 as the principal naval port (Kriegshafen) of the Austro-Hungarian Empire. Fortifications were built around the bay's mouth — including Fort Punta Christo (1886) and several batteries at Štinjan — to defend the K.u.K. Kriegsmarine fleet. After the empire collapsed in 1918, the area passed to Italy, then Yugoslavia in 1945, and finally Croatia in 1991. Many of the forts survive in varying conditions and have become venues for cultural events.",
+      "facts": [
+        "Fort Punta Christo at Štinjan was completed in 1886 as one of the outer ring forts defending the Austro-Hungarian Kriegshafen at Pula",
+        "Pula was the main naval base of the Austro-Hungarian Empire from 1850 until 1918, and Štinjan was militarised as part of that buildup",
+        "Fort Punta Christo today hosts the annual Outlook and Dimensions electronic music festivals, drawing tens of thousands of visitors",
+        "Štinjan was part of Italy from 1918 to 1947 before being incorporated into Yugoslav Croatia",
+        "The Štinjan peninsula encloses the western side of the Pula harbour entrance opposite Brijuni island"
+      ],
+      "vocab": [
+        {"hr": "tvrđava", "en": "fortress", "note": "Štinjan's Austro-Hungarian tvrđave — Fort Punta Christo and its outworks — defended the Pula naval base"},
+        {"hr": "luka", "en": "harbour / port", "note": "Pula's naval luka — Štinjan stands at its northwestern entrance, defended by 19th-century forts"},
+        {"hr": "mornarica", "en": "navy", "note": "K.u.K. Mornarica (Austro-Hungarian Navy) made Pula its main base; Štinjan was part of its outer defence ring"}
+      ],
+      "didYouKnow": "Fort Punta Christo at Štinjan has hosted the Outlook Festival — once one of Europe's largest reggae, dub and bass music festivals — using the fortress's stone moats and underground galleries as natural sound chambers."
+    },
+    {
+      "name": "Vinkuran",
+      "region": "Istria",
+      "icon": "🏛️",
+      "color": "#92400e",
+      "tagline": "Quarry that built Pula's Roman Arena",
+      "intro": "Vinkuran is a small village just south of Pula, on the road toward Banjole and Premantura. Its claim to historical importance is the nearby Kavrana (Cave Romane) limestone quarry, worked in Roman times to supply the white limestone for Pula's Arena and for monuments as far as Venice. The quarries are still partially accessible as an open-air heritage site.",
+      "history": "The Cave Romane limestone quarry at Vinkuran was active under Rome from the 1st century BC, supplying stone for the construction of the Pula Arena (1st century AD) and likely for other imperial buildings around the northern Adriatic. The same fine-grained Istrian limestone — sometimes called pietra d'Istria — was exported from this coast for centuries, with Venice in particular using it for its palaces and bridges. The village itself remained a small farming and fishing hamlet under Venetian and then Habsburg rule, before becoming part of Yugoslavia and modern Croatia.",
+      "facts": [
+        "The Cave Romane quarry near Vinkuran supplied the limestone used to build Pula's Arena (1st century AD), one of the six largest surviving Roman amphitheatres",
+        "Istrian limestone (pietra d'Istria) from this coast was used in Venetian palaces and the foundations of many Venetian bridges",
+        "Vinkuran is administratively part of the City of Pula, on its southern outskirts",
+        "The Cave Romane quarry today serves as an open-air amphitheatre for summer concerts using the original Roman cut walls as a backdrop",
+        "The village name Vinkuran comes from the same root as Italian 'Vincural' and likely reflects a medieval saint's dedication"
+      ],
+      "vocab": [
+        {"hr": "kamenolom", "en": "quarry", "note": "Vinkuran's Roman kamenolom (Cave Romane) supplied the limestone for the Pula Arena"},
+        {"hr": "vapnenac", "en": "limestone", "note": "Istarski vapnenac — Istrian limestone — was quarried at Vinkuran and shipped across the Adriatic, including to Venice"},
+        {"hr": "Arena", "en": "Roman amphitheatre", "note": "The Pula Arena, one of the six largest surviving in the world, was built with vapnenac from Vinkuran's quarries"}
+      ],
+      "didYouKnow": "The Cave Romane quarry near Vinkuran shows perfectly square Roman cut marks on its limestone walls, where 2,000-year-old stonemasons sawed blocks free using bronze tools and abrasive sand — visible today on guided summer tours."
+    },
+    {
+      "name": "Galižana",
+      "region": "Istria",
+      "icon": "🍷",
+      "color": "#dc2626",
+      "tagline": "Bilingual Istrian-Italian village near Vodnjan",
+      "intro": "Galižana (Italian: Gallesano) is a village in southern Istria, between Pula and Vodnjan, with a strongly preserved Italian-speaking community and bilingual Croatian-Italian official status. It sits in agricultural countryside known for olive oil and red wine, and the centre retains a compact medieval-Venetian street plan around its parish church.",
+      "history": "Galižana appears in medieval documents from the 13th century; it was settled and partially resettled by Venetian authorities during the depopulation crises of the 16th and 17th centuries, bringing families from Friuli and the Venetian terra ferma. The Istrian-Venetian dialect (a Romance language related to Venetian) became, and remains, the everyday speech of much of the village. After 1945 the area entered Yugoslavia, but unlike many Istrian towns Galižana retained much of its Italian-speaking population. It is part of the bilingual administrative regime of Istria County.",
+      "facts": [
+        "Galižana is one of the strongholds of the Istrian-Italian community in Croatia and is officially bilingual Croatian-Italian",
+        "The Istriot dialect of Galižana (locally called galižanjski) is a Romance language distinct from standard Italian and Venetian, now endangered",
+        "Galižana is administratively part of the City of Vodnjan-Dignano, itself bilingual",
+        "The village's parish church of Saints Justus and Cosmas dates in its current form to the 19th century, on older foundations",
+        "Galižana lies in some of Istria's most productive olive-growing land, with multiple award-winning olive oils"
+      ],
+      "vocab": [
+        {"hr": "dvojezičan", "en": "bilingual", "note": "Galižana is officially dvojezična — Croatian and Italian — both languages appear on signs and in schools"},
+        {"hr": "maslina", "en": "olive", "note": "Galižana sits in prime maslina country; Istrian olive oils from this area regularly win international awards"},
+        {"hr": "narječje", "en": "dialect", "note": "The Istriot narječje of Galižana (galižanjski) is a small Romance language distinct from Italian and Venetian"}
+      ],
+      "didYouKnow": "The Istriot language spoken in Galižana is so distinct from standard Italian and modern Venetian that linguists classify it as a separate Romance branch — and Galižana is one of only six villages in the world where it is still actively spoken."
+    },
+    {
+      "name": "Marčana",
+      "region": "Istria",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Interior Istrian municipality of stone villages",
+      "intro": "Marčana is a village and municipal seat in southeastern Istria, inland from Pula and Krnica, surrounded by red-earth fields, dry-stone walls and oak woodland. The municipality is one of the largest in southern Istria by area and contains many small stone hamlets typical of the Istrian interior — Loborika, Pavičini, Krnica and others.",
+      "history": "Marčana is first documented in the late medieval period under Venetian Istria. Like much of the southern Istrian countryside it suffered severe depopulation during the plague waves of the 16th and 17th centuries, after which Venice resettled families from Dalmatia, Albania and the Venetian terra ferma. Under Habsburg rule (from 1797) the village remained a small farming community. The municipality was reorganised after Croatian independence in 1991 to bring together a number of small interior settlements under one administration.",
+      "facts": [
+        "Marčana is the administrative seat of Općina Marčana, one of the larger municipalities by area in Istria County",
+        "The municipality includes the coastal village of Krnica and the inland villages of Loborika, Pavičini, Mutvoran and others",
+        "The Marčana area was repopulated by Venice with Dalmatian, Albanian and Friulian settler families in the 16th and 17th centuries after plague depopulation",
+        "Marčana's parish church of Saint Lawrence sits at the centre of the old village, surrounded by a cluster of stone houses",
+        "The area is known for traditional Istrian dry-stone walls (suhozid) marking field boundaries"
+      ],
+      "vocab": [
+        {"hr": "suhozid", "en": "dry-stone wall", "note": "The Marčana countryside is laced with suhozidi — Istrian dry-stone field walls, a UNESCO-recognised craft"},
+        {"hr": "općina", "en": "municipality", "note": "Općina Marčana — one of the larger municipalities in Istria County, covering many interior villages"},
+        {"hr": "crljenica", "en": "Istrian red soil (terra rossa)", "note": "Marčana's fields show the deep crljenica characteristic of interior Istria — iron-rich red clay over limestone"}
+      ],
+      "didYouKnow": "The Marčana area was so depopulated by 17th-century plague that Venetian census records from 1641 list only a handful of households for several hamlets — and the Republic resettled the land with refugees from Dalmatia and Albanian-speaking villages."
+    },
+    {
+      "name": "Krnica",
+      "region": "Istria",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Eastern Istrian fishing village below Labin",
+      "intro": "Krnica is a small coastal village on the eastern side of the Istrian peninsula, roughly halfway between Pula and Labin, with a tiny fishing port (Krnička Luka) tucked into a narrow inlet below the village. The settlement is administratively part of Općina Marčana and retains a rural, low-density character with limited tourism development.",
+      "history": "Krnica has existed since at least the late medieval period under Venetian rule. Like other southern Istrian villages it was repopulated by Venice after plague-era depopulation. Under Habsburg Austria (1797–1918) it remained a small fishing and farming hamlet. Its small port served local boats and short-haul coastal traffic toward the Kvarner. After 1945 it joined Yugoslavia and then Croatia. Today the village is best known among Croatians for relatively unspoilt rocky beaches and the seafood konobas around Krnička Luka.",
+      "facts": [
+        "Krnica is administratively part of Općina Marčana, in Istria County",
+        "Krnička Luka, the village's small fishing harbour, sits at the foot of the hill below the village proper",
+        "The village's parish church of Saint Roch sits at the centre of the old settlement",
+        "Krnica is one of the access points for kayakers exploring the eastern Istrian coastline toward Trget and Labin",
+        "The eastern Istrian coast at Krnica is notably less developed than the western Istrian coast, with predominantly rocky shoreline"
+      ],
+      "vocab": [
+        {"hr": "lučica", "en": "small harbour", "note": "Krnička lučica — the small fishing harbour of Krnica, a narrow inlet below the village"},
+        {"hr": "ribarska luka", "en": "fishing port", "note": "Krnica's ribarska luka still operates with small boats supplying the local konobas"},
+        {"hr": "konoba", "en": "traditional tavern", "note": "The konobe of Krnička Luka are among the most-recommended seafood spots in eastern Istria"}
+      ],
+      "didYouKnow": "The Krnica coast faces the channel between Istria and the island of Cres, and on clear days you can see the Učka mountain to the north and the Cres lighthouse to the east — a 40-kilometre line of sight across open Adriatic."
+    },
+    {
+      "name": "Šišan",
+      "region": "Istria",
+      "icon": "⛪",
+      "color": "#92400e",
+      "tagline": "Inland village east of Pula",
+      "intro": "Šišan (Italian: Sissano) is a village a few kilometres east of Pula and just inland from Medulin Bay, set on a low ridge in southern Istria's red-earth farming country. It is administratively part of Općina Ližnjan and has a small bilingual Croatian-Italian community alongside the dominant Croatian population.",
+      "history": "Šišan appears in Venetian-era records as one of the small farming villages of the Pula countryside. Like its neighbours, it suffered depopulation in the plague waves of the 16th and 17th centuries and was partially resettled with families from the Venetian terra ferma. Under Habsburg rule from 1797 it remained a small agricultural settlement. It passed to Italy in 1918, to Yugoslavia in 1947, and to independent Croatia in 1991. The local Istriot/Italian-speaking community largely emigrated in the 1945–1955 exodus, though some Italian-language presence remains.",
+      "facts": [
+        "Šišan is administratively part of Općina Ližnjan, immediately east of the City of Pula",
+        "The village's parish church of Saint Felicianus (Sveti Felicijan) dates to the 18th century in its present form",
+        "Šišan has a recognised Italian-language minority community and bilingual signage in parts of the municipality",
+        "The village sits in southern Istria's red-soil farming belt, with fields traditionally producing wheat, olives and grapes",
+        "Šišan is connected by short roads to Pula, Medulin and Ližnjan — all within ten kilometres"
+      ],
+      "vocab": [
+        {"hr": "selo", "en": "village", "note": "Šišan is a typical Istrian selo — a compact stone settlement surrounded by farmland and dry-stone walls"},
+        {"hr": "pšenica", "en": "wheat", "note": "The red-soil fields around Šišan have grown pšenica for centuries, alongside olives and grapes"},
+        {"hr": "talijanska manjina", "en": "Italian minority", "note": "Šišan has a recognised talijanska manjina — Italian-language minority — under Croatian and Istria County law"}
+      ],
+      "didYouKnow": "Šišan sits less than two kilometres from the site of a Roman-era villa rustica that was excavated in the 20th century, with traces of olive presses suggesting the same farming pattern — olives, grain, wine — has continued on this land for two thousand years."
+    },
+    {
+      "name": "Tar",
+      "region": "Istria",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Coastal village between Poreč and Novigrad",
+      "intro": "Tar (Italian: Torre) is a small village on the western Istrian coast between Poreč and Novigrad, set just inland from the cliffs of the Mirna river mouth. It is the administrative seat of Općina Tar-Vabriga-Torre-Abrega, a bilingual Croatian-Italian municipality, and serves as a base for several large campsites along the surrounding coast.",
+      "history": "Tar appears in medieval records as a fortified settlement of the Patriarchate of Aquileia and later the Republic of Venice. The village name (Torre, meaning 'tower') refers to a defensive tower that once stood here. Under Venetian rule (until 1797) Tar was a small farming community on the limestone plateau above the Mirna river estuary. Habsburg Austria, Italian, and Yugoslav rule followed. In the late 20th century the municipality became an important tourism hub, particularly through the large Lanterna camping complex on the coast immediately south of the village.",
+      "facts": [
+        "Tar is the administrative seat of Općina Tar-Vabriga-Torre-Abrega, a bilingual Croatian-Italian municipality",
+        "The village name 'Tar' comes from the Italian 'Torre' (tower), referring to a medieval defensive tower",
+        "The Lanterna camping complex south of Tar is one of the largest in Croatia, with over 9,000 pitches",
+        "Tar sits on the limestone plateau just inland from the Mirna river estuary",
+        "The Tar-Vabriga municipality has a recognised Italian-language community"
+      ],
+      "vocab": [
+        {"hr": "kula", "en": "tower", "note": "Tar's name comes from Italian 'Torre' (kula in Croatian) — a medieval defensive tower stood at the village"},
+        {"hr": "kamp", "en": "campsite", "note": "Lanterna near Tar is among Croatia's largest kampovi, with over 9,000 pitches along the Istrian coast"},
+        {"hr": "ušće", "en": "river mouth / estuary", "note": "Tar sits above the ušće of the Mirna river — Istria's largest river, draining the interior valleys"}
+      ],
+      "didYouKnow": "The Lanterna camping complex south of Tar is so large that it operates its own internal road network and shuttle buses, and in peak season houses more people than the rest of the Tar-Vabriga municipality combined."
+    },
+    {
+      "name": "Vabriga",
+      "region": "Istria",
+      "icon": "🍷",
+      "color": "#16a34a",
+      "tagline": "Stone village above Istria's Mirna estuary",
+      "intro": "Vabriga (Italian: Abrega) is a small inland village on the western Istrian coast, between Tar and Poreč, set on the limestone plateau above the Mirna river estuary. The settlement is half of the bilingual municipality Općina Tar-Vabriga-Torre-Abrega and retains a compact old core of stone houses around its parish church.",
+      "history": "Vabriga is documented in medieval Venetian records as a small farming village on the Poreč-Novigrad road, part of the Bishopric of Poreč and the Republic of Venice. Like neighbouring villages it suffered plague depopulation and was partially resettled by Venice with families from Dalmatia and the terra ferma. Under Habsburg, Italian and Yugoslav rule it remained a small farming community. Since 1991 the municipality has joined Croatia, with tourism around the nearby coast (Santa Marina, Lanterna) supplementing traditional agriculture.",
+      "facts": [
+        "Vabriga is part of Općina Tar-Vabriga-Torre-Abrega, a bilingual Croatian-Italian municipality in Istria County",
+        "The village retains a compact medieval-Venetian street plan around its parish church",
+        "Vabriga sits on the limestone plateau above the Mirna river estuary, between Tar and Poreč",
+        "The nearby coast (Santa Marina) offers some of the quieter swimming spots between Tar and Novigrad",
+        "Vabriga's surrounding fields produce olives, grapes and seasonal vegetables in the typical Istrian red-soil farming pattern"
+      ],
+      "vocab": [
+        {"hr": "polje", "en": "field", "note": "Vabriga's polja — fields of olives, grapes and grain on Istrian red soil — surround the stone village core"},
+        {"hr": "rijeka", "en": "river", "note": "Vabriga sits above the Mirna rijeka — Istria's longest river, draining toward Novigrad bay"},
+        {"hr": "vinograd", "en": "vineyard", "note": "The Vabriga vinogradi produce malvazija — Istria's signature white grape"}
+      ],
+      "didYouKnow": "The Mirna river valley below Vabriga has been worked as fishponds and salt-flats since Roman times, and the muddy estuary tidal flats are an important migratory bird stopover documented by Croatian ornithologists."
+    },
+    {
+      "name": "Brtonigla",
+      "region": "Istria",
+      "icon": "🍷",
+      "color": "#dc2626",
+      "tagline": "Wine country of the Muscat grape",
+      "intro": "Brtonigla (Italian: Verteneglio) is a hilltop village in northwestern Istria, in the Buje wine district, set on a low ridge between the Mirna valley and the Slovenian border. It is the seat of a bilingual Croatian-Italian municipality and is known for its Muscat (Muškat) wine and as one of the centres of the Istrian wine route.",
+      "history": "Brtonigla is documented from the medieval period as part of the Republic of Venice, which ruled this corner of Istria from the 13th century until 1797. The hilltop position and surrounding red-soil vineyards gave the village its long-standing agricultural identity. Under Habsburg Austria, then Italy (1918–1943/47), and Yugoslavia, the area maintained a strong Italian-speaking community alongside Croatian villagers. Brtonigla is today officially bilingual and hosts the long-running Festival of Muscat (Muscat festival) in early summer.",
+      "facts": [
+        "Brtonigla is the administrative seat of a bilingual Croatian-Italian municipality (Općina Brtonigla-Verteneglio)",
+        "The annual Festival of Muscat (Festa del Moscato / Festival Muškata) celebrates the local Muscat wine each June",
+        "Brtonigla is part of the Buje wine district, one of Istria's most important wine regions",
+        "The village sits on a low ridge overlooking the Mirna river valley",
+        "The local Istriot/Italian-speaking community remains one of the larger in northern Istria"
+      ],
+      "vocab": [
+        {"hr": "muškat", "en": "Muscat grape / wine", "note": "Brtonigla's muškat — the local Muscat wine — is celebrated each June at the Muscat Festival"},
+        {"hr": "vino", "en": "wine", "note": "Brtonigla sits in the Buje vinski put (wine route), known especially for malvazija and muškat"},
+        {"hr": "brijeg", "en": "hill", "note": "Brtonigla occupies a low brijeg above the Mirna valley — the classic Istrian hilltop village position"}
+      ],
+      "didYouKnow": "Brtonigla's Muscat tradition is so well-established that the municipality has trademarked its 'Muscat of Brtonigla' (Muškat Momjanski) as one of Croatia's protected geographical indications for wine, alongside the better-known Pelješac and Plavac Mali designations."
+    },
+    {
+      "name": "Oprtalj",
+      "region": "Istria",
+      "icon": "🏛️",
+      "color": "#7c3aed",
+      "tagline": "Northern Istrian hilltop above the Mirna valley",
+      "intro": "Oprtalj (Italian: Portole) is a small hilltop town in northern Istria, set on a ridge above the Mirna river valley between Buzet and Motovun. The walled medieval centre, with its loggia, parish church and surrounding red-roofed stone houses, is one of the most intact Venetian-era hilltop ensembles in Istria.",
+      "history": "Oprtalj's strategic ridgetop position made it a fortified settlement under the Patriarchate of Aquileia and, from 1209, under the bishops of Trieste. From 1421 to 1797 it was part of the Republic of Venice, which built the surviving town walls, gates and loggia. Habsburg Austrian rule followed until 1918, then Italian rule until 1943/47, and Yugoslav and Croatian rule thereafter. The Italian-speaking community here was historically strong, and Oprtalj is officially bilingual. Twentieth-century rural depopulation reduced its population to a few hundred, but Oprtalj has since become a centre for art galleries and cultural festivals.",
+      "facts": [
+        "Oprtalj's surviving Venetian-era loggia and town walls date principally to the 15th–17th centuries",
+        "The town was under the Republic of Venice from 1421 to 1797",
+        "Oprtalj is officially bilingual Croatian-Italian under Istria County's statutes",
+        "The parish church of Saint George (Sveti Juraj) sits at the highest point of the town",
+        "Oprtalj sits on a ridge with views across the Mirna valley toward Motovun on the next ridge to the south"
+      ],
+      "vocab": [
+        {"hr": "loža", "en": "loggia", "note": "Oprtalj's Venetian loža — open-arched civic loggia — survives in the main square as a public-meeting space"},
+        {"hr": "zidine", "en": "town walls", "note": "Oprtalj's medieval zidine — built and reinforced under Venetian rule — still ring the old town"},
+        {"hr": "brdo", "en": "hill", "note": "Oprtalj sits on a brdo overlooking the Mirna valley; the position was chosen for defence and ventilation"}
+      ],
+      "didYouKnow": "The frescoes in the small church of Saint Mary just outside Oprtalj date from the late 15th century and include a rare 'Dance of Death' (Mrtvački ples / Danse Macabre) cycle — a Western European medieval motif that is otherwise extremely rare in Croatian church painting."
+    },
+    {
+      "name": "Sveti Petar u Šumi",
+      "region": "Istria",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Pauline monastery in the Istrian forest",
+      "intro": "Sveti Petar u Šumi ('Saint Peter in the Forest') is a small village in central Istria, between Pazin and Žminj, named for its Pauline monastery and church of Saints Peter and Paul. The monastery, set among oak woodland, is one of the most important Baroque ecclesiastical complexes in Istria.",
+      "history": "The monastery at Sveti Petar u Šumi was founded in the 11th or 12th century as a Benedictine house, and was taken over by the Pauline Order (Pavlini) in 1459, who held it until the order's suppression by Emperor Joseph II in 1783. The current church and monastery buildings date principally to the late 17th and 18th centuries. Under Habsburg rule the monastery passed to the diocese; the Pauline Order returned to it in 1993, after Croatian independence. The village around the monastery has remained small but the church is a centre of regional pilgrimage.",
+      "facts": [
+        "The Pauline Order (Pavlini) took over the monastery in 1459 and was suppressed there by Joseph II in 1783",
+        "The current Baroque church and monastery date principally to the 17th and 18th centuries",
+        "The Pavlini returned to the Sveti Petar monastery in 1993 after the order's restoration in Croatia",
+        "The wooden Baroque iconostasis-style altars inside the church are considered among the finest in Istria",
+        "The monastery's library historically held one of the largest collections of religious manuscripts in Istria"
+      ],
+      "vocab": [
+        {"hr": "samostan", "en": "monastery", "note": "Sveti Petar's samostan — the only Pauline monastery in Istria, founded in the 12th century"},
+        {"hr": "pavlini", "en": "Pauline Order", "note": "Pavlini — the only Croatian-founded Catholic religious order; they ran Sveti Petar from 1459 until suppression in 1783"},
+        {"hr": "šuma", "en": "forest", "note": "The village name literally means 'Saint Peter in the šuma' — Saint Peter in the Forest"}
+      ],
+      "didYouKnow": "The Pauline Order is the only Catholic religious order founded by Croats — it was established in the 13th century in what is now Hungary by clerics from Croatian lands, and Sveti Petar u Šumi was its westernmost monastery."
+    },
+    {
+      "name": "Tinjan",
+      "region": "Istria",
+      "icon": "🍖",
+      "color": "#92400e",
+      "tagline": "Istrian prosciutto capital on a hilltop",
+      "intro": "Tinjan is a hilltop village in central Istria, on a ridge between Pazin and Poreč, best known across Croatia as the centre of Istrian prosciutto (istarski pršut) production. The village hosts the annual ISAP (International Prosciutto Fair), and the surrounding karst air and bora wind have historically made it one of the best places on the peninsula to dry-cure ham.",
+      "history": "Tinjan is documented from the late medieval period under the County of Pazin (a Habsburg enclave in otherwise-Venetian Istria) and later directly under Habsburg Austria. The hilltop position and the cool, dry bora wind made the area natural for centuries-old farmstead pršut production. Under Italian rule (1918–1943/47) and Yugoslav rule, pršut making remained a household craft. Since the 1990s the production has been organised as a protected geographical indication, with Tinjan as its symbolic capital.",
+      "facts": [
+        "Tinjan hosts the annual ISAP (International Prosciutto Fair / Internacionalni Sajam Pršuta) each October",
+        "Istrian pršut (istarski pršut) holds an EU Protected Designation of Origin (PDO/ZOI), with Tinjan as its symbolic centre",
+        "Istrian pršut differs from Dalmatian and Italian prosciutto in being made without skin and traditionally seasoned with pepper, garlic and laurel",
+        "The bora wind crossing the central Istrian ridge at Tinjan provides the dry cold air essential for traditional curing",
+        "Tinjan sits on a ridge between the Pazin basin and the Poreč coast"
+      ],
+      "vocab": [
+        {"hr": "pršut", "en": "dry-cured ham / prosciutto", "note": "Tinjan is the symbolic capital of istarski pršut — Istrian dry-cured ham with EU PDO status"},
+        {"hr": "bura", "en": "bora wind (cold dry NE wind)", "note": "The bura crossing Tinjan's ridge gives the cold dry air that has made pršut-curing possible for centuries"},
+        {"hr": "sušara", "en": "drying-house / curing room", "note": "Each Tinjan farmstead traditionally has a sušara — the curing-room where pršut hangs through winter"}
+      ],
+      "didYouKnow": "Istrian pršut differs from the better-known Dalmatian and Italian versions in one specific way: the skin of the ham is removed before curing — a tradition unique to inland Istria, dating back centuries before the modern PDO rules were written down."
+    },
+    {
+      "name": "Vižinada",
+      "region": "Istria",
+      "icon": "🍷",
+      "color": "#dc2626",
+      "tagline": "Hilltop wine village west of Motovun",
+      "intro": "Vižinada (Italian: Visinada) is a small hilltop village in central Istria, west of Motovun and north of Poreč, sitting on a ridge in the Mirna valley wine country. It is the seat of a small bilingual municipality and is best known for its surrounding vineyards, especially of malvazija, and as the birthplace of Italian-language poet Giuseppino Martinuzzi.",
+      "history": "Vižinada is documented from the medieval period as part of the Republic of Venice (1394–1797), which fortified its hilltop position. The village was struck severely by plague in 1630–31; Venice resettled the area with families from elsewhere in its territories. Under Habsburg, Italian and Yugoslav rule, Vižinada remained a small farming centre. Today the surrounding land is one of the most productive parts of the Istrian wine route, with several award-winning malvazija producers.",
+      "facts": [
+        "Vižinada is the administrative seat of a small bilingual Croatian-Italian municipality",
+        "The village was severely depopulated by the 1630–31 plague and resettled by Venice with families from elsewhere in its territories",
+        "Vižinada is on the central Istrian wine route, known particularly for malvazija whites",
+        "The 19th-century poet and politician Giuseppe Lazzarini was associated with the village",
+        "The surrounding fields show classic Istrian red-soil viticulture on limestone karst"
+      ],
+      "vocab": [
+        {"hr": "malvazija", "en": "Malvasia (white grape)", "note": "Vižinada's surrounding vineyards specialise in malvazija istarska — Istrian Malvasia, the region's signature white"},
+        {"hr": "brežuljak", "en": "small hill / hillock", "note": "Vižinada sits on a brežuljak above the Mirna valley — the classic Istrian hilltop village position"},
+        {"hr": "kuga", "en": "plague", "note": "Vižinada was devastated by the 1630–31 kuga that swept Venetian Istria, killing much of the population"}
+      ],
+      "didYouKnow": "Vižinada's railway station was once a stop on the Parenzana, a narrow-gauge line that ran from Trieste to Poreč (Parenzo) from 1902 to 1935 — its former trackbed is today preserved as a popular cycling route through the Istrian hills."
+    },
+    {
+      "name": "Karojba",
+      "region": "Istria",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Hill village in the shadow of Motovun",
+      "intro": "Karojba is a small village in central Istria, just southwest of Motovun, on the ridges above the Mirna river valley. It is the seat of Općina Karojba and is best known for its proximity to the Motovun forest (Motovunska šuma), one of the most important truffle-hunting areas in Europe.",
+      "history": "Karojba is documented from the medieval period under Venetian Istria. Like the wider Motovun area, it was a Venetian-administered farming village, and many of the surrounding fields and woodlands were managed under Venice's strict forestry regulations because the Motovun forest supplied oak timber to the Venetian Arsenal for ship masts and ribs. Habsburg, Italian and Yugoslav rule followed. Today Karojba's economy combines agriculture, truffle hunting and small-scale tourism connected to the Motovun valley.",
+      "facts": [
+        "Karojba is the administrative seat of Općina Karojba, in Istria County",
+        "The nearby Motovun forest is one of Europe's most productive habitats for white truffles (tartufi)",
+        "Under Venetian rule the Motovun forest supplied oak (hrast) for ship masts and ribs at the Venetian Arsenal",
+        "The village sits on a ridge above the southern bank of the Mirna river valley",
+        "Karojba is surrounded by Istrian dry-stone walls and small terraced fields"
+      ],
+      "vocab": [
+        {"hr": "tartuf", "en": "truffle", "note": "The Motovun forest near Karojba is famous for bijeli tartuf — the prized white truffle harvested each autumn"},
+        {"hr": "hrast", "en": "oak", "note": "The Motovun forest near Karojba supplied hrast — oak — to the Venetian Arsenal for ship construction"},
+        {"hr": "dolina", "en": "valley", "note": "Karojba sits on a ridge above the Mirna dolina, one of Istria's most productive farming valleys"}
+      ],
+      "didYouKnow": "The Motovun forest near Karojba is the site where, in 1999, the truffle hunter Giancarlo Zigante and his dog found a white truffle weighing 1.31 kilograms — recorded by Guinness as the world's largest white truffle and now displayed in replica at the Zigante restaurant in Livade."
+    },
+    {
+      "name": "Lupoglav",
+      "region": "Istria",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Castle village below the Učka mountains",
+      "intro": "Lupoglav is a small village in eastern Istria, at the foot of the Učka mountain range, on the main road and railway between Pazin and Rijeka. It is the seat of Općina Lupoglav and its name (literally 'wolf head') derives from its medieval castle, which controlled the historic pass between Istria and Kvarner.",
+      "history": "The Lupoglav castle, today a ruin above the village, is documented from the early medieval period as a fortified seat controlling the strategic Učka pass. It belonged in turn to the Counts of Gorica, the Habsburgs (as part of the County of Pazin) and various noble families. The lowland village beneath the castle grew around the road and, from 1873, the Pazin–Rijeka railway line. Under Italian, Yugoslav and Croatian rule Lupoglav remained a small transit and farming community.",
+      "facts": [
+        "The ruined Lupoglav castle above the village dates in its core to the medieval period, when it controlled the Učka mountain pass",
+        "Lupoglav is on the Pazin–Rijeka railway line, opened in 1873 under Austria-Hungary",
+        "The village is the administrative seat of Općina Lupoglav, in Istria County",
+        "Lupoglav sits at the foot of the Učka mountain — at 1,401 metres the highest peak in Istria",
+        "The name 'Lupoglav' literally translates as 'wolf head' in Croatian"
+      ],
+      "vocab": [
+        {"hr": "vuk", "en": "wolf", "note": "Lupoglav's name combines vuk (wolf) and glava (head); local tradition links it to wolves once common on Učka's slopes"},
+        {"hr": "planina", "en": "mountain", "note": "Lupoglav sits at the foot of Učka, the highest planina in Istria at 1,401 metres"},
+        {"hr": "prijevoj", "en": "mountain pass", "note": "Lupoglav castle controlled the historic prijevoj between Istria and Kvarner"}
+      ],
+      "didYouKnow": "The Učka mountain immediately above Lupoglav is now a designated nature park (Park prirode Učka), and from its summit on a clear day you can see across the Adriatic to Venice — roughly 130 kilometres away in a straight line."
+    },
+    {
+      "name": "Cerovlje",
+      "region": "Istria",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Pazin-basin village beside the Pazinčica gorge",
+      "intro": "Cerovlje is a small village in central Istria, immediately east of Pazin, in the upper valley of the Pazinčica stream. It is the seat of Općina Cerovlje, a sparse interior municipality of small hamlets and stone villages, with Pazin's famous abyss (Pazinska jama) within walking distance.",
+      "history": "Cerovlje is documented from the late medieval period as part of the Habsburg County of Pazin (Pazinska knežija), a Habsburg enclave inside otherwise-Venetian Istria. Under the Habsburgs from the 15th century until 1918, it was a small farming community on the road between Pazin and the Učka mountains. Italian rule between the wars and Yugoslav rule from 1947 followed, with Cerovlje becoming part of independent Croatia in 1991. The municipality was created in the 1990s reorganisation of Croatian local government.",
+      "facts": [
+        "Cerovlje is the administrative seat of Općina Cerovlje, in Istria County",
+        "The Pazinčica stream — Istria's only sinking river — runs through the municipality before disappearing underground at Pazin's abyss",
+        "Cerovlje was part of the Habsburg County of Pazin (Pazinska knežija) from the 15th century until 1918",
+        "The municipality includes the village of Gologorica, with a medieval church and castle remnants",
+        "The terrain around Cerovlje is typical Istrian karst — limestone with red-soil pockets"
+      ],
+      "vocab": [
+        {"hr": "potok", "en": "stream / brook", "note": "The Pazinčica potok runs through Cerovlje before sinking into Pazin's abyss — Istria's only natural sinking river"},
+        {"hr": "knežija", "en": "county / principality", "note": "Cerovlje belonged to the Habsburg Pazinska knežija — a German-speaking enclave in Venetian Istria"},
+        {"hr": "jama", "en": "abyss / pit", "note": "The Pazinčica disappears into Pazinska jama just downstream of Cerovlje — described by Jules Verne and Dante"}
+      ],
+      "didYouKnow": "The Pazinčica stream flowing through Cerovlje famously sinks underground at the Pazin Abyss, which inspired Jules Verne to set the climax of his 1885 novel Mathias Sandorf there — making this corner of Istria one of the few in Croatia with a major place in 19th-century European adventure literature."
+    },
+    {
+      "name": "Mošćenice",
+      "region": "Kvarner",
+      "icon": "🏛️",
+      "color": "#7c3aed",
+      "tagline": "Medieval hilltop above the Kvarner coast",
+      "intro": "Mošćenice is a small medieval hilltop village above Mošćenička Draga on the eastern slope of the Učka mountain, looking out over the Kvarner gulf. The walled stone village, with its narrow lanes, parish church and surviving town gate, is one of the best-preserved Liburnian hilltop settlements on the Adriatic coast.",
+      "history": "Mošćenice was settled by the Liburnians (an Illyrian tribe) in pre-Roman times, on a defensive hilltop position above the sea. Under Rome, then Byzantium, then medieval Croatian and Habsburg rulers, it remained a fortified village. From the 15th century it was part of the Habsburg holdings under the Counts of Pazin and Rijeka, and was administered by the Walsee family and later directly by Austria. The walled core, narrow lanes, and small parish church of Saint Andrew survive substantially intact. Today Mošćenice and the coastal Mošćenička Draga together form a single municipality.",
+      "facts": [
+        "Mošćenice was originally a Liburnian hilltop settlement, occupied before Roman times",
+        "The medieval town walls and main gate (Vela vrata) survive substantially intact",
+        "The parish church of Saint Andrew (Sveti Andrija) sits at the centre of the walled village",
+        "Mošćenice is administratively united with the coastal Mošćenička Draga in a single municipality",
+        "From Mošćenice you can see directly across the Kvarner to the island of Cres"
+      ],
+      "vocab": [
+        {"hr": "vrata", "en": "gate / gates", "note": "Mošćenice's medieval town walls include the Vela vrata — the main gate — still standing on the steep path up"},
+        {"hr": "Liburni", "en": "the Liburnians (pre-Roman tribe)", "note": "Mošćenice was founded by the Liburni — the Illyrian seafaring tribe of the Kvarner — before Roman times"},
+        {"hr": "uska ulica", "en": "narrow street / alley", "note": "Mošćenice's uske uličice — narrow stone lanes — preserve the medieval street plan inside the walls"}
+      ],
+      "didYouKnow": "Mošćenice has been continuously inhabited for over 2,500 years on the same hilltop, and the surviving stone olive mill (toš) inside the village walls — restored and now a small museum — shows the Liburnian-Roman tradition of olive oil production preserved into the 20th century."
+    },
+    {
+      "name": "Brseč",
+      "region": "Kvarner",
+      "icon": "🏛️",
+      "color": "#7c3aed",
+      "tagline": "Cliff village and birthplace of Eugen Kumičić",
+      "intro": "Brseč is a small clifftop village on the eastern slope of the Učka mountain, at the southern end of the Opatija Riviera, looking down a steep limestone drop to the Kvarner. The walled medieval core, perched on the cliff, was the birthplace in 1850 of the Croatian realist novelist Eugen Kumičić.",
+      "history": "Brseč is a Liburnian-origin hilltop settlement that became a small fortified Croatian and later Habsburg village, like other settlements along the Učka coast. Under Habsburg rule from the 15th century until 1918, it was administered as part of the Pazin/Rijeka holdings. The village's most famous son, Eugen Kumičić (1850–1904), grew up here and became one of the major figures of Croatian realist literature, with much of his work drawing on the Istrian coast he came from. After Italian and Yugoslav rule, Brseč is now part of Općina Mošćenička Draga in Primorje-Gorski Kotar County.",
+      "facts": [
+        "Brseč is the birthplace of the Croatian novelist Eugen Kumičić (1850–1904), a leading figure of Croatian realism",
+        "The walled medieval village sits on a cliff above the Kvarner gulf at the southern end of the Opatija Riviera",
+        "Brseč's parish church of Saint George (Sveti Juraj) dates in its present form to the 18th century",
+        "The village is administratively part of Općina Mošćenička Draga in Primorje-Gorski Kotar County",
+        "The medieval walls and gate of Brseč are preserved as part of the town's protected historic core"
+      ],
+      "vocab": [
+        {"hr": "književnik", "en": "writer / man of letters", "note": "Brseč's most famous književnik was Eugen Kumičić, a leading figure of Croatian realism, born here in 1850"},
+        {"hr": "litica", "en": "cliff", "note": "Brseč sits on a litica above the Kvarner — one of the most dramatic clifftop villages on the eastern Adriatic"},
+        {"hr": "realizam", "en": "realism (literary)", "note": "Eugen Kumičić of Brseč helped found Croatian književni realizam in the late 19th century"}
+      ],
+      "didYouKnow": "Eugen Kumičić of Brseč wrote the novel Začuđeni svatovi (1883), set among the Istrian coastal villages, and his birth-house in Brseč has been preserved as a small museum — one of the few literary-house museums in this part of Croatia."
+    },
+    {
+      "name": "Ika",
+      "region": "Kvarner",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Pebble-beach village on the Opatija Riviera",
+      "intro": "Ika is a small coastal settlement on the Opatija Riviera between Opatija and Lovran, on the eastern shore of the Kvarner gulf at the foot of the Učka mountain. It is best known for its pebble beach and its small fishing-port-turned-village core, set along the lungomare coastal promenade that runs the length of the riviera.",
+      "history": "Ika and its larger neighbours Ičići and Lovran developed in the late 19th century, when Habsburg Austria built up the Opatija Riviera as the imperial winter health resort. The lungomare coastal walk, completed in 1911, connected Volosko through Opatija to Lovran, passing directly through Ika. After Italian, Yugoslav and Croatian rule, Ika has remained a quiet residential and tourist settlement, smaller and lower-density than Ičići, with its pebble beach (Ikica) one of the better-known on the riviera.",
+      "facts": [
+        "Ika sits on the Opatija Riviera between Ičići and Lovran, in Primorje-Gorski Kotar County",
+        "The Lungomare coastal promenade, completed in 1911, passes directly through Ika",
+        "Ika's pebble beach (Ikica) is one of the most photographed on the Opatija Riviera",
+        "The village is administratively part of Općina Opatija",
+        "Like neighbouring riviera settlements, Ika benefited from the Habsburg-era development of Opatija as a winter health resort"
+      ],
+      "vocab": [
+        {"hr": "lungomare", "en": "seaside promenade", "note": "The 12-km opatijski lungomare runs from Volosko through Ika to Lovran — completed in 1911 under Austria-Hungary"},
+        {"hr": "šljunak", "en": "pebbles", "note": "Ika's beach is a classic Kvarner šljunčana plaža — a pebble beach, not sand, typical of the Adriatic"},
+        {"hr": "rivijera", "en": "riviera", "note": "Ika is on the Opatijska rivijera — Croatia's oldest tourist riviera, developed by Habsburg Austria from the 1880s"}
+      ],
+      "didYouKnow": "The Opatija lungomare passing through Ika was built piece by piece between 1885 and 1911, in part by the Habsburg navy, who used it to convey aristocratic patients between sanatoriums — making it one of the oldest continuous coastal promenades in the world."
+    },
+    {
+      "name": "Ičići",
+      "region": "Kvarner",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Marina suburb of the Opatija Riviera",
+      "intro": "Ičići is a coastal village immediately south of Opatija on the Opatija Riviera, set at the foot of the Učka mountain along the eastern Kvarner shore. It is known for its ACI Marina, its broad pebble beach (one of the few Blue Flag beaches on the riviera), and its position on the lungomare coastal promenade.",
+      "history": "Like Opatija, Ičići developed in the late 19th century when Habsburg Austria turned this stretch of coast into a winter health resort for the imperial elite. The lungomare passes through Ičići, connecting Opatija to Lovran. Under Italian, Yugoslav and Croatian rule the village has continued as a tourist settlement; the ACI marina, opened in the 1980s, made Ičići a nautical-tourism centre alongside its beach tourism. The village is part of Općina Opatija in Primorje-Gorski Kotar County.",
+      "facts": [
+        "ACI Marina Ičići is one of the principal ACI marinas in the northern Adriatic",
+        "Ičići holds a Blue Flag designation for its main beach, one of the few on the Opatija Riviera",
+        "The Lungomare coastal walk (1885–1911) connects Ičići north to Opatija and south to Lovran",
+        "Ičići is administratively part of Općina Opatija in Primorje-Gorski Kotar County",
+        "The settlement sits at the foot of Učka, the highest mountain in Istria/Kvarner at 1,401 metres"
+      ],
+      "vocab": [
+        {"hr": "Plava zastava", "en": "Blue Flag (beach designation)", "note": "Ičići's main beach holds a Plava zastava — one of few Blue Flag beaches on the Opatija Riviera"},
+        {"hr": "marina", "en": "marina / yacht harbour", "note": "ACI Marina Ičići is one of the main yacht harbours on the northern Adriatic, part of the ACI chain"},
+        {"hr": "obala", "en": "shore / coast / waterfront", "note": "The Ičićka obala forms part of the wider Opatija lungomare — Croatia's oldest seaside promenade"}
+      ],
+      "didYouKnow": "ACI Marina Ičići was carved into the limestone shore in the 1980s and required the demolition and rebuilding of a 100-metre stretch of the original 1911 lungomare — a detail that locals say still rankles among older Opatija residents."
+    },
+    {
+      "name": "Volosko",
+      "region": "Kvarner",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Old fishing port at the northern end of Opatija",
+      "intro": "Volosko is the northernmost neighbourhood of Opatija, an old fishing village now physically continuous with the larger riviera town but retaining a distinct identity. The small inner harbour, narrow stone lanes and the famous fisherman's stairs (Voloskanske stube) lead down to the working port, which still supports a small fleet alongside the Plavi Podrum and other fine-dining restaurants.",
+      "history": "Volosko predates Opatija itself as a settlement — it was a fishing village before Opatija developed in the 19th century as a Habsburg health resort. Under Venetian-period influence and then Habsburg rule, Volosko grew as a small port on the eastern Kvarner shore, with stone houses crowded around the harbour. When Opatija was developed by Vienna from the 1880s as a winter resort, Volosko remained physically separate but became administratively linked to it. Today the harbour is a working fishing port and gourmet-dining destination — Plavi Podrum is among the longest-running fine seafood restaurants on the Croatian coast.",
+      "facts": [
+        "Volosko predates Opatija itself as a settlement — Volosko was a fishing village long before Opatija became a Habsburg resort",
+        "The Plavi Podrum (Blue Cellar) restaurant in Volosko's harbour is one of the longest-established fine-dining seafood restaurants in Croatia",
+        "Volosko's narrow stone alleys, called Voloskanske stube, climb steeply from the harbour up to the upper village",
+        "The Andrija Mohorovičić house in Volosko commemorates the seismologist (born nearby in Volosko in 1857), discoverer of the Mohorovičić discontinuity",
+        "Volosko is administratively part of Općina Opatija"
+      ],
+      "vocab": [
+        {"hr": "ribarska luka", "en": "fishing harbour", "note": "Volosko's ribarska luka still operates with a small working fleet, alongside restaurants and yacht moorings"},
+        {"hr": "stube", "en": "stone steps / staircase", "note": "Voloskanske stube — the stone stairways climbing from Volosko's harbour up the hill — define the old village layout"},
+        {"hr": "seizmolog", "en": "seismologist", "note": "Andrija Mohorovičić, the seizmolog born in Volosko in 1857, discovered the Mohorovičić discontinuity inside the Earth"}
+      ],
+      "didYouKnow": "The 'Moho' — Mohorovičić discontinuity, the boundary between Earth's crust and mantle used by every modern seismologist — is named after Andrija Mohorovičić, who was born in Volosko in 1857; his birth house is preserved as a small museum near the harbour."
+    },
+    {
+      "name": "Kraljevica",
+      "region": "Kvarner",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Frankopan castle town on the Kvarner",
+      "intro": "Kraljevica is a small coastal town on the eastern Kvarner shore between Rijeka and Crikvenica, set at the entrance to the Bay of Bakar. Its centre is dominated by the two 17th-century Frankopan/Zrinski castles — Stari grad and Novi grad — and by the shipyard (Brodogradilište Kraljevica), one of the oldest in continuous operation on the Adriatic.",
+      "history": "Kraljevica's identity centres on the Frankopan and Zrinski noble families, who built two castles here in the 1620s and 1650s: Stari grad (Old Castle) and Novi grad (New Castle). The Zrinski-Frankopan conspiracy against the Habsburgs in 1670–71 ended with the execution of Petar Zrinski and Fran Krsto Frankopan; the family estates, including Kraljevica, were confiscated by Vienna. In 1729 the Habsburgs founded a shipyard at Kraljevica to support the new Karolina road connecting Karlovac to the sea. The shipyard has operated nearly continuously since then, and Kraljevica remained a small port and resort town under Austria, Italy, Yugoslavia and Croatia.",
+      "facts": [
+        "Kraljevica's two castles, Stari grad and Novi grad, were built by the Zrinski-Frankopan families in the 17th century",
+        "The Zrinski-Frankopan conspirators Petar Zrinski and Fran Krsto Frankopan were executed in 1671 after their failed revolt against the Habsburgs",
+        "The Kraljevica shipyard (Brodogradilište Kraljevica), founded in 1729, is one of the oldest continuously operating shipyards on the Adriatic",
+        "The town was historically the Adriatic terminus of the Karolina road, the first carriage road from inland Croatia to the sea (completed 1726)",
+        "Kraljevica is part of Primorje-Gorski Kotar County"
+      ],
+      "vocab": [
+        {"hr": "Frankopani", "en": "the Frankopan noble family", "note": "Kraljevica's two castles were built in the 17th century by the Frankopani — one of the great Croatian noble families"},
+        {"hr": "brodogradilište", "en": "shipyard", "note": "The Kraljevica brodogradilište, founded 1729, is one of the oldest continuously operating shipyards on the Adriatic"},
+        {"hr": "urota", "en": "conspiracy / plot", "note": "The Zrinsko-frankopanska urota of 1670–71 ended with the execution of Petar Zrinski and Fran Krsto Frankopan"}
+      ],
+      "didYouKnow": "The Karolina road (Karolinska cesta), completed in 1726 from Karlovac to Bakar/Kraljevica, was the first modern carriage road connecting inland Habsburg Croatia to the Adriatic — and made Kraljevica's shipyard, founded just three years later, economically viable."
+    },
+    {
+      "name": "Selce",
+      "region": "Kvarner",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Quiet Vinodol resort south of Crikvenica",
+      "intro": "Selce is a small coastal town on the Vinodol coast immediately south of Crikvenica. Set on a gently descending slope toward the sea, with pebble beaches and a small harbour, Selce has been a quieter alternative to its larger neighbour Crikvenica since both developed as health resorts under late-Habsburg Austria.",
+      "history": "Selce belonged historically to the Vinodol domain of the Frankopan family, whose 1288 Vinodol Statute is one of the oldest surviving Slavic legal codes. Under the Frankopans and then the Habsburgs, Selce remained a small fishing and farming village. In the late 19th century, as Crikvenica boomed as an Austro-Hungarian seaside resort, Selce developed in parallel with smaller hotels and bathing establishments. Under Italian (briefly), Yugoslav and Croatian rule it continued as a tourist village, today part of the city of Crikvenica.",
+      "facts": [
+        "Selce was historically part of the Frankopan Vinodol domain, governed under the 1288 Vinodol Statute — one of the oldest Slavic legal codes",
+        "The town is administratively part of the City of Crikvenica in Primorje-Gorski Kotar County",
+        "Selce developed as a small seaside resort in parallel with Crikvenica in the late 19th and early 20th centuries",
+        "The parish church of the Most Holy Trinity stands at the centre of the old village",
+        "Selce's pebble beaches stretch south toward Klenovica along the Vinodol coast"
+      ],
+      "vocab": [
+        {"hr": "Vinodol", "en": "Vinodol (historical region)", "note": "Selce was part of the Frankopan Vinodol — the historic coastal strip between Bakar and Novi Vinodolski"},
+        {"hr": "zakonik", "en": "law code / statute", "note": "The 1288 Vinodolski zakonik — Vinodol Statute — is one of the oldest surviving legal codes in any Slavic language"},
+        {"hr": "lječilište", "en": "health resort / sanatorium", "note": "Selce, like neighbouring Crikvenica, became a small lječilište under late Habsburg Austria"}
+      ],
+      "didYouKnow": "The 1288 Vinodol Statute, whose territory included Selce, was written in Croatian using the Glagolitic script — making it one of the earliest legal codes anywhere in the world to be written in a vernacular Slavic language rather than Latin."
+    },
+    {
+      "name": "Klenovica",
+      "region": "Kvarner",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Vinodol coast village under the Velebit's shadow",
+      "intro": "Klenovica is a small coastal village on the Vinodol coast between Novi Vinodolski and Senj, where the Vinodol valley opens out to face the open Velebit channel. The village is one of the most exposed to the bora wind, which can reach hurricane force here, and its small protected harbour was traditionally important for local fishermen and coastal traders.",
+      "history": "Klenovica was part of the Frankopan Vinodol domain governed under the 1288 Vinodol Statute. Under the Frankopans, then the Habsburgs from the late 16th century, it remained a small fishing village. The bora-exposed position made the village's small harbour a critical refuge for boats caught out by sudden winds between Senj and Novi Vinodolski. Under Italian (briefly), Yugoslav and Croatian rule Klenovica has developed modestly as a small summer-tourism settlement, today part of the City of Novi Vinodolski.",
+      "facts": [
+        "Klenovica is administratively part of the City of Novi Vinodolski in Primorje-Gorski Kotar County",
+        "The village faces the Velebit channel and is one of the most bora-exposed stretches of the eastern Adriatic coast",
+        "Klenovica was historically part of the Frankopan Vinodol governed under the 1288 Vinodol Statute",
+        "The bora wind at Klenovica can reach hurricane-force gusts during winter storms",
+        "The small harbour traditionally provided emergency refuge for boats caught between Senj and Novi Vinodolski"
+      ],
+      "vocab": [
+        {"hr": "bura", "en": "bora wind (cold dry NE wind)", "note": "Klenovica is one of the most bura-exposed spots on the Adriatic; winter gusts here have reached hurricane force"},
+        {"hr": "kanal", "en": "channel (sea strait)", "note": "Klenovica faces the Velebitski kanal — the channel between the mainland and Pag/Rab islands"},
+        {"hr": "vjetar", "en": "wind", "note": "Klenovica's defining vjetar is the bura; the village's small breakwater is built specifically against it"}
+      ],
+      "didYouKnow": "The Velebit channel facing Klenovica is famous among Croatian sailors for the maljak — sudden bora gusts that can hit 200+ km/h in winter, sometimes capsizing small boats with no warning — and Klenovica's old fishermen historically read cloud-cap signs on Velebit to predict the wind."
+    },
+    {
+      "name": "Jadranovo",
+      "region": "Kvarner",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Crikvenica coast village near Sveti Jakov",
+      "intro": "Jadranovo is a small coastal village on the Vinodol coast between Crikvenica and Kraljevica, set along a gently descending shoreline with several small coves. It is administratively part of the City of Crikvenica and is centred around the historic harbour of Sveti Jakov (Saint James).",
+      "history": "Jadranovo's old name was Sveti Jakov — Saint James — after its parish church; it was renamed Jadranovo in the Yugoslav period to remove the religious reference (the name combines Jadran, the Croatian name for the Adriatic, with a Slavic place-name suffix). The village was historically part of the Frankopan Vinodol domain and shares the broader Vinodol-coast development pattern, evolving from a small fishing village into a modest summer-tourism settlement in the late 19th and 20th centuries. The parish church of Saint James survives and the older village name is still in local use.",
+      "facts": [
+        "Jadranovo's older name was Sveti Jakov (Saint James), changed in the Yugoslav period to remove the religious reference",
+        "The village is administratively part of the City of Crikvenica in Primorje-Gorski Kotar County",
+        "Jadranovo was historically part of the Frankopan Vinodol domain governed under the 1288 Vinodol Statute",
+        "The new name combines Jadran (Croatian for Adriatic) with the place-suffix '-ovo'",
+        "The village's parish church of Saint James gave it its older name and still stands today"
+      ],
+      "vocab": [
+        {"hr": "Jadran", "en": "the Adriatic Sea", "note": "Jadranovo's name comes from Jadran — the Croatian name for the Adriatic — replacing the older Sveti Jakov"},
+        {"hr": "more", "en": "sea", "note": "Jadranovo sits on the Jadransko more — the Adriatic Sea — along the Vinodol coast"},
+        {"hr": "uvala", "en": "cove / inlet", "note": "Jadranovo has several small uvale along its shoreline, traditional anchorages for fishing boats"}
+      ],
+      "didYouKnow": "Jadranovo is one of dozens of Croatian coastal villages that were renamed during the Yugoslav period to remove Saint-name origins — a pattern that included places like Sveti Filip i Jakov (renamed briefly to Filipjakov) and others later restored to their original names after 1991."
+    },
+    {
+      "name": "Dramalj",
+      "region": "Kvarner",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Vinodol coast suburb of Crikvenica",
+      "intro": "Dramalj is a small coastal settlement on the Vinodol coast immediately north of Crikvenica, today essentially a residential and tourism extension of the larger town. It sits along a gently sloping shore with pebble beaches and small coves, with a small old village core a short distance inland.",
+      "history": "Dramalj was historically a small farming and fishing village on the Frankopan Vinodol coast, governed under the 1288 Vinodol Statute. Under Habsburg, Italian (briefly) and Yugoslav rule it remained a small settlement. In the late 20th century, as Crikvenica expanded as a major tourist resort, Dramalj filled in along the coast as a residential and tourism suburb, today administratively part of the City of Crikvenica.",
+      "facts": [
+        "Dramalj is administratively part of the City of Crikvenica in Primorje-Gorski Kotar County",
+        "The village was historically part of the Frankopan Vinodol domain under the 1288 Vinodol Statute",
+        "Dramalj sits immediately north of central Crikvenica along the coastal road",
+        "The village has retained a small old core inland from the main coastal road",
+        "Pebble beaches stretch along the Dramalj shoreline toward Jadranovo"
+      ],
+      "vocab": [
+        {"hr": "grad", "en": "city / town", "note": "Dramalj is part of the grad Crikvenica — the City of Crikvenica administrative area"},
+        {"hr": "naselje", "en": "settlement", "note": "Dramalj is one of several naselja making up the City of Crikvenica's coastal strip"},
+        {"hr": "obala", "en": "coast / shore", "note": "Dramalj's obala forms part of the long Crikvenica-area pebble shoreline along the Vinodol coast"}
+      ],
+      "didYouKnow": "The wider Crikvenica-Dramalj-Selce-Jadranovo strip was developed for tourism beginning in 1888, when Archduke Joseph of Habsburg built the first hotel in Crikvenica — making this stretch of the Vinodol coast one of the earliest organised tourist areas in modern Croatia."
+    },
+    {
+      "name": "Smrika",
+      "region": "Kvarner",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Vinodol coast hamlet near Kraljevica",
+      "intro": "Smrika is a small coastal hamlet on the eastern Kvarner shore between Kraljevica and Crikvenica, set on a gentle slope above the sea. It is administratively part of the City of Kraljevica and shares the wider Vinodol coastal identity, with traditional small-scale farming and fishing background giving way to summer-residential development.",
+      "history": "Smrika was historically a small farming hamlet within the Frankopan Vinodol domain, governed under the 1288 Vinodol Statute. Under Habsburg rule it remained a small village. With the late-20th-century growth of Kraljevica and the broader Vinodol coast as residential and tourism areas, Smrika has gradually filled in with houses and apartments, though it remains much smaller than its neighbours Kraljevica and Crikvenica.",
+      "facts": [
+        "Smrika is administratively part of the City of Kraljevica in Primorje-Gorski Kotar County",
+        "The village was historically part of the Frankopan Vinodol domain under the 1288 Vinodol Statute",
+        "Smrika sits on the coastal road between Kraljevica and Crikvenica",
+        "The settlement name 'Smrika' comes from the Croatian word for juniper (smreka/smrika)",
+        "The village retains a small old core inland from the main coastal road"
+      ],
+      "vocab": [
+        {"hr": "smrika", "en": "juniper", "note": "The village name Smrika comes from the Croatian word for juniper — common in the karst landscape"},
+        {"hr": "selo", "en": "village", "note": "Smrika is a small selo on the Vinodol coast, historically subsistence farming and fishing"},
+        {"hr": "kraška", "en": "karst (adjective)", "note": "Smrika sits in classic kraška — karst — terrain, the limestone landscape of the eastern Adriatic coast"}
+      ],
+      "didYouKnow": "Juniper (smrika in the local Čakavian dialect, smreka in standard Croatian) was traditionally harvested in villages like Smrika to make rakija od smrike — juniper brandy similar to gin — still produced as a regional spirit on the Croatian coast."
+    },
+    {
+      "name": "Hreljin",
+      "region": "Kvarner",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Hilltop village above the Vinodol valley",
+      "intro": "Hreljin is a hilltop village above the Vinodol valley, inland from Bakar and Kraljevica, with the ruined Frankopan castle of Hreljin (also called Hreljingrad) crowning the ridge. The fortress controlled the upper Vinodol pass and was one of the principal Frankopan strongholds named in the 1288 Vinodol Statute.",
+      "history": "Hreljin and its castle were the seat of one of the eight municipalities (kotari) named in the 1288 Vinodol Statute, the law code given by the Frankopan family to their Vinodol subjects. The hilltop position controlled the upper Vinodol valley and the route inland toward Gorski Kotar. Under the Frankopans and later the Habsburgs, the castle remained a regional centre; it fell into ruin after the early modern period, but the stone shell of Hreljingrad survives. The village below was reduced significantly in population over the 20th century as residents moved to coastal Kraljevica and Bakar, but Hreljin remains the seat of a small parish.",
+      "facts": [
+        "Hreljin's ruined Frankopan castle (Hreljingrad) controlled the upper Vinodol valley in the medieval period",
+        "Hreljin is named in the 1288 Vinodol Statute as one of the eight Frankopan municipalities (kotari) of Vinodol",
+        "The village sits on a ridge above the Vinodol valley, inland from Bakar and Kraljevica",
+        "Hreljin is administratively part of the City of Bakar in Primorje-Gorski Kotar County",
+        "The castle ruins are a protected monument under Croatian cultural-heritage law"
+      ],
+      "vocab": [
+        {"hr": "Frankopani", "en": "the Frankopan noble family", "note": "Hreljin's castle was one of the principal Frankopani strongholds of medieval Vinodol"},
+        {"hr": "kotar", "en": "district / municipality", "note": "Hreljin was one of the eight kotari named in the 1288 Vinodolski zakonik"},
+        {"hr": "ruševina", "en": "ruin", "note": "Hreljingrad today stands as a stone ruševina — the surviving shell of the medieval Frankopan fortress"}
+      ],
+      "didYouKnow": "The 1288 Vinodol Statute was signed at the parish of Saint Mary in nearby Novi Vinodolski by representatives of all eight Vinodol kotari, including Hreljin — making the village one of the named witnesses to a document now considered foundational to South Slavic legal history."
+    },
+    {
+      "name": "Lukovo",
+      "region": "Kvarner",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Small Vinodol settlement near Crikvenica",
+      "intro": "Lukovo is a small inland settlement on the Vinodol slopes above Crikvenica, in Primorje-Gorski Kotar County. It belongs to the broader Frankopan Vinodol heritage shared with Crikvenica, Selce, Jadranovo and other Vinodol-coast settlements, and retains a traditional rural character of stone houses and small fields surrounded by karst terrain.",
+      "history": "Lukovo was historically a small farming hamlet within the Frankopan Vinodol domain, governed under the 1288 Vinodol Statute alongside the other settlements of the valley. Under Habsburg, Italian (briefly) and Yugoslav rule it remained a small subsistence community. The village population declined through the 20th century as residents moved to the coastal towns. It is today a small inland settlement administratively part of the wider Crikvenica/Vinodol area.",
+      "facts": [
+        "Lukovo is on the Vinodol-coast hinterland near Crikvenica in Primorje-Gorski Kotar County",
+        "The settlement was historically part of the Frankopan Vinodol domain governed under the 1288 Vinodol Statute",
+        "The name Lukovo derives from the personal name Luka (Luke) — a common Croatian place-name pattern",
+        "The village sits in classic Croatian karst terrain — limestone with thin soil",
+        "Lukovo's population has declined significantly through 20th-century coastal migration"
+      ],
+      "vocab": [
+        {"hr": "zaselak", "en": "hamlet / small settlement", "note": "Lukovo is essentially a zaselak — a small hamlet on the Vinodol-coast hinterland"},
+        {"hr": "karst", "en": "karst landscape", "note": "Lukovo sits in classic karst — the limestone landscape with sinkholes and thin red soil typical of the eastern Adriatic"},
+        {"hr": "iseljavanje", "en": "out-migration", "note": "Lukovo, like many Vinodol hinterland villages, has experienced significant 20th-century iseljavanje toward the coastal towns"}
+      ],
+      "didYouKnow": "Place names beginning with 'Luk-' (Lukovo, Luka, Lukovica, Lukoran) appear all over the Croatian coast — over 30 distinct settlements share the root — making 'Lukovo'-style names among the most common in Croatian topography after the Sveti/Saint dedications."
+    },
+    {
+      "name": "Stara Baška",
+      "region": "Kvarner",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Pebble coves on Krk's southern shore",
+      "intro": "Stara Baška ('Old Baška') is a small village on the southwestern coast of the island of Krk, set in a steep amphitheatre of bare karst hills above a string of pebble coves. Despite its name it is administratively distinct from the larger Baška further east; the two are separated by the wild Krk interior and connected only by a winding back-road.",
+      "history": "Stara Baška was historically a small Glagolitic-script fishing and shepherding community on Krk's exposed southern coast. Like the wider island it belonged in the medieval period to the Frankopan family, then to Venice (1480–1797), then Habsburg Austria. The harsh bora-exposed landscape kept the population small. After Italian (briefly) and Yugoslav rule, Stara Baška has developed modestly as a summer-tourism settlement, with its pebble coves popular among visitors who want a quieter alternative to the busier Baška across the island.",
+      "facts": [
+        "Stara Baška sits on the southwestern coast of Krk, the largest Adriatic island",
+        "The settlement is administratively part of Općina Punat",
+        "Stara Baška is in the bora-exposed, sparsely vegetated southern karst of Krk",
+        "The village's coves face the Krk-Prvić channel and the small island of Prvić",
+        "Krk belonged to the Frankopan family until 1480, then to Venice until 1797"
+      ],
+      "vocab": [
+        {"hr": "uvala", "en": "cove / inlet", "note": "Stara Baška is known for its uvale — a chain of pebble coves on Krk's exposed southern coast"},
+        {"hr": "kamenjar", "en": "stony karst (barren limestone)", "note": "Stara Baška sits in dramatic kamenjar — the bare karst of southern Krk, scoured by the bura"},
+        {"hr": "stari", "en": "old", "note": "The name Stara Baška ('Old Baška') distinguishes the village from Baška further east on Krk's eastern coast"}
+      ],
+      "didYouKnow": "Stara Baška faces the small uninhabited island of Prvić (not to be confused with the Prvić near Šibenik), one of the most pristine wildlife reserves on the Adriatic — home to a colony of griffon vultures (bjeloglavi sup) that nest on the island's cliffs."
+    },
+    {
+      "name": "Soline",
+      "region": "Kvarner",
+      "icon": "💧",
+      "color": "#0e7490",
+      "tagline": "Mud-bath bay on Krk's eastern coast",
+      "intro": "Soline is a small village on the shallow Soline Bay (Solinski zaljev) on the eastern side of Krk, between Klimno and Čižići. The bay is best known for its therapeutic black mud (peloid), used since at least the 19th century for skin and rheumatic treatments, and the very shallow warm waters that make it a popular family bathing area.",
+      "history": "Soline takes its name from the historical salt-pans (soline) that once worked the shallow bay, exploiting the same shallow tidal flats that today produce the therapeutic mud. The bay was used for salt production from medieval times under the Frankopan and Venetian periods. The therapeutic peloid mud has been documented and used since the 19th century, with Austro-Hungarian-era spa visitors travelling here for treatments. Under Italian (briefly), Yugoslav and Croatian rule, Soline has developed as a modest spa-tourism and family-beach village.",
+      "facts": [
+        "Soline takes its name from the medieval salt-pans (soline) once worked in its shallow bay",
+        "The bay is famous for its therapeutic black mud (peloid), used for centuries for skin and rheumatic treatments",
+        "Soline Bay is one of the shallowest large bays on Krk, with very warm summer water temperatures",
+        "The village is administratively part of Općina Dobrinj on Krk",
+        "Czech and Slovak visitors have historically been among the most frequent visitors to Soline for its mud baths"
+      ],
+      "vocab": [
+        {"hr": "sol", "en": "salt", "note": "Soline's name comes from sol — salt — from the medieval salt-pans once worked in its shallow bay"},
+        {"hr": "blato", "en": "mud", "note": "Soline's therapeutic crno blato — black mud — has been used for centuries for skin and joint conditions"},
+        {"hr": "peloid", "en": "peloid (therapeutic mud)", "note": "The peloid of Soline Bay on Krk is one of the few therapeutic muds on the Croatian Adriatic"}
+      ],
+      "didYouKnow": "The therapeutic mud of Soline Bay forms naturally because the very shallow bay traps fine sediment over centuries; the bay is so shallow that at low tide much of it is walkable, and the mud can be scooped by hand at the shoreline."
+    },
+    {
+      "name": "Klimno",
+      "region": "Kvarner",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Sheltered harbour on Krk's eastern shore",
+      "intro": "Klimno is a small village and sheltered harbour on the eastern coast of Krk, at the northern end of Soline Bay. Its small harbour has long been used by Krk fishermen and traders to shelter from the bora wind blowing down the Vinodol channel, and the village retains a quiet character despite its position on the busy eastern Krk coastal road.",
+      "history": "Klimno was historically a small fishing village and a refuge harbour for boats moving along Krk's bora-exposed eastern coast. Like the wider island it belonged to the Frankopan family until 1480, then Venice until 1797, then Habsburg Austria. Under Italian (briefly), Yugoslav and Croatian rule, the village has remained small and has developed modestly as a tourism settlement, often visited alongside Soline for its mud baths.",
+      "facts": [
+        "Klimno is on the eastern coast of Krk at the northern end of Soline Bay",
+        "The village is administratively part of Općina Dobrinj on Krk",
+        "Klimno's harbour is one of the best natural refuges from the bora wind on Krk's exposed eastern coast",
+        "The village's parish church is dedicated to Saint Clement (Sveti Klement), giving Klimno its name",
+        "Klimno is connected to Soline by a short coastal road around the bay"
+      ],
+      "vocab": [
+        {"hr": "luka", "en": "harbour / port", "note": "Klimno's small luka is one of the safest refuges from the bura on Krk's eastern coast"},
+        {"hr": "zaklon", "en": "shelter / refuge", "note": "Klimno serves as a natural zaklon from the bora for boats moving along Krk's exposed eastern coast"},
+        {"hr": "Sveti Klement", "en": "Saint Clement", "note": "The village Klimno is named after Sveti Klement — Saint Clement — its parish patron"}
+      ],
+      "didYouKnow": "Klimno's name is one of dozens of Croatian place-names that come from a saint's name through systematic vowel-and-consonant erosion: Sveti Klement → Klimno is the same kind of process that gave Sveti Petar → Sutpetar and other simplifications."
+    },
+    {
+      "name": "Nerezine",
+      "region": "Kvarner",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Franciscan monastery on northern Lošinj",
+      "intro": "Nerezine is a small village on the northern part of the island of Lošinj, on the narrow isthmus that connects Lošinj to Cres at Osor. It is best known for its 15th-century Franciscan monastery, founded in 1473 on the slopes of Mount Osoršćica, the highest mountain on the island.",
+      "history": "Nerezine grew up around the Franciscan monastery founded in 1473 by Friar Martin of Osor. Under Venetian rule (until 1797) and then Habsburg Austria, the village remained a small farming and seafaring community. Like much of Lošinj and Cres it had a mixed Croatian and Italian-speaking population. The Franciscan monastery has remained a religious centre throughout the island's history. After Italian and Yugoslav rule, Nerezine has continued as a small village now part of the City of Mali Lošinj.",
+      "facts": [
+        "Nerezine's Franciscan monastery was founded in 1473 by Friar Martin of Osor",
+        "The village sits on the slopes of Mount Osoršćica (Televrina), the highest point on Lošinj at 588 metres",
+        "Nerezine is administratively part of the City of Mali Lošinj",
+        "The settlement is near the Osor canal that separates Lošinj from Cres",
+        "The Franciscan monastery library historically held significant ecclesiastical manuscripts"
+      ],
+      "vocab": [
+        {"hr": "franjevci", "en": "Franciscans (religious order)", "note": "Nerezine's franjevci have been present at the monastery since its founding in 1473"},
+        {"hr": "samostan", "en": "monastery", "note": "Nerezine's franjevački samostan — Franciscan monastery — was founded in 1473, one of the oldest on the Kvarner islands"},
+        {"hr": "vrh", "en": "summit / peak", "note": "Nerezine sits below the vrh of Osoršćica (Televrina), at 588 m the highest point on Lošinj"}
+      ],
+      "didYouKnow": "Mount Osoršćica above Nerezine is one of only a handful of Adriatic peaks high enough to receive significant winter snow, and from its summit, on a clear day, you can see across to the Italian Alps roughly 230 kilometres to the northwest."
+    },
+    {
+      "name": "Belej",
+      "region": "Kvarner",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Sheep-farming village in southern Cres",
+      "intro": "Belej is a small inland village in the southern part of the island of Cres, in the sparsely populated agricultural area between Osor and the southern tip of the island. The village is one of the historic centres of Cres sheep-farming, the dominant traditional economic activity of the south of the island, and is surrounded by the dry-stone walls that subdivide the karst landscape.",
+      "history": "Belej is documented from the medieval period as a small farming village under the bishopric of Osor and the Republic of Venice (1409–1797). Sheep-farming on the open karst pastures of southern Cres has been the dominant economic activity here for centuries, producing the renowned cresjska janjetina (Cres lamb) and cresjski sir (Cres sheep cheese). Under Habsburg, Italian and Yugoslav rule, Belej remained a small subsistence-farming community. Twentieth-century depopulation has reduced the village to a few dozen permanent residents.",
+      "facts": [
+        "Belej is in the sparsely populated southern part of Cres, in Primorje-Gorski Kotar County",
+        "Sheep-farming on the surrounding karst pastures has been the dominant traditional economic activity",
+        "Cres lamb (cresjska janjetina) and Cres cheese (cresjski sir) are recognised regional foods",
+        "The village is administratively part of the City of Mali Lošinj on the neighbouring island",
+        "Belej is surrounded by the long dry-stone walls that have subdivided Cres pastures for centuries"
+      ],
+      "vocab": [
+        {"hr": "ovca", "en": "sheep", "note": "Belej is a centre of Cres ovce — the autochthonous sheep breed grazing southern Cres's karst pastures"},
+        {"hr": "janjetina", "en": "lamb (meat)", "note": "Cresjska janjetina — Cres lamb — is a regional speciality from villages like Belej"},
+        {"hr": "sir", "en": "cheese", "note": "Cresjski sir — Cres sheep cheese — is a traditional product of villages like Belej in southern Cres"}
+      ],
+      "didYouKnow": "The dry-stone walls subdividing the pastures around Belej are so extensive that, if laid end-to-end, the dry-stone walls of Cres island alone are estimated by ethnographers to exceed several thousand kilometres in total length — built over many centuries without mortar."
+    },
+    {
+      "name": "Martinšćica",
+      "region": "Kvarner",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Fishing harbour on Cres's western coast",
+      "intro": "Martinšćica is a small village on the western coast of the island of Cres, in a small sheltered bay facing the open Kvarner. It is one of the few proper villages on Cres's western coast and combines a small fishing harbour with a modest summer-tourism economy.",
+      "history": "Martinšćica is documented from the medieval period as a small fishing village under Venice (1409–1797) and the bishopric of Osor. Like the wider island it had a mixed Croatian and Italian-speaking population. Under Habsburg, Italian (1918–1947) and Yugoslav rule it remained a small village. After 1991 it has remained part of the City of Cres in Primorje-Gorski Kotar County. The 17th-century Sforza family castle in the village survives as a private property.",
+      "facts": [
+        "Martinšćica is on the western coast of Cres facing the open Kvarner",
+        "The village contains a 17th-century Sforza family castle (Kaštel Sforza)",
+        "Martinšćica is administratively part of the City of Cres",
+        "The village's sheltered bay is one of the few good harbours on Cres's western coast",
+        "Cres island was under Venice from 1409 until the fall of the Republic in 1797"
+      ],
+      "vocab": [
+        {"hr": "luka", "en": "harbour / port", "note": "Martinšćica's small luka is one of the few sheltered harbours on Cres's open western coast"},
+        {"hr": "kaštel", "en": "small castle / fortified house", "note": "Martinšćica's 17th-century Kaštel Sforza is a fortified noble residence still standing in the village"},
+        {"hr": "ribar", "en": "fisherman", "note": "Martinšćica's ribari still work from its small western-coast harbour"}
+      ],
+      "didYouKnow": "The Sforza castle at Martinšćica was built in the 17th century by an Italian noble family of the same name as the more famous Milanese Sforzas, though the Cres branch was a minor offshoot — one of dozens of Italian families that held Venetian-coast estates in the early-modern Adriatic."
+    },
+    {
+      "name": "Valun",
+      "region": "Kvarner",
+      "icon": "🏛️",
+      "color": "#7c3aed",
+      "tagline": "Home of the Glagolitic Tablet of Valun",
+      "intro": "Valun is a tiny fishing village on the western coast of the island of Cres, set on a small sheltered bay surrounded by pine and oak. Its historical importance vastly exceeds its size: the parish church holds the 11th-century Valun Tablet (Valunska ploča), one of the oldest surviving Glagolitic inscriptions in the world.",
+      "history": "Valun's small parish church of Saint Mary holds the Valun Tablet — a 11th-century gravestone inscription written bilingually in Croatian Glagolitic script and Latin script. It commemorates three generations of the same family: grandmother Téha, son Bratohna and grandson Juna, who lived and died in the area. The bilingual inscription is one of the earliest pieces of evidence for the coexistence of Glagolitic Croatian and Latin literacy on the eastern Adriatic. Under Venice (1409–1797), Habsburg, Italian and Yugoslav rule, Valun has remained a small fishing village.",
+      "facts": [
+        "The Valun Tablet (Valunska ploča) is one of the oldest surviving Glagolitic inscriptions, dated to the 11th century",
+        "The tablet is bilingual — written in Croatian Glagolitic script and in Latin script — and is preserved in the parish church",
+        "The inscription names three generations of one family: Téha, her son Bratohna and her grandson Juna",
+        "Valun is on the western coast of Cres, administratively part of the City of Cres",
+        "The Valun Tablet is one of the foundational documents of Croatian literacy and Glagolitic culture"
+      ],
+      "vocab": [
+        {"hr": "glagoljica", "en": "Glagolitic script", "note": "The Valunska ploča — Valun Tablet — is one of the oldest surviving inscriptions in glagoljica, the Croatian alphabet predating Cyrillic"},
+        {"hr": "ploča", "en": "stone slab / tablet", "note": "The 11th-century Valunska ploča is a stone tablet — a grave inscription preserved in Valun's parish church"},
+        {"hr": "natpis", "en": "inscription", "note": "The Valun natpis is bilingual — written in both Glagolitic Croatian and Latin script — one of the earliest of its kind"}
+      ],
+      "didYouKnow": "The Valun Tablet is so important to Croatian linguistic history that the Croatian alphabet of Glagolitic (glagoljica) is sometimes called 'the script of Valun' — and reproductions of the tablet hang in nearly every Croatian Glagolitic-studies classroom in the country."
+    },
+    {
+      "name": "Lubenice",
+      "region": "Kvarner",
+      "icon": "🏛️",
+      "color": "#7c3aed",
+      "tagline": "Bronze-age cliff village on western Cres",
+      "intro": "Lubenice is a clifftop village on the western coast of the island of Cres, set on a limestone bluff 378 metres above the sea. The site has been continuously inhabited since the Bronze Age (around 4,000 years ago), making it one of the longest continuously inhabited settlements in Europe. Today fewer than two dozen permanent residents remain.",
+      "history": "Lubenice was first settled by Bronze Age peoples and has been continuously inhabited since — through Liburnian, Roman, medieval Croatian and Venetian periods. Under Venice from 1409 to 1797, it remained a fortified hilltop village. Like the rest of Cres it passed to Habsburg Austria, then Italy (1918–1947), then Yugoslavia. Twentieth-century depopulation reduced the village from several hundred residents to fewer than 30 today, but the stone settlement remains largely intact and protected as a cultural monument.",
+      "facts": [
+        "Lubenice has been continuously inhabited since approximately the Bronze Age — about 4,000 years",
+        "The village sits on a limestone cliff 378 metres above the sea on Cres's western coast",
+        "Today fewer than 20 permanent residents remain in Lubenice",
+        "The stone village walls and houses are largely intact and protected under Croatian heritage law",
+        "The beach below Lubenice is one of the most photographed on the Adriatic — though it is reached only by a steep one-hour footpath"
+      ],
+      "vocab": [
+        {"hr": "brončano doba", "en": "Bronze Age", "note": "Lubenice has been inhabited since the brončano doba — about 4,000 years — one of the longest continuous habitations in Europe"},
+        {"hr": "litica", "en": "cliff", "note": "Lubenice sits on a 378-metre litica above the Adriatic — one of the most dramatic clifftop positions in Croatia"},
+        {"hr": "selo duhova", "en": "ghost village", "note": "With under 20 permanent residents, Lubenice is sometimes called a selo duhova — though the village core is intact"}
+      ],
+      "didYouKnow": "The beach below Lubenice — visible as a perfect crescent of white pebbles 378 metres straight down from the village — is reachable only by a steep zig-zag footpath that takes roughly an hour each way, and it has appeared in multiple international lists of the most isolated and beautiful European beaches."
+    },
+    {
+      "name": "Beli",
+      "region": "Kvarner",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Eco-Centre and griffon vulture sanctuary",
+      "intro": "Beli is a small village on the northeastern coast of the island of Cres, perched on a hill above the Kvarner. It is best known internationally as the home of the Beli Eco-Centre (Eko-centar Caput Insulae), which has been the centre of conservation efforts for the endangered Eurasian griffon vulture (bjeloglavi sup) since 1993.",
+      "history": "Beli is documented from antiquity — its position on the northeastern coast of Cres is identified with the Roman Caput Insulae ('head of the island'). The village was a small farming and seafaring community under medieval Croatian, then Venetian (1409–1797), then Habsburg rule. Under Italian (1918–1947), Yugoslav and Croatian rule it has continued as a small village. In 1993 the Beli Eco-Centre was established to monitor and protect the Eurasian griffon vulture population, which nests on the cliffs of northern Cres — one of the few remaining colonies in Europe.",
+      "facts": [
+        "The Beli Eco-Centre (Eko-centar Caput Insulae), established in 1993, protects the endangered Eurasian griffon vulture",
+        "The griffon vulture (bjeloglavi sup) has a wingspan of up to 2.8 metres and nests on the cliffs of northern Cres",
+        "Beli is identified with the Roman 'Caput Insulae' — head of the island — at the northeastern tip of Cres",
+        "The village is administratively part of the City of Cres",
+        "Beli's hospital for injured vultures has rehabilitated and released hundreds of birds over three decades"
+      ],
+      "vocab": [
+        {"hr": "bjeloglavi sup", "en": "Eurasian griffon vulture", "note": "Beli's Eco-Centre protects the endangered bjeloglavi sup — wingspan 2.8 m — nesting on the northern Cres cliffs"},
+        {"hr": "ekološki", "en": "ecological", "note": "Beli's Eko-centar Caput Insulae is one of the longest-established ekološki conservation projects in Croatia, founded 1993"},
+        {"hr": "ptica grabljivica", "en": "bird of prey / raptor", "note": "The bjeloglavi sup of Beli is the largest ptica grabljivica regularly seen in Croatia"}
+      ],
+      "didYouKnow": "The griffon vultures of Beli are so closely tied to traditional sheep farming on Cres that the birds nearly went extinct in the 20th century when subsistence shepherding declined — they depend on carrion from outdoor-grazing sheep, and Beli's conservation programme has had to combine bird protection with support for the island's traditional shepherds."
+    }
+  ]
+}

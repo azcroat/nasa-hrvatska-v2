@@ -1,0 +1,874 @@
+{
+  "newCities": [
+    {
+      "name": "Bilje",
+      "region": "Slavonia",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Gateway to the Kopački Rit Wetlands",
+      "intro": "Bilje is a Baranja village a few kilometres north of Osijek, best known as the entry point to Kopački Rit Nature Park — one of the largest preserved inland wetlands in Europe, formed at the confluence of the Drava and Danube rivers. The municipality has a mixed Croatian, Hungarian, and Serbian population reflecting Baranja's layered history.",
+      "history": "Bilje sits in Baranja, a region that was Ottoman from the 16th century until the Habsburg reconquest at the end of the 17th century. The Baroque Prince Eugene of Savoy castle in Bilje (Dvorac Eugena Savojskog) was built around 1707 as a hunting lodge after the prince was granted the Belje estate by Emperor Leopold I. The estate later passed to the Habsburg crown and was managed as one of the largest agricultural holdings in the empire. During the Homeland War, Baranja including Bilje was occupied by Serb forces from 1991 and only peacefully reintegrated under UNTAES in 1997-98.",
+      "facts": [
+        "Bilje is the headquarters and main entrance of Kopački Rit Nature Park, a Ramsar wetland of international importance protecting over 230 bird species",
+        "The Prince Eugene of Savoy hunting castle (Dvorac Eugena Savojskog), built around 1707, today houses the Kopački Rit visitor centre",
+        "Bilje's population is roughly one-quarter Hungarian, and Hungarian is an official language alongside Croatian in the municipality",
+        "The municipality includes the villages of Kopačevo, Vardarac, Lug, and Podunavlje — historically Hungarian-Croatian mixed settlements",
+        "Bilje was peacefully reintegrated into Croatia in 1998 under the UNTAES mission, ending the Eastern Slavonia and Baranja occupation"
+      ],
+      "vocab": [
+        {"hr": "močvara", "en": "swamp / wetland", "note": "Kopački Rit is a močvara — the great Drava-Danube wetland visited from Bilje"},
+        {"hr": "dvorac", "en": "castle / manor", "note": "Bilje's baroque dvorac was Prince Eugene of Savoy's hunting lodge, now a park visitor centre"},
+        {"hr": "ptica", "en": "bird", "note": "Kopački Rit at Bilje hosts over 230 species of ptice — herons, white-tailed eagles, black storks"}
+      ],
+      "didYouKnow": "Kopački Rit near Bilje is sometimes called the European Amazon — its seasonally flooded forests of willow and poplar host one of Europe's densest populations of white-tailed eagles."
+    },
+    {
+      "name": "Antunovac",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#92400e",
+      "tagline": "Slavonian Farming Village South of Osijek",
+      "intro": "Antunovac is a small Slavonian municipality just south of Osijek, in Osijek-Baranja County. It is an agricultural settlement on the Pannonian plain, named after Saint Anthony, and historically populated by Croats and a smaller Serbian community.",
+      "history": "Antunovac was settled in the 18th century during the Habsburg resettlement of Slavonia following the expulsion of the Ottomans. Like much of the Osijek hinterland, its economy was tied to large estates (vlastelinstva) and grain agriculture on the rich black soil. The village was part of the Military Frontier system in earlier periods. During the Homeland War (1991-1995), Antunovac sat near the front line of the Osijek defense and suffered shelling and damage from JNA and Serb paramilitary forces operating from positions east toward Tenja and Erdut.",
+      "facts": [
+        "Antunovac municipality includes the village of Ivanovac and lies entirely on flat agricultural land south of Osijek",
+        "The patron saint Anthony of Padua (Sveti Antun Padovanski) gives the village its name; the parish feast is celebrated on June 13",
+        "Antunovac sat just behind the Osijek front line during the 1991-1992 siege and was repeatedly shelled",
+        "The municipality has roughly 3,500 inhabitants and is largely commuter-residential for nearby Osijek"
+      ],
+      "vocab": [
+        {"hr": "selo", "en": "village", "note": "Antunovac is a typical Slavonian selo — flat, agricultural, settled in the Habsburg era"},
+        {"hr": "polje", "en": "field", "note": "The black-earth polja around Antunovac grow wheat, maize, and sunflower — classic Slavonian crops"},
+        {"hr": "župnik", "en": "parish priest", "note": "The Antunovac župnik leads the Sveti Antun parish, named for Anthony of Padua"}
+      ],
+      "didYouKnow": "Antunovac's population dropped sharply in the early 1990s when residents fled the Osijek shelling, then recovered as people resettled after the Erdut Agreement of 1995."
+    },
+    {
+      "name": "Erdut",
+      "region": "Slavonia",
+      "icon": "🍷",
+      "color": "#7c3aed",
+      "tagline": "Danube Village Where the 1995 Agreement Was Signed",
+      "intro": "Erdut is a Danube-side village on the easternmost edge of Croatia, in Osijek-Baranja County, with one of the country's most dramatic riverbank locations — the Erdut tower stands on a loess cliff overlooking the Danube. The village gave its name to the November 1995 Erdut Agreement, which laid the legal foundation for the peaceful reintegration of Eastern Slavonia, Baranja, and Western Srijem into Croatia.",
+      "history": "Erdut's medieval fortress sits on a high loess cliff above the Danube, and the surviving Erdut Tower (Erdutska kula) is one of the few preserved medieval towers in Slavonia. The village was Ottoman territory from the 16th to late 17th century, then Habsburg. In modern times, Erdut became a major wine-producing centre — the Erdut vineyards (Erdutski vinogradi) are among Croatia's largest contiguous vineyards. During the Homeland War, the wider area was occupied by Serb forces from 1991. The Erdut Agreement was signed on 12 November 1995, opening the way to the UNTAES mission and the peaceful return of the region to Croatia by January 1998.",
+      "facts": [
+        "The Erdut Agreement was signed on 12 November 1995 between Croatian authorities and local Serb representatives, ending the war in Eastern Slavonia without further military action",
+        "The medieval Erdut Tower (Erdutska kula) stands on a loess cliff and is one of the few surviving medieval defensive towers in Slavonia",
+        "Erdut sits at Croatia's easternmost point on the Danube — the river here forms the border with Serbia",
+        "Erdut Vineyards (Erdutski vinogradi) are among the largest contiguous vineyards in Croatia, producing Graševina and Traminac wines",
+        "The municipality of Erdut includes the larger settlement of Dalj and the villages of Aljmaš and Bijelo Brdo"
+      ],
+      "vocab": [
+        {"hr": "sporazum", "en": "agreement / accord", "note": "The Erdutski sporazum of 1995 ended the war in Eastern Slavonia peacefully"},
+        {"hr": "vinograd", "en": "vineyard", "note": "Erdutski vinogradi — one of the largest contiguous vineyards in Croatia, on Danube loess slopes"},
+        {"hr": "kula", "en": "tower", "note": "Erdutska kula — the medieval tower above the Danube, Erdut's iconic landmark"}
+      ],
+      "didYouKnow": "The loess cliffs at Erdut are among the highest natural Danube banks in the entire river's lower course — visible for kilometres from the Serbian side."
+    },
+    {
+      "name": "Dalj",
+      "region": "Slavonia",
+      "icon": "🏛️",
+      "color": "#dc2626",
+      "tagline": "Danube Town with Roman and Serbian Roots",
+      "intro": "Dalj is a Danube riverside town in the municipality of Erdut, traditionally home to a significant Serbian population and one of the historic centres of Serbs in Eastern Slavonia. It stands on the site of the Roman settlement Teutoburgium and was the birthplace of physicist Milutin Milanković, who formulated the astronomical theory of ice ages.",
+      "history": "The Romans built a castrum here called Teutoburgium on the Danube limes. In medieval and Ottoman times, Dalj was a river crossing and trade point. From the 18th century, Dalj was a property of the Serbian Orthodox Patriarchate of Karlovci — the patriarchs of Karlovci kept a summer residence in Dalj, making it an important Serbian Orthodox cultural centre under the Habsburgs. In August 1991, at the start of the Homeland War, Dalj was the site of a JNA and Serb paramilitary attack on the Croatian police station in which over twenty Croatian police and civilians were killed; the town was then occupied until peaceful reintegration in 1997-98.",
+      "facts": [
+        "Dalj stands on the site of the Roman fort and settlement Teutoburgium, part of the Danube frontier defenses",
+        "The Serbian Orthodox Patriarchs of Karlovci maintained a summer palace in Dalj from the 18th century — a major Habsburg-era Serbian cultural site",
+        "Physicist and astronomer Milutin Milanković, who formulated the Milankovitch cycles theory of ice ages, was born in Dalj in 1879",
+        "The attack on the Dalj police station on 1 August 1991 killed over 20 Croatian police and civilians and marked one of the early Homeland War atrocities",
+        "Dalj was peacefully reintegrated into Croatia in 1997-98 under UNTAES; today its population remains majority Serbian"
+      ],
+      "vocab": [
+        {"hr": "Dunav", "en": "the Danube", "note": "Dalj sits on the Dunav — at this point the river is the Croatia-Serbia border"},
+        {"hr": "patrijaršija", "en": "patriarchate", "note": "Dalj was a property of the Karlovac Serbian Orthodox patrijaršija from the 18th century"},
+        {"hr": "rijeka", "en": "river", "note": "The rijeka at Dalj is the Danube — a 2,860 km waterway from Germany to the Black Sea"}
+      ],
+      "didYouKnow": "Milutin Milanković, born in Dalj in 1879, spent thirty years calculating how Earth's orbital wobbles trigger ice ages — his Milankovitch cycles are now a foundation of paleoclimate science."
+    },
+    {
+      "name": "Drenovci",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#16a34a",
+      "tagline": "Posavina Village on the Bosnian Border",
+      "intro": "Drenovci is a Posavina village in Vukovar-Srijem County, in the flat lowlands between the Sava river and Spačva oak forest. It is the centre of a municipality of several small Šokac and Croat villages on the Bosnia and Herzegovina border, deeply tied to the river and to Slavonian oak (slavonski hrast) forestry.",
+      "history": "Drenovci was settled by Šokci Croats, Catholic Slavonians whose dialects and folk costumes survived through Ottoman and Habsburg periods. The wider Spačva forest area was historically managed as a great Habsburg-era oak forest, and the Slavonian oak from this region was exported across Europe in the 19th and early 20th centuries for shipbuilding, barrel staves, and parquet flooring. The village suffered through both World Wars and the Homeland War, when it sat near the Bosnian border on a sensitive front. The municipality includes Račinovci, Đurići, Posavski Podgajci, and Rajevo Selo.",
+      "facts": [
+        "Drenovci lies between the Sava river and the Spačva oak forest — Europe's largest contiguous pedunculate oak forest",
+        "The Slavonian oak (slavonski hrast, Quercus robur) from the Spačva basin was prized for shipbuilding and exported across Europe",
+        "The Drenovci municipality includes the villages of Račinovci, Đurići, Posavski Podgajci, and Rajevo Selo",
+        "Local Šokac folk costume and the Bećarac singing tradition (UNESCO intangible heritage) remain strong in the area",
+        "Drenovci sits on the Croatia-Bosnia border along the Sava river"
+      ],
+      "vocab": [
+        {"hr": "hrast", "en": "oak", "note": "Slavonski hrast — the prized pedunculate oak of the Spačva forest near Drenovci, exported for centuries"},
+        {"hr": "Šokci", "en": "Šokac people", "note": "Drenovci is a Šokac village — Catholic Croats of Posavina with distinctive dress and dialect"},
+        {"hr": "šuma", "en": "forest", "note": "The Spačva šuma near Drenovci is Europe's largest contiguous lowland oak forest"}
+      ],
+      "didYouKnow": "A single Slavonian oak from the Spačva forest near Drenovci can grow over 35 metres tall and live 400 years — its timber once paneled the Vienna Hofburg and built Trieste's merchant fleet."
+    },
+    {
+      "name": "Babina Greda",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#92400e",
+      "tagline": "Šokac Village with Famous Folk Tradition",
+      "intro": "Babina Greda is a large Slavonian village in Vukovar-Srijem County, between Slavonski Brod and Vinkovci, famous in Croatian folk culture for its preserved Šokac costumes, songs, and the traditional gold-thread embroidery work of its women. It sits in flat Posavina farmland north of the Sava.",
+      "history": "Babina Greda was settled by Šokci Croats and developed within the Habsburg Military Frontier system. After the dissolution of the Frontier in 1881, the village became part of civil Slavonia. Its strong preservation of traditional dress, the gold-embroidered ženska nošnja (women's costume), and Šokac wedding songs made it a touchstone of Slavonian folk identity in the 20th century. The village was the birthplace of Mara Matočec, an interwar peasant rights activist and one of the first Croatian women to engage in national political organising.",
+      "facts": [
+        "Babina Greda is one of the largest villages by area in Croatia — its cadastral territory covers over 110 square kilometres",
+        "The village is famous for its preserved Šokac folk costume, especially the gold-thread embroidered women's blouse (rubina) and headdress",
+        "Activist Mara Matočec, an early 20th-century Croatian peasant rights advocate, was born in Babina Greda in 1885",
+        "The village preserves traditional Šokac wedding rituals, songs, and the bećarac (UNESCO-listed Slavonian song form)",
+        "Babina Greda's parish church of Saint Mark dates from the 19th century and dominates the village centre"
+      ],
+      "vocab": [
+        {"hr": "nošnja", "en": "folk costume", "note": "The Babina Greda nošnja — gold-embroidered Šokac women's dress — is among the most elaborate in Slavonia"},
+        {"hr": "vez", "en": "embroidery", "note": "Zlatovez — gold-thread vez — is the signature handicraft of Babina Greda women"},
+        {"hr": "bećarac", "en": "Slavonian folk song genre", "note": "The bećarac, UNESCO intangible heritage, is alive in villages like Babina Greda"}
+      ],
+      "didYouKnow": "A complete traditional Babina Greda Šokac women's costume with gold-thread embroidery can weigh several kilograms and historically took a year of evening work to make."
+    },
+    {
+      "name": "Andrijaševci",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#92400e",
+      "tagline": "Vinkovci-Area Twin Village",
+      "intro": "Andrijaševci is a Slavonian municipality in Vukovar-Srijem County just west of Vinkovci, comprising the twin villages of Andrijaševci and Rokovci, which sit immediately adjacent to one another and share most administrative functions. It is a typical Slavonian agricultural community in the Bosut river basin.",
+      "history": "The Andrijaševci-Rokovci settlement area lay within the Habsburg Military Frontier and developed as an agricultural community after the Frontier's dissolution in 1881. The villages sit in the lowlands of the Bosut river, a tributary of the Sava, in a landscape historically dominated by oak forest and grain cultivation. During the Homeland War, the area was near the front lines around Vinkovci and suffered shelling and damage.",
+      "facts": [
+        "The municipality consists of two adjoining villages, Andrijaševci and Rokovci, that effectively form one settlement on either side of a main road",
+        "Andrijaševci lies in the Bosut river basin, a tributary of the Sava",
+        "The municipality is part of Vukovar-Srijem County and lies just west of Vinkovci",
+        "Local economy is largely agricultural — grain, maize, and livestock — typical of the Bosut lowlands"
+      ],
+      "vocab": [
+        {"hr": "ravnica", "en": "plain / flatland", "note": "Andrijaševci sits on the Slavonian ravnica — the great Pannonian plain"},
+        {"hr": "općina", "en": "municipality", "note": "The općina of Andrijaševci unites the twin villages of Andrijaševci and Rokovci"},
+        {"hr": "kukuruz", "en": "maize / corn", "note": "Kukuruz fields dominate the Andrijaševci landscape — Slavonia's defining summer crop"}
+      ],
+      "didYouKnow": "Andrijaševci and Rokovci are so closely fused that the main street effectively passes from one village into the other without any rural gap between them."
+    },
+    {
+      "name": "Tovarnik",
+      "region": "Slavonia",
+      "icon": "🏛️",
+      "color": "#dc2626",
+      "tagline": "Birthplace of Poet Antun Gustav Matoš",
+      "intro": "Tovarnik is an Eastern Slavonian village in Vukovar-Srijem County, on the Serbian border, and the birthplace in 1873 of Antun Gustav Matoš — one of the most influential Croatian writers of the early 20th century. In September 1991, Tovarnik was the site of one of the first major battles of the Homeland War, after which the village fell under Serb occupation.",
+      "history": "Tovarnik sits on the historic Vienna-Belgrade road and railway, in Western Srijem. The village was the birthplace in 1873 of Antun Gustav Matoš (A.G. Matoš), the poet and essayist who shaped modern Croatian literary criticism. In September 1991, JNA and Serb paramilitaries attacked Tovarnik; the village's Croatian defenders held out briefly before being overrun, and Tovarnik suffered massacres of remaining Croatian civilians, including elderly people sheltering in the village. It was occupied until peaceful reintegration in 1997-98.",
+      "facts": [
+        "Croatian writer Antun Gustav Matoš (1873-1914), a foundational figure of Croatian modernism, was born in Tovarnik",
+        "Tovarnik sits directly on the Croatia-Serbia border in Western Srijem",
+        "In September 1991, the village was the site of an early major Homeland War battle and the Tovarnik massacre of Croatian civilians",
+        "The Matoš birth house in Tovarnik is preserved as a memorial museum to the writer",
+        "Tovarnik was peacefully reintegrated into Croatia in 1997-98 under UNTAES"
+      ],
+      "vocab": [
+        {"hr": "pjesnik", "en": "poet", "note": "Tovarnik's most famous son, A.G. Matoš, was a pjesnik who renewed Croatian poetry around 1900"},
+        {"hr": "granica", "en": "border", "note": "Tovarnik sits on the granica with Serbia — the easternmost edge of Croatia"},
+        {"hr": "rodna kuća", "en": "birth house", "note": "Matoševa rodna kuća in Tovarnik is a memorial museum to the poet"}
+      ],
+      "didYouKnow": "Antun Gustav Matoš famously walked from Tovarnik to Paris and back in his lifetime — his essays and feuilletons brought French symbolism into Croatian letters."
+    },
+    {
+      "name": "Lovas",
+      "region": "Slavonia",
+      "icon": "🕯️",
+      "color": "#78716c",
+      "tagline": "Srijem Village of the 1991 Massacre",
+      "intro": "Lovas is a small Croat village in Western Srijem, in Vukovar-Srijem County near the Serbian border. The village is remembered for one of the most documented atrocities of the Homeland War — the Lovas massacre of 18 October 1991, when Serb paramilitary and JNA forces forced Croat civilians onto a minefield, killing twenty-two.",
+      "history": "Lovas is an old Slavonian-Srijemian village with vineyards on the loess hills above the Danube basin. It was Catholic Croat in majority population. In October 1991, after Serb forces took control of the area, Croat civilians of Lovas were rounded up; on 18 October they were marched onto a minefield in nearby fields, with shooting from the rear when the mines detonated. Twenty-two civilians were killed in that single incident, and over fifty Lovas civilians were killed in total in 1991. The case became one of the foundational war-crimes prosecutions in Croatia, with convictions against members of the Dušan Silni paramilitary group.",
+      "facts": [
+        "The Lovas massacre of 18 October 1991 killed 22 Croat civilians driven onto a minefield by Serb paramilitary and JNA forces",
+        "Over 50 civilians from Lovas were killed in autumn 1991 in various incidents during the Serb takeover of the village",
+        "The Lovas case led to one of the most extensive Croatian war-crimes trials, with convictions of members of the Dušan Silni paramilitary unit",
+        "Lovas sits on loess hills suited to vineyards, and produced wine traditionally — the area is part of the Srijem wine subregion",
+        "Lovas was peacefully reintegrated into Croatia in 1997-98 under UNTAES"
+      ],
+      "vocab": [
+        {"hr": "spomenik", "en": "memorial / monument", "note": "The Lovas spomenik commemorates the 1991 minefield massacre"},
+        {"hr": "minsko polje", "en": "minefield", "note": "The Lovas massacre took place on a minsko polje into which civilians were forced"},
+        {"hr": "žrtva", "en": "victim", "note": "Žrtve Lovasa — the victims of Lovas are remembered every 18 October"}
+      ],
+      "didYouKnow": "The Lovas war-crimes trial in Belgrade resulted in convictions of multiple members of the Dušan Silni paramilitary group — among the few Serbian domestic prosecutions for Homeland War atrocities."
+    },
+    {
+      "name": "Bogdanovci",
+      "region": "Slavonia",
+      "icon": "🕯️",
+      "color": "#78716c",
+      "tagline": "Vukovar-Area Village Destroyed in 1991",
+      "intro": "Bogdanovci is a small Croat village in Vukovar-Srijem County, immediately west of Vukovar. During the autumn 1991 siege, Bogdanovci was the only village in the surrounding region whose defenders held out alongside Vukovar's defense, and the village was almost completely destroyed before falling on 10 November 1991, eight days before Vukovar itself.",
+      "history": "Bogdanovci was a typical Srijemian Croat village before the Homeland War. From August 1991, it became one of the few outlying villages that organised armed resistance alongside Vukovar's defenders, providing a brief western opening to the besieged city. The 200-odd defenders held out for three months under sustained JNA artillery and tank assault before being overwhelmed on 10 November. Over thirty defenders and many civilians were killed; the village was leveled. After peaceful reintegration in 1997-98, Bogdanovci was painstakingly rebuilt and today functions as a memorial village.",
+      "facts": [
+        "Bogdanovci defenders held out for three months alongside Vukovar's defense before the village fell on 10 November 1991",
+        "Over 80 percent of the village's houses were destroyed in the 1991 fighting",
+        "Bogdanovci is the only Vukovar-area village whose defenders coordinated directly with the Vukovar defense throughout the autumn 1991 siege",
+        "The village was peacefully reintegrated into Croatia in 1997-98 under UNTAES",
+        "Today Bogdanovci preserves several Homeland War memorials and a memorial cemetery for its defenders"
+      ],
+      "vocab": [
+        {"hr": "branitelj", "en": "defender / war veteran", "note": "The branitelji of Bogdanovci held out for three months in 1991 alongside Vukovar's defense"},
+        {"hr": "opsada", "en": "siege", "note": "Bogdanovci shared the opsada of Vukovar in autumn 1991"},
+        {"hr": "obnova", "en": "reconstruction", "note": "Post-1998 obnova of Bogdanovci rebuilt a village that had been almost entirely leveled"}
+      ],
+      "didYouKnow": "Bogdanovci's resistance kept a small western corridor toward besieged Vukovar partially open into October 1991 — when it finally fell, Vukovar was completely encircled."
+    },
+    {
+      "name": "Punitovci",
+      "region": "Slavonia",
+      "icon": "⛪",
+      "color": "#0284c7",
+      "tagline": "Slovak Community Centre in Slavonia",
+      "intro": "Punitovci is a small municipality in Osijek-Baranja County, south-west of Đakovo, distinguished by its substantial Slovak minority — descendants of 19th-century Slovak settlers brought to Slavonia by Habsburg landowners. Slovak is officially used alongside Croatian, and the village is a centre of Slovak cultural life in Croatia.",
+      "history": "In the 1860s and later decades, the Strossmayer Đakovo estate and other Slavonian landowners brought Slovak settlers from northern Habsburg counties (today's Slovakia) to repopulate and farm parts of Slavonia. Punitovci, Josipovac Punitovački, Jurjevac Punitovački, and Krndija became compact Slovak villages. The community preserved its language, Lutheran and Catholic faith, school system, and folk traditions through the 20th century. Today the Slovak minority in Croatia is officially recognised and has parliamentary representation; Punitovci is one of its strongholds.",
+      "facts": [
+        "Punitovci has one of the largest Slovak minority populations in Croatia — over a third of residents in some settlements",
+        "The municipality includes the villages of Josipovac Punitovački, Jurjevac Punitovački, and the historic Slovak settlement of Krndija",
+        "Slovak is officially used alongside Croatian in the municipality, including on signage and in primary schooling",
+        "Slovak settlers were brought here in the second half of the 19th century, partly under Bishop J. J. Strossmayer's Đakovo estate management",
+        "Punitovci hosts a Slovak folklore festival and maintains active Matica slovačka cultural societies"
+      ],
+      "vocab": [
+        {"hr": "manjina", "en": "minority", "note": "Punitovci is a centre of the slovačka manjina — Slovak minority in Croatia"},
+        {"hr": "doseljenici", "en": "settlers", "note": "Slovak doseljenici came to Punitovci in the 19th century from Habsburg northern counties"},
+        {"hr": "škola", "en": "school", "note": "Punitovci's škola teaches Slovak alongside Croatian — official minority language education"}
+      ],
+      "didYouKnow": "Slovak settlers were brought to Slavonia in the 1860s partly under Bishop Josip Juraj Strossmayer's Đakovo estate — making Punitovci a small piece of Slovak-speaking Croatia for over 150 years."
+    },
+    {
+      "name": "Strizivojna",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#92400e",
+      "tagline": "Slavonian Village of the Carved Wooden Gates",
+      "intro": "Strizivojna is a Slavonian municipality in Osijek-Baranja County, between Đakovo and Slavonski Brod, known for its preserved traditional Slavonian village architecture — in particular the elaborately carved wooden gates (drveni portali) found on older houses, which became symbols of Slavonian folk craftsmanship.",
+      "history": "Strizivojna was settled in the Habsburg period within the Đakovo bishopric's lands and developed as a Croat farming village. In the 19th and early 20th centuries, prosperous Slavonian peasant households built houses with carved wooden gates and decorated facades that have since been recognised as a distinctive regional folk architecture. Strizivojna has hosted the annual Wooden Gate festival (Festival drvenih portala) to preserve and celebrate this tradition.",
+      "facts": [
+        "Strizivojna is known throughout Croatia for its preserved 19th-century carved wooden village gates (drveni portali)",
+        "The annual Festival drvenih portala in Strizivojna celebrates and works to preserve this architectural tradition",
+        "The village lies in the Đakovo bishopric's historical estates, between Đakovo and Slavonski Brod",
+        "Strizivojna is part of Osijek-Baranja County and was historically a Croat Catholic Šokac village",
+        "Local economy combines grain agriculture, livestock, and rural tourism focused on traditional architecture"
+      ],
+      "vocab": [
+        {"hr": "portal", "en": "doorway / gate", "note": "Strizivojna's drveni portali — carved wooden gates of 19th-century Slavonian houses"},
+        {"hr": "drvo", "en": "wood / tree", "note": "Slavonski drvo — particularly oak — was the material of Strizivojna's carved gates"},
+        {"hr": "rezbarstvo", "en": "wood carving", "note": "Rezbarstvo on Slavonian gates reached its peak in the late 19th century"}
+      ],
+      "didYouKnow": "A traditional Strizivojna wooden gate could take a village carver several months to complete — and the motifs (vine, sun, bird, rosette) were chosen to bless the household."
+    },
+    {
+      "name": "Brodski Stupnik",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#92400e",
+      "tagline": "Posavina Village West of Slavonski Brod",
+      "intro": "Brodski Stupnik is a Slavonian municipality in Brod-Posavina County, just west of Slavonski Brod, along the Sava plain. It is an agricultural community of several villages stretched along the historic Brod-Nova Gradiška road, with vineyards on the southern slopes of the Dilj massif and grain farming on the Sava lowlands.",
+      "history": "Brodski Stupnik developed in the Habsburg Military Frontier as part of the Brod regiment's territory and continued as agricultural land after the Frontier's dissolution in 1881. The municipality includes the villages of Stupnički Kuti, Lovčić, and Krajačići. Local wine production from the Dilj hills was important historically and continues today, with several family wineries.",
+      "facts": [
+        "Brodski Stupnik lies between the Dilj hills and the Sava floodplain in Brod-Posavina County",
+        "The municipality includes the villages of Stupnički Kuti, Lovčić, and Krajačići",
+        "Wine production from the Dilj hill vineyards is a long-standing local industry",
+        "Brodski Stupnik was historically part of the Habsburg Military Frontier's Brod regiment until 1881"
+      ],
+      "vocab": [
+        {"hr": "vinarija", "en": "winery", "note": "Brodski Stupnik vinarije produce wine from the Dilj hill vineyards"},
+        {"hr": "brijeg", "en": "hill", "note": "The Dilj brijeg rises just north of Brodski Stupnik — wine country"},
+        {"hr": "Sava", "en": "the Sava river", "note": "Brodski Stupnik sits on the northern bank of the Sava plain"}
+      ],
+      "didYouKnow": "The Dilj hills behind Brodski Stupnik are one of Slavonia's lesser-known wine regions — Graševina and Frankovka grown on their loess-clay slopes have a markedly different character from the more famous Iločki vinogradi."
+    },
+    {
+      "name": "Velika Kopanica",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#92400e",
+      "tagline": "Posavina Šokac Village by the Sava",
+      "intro": "Velika Kopanica is a Slavonian municipality in Brod-Posavina County, on the Sava plain east of Slavonski Brod, comprising a few Šokac Croat villages with strong folk traditions. The village name (Kopanica) refers to the canals and water channels that historically crossed this Posavina flood landscape.",
+      "history": "Velika Kopanica was settled in the Habsburg period as a Šokac Catholic village within the Brod Military Frontier regiment. The Šokac population preserved distinctive folk costume, songs, and Posavina farming traditions. After the Frontier's dissolution in 1881, the village became part of civil Slavonia. The municipality today includes the villages of Mala Kopanica, Beravci, Divoševci, and Kupina.",
+      "facts": [
+        "The municipality includes the villages of Velika Kopanica, Mala Kopanica, Beravci, Divoševci, and Kupina",
+        "Velika Kopanica is a Šokac Croat village with preserved folk costume and Bećarac singing traditions",
+        "The village lies on the Sava floodplain east of Slavonski Brod in Brod-Posavina County",
+        "It was historically part of the Habsburg Military Frontier's Brod regiment territory"
+      ],
+      "vocab": [
+        {"hr": "kopanica", "en": "channel / dug ditch", "note": "Velika Kopanica's name comes from a water kopanica — a dug drainage channel in flood country"},
+        {"hr": "poplava", "en": "flood", "note": "The Sava poplave shaped life in Posavina villages like Velika Kopanica"},
+        {"hr": "Šokac", "en": "Šokac Croat", "note": "Velika Kopanica is a Šokac village — Catholic Slavonian Croats with distinct dialect"}
+      ],
+      "didYouKnow": "Posavina villages like Velika Kopanica historically built their houses on low earthen mounds to escape the Sava's spring floods — a building practice still visible in surviving older homes."
+    },
+    {
+      "name": "Garčin",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#92400e",
+      "tagline": "Posavina Village East of Slavonski Brod",
+      "intro": "Garčin is a Slavonian municipality in Brod-Posavina County, on the Sava plain east of Slavonski Brod. It is an agricultural community of several villages along the historic Brod-Vinkovci road, with grain farming on the flat Posavina land.",
+      "history": "Garčin developed within the Habsburg Military Frontier as part of the Brod regiment and continued as farmland after the Frontier was dissolved in 1881. The municipality includes the villages of Klokočevik, Sapci, Selna, Trnjani, and Zadubravlje. The area was historically Šokac Croat and Catholic.",
+      "facts": [
+        "Garčin lies on the Sava plain east of Slavonski Brod, along the route to Vinkovci",
+        "The municipality includes the villages of Klokočevik, Sapci, Selna, Trnjani, and Zadubravlje",
+        "Garčin was historically part of the Habsburg Military Frontier's Brod regiment until 1881",
+        "Local economy is based on grain, maize, and livestock typical of Posavina agriculture"
+      ],
+      "vocab": [
+        {"hr": "žito", "en": "grain / wheat", "note": "Žito fields dominate the flat land around Garčin"},
+        {"hr": "ravnica", "en": "plain", "note": "Garčin sits on the Posavina ravnica — flat Sava floodplain"},
+        {"hr": "cesta", "en": "road", "note": "The Brod-Vinkovci cesta passes through Garčin"}
+      ],
+      "didYouKnow": "Garčin's villages were originally settled as Krajina military outposts — every household was required to provide a soldier to the Habsburg Frontier regiment until the system ended in 1881."
+    },
+    {
+      "name": "Sibinj",
+      "region": "Slavonia",
+      "icon": "🌾",
+      "color": "#16a34a",
+      "tagline": "Dilj Foothills Village Near Slavonski Brod",
+      "intro": "Sibinj is a municipality in Brod-Posavina County just north-west of Slavonski Brod, where the flat Sava plain meets the southern foothills of the Dilj hills. The municipality combines farmland in the lowlands with vineyards on the slopes above the villages.",
+      "history": "Sibinj developed within the Habsburg Military Frontier's Brod regiment and continued as a farming community after the Frontier's dissolution in 1881. The municipality includes the villages of Grgurevići, Slobodnica, Bartolovci, Ravan, and Brčino. The region's economic life has long combined Sava-plain grain farming with vineyards and orchards on the Dilj slopes.",
+      "facts": [
+        "Sibinj lies at the junction of the Sava plain and the southern Dilj foothills, north-west of Slavonski Brod",
+        "The municipality includes the villages of Grgurevići, Slobodnica, Bartolovci, Ravan, and Brčino",
+        "Sibinj was historically part of the Habsburg Military Frontier's Brod regiment until 1881",
+        "Local agriculture combines lowland grain with Dilj-hill vineyards and orchards"
+      ],
+      "vocab": [
+        {"hr": "podnožje", "en": "foothills / foot of a mountain", "note": "Sibinj lies at the podnožje of the Dilj hills"},
+        {"hr": "vino", "en": "wine", "note": "Sibinj vineyards produce vino from Dilj slope vineyards"},
+        {"hr": "voćnjak", "en": "orchard", "note": "Voćnjaci on the Dilj slopes around Sibinj produce plum, apple, and walnut"}
+      ],
+      "didYouKnow": "The Dilj hills above Sibinj rise to only about 460 metres, but in flat Slavonia they form a real climate boundary — vineyards thrive on their warmer south-facing slopes."
+    },
+    {
+      "name": "Vrbovec",
+      "region": "Central Croatia",
+      "icon": "🥩",
+      "color": "#dc2626",
+      "tagline": "Croatia's Meat-Processing Capital",
+      "intro": "Vrbovec is a town in Zagreb County, east of Zagreb, that became synonymous with Croatia's meat-processing industry through the Vrbovec meat plant (Mesna industrija Vrbovec, today PIK Vrbovec), one of the largest producers of cured meats, salami, and pâté in Croatia. The town also has a small medieval centre and a baroque parish church.",
+      "history": "Vrbovec is mentioned in medieval documents from the 13th century and was a small market town in the Zagreb diocese. Its modern character was shaped after the Second World War, when the Vrbovec meat industry (originally founded in 1957 as part of the socialist food system) grew into one of the largest meat plants in Yugoslavia. After privatisation and consolidation under the Agrokor group, then the Fortenova group, PIK Vrbovec remained the leading Croatian meat producer. The town also developed light industry, transport, and commuter-residential functions for Zagreb.",
+      "facts": [
+        "Vrbovec is home to PIK Vrbovec, the largest meat-processing plant in Croatia, producing salami, cured meats, and pâté",
+        "The Vrbovec meat plant was founded in 1957 and became one of the largest food enterprises in Yugoslavia",
+        "Vrbovec received town status in 1873 and is mentioned in documents from the 13th century",
+        "The town hosts the annual Kaj su jeli naši stari ('What Our Ancestors Ate') traditional Croatian food festival",
+        "Vrbovec lies about 30 km east of Zagreb in Zagreb County, on the road to Bjelovar"
+      ],
+      "vocab": [
+        {"hr": "meso", "en": "meat", "note": "PIK Vrbovec is Croatia's leading meso processor — salami, ham, pâté"},
+        {"hr": "kobasica", "en": "sausage", "note": "Vrbovec kobasice — sausages — are a national supermarket staple"},
+        {"hr": "tvornica", "en": "factory / plant", "note": "The Vrbovec mesna tvornica defines the town's economic identity"}
+      ],
+      "didYouKnow": "Vrbovec's annual food festival 'Kaj su jeli naši stari' (What Our Ancestors Ate) is named in the local Kajkavian dialect — 'kaj' meaning 'what' instead of the standard Croatian 'što'."
+    },
+    {
+      "name": "Bedekovčina",
+      "region": "Zagorje",
+      "icon": "🏞️",
+      "color": "#16a34a",
+      "tagline": "Zagorje Town with Lakes and Manor Houses",
+      "intro": "Bedekovčina is a small town in Krapina-Zagorje County, in central Hrvatsko zagorje between Zabok and Krapina, set among rolling hills and a series of artificial lakes (Bedekovčanska jezera) formed by the flooding of clay pits from the former brickworks industry. Several baroque manor houses survive in the area.",
+      "history": "Bedekovčina takes its name from the Bedeković noble family, a Zagorje gentry family whose manor stood here from the 17th century. Like much of Zagorje, the town's history was shaped by small-noble (purgarski) and peasant economies under the Habsburgs, with the clay industry developing in the 19th and 20th centuries to supply brick and tile to Zagreb. The clay pits, when worked out, filled with groundwater to create the Bedekovčanska jezera, now a recreation and bird-watching area.",
+      "facts": [
+        "Bedekovčina takes its name from the Bedeković noble family, who held estates here from the 17th century",
+        "The Bedekovčanska jezera — a chain of small lakes — are flooded former clay pits of the local brick industry",
+        "The town lies between Zabok and Krapina in Krapina-Zagorje County",
+        "Several baroque-era manor houses (dvorci) survive in the surrounding villages",
+        "Bedekovčina's clay was historically extracted to supply brick and tile to Zagreb construction"
+      ],
+      "vocab": [
+        {"hr": "jezero", "en": "lake", "note": "Bedekovčanska jezera — the chain of small lakes formed from worked-out clay pits"},
+        {"hr": "glina", "en": "clay", "note": "Bedekovčina's glina supplied bricks and tiles to Zagreb for over a century"},
+        {"hr": "plemić", "en": "noble", "note": "The Bedeković plemići were a Zagorje gentry family who gave the town its name"}
+      ],
+      "didYouKnow": "Hrvatsko zagorje historically had one of the highest densities of small noble families (sitno plemstvo) in Habsburg lands — Bedekovčina's name preserves one of dozens of these forgotten gentry houses."
+    },
+    {
+      "name": "Brdovec",
+      "region": "Central Croatia",
+      "icon": "⛪",
+      "color": "#0e7490",
+      "tagline": "Sutla River Village on the Slovenian Border",
+      "intro": "Brdovec is a municipality in Zagreb County, on the right bank of the Sutla river that forms the border with Slovenia, just west of Zaprešić. The municipality includes the village of Savski Marof and several historic Sutla-valley settlements; the area was the home estate of the Zrinski-Frankopan family in earlier centuries.",
+      "history": "The Brdovec area was part of the medieval Susedgrad-Stubica estate, held in the 16th and 17th centuries by branches of the Zrinski family. The 1573 peasant revolt led by Matija Gubec (the Croatian-Slovenian Peasant Revolt) drew much of its strength from the Susedgrad-Stubica villages, including those around Brdovec. The Sutla river became the border between Habsburg Croatia and the Styrian (Slovenian) lands and remains today the Croatia-Slovenia border. The municipality of Brdovec was historically a centre of small-peasant farming and is now largely commuter-residential for Zagreb.",
+      "facts": [
+        "Brdovec sits on the right bank of the Sutla river, which forms the Croatia-Slovenia border",
+        "The area belonged to the Susedgrad-Stubica estate held by branches of the Zrinski family in the 16th-17th centuries",
+        "The 1573 Croatian-Slovenian Peasant Revolt of Matija Gubec drew strength from villages in this region",
+        "The municipality includes Savski Marof, named for a Habsburg-era marof (manor farm)",
+        "Brdovec is part of Zagreb County and is now largely commuter-residential for Zagreb and Zaprešić"
+      ],
+      "vocab": [
+        {"hr": "Sutla", "en": "the Sutla river", "note": "The Sutla forms the Croatia-Slovenia border past Brdovec"},
+        {"hr": "buna", "en": "revolt / uprising", "note": "The seljačka buna of 1573 led by Matija Gubec rose in villages near Brdovec"},
+        {"hr": "marof", "en": "manor farm", "note": "Savski Marof in the Brdovec area was a Habsburg-era marof — gentry farm"}
+      ],
+      "didYouKnow": "The 1573 peasant revolt of Matija Gubec, which rose from villages near Brdovec, was crushed within two weeks — Gubec was executed in Zagreb with a red-hot iron crown placed on his head."
+    },
+    {
+      "name": "Jakovlje",
+      "region": "Zagorje",
+      "icon": "🏰",
+      "color": "#7c3aed",
+      "tagline": "Zagorje Village with the Baroque Jakovlje Castle",
+      "intro": "Jakovlje is a small municipality in Zagreb County at the southern edge of Hrvatsko zagorje, dominated by the baroque Jakovlje Castle (Dvorac Jakovlje), a noble residence with a long history under several Zagorje aristocratic families. The castle and its park are the village's defining landmark.",
+      "history": "Jakovlje Castle was built in the 17th century as a fortified manor and was rebuilt in baroque form in the 18th century. It changed hands among several Croatian noble families across the centuries. In the Yugoslav period the castle was nationalised and used for institutional purposes. The village of Jakovlje itself grew as a small Kajkavian-speaking community at the foot of the southern Zagorje slopes, and the municipality includes the villages of Igrišće, Kraljev Vrh, and Pasanska Gorica.",
+      "facts": [
+        "Dvorac Jakovlje is a 17th-century baroque-rebuilt manor house — one of the southern Zagorje's surviving castles",
+        "The municipality lies in Zagreb County on the border with Krapina-Zagorje County",
+        "Jakovlje includes the villages of Igrišće, Kraljev Vrh, and Pasanska Gorica",
+        "The area is Kajkavian-speaking, like the rest of Hrvatsko zagorje",
+        "The castle and its park have served various institutional uses since being nationalised in Yugoslav times"
+      ],
+      "vocab": [
+        {"hr": "dvorac", "en": "castle / manor", "note": "Dvorac Jakovlje — the village's baroque-rebuilt 17th-century manor"},
+        {"hr": "park", "en": "park / grounds", "note": "The dvorac park at Jakovlje surrounds the castle with old trees"},
+        {"hr": "kajkavski", "en": "Kajkavian dialect", "note": "Jakovlje villagers speak kajkavski — the northwestern Croatian dialect"}
+      ],
+      "didYouKnow": "Hrvatsko zagorje has the highest concentration of surviving noble manor houses (dvorci) in Croatia — over 60 in a relatively small area, of which Jakovlje is one of the southernmost."
+    },
+    {
+      "name": "Veliko Trgovišće",
+      "region": "Zagorje",
+      "icon": "🏛️",
+      "color": "#dc2626",
+      "tagline": "Birthplace of Franjo Tuđman",
+      "intro": "Veliko Trgovišće is a Zagorje municipality in Krapina-Zagorje County, west of Zabok, best known as the birthplace in 1922 of Franjo Tuđman — the historian, general, and politician who served as the first President of independent Croatia from 1990 until his death in 1999. The Tuđman family house in the village is preserved as a memorial site.",
+      "history": "Veliko Trgovišće was historically a Kajkavian-speaking Zagorje market village. Franjo Tuđman was born here on 14 May 1922. After serving as a Partisan during the Second World War, he later became a historian, was imprisoned twice in Yugoslavia for his political views, founded the Croatian Democratic Union (HDZ) in 1989, and led Croatia to independence in 1991. He was elected president three times and died in office on 10 December 1999. The Veliko Trgovišće birthplace is preserved as the Tuđman Memorial Home, and the family is buried in the nearby village cemetery.",
+      "facts": [
+        "Franjo Tuđman, first President of independent Croatia, was born in Veliko Trgovišće on 14 May 1922",
+        "The Tuđman birth house (Spomen dom Franje Tuđmana) is preserved as a memorial site in the village",
+        "Veliko Trgovišće is a Kajkavian-speaking Zagorje village west of Zabok in Krapina-Zagorje County",
+        "Tuđman is buried at Mirogoj cemetery in Zagreb, but family members are interred in the local Veliko Trgovišće cemetery",
+        "The municipality includes the villages of Družilovec, Jezero Klanječko, and Vižovlje"
+      ],
+      "vocab": [
+        {"hr": "predsjednik", "en": "president", "note": "Tuđman was the first predsjednik of independent Croatia (1990-1999), born in Veliko Trgovišće"},
+        {"hr": "rodno mjesto", "en": "birthplace", "note": "Veliko Trgovišće is Tuđmanovo rodno mjesto — the first president's birthplace"},
+        {"hr": "spomen dom", "en": "memorial home", "note": "Spomen dom Franje Tuđmana in Veliko Trgovišće preserves Tuđman's birth house"}
+      ],
+      "didYouKnow": "Franjo Tuđman trained as a Yugoslav army general and historian before becoming a political dissident — he was imprisoned twice by Yugoslav authorities in the 1970s and 1980s before founding the HDZ in 1989."
+    },
+    {
+      "name": "Tuhelj",
+      "region": "Zagorje",
+      "icon": "♨️",
+      "color": "#0284c7",
+      "tagline": "Zagorje Thermal Resort and Spa",
+      "intro": "Tuhelj is a Zagorje municipality in Krapina-Zagorje County, just east of the Slovenian border and the town of Klanjec, known above all for Terme Tuheljske — one of Croatia's largest thermal-water spa complexes, drawing on local mineral hot springs. The municipality also includes the village of Tuheljske Toplice and several Kajkavian-speaking settlements.",
+      "history": "Thermal springs at Tuhelj have been known and used since the 19th century, when small baths were built around the warm sulphurous water. The modern Terme Tuhelj resort developed in the second half of the 20th century and was expanded after 2000 into a large hotel and water-park complex. The municipality lies in the historic Klanjec area of Zagorje, close to the Sutla river and the Slovenian border, and shares the strongly Kajkavian linguistic and folk identity of the region.",
+      "facts": [
+        "Terme Tuhelj is one of Croatia's largest thermal-water spa resorts, with extensive indoor and outdoor pool complexes",
+        "The Tuhelj thermal springs are sulphurous mineral waters used in therapeutic bathing",
+        "Tuhelj lies in Krapina-Zagorje County, near the Slovenian border and the Sutla river",
+        "The municipality includes the village of Tuheljske Toplice (Tuhelj Spa) around the resort",
+        "The area is Kajkavian-speaking and culturally part of the wider Klanjec-Sutla Zagorje"
+      ],
+      "vocab": [
+        {"hr": "toplice", "en": "thermal spa / hot springs", "note": "Tuheljske toplice — Tuhelj's sulphurous thermal spa, one of Croatia's largest"},
+        {"hr": "izvor", "en": "spring / source", "note": "The thermal izvor at Tuhelj has been used in bathing since the 19th century"},
+        {"hr": "bazen", "en": "pool", "note": "Terme Tuhelj is known for its many bazeni — indoor and outdoor thermal pools"}
+      ],
+      "didYouKnow": "Croatia's Zagorje and Slavonia regions sit on a major geothermal belt — the same underground hot-water system feeds the spas of Tuhelj, Krapinske Toplice, Stubičke Toplice, and Daruvar."
+    },
+    {
+      "name": "Krapinske Toplice",
+      "region": "Zagorje",
+      "icon": "♨️",
+      "color": "#0284c7",
+      "tagline": "Roman-Era Thermal Spa of Zagorje",
+      "intro": "Krapinske Toplice is a Zagorje municipality in Krapina-Zagorje County, south of Krapina, built around thermal mineral springs used since Roman times. The town today is home to the Magdalena specialist hospital for cardiovascular rehabilitation and to several spa facilities drawing on the warm sulphurous-calcium water.",
+      "history": "The Romans used the thermal springs at what is today Krapinske Toplice during their settlement of Pannonia. The springs were rediscovered and developed as a spa in the 19th century under the Habsburgs, and the Aquae Vivae and other facilities were later built. In modern Croatia, Krapinske Toplice has combined leisure spa with medical rehabilitation; Magdalena, founded in 1996 as a specialist cardiovascular hospital, has become a leading Croatian centre for interventional cardiology in addition to the older bathing tradition.",
+      "facts": [
+        "Krapinske Toplice's thermal springs were used by the Romans during their occupation of Pannonia",
+        "The town is home to the Magdalena specialist hospital (founded 1996), a leading Croatian centre for cardiovascular care",
+        "Aquae Vivae and other spa facilities use the warm sulphurous-calcium thermal water at temperatures up to about 41°C",
+        "Krapinske Toplice lies in Krapina-Zagorje County, south of Krapina, and is Kajkavian-speaking",
+        "The municipality also includes the villages of Klokovec, Lovrečan, and Selno"
+      ],
+      "vocab": [
+        {"hr": "topla voda", "en": "warm water", "note": "Topla voda at Krapinske Toplice has been used in bathing since Roman times"},
+        {"hr": "lječilište", "en": "health resort / sanatorium", "note": "Krapinske Toplice is a lječilište with both spa and cardiac rehabilitation"},
+        {"hr": "bolnica", "en": "hospital", "note": "Magdalena bolnica in Krapinske Toplice is a leading Croatian cardiovascular centre"}
+      ],
+      "didYouKnow": "The Magdalena hospital in Krapinske Toplice has performed thousands of coronary interventions and trained cardiologists from across the region — pairing 21st-century cardiology with Roman-era thermal water on one site."
+    },
+    {
+      "name": "Stubičke Toplice",
+      "region": "Zagorje",
+      "icon": "♨️",
+      "color": "#0284c7",
+      "tagline": "Zagorje Spa Below Medvednica",
+      "intro": "Stubičke Toplice is a small municipality in Krapina-Zagorje County, at the northern foot of Mount Medvednica, built around thermal springs that have been used in bathing since at least the 18th century. The town today combines spa tourism with hiking access onto the Medvednica massif.",
+      "history": "Stubičke Toplice's thermal springs were developed as a spa during the Habsburg period, particularly under the bishopric of Zagreb in the 18th century, when bishop Maksimilijan Vrhovac (1752-1827) was associated with the development of the baths. The historic Bishop's Bath (Biskupske kupelji) gives the central spa building its name. The town sits at the foot of Medvednica, the mountain that rises above Zagreb to the south, and is a popular weekend destination from the capital.",
+      "facts": [
+        "Stubičke Toplice's thermal springs were developed as a spa in the 18th century by the Zagreb bishopric",
+        "The historic Biskupske kupelji (Bishop's Bath) is the town's centerpiece spa building, named for the bishopric's role in its development",
+        "The town sits at the northern foot of Medvednica, the mountain above Zagreb, and is a hiking trailhead",
+        "Stubičke Toplice lies in Krapina-Zagorje County and is part of the Donja Stubica area",
+        "The thermal water emerges at around 43°C and is mineral-rich, used for rheumatic and musculoskeletal therapy"
+      ],
+      "vocab": [
+        {"hr": "kupelj", "en": "bath / bathhouse", "note": "Biskupske kupelji — the Bishop's Bath of Stubičke Toplice"},
+        {"hr": "planina", "en": "mountain", "note": "Medvednica planina rises above Stubičke Toplice to the south"},
+        {"hr": "izvor", "en": "spring / source", "note": "Stubički izvor — the thermal source emerging at about 43°C"}
+      ],
+      "didYouKnow": "Medvednica above Stubičke Toplice is dotted with old silver and lead mines — Sljeme's medieval mining tunnels supplied Zagreb's coinage for centuries before being abandoned in the 19th century."
+    },
+    {
+      "name": "Hum na Sutli",
+      "region": "Zagorje",
+      "icon": "🏭",
+      "color": "#78716c",
+      "tagline": "Sutla River Glass Town on the Slovenian Border",
+      "intro": "Hum na Sutli is a Zagorje municipality in Krapina-Zagorje County, on the Sutla river that forms the border with Slovenia. The town is dominated by the Vetropack Straža glass factory, one of the largest container-glass producers in southeastern Europe, established here in the 19th century when the area was still in the Habsburg Empire.",
+      "history": "Glassmaking in the Hum na Sutli area dates to the 19th century, when the abundant forests and quartz sand on both sides of the Sutla supported the founding of glass works. The Straža factory (Tovarna Straža in Slovenian usage) became one of Yugoslavia's leading container-glass producers, and after the Yugoslav breakup the Croatian operations on the Hum na Sutli side became Vetropack Straža, part of the Swiss Vetropack glass group. The municipality remains heavily industrial by Zagorje standards, with the factory dominating local employment.",
+      "facts": [
+        "Hum na Sutli is home to Vetropack Straža, one of the largest container-glass producers in southeastern Europe",
+        "Glass production in the area dates to the 19th century, when Habsburg-era glass works were established on the Sutla",
+        "Vetropack Straža is owned by the Swiss Vetropack Holding glass group",
+        "The Sutla river at Hum na Sutli forms the border between Croatia and Slovenia",
+        "Hum na Sutli is one of the more industrial municipalities of Krapina-Zagorje County"
+      ],
+      "vocab": [
+        {"hr": "staklo", "en": "glass", "note": "Hum na Sutli is staklo town — Vetropack Straža is the largest container-glass producer in the region"},
+        {"hr": "tvornica", "en": "factory", "note": "The Vetropack tvornica dominates Hum na Sutli's economy and skyline"},
+        {"hr": "boca", "en": "bottle", "note": "Hum na Sutli's glass plant produces billions of boce — bottles — annually"}
+      ],
+      "didYouKnow": "Vetropack Straža in Hum na Sutli produces glass containers for many of the leading beverage and food brands in southeastern Europe — a single furnace can melt over 300 tonnes of glass per day."
+    },
+    {
+      "name": "Lobor",
+      "region": "Zagorje",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Old Pilgrimage Site Above Zlatar",
+      "intro": "Lobor is a Zagorje municipality in Krapina-Zagorje County, above Zlatar, known for the medieval pilgrimage church of Our Lady on the Mountain (Majka Božja Gorska) — one of the oldest Marian shrines in Hrvatsko zagorje, set on a small wooded hill above the village. Archaeological work has shown continuous religious use of the site since the early Middle Ages.",
+      "history": "The Lobor pilgrimage site on Gora hill has yielded archaeological evidence of an early medieval timber church, making it one of the earliest documented Christian sites in continental Croatia. The current Majka Božja Gorska church was built over centuries on the same hill, with surviving Gothic and Baroque elements. The site has been a major Zagorje pilgrimage destination for centuries, particularly for the Feast of the Birth of Mary on 8 September. The municipality also includes the villages of Petrova Gora and Šipki.",
+      "facts": [
+        "The Majka Božja Gorska pilgrimage church above Lobor is built on a site with early medieval (9th-10th century) Christian remains uncovered by archaeology",
+        "Lobor is one of the oldest documented Marian pilgrimage sites in Hrvatsko zagorje",
+        "The annual pilgrimage on 8 September (Birth of Mary) draws worshippers from across northern Croatia",
+        "The municipality lies in Krapina-Zagorje County, above Zlatar",
+        "Archaeological excavations have revealed wooden church foundations and an early medieval cemetery on the site"
+      ],
+      "vocab": [
+        {"hr": "hodočašće", "en": "pilgrimage", "note": "The hodočašće to Majka Božja Gorska in Lobor draws pilgrims every 8 September"},
+        {"hr": "Gospa", "en": "Our Lady / the Virgin Mary", "note": "Gospa Gorska — Our Lady of the Mountain — is venerated at Lobor"},
+        {"hr": "gora", "en": "mountain / hill", "note": "The gora above Lobor holds the pilgrimage church Majka Božja Gorska"}
+      ],
+      "didYouKnow": "Archaeological excavations at Lobor uncovered wooden post-holes from a 9th-century Christian church — among the oldest documented Christian structures in continental Croatia."
+    },
+    {
+      "name": "Mače",
+      "region": "Zagorje",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Hill Village in Krapina-Zagorje",
+      "intro": "Mače is a small Zagorje municipality in Krapina-Zagorje County, in the wooded hills between Zlatar and Krapina. It is a Kajkavian-speaking community of small villages on hilly farmland, with a baroque parish church of Saint Jerome and the surrounding agricultural landscape typical of central Zagorje.",
+      "history": "Mače developed as a small hill-country agricultural community within the Zagreb bishopric's lands and the Habsburg administrative system. Like much of Hrvatsko zagorje, the area was historically marked by small-noble (sitno plemstvo) holdings and peasant farming on terraced hillsides. The municipality includes the villages of Brdo Mačko, Frkuljevec Peršaveški, and Pece.",
+      "facts": [
+        "Mače lies in the wooded Zagorje hills between Zlatar and Krapina in Krapina-Zagorje County",
+        "The parish church is dedicated to Saint Jerome (Sveti Jeronim), a saint of Dalmatian origin",
+        "The municipality includes the villages of Brdo Mačko, Frkuljevec Peršaveški, and Pece",
+        "Mače is part of the Kajkavian-speaking Zagorje cultural and linguistic area"
+      ],
+      "vocab": [
+        {"hr": "brdo", "en": "hill", "note": "Mače's villages sit on brda — wooded hills of central Zagorje"},
+        {"hr": "Sveti Jeronim", "en": "Saint Jerome", "note": "Mače's parish is dedicated to Sveti Jeronim — Bible translator, born in Dalmatia"},
+        {"hr": "kajkavski", "en": "Kajkavian dialect", "note": "Mače speaks kajkavski — the Zagorje variant of Croatian"}
+      ],
+      "didYouKnow": "Saint Jerome, patron of Mače's parish, was born around 347 AD near today's Croatia-Slovenia border — he translated the Bible into Latin (the Vulgate) and is one of the most widely venerated Dalmatian-born saints."
+    },
+    {
+      "name": "Mihovljan",
+      "region": "Zagorje",
+      "icon": "⛪",
+      "color": "#16a34a",
+      "tagline": "Zagorje Village West of Krapina",
+      "intro": "Mihovljan is a small Zagorje municipality in Krapina-Zagorje County, west of Krapina, named for its parish church of Saint Michael (Sveti Mihovil). It is a hill-country Kajkavian-speaking community on the slopes leading down toward the Sutla and the Slovenian border.",
+      "history": "Mihovljan developed as a small Catholic Kajkavian parish in the Zagreb bishopric's lands. The parish church of Saint Michael gives the village its name. Like much of western Zagorje, the area was historically marked by peasant farming, small vineyards on south-facing slopes, and modest gentry holdings under Habsburg rule. The municipality today includes several small villages strung along the road from Krapina westward.",
+      "facts": [
+        "Mihovljan is named for its parish church of Saint Michael (Sveti Mihovil)",
+        "The village lies west of Krapina in Krapina-Zagorje County, toward the Slovenian border",
+        "Mihovljan is Kajkavian-speaking and part of the historic Zagreb bishopric lands",
+        "Local agriculture combines small-plot farming with vineyards on hill slopes"
+      ],
+      "vocab": [
+        {"hr": "Sveti Mihovil", "en": "Saint Michael (the Archangel)", "note": "Mihovljan's parish is dedicated to Sveti Mihovil — Michael the Archangel"},
+        {"hr": "župa", "en": "parish", "note": "The Mihovljan župa is named for Saint Michael"},
+        {"hr": "vinograd", "en": "vineyard", "note": "Small vinogradi line the south-facing slopes around Mihovljan"}
+      ],
+      "didYouKnow": "Many Zagorje villages — Mihovljan, Tuhelj, Lobor, Mače — are named for their patron saint plus a Kajkavian suffix, a naming pattern reflecting how completely the parish system shaped this Catholic countryside."
+    },
+    {
+      "name": "Prelog",
+      "region": "Međimurje",
+      "icon": "🌾",
+      "color": "#16a34a",
+      "tagline": "Lower Međimurje's Drava-Side Town",
+      "intro": "Prelog is a small town in Međimurje County, the second-largest town of Međimurje after Čakovec, located in the southern lowlands along the Drava river. It is the centre of Lower Međimurje (Donje Međimurje) and an agricultural-market town with a distinctive baroque parish church and a long history of Hungarian-Croatian interaction.",
+      "history": "Prelog is mentioned in medieval documents and developed as a Drava-side market settlement. Like all Međimurje, it was for centuries part of the Hungarian Kingdom (Zala County) under the Zrinski family and later under Hungarian administration until 1918, when Međimurje was incorporated into the new South Slav state. The town's baroque parish church of Saint James (Sveti Jakov) dates to the 18th century. Prelog received town status in 1997 and serves as the cultural and administrative centre of Lower Međimurje.",
+      "facts": [
+        "Prelog is the second-largest town of Međimurje County after Čakovec and the centre of Lower Međimurje (Donje Međimurje)",
+        "The baroque parish church of Saint James (Sveti Jakov) dates to the 18th century",
+        "Prelog lies in the southern Drava plain of Međimurje, near the Drava-fed hydroelectric reservoirs",
+        "Prelog received town status in 1997",
+        "Like all Međimurje, Prelog was historically part of Hungary's Zala County until 1918"
+      ],
+      "vocab": [
+        {"hr": "grad", "en": "town / city", "note": "Prelog became a grad in 1997 — Međimurje's second town after Čakovec"},
+        {"hr": "Drava", "en": "the Drava river", "note": "Prelog sits south of the Drava on the Međimurje plain"},
+        {"hr": "Donje Međimurje", "en": "Lower Međimurje", "note": "Prelog is the centre of Donje Međimurje — the lowland eastern half of the region"}
+      ],
+      "didYouKnow": "Until 1918 the Drava river at Prelog was an internal Hungarian waterway — Međimurje was part of Zala County, and Croats here lived under Hungarian (not Croatian) administration for centuries."
+    },
+    {
+      "name": "Mursko Središće",
+      "region": "Međimurje",
+      "icon": "🏞️",
+      "color": "#0284c7",
+      "tagline": "Mura River Border Town with Slovenia",
+      "intro": "Mursko Središće is a small town in Međimurje County on the Mura river that forms the Croatia-Slovenia border. The town's name (Središće on the Mura) reflects its central position on the river crossing into Slovenia, and historically it served as a customs and transit point. A coal-mining industry operated here in the 20th century.",
+      "history": "Mursko Središće was a Mura-side village in Hungarian Zala County until 1918, when Međimurje became part of the new South Slav state. In the mid-20th century, lignite coal was mined in the surrounding fields, and a coal mine operated until 1972. After mining ended, the town's economy shifted to small industry, agriculture, and cross-border trade with Slovenia. The Mura at Mursko Središće is a regulated river with a hydroelectric power station nearby on the Croatian side.",
+      "facts": [
+        "Mursko Središće sits directly on the Mura river, which forms the Croatia-Slovenia border",
+        "A lignite coal mine operated in the Mursko Središće area until 1972",
+        "The town's name means roughly 'central place on the Mura'",
+        "Mursko Središće became a town in 1997 and is part of Međimurje County",
+        "The Mura plain in Croatia is part of the UNESCO Mura-Drava-Danube transboundary biosphere reserve"
+      ],
+      "vocab": [
+        {"hr": "Mura", "en": "the Mura river", "note": "The Mura at Mursko Središće forms the Croatia-Slovenia border"},
+        {"hr": "rudnik", "en": "mine", "note": "Mursko Središće had a lignite rudnik until 1972 — now closed"},
+        {"hr": "ugljen", "en": "coal", "note": "Lignite ugljen was mined at Mursko Središće through much of the 20th century"}
+      ],
+      "didYouKnow": "The Mura-Drava-Danube biosphere reserve, which includes Mursko Središće, is the world's first transboundary biosphere reserve spanning five countries — Austria, Slovenia, Croatia, Hungary, and Serbia."
+    },
+    {
+      "name": "Štrigova",
+      "region": "Međimurje",
+      "icon": "🍷",
+      "color": "#7c3aed",
+      "tagline": "Upper Međimurje Wine Village",
+      "intro": "Štrigova is a small municipality in Međimurje County in the wine-growing hills of Upper Međimurje (Gornje Međimurje), near the Slovenian border. It is the centre of the Međimurje wine region, famous for its white wines and especially for Pušipel — the local name for the Furmint grape, considered Međimurje's signature varietal.",
+      "history": "Štrigova has a long Roman past — substantial Roman-era remains have been found here, suggesting it lay on the road between Poetovio (Ptuj) and the Drava crossings. Like all Međimurje, the village was part of Hungarian Zala County until 1918. The baroque parish church of Saint Jerome (Sveti Jeronim) with its frescoed interior is one of Međimurje's notable Baroque monuments. Wine production from the surrounding hill vineyards has been the area's signature economic activity for centuries, with Pušipel (Furmint) emerging as the regional flagship grape.",
+      "facts": [
+        "Štrigova is the centre of the Međimurje wine region, in the hills of Upper Međimurje (Gornje Međimurje)",
+        "Pušipel — the Međimurje name for the Furmint grape — is the signature varietal of Štrigova wines",
+        "The baroque church of Saint Jerome (Sveti Jeronim) in Štrigova has elaborate 18th-century frescoes by Ivan Krstitelj Ranger",
+        "Substantial Roman-era remains have been found in Štrigova, indicating its position on a Roman road",
+        "Štrigova lies near the Slovenian border in Međimurje County"
+      ],
+      "vocab": [
+        {"hr": "Pušipel", "en": "Pušipel (Furmint grape)", "note": "Pušipel — the Međimurje name for Furmint, the signature Štrigova white wine grape"},
+        {"hr": "vinograd", "en": "vineyard", "note": "Štrigova vinogradi cover the hillsides of Gornje Međimurje — Croatia's northernmost wine region"},
+        {"hr": "freska", "en": "fresco", "note": "Štrigova's Sveti Jeronim church has elaborate 18th-century freske by Ivan Ranger"}
+      ],
+      "didYouKnow": "The frescoes of Štrigova's Saint Jerome church were painted in the 1740s by Paulist friar Ivan Krstitelj Ranger, the most prolific Baroque fresco painter in northern Croatia — his work also covers churches at Lepoglava and Belec."
+    },
+    {
+      "name": "Sveti Martin na Muri",
+      "region": "Međimurje",
+      "icon": "♨️",
+      "color": "#0284c7",
+      "tagline": "Mura-Side Spa in Northernmost Croatia",
+      "intro": "Sveti Martin na Muri is a small municipality in Međimurje County in the far north of Croatia, on the Mura river bordering Slovenia. The village is known for the Terme Sveti Martin spa resort, the Mura-Drava biosphere reserve landscape, and its location at Croatia's northernmost point.",
+      "history": "Sveti Martin na Muri is named for its medieval parish church of Saint Martin, near the Mura crossing into what is today Slovenia. Like all Međimurje, it was Hungarian (Zala County) territory until 1918. In modern Croatia, the Terme Sveti Martin spa was developed around thermal mineral springs, and the village became a small destination for spa and cycling tourism along the Mura. The wider area is part of the UNESCO Mura-Drava-Danube transboundary biosphere reserve.",
+      "facts": [
+        "Sveti Martin na Muri lies at Croatia's northernmost point, on the Mura river border with Slovenia",
+        "The Terme Sveti Martin spa resort is built around local thermal mineral springs",
+        "The municipality is named for the medieval parish church of Saint Martin of Tours (Sveti Martin)",
+        "The area is part of the UNESCO Mura-Drava-Danube transboundary biosphere reserve",
+        "Like all Međimurje, Sveti Martin na Muri was part of Hungarian Zala County until 1918"
+      ],
+      "vocab": [
+        {"hr": "Sveti Martin", "en": "Saint Martin (of Tours)", "note": "Sveti Martin na Muri is named for the medieval church of Saint Martin"},
+        {"hr": "toplice", "en": "thermal spa", "note": "Terme Sveti Martin — the thermal spa of Sveti Martin na Muri"},
+        {"hr": "sjever", "en": "north", "note": "Sveti Martin na Muri is at the krajnji sjever — northernmost — of Croatia"}
+      ],
+      "didYouKnow": "Saint Martin of Tours, patron of Sveti Martin na Muri's church, was born in Pannonia (today's Hungary) around 316 AD — making him a Pannonian saint venerated across this Drava-Mura borderland for over 1,500 years."
+    },
+    {
+      "name": "Donji Kraljevec",
+      "region": "Međimurje",
+      "icon": "🏛️",
+      "color": "#dc2626",
+      "tagline": "Birthplace of Rudolf Steiner",
+      "intro": "Donji Kraljevec is a Međimurje municipality in the lowland Drava-side eastern half of the county, internationally known as the birthplace in 1861 of Rudolf Steiner — the Austrian philosopher who founded anthroposophy, the Waldorf school movement, and biodynamic agriculture. A memorial centre in Donji Kraljevec preserves his birth house.",
+      "history": "Donji Kraljevec was a small village in Hungarian Zala County in the 19th century, on the Croatia-Hungary railway line through Međimurje. Rudolf Steiner's father worked here as a railway station official, and Rudolf was born in Donji Kraljevec on 25 February 1861. The family soon moved on along the railway lines of the Habsburg Empire. Steiner's anthroposophical movement, Waldorf education, biodynamic farming, and the Goetheanum in Switzerland became globally influential in the 20th century. In recent decades the Steiner birth house in Donji Kraljevec has been restored as the Rudolf Steiner Centre.",
+      "facts": [
+        "Rudolf Steiner, founder of anthroposophy and Waldorf education, was born in Donji Kraljevec on 25 February 1861",
+        "Steiner's birth house in Donji Kraljevec is preserved as the Rudolf Steiner Centre (Centar Rudolf Steiner)",
+        "His father worked as a railway official in Donji Kraljevec on the Habsburg-era line through Međimurje",
+        "Donji Kraljevec is part of Međimurje County, in the lowland Drava-side area",
+        "Like all Međimurje, Donji Kraljevec was part of Hungarian Zala County until 1918"
+      ],
+      "vocab": [
+        {"hr": "filozof", "en": "philosopher", "note": "Rudolf Steiner — the filozof and founder of anthroposophy — was born in Donji Kraljevec"},
+        {"hr": "kolodvor", "en": "railway station", "note": "Steiner's father worked at the Donji Kraljevec kolodvor as a railway official"},
+        {"hr": "Waldorf", "en": "Waldorf (school movement)", "note": "Donji Kraljevec is the birthplace of the founder of Waldorf education"}
+      ],
+      "didYouKnow": "Rudolf Steiner's influence reaches well beyond philosophy — Waldorf schools educate over 250,000 children worldwide, and biodynamic farms farm millions of hectares, all traceable to a small Međimurje railway-worker's family in Donji Kraljevec."
+    },
+    {
+      "name": "Goričan",
+      "region": "Međimurje",
+      "icon": "🛂",
+      "color": "#0284c7",
+      "tagline": "Hungarian Border Crossing in Eastern Međimurje",
+      "intro": "Goričan is a small municipality in eastern Međimurje County, on the Hungarian border. It is best known as the site of one of Croatia's main road crossings into Hungary (Goričan–Letenye), connecting the A4 motorway with Hungary's M7. The village itself is a flat-land agricultural community at the easternmost edge of Međimurje.",
+      "history": "Goričan was a Mura-area village in Hungarian Zala County until 1918, and the Hungarian border has since 1920 run just east of the village. In the modern Croatian state, the Goričan-Letenye border crossing became one of the principal road connections between Croatia and Hungary; it was upgraded to a motorway crossing with the completion of Croatia's A4 motorway and is now an EU internal Schengen-area crossing.",
+      "facts": [
+        "The Goričan-Letenye border crossing is one of Croatia's main road crossings into Hungary",
+        "Croatia's A4 motorway connects to Hungary's M7 motorway at the Goričan crossing",
+        "Goričan sits at the easternmost edge of Međimurje County, in the Mura lowlands",
+        "Like all Međimurje, Goričan was part of Hungarian Zala County until 1918"
+      ],
+      "vocab": [
+        {"hr": "granica", "en": "border", "note": "Goričan sits on the granica with Hungary — main motorway crossing into Hungary"},
+        {"hr": "autocesta", "en": "motorway", "note": "Croatia's A4 autocesta connects to Hungary's M7 at Goričan"},
+        {"hr": "carina", "en": "customs", "note": "The Goričan carina was a major customs post before Schengen entry"}
+      ],
+      "didYouKnow": "When Croatia joined the Schengen area on 1 January 2023, the Goričan-Letenye crossing effectively became an internal EU border — a transformation of a frontier that had been fortified for most of the previous century."
+    },
+    {
+      "name": "Belica",
+      "region": "Međimurje",
+      "icon": "🌾",
+      "color": "#16a34a",
+      "tagline": "Lower Međimurje Village South of Čakovec",
+      "intro": "Belica is a small Međimurje municipality in the lowlands south of Čakovec, between the Mura and Drava rivers. It is an agricultural community in the heart of the Međimurje plain, with grain and maize farming on the rich Pannonian soil.",
+      "history": "Belica developed as a small Hungarian Zala County village until 1918, and since then has been part of Croatia. Like all Lower Međimurje villages, its character has been shaped by intensive lowland farming on the flat alluvial soils between the Mura and Drava. The municipality is part of the wider Lower Međimurje (Donje Međimurje) region centred on Prelog.",
+      "facts": [
+        "Belica lies in the flat Lower Međimurje plain south of Čakovec, between the Mura and Drava rivers",
+        "The area is intensively farmed for grain, maize, and vegetables on rich alluvial soil",
+        "Belica is part of Međimurje County, the smallest and most densely populated county in Croatia",
+        "Like all Međimurje, Belica was part of Hungarian Zala County until 1918"
+      ],
+      "vocab": [
+        {"hr": "ravnica", "en": "plain", "note": "Belica sits on the međimurska ravnica — the Međimurje plain"},
+        {"hr": "njiva", "en": "ploughed field", "note": "Njive of grain and maize define Belica's landscape"},
+        {"hr": "Međimurje", "en": "Međimurje region", "note": "Belica is part of Donje Međimurje — the lowland eastern half"}
+      ],
+      "didYouKnow": "Međimurje is Croatia's smallest county but one of its most densely populated — the rich farmland between the Mura and Drava has supported intensive agriculture and dense villages for over a thousand years."
+    },
+    {
+      "name": "Šenkovec",
+      "region": "Međimurje",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Zrinski Family Burial Site",
+      "intro": "Šenkovec is a small Međimurje municipality on the immediate western edge of Čakovec, known historically as the burial site of the Zrinski family — Croatia's most famous noble dynasty, who held Međimurje as their family estate for nearly two centuries. The Pauline monastery church of Saint Helen in Šenkovec contains Zrinski tombs.",
+      "history": "The Pauline monastery and church of Saint Helen at Šenkovec was the family church and burial site of the Zrinski family from the 16th century, when they acquired Međimurje. Several Zrinski counts, including Nikola IV Zrinski (the Hero of Siget, who died defending Szigetvár against the Ottomans in 1566) and Nikola VII Zrinski, are connected to the site. The 1671 execution of Petar Zrinski and Fran Krsto Frankopan for their conspiracy against the Habsburgs effectively ended the dynasty, and the Habsburgs confiscated the Šenkovec estate. The Pauline order was dissolved in 1786 by Joseph II.",
+      "facts": [
+        "The Pauline church of Saint Helen in Šenkovec was the burial church of the Zrinski family, lords of Međimurje",
+        "Nikola IV Zrinski, the Hero of Siget who died defending Szigetvár in 1566, is connected to the Zrinski Šenkovec burial site",
+        "The Zrinski dynasty ended after Petar Zrinski's execution in Wiener Neustadt on 30 April 1671 for conspiracy against the Habsburgs",
+        "The Pauline monastery at Šenkovec was dissolved in 1786 by Habsburg emperor Joseph II",
+        "Šenkovec lies immediately west of Čakovec in Međimurje County"
+      ],
+      "vocab": [
+        {"hr": "Zrinski", "en": "the Zrinski noble family", "note": "Šenkovec was the Zrinski family burial church — the lords of Međimurje"},
+        {"hr": "pavlini", "en": "Paulines (Order of Saint Paul)", "note": "Pavlinski samostan — Pauline monastery — stood at Šenkovec from the 16th century until 1786"},
+        {"hr": "grobnica", "en": "tomb / crypt", "note": "Zrinska grobnica — the Zrinski tombs were at the Šenkovec Pauline church"}
+      ],
+      "didYouKnow": "Nikola IV Zrinski's defense of Szigetvár in 1566 cost the Ottomans Sultan Suleiman the Magnificent — Suleiman died in his tent during the siege, news that delayed the Ottoman advance into central Europe by weeks."
+    },
+    {
+      "name": "Pribislavec",
+      "region": "Međimurje",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Festetics Castle on the Edge of Čakovec",
+      "intro": "Pribislavec is a small Međimurje municipality directly adjacent to Čakovec, known for the Festetics manor (Dvorac Festetics), a 19th-century country house built by the Hungarian Festetics noble family who held the Čakovec-area estates after the Zrinski dynasty was destroyed by the Habsburgs in 1671. The castle and its park dominate the village.",
+      "history": "After the execution of Petar Zrinski in 1671, the Habsburgs confiscated the Zrinski lands in Međimurje. The estates eventually came to the Festetics family, Hungarian nobles, who in the 19th century built a Romantic-historicist manor at Pribislavec. The Festetics estate was a large agricultural and forestry operation. After 1918 the estate passed to the new Yugoslav state, and the manor served various institutional functions. Pribislavec today is a small commuter community on Čakovec's eastern edge.",
+      "facts": [
+        "Dvorac Festetics in Pribislavec was built in the 19th century by the Hungarian Festetics noble family",
+        "The Festetics acquired the Čakovec-area estates after the Zrinski lands were confiscated by the Habsburgs in 1671",
+        "Pribislavec sits directly adjacent to Čakovec in Međimurje County",
+        "The Festetics estate was historically one of the largest agricultural and forestry holdings in the region",
+        "Like all Međimurje, Pribislavec was part of Hungarian Zala County until 1918"
+      ],
+      "vocab": [
+        {"hr": "dvorac", "en": "castle / manor", "note": "Dvorac Festetics — the 19th-century Festetics manor at Pribislavec"},
+        {"hr": "imanje", "en": "estate", "note": "The Festetics imanje at Pribislavec was one of the largest in Međimurje"},
+        {"hr": "grofovi", "en": "counts (nobility)", "note": "The Festetics grofovi were Hungarian counts who took over the Zrinski estates"}
+      ],
+      "didYouKnow": "The Festetics family of Pribislavec is the same noble house that, at their main Hungarian seat of Keszthely on Lake Balaton, founded the Georgikon — Europe's first higher-education institution for agriculture, in 1797."
+    },
+    {
+      "name": "Donja Dubrava",
+      "region": "Međimurje",
+      "icon": "💧",
+      "color": "#0284c7",
+      "tagline": "Drava River Village at the Mura Confluence",
+      "intro": "Donja Dubrava is a small Međimurje municipality at the easternmost edge of the county, where the Mura river joins the Drava. It is a flat-land village on the historic raft-floating route down the Drava, and historically a centre of timber rafting (splavarenje), the trade in which Slavonian and Styrian timber was floated down the Drava through the Danube to the Black Sea.",
+      "history": "Donja Dubrava was a Drava-side village in Hungarian Zala County until 1918. For centuries it was a centre of timber rafting — local raftsmen (splavari) assembled great oak and beech log rafts in the Drava and floated them down through Hungary into the Danube and as far as the Black Sea. The Drava and Mura at Donja Dubrava are now part of the Mura-Drava-Danube biosphere reserve. The Mura empties into the Drava near the village, and a small chapel marks the confluence.",
+      "facts": [
+        "Donja Dubrava sits at the confluence of the Mura and the Drava in eastern Međimurje",
+        "The village was historically a major centre of Drava timber rafting (splavarenje), with raftsmen floating logs down the Drava to the Danube",
+        "The area is part of the UNESCO Mura-Drava-Danube transboundary biosphere reserve",
+        "Donja Dubrava is the easternmost municipality of Međimurje County",
+        "Like all Međimurje, the village was part of Hungarian Zala County until 1918"
+      ],
+      "vocab": [
+        {"hr": "splavar", "en": "raftsman / log-rafter", "note": "Donja Dubrava splavari floated timber rafts down the Drava for centuries"},
+        {"hr": "ušće", "en": "river mouth / confluence", "note": "The Mura ušće — the Mura's confluence with the Drava — lies near Donja Dubrava"},
+        {"hr": "Drava", "en": "the Drava river", "note": "The Drava at Donja Dubrava carries water from the Austrian Alps to the Danube"}
+      ],
+      "didYouKnow": "Donja Dubrava raftsmen would float timber down the Drava and Danube as far as Vukovar, Belgrade, and even the Black Sea — single voyages could take months, with the splavari then walking back home overland."
+    },
+    {
+      "name": "Sveti Križ Začretje",
+      "region": "Zagorje",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Zagorje Village with Baroque Pilgrimage Church",
+      "intro": "Sveti Križ Začretje is a Zagorje municipality in Krapina-Zagorje County, south of Krapina near the Zagreb–Macelj motorway. It is named for its baroque pilgrimage church of the Holy Cross (Sveti Križ), an important Zagorje religious site, and the historic Keglević family castle (Dvorac Keglević) stands in the village.",
+      "history": "The Keglević family, one of the most prominent Croatian noble houses, held lands around Sveti Križ Začretje from the 16th century. Their castle in Začretje was rebuilt in the 18th century in baroque style. The parish church of the Holy Cross developed as a regional pilgrimage site, with a venerated cross. Like all Zagorje villages, the area was Kajkavian-speaking peasant country under Habsburg administration; the dissolution of feudalism in 1848 transformed the economy.",
+      "facts": [
+        "Sveti Križ Začretje is named for its baroque pilgrimage church of the Holy Cross (Sveti Križ)",
+        "Dvorac Keglević, the 18th-century baroque-rebuilt castle of the Keglević noble family, stands in the village",
+        "The Keglević family held Sveti Križ Začretje from the 16th century onwards",
+        "The municipality lies in Krapina-Zagorje County, south of Krapina, on the Zagreb-Macelj motorway corridor",
+        "The area is Kajkavian-speaking, part of the wider Hrvatsko zagorje"
+      ],
+      "vocab": [
+        {"hr": "Sveti Križ", "en": "Holy Cross", "note": "The parish church at Sveti Križ Začretje is dedicated to the Sveti Križ — Holy Cross"},
+        {"hr": "Keglević", "en": "the Keglević noble family", "note": "The Keglevići held Sveti Križ Začretje from the 16th century — their dvorac still stands"},
+        {"hr": "hodočašće", "en": "pilgrimage", "note": "Sveti Križ Začretje has historically been a hodočašće — pilgrimage — destination in Zagorje"}
+      ],
+      "didYouKnow": "The Keglević family of Sveti Križ Začretje were close enough to the Habsburg court that one of their daughters, Babette Keglević, was a piano student of Beethoven in Vienna in the 1790s — Beethoven dedicated his Piano Concerto No. 1 to her."
+    },
+    {
+      "name": "Krašić",
+      "region": "Central Croatia",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Birthplace of Blessed Cardinal Alojzije Stepinac",
+      "intro": "Krašić is a municipality in Zagreb County in the hilly Žumberak area south of Jastrebarsko, best known as the birthplace in 1898 of Alojzije Stepinac — the wartime Archbishop of Zagreb, cardinal, and beatified Catholic martyr who was confined to Krašić by the Yugoslav communist authorities from 1951 until his death in 1960. The Stepinac birth house and parish are major pilgrimage sites.",
+      "history": "Krašić is an old hill-country parish in the Žumberak area, on the edge of the Greek Catholic (Eastern Rite) Žumberak diocese. Alojzije Stepinac was born here on 8 May 1898, became Archbishop of Zagreb in 1937, and led the Croatian Catholic Church through the Second World War, the Independent State of Croatia (NDH) period, and the early Yugoslav years. Tried and convicted by the Yugoslav regime in a controversial 1946 show trial, Stepinac was imprisoned at Lepoglava and then in 1951 transferred to house arrest in his birth village of Krašić, where he lived in the parish house until his death on 10 February 1960. Beatified by Pope John Paul II in 1998.",
+      "facts": [
+        "Cardinal Alojzije Stepinac, wartime Archbishop of Zagreb, was born in Krašić on 8 May 1898",
+        "Stepinac was confined to the Krašić parish house by the Yugoslav authorities from December 1951 until his death on 10 February 1960",
+        "Stepinac was beatified by Pope John Paul II in Marija Bistrica on 3 October 1998",
+        "The Stepinac birth house and parish house in Krašić are pilgrimage sites managed as Stepinac memorial centres",
+        "Krašić lies in the Žumberak hill country south of Jastrebarsko, in Zagreb County"
+      ],
+      "vocab": [
+        {"hr": "kardinal", "en": "cardinal", "note": "Krašić is the birthplace of kardinal Alojzije Stepinac — beatified Catholic martyr"},
+        {"hr": "blaženi", "en": "blessed (beatified)", "note": "Blaženi Alojzije Stepinac — beatified by John Paul II in 1998 in Marija Bistrica"},
+        {"hr": "kućni pritvor", "en": "house arrest", "note": "Stepinac lived under kućni pritvor in Krašić from 1951 to his death in 1960"}
+      ],
+      "didYouKnow": "Pope John Paul II personally beatified Cardinal Stepinac in Croatia at Marija Bistrica on 3 October 1998 — and visited Krašić itself, the village of Stepinac's birth and final confinement, on the same trip."
+    }
+  ]
+}

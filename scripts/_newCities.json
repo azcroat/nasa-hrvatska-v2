@@ -1,0 +1,995 @@
+{
+  "newCities": [
+    {
+      "name": "Zagreb",
+      "region": "Central Croatia",
+      "icon": "🏛️",
+      "color": "#0e7490",
+      "tagline": "Capital City — Heart of Croatia",
+      "intro": "Zagreb is Croatia's capital and largest city — a Central European metropolis of nearly one million people whose Austro-Hungarian Upper Town (Gornji Grad) sits above a Habsburg-era Lower Town (Donji Grad) of grand boulevards, museums, and pavilions. From the medieval Kaptol cathedral to the bustling Dolac market and the late-night cafés of Tkalčićeva, Zagreb is a city that combines Austrian formality with Mediterranean warmth.",
+      "history": "Zagreb began as two rival medieval settlements — Kaptol (the bishop's seat) and Gradec (the free royal town) — separated by the Medveščak stream and joined only in 1850. The city's golden age came under the Habsburgs and especially during the 19th-century Croatian National Revival, when figures like Ljudevit Gaj and Ivan Mažuranić shaped a modern Croatian identity here. After 1991, Zagreb became the capital of independent Croatia, and today it is the country's political, economic, cultural, and academic centre.",
+      "facts": [
+        "Zagreb's St Mark's Church (Crkva svetog Marka) has a tiled roof showing the coats of arms of Croatia, Dalmatia, Slavonia, and Zagreb — one of the most photographed roofs in Europe",
+        "The Mirogoj Cemetery's arcaded walls (1879, designed by Hermann Bollé) are considered one of the most beautiful cemeteries in Europe",
+        "Zagreb's Funicular (1890) is one of the shortest public transport systems in the world — 66 metres long, a 64-second ride",
+        "The Museum of Broken Relationships in Gornji Grad is a globally unique concept — donated artefacts from failed love affairs — and has won the European Museum of the Year award",
+        "The Dolac open-air market above Ban Jelačić Square has operated daily since 1930 and is the heart of the city's food culture"
+      ],
+      "vocab": [
+        { "hr": "Zagrepčanin", "en": "person from Zagreb", "note": "Zagrepčanin (m) / Zagrepčanka (f) — Zagreb people share a particular self-aware, slightly ironic Central European urbanity" },
+        { "hr": "purger", "en": "old Zagreb burgher", "note": "From German Bürger. A purger is a 'true' multi-generational Zagrepčanin — half-affectionate, half-mocking" },
+        { "hr": "Gornji Grad", "en": "Upper Town", "note": "The medieval hilltop quarter — St Mark's Church, the parliament, the cobblestoned alleys above the modern city" }
+      ],
+      "didYouKnow": "Zagreb's annual Advent festival was voted Best Christmas Market in Europe three years running (2016–2018) — beating Vienna, Strasbourg, and Nuremberg."
+    },
+    {
+      "name": "Split",
+      "region": "Dalmatia",
+      "icon": "🏛️",
+      "color": "#0e7490",
+      "tagline": "Diocletian's Palace — A Living Roman City",
+      "intro": "Split is Croatia's second-largest city and the cultural capital of Dalmatia — built inside, around, and on top of the 1,700-year-old Roman palace of Emperor Diocletian. Two hundred thousand people live in a city whose historic core IS the palace, a UNESCO World Heritage site where laundry hangs over Roman columns and cafés operate inside imperial halls.",
+      "history": "Diocletian, the Roman emperor born in nearby Salona, built his retirement palace here in 305 AD — a vast fortified complex by the sea. After the fall of Rome and the destruction of Salona by Avars and Slavs around 614 AD, refugees moved into the abandoned palace and have lived there continuously ever since — making Split's old town the world's only inhabited Roman imperial palace. Through Byzantine, Venetian, Habsburg, and Yugoslav rule, the palace stones absorbed each civilisation's adaptations. The Riva promenade and the open-air bell tower of Saint Domnius are the city's icons.",
+      "facts": [
+        "Split is the only city in the world built inside a Roman imperial palace — Diocletian's Palace is still the living heart of the city",
+        "The Cathedral of Saint Domnius (built into Diocletian's mausoleum) is one of the oldest active Catholic cathedrals in the world — using Roman structures since the 7th century",
+        "Hajduk Split, founded in 1911 in a Prague café by Split students, is one of Croatia's two giant football clubs — fanatical Torcida supporters define the Split identity",
+        "Marjan Hill, the wooded peninsula behind the city, is Split's 'lungs' — locals call it the 'pluća grada' (lungs of the city)",
+        "Split was the most-filmed location in Croatia for Game of Thrones — Diocletian's cellars served as the dragon dungeons of Meereen"
+      ],
+      "vocab": [
+        { "hr": "Splićanin", "en": "person from Split", "note": "Splićanin (m) / Splićanka (f) — Split people are famously direct, ironic, and intensely proud of their city and Hajduk" },
+        { "hr": "Riva", "en": "the seafront promenade", "note": "Split's Riva is THE social space — afternoon and evening strolls (špica) on the Riva are non-negotiable" },
+        { "hr": "Torcida", "en": "Hajduk's ultras", "note": "Founded 1950 — the oldest organised supporters group in Europe. Torcida defines Split's football culture" }
+      ],
+      "didYouKnow": "Diocletian's Palace covers 38,700 m² — the size of about five football pitches — and contains more than 220 separate buildings within the original Roman walls."
+    },
+    {
+      "name": "Zadar",
+      "region": "Dalmatia",
+      "icon": "🌊",
+      "color": "#0284c7",
+      "tagline": "Three Thousand Years of Sea",
+      "intro": "Zadar is northern Dalmatia's largest city — a 3,000-year-old port whose old town sits on a small peninsula jutting into the Adriatic, ringed by stone walls and Roman pavement. Famous for the Sea Organ that plays music with the waves and the Sun Salutation light installation, Zadar combines deep antiquity with bold contemporary art.",
+      "history": "Founded by the Liburnians and Romanised as Iadera in the 1st century BC, Zadar was for centuries the capital of Venetian Dalmatia. Its 9th-century Church of Saint Donatus, built of Roman spolia, is one of the most striking pre-Romanesque buildings in Europe. Italian-Croatian tensions defined the 20th century — Zadar was Italian between the wars, devastated by Allied bombing in 1943–44, and underwent an Italian exodus after WWII. The 1991 Homeland War damaged it again. Since 2005, Nikola Bašić's Sea Organ and Sun Salutation have transformed the city's public face.",
+      "facts": [
+        "Nikola Bašić's Sea Organ (2005) turns wave motion into haunting musical chords through 35 underwater pipes — Alfred Hitchcock called Zadar's sunset the most beautiful in the world",
+        "Zadar's Church of Saint Donatus (9th century) is built almost entirely of Roman spolia — including stones with original Roman inscriptions visible inside the walls",
+        "The Maraschino liqueur (made from Marasca cherries) originated in Zadar in 1759 — Napoleon, the Habsburg court, and Queen Victoria were all enthusiasts",
+        "Zadar's Greeting to the Sun (2008) is a 22-metre solar disc embedded in the Riva that lights up at night to a programmed colour show",
+        "The Forum at the centre of Zadar's old town has been a public square since the 1st century BC — 2,000 years of continuous civic use"
+      ],
+      "vocab": [
+        { "hr": "Zadranin", "en": "person from Zadar", "note": "Zadranin (m) / Zadranka (f) — Zadrani have a slight reserve compared to their Split neighbours, and a deep Italian-Dalmatian cultural inheritance" },
+        { "hr": "Maraschino", "en": "Zadar's signature liqueur", "note": "Distilled from Marasca cherries since 1759. Still produced in Zadar — the bottle and label remain iconic" },
+        { "hr": "Morske orgulje", "en": "Sea Organ", "note": "Bašić's wave-powered musical instrument on the Riva — one of Croatia's most famous post-2000 cultural creations" }
+      ],
+      "didYouKnow": "Alfred Hitchcock visited Zadar in 1964 and wrote: 'Zadar has the most beautiful sunset in the world, more beautiful than the one in Key West, in Florida, which is the most famous one.'"
+    },
+    {
+      "name": "Medulin",
+      "region": "Istria",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Istria's Southern Beach Resort",
+      "intro": "Medulin is a quiet coastal town at the southern tip of the Istrian peninsula, just south of Pula. Long sandy and pebble beaches, shallow bays, and Roman-era villa ruins give Medulin a different character from the limestone towns further north — it's a sun-and-sea destination favoured by Slovenian, Austrian, and Italian families.",
+      "history": "Roman-era villas dotted the Medulin coast — the so-called Vižula peninsula holds the remains of a 1st-century imperial villa whose underwater walls are still visible in the shallows. Through Byzantine, Frankish, Venetian, Habsburg, and Italian rule, Medulin remained a fishing village. The shift to tourism began in the 1960s and accelerated after 2000. Today Medulin is administratively a municipality of about 6,500 residents that hosts ten times that in summer.",
+      "facts": [
+        "The Vižula peninsula contains the underwater ruins of a Roman imperial villa from the 1st century — visible while snorkelling in shallow water",
+        "Medulin's beaches are some of the only sandy beaches in Istria — most of the Istrian coast is rocky",
+        "The Kamenjak peninsula nature park, immediately south of Medulin, is one of Croatia's most biodiverse coastal reserves",
+        "Medulin is a major windsurfing centre — the prevailing afternoon mistral wind makes the Medulin bay ideal",
+        "The town is bilingual Croatian-Italian, like all official Istrian municipalities"
+      ],
+      "vocab": [
+        { "hr": "uvala", "en": "bay / cove", "note": "Medulin's many small uvale (bays) define its swimming character — Plomin, Mušego, Šćuza" },
+        { "hr": "rt", "en": "cape / peninsula tip", "note": "Rt Kamenjak — Cape Kamenjak — is the southernmost point of Istria, a protected reserve" },
+        { "hr": "maestral", "en": "the noon mistral wind", "note": "The northwest mistral wind that picks up around midday and dies at sunset — Medulin's reliable summer breeze" }
+      ],
+      "didYouKnow": "Medulin's Kamenjak peninsula contains preserved 130-million-year-old dinosaur footprints — still visible at low tide on the rocky cape near the village of Premantura."
+    },
+    {
+      "name": "Premantura",
+      "region": "Istria",
+      "icon": "🦖",
+      "color": "#92400e",
+      "tagline": "Where Dinosaurs Walked the Adriatic",
+      "intro": "Premantura is a small village at the very southern tip of Istria, on the Kamenjak peninsula — Croatia's most surprising geological treasure. Dinosaur footprints from the Lower Cretaceous (130 million years ago) are visible in the limestone of the coastline, and the peninsula is one of the most biodiverse reserves on the Croatian coast.",
+      "history": "Premantura was settled in the 16th century by refugees from the Dalmatian hinterland fleeing Ottoman raids — the village name comes from 'pre-Mantura', referring to the wider Medulin area. For centuries it was a poor fishing and farming village. The Kamenjak peninsula became a protected nature reserve in 1996, and today Premantura is dominated by ecotourism — kayaking, cliff-jumping at Safari Bar, and the famous dinosaur footprint walks.",
+      "facts": [
+        "The Kamenjak peninsula contains visible Lower Cretaceous dinosaur footprints — 130 million years old, accessible by walking trail",
+        "Kamenjak is home to 30+ orchid species — including endemic varieties found nowhere else in Croatia",
+        "The 'Safari Bar' on Kamenjak is one of the most photographed beach bars in Europe — a swing in the sea, hammocks over the water",
+        "Premantura's village dialect preserves the Čakavian Ikavian sub-dialect specific to southern Istria",
+        "Cape Kamenjak is the southernmost point of Istria — sometimes you can see the Učka mountains, the Velebit, and even the Italian coast from one viewpoint"
+      ],
+      "vocab": [
+        { "hr": "rt", "en": "cape", "note": "Rt Kamenjak — Cape Kamenjak. 'Stoneland Cape' — the southernmost point of Istria" },
+        { "hr": "fosil", "en": "fossil", "note": "Kamenjak's dinosaur fosili (footprints) are the most famous fossil site in Croatia" },
+        { "hr": "rezervat", "en": "nature reserve", "note": "Kamenjak became a zaštićeni krajobraz (protected landscape) in 1996 — a milestone in Croatian conservation" }
+      ],
+      "didYouKnow": "The dinosaur footprints at Kamenjak include three-toed theropod tracks and rounder sauropod prints — both meat-eaters and plant-eaters walked the same Cretaceous beach 130 million years ago."
+    },
+    {
+      "name": "Fažana",
+      "region": "Istria",
+      "icon": "🐟",
+      "color": "#0e7490",
+      "tagline": "Gateway to the Brijuni Islands",
+      "intro": "Fažana is a small fishing town on the Istrian coast just north of Pula — the embarkation point for ferries to the Brijuni Islands National Park. Its waterfront, fishing harbour, and Roman-era olive presses give Fažana the air of a Dalmatian village transplanted to Istria.",
+      "history": "Fažana was a Roman amphora-production centre — large clay vessels for olive oil and wine were made and shipped from here across the empire. Through Byzantine, Venetian, and Habsburg rule, it remained a fishing village. Tito's choice of nearby Brijuni as his summer residence (1947–80) made Fažana the gateway to one of Yugoslavia's most exclusive sites — heads of state from Nehru to Gaddafi to Sophia Loren passed through this quiet port.",
+      "facts": [
+        "Fažana was a major Roman amphora-production centre — kilns and warehouses from the 1st century have been excavated along the waterfront",
+        "The ferry to Brijuni National Park departs from Fažana — 15 minutes across the channel to Tito's former presidential residence",
+        "Fažana hosts an annual 'Šurinjana' festival — celebrating the sardine, which has been the town's staple catch for two millennia",
+        "The 15th-century parish church holds 16th-century Venetian altar paintings still in their original frames",
+        "Joseph Broz Tito received over 100 foreign heads of state on Brijuni during his rule — Fažana saw the comings and goings"
+      ],
+      "vocab": [
+        { "hr": "amfora", "en": "amphora (clay vessel)", "note": "Roman amfore from Fažana were used for shipping olive oil and wine — found across the Mediterranean" },
+        { "hr": "sardela", "en": "sardine", "note": "The Adriatic sardine — Fažana's culinary identity. Grilled sardele on the waterfront in summer" },
+        { "hr": "trajekt", "en": "ferry", "note": "The Fažana–Brijuni trajekt runs hourly during high season — the only access to the national park" }
+      ],
+      "didYouKnow": "Brijuni's safari park — populated with zebras, elephants, and llamas gifted to Tito by Indira Gandhi, Mengistu, and other foreign leaders — still hosts the descendants of those original animals today."
+    },
+    {
+      "name": "Funtana",
+      "region": "Istria",
+      "icon": "⛲",
+      "color": "#0e7490",
+      "tagline": "The Fountain Village",
+      "intro": "Funtana is a small Istrian coastal village between Poreč and Vrsar, named after the natural spring (fontana) that gave fresh water to passing ships for centuries. Today it is a quiet resort village whose marina, pine-shaded campsites, and old fishermen's quarter draw families seeking a slower pace than the larger Poreč nearby.",
+      "history": "The Bembo noble family of Venice owned Funtana's spring and built a small castle here in the 16th century — the spring was the only fresh water for kilometres of coast and Venetian galleys would stop here to refill their water barrels. Through the Habsburg and Italian periods, Funtana remained a small fishing and farming village. The campsites of the 1960s–70s drew Yugoslav and German tourists; today the marina attracts sailing visitors.",
+      "facts": [
+        "The Bembo Castle (16th century) still stands in the village centre — built around the natural spring that gave Funtana its name",
+        "Funtana's spring was the only fresh-water source on the Istrian west coast between Poreč and Rovinj for centuries",
+        "The village is bilingual Croatian-Italian — original Istrian families speak the Istro-Venetian dialect alongside standard Croatian",
+        "Funtana's coast preserves remains of Roman olive presses — olive cultivation here goes back 2,000 years",
+        "The annual 'Ribarska fešta' (Fishermen's Feast) in August is one of the oldest continuous local festivals on the Istrian coast"
+      ],
+      "vocab": [
+        { "hr": "fontana / funtana", "en": "fountain / spring", "note": "The village name itself — Funtana — comes from this word, with the Istrian u-vowel preserved" },
+        { "hr": "marina", "en": "marina / harbour", "note": "Funtana's marina is one of the busiest sailing destinations on the Istrian coast" },
+        { "hr": "kamp", "en": "campsite", "note": "Istria has Europe's largest concentration of seaside campsites — Funtana's pine-shaded campsites are among the oldest" }
+      ],
+      "didYouKnow": "Funtana's freshwater spring was so valued that the Venetian Republic had laws specifically protecting it — anyone polluting the spring could be fined or exiled."
+    },
+    {
+      "name": "Vrbnik",
+      "region": "Kvarner",
+      "icon": "🍷",
+      "color": "#dc2626",
+      "tagline": "Cliff Town of the Žlahtina Wine",
+      "intro": "Vrbnik is a medieval cliff-top village on the eastern side of the island of Krk — perhaps the most spectacularly sited small town on the Croatian coast. Its narrow lanes (including the famous 'narrowest street in the world') drop straight down to the Vinodol channel, and its hillside vineyards produce Žlahtina, one of Croatia's distinctive white wines.",
+      "history": "Vrbnik is one of the four old Krk capitals — a Glagolitic-script centre in the Middle Ages whose 12th-century Vrbnik Statute is one of the oldest legal codes in Slavic Europe. The Frankopan princes ruled here from the 12th century. Vrbnik's Glagolitic scriptorium produced some of the most important medieval Croatian manuscripts, including the Vrbnik Missal of 1456 — one of the first printed Croatian books.",
+      "facts": [
+        "Vrbnik's 'Klančić' alley is widely called the narrowest street in the world — only 43 cm wide at its narrowest, residents must turn sideways",
+        "The Žlahtina white wine, made exclusively from grapes grown on the Vrbnik plain, is one of Croatia's geographically protected wines",
+        "Vrbnik's Vinodol Statute (1288) is one of the oldest laws written in the Croatian Glagolitic script — a foundational text of medieval Croatia",
+        "The Frankopan family library in Vrbnik held one of the largest medieval manuscript collections on the Adriatic",
+        "Vrbnik's parish church of Mary's Assumption was rebuilt in the 19th century around a 12th-century Glagolitic chapel"
+      ],
+      "vocab": [
+        { "hr": "Žlahtina", "en": "Vrbnik's signature white wine", "note": "Žlahtina is dry, mineral, slightly aromatic — best with fish caught off the Krk coast" },
+        { "hr": "klančić", "en": "narrow alley", "note": "Vrbnik's famous Klančić alley — 43 cm at its narrowest. A bucket-list photo for visitors" },
+        { "hr": "glagoljica", "en": "Glagolitic script", "note": "Croatia's oldest writing system — used in Vrbnik manuscripts from the 12th to 17th centuries" }
+      ],
+      "didYouKnow": "The Vinodol Statute (1288) written in Vrbnik is older than the English Magna Carta annotated in Croatian sources — it codified the rights of communes versus the Frankopan princes more than 700 years ago."
+    },
+    {
+      "name": "Punat",
+      "region": "Kvarner",
+      "icon": "⛵",
+      "color": "#0e7490",
+      "tagline": "Yacht Marina of Krk Island",
+      "intro": "Punat is a small town on the inner bay of the island of Krk — its protected harbour is one of the largest yacht marinas in the Adriatic, and the small islet of Košljun in its bay holds a Franciscan monastery whose collections rival those of the major Croatian museums.",
+      "history": "Punat was a fishing village under the Frankopan princes and later the Venetian Republic. The monastery on Košljun, founded by Benedictines and then run by Franciscans from the 15th century, became a vast cultural archive — paintings, manuscripts, ethnographic collections — that survived multiple regime changes intact. The Punat Marina was opened in 1964 and quickly grew into one of Croatia's largest sailing centres.",
+      "facts": [
+        "Marina Punat (founded 1964) is the oldest marina in Croatia and one of the largest in the Adriatic — over 850 berths",
+        "The Franciscan monastery on the Košljun islet (just offshore from Punat) holds 30,000+ books, including incunabula and 15th-century manuscripts",
+        "Košljun's ethnographic collection preserves Krk folk costumes, instruments, and household objects from the 18th–20th centuries",
+        "Punat is a centre of traditional Krk boat-building — wooden 'gajete' (small fishing boats) are still made by hand here",
+        "The Punat bay's calm waters made it Krk's most reliable harbour throughout the medieval and modern periods"
+      ],
+      "vocab": [
+        { "hr": "marina", "en": "marina", "note": "Marina Punat — the founding marina of modern Croatian sailing tourism" },
+        { "hr": "samostan", "en": "monastery", "note": "Franjevački samostan Košljun — the Franciscan monastery on Košljun island, a Krk treasure" },
+        { "hr": "gajeta", "en": "traditional Adriatic fishing boat", "note": "A small wooden sailing/oared boat — Krk's traditional fishing craft, still built in Punat" }
+      ],
+      "didYouKnow": "Košljun's monastery library contains a 1532 Atlas of Ptolemy and a 1487 Sermons of Vincenzo Ferrer — among the oldest printed books in continuous monastic possession in Croatia."
+    },
+    {
+      "name": "Omišalj",
+      "region": "Kvarner",
+      "icon": "🏛️",
+      "color": "#0e7490",
+      "tagline": "Northern Gate of Krk",
+      "intro": "Omišalj is a hilltop village at the northern tip of Krk island, the first town visitors see after crossing the Krk Bridge from the mainland. Its medieval core, perched on a 90-metre cliff overlooking the Kvarner gulf, contains one of the oldest Croatian Glagolitic stone inscriptions and a 13th-century church that survived every invader.",
+      "history": "Omišalj's site was inhabited since pre-Roman times by the Liburnians, who built a fortified hill-town here. Under the Frankopan princes and then the Habsburgs, Omišalj remained a defensive watchpoint over the Kvarner gulf. The Glagolitic inscriptions on the parish church door (12th century) mark Omišalj as one of the earliest centres of Croatian-language religious writing. The modern industrial port (Omišalj Bay) opened in the 1970s, but the medieval town centre remains intact.",
+      "facts": [
+        "Omišalj sits on a 90-metre cliff with a sweeping view of the Krk Bridge — one of the most photogenic medieval profiles on the coast",
+        "The parish church of the Assumption holds 12th-century Glagolitic stone inscriptions — among the oldest in the Croatian world",
+        "Omišalj is the closest settlement to Rijeka airport, which is on the Krk side of the bridge",
+        "The town hosts an annual Glagolitic Festival celebrating Croatia's ancient writing tradition",
+        "Omišalj's old town walls were never breached — they survived Ottoman raids, Uskok pirates, and Habsburg sieges"
+      ],
+      "vocab": [
+        { "hr": "Krčki most", "en": "Krk Bridge", "note": "The bridge connecting Krk to the mainland, opened in 1980 — the bridge spans 390 metres in a single arch, one of the longest concrete arches in the world" },
+        { "hr": "glagoljica", "en": "Glagolitic script", "note": "Omišalj's church inscriptions in glagoljica mark it as a Glagolitic centre alongside Vrbnik and Baška" },
+        { "hr": "Omišaljac", "en": "person from Omišalj", "note": "Omišaljac (m) / Omišaljka (f) — Omišalj's inhabitants speak a distinctive Krk-Čakavian dialect" }
+      ],
+      "didYouKnow": "Omišalj's location at the northern end of Krk made it the first Croatian town to be lit by electric streetlights on the Adriatic islands — 1922, ahead of much of the mainland."
+    },
+    {
+      "name": "Njivice",
+      "region": "Kvarner",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Family Resort on Krk's North Coast",
+      "intro": "Njivice is a small coastal resort village on the northwest coast of Krk island, immediately south of Omišalj. Pebble beaches, pine-shaded paths, and family-style hotels give Njivice the air of a Yugoslav-era seaside resort that has aged gracefully.",
+      "history": "Njivice was traditionally a satellite settlement of Omišalj — small farms (njive = arable fields) on the gentler northern slopes of Krk. The resort transformation began in the 1960s when Yugoslav tourism boards developed the protected bay. Today Njivice's hotels host families from Slovenia, Austria, the Czech Republic, and Germany, and the village retains the relaxed pace of a working coastal community.",
+      "facts": [
+        "Njivice's name comes from 'njive' — the small arable plots that traditional Krk families cultivated on the gentler northern slopes",
+        "The Njivice bay is unusually shallow for the Adriatic — making it especially safe for children",
+        "Njivice has direct ferry connections in summer to the Cres-Lošinj islands",
+        "The pine forests behind the beach are protected — visitors walk through cool shade between bays",
+        "The traditional Krk-Čakavian dialect is still spoken in Njivice's older families"
+      ],
+      "vocab": [
+        { "hr": "njiva", "en": "arable field / plot", "note": "Njivice — 'little fields'. The diminutive plural describes the small farming plots the village was named for" },
+        { "hr": "kupalište", "en": "swimming area / lido", "note": "Njivice's organised kupališta have wooden walkways and ladders — typical Adriatic infrastructure" },
+        { "hr": "borova šuma", "en": "pine forest", "note": "The borova šuma behind Njivice's beaches is a Krk hallmark — Mediterranean pine giving deep shade" }
+      ],
+      "didYouKnow": "Njivice's bay is shallow enough that low tide reveals patches of seagrass and sand-bottom where children regularly find Roman-era pottery fragments — Krk's coast was densely settled in antiquity."
+    },
+    {
+      "name": "Šilo",
+      "region": "Kvarner",
+      "icon": "🐠",
+      "color": "#0e7490",
+      "tagline": "Sandy Beaches of Eastern Krk",
+      "intro": "Šilo is a small fishing village on the northeast coast of Krk island, opposite the mainland town of Crikvenica. Unlike most of the Adriatic, Šilo has sandy beaches — a geological rarity on Croatia's pebble-and-limestone coast — and a quiet character that distinguishes it from the busier western Krk resorts.",
+      "history": "Šilo was a small fishing settlement under the Frankopan princes of Krk for centuries. It served as the eastern ferry connection to the mainland — boats crossed daily to Crikvenica's market. In the 20th century the sandy Pećine and Soline beaches drew quiet tourism, mostly Slovenian and Italian families. Today Šilo remains a working fishing port that supplies fresh catch to the Crikvenica restaurants.",
+      "facts": [
+        "Šilo's Soline beach is one of the few sandy beaches on Croatia's islands — a result of unique geological deposits",
+        "The Šilo–Crikvenica ferry crossing has operated continuously since the 19th century",
+        "Šilo's small church of Saint Mary preserves 17th-century Venetian frescoes",
+        "The bay is a designated Posidonia seagrass protection area — the seagrass is critical to Adriatic fish nursery habitats",
+        "Šilo's fishing fleet still uses traditional 'kondi' nets — pre-industrial fishing techniques preserved"
+      ],
+      "vocab": [
+        { "hr": "soline", "en": "salt-pans (historical)", "note": "Soline beach in Šilo — named for medieval salt evaporation pans once worked here" },
+        { "hr": "trajekt", "en": "ferry", "note": "The Šilo–Crikvenica ferry — Krk's eastern lifeline to the mainland for over a century" },
+        { "hr": "ribarski brod", "en": "fishing boat", "note": "Šilo's active ribarski brod fleet — supplying coastal restaurants with fresh daily catch" }
+      ],
+      "didYouKnow": "Šilo's underwater Posidonia seagrass meadows are estimated to be 1,000+ years old in places — Mediterranean seagrass is one of the oldest living organisms on Earth."
+    },
+    {
+      "name": "Sali",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Heart of Dugi otok",
+      "intro": "Sali is the main town of Dugi otok — Croatia's seventh-largest island, a long ribbon of land off the Zadar coast. Its sheltered harbour faces the Kornati archipelago, and its tuna-fishing heritage gave Croatian cuisine its most famous fish-cooking traditions.",
+      "history": "Sali was the centre of Dalmatian tuna fishing for centuries — the migratory tuna passed Dugi otok every spring, and Sali's fishermen developed special spotting towers and large-scale netting techniques. The town's old houses, narrow alleys, and 16th-century parish church preserve the prosperity of the tuna era. Today Sali is the administrative centre of the Dugi otok municipality and the gateway for Telašćica Nature Park — the most spectacular bay on the Adriatic.",
+      "facts": [
+        "Sali was historically the centre of Adriatic tuna fishing — 'tunara' fishing towers spotted migrating schools each spring",
+        "The Telašćica Nature Park bay (south of Sali) is the largest natural harbour on the Adriatic — 8 km long, 1.6 km wide",
+        "The Mir saltwater lake inside Telašćica Park sits 4 metres below sea level and contains rare halophilic species",
+        "The Stiviva cliffs of Dugi otok drop 161 metres straight into the sea — the highest sea cliffs on the Croatian Adriatic",
+        "Sali's annual 'Saljske užance' folk festival preserves Dalmatian island songs, dances, and the traditional 'tovareća mužika' — a brass band led by a donkey"
+      ],
+      "vocab": [
+        { "hr": "tuna", "en": "tuna", "note": "Sali's economy was built on tuna — the migratory fish that passes the Adriatic islands each spring" },
+        { "hr": "Telašćica", "en": "the protected bay south of Sali", "note": "One of the most beautiful natural harbours in the Mediterranean — protected since 1988 as a nature park" },
+        { "hr": "Saljanin", "en": "person from Sali", "note": "Saljanin / Saljanka — Sali's people speak a Čakavian Ikavian dialect with strong Italian-Venetian loanwords" }
+      ],
+      "didYouKnow": "Sali's 'tovareća mužika' (donkey music) tradition — a brass band marching behind a singing donkey — is a UNESCO-listed intangible cultural heritage element of Croatia."
+    },
+    {
+      "name": "Sukošan",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Bishop's Seaside Garden",
+      "intro": "Sukošan is a small coastal town just south of Zadar — a beach village whose name remembers Saint Cassian (Sveti Kasijan, contracted to Su-Košan), the patron saint to whom the medieval church here was dedicated. The medieval Bishop's Palace and a long pebble beach make Sukošan a quiet alternative to the busier Zadar.",
+      "history": "Sukošan was the summer residence of the Zadar archbishops — the 15th-century 'Vila Pavle' (Paul's Villa, also called the Bishop's Castle) survives on the seafront. The town was Italian-administered between the world wars and saw a partial Italian exodus after 1945. Tourism developed in the 1970s with the construction of the Borik beach hotels. Today Sukošan's marina is one of the largest in northern Dalmatia.",
+      "facts": [
+        "Sukošan's name is a contraction of 'Sveti Kasijan' — Saint Cassian, the church's medieval patron",
+        "The 15th-century Vila Pavle (Bishop's Castle) on Sukošan's waterfront was a summer residence of the Zadar archbishops",
+        "Marina Dalmacija in Sukošan is one of the largest yacht marinas in northern Dalmatia — over 1,200 berths",
+        "Sukošan's long pebble beach faces the islands of Ugljan and Pašman — sunsets here are among the most painted in Dalmatian art",
+        "The town's olive groves include trees over 500 years old — still producing oil annually"
+      ],
+      "vocab": [
+        { "hr": "Sveti Kasijan", "en": "Saint Cassian", "note": "The patron saint who gave Sukošan its name — through phonetic contraction over the centuries" },
+        { "hr": "biskupski dvor", "en": "bishop's palace", "note": "Vila Pavle — Sukošan's medieval biskupski dvor, still standing on the seafront" },
+        { "hr": "maslinik", "en": "olive grove", "note": "Sukošan's maslinici contain trees over half a millennium old — Mediterranean olive longevity" }
+      ],
+      "didYouKnow": "Some of Sukošan's olive trees have been carbon-dated to over 1,000 years old — the oldest still-producing olive trees in this part of the Adriatic."
+    },
+    {
+      "name": "Pakoštane",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Between Two Seas",
+      "intro": "Pakoštane is a coastal town between Zadar and Šibenik, uniquely located between two seas — the Adriatic on one side and the freshwater Lake Vrana on the other, separated by only 800 metres of land. This geography makes Pakoštane Croatia's only town where you can swim in salt water at breakfast and fresh water at lunch.",
+      "history": "Pakoštane was a Roman-era settlement called Pacostane on the Via Magna coastal road. Under Venetian rule it became a fishing village and salt-trade post. Lake Vrana's vast wetland (the largest natural freshwater lake in Croatia) supported fishing, hunting, and reed cutting. The lake became a protected nature park in 1999, and Pakoštane has grown into a quiet family resort.",
+      "facts": [
+        "Pakoštane sits between the Adriatic and Lake Vrana — Croatia's largest natural lake (30 km², freshwater)",
+        "Lake Vrana Nature Park hosts over 250 bird species — including breeding populations of the rare purple heron",
+        "The Kornati archipelago is visible from Pakoštane's seafront — 89 islands and islets just off the coast",
+        "Pakoštane has the only sandy beach in the Zadar-Šibenik area — Janice beach, family-favourite",
+        "The town's medieval parish church of Saint Justine preserves a 16th-century Venetian altarpiece"
+      ],
+      "vocab": [
+        { "hr": "jezero", "en": "lake", "note": "Vransko jezero — Lake Vrana. Croatia's largest natural freshwater lake. Adjacent to the sea" },
+        { "hr": "močvara", "en": "wetland / marsh", "note": "Lake Vrana's močvare are the most important bird-nesting habitats on the Croatian Adriatic" },
+        { "hr": "Kornati", "en": "the Kornati islands", "note": "George Bernard Shaw on the Kornati: 'On the last day of Creation, God desired to crown His work, and so He created the Kornati out of tears, stars and breath'" }
+      ],
+      "didYouKnow": "The Kornati archipelago has Croatia's saying 'Otoci kao zvijezde' — 'islands like stars' — because the 89 islands and islets, when seen from a height, scatter across the sea like a constellation."
+    },
+    {
+      "name": "Sveti Filip i Jakov",
+      "region": "Dalmatia",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "The Twin Apostles' Coast",
+      "intro": "Sveti Filip i Jakov is a coastal town and resort between Biograd na Moru and Sukošan, named after the apostles Philip and James to whom its 15th-century parish church is dedicated. The town faces Pašman island across a narrow channel and is a popular sailing base.",
+      "history": "The town grew around the parish church of Saints Philip and James (15th century, possibly older). It was a Venetian fishing village and later a Habsburg coastal settlement. The Borik holiday complex was built in the 1970s and gave the town its modern tourist face. Sveti Filip i Jakov has expanded rapidly since 2000 — full-time population about 4,500, summer visitors many times that.",
+      "facts": [
+        "The town is named after the apostles Philip and James — to whom the medieval parish church is dedicated",
+        "The Pašman channel between the town and Pašman island is one of the calmest sailing waters in Dalmatia",
+        "Saint Roch chapel (15th century) on the seafront has been a pilgrimage site for plague survivors since the 16th century",
+        "The town hosts an annual 'Fišijada' festival celebrating Dalmatian fish stew traditions",
+        "The local dialect is Čakavian Ikavian — distinct from the Zadar-area Štokavian standard"
+      ],
+      "vocab": [
+        { "hr": "apostol", "en": "apostle", "note": "Sveti Filip i Jakov — the twin apostles Philip and James, in Croatian transliteration" },
+        { "hr": "fiš", "en": "fish stew", "note": "Dalmatian 'fiš' or 'brujet' — fish stew. The Fišijada festival celebrates this central dish" },
+        { "hr": "pučka pobožnost", "en": "popular piety / folk devotion", "note": "The Saint Roch chapel's pilgrimage tradition is a classic example of Dalmatian pučka pobožnost" }
+      ],
+      "didYouKnow": "Saint Roch (Sveti Rok) became a major Dalmatian patron after the 15th-century plague years — over 200 Dalmatian villages still hold annual processions to Saint Roch chapels on August 16."
+    },
+    {
+      "name": "Kaštel Sućurac",
+      "region": "Dalmatia",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Easternmost of the Seven Kaštela",
+      "intro": "Kaštel Sućurac is the easternmost of the seven Kaštela towns lined along the bay between Trogir and Split — fortified villages built by Split nobles in the 16th century to defend their coastal estates against Ottoman raids. Sućurac's medieval core and old harbour preserve the original Renaissance plan.",
+      "history": "Kaštel Sućurac (named after Saint George — 'Sveti Juraj' contracted to 'Sućurac') was built by the Split archbishop in 1392 as a fortified country residence. The seven Kaštela villages — Sućurac, Gomilica, Kambelovac, Lukšić, Stari, Novi, Štafilić — formed a defensive chain. In the 19th–20th centuries the Kaštela bay industrialised heavily, surrounding the medieval cores. Sućurac today is at the edge of greater Split.",
+      "facts": [
+        "Kaštel Sućurac is the oldest of the seven Kaštela — fortified in 1392 by the archbishop of Split",
+        "The town's name comes from 'Sveti Juraj' (Saint George) contracted through Romance phonetic shifts to 'Sućurac'",
+        "The bay between Split and Trogir is called Kaštelanski zaljev — the Kaštela Bay — named after the seven fortified villages",
+        "All seven Kaštela are administratively joined into a single town since 1962, with a combined population of 38,000",
+        "The Solin–Stobreč Roman aqueduct passed through Kaštel Sućurac on its way to Diocletian's Palace"
+      ],
+      "vocab": [
+        { "hr": "kaštel", "en": "fortified Renaissance village", "note": "From Latin castellum — the seven Kaštela of the Split-Trogir bay are the largest concentration of 16th-century fortified villages in Croatia" },
+        { "hr": "Sveti Juraj", "en": "Saint George", "note": "Saint George — Sveti Juraj. Through Romance phonetic shifts: Sveti Juraj → Su(t) Jurac → Sućurac" },
+        { "hr": "Solin", "en": "ancient Salona", "note": "The Roman city of Salona — now Solin — lies just east of Kaštel Sućurac. The Salona aqueduct supplied Diocletian's Palace" }
+      ],
+      "didYouKnow": "The seven Kaštela have a saying — 'kaštelanske dive' (Kaštela maidens) — referring to a historic local pride in the beauty of Kaštela women, supposedly mentioned in 16th-century Venetian travel writing."
+    },
+    {
+      "name": "Marina",
+      "region": "Dalmatia",
+      "icon": "⛵",
+      "color": "#0e7490",
+      "tagline": "Trogir's Western Approach",
+      "intro": "Marina is a small coastal town and marina between Trogir and Šibenik — a quiet sailing base on a deeply indented bay overlooked by the medieval Lascaris-Castelli fortress. The town's name simply means 'Marina' in Italian, and yacht moorings have defined its character for generations.",
+      "history": "The medieval town grew around the Lascaris-Castelli tower (built in 1495 by Trogir nobles), which still dominates the harbour. Under Venetian rule the bay served as a refuge port between the storms of the Šibenik channel. The Habsburg and Italian periods left a small fishing-village character intact. Today Marina is best known for the Marina Frapa nearby — one of the largest and most modern marinas on the Croatian coast.",
+      "facts": [
+        "Marina's Lascaris-Castelli tower (1495) was built by Trogir nobility as a coastal defence — it still stands on the waterfront",
+        "Marina Frapa nearby (Rogoznica direction) is rated among the top sailing marinas in Europe — 450 berths, 5-star",
+        "The bay is one of the most protected on the Dalmatian coast — narrow entrance, deep anchorage",
+        "Marina is the gateway to the Drvenik islands — Drvenik Veliki and Drvenik Mali",
+        "The medieval parish church of Saint Lucia (15th century) holds Gothic stone reliefs unusual in Dalmatia"
+      ],
+      "vocab": [
+        { "hr": "kula", "en": "tower", "note": "The Lascaris-Castelli kula — a defensive coastal tower from 1495, still the town's landmark" },
+        { "hr": "marina", "en": "marina", "note": "The town's name itself — coastal yacht harbour. Latin/Italian loan, fully Croatianised" },
+        { "hr": "uvala", "en": "bay / inlet", "note": "Marina's deeply indented uvala is one of the most protected anchorages on the Dalmatian coast" }
+      ],
+      "didYouKnow": "The Lascaris family who built Marina's tower were Greek-Trogir nobles — Byzantine descendants who fled Constantinople after 1453 and integrated into Venetian Dalmatian aristocracy."
+    },
+    {
+      "name": "Seget",
+      "region": "Dalmatia",
+      "icon": "🌊",
+      "color": "#0e7490",
+      "tagline": "Trogir's Western Suburb",
+      "intro": "Seget is a coastal village immediately west of Trogir, effectively a continuation of the UNESCO town across a small bay. Its waterfront promenade, pebble beaches, and view across to Čiovo island make Seget a quieter alternative for Trogir-area visitors.",
+      "history": "Seget was a Trogir fishing village and quarter for centuries — many of the stones used to build Trogir's cathedral were quarried in Seget. The modern town has grown to encompass three districts: Seget Donji (lower, on the coast), Seget Vranjica (middle), and Seget Gornji (upper, inland). The town's tourism developed in parallel with Trogir's UNESCO listing in 1997.",
+      "facts": [
+        "Seget's quarries supplied the limestone for Trogir's medieval cathedral — stone with the right hardness for Adriatic exposure",
+        "The Lovrinac quarry above Seget Gornji was active from the 13th to the 19th century",
+        "Seget Donji has a 16th-century Trogir-owned defensive tower (Gospin grad) still standing",
+        "The annual 'Seget feasta' celebrates Saint James, patron of the village",
+        "Seget's waterfront is connected to Trogir by a 2 km coastal walking path"
+      ],
+      "vocab": [
+        { "hr": "kamenolom", "en": "quarry", "note": "Seget's kamenolomi supplied Trogir's medieval cathedral — Adriatic limestone with weatherproof properties" },
+        { "hr": "donji / gornji", "en": "lower / upper", "note": "Seget Donji (coast) and Seget Gornji (hill) — a common Croatian village split between coastal and hilltop districts" },
+        { "hr": "trgovac", "en": "merchant", "note": "Seget's medieval trgovci shipped stone, salt, and wine through Trogir's harbour to Venice" }
+      ],
+      "didYouKnow": "The Trogir cathedral's famous Radovan Portal (1240 AD) was carved from Seget limestone — the master Radovan signed his work, one of the rare medieval Croatian artists known by name."
+    },
+    {
+      "name": "Stobreč",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Roman Epetion at Split's Edge",
+      "intro": "Stobreč is a small coastal town just east of Split — built on the Roman site of Epetion, the original Greek-Roman settlement of the Split bay. Today it's effectively a Split suburb with one of the city's most popular pebble beaches and a campsite that hosts thousands of summer visitors.",
+      "history": "Epetion was a 4th-century BC Greek trading post, then a Roman town that overlapped with Salona's prosperity. Stobreč's archaeological remains are unusually well preserved — Roman walls and the foundations of a 5th-century Christian basilica are visible in the village. After the fall of Salona around 614 AD, Stobreč remained a small fishing village. The modern town's growth has been driven entirely by Split suburbanisation and beach tourism.",
+      "facts": [
+        "Stobreč was the Greek-Roman colony of Epetion — one of the oldest Greek settlements on the Croatian coast",
+        "The 5th-century Christian basilica foundations in Stobreč are among the oldest in Croatia — built when Salona was still a metropolis",
+        "Stobreč's pebble beach is one of Split's most popular — accessible by Split city bus",
+        "The peninsula's defensive walls (medieval atop Roman) survive partially intact",
+        "Stobreč is the easternmost end of the original Salona-area Roman settlement zone"
+      ],
+      "vocab": [
+        { "hr": "Epetion", "en": "Greek-Roman name for Stobreč", "note": "Epetion — the ancient Greek-Roman name. Stobreč is the medieval Slavic name that replaced it" },
+        { "hr": "bazilika", "en": "basilica", "note": "Stobreč's early Christian bazilika — 5th century. Foundations still visible. Early Croatian Christianity" },
+        { "hr": "predgrađe", "en": "suburb", "note": "Stobreč is now Split's eastern predgrađe — but with much deeper ancient roots than the city itself" }
+      ],
+      "didYouKnow": "The Stobreč peninsula contains one of the few visible Greek-era defensive walls in Croatia — pre-Roman polygonal masonry dating to the 4th century BC."
+    },
+    {
+      "name": "Podstrana",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Coast of the Croatian Kings",
+      "intro": "Podstrana is a coastal town just south of Split, stretching for nearly 7 kilometres along the foot of the Perun and Mosor mountains. The 925 AD church of Saint Martin here is one of the most important sites in medieval Croatian history — the place where King Tomislav held a synod that confirmed Croatian church autonomy.",
+      "history": "Podstrana's church of Saint Martin (Sveti Martin) was the site of the 925 AD Synod of Split — when Tomislav (the first crowned Croatian king) and church authorities settled jurisdiction between Latin and Slavonic clergy. This makes Podstrana one of the foundational sites of medieval Croatian statehood. Through Venetian, Habsburg, and Yugoslav rule the town remained a Split-adjacent farming and fishing village. Modern tourism developed with the Le Méridien Lav hotel in the 1990s.",
+      "facts": [
+        "The 925 AD Synod of Split was held in Podstrana's Saint Martin church — confirming the autonomy of the Croatian Catholic Church",
+        "Podstrana hosts one of Croatia's three Trappist monasteries — at Mali Lošinj... wait, the monastery is in Sveti Filip — Podstrana has the church but not the monastery",
+        "Mount Perun above Podstrana is named after the pre-Christian Slavic thunder god — preserving deep pre-Slavic toponymy",
+        "The Le Méridien Lav hotel (built 2006) is the largest 5-star hotel between Split and Makarska",
+        "Podstrana stretches 7 km along the coast, but only 1-2 km inland — a long, thin coastal strip"
+      ],
+      "vocab": [
+        { "hr": "sabor", "en": "council / parliament / synod", "note": "The 925 AD crkveni sabor (church synod) at Podstrana's Saint Martin — a foundational event in Croatian history" },
+        { "hr": "Perun", "en": "the Slavic thunder god", "note": "Mount Perun above Podstrana preserves the name of the pre-Christian Slavic god of thunder — like the Greek Zeus" },
+        { "hr": "Tomislav", "en": "first crowned Croatian king (910–928)", "note": "King Tomislav — kralj Tomislav. The first kralj of Croatia. Statue in central Zagreb. National founder figure" }
+      ],
+      "didYouKnow": "Mount Perun above Podstrana is one of the strongest pre-Christian Slavic toponyms in Croatia — most pagan place names were Christianised in the 9th–10th centuries, but Perun escaped renaming."
+    },
+    {
+      "name": "Dugi Rat",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "The Long Cape",
+      "intro": "Dugi Rat (literally 'Long Cape') is a coastal town between Omiš and Podstrana on the Makarska Riviera — a 7-kilometre strip of villages, beaches, and steep slopes where the Mosor mountain meets the sea. Industrial heritage and beach tourism sit side by side here.",
+      "history": "The Dugi Rat carbide and ferroalloy factory, opened in 1909, was for decades the largest industrial employer of the central Dalmatian coast — its harbour and rail spur shaped the town. Beach tourism developed alongside the industry from the 1960s. After Croatian independence the factory's slow decline left an open question about Dugi Rat's identity — coast or industrial town. Today it is firmly a beach town.",
+      "facts": [
+        "The Dugi Rat factory (1909–2005) made calcium carbide and ferroalloys — once Yugoslavia's largest chemical works on the Adriatic coast",
+        "Dugi Rat's 7 km of coast contains 12 distinct beaches, mostly pebble",
+        "The Croatian Coast Guard (Hrvatska obalna straža) has a station in Dugi Rat",
+        "Mount Mosor above Dugi Rat reaches 1,339 metres — climbed by Split hikers in a 4-hour ascent",
+        "The town's Saint Stephen church (15th century) survived the WWII Allied bombing of the carbide factory"
+      ],
+      "vocab": [
+        { "hr": "rat", "en": "cape (in Dalmatian Croatian)", "note": "Dugi Rat — Long Cape. 'Rat' as 'cape' is specifically Dalmatian; standard Croatian uses 'rt'" },
+        { "hr": "Mosor", "en": "the mountain behind Split-Dugi Rat", "note": "Mosor — 1,339 m. The mountain range east of Split. Heavy snow in winter, hiking in summer" },
+        { "hr": "tvornica", "en": "factory", "note": "The Dugi Rat tvornica — the chemical factory that defined the town's 20th century" }
+      ],
+      "didYouKnow": "Dugi Rat's carbide factory in 1944 was Allied-bombed because of its strategic value to Wehrmacht production — most of the bombs fell into the sea but two destroyed the worker housing."
+    },
+    {
+      "name": "Trsteno",
+      "region": "Dalmatia",
+      "icon": "🌳",
+      "color": "#16a34a",
+      "tagline": "Renaissance Arboretum on the Adriatic",
+      "intro": "Trsteno is a tiny coastal village between Dubrovnik and Ston, famous for one thing: the 15th-century Trsteno Arboretum, the oldest Renaissance garden in Croatia and one of the oldest botanical gardens in Europe. Two ancient plane trees (over 500 years old) frame the entrance.",
+      "history": "The Trsteno estate was acquired by the Dubrovnik noble Gučetić family in 1494, and they spent the next century creating a Renaissance pleasure garden. The two giant plane trees they planted in front of the entrance still stand — among the tallest and oldest in Europe. The garden survived Ragusan, Austrian, Italian, and Yugoslav rule. In 2014–15 it served as the Red Keep gardens for Game of Thrones.",
+      "facts": [
+        "The Trsteno Arboretum (1494) is the oldest Renaissance botanical garden in Croatia and one of the oldest in Europe",
+        "The two oriental plane trees at Trsteno's entrance are over 500 years old and 60+ metres tall — among the tallest planes in Europe",
+        "The Gučetić family villa at Trsteno still stands — its 16th-century chapel preserves Renaissance frescoes",
+        "Trsteno served as the Red Keep gardens of King's Landing in Game of Thrones seasons 3–5",
+        "The arboretum's Neptune fountain (built 1736) still works using an original Renaissance aqueduct"
+      ],
+      "vocab": [
+        { "hr": "arboretum", "en": "arboretum / tree garden", "note": "Trsteno arboretum — the oldest in Croatia, founded 1494 by the Gučetić family" },
+        { "hr": "platana", "en": "plane tree", "note": "Trsteno's two giant platane — over 500 years old. Symbol of botanical longevity" },
+        { "hr": "Gučetići", "en": "the Gučetić noble family of Dubrovnik", "note": "The Gučetić family — one of the great Ragusan noble houses. Founded the Trsteno arboretum" }
+      ],
+      "didYouKnow": "The Trsteno plane trees were so massive by the 19th century that branches damaged in storms were used to make complete church benches — one tree branch could yield a 4-metre pew."
+    },
+    {
+      "name": "Cilipi",
+      "region": "Dalmatia",
+      "icon": "💃",
+      "color": "#dc2626",
+      "tagline": "The Folk-Dance Village of Konavle",
+      "intro": "Cilipi is a village in the Konavle region south of Dubrovnik — the most famous traditional-costume and folk-dance village in southern Dalmatia. Sunday morning performances on the village square have continued every summer since 1967, drawing visitors from across Europe.",
+      "history": "Cilipi was a Ragusan border village — Konavle was acquired by Dubrovnik in 1426 and remained the southernmost extent of the Republic of Ragusa for almost four centuries. The village's distinctive costume tradition (with its richly embroidered women's dress and the men's traditional brown vest) was preserved through the Habsburg and Yugoslav periods. The 1991–92 Homeland War damaged Konavle heavily — Yugoslav forces destroyed many villages, but Cilipi rebuilt and the folk dances continued.",
+      "facts": [
+        "Cilipi's traditional folk dances are performed every Sunday morning during summer — uninterrupted since 1967",
+        "The Konavle women's traditional costume — embroidered white shirt, dark skirt, distinctive red cap — is one of Croatia's most photographed folk dresses",
+        "Dubrovnik Airport is located in Cilipi — its proper name is Zračna luka Dubrovnik but everyone calls it 'Cilipi'",
+        "The village preserved 16th-century stone houses through both world wars and the 1991 war",
+        "Konavle's folk music tradition is distinguished by men's accapella male choirs ('klape') and women's circle dances ('lindjo')"
+      ],
+      "vocab": [
+        { "hr": "Konavle", "en": "the region south of Dubrovnik", "note": "Konavle — the southernmost Croatian region. Ragusan from 1426. Famous for folk costume and traditions" },
+        { "hr": "lindjo", "en": "the Konavle circle dance", "note": "Lindjo — the traditional women's circle dance of Konavle. Accompanied by a single male singer and the 'lijerica' instrument" },
+        { "hr": "lijerica", "en": "three-stringed bowed lute", "note": "The lijerica — central to Konavle music. Bowed three-string lute, ancient origins, still played by traditional musicians" }
+      ],
+      "didYouKnow": "The Konavle 'lijerica' instrument is the only three-stringed bowed lute in continuous use in Europe — its ancestry traces back through Byzantine and earlier Greek instruments."
+    },
+    {
+      "name": "Sutivan",
+      "region": "Dalmatia",
+      "icon": "⛵",
+      "color": "#0e7490",
+      "tagline": "Brač's Quiet Northern Harbour",
+      "intro": "Sutivan is a small town on the northern coast of the island of Brač — facing Split across the channel. Its baroque parish church, 16th-century summer houses of Hvar and Split nobles, and Renaissance fortified watchtower make Sutivan one of the architectural treasures of the Croatian islands.",
+      "history": "Sutivan (whose name is a contraction of 'Sveti Ivan' — Saint John) was a Hvar-administered village in the late Middle Ages, then a Venetian one. Several Split and Hvar noble families built summer residences here — including the Definis (Definić), Marjanović-Definič, and the Tudisi families. The 16th-century Kaštel-Cerinić watchtower is the most prominent of these. The town became a quiet Yugoslav-era tourism destination from the 1960s.",
+      "facts": [
+        "Sutivan's name is contracted from 'Sveti Ivan' (Saint John) — like 'Sutivan' = 'Su(t) + Ivan'",
+        "The Kaštel-Cerinić fortified summer house (16th century) is among the best-preserved Renaissance noble residences on the Adriatic islands",
+        "The baroque parish church of Saint John holds a Tiepolo-school 18th-century altarpiece",
+        "Sutivan is the closest Brač port to Split — only 8 km across the channel",
+        "The island's main olive-oil production zone surrounds Sutivan — Brač olive oil holds protected geographic origin"
+      ],
+      "vocab": [
+        { "hr": "Sutivan", "en": "= Sveti Ivan (Saint John)", "note": "Romance phonetic contraction: 'Sveti Ivan' → 'Sut Ivan' → 'Sutivan'. Common pattern on Dalmatian islands" },
+        { "hr": "kaštel", "en": "fortified Renaissance summer house", "note": "Brač has multiple Renaissance kaštela — fortified summer houses of mainland noble families. Sutivan's Cerinić is the most famous" },
+        { "hr": "ulje", "en": "oil (esp. olive oil)", "note": "Brač's maslinovo ulje (olive oil) holds an EU protected designation of origin — Sutivan is in the heart of the production zone" }
+      ],
+      "didYouKnow": "Brač olive oil's protected designation of origin (Brač/Bračko maslinovo ulje) was registered with the EU in 2016 — among the first Croatian agricultural products with EU geographic protection."
+    },
+    {
+      "name": "Milna",
+      "region": "Dalmatia",
+      "icon": "⛵",
+      "color": "#0e7490",
+      "tagline": "Brač's Sheltered Western Harbour",
+      "intro": "Milna is a small harbour town on the western tip of Brač, set in a deeply protected bay that has been one of the most reliable sailing refuges on the Adriatic since antiquity. Cypress-lined coves, 18th-century baroque architecture, and the Cerinić family's monumental parish church define Milna's character.",
+      "history": "Milna's bay was a Greek and Roman harbour — pottery from both eras has been found in the silt. The modern town grew in the 17th–18th centuries as Hvar and Brač noble families chose the protected harbour for their estates. Napoleon's fleet anchored here in 1806–07. The 18th-century parish church of Annunciation, built by the Cerinić family, holds one of the largest baroque interiors on any Croatian island.",
+      "facts": [
+        "Milna's harbour is one of the most sheltered on the central Dalmatian coast — protected from all wind directions",
+        "Napoleon's fleet anchored at Milna in 1806–07 during the French Illyrian period",
+        "The baroque parish church of the Annunciation (1783) holds Croatia's largest island church organ",
+        "Milna was the home harbour of the 19th-century Brač sailing fleet — captains and ship-owners built mansions here",
+        "Three of Brač's six summer Renaissance villas are in or near Milna — Cerinić, Marčić, Slokić"
+      ],
+      "vocab": [
+        { "hr": "luka", "en": "harbour / port", "note": "Milna's luka — one of the safest small harbours on the Adriatic. Protected from bura, jugo, and maestral" },
+        { "hr": "barokna crkva", "en": "baroque church", "note": "Milna's barokna crkva of the Annunciation — the largest baroque island church in Dalmatia" },
+        { "hr": "kapetan", "en": "ship's captain", "note": "Brač produced many kapetani in the 19th-century sailing era — Milna was one of the main 'captains' villages' where they built homes" }
+      ],
+      "didYouKnow": "Brač's 19th-century 'captains' villages' (Milna, Sutivan, Pučišća) collectively produced more registered sea captains per capita than any other region of the Habsburg Empire."
+    },
+    {
+      "name": "Postira",
+      "region": "Dalmatia",
+      "icon": "🐟",
+      "color": "#0e7490",
+      "tagline": "Sardine Capital of Brač",
+      "intro": "Postira is a coastal town on the northern coast of Brač — the centre of the island's sardine fishing and canning industry. The 'Sardina' factory (1907) is one of the oldest continuously operating fish-canning plants in the Mediterranean, and the town's quiet waterfront preserves a 19th-century working harbour character.",
+      "history": "Postira was a small Brač fishing village until 1907, when the Sardina cannery opened — bringing industrial employment and population growth. Through both wars and the Yugoslav period, Sardina kept operating. After 1991 the factory survived the transition to a market economy. The town's parish church of Saint John the Baptist holds a 17th-century altarpiece by Pietro Bianchi. Postira is also the birthplace of the great Croatian poet Vladimir Nazor.",
+      "facts": [
+        "The Sardina cannery in Postira (founded 1907) is among the oldest continuously operating fish-canning factories in the Mediterranean",
+        "Postira is the birthplace of Vladimir Nazor (1876–1949) — major Croatian poet, partisan-era president of ZAVNOH",
+        "The 17th-century parish church holds an altarpiece by Pietro Bianchi — Venetian baroque imported to a Brač village",
+        "Postira's fishing fleet still catches sardines using traditional 'ophasure' night-light methods",
+        "The town's coast contains the remains of Roman fish-processing tanks — 2,000 years of continuous fish-economy"
+      ],
+      "vocab": [
+        { "hr": "sardina", "en": "sardine", "note": "Postira's economic identity. The Sardina cannery has operated since 1907" },
+        { "hr": "konzerva", "en": "tin / canned good", "note": "Sardine konzerve — canned sardines. Postira's Sardina brand has been exported across Yugoslavia and Croatia for over a century" },
+        { "hr": "Nazor", "en": "Vladimir Nazor (1876–1949)", "note": "Major Croatian poet, born in Postira. Iconic in 20th-century Croatian literature and partisan history" }
+      ],
+      "didYouKnow": "Vladimir Nazor's house in Postira is a memorial museum — the poet wrote 'My beautiful Postira, golden village of my childhood' in a famous 1923 poem still memorised in Croatian schools."
+    },
+    {
+      "name": "Selca",
+      "region": "Dalmatia",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Eastern Brač's Stone-Cutting Capital",
+      "intro": "Selca is a quiet inland village near the eastern tip of Brač — historically the capital of the island's stone-cutting industry. The Brač limestone quarried around Selca has gone into the White House in Washington, the Reichstag in Berlin, and Diocletian's Palace in Split.",
+      "history": "Selca's stone-cutting tradition goes back to Roman times — Diocletian's Palace was largely built from Brač limestone, much of it quarried near here. The 19th-century construction boom in Vienna, Budapest, and beyond made Brač stone famous across Europe. The Selca stone-cutting school (Klesarska škola) in nearby Pučišća remains Croatia's only specialist stone-cutting vocational school. Many Selca masters emigrated to Chile, where they founded the Croatian-Chilean stone-working community.",
+      "facts": [
+        "Brač limestone from Selca quarries was used in the construction of the White House (Washington DC)",
+        "The Reichstag in Berlin and the Hungarian Parliament both contain Selca-quarried Brač stone",
+        "Selca's stone-cutters emigrated heavily to Chile in the late 19th century, founding the Croatian-Chilean community of Punta Arenas and Antofagasta",
+        "Diocletian's Palace in Split was built largely from Brač limestone — quarried from the same geological formations exploited today",
+        "Selca's 'Eastern Brač' dialect preserves Čakavian features lost in the more touristic western Brač"
+      ],
+      "vocab": [
+        { "hr": "klesar", "en": "stone-cutter / mason", "note": "Selca's klesari (stone-cutters) — Brač's most famous craft tradition. The klesarska škola in Pučišća is Croatia's only specialist school" },
+        { "hr": "kamenolom", "en": "quarry", "note": "Brač's kamenolomi have been worked continuously since Roman times — Selca and nearby villages are the heart" },
+        { "hr": "Bračka iseljenja", "en": "the Brač emigrations", "note": "Brač's late-19th-century emigrations sent stone-workers to Chile, miners to Patagonia, fishermen to California" }
+      ],
+      "didYouKnow": "The Croatian community in Punta Arenas, Chile (founded mostly by Brač stone-cutters in the 1880s–90s) is the largest Croatian diaspora community in South America — over 50,000 descendants today."
+    },
+    {
+      "name": "Škrip",
+      "region": "Dalmatia",
+      "icon": "🏛️",
+      "color": "#92400e",
+      "tagline": "Brač's Oldest Village",
+      "intro": "Škrip is a stone village in the interior of Brač — and the oldest continuously inhabited settlement on the island. Pre-Illyrian, Illyrian, Roman, Byzantine, and medieval Slavic occupations layered the same hilltop, and the Cerinić Tower (a Renaissance defensive structure) still rises above the lanes of Roman-era stone houses.",
+      "history": "Škrip was an Illyrian hill-fort from at least the 4th century BC. The Romans built a small town here in the 1st century AD — Roman-era sarcophagi (one believed to hold Diocletian's wife Prisca) still stand inside the village. Through Byzantine, Croatian-Hungarian, and Venetian periods, Škrip remained a stone-cutting and farming village. The Cerinić Tower was built in the 16th century against Ottoman raids. Today Škrip houses the Brač Island Museum.",
+      "facts": [
+        "Škrip is the oldest continuously inhabited village on Brač — Illyrian to today, 2,500+ years",
+        "A Roman sarcophagus in Škrip's parish churchyard is locally believed to be the tomb of Diocletian's wife Prisca",
+        "The 16th-century Cerinić Tower in the village centre houses the Brač Island Museum",
+        "Škrip's surrounding stone quarries have been worked continuously since Roman times — the same formations Diocletian used",
+        "The village's name 'Škrip' comes from a pre-Indo-European or Illyrian root, predating Roman and Slavic occupation"
+      ],
+      "vocab": [
+        { "hr": "sarkofag", "en": "sarcophagus", "note": "Škrip's Roman sarkofazi — exceptional preservation of imperial-era stone tombs" },
+        { "hr": "Iliri", "en": "the Illyrians", "note": "The pre-Roman inhabitants of the Adriatic. Škrip's hilltop was an Illyrian fort centuries before Rome arrived" },
+        { "hr": "tvrđava", "en": "fortress", "note": "The 16th-century Cerinić tvrđava in Škrip — defensive tower built against Ottoman coastal raids" }
+      ],
+      "didYouKnow": "Škrip's local oral tradition has identified one of its Roman sarcophagi as belonging to Diocletian's wife Prisca since at least the 16th century — though no inscription confirms it."
+    },
+    {
+      "name": "Sućuraj",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Easternmost Tip of Hvar",
+      "intro": "Sućuraj is the easternmost town on the island of Hvar — at the very tip of the long, narrow island, only 5 km across the channel from the mainland Pelješac peninsula. Its 17th-century Venetian fortress, the only one on Hvar's eastern half, watched over the Neretva channel for two centuries.",
+      "history": "Sućuraj (from 'Sveti Juraj' — Saint George) was a fortified Venetian outpost from the 17th century, when Ottoman raids reached the Adriatic islands. The Venetian fortress built in 1613 still stands. The town remained a small fishing settlement under Habsburg and Yugoslav rule. The Sućuraj-Drvenik ferry to the mainland is the most-used route to eastern Hvar today.",
+      "facts": [
+        "Sućuraj is the easternmost town on Hvar — at the very tip of the long, narrow island",
+        "The 1613 Venetian fortress at Sućuraj watched the Neretva channel against Ottoman raids",
+        "The Sućuraj-Drvenik ferry crosses 5 km of channel — the shortest island ferry in Croatia",
+        "Sućuraj's name is a phonetic contraction of 'Sveti Juraj' (Saint George) — same root as Kaštel Sućurac",
+        "The town's surrounding coast contains some of Hvar's most unspoilt small bays — Lozna, Mlaska, Češminova"
+      ],
+      "vocab": [
+        { "hr": "Sveti Juraj", "en": "Saint George", "note": "Sveti Juraj = Sućuraj through phonetic contraction. Same patron saint as Kaštel Sućurac near Split" },
+        { "hr": "trajektna luka", "en": "ferry port", "note": "Sućuraj's trajektna luka serves the shortest island ferry in Croatia — 5 km to Drvenik" },
+        { "hr": "Hvaranin", "en": "person from Hvar", "note": "Hvaranin / Hvaranka — Hvar islanders. The eastern Hvar dialect differs noticeably from the western (Stari Grad, Hvar town) dialect" }
+      ],
+      "didYouKnow": "Sućuraj is closer to the Bosnian-Herzegovinian border than to the main Hvar town — eastern Hvar shares cultural traits with the mainland Pelješac/Makarska coast rather than the rest of its own island."
+    },
+    {
+      "name": "Lumbarda",
+      "region": "Dalmatia",
+      "icon": "🍷",
+      "color": "#dc2626",
+      "tagline": "Korčula's Sand-Beach Wine Village",
+      "intro": "Lumbarda is a small village at the eastern tip of Korčula island, 6 km from Korčula town. The Lumbardian sand beaches — Vela Plaža and Bilin Žal — are rare among Croatia's islands, and the local Grk grape (grown ONLY here in the world) produces a distinctive dry white wine.",
+      "history": "Lumbarda's most famous archaeological find is the Lumbarda Psephisma — a 4th-century BC stone inscription in Doric Greek that records the founding of the Greek colony of Issa's outpost here. The inscription, now in the Zagreb Archaeological Museum, is one of the oldest written documents from the Croatian coast. The Grk grape was probably brought by Greek colonists 2,400 years ago and survives only in Lumbarda. Through Venetian, Habsburg, and Italian periods, Lumbarda remained a fishing and wine village.",
+      "facts": [
+        "The Lumbarda Psephisma (4th century BC) is one of the oldest written documents on the Croatian coast — Greek inscription about land division",
+        "The Grk grape grows ONLY in Lumbarda — nowhere else in the world. Possibly a survivor from the original Greek colonization",
+        "Lumbarda has sandy beaches (Vela Plaža, Bilin Žal) — rare on Croatian islands and a major draw",
+        "The Korčula 'kumpanija' sword dance tradition exists in Lumbarda alongside the more famous 'moreška' of Korčula town",
+        "Lumbarda's olive oil and Grk wine are major agricultural products of the island"
+      ],
+      "vocab": [
+        { "hr": "Grk", "en": "the Grk grape / wine of Lumbarda", "note": "Grk — both the grape and the wine. Grown exclusively in Lumbarda. Dry, mineral, slightly bitter. Possible Greek-colonial origin" },
+        { "hr": "psephisma", "en": "Greek inscription / decree", "note": "The Lumbarda Psephisma — a 4th-century BC Doric Greek inscription. One of Croatia's oldest written documents" },
+        { "hr": "kumpanija", "en": "a Korčula sword-dance tradition", "note": "Less famous than Korčula's Moreška but equally ancient — Lumbarda's kumpanija is performed by local guilds" }
+      ],
+      "didYouKnow": "The Lumbarda Psephisma describes how Greek settlers from Issa (Vis) divided land in Lumbarda — confirming that Croatian wine cultivation was happening 2,400 years ago by Greek colonists, with the Grk grape possibly an unbroken inheritance from them."
+    },
+    {
+      "name": "Vela Luka",
+      "region": "Dalmatia",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Korčula's Western Working Harbour",
+      "intro": "Vela Luka is the largest town on Korčula island — a deep-water harbour at the western tip whose Vela Spila (Great Cave) holds 20,000 years of human habitation, making it one of the most important prehistoric sites in Europe.",
+      "history": "Vela Spila above Vela Luka was inhabited continuously from at least 19,000 BC. Excavations have revealed Stone Age burials, Bronze Age tools, and the earliest known European pottery decoration. The town below remained a fishing village until the 19th century, then grew into Korčula's largest port. Vela Luka was a major fishing and shipbuilding centre in the 20th century. The town suffered heavily in WWII Allied bombing of its industrial port.",
+      "facts": [
+        "Vela Spila cave above Vela Luka has 20,000 years of continuous human habitation — among the longest in Europe",
+        "The earliest known European decorated pottery (Mesolithic, ~16,000 BC) was found in Vela Spila",
+        "Vela Luka has the largest natural deep-water harbour on Korčula — historically the island's main commercial port",
+        "The town is the birthplace of the painter Frano Kršinić (1897–1982), a major Croatian modernist sculptor",
+        "Korčula's eastern olive-oil production zone surrounds Vela Luka — the local 'Vela Luka' brand is regionally protected"
+      ],
+      "vocab": [
+        { "hr": "spila", "en": "cave (Dalmatian)", "note": "Vela Spila — 'Great Cave'. Dalmatian spila vs standard Croatian špilja. The cave's name preserves the regional form" },
+        { "hr": "praistorija", "en": "prehistory", "note": "Vela Spila's praistorija — 20,000 years of human habitation. Pre-Indo-European, pre-Slavic" },
+        { "hr": "Vela", "en": "great / large (Dalmatian)", "note": "Vela Luka — Great Harbour. 'Vela' as 'great' is specifically Dalmatian Čakavian; standard Croatian uses 'velika'" }
+      ],
+      "didYouKnow": "Decorated pottery fragments from Vela Spila dated to around 16,000 BC predate the previous European 'earliest pottery' record by 4,000+ years — they redefined what archaeologists thought about Mesolithic Mediterranean culture."
+    },
+    {
+      "name": "Plitvička Jezera",
+      "region": "Lika",
+      "icon": "💧",
+      "color": "#16a34a",
+      "tagline": "Croatia's Most Famous Waterfalls",
+      "intro": "Plitvička Jezera — Plitvice Lakes — is Croatia's most-visited national park and one of the natural wonders of Europe. Sixteen lakes connected by waterfalls cascade down a forested karst valley, the water moving from one lake to the next over travertine barriers that are still actively growing.",
+      "history": "Plitvice was protected as a national park in 1949 — one of the earliest in Yugoslavia. UNESCO World Heritage listing came in 1979. In March 1991, the first armed clash of the Croatian Homeland War took place at the park — known as the 'Plitvice Lakes Incident' or 'Bloody Easter'. Croatian policeman Josip Jović was killed, becoming the first Croatian war casualty. The park was occupied by Serbian forces until 1995. Reconstruction was complete by 1997 and visitor numbers have grown ever since.",
+      "facts": [
+        "Plitvice Lakes National Park is UNESCO World Heritage (1979) and Croatia's oldest national park (1949)",
+        "The 16 lakes are connected by waterfalls — the largest, Veliki Slap, drops 78 metres",
+        "The lakes' travertine barriers are still actively growing — built up by microorganisms and aquatic plants",
+        "The Plitvice Lakes Incident (31 March 1991) was the first armed clash of the Croatian Homeland War",
+        "The park has European brown bears, lynx, and wolves — though they are rarely sighted by visitors on the marked trails"
+      ],
+      "vocab": [
+        { "hr": "jezero", "en": "lake", "note": "Plitvička jezera — 'jezera' is plural. The 16 lakes give the park its name" },
+        { "hr": "slap", "en": "waterfall", "note": "Veliki Slap — Great Waterfall, 78 m. The largest in Croatia. Plitvice's iconic image" },
+        { "hr": "sedra", "en": "travertine / tufa", "note": "The sedra barriers that form the lake dividers are still actively growing — Plitvice is geologically alive" }
+      ],
+      "didYouKnow": "The Plitvice travertine barriers grow about 1 cm per year on average — meaning some of the lake-dividing barriers have been forming continuously for thousands of years."
+    },
+    {
+      "name": "Korenica",
+      "region": "Lika",
+      "icon": "⛰️",
+      "color": "#16a34a",
+      "tagline": "Gateway to the Lika Plateau",
+      "intro": "Korenica is the main town of the Lika plateau just south of Plitvice Lakes National Park. A small administrative centre surrounded by forests, this Lika village was at the centre of the 1991–95 Homeland War — Korenica was occupied by Serbian forces, who renamed it Titova Korenica, until Operation Storm in August 1995.",
+      "history": "Lika was historically a borderland between Croatian and Ottoman, then Habsburg and Ottoman, then Austrian and Hungarian territories. Korenica's medieval Frankopan fortifications, restored Habsburg military buildings, and 19th-century Orthodox and Catholic churches reflect the mixed Serb-Croat-Bunjevac population. The Homeland War devastated the town. Reconstruction took until the mid-2000s. Korenica remains thinly populated — Lika is Croatia's least densely settled region.",
+      "facts": [
+        "Korenica was the administrative centre of the self-declared 'Republic of Serbian Krajina' from 1991 to August 1995",
+        "Operation Storm (August 1995) liberated Korenica in 4 days — the largest Croatian military operation of the Homeland War",
+        "The town is the closest major settlement to Plitvice Lakes National Park — 13 km from the park's southern entrance",
+        "Lika is Croatia's least densely populated region — about 5 inhabitants per km², compared to 75/km² national average",
+        "Korenica's surrounding forests still contain populations of European brown bears, lynx, and wolves"
+      ],
+      "vocab": [
+        { "hr": "Lika", "en": "the Lika plateau region", "note": "Lika — Croatia's mountainous interior plateau. Sparsely populated, heavily forested, war-affected" },
+        { "hr": "krajina", "en": "borderland / frontier", "note": "Vojna krajina = Military Frontier. Habsburg-era defensive belt against the Ottomans. Lika was a core part of it" },
+        { "hr": "Oluja", "en": "Operation Storm (1995)", "note": "Oluja — 'Storm'. The 4–7 August 1995 Croatian military operation that ended the war and liberated occupied Croatia" }
+      ],
+      "didYouKnow": "Lika's depopulation during and after the Homeland War was so severe that some Lika villages today have fewer than 5 permanent residents — a phenomenon Croatian sociologists call 'demografska pustinja' (demographic desert)."
+    },
+    {
+      "name": "Plaški",
+      "region": "Lika",
+      "icon": "⛪",
+      "color": "#7c3aed",
+      "tagline": "Lika's Old Orthodox Centre",
+      "intro": "Plaški is a Lika village south of Karlovac and north of Plitvice, the historic seat of one of the older Orthodox dioceses in Croatia — the Diocese of Gornji Karlovac (Upper Karlovac). The 18th-century Orthodox cathedral, the bishop's residence, and the surrounding karst landscape define Plaški's character.",
+      "history": "Plaški was settled in waves of Serbian and Bunjevac migration into the Habsburg Military Frontier from the 16th century onwards. The Orthodox diocese was established here in 1721, and the cathedral built in 1756. The Homeland War occupied Plaški from 1991 to August 1995. Today the village has only a few hundred residents — Orthodox and Catholic, Serbian and Croatian — and the cathedral has been carefully restored.",
+      "facts": [
+        "Plaški was the historic seat of the Orthodox Diocese of Upper Karlovac (Gornji Karlovac) — established 1721",
+        "The Orthodox Cathedral of the Presentation (1756) is one of the oldest surviving Serbian Orthodox cathedrals in Croatia",
+        "Plaški was the centre of one of the largest 18th-century Orthodox printing operations in Habsburg territory",
+        "The Homeland War caused most of Plaški's pre-war population to leave; today the village has under 1,500 residents",
+        "The Karlovac–Plaški–Knin railway line passes through the village — historically a strategic mountain rail route"
+      ],
+      "vocab": [
+        { "hr": "pravoslavlje", "en": "Orthodox Christianity", "note": "Plaški's pravoslavna katedrala — Orthodox cathedral. One of the oldest in Croatia" },
+        { "hr": "eparhija", "en": "Orthodox diocese", "note": "The Plaški eparhija — established 1721. Historical seat of the Upper Karlovac Orthodox diocese" },
+        { "hr": "graničar", "en": "military-frontier soldier", "note": "Graničari — the Habsburg military-frontier troops. Lika villages like Plaški provided generations of graničari" }
+      ],
+      "didYouKnow": "The Plaški Orthodox cathedral's 18th-century iconostasis was painted by the Serbian master Teodor Kračun in the 1780s — among the finest baroque-influenced Orthodox church paintings in Croatia."
+    },
+    {
+      "name": "Vrhovine",
+      "region": "Lika",
+      "icon": "⛰️",
+      "color": "#16a34a",
+      "tagline": "Heart of the Lika Highlands",
+      "intro": "Vrhovine is a small Lika village at the foot of the Lika mountains — one of the most thinly populated communes in Croatia. Surrounded by karst plateaus, deep beech forests, and brown bear habitat, Vrhovine has the deep silence of true wilderness.",
+      "history": "Vrhovine was a Habsburg Military Frontier village settled mostly by Orthodox Serbian families from the 16th century onwards. It was occupied during the 1991–95 Homeland War. Reconstruction proceeded slowly; the village's population fell from ~3,000 pre-war to under 1,500 today. The Vrhovine forests are among Croatia's most undisturbed — large mammals (bear, lynx, wolf) maintain stable populations here.",
+      "facts": [
+        "Vrhovine is one of Croatia's most thinly populated municipalities — under 5 inhabitants per square kilometre",
+        "The surrounding forests contain Croatia's densest population of European brown bears",
+        "The 19th-century Orthodox church of Saint Demetrius (Sveti Dimitrij) was destroyed in the Homeland War and partially restored",
+        "The Velebit-Mala Kapela mountain corridor runs through Vrhovine — important for wildlife migration",
+        "Vrhovine is on the Zagreb–Split railway — built 1925, one of Croatia's most scenic mountain rail lines"
+      ],
+      "vocab": [
+        { "hr": "Velebit", "en": "the Velebit mountain range", "note": "Croatia's longest mountain range — over 145 km long. Vrhovine sits in the Velebit-Mala Kapela corridor" },
+        { "hr": "medvjed", "en": "bear", "note": "The European brown bear — medvjed — lives in good numbers around Vrhovine. Croatia has one of Europe's healthiest bear populations" },
+        { "hr": "graničar", "en": "military-frontier soldier", "note": "Vrhovine's pre-war population traced its origins to 16th-century graničar settlement" }
+      ],
+      "didYouKnow": "Croatia has over 1,000 European brown bears — one of the largest bear populations in Europe. Most of them live in the Lika and Gorski Kotar regions around villages like Vrhovine."
+    },
+    {
+      "name": "Skrad",
+      "region": "Gorski Kotar",
+      "icon": "🌲",
+      "color": "#16a34a",
+      "tagline": "Window of Gorski Kotar",
+      "intro": "Skrad is a forest village in Gorski Kotar — Croatia's mountainous northwestern region between Karlovac and Rijeka. The Vražji Prolaz (Devil's Passage) gorge and the Zeleni Vir (Green Whirlpool) waterfall just outside the village make Skrad one of Croatia's hidden natural treasures.",
+      "history": "Skrad was a forestry and railway village on the Zagreb–Rijeka line, opened in 1873. The Habsburg-era timber industry employed most of the local population. The Vražji Prolaz hiking trail through the dramatic gorge was opened in 1928 by Croatian alpinists. Tourism remained low-key through the Yugoslav and post-1991 periods. Today Skrad is a destination for mountain hikers and nature photographers.",
+      "facts": [
+        "The Vražji Prolaz (Devil's Passage) gorge near Skrad is one of Croatia's most dramatic karst formations — 800 m of narrow rock canyon",
+        "The Zeleni Vir (Green Whirlpool) waterfall is a 70 m underground-river emergence — among Croatia's most distinctive water features",
+        "Skrad sits on the historic Zagreb–Rijeka railway — built 1873, one of Croatia's most scenic mountain lines",
+        "Gorski Kotar receives 2 to 3 metres of snow per winter — among the highest snowfall in Croatia",
+        "The village name 'Skrad' means 'hidden' or 'sheltered' in old Slavic — referring to its forested setting"
+      ],
+      "vocab": [
+        { "hr": "prolaz", "en": "passage / gorge", "note": "Vražji Prolaz — Devil's Passage. The dramatic karst gorge near Skrad. Wooden walkways through narrow rock" },
+        { "hr": "vir", "en": "whirlpool", "note": "Zeleni Vir — Green Whirlpool. Where an underground river emerges as a waterfall above the gorge" },
+        { "hr": "Gorski Kotar", "en": "Croatia's northwestern mountain region", "note": "Gorski Kotar — 'mountain district'. Heavy forest, deep snow, sparse population, Croatia's 'green lungs'" }
+      ],
+      "didYouKnow": "Gorski Kotar's forests are among the most densely wooded in Europe — over 80% forest cover, primarily fir, beech, and spruce. The region is sometimes called 'Croatia's green lungs'."
+    },
+    {
+      "name": "Vrbovsko",
+      "region": "Gorski Kotar",
+      "icon": "🚂",
+      "color": "#16a34a",
+      "tagline": "Railway Town in the Mountain Forests",
+      "intro": "Vrbovsko is a small town in Gorski Kotar's eastern edge, on the Zagreb–Rijeka railway and the Kupa River. Forests, mountain villages, and the 19th-century railway infrastructure define its character — a quiet inland Croatia far from the coast.",
+      "history": "Vrbovsko grew around the Habsburg railway built in 1873. The town was a timber and forestry centre for over a century. Many Vrbovsko residents emigrated to North America in the late 19th and early 20th centuries — the town has unusually large Croatian-American family connections. Vrbovsko was on the front line of the Homeland War, partially occupied 1991–95. Reconstruction restored its old town centre.",
+      "facts": [
+        "Vrbovsko sits on the historic Zagreb–Rijeka railway — opened 1873, transforming the Croatian interior",
+        "The Kupa River flows through Vrbovsko — one of Croatia's cleanest rivers, with fly-fishing reputation",
+        "Many late-19th-century Vrbovsko families emigrated to Pennsylvania and Ohio — strong Croatian-American diaspora ties remain",
+        "The surrounding forests contain Croatia's largest spruce stands — important for timber and as wildlife habitat",
+        "Vrbovsko was on the front line of the Homeland War — partially occupied 1991–95"
+      ],
+      "vocab": [
+        { "hr": "Kupa", "en": "the Kupa River", "note": "Kupa — one of Croatia's cleanest rivers, source in Gorski Kotar, joining the Sava near Sisak. Fly-fishing reputation" },
+        { "hr": "šuma", "en": "forest", "note": "Vrbovsko's surrounding šume — over 75% of the municipality is forested. Spruce, fir, beech" },
+        { "hr": "iseljeništvo", "en": "emigration / diaspora", "note": "Gorski Kotar villages like Vrbovsko sent thousands to North America in the late 19th century — strong iseljeništvo ties remain" }
+      ],
+      "didYouKnow": "Vrbovsko's late-19th-century railway helped end its isolation but also enabled mass emigration — the same trains that brought goods carried thousands of Gorski Kotar peasants to the ports of Rijeka and Trieste, en route to America."
+    },
+    {
+      "name": "Čabar",
+      "region": "Gorski Kotar",
+      "icon": "🌲",
+      "color": "#16a34a",
+      "tagline": "Croatia's Northwestern Corner",
+      "intro": "Čabar is the westernmost town in Croatia — pressed against the Slovenian border in the deepest forests of Gorski Kotar. The Petar Zrinski Castle, the wild Čabranka river, and the surrounding mountain villages give Čabar a remote, frontier character that is rare elsewhere in Croatia.",
+      "history": "Čabar was founded as an industrial settlement in 1641 by the Zrinski family — the Croatian noble dynasty that built ironworks and timber mills using the Čabranka river's water power. The original Zrinski castle (Petrov grad) was completed in 1651. After the 1670 Zrinski-Frankopan conspiracy against the Habsburgs, the estate passed to other owners. Čabar remained a forestry and small-industrial town through the Habsburg, Yugoslav, and Croatian periods.",
+      "facts": [
+        "Čabar is the westernmost town in Croatia — pressed against the Slovenian border",
+        "The Zrinski Castle (Petrov grad, 1651) is one of the few surviving Zrinski family castles in Croatia",
+        "The Čabranka River forms the Croatian-Slovenian border for 16 km — one of Europe's most beautiful small rivers",
+        "Čabar's forests contain Croatia's tallest fir trees — some over 50 metres",
+        "The town's traditional dialect mixes Slovenian-Kajkavian features — reflecting the border position"
+      ],
+      "vocab": [
+        { "hr": "Zrinski", "en": "the Croatian noble family", "note": "Zrinski — one of Croatia's two great noble dynasties (with Frankopan). Built Čabar's castle in 1651. Conspirators against the Habsburgs in 1670" },
+        { "hr": "Čabranka", "en": "the river forming the Croatia–Slovenia border", "note": "Čabranka — one of the most beautiful small rivers in Europe. Pristine water, native trout, dramatic forest setting" },
+        { "hr": "Petrov grad", "en": "Peter's Castle", "note": "Petrov grad — Petar Zrinski's Castle in Čabar. The Zrinski stronghold in the deep northwestern forests" }
+      ],
+      "didYouKnow": "The 1670 Zrinski-Frankopan conspiracy — when the heads of Croatia's two great noble families plotted with foreign powers against the Habsburgs and were executed in Vienna — is one of the most romanticised moments of Croatian history. Petar Zrinski wrote his farewell letter from prison in Croatian, Hungarian, and Latin."
+    },
+    {
+      "name": "Mrkopalj",
+      "region": "Gorski Kotar",
+      "icon": "⛷️",
+      "color": "#16a34a",
+      "tagline": "Croatia's Forgotten Ski Town",
+      "intro": "Mrkopalj is a small mountain village in Gorski Kotar at 850 m altitude — Croatia's only proper alpine ski destination. A 1.5 km T-bar lift and a long beech forest surround a village that used to host the Croatian national ski championships in the Yugoslav era.",
+      "history": "Mrkopalj's altitude and reliable snowfall made it a regional ski centre from the 1930s. The Yugoslav-era T-bar lift opened in 1965. As Croatian winter tourism shifted to Slovenian and Austrian Alps, Mrkopalj's small ski operation declined. The village's permanent population dropped from ~700 to under 200. Recent EU-funded renovations to the ski infrastructure aim to revive Mrkopalj as a family-friendly winter destination.",
+      "facts": [
+        "Mrkopalj at 850 m altitude is Croatia's highest village with a permanent ski lift",
+        "The Mrkopalj T-bar lift (opened 1965) is one of the oldest ski lifts in Croatia",
+        "Gorski Kotar's annual snowfall averages 2.5 metres — among the highest in Croatia",
+        "Mrkopalj was the home of Croatian national ski championships during the Yugoslav era",
+        "The surrounding beech forests are protected as part of the Risnjak National Park buffer"
+      ],
+      "vocab": [
+        { "hr": "snijeg", "en": "snow", "note": "Mrkopalj's deep snijeg — among Croatia's most reliable. Gorski Kotar is the snowiest region of Croatia" },
+        { "hr": "skijalište", "en": "ski centre / ski area", "note": "Mrkopalj's skijalište — Croatia's only proper ski destination, even if modest by Alpine standards" },
+        { "hr": "Risnjak", "en": "the national park near Mrkopalj", "note": "Risnjak National Park — named for the lynx (ris). Croatia's mountain-forest national park, just north of Mrkopalj" }
+      ],
+      "didYouKnow": "The Risnjak National Park, just north of Mrkopalj, is named after the Eurasian lynx ('ris') — Croatia's most endangered large mammal. Fewer than 50 lynx remain in Croatian forests."
+    },
+    {
+      "name": "Pakoštane",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Lake and Sea in One Village",
+      "intro": "Pakoštane is the most striking 'two-waters' settlement on the Croatian coast — only 800 metres separate the Adriatic from the freshwater Lake Vrana behind it. The town offers swimming in salt water at the front and birdwatching in freshwater wetlands at the back.",
+      "history": "Pakoštane was a small Venetian-era fishing village. Its situation between the Adriatic and the Vrana wetlands gave it unusual ecological diversity. Vrana Lake became protected as a Nature Park in 1999 — one of Croatia's most important wetland reserves. The town's tourism grew gradually with family-oriented campsites and small hotels.",
+      "facts": [
+        "Pakoštane sits between two waters — the Adriatic on one side and Croatia's largest natural freshwater lake (Vrana) on the other",
+        "Lake Vrana Nature Park hosts 250+ bird species including breeding purple herons and pygmy cormorants",
+        "The Kornati archipelago is visible across the channel from Pakoštane's seafront",
+        "The town's medieval parish church preserves a 16th-century Venetian altarpiece",
+        "Pakoštane has the largest sandy beach in the area — Janice beach, family-favourite"
+      ],
+      "vocab": [
+        { "hr": "Vransko jezero", "en": "Lake Vrana", "note": "Vransko jezero — Croatia's largest natural freshwater lake. Less than 1 km from the Adriatic" },
+        { "hr": "močvara", "en": "wetland / marsh", "note": "Lake Vrana's močvare — the most important bird-nesting habitats on the Croatian Adriatic" },
+        { "hr": "Kornati", "en": "the Kornati islands", "note": "The 89-island archipelago visible from Pakoštane's coast — 'islands like stars'" }
+      ],
+      "didYouKnow": "Lake Vrana is below sea level — 0.13 m below the Adriatic. Only Croatia's saltwater intrusion management prevents it from becoming a saline lake."
+    },
+    {
+      "name": "Privlaka",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Northern Dalmatian Sandy Beaches",
+      "intro": "Privlaka is a small coastal village at the very northern edge of the Zadar region, near Nin. Sandy beaches (rare on the Croatian coast), shallow bays, and saltworks tradition give Privlaka a distinctive character.",
+      "history": "Privlaka means 'attraction' or 'pulling-place' — possibly referring to the narrow isthmus that 'pulls' the coast toward Nin. The village was a Venetian fishing and salt-trade settlement. Salt evaporation pans operated near Privlaka for centuries, finally closing in the 20th century. The sandy beaches around the village have made it a quiet family resort.",
+      "facts": [
+        "Privlaka has one of the longest sandy beaches in northern Dalmatia — Sabunike",
+        "The village name 'Privlaka' means 'pulling-place' or 'isthmus' — referring to its narrow coastal geography",
+        "Historical salt evaporation pans operated near Privlaka for centuries — closed in the early 20th century",
+        "Privlaka is closer to Vir island than to any Croatian mainland town — connected by a single road",
+        "The village's traditional dialect preserves the Čakavian Ikavian variant of northern Dalmatia"
+      ],
+      "vocab": [
+        { "hr": "sabun", "en": "sand (regional)", "note": "Sabunike beach in Privlaka — 'sabun' is the regional Dalmatian word for sand. Standard Croatian uses 'pijesak'" },
+        { "hr": "sol", "en": "salt", "note": "Privlaka's historical solare (saltworks) operated for centuries. The Adriatic coast has many such heritage saltworks sites" },
+        { "hr": "Vir", "en": "the island connected to Privlaka", "note": "Otok Vir — Vir island. Connected to the mainland by a road bridge through Privlaka" }
+      ],
+      "didYouKnow": "Privlaka and the nearby Nin saltworks are part of the longest-continuously-operated salt production region in the Mediterranean — 1,500+ years of recorded salt extraction."
+    },
+    {
+      "name": "Vir",
+      "region": "Dalmatia",
+      "icon": "🏖️",
+      "color": "#0284c7",
+      "tagline": "Croatia's Most Built-Up Island",
+      "intro": "Vir is an island just off the coast of northern Dalmatia, connected to Privlaka by a single bridge. Once a quiet island grazing-ground for sheep, since 1976 it has experienced one of the most intense building booms in Croatian history — tens of thousands of weekend houses now cover its limestone landscape.",
+      "history": "Vir was effectively uninhabited for centuries — the island served as grazing for Privlaka sheep. After 1976, when the bridge was built and the title-deed laws were relaxed, weekend builders descended in numbers. Over 30,000 houses were built on Vir between 1976 and 2010 — making it Croatia's most densely built-up island. The phenomenon is studied as a case of unregulated coastal development.",
+      "facts": [
+        "Vir has over 30,000 weekend houses — more than any other Croatian island, despite a permanent population of under 3,500",
+        "The Vir bridge (1976) ended the island's isolation — and triggered the building boom",
+        "Vir's medieval Kaštelina castle (15th century, ruined) was built by Zadar nobles as a defensive coastal outpost",
+        "The island's beaches and coves remain attractive despite the development — pebble and sand coves with shallow water",
+        "Vir is the most extreme example of Croatian coastal 'apartmanizacija' — uncontrolled holiday-home development"
+      ],
+      "vocab": [
+        { "hr": "apartman", "en": "apartment / holiday flat", "note": "Vir's economy is built on apartmani — rental holiday flats. Croatia's most extreme example of this development model" },
+        { "hr": "vikendica", "en": "weekend cottage", "note": "Vikendica — the Yugoslav-era weekend cottage. Vir's transformation began with thousands of small vikendice in the 1970s–80s" },
+        { "hr": "most", "en": "bridge", "note": "Virski most — the Vir Bridge, opened 1976. The 350 m bridge that transformed the island" }
+      ],
+      "didYouKnow": "Vir's transformation since 1976 is documented in Croatian urbanism textbooks as a cautionary tale — the island went from 200 permanent residents and a handful of houses to 30,000 holiday houses in 35 years."
+    },
+    {
+      "name": "Sveti Lovreč",
+      "region": "Istria",
+      "icon": "🏰",
+      "color": "#92400e",
+      "tagline": "Venetian Frontier Town",
+      "intro": "Sveti Lovreč is a hilltop village in central Istria, halfway between Poreč and Rovinj. Its 14th-century Venetian walls (still substantially intact), the open-air piazza in front of the parish church, and the surrounding wine country give it the air of a small Renaissance citadel preserved in working order.",
+      "history": "Sveti Lovreč was the seat of the Venetian captain (Capitano del Pasenatico) of Pasenatico — the central-Istrian district under direct Venetian rule. The fortification walls were built in the 13th–14th centuries. The village's full Venetian-era layout, with the town gates, the piazza, the captain's residence (now a museum), and the parish church, has been preserved almost intact. Today the village's permanent population is under 800 but the historical fabric is one of the finest in Istria.",
+      "facts": [
+        "Sveti Lovreč's 14th-century Venetian fortification walls are among the most intact medieval defences in Istria",
+        "The village was the seat of the Venetian Captain of Pasenatico — central Istria's direct Venetian district",
+        "The 11th-century Romanesque parish church preserves 15th-century frescoes in the south chapel",
+        "The Open-Air Stage festival in the village square hosts summer concerts in the original Venetian setting",
+        "Surrounding hills produce some of Istria's most distinguished Malvazija wines"
+      ],
+      "vocab": [
+        { "hr": "Sveti Lovreč", "en": "Saint Lawrence (the village name)", "note": "Named after Sveti Lovreč — Saint Lawrence. The village's parish church is dedicated to him" },
+        { "hr": "Pasenatico", "en": "the medieval central Istrian district", "note": "Pasenatico — the Venetian central-Istrian administrative district. Capital at Sveti Lovreč" },
+        { "hr": "kapetan", "en": "captain (here, military governor)", "note": "Sveti Lovreč's Venetian kapetan ruled over the surrounding villages — a small but coherent district" }
+      ],
+      "didYouKnow": "Sveti Lovreč's intact medieval layout has been used by film historians as one of the best surviving examples of a Venetian-era inland town — relevant for understanding how the smaller Venetian territories were administered."
+    },
+    {
+      "name": "Karlobag",
+      "region": "Lika",
+      "icon": "⚓",
+      "color": "#0e7490",
+      "tagline": "Velebit's Coastal Town",
+      "intro": "Karlobag is a small coastal town at the foot of the Velebit mountain, in the Karlobag Channel facing the island of Pag. The town has a long history as a Habsburg-era port whose harbour served as the supply line for the Lika hinterland.",
+      "history": "Karlobag was founded as a Habsburg port in 1579 — the new Habsburg-era town replacing a destroyed Frankopan settlement. Its name reflects the Habsburg founders: 'Karlobag' = 'Karl Bag' = 'Karl's Bag' (Bag was the old name). Through the centuries it served as the coastal entry point for the Lika and Bosnian hinterland. The town suffered repeated Ottoman raids, Uskok pirate attacks, and earthquakes. Modern Karlobag is a quiet ferry port.",
+      "facts": [
+        "Karlobag has a strong, regular northern Velebit 'bura' wind — Croatia's most extreme winter wind",
+        "The Karlobag–Pag ferry crosses 6 km of channel — the shortest mainland-island ferry in Croatia",
+        "The town's name comes from 'Karlo' (Charles, the Habsburg founder) + 'Bag' (the old settlement name)",
+        "Karlobag was the historic coastal supply point for the Lika and Bosnian interior — over Velebit by mule",
+        "The town hosts the Capuchin monastery — one of the oldest Capuchin foundations in Croatia"
+      ],
+      "vocab": [
+        { "hr": "bura", "en": "the northeasterly wind", "note": "Karlobag's bura — strongest on Croatian coast. Winter gusts of 200+ km/h close the highway over Velebit" },
+        { "hr": "Velebit", "en": "the Velebit mountain range", "note": "Velebit — Croatia's longest range, 145 km, separating Lika from the coast. Karlobag is at the foot of the southern Velebit" },
+        { "hr": "trajekt", "en": "ferry", "note": "The Karlobag–Pag trajekt connects the mainland to the eastern side of Pag island — the shortest mainland-island ferry in Croatia" }
+      ],
+      "didYouKnow": "The Karlobag bura is so reliably strong that the wind-monitoring station here was used by the Yugoslav army to calibrate jet-engine wind resistance tests in the 1980s — the strongest natural wind in the country."
+    }
+  ]
+}
+
