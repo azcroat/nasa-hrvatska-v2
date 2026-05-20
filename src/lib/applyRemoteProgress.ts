@@ -18,6 +18,7 @@
 
 import { getSR, saveSR } from './srs.js';
 import { weekKey as _weekKey } from './dateUtils.js';
+import { mergeRemoteCertifications } from './cefrCertification.js';
 
 export interface RemoteProgressSetters {
   setFavs: (favs: unknown[]) => void;
@@ -527,5 +528,109 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
         }
       } catch (_) {}
     }
+  }
+
+  // ── Placement sub-scores — Math.max (you keep the higher score) (2026-05-20) ──
+  // Per-skill scores from PlacementTest. The `nh_placement_done` flag was already
+  // synced (treated as one-way: true overrides false). Sub-scores are numeric:
+  // take the maximum since a later/better attempt should win.
+  const _maxNum = (k: string, remote: unknown) => {
+    if (remote == null) return;
+    const local = parseFloat(localStorage.getItem(k) || '0') || 0;
+    const r = Number(remote) || 0;
+    if (r > local) {
+      try {
+        localStorage.setItem(k, String(r));
+      } catch (_) {}
+    }
+  };
+  _maxNum('nh_placement_vocab', fp.nh_placement_vocab);
+  _maxNum('nh_placement_grammar', fp.nh_placement_grammar);
+  _maxNum('nh_placement_culture', fp.nh_placement_culture);
+  _maxNum('nh_immersion_days', fp.nh_immersion_days);
+
+  // ── Heritage learner settings — remote wins (2026-05-20) ─────────────────────
+  // Matches the existing `nh_goal` / `nh_culture` convention in this file:
+  // non-empty remote always writes. User edits propagate device-to-device
+  // through the next snapshot; latest writer wins.
+  const _strRemoteWins = (k: string, remote: unknown) => {
+    if (!remote || typeof remote !== 'string') return;
+    try {
+      localStorage.setItem(k, remote);
+    } catch (_) {}
+  };
+  if (fp.nh_heritage_saved === true) {
+    try {
+      localStorage.setItem('nh_heritage_saved', '1');
+    } catch (_) {}
+  }
+  _strRemoteWins('nh_heritage_region', fp.nh_heritage_region);
+  _strRemoteWins('nh_heritage_gen', fp.nh_heritage_gen);
+  _strRemoteWins('nh_heritage_mode', fp.nh_heritage_mode);
+  _strRemoteWins('nh_dialect', fp.nh_dialect);
+
+  // heritageStory: JSON state — accept remote only when local is null (otherwise
+  // the active session has live state we shouldn't clobber).
+  if (fp.heritageStory && !localStorage.getItem('heritageStory')) {
+    try {
+      localStorage.setItem('heritageStory', JSON.stringify(fp.heritageStory));
+    } catch (_) {}
+  }
+
+  // ── AI tutor memory — remote wins when local empty (2026-05-20) ──────────────
+  // maja_persona is the user's chosen persona settings (rare edits after setup).
+  // majaMemory is the multi-turn conversation memory — newer turns should win,
+  // so use Math.max on .lastTurnAt when both exist.
+  if (fp.maja_persona && !localStorage.getItem('maja_persona')) {
+    try {
+      localStorage.setItem('maja_persona', JSON.stringify(fp.maja_persona));
+    } catch (_) {}
+  }
+  if (fp.majaMemory) {
+    try {
+      const localRaw = localStorage.getItem('majaMemory');
+      const local = localRaw ? JSON.parse(localRaw) : null;
+      const remoteAt =
+        (fp.majaMemory.lastTurnAt as number) || (fp.majaMemory.updatedAt as number) || 0;
+      const localAt = (local?.lastTurnAt as number) || (local?.updatedAt as number) || 0;
+      if (!local || remoteAt > localAt) {
+        localStorage.setItem('majaMemory', JSON.stringify(fp.majaMemory));
+      }
+    } catch (_) {}
+  }
+
+  // ── User-written content & avatar (2026-05-20) ──────────────────────────────
+  // Avatar is a simple preference — remote wins (last-edit propagates).
+  // Letter-to-self is user-typed text; preserve in-flight local typing by
+  // refusing to overwrite a non-empty local value with remote.
+  _strRemoteWins('nh_avatar_emoji', fp.nh_avatar_emoji);
+  if (fp.nh_letter_to_self && !localStorage.getItem('nh_letter_to_self')) {
+    try {
+      localStorage.setItem('nh_letter_to_self', fp.nh_letter_to_self);
+    } catch (_) {}
+  }
+
+  // ── Adaptive learning data — remote wins when local empty (2026-05-20) ──────
+  // These are JSON objects representing skill diagnoses and mistake tallies.
+  // Both are read-mostly and write-during-active-use, so the additive policy is:
+  // accept remote only when local is null (i.e., new device first sync).
+  for (const [k, remote] of [
+    ['nh_freq_learned', fp.nh_freq_learned],
+    ['nh_grammar_diagnosis', fp.nh_grammar_diagnosis],
+    ['nh_aspect_mistakes', fp.nh_aspect_mistakes],
+  ] as const) {
+    if (remote && !localStorage.getItem(k)) {
+      try {
+        localStorage.setItem(k, JSON.stringify(remote));
+      } catch (_) {}
+    }
+  }
+
+  // ── CEFR equivalency-test certifications — additive merge (2026-05-20) ──────
+  // Per-level pass/fail history. Merge policy is in cefrCertification.ts:
+  // passes are additive (once passed anywhere, passed everywhere), lastFailedAt
+  // takes MAX so cooldown is honored, attempts deduped by (level, takenAt).
+  if (fp.nh_cefr_certifications) {
+    mergeRemoteCertifications(fp.nh_cefr_certifications);
   }
 }

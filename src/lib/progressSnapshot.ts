@@ -8,6 +8,7 @@ import { getSR } from './srs.js';
 import { getStreak, getStreakFreezes } from './appUtils.js';
 import { gP } from './firebase.js';
 import { localDateStr as _todayStr, weekKey as _weekKey } from './dateUtils.js';
+import { snapshotCertifications } from './cefrCertification.js';
 import type { Stats } from '../types/index.js';
 
 interface ProgressSnapshotParams {
@@ -222,5 +223,87 @@ export function buildProgressSnapshot({
       });
       return obj;
     })(),
+    // ── Placement test sub-scores — per-skill placement results (2026-05-20) ──
+    // Without these, retaking placement on a new device starts from 0 even though
+    // the user already proved their level on another device. The `nh_placement_done`
+    // flag was already synced; the underlying SCORES were not.
+    nh_placement_vocab: (() => {
+      const v = localStorage.getItem('nh_placement_vocab');
+      return v == null ? undefined : Number(v) || 0;
+    })(),
+    nh_placement_grammar: (() => {
+      const v = localStorage.getItem('nh_placement_grammar');
+      return v == null ? undefined : Number(v) || 0;
+    })(),
+    nh_placement_culture: (() => {
+      const v = localStorage.getItem('nh_placement_culture');
+      return v == null ? undefined : Number(v) || 0;
+    })(),
+    // ── Heritage learner settings — region, generation, mode, dialect (2026-05-20)
+    // Heritage learners answer onboarding questions about their family origin
+    // and preferred dialect; these tune the curriculum. Previously device-local.
+    nh_heritage_saved: localStorage.getItem('nh_heritage_saved') === '1',
+    nh_heritage_region: localStorage.getItem('nh_heritage_region') || undefined,
+    nh_heritage_gen: localStorage.getItem('nh_heritage_gen') || undefined,
+    nh_heritage_mode: localStorage.getItem('nh_heritage_mode') || undefined,
+    nh_dialect: localStorage.getItem('nh_dialect') || undefined,
+    heritageStory: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('heritageStory') || 'null');
+      } catch {
+        return null;
+      }
+    })(),
+    // ── AI tutor (Maja) — persona + multi-turn memory (2026-05-20) ────────────
+    // Without sync, switching devices wipes the AI tutor's "memory" of the
+    // learner, which is the feature's central value proposition.
+    maja_persona: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('maja_persona') || 'null');
+      } catch {
+        return null;
+      }
+    })(),
+    majaMemory: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('majaMemory') || 'null');
+      } catch {
+        return null;
+      }
+    })(),
+    // ── User-written content & avatar (2026-05-20) ────────────────────────────
+    nh_letter_to_self: localStorage.getItem('nh_letter_to_self') || undefined,
+    nh_avatar_emoji: localStorage.getItem('nh_avatar_emoji') || undefined,
+    // ── Adaptive learning data (2026-05-20) ───────────────────────────────────
+    nh_freq_learned: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('nh_freq_learned') || 'null');
+      } catch {
+        return null;
+      }
+    })(),
+    nh_grammar_diagnosis: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('nh_grammar_diagnosis') || 'null');
+      } catch {
+        return null;
+      }
+    })(),
+    nh_aspect_mistakes: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('nh_aspect_mistakes') || 'null');
+      } catch {
+        return null;
+      }
+    })(),
+    // ── Immersion-mode tracking (2026-05-20) ──────────────────────────────────
+    nh_immersion_days: parseInt(localStorage.getItem('nh_immersion_days') || '0', 10) || 0,
+    // ── CEFR equivalency-test certifications (2026-05-20) ─────────────────────
+    // Per-level pass/fail history + cooldown timestamps. Required for hard
+    // CEFR gating (`isUnlocked` consults certified level when the
+    // CERTIFICATION_REQUIRED feature flag is on). Undefined when the user
+    // has no attempts yet — Firestore drops undefined so we don't write
+    // empty state.
+    nh_cefr_certifications: snapshotCertifications(),
   };
 }
