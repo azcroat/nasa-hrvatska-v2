@@ -25,12 +25,53 @@ export function cefrRank(cefr: string): number {
  *
  * Unknown exercise CEFR (e.g., 'A1+') → always unlocked (fail-open for missing data).
  *
+ * The `userCefr` argument is the level the caller wants to check against.
+ * When the CERTIFICATION_REQUIRED feature flag (in cefrCertification.ts) is
+ * active, callers should pass the user's *certified* level (from
+ * `getCertifiedLevel()`) instead of their *eligible* level (from
+ * `getUserCefr()`). Until the flag flips, callers continue to pass the
+ * eligible level so behaviour is unchanged.
+ *
  * @example isUnlocked('B1', 'B1') → true
  * @example isUnlocked('B2', 'B1') → false
  * @example isUnlocked('A1+', 'A1') → true (unknown exercise CEFR)
  */
 export function isUnlocked(exerciseCefr: string, userCefr: string): boolean {
   return cefrRank(exerciseCefr) <= cefrRank(userCefr);
+}
+
+/**
+ * Returns the level the application should treat as authoritative for
+ * content unlocking. Encapsulates the eligible-vs-certified decision so
+ * callers don't have to know which mode is active.
+ *
+ * When `CERTIFICATION_REQUIRED` is false (current default):
+ *   returns `eligible` (activity-derived, getUserCefr output).
+ *
+ * When `CERTIFICATION_REQUIRED` is true (hard-gated mode):
+ *   returns the user's certified level (highest test-passed CEFR).
+ *
+ * The caller injects the certification module's exports to avoid a
+ * circular import — cefrCertification.ts depends on this file for the
+ * CefrLevel type and cefrRank helper. The two helpers needed are
+ * trivially small so passing them in is cleaner than dynamic-import
+ * wrangling at the module boundary.
+ *
+ * Most code paths should use `getEffectiveLevelForUnlock()` (below)
+ * which wires up the module connection at one centralised call site.
+ *
+ * @param eligible The activity-derived level.
+ * @param cert Optional certification helpers. When omitted, returns eligible.
+ */
+export function getEffectiveLevel(
+  eligible: CefrLevel,
+  cert?: {
+    CERTIFICATION_REQUIRED: boolean;
+    getCertifiedLevel: () => CefrLevel;
+  },
+): CefrLevel {
+  if (!cert || !cert.CERTIFICATION_REQUIRED) return eligible;
+  return cert.getCertifiedLevel();
 }
 
 /**
