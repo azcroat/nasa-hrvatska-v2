@@ -5,6 +5,7 @@ import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
 import { _aiPost } from '../../lib/aiPost';
 import { recordTopicResult } from '../../lib/adaptive.js';
+import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 function shLocal(a: any[]) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
@@ -163,6 +164,14 @@ export default function DictationScreen({ goBack, award }: Props) {
   );
 
   const total = qs.length;
+
+  // Defensive: if questions never materialise (data-load race or filter wipes
+  // the set), don't strand a Today's Session activity here — signal the
+  // session-complete handshake so the user's daily session can advance
+  // when they navigate back. No-op outside of a session.
+  useEffect(() => {
+    if (!qs.length) signalSessionCompleteIfActive('dictation');
+  }, [qs.length]);
 
   if (!qs.length) return null;
 
