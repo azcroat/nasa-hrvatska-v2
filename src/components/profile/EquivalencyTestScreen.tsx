@@ -208,13 +208,18 @@ export default function EquivalencyTestScreen({
   function handleNext() {
     setSelectedIndex(null);
     setAnswered(false);
-    if (questionIndex + 1 >= testSet.items.length) {
+    // testSet is narrowed at the top of render but the closure-captured
+    // reference here loses that narrowing. Re-assert with a local const so
+    // tsc strict-null-checks pass without `!` everywhere.
+    const set = testSet;
+    if (!set) return;
+    if (questionIndex + 1 >= set.items.length) {
       // Test complete — record + show result.
       const finalAcc = acc;
       const scores = scoresFromAcc(finalAcc);
       const { passed } = computePassed(scores);
       recordEquivalencyAttempt({
-        level: testSet.levelFrom,
+        level: set.levelFrom,
         scores,
         currentLessonCount: userLessonCount,
       });
