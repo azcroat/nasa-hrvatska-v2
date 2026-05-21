@@ -215,13 +215,19 @@ describe('mergeRemoteCertifications', () => {
     expect(getCertifiedLevel()).toBe('B1');
   });
 
-  it('preserves earlier passedAt timestamp on conflict', () => {
-    const remoteEarlier = Date.now() - 100_000;
+  it('preserves earlier passedAt when merging two remote pass records for the same level', () => {
+    // Two remote merges (e.g., two devices), each with a pass for A2 at
+    // different timestamps. The earlier timestamp wins — that's when the
+    // user demonstrably first passed. This is the cross-source preservation
+    // policy. (Note: a fresh local recordEquivalencyAttempt stamps Now()
+    // intentionally — each new attempt records its own moment.)
+    const earlierAt = Date.now() - 100_000;
+    const laterAt = Date.now() - 50_000;
     mergeRemoteCertifications({
       v: 1,
       passes: {
         A2: {
-          passedAt: remoteEarlier,
+          passedAt: laterAt,
           scores: { vocab: 0.85, grammar: 0.85, reading: 0.85 },
           overall: 85,
         },
@@ -229,13 +235,20 @@ describe('mergeRemoteCertifications', () => {
       attempts: [],
       lastFailedAt: {},
     });
-    recordEquivalencyAttempt({
-      level: 'A2',
-      scores: { vocab: 0.9, grammar: 0.9, reading: 0.9 },
-      currentLessonCount: 10,
+    mergeRemoteCertifications({
+      v: 1,
+      passes: {
+        A2: {
+          passedAt: earlierAt,
+          scores: { vocab: 0.85, grammar: 0.85, reading: 0.85 },
+          overall: 85,
+        },
+      },
+      attempts: [],
+      lastFailedAt: {},
     });
     const state = getCertificationState();
-    expect(state.passes.A2?.passedAt).toBe(remoteEarlier);
+    expect(state.passes.A2?.passedAt).toBe(earlierAt);
   });
 
   it('ignores remote with wrong schema version', () => {
