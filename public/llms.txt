@@ -1,0 +1,34 @@
+# Naša Hrvatska — Learn Croatian Language & Culture
+
+> Naša Hrvatska is an interactive web application that teaches Croatian language and Croatian culture. It uses spaced repetition (FSRS-4.5), CEFR-level progression (A1 → C2), grammar drills, vocabulary games, AI-powered conversation, and cultural immersion content (cities, recipes, history, proverbs, pop culture). The app emphasises heritage connection, daily session structure, and adaptive difficulty.
+
+## About
+
+- [Homepage](https://nasahrvatska.com/): Main entry point — Daily Session card, Knight greeting, progress stats, word/phrase/city of the day.
+- [Privacy Policy](https://nasahrvatska.com/privacy): Plausible analytics (cookie-free); Firebase authentication; no third-party advertising.
+
+## Learning surfaces
+
+- **Today tab** (`/`): Curated daily session of 4–5 activities tailored to user's CEFR level + FSRS due queue. Plus Word/Phrase/City/Story of the Day cards, AI Voice Conversation entry point, Practice Now hub.
+- **Learn tab** (`/learn`): Structured learning path — lessons grouped by CEFR level, vocabulary categories, grammar units, story reader.
+- **Practice tab** (`/practice`): Drills sorted by skill — flashcards, multiple-choice, match-pairs, sentence cloze, case drills (genitive/accusative/locative/dative), aspect drills, typing, dictation, speaking sprint.
+- **AI Tutor tab** (`/ai`): AI conversation modes — Razgovor (chat), Free Write (writing with correction), scenario-based conversations, voice mode.
+- **Croatia tab** (`/croatia`): Cultural immersion — Croatian Recipes, Cities, History, Proverbs, Grocery Shopping vocabulary, Transport vocabulary, Pop Culture.
+- **Me tab** (`/profile`): Stats, insights, settings, CEFR certification via equivalency tests.
+
+## Methodology
+
+- **CEFR progression**: A1 → A2 → B1 → B2 → C1 → C2 with hard-gating equivalency tests between tiers (80% per-skill + 80% overall pass thresholds, 7-day cooldown on failure).
+- **Spaced repetition**: FSRS-4.5 scheduler (700M+ Anki reviews trained) for vocabulary retention with ~90% target recall.
+- **Adaptive sessions**: Category queue prioritises skills where the user has recent misses; production exercises (writing/speaking) guaranteed in every session.
+
+## Technical
+
+- Built with React 18, TypeScript (strict), Vite, Cloudflare Pages.
+- Auth: Firebase (email/password + Google sign-in + guest mode).
+- Audio: Azure TTS (Croatian voices).
+- Mobile: PWA (installable) + Capacitor wrapper for iOS/Android.
+
+## Optional
+
+- [GitHub source](https://github.com/AzCroat/nasa-hrvatska-v2): Public source code.

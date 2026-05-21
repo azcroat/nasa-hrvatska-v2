@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { H, speak } from '../../data';
 import { useContent } from '../../hooks/useContent';
+import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 
 interface GroceryShape {
   stores: Array<{ name: string; desc: string; color: string }>;
@@ -22,6 +23,12 @@ function ErrorState({ message }: { message: string }) {
 
 function GroceryScreen({ goBack }: GroceryScreenProps) {
   const { content, loading, error } = useContent();
+  // Don't strand a Today's Session activity on content-load failure: signal
+  // completion so the session can advance when the user navigates back.
+  // No-op outside of an active session.
+  useEffect(() => {
+    if (error) signalSessionCompleteIfActive('grocery');
+  }, [error]);
   if (error) return <ErrorState message="Couldn't load content - please retry." />;
   if (loading || !content) return <LoadingState />;
   const GROCERY = content.GROCERY as unknown as GroceryShape;

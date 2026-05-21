@@ -1873,7 +1873,10 @@ function App() {
               doOut={doOut}
             />
           )}
-          <div className="app-content" id="main-content" role="main">
+          {/* tabIndex={-1} lets the skip-link programmatically focus the main
+              landmark; without it, <main> is not focusable, and Lighthouse
+              flagged "Skip links are not focusable". */}
+          <main className="app-content" id="main-content" tabIndex={-1}>
             <Suspense
               fallback={
                 <div

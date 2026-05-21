@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { H, speak } from '../../data';
 import { useContent } from '../../hooks/useContent';
+import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 
 interface Props {
   goBack: () => void;
@@ -12,6 +13,10 @@ function RecipesScreen({ goBack }: Props) {
   // SP11d: cannot read RECIPES[0]?.servings synchronously at init (content is async-loaded).
   // Use 0 as sentinel; effective servings falls back to current recipe's default until user adjusts.
   const [rcServ, setRcServ] = useState(0);
+  // Don't strand a Today's Session activity on content-load failure.
+  useEffect(() => {
+    if (error) signalSessionCompleteIfActive('recipes');
+  }, [error]);
   if (error)
     return (
       <div className="scr-wrap">
