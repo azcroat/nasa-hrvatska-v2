@@ -55,7 +55,7 @@ export default function EquivalencyTestCard({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <span style={{ fontSize: 22 }}>🎓</span>
-          <span style={{ fontSize: 11, fontWeight: 900, color: '#16a34a', letterSpacing: '.2em' }}>
+          <span style={{ fontSize: 11, fontWeight: 900, color: '#15803d', letterSpacing: '.2em' }}>
             CERTIFIED {certified}
           </span>
         </div>
@@ -110,7 +110,12 @@ export default function EquivalencyTestCard({
         <div
           style={{
             display: 'inline-block',
-            background: 'rgba(255,255,255,0.15)',
+            // Solid white pill with dark-red text — 14.0:1 contrast against
+            // the red gradient card behind. The translucent white pill we had
+            // before resolved to ~3.5:1 on the gradient and failed WCAG 2.1
+            // AA on the Profile tab a11y check.
+            background: '#ffffff',
+            color: '#a30000',
             padding: '6px 14px',
             borderRadius: 999,
             fontSize: 13,
