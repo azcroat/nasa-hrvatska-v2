@@ -363,10 +363,24 @@ export async function fbSaveProgress(
     return { ok: true };
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
-    // If the batch failed because the family document was deleted, retry without it.
-    // This keeps user/profile writes reliable even when a family is gone.
-    // _withRetry already handled transient errors; this catch only sees non-retryable codes.
-    if (err?.code === 'not-found' && _famCode) {
+    // The atomic batch fails as a whole if ANY of its 2-3 writes is rejected.
+    // Two known failure modes have been silently breaking sync for users:
+    //
+    //   1. 'not-found' — the family document no longer exists in Firestore
+    //      (creator deleted it, or it was never created). Original behavior
+    //      already handled this case.
+    //
+    //   2. 'permission-denied' — the family document still exists but the
+    //      user is no longer in its memberEmails (left the family or was
+    //      removed by an admin), so the Firestore security rule denies the
+    //      family-doc UPDATE. Local 'uFamily' cache still pointed at the
+    //      now-orphaned famCode, causing EVERY subsequent fbSaveProgress to
+    //      fail. Users reported "[sync] fbSaveProgress failed:
+    //      permission-denied Missing or insufficient permissions" non-stop
+    //      with no path back to working sync. Now: retry without the family
+    //      write, and on successful fallback, clear the stale local family
+    //      reference so future saves don't keep retrying the doomed batch.
+    if ((err?.code === 'not-found' || err?.code === 'permission-denied') && _famCode) {
       try {
         await _withRetry(async () => {
           const b2 = writeBatch(_fbDb!);
@@ -374,6 +388,13 @@ export async function fbSaveProgress(
           b2.set(fsDoc(_fbDb!, 'profiles', id), profileEntry, { merge: true });
           await b2.commit();
         }, 'fbSaveProgress_nofam');
+        // Fallback succeeded => the original batch failure WAS the family
+        // write. Clear the stale local reference so subsequent saves don't
+        // keep retrying it. If the user is genuinely still in a family,
+        // re-joining via the Friends/Family tab will restore the link.
+        try {
+          localStorage.removeItem('uFamily');
+        } catch {}
         _reconcileAtomicStats(id, _st);
         return { ok: true };
       } catch (e2: unknown) {
