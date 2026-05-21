@@ -82,12 +82,18 @@ export async function onRequestPost(context) {
     });
   }
 
-  // Ensure the token's uid matches the claimed uid (prevents one user writing another's doc)
+  // Body's `uid` is informational only — the verified uid from the token is
+  // authoritative and is what we use for the Firestore write target (docId
+  // below). Previously we rejected with 403 when body.uid !== verifiedUid as
+  // defense-in-depth, but in practice the body uid can legitimately diverge
+  // when the client cached an older uid format (email-vs-Firebase-uid) and
+  // every legitimate save was being 403'd in production. The verifiedUid
+  // (from the JWT) is the only value we trust for the write — so any
+  // mismatch is logged and ignored, not rejected.
   if (verifiedUid !== uid) {
-    return new Response(JSON.stringify({ error: 'forbidden' }), {
-      status: 403,
-      headers: corsHeaders(origin),
-    });
+    console.warn(
+      '[save-progress] body.uid does not match verified token uid; using verified uid for write',
+    );
   }
 
   // Validate data is a JSON string (progress blob) and within Firestore size limit.
