@@ -250,6 +250,12 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   if (fp.nh_haptic_enabled !== null && fp.nh_haptic_enabled !== undefined)
     localStorage.setItem('nh_haptic_enabled', fp.nh_haptic_enabled);
   if (fp.nh_voice_pref) localStorage.setItem('nh_voice_pref', fp.nh_voice_pref);
+  // nh_speech_rate: playback rate (0.5 | 0.75 | 1). Progress snapshot already
+  // writes this; previously missed from the restore path so a device-to-device
+  // sync silently dropped the user's preferred TTS speed.
+  if (fp.nh_speech_rate !== null && fp.nh_speech_rate !== undefined) {
+    localStorage.setItem('nh_speech_rate', String(fp.nh_speech_rate));
+  }
   // nh_font_size: null means "never explicitly set on remote device" — skip write.
   // Any non-null value (including 'medium') is an explicit user choice and should sync.
   if (fp.nh_font_size !== null && fp.nh_font_size !== undefined)
