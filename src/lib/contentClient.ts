@@ -25,19 +25,15 @@ async function namespaceUid(): Promise<string> {
 
 async function fetchAuthed(path: string, etag?: string): Promise<Response> {
   const bearer = await getFirebaseBearer();
-  // Skip the network call entirely when we have no bearer. The server would
-  // reject with 401 anyway (all /api/content/* endpoints require auth), and
-  // firing the request just pollutes the console with "Failed to load
-  // resource: 401" on every cold load for unauthenticated users and during
-  // the auth-restore tick window. getFirebaseBearer() now waits for the
-  // initial onAuthStateChanged fire, so a null result here means the user
-  // is genuinely unauthenticated (guest mode) — let the caller handle
-  // ContentAuthError gracefully (cache-first fallback paths cover offline).
-  if (!bearer) {
-    return new Response(null, { status: 401, statusText: 'No Firebase bearer' });
-  }
-  const headers: Record<string, string> = { Authorization: 'Bearer ' + bearer };
+  const headers: Record<string, string> = {};
+  if (bearer) headers.Authorization = 'Bearer ' + bearer;
   if (etag) headers['If-None-Match'] = `"${etag}"`;
+  // We intentionally fire the fetch even when there's no bearer. A previous
+  // attempt to short-circuit with a synthetic 401 broke every e2e test that
+  // mocks /api/content/* via page.route, because the mock route never sees
+  // a request that's intercepted before fetch() runs. Letting the request
+  // through preserves test contract; the bearer-race in audio.ts is fixed
+  // separately so authenticated users no longer see cold-load 401s.
   return fetch(path, { method: 'GET', headers });
 }
 
