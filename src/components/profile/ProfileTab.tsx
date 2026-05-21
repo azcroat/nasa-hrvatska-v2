@@ -6,19 +6,27 @@ import InsightsTab from './InsightsTab';
 import SettingsTab from './SettingsTab';
 import PrestigeModal from './PrestigeModal';
 import ClanCard from '../home/ClanCard';
+import EquivalencyTestCard from './EquivalencyTestCard';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
+import type { CefrLevel } from '../../lib/cefr';
 
 export default function ProfileTab({
   syncReady,
   onSyncNow,
   onOpenFriends,
   lastSyncedAt = 0,
+  onTakeEquivalencyTest,
+  userEligible,
 }: {
   syncReady: boolean;
   onSyncNow?: () => void;
   onOpenFriends?: () => void;
   lastSyncedAt?: number;
+  /** Wired by AppRouter; navigates to the equivalency test screen. */
+  onTakeEquivalencyTest?: () => void;
+  /** Activity-derived CEFR level used to compare against certified. */
+  userEligible?: CefrLevel;
 }) {
   const { au: authUser } = useApp();
   const { setStats } = useStats();
@@ -93,6 +101,12 @@ export default function ProfileTab({
       {ptab === 'stats' && (
         <>
           <StatsTab onShowPrestigeModal={() => setShowPrestigeModal(true)} onSyncNow={onSyncNow} />
+          {onTakeEquivalencyTest && userEligible && (
+            <EquivalencyTestCard
+              userEligible={userEligible}
+              onTakeTest={onTakeEquivalencyTest}
+            />
+          )}
           {/* ── STUDY CLAN — moved from Today tab ── */}
           {authUser && (
             <ClanCard

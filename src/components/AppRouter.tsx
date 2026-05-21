@@ -2,6 +2,7 @@ import React, { lazy, useRef, useEffect, useState } from 'react';
 import { AnimatePresence, motion, type TargetAndTransition } from 'framer-motion';
 import { useSwipeBack } from '../hooks/useSwipeBack.js';
 import { isChunkLoadError, reloadWithCachePurge } from '../lib/chunkErrors';
+import { getUserCefr } from '../lib/cefr.js';
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
 // leaving elements permanently at opacity:0. Skip entry animation on native.
 // Capacitor Android: https://localhost with NO port. Dev server always has a port.
@@ -25,6 +26,7 @@ import { addWordToSRS } from '../lib/srs.js';
 const WelcomeScreen = lazyWithReload(() => import('./home/WelcomeScreen'));
 const PlacementTest = lazyWithReload(() => import('../components/auth/PlacementTest'));
 const PaywallScreen = lazyWithReload(() => import('./shared/PaywallScreen'));
+const EquivalencyTestScreen = lazyWithReload(() => import('./profile/EquivalencyTestScreen'));
 import { useApp } from '../context/AppContext';
 import { useStats } from '../context/StatsContext';
 
@@ -576,6 +578,13 @@ export default function AppRouter(props: Record<string, any>) {
             }}
           />
         )}
+        {currentScreen === 'equivalency' && (
+          <EquivalencyTestScreen
+            userEligible={getUserCefr(stats.xp || 0, stats.lc || 0, stats.gc || 0)}
+            userLessonCount={stats.lc || 0}
+            setScr={setScr}
+          />
+        )}
         {
           // ═══ DASHBOARD ═══
           currentScreen === 'dashboard' && (
@@ -871,6 +880,8 @@ export default function AppRouter(props: Record<string, any>) {
                           onSyncNow={doSyncNow}
                           onOpenFriends={() => setScr('family_group')}
                           lastSyncedAt={lastSyncedAt as number}
+                          onTakeEquivalencyTest={() => setScr('equivalency')}
+                          userEligible={getUserCefr(stats.xp || 0, stats.lc || 0, stats.gc || 0)}
                         />
                       </ScreenErrorBoundary>
                     </React.Suspense>

@@ -1,0 +1,317 @@
+{
+  "levelFrom": "B1",
+  "levelTo": "B2",
+  "description": "Tests B1 competency — passing advances to B2.",
+  "items": [
+    {
+      "q": "What does 'iskustvo' mean?",
+      "o": ["habit", "experience", "opportunity", "decision"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'prilika' mean?",
+      "o": ["opportunity", "promise", "problem", "permission"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'susjedstvo' mean?",
+      "o": ["friendship", "neighbourhood", "relationship", "partnership"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'navika' mean?",
+      "o": ["news", "habit", "advice", "favour"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'neophodno' mean?",
+      "o": ["optional", "unusual", "necessary", "impossible"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'odlučiti' mean?",
+      "o": ["to delay", "to decide", "to deserve", "to depart"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'to remember' in Croatian?",
+      "o": ["zaboraviti", "zapamtiti", "razumjeti", "predstaviti"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'health' in Croatian?",
+      "o": ["zdravlje", "bolest", "lijek", "tijelo"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'okolina' mean?",
+      "o": ["environment", "occasion", "outcome", "ownership"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'razlog' mean?",
+      "o": ["result", "reason", "rule", "remark"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Fill in the blank: 'Moram ___ ovaj projekt do petka.' (finish, perfective)",
+      "o": ["završavati", "završiti", "počinjati", "raditi"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'pokušati' mean?",
+      "o": ["to try", "to push", "to prove", "to praise"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'advice' in Croatian?",
+      "o": ["savjest", "savjet", "sastanak", "sažetak"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'putovanje' mean?",
+      "o": ["passport", "journey", "package", "purpose"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Fill in: 'Nadam se da ću dobiti dobru ___ za posao.' (opportunity)",
+      "o": ["priliku", "prilika", "prilici", "prilikom"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'mišljenje' mean?",
+      "o": ["mission", "opinion", "meeting", "mistake"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'to compare' in Croatian?",
+      "o": ["usporediti", "uspjeti", "ustati", "uvjeriti"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'dogovor' mean?",
+      "o": ["disagreement", "agreement", "document", "direction"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Fill in: 'Vježbanje je ___ za dobro zdravlje.' (necessary)",
+      "o": ["neobično", "nemoguće", "neophodno", "nepoznato"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'sjećanje' mean?",
+      "o": ["meeting", "memory", "message", "moment"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the correct aspect: 'Svako jutro ___ kavu prije posla.'",
+      "o": ["popijem", "pijem", "popio sam", "popit ću"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Jučer sam ___ cijelu knjigu u jednom danu.'",
+      "o": ["čitao", "pročitao", "čitam", "čitat ću"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional: 'Da imam vremena, ___ ti pomogao.'",
+      "o": ["budem", "bih", "ću", "sam"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case (instrumental): 'Putujem u Split ___.'",
+      "o": ["auto", "auta", "autom", "autu"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case (genitive plural): 'U ovom gradu ima mnogo ___.'",
+      "o": ["studenti", "studente", "studenata", "studentima"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case (locative): 'Razgovarali smo o ___.'",
+      "o": ["politika", "politiku", "politici", "politikom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case (dative): 'Pomažem ___ s domaćom zadaćom.'",
+      "o": ["sestra", "sestru", "sestri", "sestre"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative pronoun: 'To je čovjek ___ sam ti spominjao.'",
+      "o": ["koji", "kojeg", "kojem", "kojim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative pronoun: 'Knjiga ___ ti dajem je vrlo zanimljiva.'",
+      "o": ["koja", "koje", "koju", "kojoj"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct modal form: 'Ne ___ pušiti u restoranu.'",
+      "o": ["smiješ", "moraš", "trebaš", "možeš"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Trebao bih ___ liječniku.'",
+      "o": ["ići", "idem", "išao", "idi"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional: 'Što ___ napravio na mom mjestu?'",
+      "o": ["bi", "biste", "bih", "bismo"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect (future plan, perfective): 'Sutra ću ___ pismo.'",
+      "o": ["pisati", "napisati", "pišem", "pisao"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case (accusative of motion vs locative): 'Idemo u ___.'",
+      "o": ["kazalištu", "kazalište", "kazališta", "kazalištem"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct word order with clitics: 'Jučer ___ ga vidio u parku.'",
+      "o": ["sam", "bih", "ću", "sam ja"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: 'Učim hrvatski ___ bih bolje razumio obitelj.'",
+      "o": ["jer", "ako", "da", "kad"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative form: 'Grad u ___ živim je vrlo lijep.'",
+      "o": ["koji", "kojem", "kojeg", "kojim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Dok sam ___ ručak, zazvonio je telefon.'",
+      "o": ["spremio", "spremao", "spremim", "spremiti"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: 'Ne znam ___ je istina ili nije.'",
+      "o": ["da", "što", "je li", "kako"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct vocative form: '___, dođi ovamo!' (calling Marija)",
+      "o": ["Marija", "Marijo", "Mariju", "Mariji"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Why did Marko decide to study in Zagreb?",
+      "o": ["Because his family lives there", "Because of the job opportunities", "Because the university is cheaper", "Because his friends recommended it"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Marko ima dvadeset godina i ove je jeseni počeo studirati ekonomiju u Zagrebu. Iako je odrastao u malom selu blizu Slavonskog Broda, odlučio je preseliti se u glavni grad jer je mislio da će tamo imati više prilika za posao nakon završetka studija. U početku mu je bilo teško jer nije nikoga poznavao, ali sada ima nekoliko dobrih prijatelja s fakulteta. Vikendima često putuje kući kako bi vidio roditelje i mlađu sestru."
+    },
+    {
+      "q": "How does Marko feel about Zagreb now?",
+      "o": ["He still feels lonely", "He has made some good friends", "He wants to move back home", "He regrets his decision"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Marko ima dvadeset godina i ove je jeseni počeo studirati ekonomiju u Zagrebu. Iako je odrastao u malom selu blizu Slavonskog Broda, odlučio je preseliti se u glavni grad jer je mislio da će tamo imati više prilika za posao nakon završetka studija. U početku mu je bilo teško jer nije nikoga poznavao, ali sada ima nekoliko dobrih prijatelja s fakulteta. Vikendima često putuje kući kako bi vidio roditelje i mlađu sestru."
+    },
+    {
+      "q": "What change did Ana make to her daily routine?",
+      "o": ["She started drinking more coffee", "She began running every morning", "She gave up sports completely", "She started working from home"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Ana je prošle godine osjećala da nema dovoljno energije za posao i obitelj. Liječnik joj je rekao da bi trebala više vježbati i bolje se hraniti. Iako joj je u početku bilo jako teško rano ustajati, počela je trčati svako jutro prije doručka. Sada se osjeća puno bolje, ima više snage tijekom dana i bolje spava noću. Kaže da je to bila najbolja odluka koju je donijela u zadnje vrijeme i preporučuje svima da pokušaju nešto slično."
+    },
+    {
+      "q": "What does Ana recommend to others?",
+      "o": ["Visiting a doctor regularly", "Eating less food", "Trying something similar to what she did", "Working fewer hours"],
+      "c": 2,
+      "skill": "reading",
+      "passage": "Ana je prošle godine osjećala da nema dovoljno energije za posao i obitelj. Liječnik joj je rekao da bi trebala više vježbati i bolje se hraniti. Iako joj je u početku bilo jako teško rano ustajati, počela je trčati svako jutro prije doručka. Sada se osjeća puno bolje, ima više snage tijekom dana i bolje spava noću. Kaže da je to bila najbolja odluka koju je donijela u zadnje vrijeme i preporučuje svima da pokušaju nešto slično."
+    },
+    {
+      "q": "Why does Ivan prefer working from home?",
+      "o": ["He earns more money this way", "He saves time and can be with his family", "His office is too far from home", "He doesn't like his colleagues"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Ivan već tri godine radi od kuće kao programer za jednu njemačku tvrtku. Kaže da mu takav način rada jako odgovara jer ne mora gubiti vrijeme u prometu i može provoditi više vremena sa svojom djecom. S druge strane, ponekad mu nedostaje druženje s kolegama, pa jednom mjesečno putuje u Zagreb na sastanke. Smatra da je najvažnije imati discipline i jasan raspored, inače je vrlo lako izgubiti koncentraciju kada radiš kod kuće."
+    },
+    {
+      "q": "What does Ivan say is most important when working from home?",
+      "o": ["Having a fast computer", "Having discipline and a clear schedule", "Having a separate room", "Having quiet neighbours"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Ivan već tri godine radi od kuće kao programer za jednu njemačku tvrtku. Kaže da mu takav način rada jako odgovara jer ne mora gubiti vrijeme u prometu i može provoditi više vremena sa svojom djecom. S druge strane, ponekad mu nedostaje druženje s kolegama, pa jednom mjesečno putuje u Zagreb na sastanke. Smatra da je najvažnije imati discipline i jasan raspored, inače je vrlo lako izgubiti koncentraciju kada radiš kod kuće."
+    },
+    {
+      "q": "Why was the trip to Plitvice special for the family?",
+      "o": ["It was the children's first long trip", "They met old friends there", "It was the grandmother's birthday", "They saw snow for the first time"],
+      "c": 0,
+      "skill": "reading",
+      "passage": "Prošlog ljeta odlučili smo posjetiti Plitvička jezera s djecom. Bilo je to njihovo prvo veće putovanje pa smo se dugo pripremali. Krenuli smo rano ujutro kako bismo izbjegli gužvu i stigli oko deset sati. Djeca su bila oduševljena slapovima i nisu mogla vjerovati da takvo mjesto postoji u našoj zemlji. Iako smo hodali skoro pet sati, nitko se nije žalio. Navečer smo večerali u malom restoranu u blizini i svi smo se složili da ćemo se sigurno vratiti."
+    },
+    {
+      "q": "Why did they leave early in the morning?",
+      "o": ["To have lunch on time", "To avoid the crowds", "Because the park closes early", "Because of the hot weather"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Prošlog ljeta odlučili smo posjetiti Plitvička jezera s djecom. Bilo je to njihovo prvo veće putovanje pa smo se dugo pripremali. Krenuli smo rano ujutro kako bismo izbjegli gužvu i stigli oko deset sati. Djeca su bila oduševljena slapovima i nisu mogla vjerovati da takvo mjesto postoji u našoj zemlji. Iako smo hodali skoro pet sati, nitko se nije žalio. Navečer smo večerali u malom restoranu u blizini i svi smo se složili da ćemo se sigurno vratiti."
+    },
+    {
+      "q": "How does Petra use technology to learn Croatian?",
+      "o": ["She takes private lessons online", "She uses a mobile app every day", "She watches Croatian television", "She reads newspapers in Croatian"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Petra živi u Kanadi, ali njezini djed i baka došli su iz Hrvatske. Iako razumije osnovne riječi, željela bi naučiti hrvatski dovoljno dobro da može razgovarati s rođacima kad ih posjeti. Svaki dan koristi jednu aplikaciju na mobitelu petnaest minuta prije spavanja. Kaže da joj se najviše sviđa što može učiti kad god ima vremena, čak i u autobusu na putu do posla. Najteže joj padaju padeži, ali misli da će uz redovito vježbanje uspjeti."
+    },
+    {
+      "q": "What does Petra find most difficult about Croatian?",
+      "o": ["Pronunciation", "Vocabulary", "Cases", "Verb tenses"],
+      "c": 2,
+      "skill": "reading",
+      "passage": "Petra živi u Kanadi, ali njezini djed i baka došli su iz Hrvatske. Iako razumije osnovne riječi, željela bi naučiti hrvatski dovoljno dobro da može razgovarati s rođacima kad ih posjeti. Svaki dan koristi jednu aplikaciju na mobitelu petnaest minuta prije spavanja. Kaže da joj se najviše sviđa što može učiti kad god ima vremena, čak i u autobusu na putu do posla. Najteže joj padaju padeži, ali misli da će uz redovito vježbanje uspjeti."
+    }
+  ]
+}

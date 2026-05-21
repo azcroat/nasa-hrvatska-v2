@@ -19,20 +19,27 @@ import {
   getEffectiveLevelForUnlock,
   getLastAttempt,
   mergeRemoteCertifications,
+  migrateGrandfatheredCertification,
   recordEquivalencyAttempt,
   snapshotCertifications,
 } from '../cefrCertification.js';
 
 beforeEach(() => {
   localStorage.clear();
+  // The migration flag is its own key — clear() handles it, but be
+  // explicit so a future refactor that opts out of clear() doesn't
+  // silently break the idempotency test.
+  localStorage.removeItem('nh_cefr_migration_v1_done');
 });
 
 describe('CERTIFICATION_REQUIRED feature flag', () => {
-  it('is FALSE in shipped code so existing UX is unchanged', () => {
-    // Critical invariant: shipping with the flag on would silently lock
-    // content for every user. This must stay false until equivalency
-    // test items are content-authored.
-    expect(CERTIFICATION_REQUIRED).toBe(false);
+  it('is TRUE in shipped code — hard CEFR gating is active', () => {
+    // Per the 2026-05-20 product decision: "people must actually know the
+    // CEFR level material before progressing." The flag activates strict
+    // gating via getEffectiveLevelForUnlock. Existing users are
+    // grandfathered to their eligible level by migrateGrandfatheredCertification
+    // on first launch.
+    expect(CERTIFICATION_REQUIRED).toBe(true);
   });
 });
 
@@ -187,9 +194,21 @@ describe('recordEquivalencyAttempt', () => {
 });
 
 describe('getEffectiveLevelForUnlock', () => {
-  it('returns eligible when the flag is off (current default)', () => {
-    expect(getEffectiveLevelForUnlock('B2')).toBe('B2');
+  it('returns the certified level (flag is ON in shipped code)', () => {
+    // With CERTIFICATION_REQUIRED=true, the eligible-vs-certified
+    // distinction is the entire point. Fresh user: certified is A1
+    // regardless of eligible.
+    expect(getEffectiveLevelForUnlock('B2')).toBe('A1');
     expect(getEffectiveLevelForUnlock('A1')).toBe('A1');
+  });
+
+  it('returns the certified level after a pass — not eligible', () => {
+    recordEquivalencyAttempt({
+      level: 'A2',
+      scores: { vocab: 0.9, grammar: 0.9, reading: 0.9 },
+      currentLessonCount: 10,
+    });
+    expect(getEffectiveLevelForUnlock('B2')).toBe('A2');
   });
 });
 
@@ -285,6 +304,60 @@ describe('snapshotCertifications', () => {
     expect(snap).toBeDefined();
     expect(snap?.passes.A2).toBeDefined();
     expect(snap?.attempts.length).toBe(1);
+  });
+});
+
+describe('migrateGrandfatheredCertification', () => {
+  it('grandfathers all levels up to eligible into certification on first call', () => {
+    migrateGrandfatheredCertification('B1');
+    const state = getCertificationState();
+    expect(state.passes.A2?.overall).toBe(80);
+    expect(state.passes.B1?.overall).toBe(80);
+    expect(state.passes.B2).toBeUndefined();
+    expect(state.passes.C1).toBeUndefined();
+    expect(getCertifiedLevel()).toBe('B1');
+  });
+
+  it('is idempotent — second call does not add duplicate attempts', () => {
+    migrateGrandfatheredCertification('A2');
+    const firstAttempts = getCertificationState().attempts.length;
+    migrateGrandfatheredCertification('A2');
+    expect(getCertificationState().attempts.length).toBe(firstAttempts);
+  });
+
+  it('never overwrites a real pass at a lower level', () => {
+    recordEquivalencyAttempt({
+      level: 'A2',
+      scores: { vocab: 0.95, grammar: 0.95, reading: 0.95 },
+      currentLessonCount: 10,
+    });
+    const realPassAt = getCertificationState().passes.A2!.passedAt;
+    const realPassOverall = getCertificationState().passes.A2!.overall;
+    migrateGrandfatheredCertification('B1');
+    const state = getCertificationState();
+    // A2 real pass preserved, not overwritten by grandfather
+    expect(state.passes.A2!.passedAt).toBe(realPassAt);
+    expect(state.passes.A2!.overall).toBe(realPassOverall);
+    // B1 grandfathered
+    expect(state.passes.B1?.overall).toBe(80);
+  });
+
+  it('does nothing for an A1-eligible user (A1 needs no test)', () => {
+    migrateGrandfatheredCertification('A1');
+    const state = getCertificationState();
+    expect(Object.keys(state.passes).length).toBe(0);
+    expect(getCertifiedLevel()).toBe('A1');
+  });
+
+  it('does NOT set the migration flag when eligible is A1', () => {
+    // A1 calls are no-ops; the flag must stay clear so a later call with
+    // real stats (e.g., after Firebase hydration) still grandfathers.
+    migrateGrandfatheredCertification('A1');
+    expect(localStorage.getItem('nh_cefr_migration_v1_done')).toBeNull();
+    // Now stats arrive — eligible jumps to B1, migration should run.
+    migrateGrandfatheredCertification('B1');
+    expect(localStorage.getItem('nh_cefr_migration_v1_done')).toBe('1');
+    expect(getCertifiedLevel()).toBe('B1');
   });
 });
 
