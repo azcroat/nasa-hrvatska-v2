@@ -2073,7 +2073,7 @@ function App() {
               <OfflineBanner />
               <CookieConsent />
             </Suspense>
-          </div>
+          </main>
         </div>
       </StatsProvider>
     </AppContext.Provider>
