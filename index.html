@@ -1,86 +1,142 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-  <!-- Primary meta -->
-  <title>Naša Hrvatska — Learn Croatian Language & Culture</title>
-  <meta name="description" content="Learn Croatian with interactive lessons, grammar drills, cultural immersion, games, and spaced repetition. Free. No ads.">
-  <meta name="theme-color" content="#0e7490">
+    <!-- Primary meta -->
+    <title>Naša Hrvatska — Learn Croatian Language & Culture</title>
+    <meta
+      name="description"
+      content="Learn Croatian with interactive lessons, grammar drills, cultural immersion, games, and spaced repetition. Free. No ads."
+    />
+    <meta name="theme-color" content="#0e7490" />
 
-  <!-- PWA / iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Naša Hrvatska">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <!-- PWA / iOS -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Naša Hrvatska" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-  <!-- iOS splash screens (launch images for standalone mode) -->
-  <link rel="apple-touch-startup-image" media="screen and (device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/iphone-se.png">
-  <link rel="apple-touch-startup-image" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/iphone-xr.png">
-  <link rel="apple-touch-startup-image" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/iphone-14.png">
-  <link rel="apple-touch-startup-image" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/iphone-14-pro.png">
-  <link rel="apple-touch-startup-image" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/iphone-14-plus.png">
-  <link rel="apple-touch-startup-image" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/iphone-14-pro-max.png">
-  <link rel="apple-touch-startup-image" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/ipad-9.png">
-  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/ipad-pro-11.png">
-  <link rel="apple-touch-startup-image" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/ipad-pro-12.png">
+    <!-- iOS splash screens (launch images for standalone mode) -->
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)"
+      href="/splash/iphone-se.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)"
+      href="/splash/iphone-xr.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)"
+      href="/splash/iphone-14.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)"
+      href="/splash/iphone-14-pro.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)"
+      href="/splash/iphone-14-plus.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)"
+      href="/splash/iphone-14-pro-max.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)"
+      href="/splash/ipad-9.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)"
+      href="/splash/ipad-pro-11.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)"
+      href="/splash/ipad-pro-12.png"
+    />
 
-  <!-- Icons -->
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+    <!-- Icons -->
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://nasahrvatska.com/">
-  <meta property="og:title" content="Naša Hrvatska — Learn Croatian Language & Culture">
-  <meta property="og:description" content="Learn Croatian with interactive lessons, grammar drills, cultural immersion, games, and spaced repetition. Free. No ads.">
-  <meta property="og:image" content="https://nasahrvatska.com/icon-512.png">
-  <meta property="og:image:width" content="512">
-  <meta property="og:image:height" content="512">
-  <meta property="og:locale" content="en_US">
-  <meta property="og:site_name" content="Naša Hrvatska">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nasahrvatska.com/" />
+    <meta property="og:title" content="Naša Hrvatska — Learn Croatian Language & Culture" />
+    <meta
+      property="og:description"
+      content="Learn Croatian with interactive lessons, grammar drills, cultural immersion, games, and spaced repetition. Free. No ads."
+    />
+    <meta property="og:image" content="https://nasahrvatska.com/icon-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Naša Hrvatska" />
 
-  <!-- Twitter / X -->
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Naša Hrvatska — Learn Croatian">
-  <meta name="twitter:description" content="Free interactive Croatian language learning with games, grammar, and cultural immersion.">
-  <meta name="twitter:image" content="https://nasahrvatska.com/icon-512.png">
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Naša Hrvatska — Learn Croatian" />
+    <meta
+      name="twitter:description"
+      content="Free interactive Croatian language learning with games, grammar, and cultural immersion."
+    />
+    <meta name="twitter:image" content="https://nasahrvatska.com/icon-512.png" />
 
-  <!-- Canonical -->
-  <link rel="canonical" href="https://nasahrvatska.com/">
+    <!-- Canonical -->
+    <link rel="canonical" href="https://nasahrvatska.com/" />
 
-  <!-- Fonts: self-hosted woff2 — served from Cloudflare edge, no cross-origin DNS round-trip -->
-  <!-- Preload the two most-visible font files (latin subset covers ASCII + common European chars) -->
-  <link rel="preload" href="/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/fonts/playfair-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/fonts/fonts.css">
-  <meta name="color-scheme" content="light dark">
+    <!-- Fonts: self-hosted woff2 — served from Cloudflare edge, no cross-origin DNS round-trip -->
+    <!-- Preload the two most-visible font files (latin subset covers ASCII + common European chars) -->
+    <link rel="preload" href="/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/playfair-normal-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/fonts/fonts.css" />
+    <meta name="color-scheme" content="light dark" />
 
-  <!-- Analytics (Plausible — privacy-first, no cookies) -->
-  <!-- Set up at plausible.io and replace the data-domain if needed -->
-  <script defer data-domain="nasahrvatska.com" src="https://plausible.io/js/plausible.js"></script>
-</head>
-<body>
-  <!-- Apply capacitor-native class synchronously before React mounts so CSS overrides
+    <!-- Analytics (Plausible — privacy-first, no cookies) -->
+    <!-- Set up at plausible.io and replace the data-domain if needed -->
+    <script
+      defer
+      data-domain="nasahrvatska.com"
+      src="https://plausible.io/js/plausible.js"
+    ></script>
+  </head>
+  <body>
+    <!-- Apply capacitor-native class synchronously before React mounts so CSS overrides
        take effect from the very first paint.
        Detection uses window.location.hostname === 'localhost' — set by the OS
        before any JS runs (Capacitor androidScheme:'https' → origin https://localhost).
        This is 100% race-condition-free; window.Capacitor bridge injection is async
        and unreliable at this point. -->
-  <script src="/native-init.js"></script>
+    <script src="/native-init.js"></script>
 
-  <!-- Skip to main content for keyboard/screen reader users -->
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+    <!-- Skip to main content for keyboard/screen reader users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <div id="root"></div>
+    <div id="root"></div>
 
-  <!-- SW update interceptor: runs before React mounts.
+    <!-- SW update interceptor: runs before React mounts.
        If a new SW is already waiting, activate it and reload before
        the app renders stale cached content. Zero user action required. -->
-  <script src="/sw-update.js"></script>
+    <script src="/sw-update.js"></script>
 
-  <script src="/sw-migration.js"></script>
-  <script type="module" src="/src/main.jsx"></script>
-</body>
+    <script src="/sw-migration.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

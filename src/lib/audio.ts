@@ -5,16 +5,64 @@ import { getVoicePreference, getSpeechRate } from './soundSettings';
 import { isNative, isIos } from './platform';
 import { dbgInfo, dbgWarn, dbgError } from './debugLog';
 
-// Server-side /api/tts requires Firebase auth (security audit 406d772).
-// Get the current Firebase user's ID token and add it as Bearer.
+// Server-side /api/tts and /api/content/* require Firebase auth (security
+// audit 406d772). Returns the current Firebase user's ID token as a bearer,
+// or null if there is no signed-in user.
+//
+// 2026-05-21 BUG FIX: previously checked auth.currentUser synchronously.
+// Firebase restores the user from IndexedDB asynchronously after page load
+// — calls during that ~tick window saw currentUser === null and returned
+// null. Authenticated endpoints then 401'd, polluting console with
+// "Failed to load resource: 401" on every cold start. Now: if the auth
+// state has not yet settled, we subscribe to onAuthStateChanged and resolve
+// as soon as Firebase decides. Concurrent callers share one promise.
+let _bearerPromise: Promise<string | null> | null = null;
+let _bearerCachedFor: string | null = null;
+
 async function _getFirebaseBearer(): Promise<string | null> {
   try {
-    const { getAuth } = await import('firebase/auth');
+    const { getAuth, onAuthStateChanged } = await import('firebase/auth');
     const auth = getAuth();
-    const user = auth.currentUser;
-    if (!user) return null;
-    const token = await user.getIdToken(false);
-    return token || null;
+
+    // Hot path: auth restored, user known.
+    if (auth.currentUser) {
+      if (_bearerCachedFor !== auth.currentUser.uid) {
+        _bearerCachedFor = auth.currentUser.uid;
+        _bearerPromise = auth.currentUser.getIdToken(false).then((t) => t || null);
+      }
+      return (await _bearerPromise) ?? null;
+    }
+
+    // Cold path: wait for the first onAuthStateChanged fire, then mint.
+    // Cache the in-flight promise so a burst of fetches shares one observer.
+    if (!_bearerPromise || _bearerCachedFor !== '__pending__') {
+      _bearerCachedFor = '__pending__';
+      _bearerPromise = new Promise<string | null>((resolve) => {
+        let settled = false;
+        const finish = (t: string | null) => {
+          if (settled) return;
+          settled = true;
+          resolve(t);
+        };
+        const unsub = onAuthStateChanged(auth, async (user) => {
+          unsub();
+          if (!user) return finish(null);
+          try {
+            const token = await user.getIdToken(false);
+            _bearerCachedFor = user.uid;
+            finish(token || null);
+          } catch {
+            finish(null);
+          }
+        });
+        // Failsafe: if auth bootstrap is broken or offline, don't hang.
+        setTimeout(() => {
+          unsub();
+          finish(null);
+        }, 3000);
+      });
+    }
+    return await _bearerPromise;
   } catch (e) {
     dbgWarn('[TTS] could not get Firebase ID token:', (e as Error)?.message ?? e);
     return null;

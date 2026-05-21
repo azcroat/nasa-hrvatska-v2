@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { H, Bar, sh } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
 import AspectPhaseBar from './AspectPhaseBar';
@@ -7,6 +7,7 @@ import AspectQuestionPanel from './AspectQuestionPanel';
 import { useStats } from '../../context/StatsContext.tsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
+import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 
 interface AspectPair {
   impf: string;
@@ -425,6 +426,17 @@ export default function AspectDrillScreen({
       setDone(true);
     }
   }
+
+  // Defensive: if the grammar data load yields zero drillable items (network
+  // failure, malformed payload, or a filter wipes the set), don't strand a
+  // Today's Session activity here — signal the completion handshake so the
+  // user's daily session advances when they back out. No-op when this screen
+  // wasn't launched from the daily session.
+  useEffect(() => {
+    if (!loading && !error && allItems.length === 0) {
+      signalSessionCompleteIfActive('aspectdrill');
+    }
+  }, [loading, error, allItems.length]);
 
   if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
   if (loading || !grammar) return <LoadingState />;

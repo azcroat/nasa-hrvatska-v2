@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import CroatianKnight from '../shared/CroatianKnight';
+import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 
 interface Props {
   onGoBack: () => void;
 }
 export default function FlashcardEmptyState({ onGoBack }: Props) {
+  // Empty state means no cards to study — fire the daily-session completion
+  // signal so the Today's Session card doesn't strand here. No-op when the
+  // user reached this screen outside of a daily session.
+  useEffect(() => {
+    signalSessionCompleteIfActive('flashcards');
+  }, []);
   return (
     <div className="scr-wrap">
       <div style={{ textAlign: 'center', padding: '40px 20px' }}>
