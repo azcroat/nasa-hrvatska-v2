@@ -47,21 +47,25 @@ import { CEFR_ORDER, cefrRank, getEffectiveLevel } from './cefr.js';
 
 // ── Feature flag ──────────────────────────────────────────────────────────────
 //
-// HARD gating is off by default. Flipping this to `true` makes content
-// unlocks use certified level instead of eligible. Do not flip until:
-//   1. Equivalency test items are content-authored for every level threshold.
-//   2. The EquivalencyTestScreen is wired and tested.
-//   3. A migration policy for existing users is decided + announced.
+// HARD gating is ACTIVE as of 2026-05-20. Content unlocks use certified
+// level, not eligible. This is the product decision behind "people must
+// actually know the material before progressing" — activity-based level
+// progression is unreliable signal for competency.
 //
-// Once flipped, the change is silent for users at A1 (everyone starts there)
-// and tightening for everyone above — they will see locked content at
-// levels above their certified rank until they pass the relevant test.
+// Migration on first launch:
+//   - Existing users keep access to content they already had: their
+//     activity-derived eligible level is grandfathered into certification
+//     via migrateGrandfatheredCertification(). They are NOT downgraded.
+//   - Future advancement requires passing the equivalency test for the
+//     next tier. No second grandfather; honest gating forward.
+//   - The grandfather records 80% (the minimum passing score) so it's
+//     visible in attempt history as a migration marker, not a real pass.
 //
-// The flag is exported so tests / a future admin toggle can override it.
+// New users from this point start at certified A1 and must take tests
+// to advance.
 //
-// Note: this is intentionally NOT environment-variable-controlled. Hard
-// gating is a deliberate product decision, not a build-time configuration.
-export const CERTIFICATION_REQUIRED = false;
+// This flag is exported so tests can override it.
+export const CERTIFICATION_REQUIRED = true;
 
 // ── Storage shapes ────────────────────────────────────────────────────────────
 
@@ -403,4 +407,82 @@ export function mergeRemoteCertifications(remote: CertificationState | null | un
  */
 export function getEffectiveLevelForUnlock(eligible: CefrLevel): CefrLevel {
   return getEffectiveLevel(eligible, { CERTIFICATION_REQUIRED, getCertifiedLevel });
+}
+
+// ── One-time migration ───────────────────────────────────────────────────────
+
+const MIGRATION_FLAG_KEY = 'nh_cefr_migration_v1_done';
+
+/**
+ * On the user's first launch after hard CEFR gating ships, grandfather
+ * their current activity-derived level into certification. This means:
+ *
+ *   - Existing users do NOT lose access to content they already had.
+ *     If they were eligible at B1 (xp + lessons), they're now certified
+ *     at B1 — same content stays unlocked.
+ *
+ *   - Future advancement requires passing the equivalency test for the
+ *     next tier. A user grandfathered at B1 must pass the B1→B2 test
+ *     to unlock B2 content. There is no second grandfather.
+ *
+ *   - The migration is one-shot. The `nh_cefr_migration_v1_done` flag
+ *     in localStorage prevents re-running, even if the user's eligible
+ *     level later changes (e.g., XP drop after stats reset).
+ *
+ *   - If the user has already passed an equivalency test before this
+ *     migration runs (unlikely, since the flag wasn't on), the
+ *     grandfather only fills in lower-rank levels — it never overwrites
+ *     a real test pass.
+ *
+ * The grandfathered "pass" records 80% on every skill and overall —
+ * the minimum passing score — so it's clearly distinguishable in the
+ * attempt history from a real high-scoring pass.
+ *
+ * Safe to call at every app launch; bails fast if already migrated.
+ */
+export function migrateGrandfatheredCertification(eligible: CefrLevel): void {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    if (localStorage.getItem(MIGRATION_FLAG_KEY) === '1') return;
+  } catch {
+    return;
+  }
+
+  // A1-eligible users have nothing to grandfather. Bail without setting the
+  // flag so a later call (after stats hydrate from Firebase / accumulate)
+  // catches the real eligible level. Setting the flag prematurely would
+  // freeze the user at certified=A1 even after they earn XP.
+  if (eligible === 'A1') return;
+
+  const state = getCertificationState();
+  const eligibleRank = cefrRank(eligible);
+  // Grandfather every level from A2 up to (and including) the user's
+  // eligible level. A1 needs no pass — that's the entry point.
+  let didGrandfather = false;
+  for (const level of CEFR_ORDER) {
+    if (level === 'A1') continue; // implicit
+    if (cefrRank(level) > eligibleRank) break; // don't grandfather levels above eligible
+    if (state.passes[level]) continue; // never overwrite a real pass
+    state.passes[level] = {
+      passedAt: Date.now(),
+      scores: { vocab: 0.8, grammar: 0.8, reading: 0.8 },
+      overall: 80,
+    };
+    state.attempts.push({
+      level,
+      passed: true,
+      takenAt: Date.now(),
+      scores: { vocab: 0.8, grammar: 0.8, reading: 0.8 },
+      overall: 80,
+    });
+    didGrandfather = true;
+  }
+  if (didGrandfather) writeCertificationState(state);
+
+  try {
+    localStorage.setItem(MIGRATION_FLAG_KEY, '1');
+  } catch {
+    // Quota or disabled — migration will retry next launch. That's fine;
+    // it's idempotent.
+  }
 }

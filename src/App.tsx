@@ -23,6 +23,7 @@ import { applyRemoteProgress as _applyRemoteProgressLib } from './lib/applyRemot
 import { localDateStr, weekKey } from './lib/dateUtils.js';
 import { repairStreak } from './lib/streak.js';
 import { cleanupStaleQuestKeys } from './lib/quests.js';
+import { getUserCefr } from './lib/cefr.js';
 import { trackAppOpen } from './lib/analytics.js';
 import { fbRegisterFriendCode } from './lib/firebase.js';
 import AppContext from './context/AppContext';
@@ -813,6 +814,22 @@ function App() {
     cleanupStaleQuestKeys();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ── CEFR hard-gating migration (2026-05-20, runs once per user) ───────────
+  // The first time a user opens the app after hard CEFR gating shipped,
+  // grandfather their activity-derived eligible level into certification so
+  // they don't lose access to content they previously had. Further
+  // advancement requires passing the equivalency test for the next tier.
+  // The migration is idempotent (gated by nh_cefr_migration_v1_done in
+  // localStorage) and runs once stats are available so the eligible level
+  // reflects the user's actual XP / lesson / grammar progress.
+  useEffect(() => {
+    if (!stats || (stats.xp == null && stats.lc == null && stats.gc == null)) return;
+    import('./lib/cefrCertification.js').then(({ migrateGrandfatheredCertification }) => {
+      const eligible = getUserCefr(stats.xp || 0, stats.lc || 0, stats.gc || 0);
+      migrateGrandfatheredCertification(eligible);
+    });
+  }, [stats.xp, stats.lc, stats.gc]);
 
   // Force mobile layout in Capacitor native — the desktop sidebar layout uses
   // backdrop-filter + position:fixed + complex SVG animations that don't render

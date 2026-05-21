@@ -1,0 +1,367 @@
+{
+  "levelFrom": "B2",
+  "levelTo": "C1",
+  "description": "Tests B2 competency — passing advances to C1.",
+  "items": [
+    {
+      "q": "What does 'nažalost' mean?",
+      "o": ["fortunately", "unfortunately", "surprisingly", "obviously"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'nasreću' mean?",
+      "o": ["unfortunately", "luckily", "perhaps", "instead"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the best translation: 'usprkos kiši'",
+      "o": ["because of the rain", "thanks to the rain", "despite the rain", "during the rain"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'održiv razvoj' mean?",
+      "o": ["rapid development", "sustainable development", "delayed development", "industrial development"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of the idiom: 'baciti rukavicu'",
+      "o": ["to give up", "to throw down the gauntlet (challenge)", "to lose something", "to apologize formally"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'gospodarski rast' mean?",
+      "o": ["population growth", "agricultural yield", "economic growth", "industrial decline"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the best meaning: 'donositi odluke'",
+      "o": ["to bring food", "to make decisions", "to accept gifts", "to refuse offers"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the idiom 'pasti u oči' mean?",
+      "o": ["to fall asleep", "to be insulted", "to catch one's eye / stand out", "to cry suddenly"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'unatoč svemu'",
+      "o": ["because of everything", "in spite of everything", "thanks to everything", "instead of everything"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'javno mnijenje' mean?",
+      "o": ["public transport", "public opinion", "public order", "public holiday"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'usred noći'",
+      "o": ["before midnight", "at dawn", "in the middle of the night", "after midnight"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'klimatske promjene' mean?",
+      "o": ["weather forecast", "climate change", "seasonal shifts", "atmospheric pressure"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of the idiom: 'imati pune ruke posla'",
+      "o": ["to be unemployed", "to be very busy", "to be lazy", "to be tired"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'zaštita okoliša' mean?",
+      "o": ["environmental protection", "data protection", "consumer protection", "personal protection"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'predrasude'",
+      "o": ["predictions", "prejudices", "presentations", "premises"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the expression 'pala mu je sjekira u med' mean?",
+      "o": ["he had bad luck", "he had unexpected good fortune", "he made a mistake", "he lost his job"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'sloboda govora'",
+      "o": ["freedom of movement", "freedom of speech", "freedom of religion", "freedom of assembly"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'umjetna inteligencija' mean?",
+      "o": ["natural selection", "artificial intelligence", "applied science", "computer literacy"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of the idiom: 'praviti od muhe slona'",
+      "o": ["to be very strong", "to make a mountain out of a molehill", "to be very clever", "to escape danger"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'društvene mreže' mean?",
+      "o": ["public transport networks", "social networks (online)", "social welfare systems", "neighborhood associations"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the correct passive form: 'Knjiga ___ u svim knjižarama.' (The book is sold in all bookshops.)",
+      "o": ["prodaje", "prodaje se", "prodavati", "prodano"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Da imam više vremena, ___ više knjiga.' (If I had more time, I would read more books.)",
+      "o": ["čitao bih", "čitam", "ću čitati", "čitao sam"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: '___ je padala kiša, otišli smo na izlet.' (Although it was raining, we went on a trip.)",
+      "o": ["Jer", "Iako", "Kako", "Dok"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Učim hrvatski ___ mogao razgovarati s djedom.' (I'm learning Croatian so that I can talk to grandpa.)",
+      "o": ["jer bih", "kako bih", "ako bih", "dok bih"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct passive: 'Ovdje ___ hrvatski.' (Croatian is spoken here.)",
+      "o": ["govori se", "se govori da", "govoreno", "govoreni"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct reported speech: Original — 'Doći ću sutra.' Reported — 'Rekao je da ___ sutra.'",
+      "o": ["doći ću", "će doći", "dođe", "došao"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspectual pair partner for 'govoriti' meaning 'to say (once)':",
+      "o": ["govoriti", "razgovarati", "reći", "pričati"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Auto ___ jučer.' (The car was repaired yesterday — passive.)",
+      "o": ["popravljen je", "popravlja", "popravljati", "popravi"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: '___ sam radio, on je spavao.' (While I was working, he was sleeping.)",
+      "o": ["Iako", "Jer", "Dok", "Ako"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Trebao bih ___ taj posao do petka.' (I should finish that work by Friday.)",
+      "o": ["završavati", "završiti", "završio", "završim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional II: 'Da sam znao, ___ ti.' (If I had known, I would have told you.)",
+      "o": ["rekao bih", "bio bih rekao", "rekoh", "reći ću"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative pronoun: 'Čovjek ___ si jučer upoznao je moj brat.'",
+      "o": ["koji", "kojeg", "kojem", "kojim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Pismo ___ napisano prošli tjedan.' (The letter was written last week.)",
+      "o": ["je bilo", "se", "ga", "će"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: 'Pokušat ću završiti ___ on ne stigne.' (I will try to finish before he arrives.)",
+      "o": ["nakon što", "dok", "prije nego što", "čim"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct passive: 'Ovaj problem ___ riješiti brzo.' (This problem can be solved quickly.)",
+      "o": ["može se", "može ga", "moći", "može da"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form (gerund/verbal noun): 'Pušenje ___ zdravlju.' (Smoking is harmful to health.)",
+      "o": ["šteti", "škodi", "smeta", "boli"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: 'Slušao sam glazbu ___ sam radio.' (I listened to music while I worked.)",
+      "o": ["dok", "jer", "iako", "kad"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Sve to ___ bi se moglo izbjeći boljom organizacijom.' (All of that could be avoided with better organization.)",
+      "o": ["što", "kako", "to", "se"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct passive participle: 'Vrata su ___.' (The door is open / has been opened.)",
+      "o": ["otvarati", "otvorena", "otvoriti", "otvorivši"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional: 'Da nije bilo tebe, ___.' (If it hadn't been for you, I would have given up.)",
+      "o": ["odustajem", "odustao bih", "odustat ću", "odustani"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "What is the main argument of the passage?",
+      "o": [
+        "Social networks are mainly used for entertainment.",
+        "Social networks have significantly changed the way people communicate and consume news.",
+        "Social networks have failed to attract young users in Croatia.",
+        "Social networks should be banned in schools."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Društvene mreže korjenito su promijenile način na koji ljudi komuniciraju i prate vijesti. Sve više korisnika svoje informacije dobiva preko platformi poput Instagrama ili TikToka, a sve manje kupuje tiskane novine. Stručnjaci upozoravaju da takav razvoj donosi i prednosti i ozbiljne rizike: brži pristup informacijama, ali i lakše širenje dezinformacija. Mnogi novinari smatraju da klasično novinarstvo i dalje ima ključnu ulogu jer zahtijeva provjeru izvora, dok algoritmi mreža često nagrađuju ono što je senzacionalno, a ne ono što je istinito."
+    },
+    {
+      "q": "According to the passage, what do experts warn about?",
+      "o": [
+        "That traditional newspapers will completely disappear.",
+        "That social networks bring both advantages and serious risks.",
+        "That young people do not read at all.",
+        "That algorithms should be banned by law."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Društvene mreže korjenito su promijenile način na koji ljudi komuniciraju i prate vijesti. Sve više korisnika svoje informacije dobiva preko platformi poput Instagrama ili TikToka, a sve manje kupuje tiskane novine. Stručnjaci upozoravaju da takav razvoj donosi i prednosti i ozbiljne rizike: brži pristup informacijama, ali i lakše širenje dezinformacija. Mnogi novinari smatraju da klasično novinarstvo i dalje ima ključnu ulogu jer zahtijeva provjeru izvora, dok algoritmi mreža često nagrađuju ono što je senzacionalno, a ne ono što je istinito."
+    },
+    {
+      "q": "What does the passage suggest is the main challenge facing Croatia's coastal cities?",
+      "o": [
+        "Lack of tourists during the summer months.",
+        "Balancing tourism revenue with environmental protection and quality of life for residents.",
+        "Insufficient hotel construction along the Adriatic coast.",
+        "A shortage of cultural events for visitors."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Turizam je već desetljećima jedan od glavnih stupova hrvatskog gospodarstva, no posljednjih godina sve se češće postavlja pitanje njegove održivosti. Priobalni gradovi poput Splita i Dubrovnika tijekom ljeta gotovo se uguše pod naletom posjetitelja, dok stanovnici otvoreno govore o porastu cijena, prometnim problemima i pritisku na komunalnu infrastrukturu. Stručnjaci iz područja ekonomije i zaštite okoliša upozoravaju da bi se naglasak trebao prebaciti s broja gostiju na kvalitetu njihova boravka. Bez promišljene strategije, smatraju, dugoročna šteta mogla bi nadmašiti kratkoročnu zaradu."
+    },
+    {
+      "q": "According to the passage, what do experts recommend?",
+      "o": [
+        "Building more hotels as quickly as possible.",
+        "Shifting the focus from the number of guests to the quality of their stay.",
+        "Closing the coast to foreign visitors entirely.",
+        "Reducing taxes on tourist services."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Turizam je već desetljećima jedan od glavnih stupova hrvatskog gospodarstva, no posljednjih godina sve se češće postavlja pitanje njegove održivosti. Priobalni gradovi poput Splita i Dubrovnika tijekom ljeta gotovo se uguše pod naletom posjetitelja, dok stanovnici otvoreno govore o porastu cijena, prometnim problemima i pritisku na komunalnu infrastrukturu. Stručnjaci iz područja ekonomije i zaštite okoliša upozoravaju da bi se naglasak trebao prebaciti s broja gostiju na kvalitetu njihova boravka. Bez promišljene strategije, smatraju, dugoročna šteta mogla bi nadmašiti kratkoročnu zaradu."
+    },
+    {
+      "q": "According to the passage, what is one of the biggest concerns about artificial intelligence in education?",
+      "o": [
+        "It is too expensive for most schools.",
+        "It could weaken students' critical thinking if used uncritically.",
+        "It only works in English-speaking countries.",
+        "It is forbidden by the Ministry of Education."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Sve veći broj učenika i studenata služi se alatima umjetne inteligencije kako bi brže napisali zadaće, sažeci ili eseje. Iako takvi alati mogu znatno ubrzati učenje, mnogi nastavnici izražavaju zabrinutost zbog mogućeg slabljenja kritičkog mišljenja. Ako se rezultati prihvaćaju bez ikakve provjere, učenici riskiraju da nauče manje nego što bi mogli. S druge strane, dio stručnjaka smatra da je umjetna inteligencija samo novo oruđe, jednako kao što su to nekoć bili kalkulator ili internet, te da škole moraju naučiti koristiti je odgovorno, a ne je zabranjivati."
+    },
+    {
+      "q": "How do some experts compare AI in the passage?",
+      "o": [
+        "To a dangerous weapon that must be banned.",
+        "To a new tool, similar to how the calculator or internet once were.",
+        "To a teacher that can replace humans entirely.",
+        "To a temporary trend that will soon disappear."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Sve veći broj učenika i studenata služi se alatima umjetne inteligencije kako bi brže napisali zadaće, sažeci ili eseje. Iako takvi alati mogu znatno ubrzati učenje, mnogi nastavnici izražavaju zabrinutost zbog mogućeg slabljenja kritičkog mišljenja. Ako se rezultati prihvaćaju bez ikakve provjere, učenici riskiraju da nauče manje nego što bi mogli. S druge strane, dio stručnjaka smatra da je umjetna inteligencija samo novo oruđe, jednako kao što su to nekoć bili kalkulator ili internet, te da škole moraju naučiti koristiti je odgovorno, a ne je zabranjivati."
+    },
+    {
+      "q": "What is the author's main point about climate change in Croatia?",
+      "o": [
+        "The Adriatic Sea has not been affected by climate change.",
+        "The effects are already visible and require both individual and political action.",
+        "Only future generations will feel the consequences.",
+        "Climate change is exaggerated by the media."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Klimatske promjene više nisu apstraktna prijetnja o kojoj se raspravlja samo na međunarodnim konferencijama. Posljedice su sve vidljivije i u Hrvatskoj: ljeta postaju duža i toplija, šumski požari sve češći, a obilne padaline neuobičajeno snažne. Poljoprivrednici se žale na sušu, dok stručnjaci za more upozoravaju na zagrijavanje Jadrana i njegov utjecaj na ribarstvo. Iako se na razini Europske unije donose ambiciozne mjere, mnogi smatraju da su potrebne i ozbiljne promjene navika običnih građana. Bez kombinacije političke volje i osobne odgovornosti, ciljevi će ostati samo na papiru."
+    },
+    {
+      "q": "What conclusion does the passage draw about achieving climate goals?",
+      "o": [
+        "They will be achieved only through EU regulation.",
+        "They require both political will and personal responsibility.",
+        "They are impossible to achieve in southern Europe.",
+        "They depend entirely on technological breakthroughs."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Klimatske promjene više nisu apstraktna prijetnja o kojoj se raspravlja samo na međunarodnim konferencijama. Posljedice su sve vidljivije i u Hrvatskoj: ljeta postaju duža i toplija, šumski požari sve češći, a obilne padaline neuobičajeno snažne. Poljoprivrednici se žale na sušu, dok stručnjaci za more upozoravaju na zagrijavanje Jadrana i njegov utjecaj na ribarstvo. Iako se na razini Europske unije donose ambiciozne mjere, mnogi smatraju da su potrebne i ozbiljne promjene navika običnih građana. Bez kombinacije političke volje i osobne odgovornosti, ciljevi će ostati samo na papiru."
+    },
+    {
+      "q": "What is the main idea expressed in the passage?",
+      "o": [
+        "Croatian literature is being neglected by younger generations.",
+        "Reading habits are changing, but books still play a vital cultural role.",
+        "E-books have completely replaced printed books in Croatia.",
+        "Public libraries are being closed across the country."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Iako se posljednjih godina mnogo govori o krizi čitanja, brojke pokazuju složeniju sliku. Prodaja tiskanih knjiga u Hrvatskoj blago opada, ali istodobno raste broj korisnika knjižnica i slušatelja audioknjiga. Mlađi naraštaji često biraju digitalne formate, dok stariji ostaju vjerni klasičnoj knjizi. Književni kritičari naglašavaju da se mijenjaju navike, ali ne i potreba za pričom: ljudi i dalje žele biti dirnuti, informirani i potaknuti na razmišljanje. U tom smislu, knjige, neovisno o obliku, zadržavaju važnu ulogu u kulturnom životu društva."
+    },
+    {
+      "q": "According to the passage, what do literary critics emphasize?",
+      "o": [
+        "That printed books will soon disappear completely.",
+        "That habits are changing, but the need for stories remains.",
+        "That older readers refuse to use libraries.",
+        "That audiobooks are of lower quality than printed books."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Iako se posljednjih godina mnogo govori o krizi čitanja, brojke pokazuju složeniju sliku. Prodaja tiskanih knjiga u Hrvatskoj blago opada, ali istodobno raste broj korisnika knjižnica i slušatelja audioknjiga. Mlađi naraštaji često biraju digitalne formate, dok stariji ostaju vjerni klasičnoj knjizi. Književni kritičari naglašavaju da se mijenjaju navike, ali ne i potreba za pričom: ljudi i dalje žele biti dirnuti, informirani i potaknuti na razmišljanje. U tom smislu, knjige, neovisno o obliku, zadržavaju važnu ulogu u kulturnom životu društva."
+    }
+  ]
+}

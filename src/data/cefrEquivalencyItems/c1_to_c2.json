@@ -1,0 +1,317 @@
+{
+  "levelFrom": "C1",
+  "levelTo": "C2",
+  "description": "Tests C1 competency — passing advances to C2.",
+  "items": [
+    {
+      "q": "What does the literary noun 'samozatajnost' mean?",
+      "o": ["Self-reliance", "Self-effacement / unobtrusiveness", "Self-importance", "Self-criticism"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'neizbježnost' mean in formal register?",
+      "o": ["Inevitability", "Indifference", "Inadequacy", "Independence"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the abstract noun 'proizvoljnost' mean?",
+      "o": ["Productivity", "Arbitrariness", "Proportionality", "Provisionality"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In a literary essay, what does 'opora istina' connote?",
+      "o": ["A sweet truth", "A harsh / astringent truth", "A trivial truth", "A hidden truth"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the most appropriate formal synonym for 'reći' in a parliamentary debate context:",
+      "o": ["kazati", "ustvrditi", "lupati", "brbljati"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the literary verb 'sažimati' mean?",
+      "o": ["To bury", "To condense / summarize", "To squander", "To wander"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'krhkost' denote in essayistic register?",
+      "o": ["Cruelty", "Fragility", "Clarity", "Curiosity"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In a Dalmatian text the word 'pjat' appears. What does it mean in standard Croatian?",
+      "o": ["tanjur (plate)", "trg (square)", "ploča (board)", "klupa (bench)"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The Kajkavian-flavoured word 'kaj' corresponds in standard Croatian to:",
+      "o": ["tko", "što", "kako", "gdje"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In a Čakavian poem the form 'ča' appears. It corresponds to standard:",
+      "o": ["što", "tko", "čiji", "kada"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the literary adjective 'jezgrovit' mean (e.g., 'jezgrovit stil')?",
+      "o": ["Verbose", "Pithy / concise and pointed", "Jagged", "Ornate"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In the fixed expression 'iz petnih žila', what does it mean?",
+      "o": ["Half-heartedly", "With all one's might", "On the side", "By chance"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The idiom 'praviti od muhe slona' means:",
+      "o": ["To make a mountain out of a molehill", "To work very hard", "To deceive a friend", "To go astray"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The phrase 'gledati kroz prste' idiomatically means:",
+      "o": ["To stare angrily", "To turn a blind eye / overlook", "To be jealous", "To be afraid"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The legal/formal verb 'razvidjeti' in 'razvidjeti činjenice' means:",
+      "o": ["To dismiss", "To ascertain / consider in detail", "To deny", "To delay"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The abstract noun 'dvojbenost' means:",
+      "o": ["Duplicity", "Dubiousness / questionability", "Duality of role", "Doubling"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In academic Croatian, 'tumačiti' most closely means:",
+      "o": ["To shake", "To interpret / expound", "To trade", "To threaten"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The literary noun 'sjeta' refers to:",
+      "o": ["Wistful melancholy", "Sudden anger", "Bright joy", "Fierce envy"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The journalistic phrase 'oštra polemika' means:",
+      "o": ["A sharp polemic / heated debate", "A short interview", "A formal apology", "A silent protest"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "In Croatian academic writing, 'neosporno' means:",
+      "o": ["Disputed", "Indisputably", "Negotiable", "Provisional"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the correct active past participle (glagolski pridjev radni) of 'doći' in m.sg.:",
+      "o": ["došavši", "došao", "dolazeći", "dolazivši"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct passive participle (glagolski pridjev trpni) of 'napisati' in n.sg.:",
+      "o": ["napisano", "napisavši", "pisajući", "pišući"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct present gerund (glagolski prilog sadašnji) of 'čitati':",
+      "o": ["čitavši", "pročitavši", "čitajući", "čitan"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct past gerund (glagolski prilog prošli) of 'završiti':",
+      "o": ["završavajući", "završivši", "završen", "završio"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete: 'Kad ___ pismo, odmah ću ti javiti.' (use futur II of 'primiti')",
+      "o": ["budem primao", "budem primio", "primio sam", "primam"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete: 'Da je tada postupio drukčije, danas ___.' (kondicional II)",
+      "o": ["bio bi sretniji", "bio bi bio sretniji", "bit će sretniji", "bio sretniji"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which aspect pair is suppletive (with no morphological derivation between the members)?",
+      "o": ["pisati / napisati", "govoriti / reći", "čitati / pročitati", "raditi / uraditi"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which is the correct perfective counterpart of 'dolaziti'?",
+      "o": ["dohoditi", "dolazivati", "doći", "doletjeti"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the most natural and most formal word order: 'Predsjednik je jučer ___ govor u parlamentu.'",
+      "o": ["održao značajan", "značajan održao", "održao je značajan", "značajan je održao"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Convert to reported speech: Direct — 'Doći ću sutra.' Reported in literary past:",
+      "o": ["Rekao je da će doći sutra.", "Rekao je da je došao sutra.", "Rekao je da dolazi sutradan.", "Rekao je da bi došao sutra."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct enclitic order: 'Knjigu ___ jučer.'",
+      "o": ["sam mu je dao", "mu sam je dao", "je mu sam dao", "sam je mu dao"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "In a 19th-century literary text appears: 'I reče mu starac...'. What verb form is 'reče'?",
+      "o": ["3rd sg. present", "3rd sg. aorist", "3rd sg. imperfect", "3rd sg. imperative"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the grammatically correct passive construction: 'Zakon ___ jednoglasno.'",
+      "o": ["je donio", "je donesen", "donosi se bivši", "biva donijevši"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the correct relative clause: 'Pisac, ___ djelo razmatramo, rođen je u Zagrebu.'",
+      "o": ["kojeg", "čije", "koje", "kojem"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence shows correct concord with a collective numeral subject?",
+      "o": ["Petorica studenata došli su.", "Petorica studenata došla je.", "Petorica studenata je došlo.", "Petorica studenata došli je."],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "In the Croatian 4-accent system, which pair of diacritics marks long-falling (dugosilazni) and short-rising (kratkouzlazni) respectively?",
+      "o": ["◌̏ and ◌̀", "◌̑ and ◌̀", "◌̀ and ◌̑", "◌̏ and ◌̑"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which marker indicates a post-tonic unstressed length, used in standard Croatian prosody?",
+      "o": ["◌̏", "◌̑", "◌̄ (macron)", "◌̀"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the correct case after 'unatoč': 'Unatoč ___ stigli su na vrijeme.'",
+      "o": ["kiše", "kišu", "kiši", "kišom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct reported speech with shifted modality: Direct — 'Možda dođem.' Reported:",
+      "o": ["Rekao je da možda dođe.", "Rekao je da je možda došao.", "Rekao je da možda dolazi.", "Rekao je da bi možda došao."],
+      "c": 3,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence preserves the most formal/literary word order?",
+      "o": ["Ne mogu se oteti dojmu da nije iskren.", "Ne mogu dojmu se oteti da iskren nije.", "Dojmu se ne mogu oteti da iskren nije on.", "Oteti se dojmu ne mogu da on iskren nije."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "According to the passage, what is Krleža's principal contribution as described here?",
+      "o": ["The introduction of folk poetry into elite circles", "The fusion of Central European modernism with a distinctly Croatian critical conscience", "The systematic translation of French symbolism", "The codification of Štokavian as a literary norm"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Miroslav Krleža nije bio tek književnik u uobičajenom smislu te riječi; bio je institucija. Njegovo djelo, prožeto srednjoeuropskom modernističkom skepsom, ostalo je ipak duboko vezano za hrvatsko povijesno iskustvo. U romanima, dramama i esejima Krleža neumoljivo prokazuje malograđanštinu, ali istodobno, gotovo nehotice, oblikuje kritičku savjest jednog naroda. U toj dvostrukosti — između europskoga horizonta i lokalne tjeskobe — leži njegova trajna važnost. Današnji čitatelj, koji u njemu pronalazi i polemičara i melankolika, teško će previdjeti koliko je ta sinteza ostala neponovljiva."
+    },
+    {
+      "q": "The phrase 'gotovo nehotice' in the passage above most precisely conveys that Krleža's shaping of a critical conscience was:",
+      "o": ["Programmatic and deliberate", "Almost involuntary, as a by-product", "Belated and reluctant", "Limited to his early period"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Miroslav Krleža nije bio tek književnik u uobičajenom smislu te riječi; bio je institucija. Njegovo djelo, prožeto srednjoeuropskom modernističkom skepsom, ostalo je ipak duboko vezano za hrvatsko povijesno iskustvo. U romanima, dramama i esejima Krleža neumoljivo prokazuje malograđanštinu, ali istodobno, gotovo nehotice, oblikuje kritičku savjest jednog naroda. U toj dvostrukosti — između europskoga horizonta i lokalne tjeskobe — leži njegova trajna važnost. Današnji čitatelj, koji u njemu pronalazi i polemičara i melankolika, teško će previdjeti koliko je ta sinteza ostala neponovljiva."
+    },
+    {
+      "q": "What is the author's main thesis about the relationship between language and identity?",
+      "o": ["Language is a neutral instrument that merely reflects pre-existing identities.", "Linguistic standardization invariably suppresses regional identities and should be resisted.", "Language is not only a mirror of identity but also one of the principal forces that constitute it.", "Identity is determined by territory, while language plays only a secondary, decorative role."],
+      "c": 2,
+      "skill": "reading",
+      "passage": "Rasprave o odnosu jezika i identiteta često zapadaju u dvije krajnosti. S jedne strane, jezik se promatra tek kao ogledalo zatečenih društvenih okolnosti; s druge, pretvara se u mistični izvor nacionalnoga bića. Razboritije je, međutim, pretpostaviti da jezik istodobno odražava i suoblikuje identitet. Standardizacijski postupci, koliko god djelovali tehnički, neminovno povlače simboličke posljedice: izbor jednoga oblika nad drugim potvrđuje određene zajednice, dok druge ostavlja na rubu službene komunikacije. Otuda i osjetljivost svake reforme pravopisa; iza naoko banalnih pitanja krije se borba za prevlast određene kulturne perspektive."
+    },
+    {
+      "q": "According to the passage, what does the author imply about orthographic reforms?",
+      "o": ["They are purely technical and politically neutral.", "Beneath apparently trivial questions lies a struggle over cultural perspective.", "They should be avoided entirely to preserve tradition.", "They primarily serve foreign interests."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Rasprave o odnosu jezika i identiteta često zapadaju u dvije krajnosti. S jedne strane, jezik se promatra tek kao ogledalo zatečenih društvenih okolnosti; s druge, pretvara se u mistični izvor nacionalnoga bića. Razboritije je, međutim, pretpostaviti da jezik istodobno odražava i suoblikuje identitet. Standardizacijski postupci, koliko god djelovali tehnički, neminovno povlače simboličke posljedice: izbor jednoga oblika nad drugim potvrđuje određene zajednice, dok druge ostavlja na rubu službene komunikacije. Otuda i osjetljivost svake reforme pravopisa; iza naoko banalnih pitanja krije se borba za prevlast određene kulturne perspektive."
+    },
+    {
+      "q": "What does the verb 'zapadaju' (in 'zapadaju u dvije krajnosti') convey in this register?",
+      "o": ["They consciously select between two extremes", "They tend to fall, almost unwittingly, into two extremes", "They successfully overcome two extremes", "They postpone a choice between two extremes"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Rasprave o odnosu jezika i identiteta često zapadaju u dvije krajnosti. S jedne strane, jezik se promatra tek kao ogledalo zatečenih društvenih okolnosti; s druge, pretvara se u mistični izvor nacionalnoga bića. Razboritije je, međutim, pretpostaviti da jezik istodobno odražava i suoblikuje identitet. Standardizacijski postupci, koliko god djelovali tehnički, neminovno povlače simboličke posljedice: izbor jednoga oblika nad drugim potvrđuje određene zajednice, dok druge ostavlja na rubu službene komunikacije. Otuda i osjetljivost svake reforme pravopisa; iza naoko banalnih pitanja krije se borba za prevlast određene kulturne perspektive."
+    },
+    {
+      "q": "Which is the central claim of the passage on the precautionary principle?",
+      "o": ["Science must always wait for absolute certainty before allowing any regulatory measure.", "Where serious or irreversible harm is plausible, lack of complete scientific certainty must not be used to postpone protective measures.", "Economic costs should always outweigh environmental considerations in policy.", "The precautionary principle requires banning all new technologies until proven safe."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Načelo predostrožnosti, kako ga tumači suvremena znanstvena i pravna literatura, ne nalaže paraliziranu suzdržanost niti slijepo povjerenje u tehnološki napredak. Ono, naprotiv, pretpostavlja razmjernu reakciju: ondje gdje su mogući ozbiljni ili nepovratni štetni učinci, nedostatak potpune znanstvene izvjesnosti ne smije poslužiti kao izlika za odgađanje zaštitnih mjera. U praksi to znači vaganje vjerojatnosti, težine i reverzibilnosti štete naspram ekonomskih i društvenih troškova. Premda kritičari upozoravaju na opasnost od proizvoljne primjene, izostanak takva načela vodio bi sustavu u kojem se rizik internalizira tek pošto je već postao očit — što je za mnoge ekološke prijetnje prekasno."
+    },
+    {
+      "q": "What objection to the precautionary principle does the author acknowledge, and how is it framed?",
+      "o": ["That it is too lenient toward polluters; the author endorses this view.", "That it may be applied arbitrarily ('proizvoljno'); the author treats it as a real but insufficient objection.", "That it makes scientific research impossible; the author calls this decisive.", "That it has no legal basis; the author concedes the point."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Načelo predostrožnosti, kako ga tumači suvremena znanstvena i pravna literatura, ne nalaže paraliziranu suzdržanost niti slijepo povjerenje u tehnološki napredak. Ono, naprotiv, pretpostavlja razmjernu reakciju: ondje gdje su mogući ozbiljni ili nepovratni štetni učinci, nedostatak potpune znanstvene izvjesnosti ne smije poslužiti kao izlika za odgađanje zaštitnih mjera. U praksi to znači vaganje vjerojatnosti, težine i reverzibilnosti štete naspram ekonomskih i društvenih troškova. Premda kritičari upozoravaju na opasnost od proizvoljne primjene, izostanak takva načela vodio bi sustavu u kojem se rizik internalizira tek pošto je već postao očit — što je za mnoge ekološke prijetnje prekasno."
+    },
+    {
+      "q": "What does the author present as the consequence of abandoning the precautionary principle?",
+      "o": ["Faster technological adoption with negligible risk.", "A system in which risk is internalized only after harm has already become evident — too late for many ecological threats.", "A clearer distribution of responsibilities between states and corporations.", "An immediate collapse of international environmental treaties."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Načelo predostrožnosti, kako ga tumači suvremena znanstvena i pravna literatura, ne nalaže paraliziranu suzdržanost niti slijepo povjerenje u tehnološki napredak. Ono, naprotiv, pretpostavlja razmjernu reakciju: ondje gdje su mogući ozbiljni ili nepovratni štetni učinci, nedostatak potpune znanstvene izvjesnosti ne smije poslužiti kao izlika za odgađanje zaštitnih mjera. U praksi to znači vaganje vjerojatnosti, težine i reverzibilnosti štete naspram ekonomskih i društvenih troškova. Premda kritičari upozoravaju na opasnost od proizvoljne primjene, izostanak takva načela vodio bi sustavu u kojem se rizik internalizira tek pošto je već postao očit — što je za mnoge ekološke prijetnje prekasno."
+    },
+    {
+      "q": "What is the author's overall view of the relationship between regional dialects and the standard language?",
+      "o": ["Dialects are obsolete remnants that should be discarded in favor of the standard.", "The standard language and living dialects exist in a tense but mutually nourishing relationship; impoverishing one risks impoverishing the other.", "Only Čakavian and Kajkavian deserve protection; Štokavian dialects are already over-represented.", "Dialects should fully replace the standard in literature and public discourse."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Pitanje statusa zavičajnih govora u odnosu prema standardnome jeziku rijetko se može razriješiti jednoznačnim sudom. Standard, oblikovan kao instrument javne komunikacije, počiva na svjesnom izboru i nužnoj normizaciji; dijalekti pak žive sporijim, organskim ritmom, prenoseći se obiteljskom i lokalnom uporabom. Napetost među njima nije patološka, nego, gledano dugoročno, plodonosna: standard se obogaćuje povremenim posuđenicama iz živih idioma, dok dijalekti, ondje gdje su podržani književnim i medijskim prisustvom, opstaju usprkos pritisku homogenizacije. Osiromašiti jedno znači osiromašiti i drugo — što ozbiljna jezična politika ne smije previdjeti."
+    },
+    {
+      "q": "What is meant by 'sporijim, organskim ritmom' in the passage?",
+      "o": ["A slower, organic rhythm characteristic of dialects compared to the deliberate pace of standardization.", "An outdated and inefficient pace that prevents dialect survival.", "A musical rhythm of traditional poetry.", "A bureaucratic rhythm of language reforms."],
+      "c": 0,
+      "skill": "reading",
+      "passage": "Pitanje statusa zavičajnih govora u odnosu prema standardnome jeziku rijetko se može razriješiti jednoznačnim sudom. Standard, oblikovan kao instrument javne komunikacije, počiva na svjesnom izboru i nužnoj normizaciji; dijalekti pak žive sporijim, organskim ritmom, prenoseći se obiteljskom i lokalnom uporabom. Napetost među njima nije patološka, nego, gledano dugoročno, plodonosna: standard se obogaćuje povremenim posuđenicama iz živih idioma, dok dijalekti, ondje gdje su podržani književnim i medijskim prisustvom, opstaju usprkos pritisku homogenizacije. Osiromašiti jedno znači osiromašiti i drugo — što ozbiljna jezična politika ne smije previdjeti."
+    }
+  ]
+}
