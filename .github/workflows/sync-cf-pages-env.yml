@@ -49,6 +49,9 @@ jobs:
                 }
               }
             }')
+          echo "===== Request body ====="
+          echo "$BODY" | jq '.' 2>/dev/null || echo "$BODY"
+          echo "========================"
           # -s silences progress, -w prints status. No -f so we see error bodies.
           RESPONSE=$(curl -s -w "\n__STATUS__%{http_code}" -X PATCH \
             "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/nasa-hrvatska-v2" \
