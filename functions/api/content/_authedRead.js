@@ -34,8 +34,15 @@ export async function authedRead({ request, env, etag, buildBody }) {
     return new Response(null, { status: 204, headers: cors });
   }
 
-  // Auth
-  const uid = await getFirebaseUid(request, env.FIREBASE_PROJECT_ID);
+  // Auth. CF Pages env-sync (sync-cf-pages-env.yml) populates
+  // VITE_FIREBASE_PROJECT_ID; the bare FIREBASE_PROJECT_ID was never set on
+  // the Pages project. Previously this read env.FIREBASE_PROJECT_ID → undefined
+  // → token iss claim "https://securetoken.google.com/<real-id>" was compared
+  // against "https://securetoken.google.com/undefined" → never matched → every
+  // authenticated request 401'd. save-progress.js already handled this with
+  // the same fallback; bringing /api/content/* in line.
+  const projectId = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
+  const uid = await getFirebaseUid(request, projectId);
   if (!uid) {
     return jsonResponse(401, { error: 'unauthorized' }, cors);
   }
