@@ -19,16 +19,18 @@ import { dbgInfo, dbgWarn, dbgError } from './debugLog';
 let _bearerPromise: Promise<string | null> | null = null;
 let _bearerCachedFor: string | null = null;
 
-async function _getFirebaseBearer(): Promise<string | null> {
+async function _getFirebaseBearer(forceRefresh = false): Promise<string | null> {
   try {
     const { getAuth, onAuthStateChanged } = await import('firebase/auth');
     const auth = getAuth();
 
-    // Hot path: auth restored, user known.
+    // Hot path: auth restored, user known. When forceRefresh, bypass the
+    // cached promise — long-running tabs can sit on a stale 1-hour token
+    // and a 401 retry needs a guaranteed-fresh mint.
     if (auth.currentUser) {
-      if (_bearerCachedFor !== auth.currentUser.uid) {
+      if (forceRefresh || _bearerCachedFor !== auth.currentUser.uid) {
         _bearerCachedFor = auth.currentUser.uid;
-        _bearerPromise = auth.currentUser.getIdToken(false).then((t) => t || null);
+        _bearerPromise = auth.currentUser.getIdToken(forceRefresh).then((t) => t || null);
       }
       return (await _bearerPromise) ?? null;
     }
@@ -739,6 +741,6 @@ export function getAudioDebugState(): Record<string, string | number | boolean> 
 
 // SP5: expose Firebase Bearer fetcher for AI POST wrapper (`_aiPost`).
 // Wraps the internal `_getFirebaseBearer` without renaming it (preserves internal call sites).
-export async function getFirebaseBearer(): Promise<string | null> {
-  return _getFirebaseBearer();
+export async function getFirebaseBearer(forceRefresh = false): Promise<string | null> {
+  return _getFirebaseBearer(forceRefresh);
 }

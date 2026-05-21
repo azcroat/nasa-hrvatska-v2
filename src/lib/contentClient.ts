@@ -24,6 +24,7 @@ async function namespaceUid(): Promise<string> {
 }
 
 async function fetchAuthed(path: string, etag?: string): Promise<Response> {
+  // First attempt — cached bearer (matches apiFetch.ts hot path).
   const bearer = await getFirebaseBearer();
   const headers: Record<string, string> = {};
   if (bearer) headers.Authorization = 'Bearer ' + bearer;
@@ -34,7 +35,23 @@ async function fetchAuthed(path: string, etag?: string): Promise<Response> {
   // a request that's intercepted before fetch() runs. Letting the request
   // through preserves test contract; the bearer-race in audio.ts is fixed
   // separately so authenticated users no longer see cold-load 401s.
-  return fetch(path, { method: 'GET', headers });
+  let res = await fetch(path, { method: 'GET', headers });
+
+  // 2026-05-21 BUG FIX: long-running tabs sit on a 1-hour Firebase ID token;
+  // when it expires, /api/content/* returns 401 even though the user is
+  // authenticated. apiFetch.ts already does this 401→force-refresh→retry
+  // dance; content fetches need the same. One retry only — if the refresh
+  // still produces a 401, the user is genuinely unauthenticated and we let
+  // ContentAuthError propagate as before.
+  if (res.status === 401 && bearer) {
+    const fresh = await getFirebaseBearer(true);
+    if (fresh && fresh !== bearer) {
+      const retryHeaders: Record<string, string> = { Authorization: 'Bearer ' + fresh };
+      if (etag) retryHeaders['If-None-Match'] = `"${etag}"`;
+      res = await fetch(path, { method: 'GET', headers: retryHeaders });
+    }
+  }
+  return res;
 }
 
 async function fetchAndCache<T>(uid: string, resourceKey: string, path: string): Promise<T> {
