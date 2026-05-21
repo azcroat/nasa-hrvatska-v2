@@ -21,6 +21,10 @@ jobs:
           SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
         run: |
           set -euo pipefail
+          # VITE_-prefixed vars are read by Vite at BUILD time → embedded in the
+          # client bundle. The bare-named vars (FIREBASE_PROJECT_ID) are read
+          # at RUNTIME by CF Pages Functions for token verification, KV access,
+          # etc. They are separate concerns and both must be set.
           BODY=$(jq -n \
             --arg api_key "$API_KEY" \
             --arg auth_domain "$AUTH_DOMAIN" \
@@ -39,7 +43,8 @@ jobs:
                     VITE_FIREBASE_STORAGE_BUCKET: { value: $storage_bucket, type: "plain_text" },
                     VITE_FIREBASE_MESSAGING_SENDER_ID: { value: $messaging_sender_id, type: "plain_text" },
                     VITE_FIREBASE_APP_ID: { value: $app_id, type: "plain_text" },
-                    VITE_SENTRY_DSN: { value: $sentry_dsn, type: "plain_text" }
+                    VITE_SENTRY_DSN: { value: $sentry_dsn, type: "plain_text" },
+                    FIREBASE_PROJECT_ID: { value: $project_id, type: "plain_text" }
                   }
                 }
               }
