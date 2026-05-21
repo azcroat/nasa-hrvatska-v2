@@ -43,8 +43,16 @@ jobs:
                     VITE_FIREBASE_STORAGE_BUCKET: { value: $storage_bucket, type: "plain_text" },
                     VITE_FIREBASE_MESSAGING_SENDER_ID: { value: $messaging_sender_id, type: "plain_text" },
                     VITE_FIREBASE_APP_ID: { value: $app_id, type: "plain_text" },
-                    VITE_SENTRY_DSN: { value: $sentry_dsn, type: "plain_text" },
-                    FIREBASE_PROJECT_ID: { value: $project_id, type: "plain_text" }
+                    VITE_SENTRY_DSN: { value: $sentry_dsn, type: "plain_text" }
+                    # NOTE: server-side functions read env.VITE_FIREBASE_PROJECT_ID
+                    # via a fallback in _authedRead.js / save-progress.js. The
+                    # architecturally clean approach is a separate, runtime-only
+                    # FIREBASE_PROJECT_ID env var, but the CF Pages API rejects
+                    # adding new env var names via this PATCH (code 8000006 —
+                    # "Request body is incorrect"), only allows updates to vars
+                    # that already exist in the project. Cleanup TODO: add
+                    # FIREBASE_PROJECT_ID via the CF Pages dashboard UI once,
+                    # then this workflow can include it here.
                   }
                 }
               }
