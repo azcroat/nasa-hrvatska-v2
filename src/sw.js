@@ -37,14 +37,38 @@ self.addEventListener('activate', (event) => {
       // Take control of all open tabs immediately.
       await self.clients.claim();
 
-      // Only notify tabs that existed before this SW activated (genuine updates).
-      // Loop-safe: after reload the new SW is already active — activate will
-      // not fire again for those pages, so no second SW_UPDATED message is sent.
+      // 2026-05-21 FIX: previously this only posted SW_UPDATED and relied on a
+      // client-side listener to call location.reload(). No such listener was
+      // wired, so newly-activated SWs took control of tabs but the tabs kept
+      // running the OLD bundle's JavaScript until the user manually reloaded.
+      // After multiple deploys with no client-visible refresh, users reported
+      // stale-bundle bugs (401s from before bearer-race fix, etc.).
+      //
+      // Now: actively reload pre-claim clients via client.navigate(client.url).
+      // This forces every tab the new SW just took over to fetch fresh HTML
+      // through the NavigationRoute (NetworkFirst) and load the new bundle.
+      // First-install tabs (preClaimIds doesn't contain their id) are
+      // skipped so a brand-new visitor doesn't get an immediate reload.
       if (preClaimIds.size > 0) {
         const clients = await self.clients.matchAll({ type: 'window' });
-        clients
-          .filter((c) => preClaimIds.has(c.id))
-          .forEach((c) => c.postMessage({ type: 'SW_UPDATED' }));
+        const updateTargets = clients.filter((c) => preClaimIds.has(c.id));
+        // Best-effort cache clear so the reload definitely hits network.
+        try {
+          const keys = await caches.keys();
+          await Promise.all(keys.filter((k) => k.includes('-html')).map((k) => caches.delete(k)));
+        } catch {}
+        for (const c of updateTargets) {
+          try {
+            // navigate() returns the WindowClient post-navigation. It bypasses
+            // any in-page beforeunload prompts (intentional — user can't
+            // refuse a SW-driven update without first closing the tab).
+            await c.navigate(c.url);
+          } catch {
+            // Fallback: postMessage SW_UPDATED so any future client-side
+            // listener can pick it up. Old behaviour preserved as a backstop.
+            c.postMessage({ type: 'SW_UPDATED' });
+          }
+        }
       }
     })(),
   );
