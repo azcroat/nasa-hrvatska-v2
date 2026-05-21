@@ -149,7 +149,7 @@ export default function EquivalencyTestCard({
         }}
       >
         <span style={{ fontSize: 20 }}>🏅</span>
-        <span style={{ fontSize: 11, fontWeight: 900, color: '#16a34a', letterSpacing: '.2em' }}>
+        <span style={{ fontSize: 11, fontWeight: 900, color: '#15803d', letterSpacing: '.2em' }}>
           CERTIFIED {certified}
         </span>
       </div>
