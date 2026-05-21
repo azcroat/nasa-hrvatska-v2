@@ -35,20 +35,32 @@ async function _getFirebaseBearer(forceRefresh = false): Promise<string | null> 
       return (await _bearerPromise) ?? null;
     }
 
-    // Cold path: wait for the first onAuthStateChanged fire, then mint.
-    // Cache the in-flight promise so a burst of fetches shares one observer.
+    // Cold path: wait for onAuthStateChanged to fire with a NON-NULL user,
+    // then mint. Cache the in-flight promise so a burst of fetches shares
+    // one observer.
+    //
+    // 2026-05-21 SECOND BUG FIX: my first attempt unsubscribed on the very
+    // first onAuthStateChanged callback, but Firebase fires that callback
+    // IMMEDIATELY with user === null on cold load (before IndexedDB
+    // restoration completes). The previous logic accepted that null and
+    // returned, then content fetches fired unauthenticated. Now we stay
+    // subscribed until either:
+    //   - a non-null user arrives (the real "auth restored" signal), or
+    //   - the 3 s failsafe trips (genuinely unauthenticated / offline).
     if (!_bearerPromise || _bearerCachedFor !== '__pending__') {
       _bearerCachedFor = '__pending__';
       _bearerPromise = new Promise<string | null>((resolve) => {
         let settled = false;
+        let unsub: (() => void) | null = null;
         const finish = (t: string | null) => {
           if (settled) return;
           settled = true;
+          if (unsub) unsub();
           resolve(t);
         };
-        const unsub = onAuthStateChanged(auth, async (user) => {
-          unsub();
-          if (!user) return finish(null);
+        unsub = onAuthStateChanged(auth, async (user) => {
+          // Ignore the synchronous null fire — keep waiting for a real user.
+          if (!user) return;
           try {
             const token = await user.getIdToken(false);
             _bearerCachedFor = user.uid;
@@ -57,11 +69,9 @@ async function _getFirebaseBearer(forceRefresh = false): Promise<string | null> 
             finish(null);
           }
         });
-        // Failsafe: if auth bootstrap is broken or offline, don't hang.
-        setTimeout(() => {
-          unsub();
-          finish(null);
-        }, 3000);
+        // Failsafe: if no user ever arrives (genuinely anonymous, or auth
+        // bootstrap failed), resolve null after 3 s so callers don't hang.
+        setTimeout(() => finish(null), 3000);
       });
     }
     return await _bearerPromise;
