@@ -65,7 +65,9 @@ interface SkillAccumulator {
  * permits this for `reading` and `listening`; vocab/grammar are always
  * present in our tests).
  */
-function scoresFromAcc(acc: Record<'vocab' | 'grammar' | 'reading', SkillAccumulator>): SkillScores {
+function scoresFromAcc(
+  acc: Record<'vocab' | 'grammar' | 'reading', SkillAccumulator>,
+): SkillScores {
   const safe = (a: SkillAccumulator) => (a.total > 0 ? a.correct / a.total : 0);
   return {
     vocab: safe(acc.vocab),
@@ -163,9 +165,8 @@ export default function EquivalencyTestScreen({
             You're at the top
           </h2>
           <p style={{ color: 'var(--subtext)', fontSize: 14, marginBottom: 18 }}>
-            You've certified at C1 — Croatia's most advanced equivalency tier in
-            this app. There is no C2 test (C2 is native-equivalent fluency,
-            measured by formal external providers).
+            You've certified at C1 — Croatia's most advanced equivalency tier in this app. There is
+            no C2 test (C2 is native-equivalent fluency, measured by formal external providers).
           </p>
           <button
             onClick={() => setScr('me')}
@@ -261,7 +262,9 @@ export default function EquivalencyTestScreen({
               marginBottom: 14,
             }}
           >
-            <p style={{ fontWeight: 800, marginBottom: 8, color: 'var(--heading)' }}>What to expect</p>
+            <p style={{ fontWeight: 800, marginBottom: 8, color: 'var(--heading)' }}>
+              What to expect
+            </p>
             <ul style={{ paddingLeft: 18, fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
               <li>{testSet.items.length} multiple-choice items</li>
               <li>~{testSet.minutes} minutes</li>
@@ -284,9 +287,8 @@ export default function EquivalencyTestScreen({
               lineHeight: 1.5,
             }}
           >
-            <b>Real fluency only.</b> Your eligible level (
-            <b>{userEligible}</b>) reflects activity. Passing this test reflects
-            demonstrated competency at <b>{testSet.levelFrom}</b>.
+            <b>Real fluency only.</b> Your eligible level (<b>{userEligible}</b>) reflects activity.
+            Passing this test reflects demonstrated competency at <b>{testSet.levelFrom}</b>.
           </div>
           <button
             data-testid="equivalency-begin"
@@ -383,9 +385,7 @@ export default function EquivalencyTestScreen({
             <span>
               Question {questionIndex + 1} / {testSet.items.length}
             </span>
-            <span style={{ textTransform: 'uppercase', fontWeight: 700 }}>
-              {currentItem.skill}
-            </span>
+            <span style={{ textTransform: 'uppercase', fontWeight: 700 }}>{currentItem.skill}</span>
           </div>
           {/* Progress bar */}
           <div

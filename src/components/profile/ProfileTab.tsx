@@ -102,10 +102,7 @@ export default function ProfileTab({
         <>
           <StatsTab onShowPrestigeModal={() => setShowPrestigeModal(true)} onSyncNow={onSyncNow} />
           {onTakeEquivalencyTest && userEligible && (
-            <EquivalencyTestCard
-              userEligible={userEligible}
-              onTakeTest={onTakeEquivalencyTest}
-            />
+            <EquivalencyTestCard userEligible={userEligible} onTakeTest={onTakeEquivalencyTest} />
           )}
           {/* ── STUDY CLAN — moved from Today tab ── */}
           {authUser && (
