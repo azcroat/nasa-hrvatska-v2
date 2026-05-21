@@ -305,6 +305,7 @@ export default function LoginScreen({
               </label>
               <input
                 id="auth-name"
+                name="display-name"
                 type="text"
                 placeholder="Your name"
                 value={displayName}
@@ -330,6 +331,7 @@ export default function LoginScreen({
           </label>
           <input
             id="auth-email"
+            name="email"
             type="email"
             placeholder={isR ? 'Enter your email address' : 'Email address'}
             value={authEmail}
@@ -360,6 +362,7 @@ export default function LoginScreen({
           <div style={{ position: 'relative' }}>
             <input
               id="auth-password"
+              name={isR ? 'new-password' : 'password'}
               type={sp ? 'text' : 'password'}
               placeholder={isR ? 'Create password (6+ characters)' : 'Enter your password'}
               value={pw}
@@ -469,6 +472,7 @@ export default function LoginScreen({
               </label>
               <input
                 id="auth-confirm"
+                name="confirm-password"
                 type="password"
                 placeholder="Confirm your password"
                 value={pc}

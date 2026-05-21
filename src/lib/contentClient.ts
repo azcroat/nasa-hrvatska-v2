@@ -25,8 +25,18 @@ async function namespaceUid(): Promise<string> {
 
 async function fetchAuthed(path: string, etag?: string): Promise<Response> {
   const bearer = await getFirebaseBearer();
-  const headers: Record<string, string> = {};
-  if (bearer) headers.Authorization = 'Bearer ' + bearer;
+  // Skip the network call entirely when we have no bearer. The server would
+  // reject with 401 anyway (all /api/content/* endpoints require auth), and
+  // firing the request just pollutes the console with "Failed to load
+  // resource: 401" on every cold load for unauthenticated users and during
+  // the auth-restore tick window. getFirebaseBearer() now waits for the
+  // initial onAuthStateChanged fire, so a null result here means the user
+  // is genuinely unauthenticated (guest mode) — let the caller handle
+  // ContentAuthError gracefully (cache-first fallback paths cover offline).
+  if (!bearer) {
+    return new Response(null, { status: 401, statusText: 'No Firebase bearer' });
+  }
+  const headers: Record<string, string> = { Authorization: 'Bearer ' + bearer };
   if (etag) headers['If-None-Match'] = `"${etag}"`;
   return fetch(path, { method: 'GET', headers });
 }
