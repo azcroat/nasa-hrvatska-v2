@@ -245,6 +245,12 @@ export async function fbSaveProgress(
   data: Record<string, unknown>,
 ): Promise<{ ok: boolean; err?: string; code?: string }> {
   if (!_fbReady || !_fbDb) return { ok: false, err: 'Firebase not initialized' };
+  // Flush any pending coalesced fbApplyDelta writes before the full snapshot
+  // save. Both writes target the same user document, and the snapshot blob
+  // includes the incremented stats already — so without a flush, the next
+  // periodic-save can land BEFORE the queued delta and lose the increment's
+  // cross-device atomicity. Awaiting the flush keeps the write order sane.
+  await _flushPendingDelta();
   const id = toDocId(uid);
   const _st = (data.stats || data.st || {}) as Record<string, unknown>;
   const _strk =
@@ -411,10 +417,80 @@ export async function fbSaveProgress(
   }
 }
 
+// 2026-05-21 BUG FIX: fbApplyDelta was firing one Firestore write per call,
+// which meant every XP grant from useAward (potentially many per session)
+// translated 1:1 into a write to the user document. Combined with the 60 s
+// periodic fbSaveProgress, SRS saves, and family doc writes, a single power-
+// user day could exceed Firebase Spark plan's 20 000 writes/day cap → all
+// subsequent saves return code=resource-exhausted with exponential backoff
+// and sync is silently broken until midnight PT.
+//
+// Fix: coalesce calls in a short window. Multiple fbApplyDelta calls within
+// COALESCE_MS sum their numeric deltas and union their array deltas, then
+// flush as ONE write. Writes still use Firestore increment()/arrayUnion(),
+// so cross-device atomicity is preserved (no client-side race possible —
+// the merged write sums client-local accumulator before the increment).
+const _DELTA_NUMERIC = ['xp', 'lc', 'gc', 'sp', 'de', 'rc', 'pf', 'mv', 'hi'];
+const _DELTA_ARRAYS = ['ct', 'vs', 'badges'];
+const COALESCE_MS = 4000; // 4 s — short enough to feel real-time, long enough to batch a typical exercise burst
+
+let _pendingDelta: Record<string, unknown> = {};
+let _pendingUid: string | null = null;
+let _coalesceTimer: ReturnType<typeof setTimeout> | null = null;
+
+function _mergeDelta(into: Record<string, unknown>, from: Record<string, unknown>): void {
+  for (const k of _DELTA_NUMERIC) {
+    const v = from[k];
+    if (typeof v === 'number' && v > 0) {
+      into[k] = ((into[k] as number) || 0) + v;
+    }
+  }
+  for (const k of _DELTA_ARRAYS) {
+    const arr = from[k];
+    if (Array.isArray(arr) && arr.length > 0) {
+      const existing = (into[k] as unknown[]) || [];
+      into[k] = [...new Set([...existing, ...arr])];
+    }
+  }
+}
+
+async function _flushPendingDelta(): Promise<void> {
+  if (_coalesceTimer !== null) {
+    clearTimeout(_coalesceTimer);
+    _coalesceTimer = null;
+  }
+  const uid = _pendingUid;
+  const delta = _pendingDelta;
+  _pendingUid = null;
+  _pendingDelta = {};
+  if (!uid || Object.keys(delta).length === 0) return;
+  await _fbApplyDeltaImmediate(uid, delta);
+}
+
 export async function fbApplyDelta(uid: string, delta: Record<string, unknown>): Promise<void> {
   if (!_fbReady || !_fbDb || !uid || !delta) return;
-  const _NUMERIC = ['xp', 'lc', 'gc', 'sp', 'de', 'rc', 'pf', 'mv', 'hi'];
-  const _ARRAYS = ['ct', 'vs', 'badges'];
+  // If a different user, flush the old user's pending write before queuing
+  // the new one — never merge across user contexts.
+  if (_pendingUid && _pendingUid !== uid) {
+    await _flushPendingDelta();
+  }
+  _pendingUid = uid;
+  _mergeDelta(_pendingDelta, delta);
+  if (_coalesceTimer !== null) clearTimeout(_coalesceTimer);
+  _coalesceTimer = setTimeout(() => {
+    void _flushPendingDelta();
+  }, COALESCE_MS);
+}
+
+/** Force-flush any pending delta — call from beforeunload / hidden / sign-out paths. */
+export async function fbFlushPendingDelta(): Promise<void> {
+  await _flushPendingDelta();
+}
+
+async function _fbApplyDeltaImmediate(uid: string, delta: Record<string, unknown>): Promise<void> {
+  if (!_fbReady || !_fbDb || !uid || !delta) return;
+  const _NUMERIC = _DELTA_NUMERIC;
+  const _ARRAYS = _DELTA_ARRAYS;
   const id = toDocId(uid);
   const update: Record<string, unknown> = {};
   let hasUpdate = false;
