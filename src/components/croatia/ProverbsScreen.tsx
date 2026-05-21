@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { H, speak } from '../../data';
 import { useContent } from '../../hooks/useContent';
+import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 
 interface Props {
   goBack: () => void;
@@ -14,6 +15,10 @@ interface Proverb {
 
 export default function ProverbsScreen({ goBack }: Props) {
   const { content, loading, error } = useContent();
+  // Don't strand a Today's Session activity on content-load failure.
+  useEffect(() => {
+    if (error) signalSessionCompleteIfActive('proverbs');
+  }, [error]);
   if (error)
     return (
       <div className="scr-wrap">

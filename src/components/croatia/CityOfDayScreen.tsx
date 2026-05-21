@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { speak } from '../../data';
 import { getCityOfDay } from '../../lib/dailyPickers';
+import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 // Direct import of the full 365-city pool from the client bundle — same data
 // the server endpoint serves, but always available regardless of auth/hydration
 // state. All 4 tabs (Overview / History / Vocab / Fast Facts) populated.
@@ -97,6 +98,11 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
     d.setDate(d.getDate() + 1);
     return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   })();
+  // Don't strand a Today's Session activity if the daily picker fails to
+  // resolve a city (shouldn't happen with 365 entries, but defensive).
+  useEffect(() => {
+    if (!city) signalSessionCompleteIfActive('cityofday');
+  }, [city]);
   if (!city) return null;
 
   // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro.
