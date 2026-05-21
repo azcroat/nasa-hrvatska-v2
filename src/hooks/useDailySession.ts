@@ -324,20 +324,52 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
     return fresh;
   });
 
-  // Handle date rollover or CEFR level-up after mount
+  // Handle date rollover or CEFR level-up after mount.
+  //
+  // 2026-05-21 BUG FIX: the previous implementation set `completedIds: []` on
+  // every CEFR change, which wiped the user's session progress whenever stats
+  // hydrated async after the initial render. Repro:
+  //   1. App opens, stats not yet loaded → userCefr derives as 'A1'.
+  //   2. Session is built with A1 activities and marked complete by user actions.
+  //   3. Firebase hydration lands a moment later, stats.xp jumps to real value,
+  //      userCefr re-derives as e.g. 'B1'.
+  //   4. This effect fired → built FRESH B1 session with completedIds: [] →
+  //      every activity the user just finished now showed as not done.
+  // Multiple users reported "I did my activities but the card forgot."
+  //
+  // Fix: when CEFR changes mid-day, preserve completedIds by mapping old
+  // session screens to new ones — any new activity whose screen matches an old
+  // completed activity stays completed. Date rollover (true new day) still
+  // wipes — that's the intended fresh-day behavior.
   useEffect(() => {
-    if (session.date !== localDateStr() || session.cefrLevel !== userCefr) {
-      const activities = buildSessionActivities(userCefr);
-      const fresh: DailySession = {
-        date: localDateStr(),
-        cefrLevel: userCefr,
-        activities,
-        completedIds: [],
-        estimatedMinutes: activities.length * MINUTES_PER_ACTIVITY,
-      };
-      persistSession(fresh);
-      setSession(fresh);
+    const isNewDay = session.date !== localDateStr();
+    const isCefrChange = session.cefrLevel !== userCefr;
+    if (!isNewDay && !isCefrChange) return;
+
+    const activities = buildSessionActivities(userCefr);
+
+    let completedIds: string[];
+    if (isNewDay) {
+      completedIds = []; // genuine new day — start fresh
+    } else {
+      // CEFR change mid-day: preserve progress by screen-match. An activity in
+      // the OLD session whose screen also appears in the NEW session was
+      // already accomplished — don't ask the user to redo it.
+      const completedScreens = new Set(
+        session.activities.filter((a) => session.completedIds.includes(a.id)).map((a) => a.screen),
+      );
+      completedIds = activities.filter((a) => completedScreens.has(a.screen)).map((a) => a.id);
     }
+
+    const fresh: DailySession = {
+      date: localDateStr(),
+      cefrLevel: userCefr,
+      activities,
+      completedIds,
+      estimatedMinutes: activities.length * MINUTES_PER_ACTIVITY,
+    };
+    persistSession(fresh);
+    setSession(fresh);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userCefr]);
 
@@ -360,6 +392,40 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
       return updated;
     });
   }, []);
+
+  // 2026-05-20 BUG FIX: auto-skip SRS review activity when nothing is due.
+  //
+  // Symptom users hit (screenshot, 2026-05-20):
+  //   1. Morning session built with srsreview activity (reviews WERE due then).
+  //   2. User burns through their queue, every card scheduled days out.
+  //   3. Later they tap "Today's Session" → routes to /review → screen renders
+  //      "All caught up!" dead-end with only a Go Back button — no path back
+  //      into the session, no markDone signal fired.
+  //   4. Tomorrow's session never unlocks because today is permanently stuck
+  //      at N-1/N with a stale review slot.
+  // Multiple users reported the same dead-end ("Today's Session is broken").
+  //
+  // Fix: when the activity list contains srsreview AND the FSRS queue is
+  // empty right now, auto-mark it complete. The session card naturally
+  // advances to the next pending activity, no dead-end screen possible.
+  // Re-checks on every session change so a user who's clearing reviews
+  // *during* the session is caught the moment the queue empties.
+  useEffect(() => {
+    const srsActivity = session.activities.find((a) => a.screen === 'review');
+    if (!srsActivity) return;
+    if (session.completedIds.includes(srsActivity.id)) return;
+    if (getDueReviews().length > 0) return;
+    // Use the same setter path markDone uses (persist + history side-effects).
+    setSession((prev) => {
+      if (prev.completedIds.includes(srsActivity.id)) return prev;
+      const updated = markDoneInSession(prev, srsActivity.id);
+      persistSession(updated);
+      if (updated.completedIds.length === updated.activities.length) {
+        recordSessionComplete(updated.date);
+      }
+      return updated;
+    });
+  }, [session]);
 
   const isComplete = session.completedIds.length >= session.activities.length;
   const progress =
