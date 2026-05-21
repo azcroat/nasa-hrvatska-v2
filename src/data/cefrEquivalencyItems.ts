@@ -305,55 +305,56 @@ const A1_TO_A2_ITEMS: EquivalencyItem[] = [
     skill: 'grammar',
   },
   {
-    q: "Which sentence is correct?",
-    o: [
-      'Ja sam imam pas.',
-      'Imam ja pas.',
-      'Ja imam psa.',
-      'Ja pas imam.',
-    ],
+    q: 'Which sentence is correct?',
+    o: ['Ja sam imam pas.', 'Imam ja pas.', 'Ja imam psa.', 'Ja pas imam.'],
     c: 2,
     skill: 'grammar',
   },
 
   // ── READING (10 items, ~3 passages) ───────────────────────────────────────
   {
-    passage: 'Ja sam Ana. Imam dvije sestre i jednog brata. Moja mama je doktor, a tata je inženjer. Živim u Zagrebu.',
+    passage:
+      'Ja sam Ana. Imam dvije sestre i jednog brata. Moja mama je doktor, a tata je inženjer. Živim u Zagrebu.',
     q: 'How many siblings does Ana have in total?',
     o: ['Two', 'Three', 'Four', 'One'],
     c: 1,
     skill: 'reading',
   },
   {
-    passage: 'Ja sam Ana. Imam dvije sestre i jednog brata. Moja mama je doktor, a tata je inženjer. Živim u Zagrebu.',
+    passage:
+      'Ja sam Ana. Imam dvije sestre i jednog brata. Moja mama je doktor, a tata je inženjer. Živim u Zagrebu.',
     q: "What is Ana's father's job?",
     o: ['Doctor', 'Engineer', 'Teacher', 'Student'],
     c: 1,
     skill: 'reading',
   },
   {
-    passage: 'Ja sam Ana. Imam dvije sestre i jednog brata. Moja mama je doktor, a tata je inženjer. Živim u Zagrebu.',
+    passage:
+      'Ja sam Ana. Imam dvije sestre i jednog brata. Moja mama je doktor, a tata je inženjer. Živim u Zagrebu.',
     q: 'Where does Ana live?',
     o: ['Split', 'Dubrovnik', 'Zagreb', 'Rijeka'],
     c: 2,
     skill: 'reading',
   },
   {
-    passage: 'Marko ima psa. Pas se zove Rex. Rex je crn i velik. Marko i Rex svaki dan idu u park.',
+    passage:
+      'Marko ima psa. Pas se zove Rex. Rex je crn i velik. Marko i Rex svaki dan idu u park.',
     q: "What is the dog's name?",
     o: ['Marko', 'Rex', 'Ana', 'Park'],
     c: 1,
     skill: 'reading',
   },
   {
-    passage: 'Marko ima psa. Pas se zove Rex. Rex je crn i velik. Marko i Rex svaki dan idu u park.',
+    passage:
+      'Marko ima psa. Pas se zove Rex. Rex je crn i velik. Marko i Rex svaki dan idu u park.',
     q: 'What colour is Rex?',
     o: ['white', 'brown', 'black', 'red'],
     c: 2,
     skill: 'reading',
   },
   {
-    passage: 'Marko ima psa. Pas se zove Rex. Rex je crn i velik. Marko i Rex svaki dan idu u park.',
+    passage:
+      'Marko ima psa. Pas se zove Rex. Rex je crn i velik. Marko i Rex svaki dan idu u park.',
     q: 'How often do they go to the park?',
     o: ['Every day', 'Once a week', 'Never', 'Only on Sundays'],
     c: 0,
@@ -375,7 +376,7 @@ const A1_TO_A2_ITEMS: EquivalencyItem[] = [
   },
   {
     passage: 'Danas je lijep dan. Sunce sija. Idem na plažu. Ne volim kišu.',
-    q: "What does the speaker not like?",
+    q: 'What does the speaker not like?',
     o: ['Sun', 'Beach', 'Rain', 'Wind'],
     c: 2,
     skill: 'reading',
@@ -402,7 +403,11 @@ import b1ToB2Raw from './cefrEquivalencyItems/b1_to_b2.json';
 import b2ToC1Raw from './cefrEquivalencyItems/b2_to_c1.json';
 import c1ToC2Raw from './cefrEquivalencyItems/c1_to_c2.json';
 
-function loadFromJson(raw: unknown, levelFrom: CefrLevel, levelTo: CefrLevel): EquivalencyTestSet | null {
+function loadFromJson(
+  raw: unknown,
+  levelFrom: CefrLevel,
+  levelTo: CefrLevel,
+): EquivalencyTestSet | null {
   if (!raw || typeof raw !== 'object') return null;
   const r = raw as { items?: unknown[]; description?: unknown; minutes?: unknown };
   if (!Array.isArray(r.items)) return null;
@@ -433,7 +438,8 @@ function loadFromJson(raw: unknown, levelFrom: CefrLevel, levelTo: CefrLevel): E
   return {
     levelFrom,
     levelTo,
-    description: typeof r.description === 'string' ? r.description : `Tests ${levelFrom} competency.`,
+    description:
+      typeof r.description === 'string' ? r.description : `Tests ${levelFrom} competency.`,
     minutes: typeof r.minutes === 'number' ? r.minutes : 25,
     items,
   };

@@ -60,9 +60,8 @@ export default function EquivalencyTestCard({
           </span>
         </div>
         <p style={{ fontSize: 13, color: 'var(--subtext)', margin: 0, lineHeight: 1.5 }}>
-          You've passed every equivalency tier in this app. {certified} is the
-          highest in-app certification; C2 native-equivalent fluency is
-          measured by formal external providers.
+          You've passed every equivalency tier in this app. {certified} is the highest in-app
+          certification; C2 native-equivalent fluency is measured by formal external providers.
         </p>
       </div>
     );
@@ -105,8 +104,8 @@ export default function EquivalencyTestCard({
           You're {userEligible} by activity. {certified} is your certified.
         </div>
         <div style={{ fontSize: 13, opacity: 0.95, lineHeight: 1.5, marginBottom: 10 }}>
-          Take the {nextTest.levelFrom} equivalency test to certify and unlock{' '}
-          {nextTest.levelTo} content.
+          Take the {nextTest.levelFrom} equivalency test to certify and unlock {nextTest.levelTo}{' '}
+          content.
         </div>
         <div
           style={{
@@ -150,8 +149,8 @@ export default function EquivalencyTestCard({
         </span>
       </div>
       <p style={{ fontSize: 13, color: 'var(--heading)', margin: '0 0 10px', lineHeight: 1.5 }}>
-        Ready to advance? Take the {nextTest.levelFrom} → {nextTest.levelTo}{' '}
-        equivalency test to unlock {nextTest.levelTo} content.
+        Ready to advance? Take the {nextTest.levelFrom} → {nextTest.levelTo} equivalency test to
+        unlock {nextTest.levelTo} content.
       </p>
       <button
         onClick={onTakeTest}
