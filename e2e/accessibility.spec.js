@@ -366,6 +366,19 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
 
   test('rendered diff has no critical or serious WCAG violations', async ({ page }) => {
     await navigateAndSubmit(page);
+    // The success-callout ("💬 Bravo!") fades in via opacity. Axe computes the
+    // *currently-rendered* foreground colour by blending the inline color with
+    // the background per element opacity — mid-fade that drops the effective
+    // contrast below the 4.5:1 WCAG AA threshold and the rule fires a false
+    // serious violation even though the post-animation colour is compliant
+    // (#14532d on #effaf5 ≈ 7.9:1). Wait for all running CSS animations on
+    // page to finish before scanning so axe sees the steady-state colours.
+    await page.evaluate(
+      () =>
+        Promise.all(
+          document.getAnimations().map((a) => a.finished.catch(() => {})),
+        ),
+    );
     const results = await new AxeBuilder({ page }).analyze();
     const violations = results.violations.filter(
       (v) => v.impact === 'critical' || v.impact === 'serious',
