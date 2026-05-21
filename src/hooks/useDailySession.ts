@@ -1,6 +1,6 @@
 // src/hooks/useDailySession.ts
 import { useState, useCallback, useEffect } from 'react';
-import { getDueReviews } from '../lib/srs';
+import { getDueReviews, getServableReviewCount } from '../lib/srs';
 import { getDueCategoryQueue } from '../lib/adaptive';
 import type { SkillCategory } from '../lib/adaptive';
 import { isUnlocked } from '../lib/cefr';
@@ -174,12 +174,19 @@ const CROATIA_POOL: SessionActivity[] = [
 
 // ── Pure helpers (exported for unit tests) ───────────────────────────────────
 
-export function buildSessionActivities(userCefr: string): SessionActivity[] {
+export function buildSessionActivities(
+  userCefr: string,
+  poolWords?: Set<string>,
+): SessionActivity[] {
   const activities: SessionActivity[] = [];
 
-  // Priority 1: FSRS word reviews
-  const dueReviews = getDueReviews();
-  if (dueReviews.length > 0) {
+  // Priority 1: FSRS word reviews — gated on what ReviewScreen can actually
+  // serve, not the raw FSRS count. When poolWords is provided (HomeTab call
+  // path), drop orphan cards (words removed from vocabulary) so the slot is
+  // only added if /review will render content. Fallback to the unfiltered
+  // count when no pool is provided (e.g., unit tests).
+  const dueCount = poolWords ? getServableReviewCount(poolWords) : getDueReviews().length;
+  if (dueCount > 0) {
     activities.push({
       id: 'srsreview',
       label: 'Word Review',
@@ -305,14 +312,14 @@ function persistSession(session: DailySession): void {
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useDailySession(userCefr: string): UseDailySessionReturn {
+export function useDailySession(userCefr: string, poolWords?: Set<string>): UseDailySessionReturn {
   const [session, setSession] = useState<DailySession>(() => {
     const persisted = loadPersistedSession();
     // Invalidate if date changed OR CEFR level changed (new exercises unlocked)
     if (persisted && persisted.date === localDateStr() && persisted.cefrLevel === userCefr) {
       return persisted;
     }
-    const activities = buildSessionActivities(userCefr);
+    const activities = buildSessionActivities(userCefr, poolWords);
     const fresh: DailySession = {
       date: localDateStr(),
       cefrLevel: userCefr,
@@ -345,8 +352,10 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
     const isNewDay = session.date !== localDateStr();
     const isCefrChange = session.cefrLevel !== userCefr;
     if (!isNewDay && !isCefrChange) return;
+    // (poolWords change does NOT trigger this effect — only date/CEFR — so
+    // the activity list stays stable as content lazy-loads.)
 
-    const activities = buildSessionActivities(userCefr);
+    const activities = buildSessionActivities(userCefr, poolWords);
 
     let completedIds: string[];
     if (isNewDay) {
@@ -414,7 +423,10 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
     const srsActivity = session.activities.find((a) => a.screen === 'review');
     if (!srsActivity) return;
     if (session.completedIds.includes(srsActivity.id)) return;
-    if (getDueReviews().length > 0) return;
+    // Use the same pool-aware count buildSessionActivities now uses, so the
+    // skip decision agrees with what ReviewScreen will actually serve.
+    const dueCount = poolWords ? getServableReviewCount(poolWords) : getDueReviews().length;
+    if (dueCount > 0) return;
     // Use the same setter path markDone uses (persist + history side-effects).
     setSession((prev) => {
       if (prev.completedIds.includes(srsActivity.id)) return prev;
@@ -425,7 +437,7 @@ export function useDailySession(userCefr: string): UseDailySessionReturn {
       }
       return updated;
     });
-  }, [session]);
+  }, [session, poolWords]);
 
   const isComplete = session.completedIds.length >= session.activities.length;
   const progress =

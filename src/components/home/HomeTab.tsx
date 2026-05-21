@@ -75,7 +75,7 @@ import WelcomeBackBanners from './WelcomeBackBanners';
 import { useDailySession } from '../../hooks/useDailySession';
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
-import { getDueReviews } from '../../lib/srs';
+import { getServableReviewCount } from '../../lib/srs';
 
 const LEVEL_PALETTE = [
   {
@@ -342,9 +342,24 @@ export default function HomeTab({
 
   // ── Daily Session Hub ──────────────────────────────────────────────────────
   const userCefr = getUserCefr(st.xp, st.lc, st.gc);
+  // Build the set of words currently in the active vocabulary pool — used to
+  // count SRS reviews that /review can actually serve (orphan cards whose word
+  // was later removed from a category get dropped, matching ReviewScreen's
+  // own filter so the home pill and the session SRS slot agree with reality).
+  const poolWords = useMemo(() => {
+    const V = (content?.V ?? {}) as Record<string, unknown[][]>;
+    const s = new Set<string>();
+    for (const cat of Object.keys(V)) {
+      const rows = V[cat] || [];
+      for (const row of rows) {
+        if (Array.isArray(row) && typeof row[0] === 'string') s.add(row[0] as string);
+      }
+    }
+    return s;
+  }, [content?.V]);
   const { session, isComplete, progress, markDone, nextActivity, tomorrowLabel, bonusActivities } =
-    useDailySession(userCefr);
-  const dueCount = getDueReviews().length;
+    useDailySession(userCefr, poolWords);
+  const dueCount = getServableReviewCount(poolWords);
   const xpThisWeek = (() => {
     try {
       return parseInt(localStorage.getItem('nh_week_xp_' + weekKey()) || '0', 10);

@@ -1,9 +1,3 @@
-// V is the master vocabulary map (category → row[]). We use it to filter
-// out SRS cards whose word is no longer in any active category, matching
-// the behaviour of getPrioritizedReviewQueue so home-tab counts and
-// /review counts agree. See getDueReviews() below for full rationale.
-import { V } from '../data';
-
 /**
  * FSRS-4.5 Spaced Repetition Scheduler
  * Free Spaced Repetition Scheduler — trained on 700 M+ Anki reviews.
@@ -208,55 +202,20 @@ export function addWordToSRS(word: string): void {
 /**
  * Return an array of Croatian word strings that are due for review right now.
  *
- * 2026-05-21 BUG FIX — pool-filter alignment:
- * Previously, this function returned every card in `nh_sr` whose due timestamp
- * had passed, including cards whose word no longer appears in any current
- * vocabulary category. ReviewScreen (via getPrioritizedReviewQueue) filters
- * exactly those orphan cards out, so the home-tab "Reviews Due" pill and the
- * Today's Session SRS slot were reporting counts that the review screen
- * couldn't serve. Users saw "35 Reviews Due" → tap Today's Session → routed
- * to /review → "All caught up!" dead-end with no path forward.
- *
- * Fix: import the active vocabulary set lazily and only count cards whose
- * word exists in the pool. The two surfaces now agree by construction. We
- * read V dynamically (require at call time) to avoid a static import cycle
- * with ../data, which historically caused ESM resolution issues here.
- *
- * Returns the raw word list for callers that just want the count.
+ * NOTE: This is the unfiltered FSRS-due set. For UI surfaces that must agree
+ * with ReviewScreen's actual servable count (home-tab pill, Today's Session
+ * SRS slot), use `getServableReviewCount(poolWords)` instead — it applies
+ * the same vocabulary-pool filter ReviewScreen uses.
  */
 export function getDueReviews(): string[] {
   const sr = getSR();
   const now = Date.now();
-
-  // Build the same pool ReviewScreen uses (every Croatian-word [0]-index entry
-  // across every category in V). This matches getPrioritizedReviewQueue line
-  // 437's filter so the home-tab "Reviews Due" pill, the Today's-Session SRS
-  // slot eligibility, and the actual /review screen all agree on what's
-  // legitimately due.
-  const poolWords = new Set<string>();
-  try {
-    const Vmap = (V || {}) as Record<string, unknown[][]>;
-    for (const cat of Object.keys(Vmap)) {
-      const rows = Vmap[cat] || [];
-      for (const row of rows) {
-        if (Array.isArray(row) && typeof row[0] === 'string') {
-          poolWords.add(row[0] as string);
-        }
-      }
-    }
-  } catch {
-    // V unavailable (extreme edge case) — fall through with empty pool.
-    // Empty pool means no cards are countable, so session won't include SRS
-    // — safer than over-counting and producing a dead-end.
-  }
-
   const due: string[] = [];
   // Cards with no due date are legitimately new (never reviewed) and should be
   // shown, but we cap them at 15 per session to prevent queue flooding if a
   // user imports a large word list or legacy SM-2 data wasn't fully migrated.
   let newCardBudget = 15;
   for (const word in sr) {
-    if (poolWords.size > 0 && !poolWords.has(word)) continue; // skip orphans
     const card = sr[word]!;
     if (card.due != null) {
       if (card.due <= now) due.push(word);
@@ -270,6 +229,36 @@ export function getDueReviews(): string[] {
     [due[i], due[j]] = [due[j]!, due[i]!];
   }
   return due;
+}
+
+/**
+ * Pool-aware count of cards that ReviewScreen will actually serve.
+ *
+ * 2026-05-21 BUG FIX: HomeTab originally counted via getDueReviews() while
+ * ReviewScreen filtered by current-vocabulary pool. Cards SRS'd in the past
+ * whose word was later removed from any category were counted but
+ * unservable. Users saw "35 Reviews Due" → tap Today's Session → /review
+ * → "All caught up!" dead-end.
+ *
+ * @param poolWords Set of Croatian word strings in the current pool.
+ *   Build from V: `new Set(Object.values(V).flatMap(rows => rows.map(r => r[0])))`.
+ */
+export function getServableReviewCount(poolWords: Set<string>): number {
+  const sr = getSR();
+  const now = Date.now();
+  let count = 0;
+  let newCardBudget = 15;
+  for (const word in sr) {
+    if (!poolWords.has(word)) continue;
+    const card = sr[word]!;
+    if (card.due != null) {
+      if (card.due <= now) count++;
+    } else if (newCardBudget > 0) {
+      count++;
+      newCardBudget--;
+    }
+  }
+  return count;
 }
 
 /**
