@@ -86,6 +86,35 @@ function NavIcon({ id, active }: { id: string; active: boolean }) {
         />
       </svg>
     );
+  if (id === 'ai')
+    return (
+      <svg
+        width="23"
+        height="23"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Rounded speech bubble — conversation/tutoring */}
+        <path
+          d="M4 6.5A2.5 2.5 0 016.5 4h11A2.5 2.5 0 0120 6.5v8a2.5 2.5 0 01-2.5 2.5H10l-4 3v-3H6.5A2.5 2.5 0 014 14.5v-8z"
+          stroke="currentColor"
+          strokeWidth={sw}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill={active ? 'rgba(14,116,144,.1)' : 'none'}
+        />
+        {/* Four-point sparkle — AI/intelligence marker */}
+        <path
+          d="M12 8v4M10 10h4M12 13.5v.7M11.65 13.85h.7"
+          stroke="currentColor"
+          strokeWidth={sw}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
   if (id === 'croatia')
     return (
       <svg
