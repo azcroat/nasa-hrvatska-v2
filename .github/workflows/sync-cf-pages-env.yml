@@ -49,12 +49,20 @@ jobs:
                 }
               }
             }')
-          RESPONSE=$(curl -sf -X PATCH \
+          # -s silences progress, -w prints status. No -f so we see error bodies.
+          RESPONSE=$(curl -s -w "\n__STATUS__%{http_code}" -X PATCH \
             "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/nasa-hrvatska-v2" \
             -H "Authorization: Bearer $CF_TOKEN" \
             -H "Content-Type: application/json" \
             -d "$BODY")
-          echo "$RESPONSE" | jq '.success, (.errors // "no errors")'
+          STATUS=$(echo "$RESPONSE" | tail -1 | sed 's/__STATUS__//')
+          BODY_OUT=$(echo "$RESPONSE" | sed '$d')
+          echo "HTTP status: $STATUS"
+          echo "$BODY_OUT" | jq '.' 2>/dev/null || echo "$BODY_OUT"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::CF API returned $STATUS"
+            exit 1
+          fi
 
       - name: Trigger CF Pages redeploy
         env:
