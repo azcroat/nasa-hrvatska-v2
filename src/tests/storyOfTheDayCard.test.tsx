@@ -65,13 +65,15 @@ describe('StoryOfTheDayCard', () => {
     expect(screen.getByText(/Practice accusative/i)).toBeInTheDocument();
   });
 
-  it('CTA button click calls launchStory with the recommended story ID', async () => {
+  it('card click calls launchStory with the recommended story ID', async () => {
+    // The card is now itself a button (the whole surface is clickable, not
+    // just an inner CTA), so we click the card testid directly.
     const onLaunch = vi.fn();
     render(<StoryOfTheDayCard launchStory={onLaunch} />);
     await waitFor(() => {
-      expect(screen.getByTestId('story-of-the-day-cta')).toBeInTheDocument();
+      expect(screen.getByTestId('story-of-the-day-card')).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByTestId('story-of-the-day-cta'));
+    fireEvent.click(screen.getByTestId('story-of-the-day-card'));
     expect(onLaunch).toHaveBeenCalledWith('b1_acc');
   });
 
