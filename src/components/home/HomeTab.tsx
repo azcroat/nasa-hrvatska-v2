@@ -61,10 +61,7 @@ import { useContent } from '../../hooks/useContent';
 import { evalCk } from '../../lib/learnPathRules';
 import { getActiveCampaign } from '../../lib/seasonalCampaign';
 import { getWordOfDay, getPhraseOfDay } from '../../lib/wordOfDay.js';
-import WordOfDayCard from './WordOfDayCard';
-import PhraseOfDayCard from './PhraseOfDayCard';
-import CityOfDayCard from './CityOfDayCard';
-import { StoryOfTheDayCard } from './StoryOfTheDayCard';
+import TodaysDiscoveries from './TodaysDiscoveries';
 import { weekKey, localDateStr } from '../../lib/dateUtils.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
@@ -578,17 +575,11 @@ export default function HomeTab({
         }}
       />
 
-      {/* ── WORD OF THE DAY ── */}
-      {wod && <WordOfDayCard word={wod} />}
-
-      {/* ── PHRASE OF THE DAY ── */}
-      {pod && <PhraseOfDayCard phrase={pod} />}
-
-      {/* ── CITY OF THE DAY (surfaced from Croatia tab to home) ── */}
-      <CityOfDayCard setScr={setScr} />
-
-      {/* ── STORY OF THE DAY (SP7) ── */}
-      {launchStory && <StoryOfTheDayCard launchStory={launchStory} />}
+      {/* ── TODAY'S DISCOVERIES — tabbed widget replaces the 4 stacked cards
+          (Word / Phrase / City / Story). Single fixed-height container,
+          all four labels visible in the tab strip, user picks what to see.
+          Eliminates the scroll that previously buried Story of the Day. */}
+      <TodaysDiscoveries wod={wod} pod={pod} setScr={setScr} launchStory={launchStory} />
     </React.Fragment>
   );
 }
