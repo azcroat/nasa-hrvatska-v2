@@ -11,12 +11,13 @@ import WordOfDayCard from './WordOfDayCard';
 import PhraseOfDayCard from './PhraseOfDayCard';
 import CityOfDayCard from './CityOfDayCard';
 import { StoryOfTheDayCard } from './StoryOfTheDayCard';
+import type { WordOfDay, PhraseOfDay } from '../../lib/wordOfDay';
 
 type Tab = 'word' | 'phrase' | 'city' | 'story';
 
 interface Props {
-  wod: unknown;
-  pod: unknown;
+  wod: WordOfDay | null;
+  pod: PhraseOfDay | null;
   setScr: (scr: unknown, ...args: unknown[]) => void;
   launchStory?: (storyId: string) => void;
 }
