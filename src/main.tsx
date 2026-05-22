@@ -359,7 +359,27 @@ if (!isNative() && 'serviceWorker' in navigator) {
     sessionStorage.removeItem('sw-reload-count');
   } catch (_) {}
 
-  registerSW({ immediate: true });
+  // 2026-05-21: previously bare; SW registration failure on iOS Chrome
+  // Mobile (where SW lifecycle is flaky) propagated as an unhandled Promise
+  // rejection and triggered Sentry "Script .../sw.js load failed" alerts
+  // on every affected user. Now: provide explicit onRegisterError +
+  // onRegistered callbacks so failure degrades gracefully — the app
+  // works without offline support rather than throwing.
+  try {
+    registerSW({
+      immediate: true,
+      onRegisterError(err) {
+        // Don't propagate — log once, app continues without SW.
+        try {
+          console.warn('[sw] registration failed:', (err as Error)?.message ?? err);
+        } catch {}
+      },
+    });
+  } catch (err) {
+    try {
+      console.warn('[sw] registerSW threw synchronously:', (err as Error)?.message ?? err);
+    } catch {}
+  }
 
   // Single reload guard — resets to false on every fresh page load.
   let refreshing = false;
@@ -390,17 +410,25 @@ if (!isNative() && 'serviceWorker' in navigator) {
   // Path 3 — on every page load, proactively fetch and activate any new SW.
   // Handles the case where a new SW was waiting before this page loaded:
   // reg.waiting exists → send SKIP_WAITING → controllerchange fires → reload.
-  navigator.serviceWorker.ready.then((reg) => {
-    reg.update().catch(() => {});
-    if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    reg.addEventListener('updatefound', () => {
-      const sw = reg.installing;
-      if (!sw) return;
-      sw.addEventListener('statechange', () => {
-        if (sw.state === 'installed') reg.waiting?.postMessage({ type: 'SKIP_WAITING' });
+  navigator.serviceWorker.ready
+    .then((reg) => {
+      reg.update().catch(() => {});
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        if (!sw) return;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed') reg.waiting?.postMessage({ type: 'SKIP_WAITING' });
+        });
       });
+    })
+    .catch((err) => {
+      // serviceWorker.ready can reject on iOS Chrome Mobile if the SW
+      // failed to install — catch so it doesn't surface as unhandled.
+      try {
+        console.warn('[sw] ready rejected:', (err as Error)?.message ?? err);
+      } catch {}
     });
-  });
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

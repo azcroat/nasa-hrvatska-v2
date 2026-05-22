@@ -1,6 +1,5 @@
 import React from 'react';
 import { useStats } from '../../context/StatsContext';
-import { useApp } from '../../context/AppContext';
 
 const CEFR_LABELS = {
   A1: 'Beginner',
@@ -24,9 +23,7 @@ function getCEFR(xp: number, lc: number, gc: number) {
 }
 
 export default function DesktopPanel() {
-  const { stats, level: numLevel } = useStats();
-  const { setTab, setScr } = useApp();
-
+  const { stats } = useStats();
   const xp = stats?.xp ?? 0;
   const lc = stats?.lc ?? 0;
   const gc = stats?.gc ?? 0;
@@ -74,97 +71,12 @@ export default function DesktopPanel() {
         </div>
       </div>
 
-      {/* Your progress stats */}
-      <div
-        style={{
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: 16,
-          padding: '16px',
-          marginBottom: 16,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 800,
-            color: 'var(--subtext)',
-            textTransform: 'uppercase',
-            letterSpacing: '.08em',
-            marginBottom: 12,
-          }}
-        >
-          Your Progress
-        </div>
-        {[
-          { icon: '📚', label: 'Lessons completed', value: lc },
-          { icon: '💪', label: 'Grammar sessions', value: gc },
-          { icon: '⭐', label: 'Total XP', value: xp.toLocaleString() },
-          { icon: '🎓', label: 'Level', value: `${cefrLevel} · Lv ${numLevel ?? 1}` },
-        ].map((row, i, arr) => (
-          <div
-            key={row.label}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '7px 0',
-              borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
-            }}
-          >
-            <span style={{ fontSize: 15, width: 22, textAlign: 'center' }}>{row.icon}</span>
-            <span style={{ flex: 1, fontSize: 12, color: 'var(--subtext)', fontWeight: 600 }}>
-              {row.label}
-            </span>
-            <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>{row.value}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* AI Conversation shortcut */}
-      <button
-        onClick={() => setScr('aiconvo')}
-        style={{
-          width: '100%',
-          padding: '12px 16px',
-          borderRadius: 14,
-          background: 'linear-gradient(135deg,#1e1b4b,#3730a3)',
-          border: 'none',
-          color: '#fff',
-          fontSize: 13,
-          fontWeight: 800,
-          cursor: 'pointer',
-          fontFamily: "'Outfit',sans-serif",
-          boxShadow: '0 4px 16px rgba(55,48,163,.25)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          marginBottom: 10,
-        }}
-      >
-        <span style={{ fontSize: 18 }}>🤖</span>
-        <span>AI Voice Conversation →</span>
-      </button>
-
-      {/* Quick practice CTA */}
-      <button
-        onClick={() => setTab('practice')}
-        style={{
-          width: '100%',
-          padding: '12px 16px',
-          borderRadius: 14,
-          background: 'linear-gradient(135deg,#d4002d,#e63946)',
-          border: 'none',
-          color: '#fff',
-          fontSize: 14,
-          fontWeight: 800,
-          cursor: 'pointer',
-          fontFamily: "'Outfit',sans-serif",
-          boxShadow: '0 4px 16px rgba(212,0,45,.25)',
-        }}
-      >
-        Practice Now →
-      </button>
+      {/* Right rail intentionally minimal: the level chip above is the only
+          progress signal here. The 'Your Progress' stats block, the AI Voice
+          Conversation shortcut, and the Practice Now CTA were removed —
+          stats live on the Me tab, AI lives exclusively on the AI Tutor tab,
+          Practice is one tap on the bottom nav. Keeps the home screen
+          uncluttered. */}
     </aside>
   );
 }
