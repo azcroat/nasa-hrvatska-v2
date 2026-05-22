@@ -61,8 +61,14 @@ function _readProfile(): { st: ProfileStats; sr: Record<string, SRCard> } | null
     const raw = localStorage.getItem('uP_' + email);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
+    // 2026-05-21 BUG FIX: progressSnapshot writes the canonical `stats` key;
+    // legacy writes used `st`. Reading only `parsed.st` made every fresh
+    // user resolve as xp=0 → A1 → recommender then suggested A1 stories
+    // and the rationale text said "right at your A1 level" even for users
+    // who were visibly B2 on the home screen. Read `stats` first, fall
+    // back to `st` for any legacy blob that still has the old key.
     return {
-      st: (parsed?.st as ProfileStats) || {},
+      st: (parsed?.stats as ProfileStats) || (parsed?.st as ProfileStats) || {},
       sr: (parsed?.sr as Record<string, SRCard>) || {},
     };
   } catch {
