@@ -432,7 +432,14 @@ export async function fbSaveProgress(
 // the merged write sums client-local accumulator before the increment).
 const _DELTA_NUMERIC = ['xp', 'lc', 'gc', 'sp', 'de', 'rc', 'pf', 'mv', 'hi'];
 const _DELTA_ARRAYS = ['ct', 'vs', 'badges'];
-const COALESCE_MS = 4000; // 4 s — short enough to feel real-time, long enough to batch a typical exercise burst
+// 2026-05-22: reduced from 4 s → 1.2 s as defense against pending-delta loss
+// on hard tab close. fbSaveProgress flushes pending deltas via
+// _flushPendingDelta(), and the unload/visibilitychange/pagehide handlers in
+// useSyncManager call fbSaveProgress — but the async chain may not complete
+// before the browser kills the page on close. A smaller window narrows the
+// loss exposure to ~1 s. Still ~5x fewer writes than no batching, so we keep
+// most of the quota benefit while reducing the worst-case data loss.
+const COALESCE_MS = 1200;
 
 let _pendingDelta: Record<string, unknown> = {};
 let _pendingUid: string | null = null;
