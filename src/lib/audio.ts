@@ -70,8 +70,12 @@ async function _getFirebaseBearer(forceRefresh = false): Promise<string | null> 
           }
         });
         // Failsafe: if no user ever arrives (genuinely anonymous, or auth
-        // bootstrap failed), resolve null after 3 s so callers don't hang.
-        setTimeout(() => finish(null), 3000);
+        // bootstrap failed), resolve null after 6 s so callers don't hang.
+        // Bumped from 3 s to 6 s 2026-05-22 — slow devices with large
+        // IndexedDB stores or slow disk can take 3-5 s to complete the
+        // initial auth restore; 3 s was tripping the timeout on authenticated
+        // users and leaking null bearers (→ sporadic 401s on cold load).
+        setTimeout(() => finish(null), 6000);
       });
     }
     return await _bearerPromise;
