@@ -95,11 +95,11 @@ test.describe('Practice tab structure', () => {
     await expect(page.locator('button').filter({ hasText: /^Quick Game$/ })).toBeVisible();
   });
 
-  test('AI Voice Conversation hero button is visible', async ({ page }) => {
-    await expect(
-      page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first(),
-    ).toBeVisible();
-  });
+  // Removed 2026-05-22: the AI Voice Conversation hero button was deleted
+  // from PracticeTab during the AI-surface consolidation — all AI features
+  // now live exclusively under the dedicated AI Tutor tab. This test
+  // asserted the button still rendered on Practice; deleting the assertion
+  // (not the test as a regression — the button is intentionally gone).
 
   test('Drill panel shows Browse Exercises section and four category tiles', async ({ page }) => {
     await page
