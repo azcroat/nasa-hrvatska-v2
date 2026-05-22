@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { useContent } from '../../hooks/useContent';
-import { getCityOfDay } from '../../lib/dailyPickers';
 import CroatianKnight from '../shared/CroatianKnight';
 
 const KNIGHT_MESSAGES = [
@@ -27,56 +25,8 @@ const KNIGHT_MESSAGES = [
   },
 ];
 
-/** Darken a hex color until white text meets WCAG AA (4.5:1 contrast ratio). */
-function aaButtonBg(hex: string): string {
-  if (!hex.startsWith('#') || hex.length !== 7) return hex;
-  const toLinear = (c: number) => {
-    const s = c / 255;
-    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  };
-  const lum = (h: string) => {
-    const r = parseInt(h.slice(1, 3), 16);
-    const g = parseInt(h.slice(3, 5), 16);
-    const b = parseInt(h.slice(5, 7), 16);
-    return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
-  };
-  let current = hex;
-  for (let i = 0; i < 8; i++) {
-    if (1.05 / (lum(current) + 0.05) >= 4.5) return current;
-    // Darken by 15% each iteration
-    const r = Math.round(parseInt(current.slice(1, 3), 16) * 0.85);
-    const g = Math.round(parseInt(current.slice(3, 5), 16) * 0.85);
-    const b = Math.round(parseInt(current.slice(5, 7), 16) * 0.85);
-    current = '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
-  }
-  return current;
-}
-
 export default function DiscoverTab() {
   const { setScr } = useApp();
-  const { content } = useContent();
-  type CityLike = {
-    name?: string;
-    color?: string;
-    icon?: string;
-    region?: string;
-    tagline?: string;
-    intro?: string;
-    didYouKnow?: string;
-  };
-  const city = getCityOfDay((content?.CROATIAN_CITIES ?? []) as CityLike[]);
-
-  // Defensive: if content is still hydrating OR the picker returned nothing,
-  // render the rest of DiscoverTab (Knight messages etc.) but skip the city
-  // section. Previously this `return null` would nuke the entire tab when
-  // useContent was empty — that's how City of the Day "disappeared".
-  const cityColor: string = city?.color || '#0e7490';
-  const cityIcon: string = city?.icon || '🏙️';
-  const cityRegion: string = city?.region || 'Croatia';
-  const cityTagline: string = city?.tagline || '';
-  const cityIntro: string =
-    city?.intro || `${city?.name ?? 'This city'} is a remarkable city in ${cityRegion}.`;
-  const cityDidYouKnow: string = city?.didYouKnow || '';
 
   // Rotating knight message
   const [kMsgIdx, setKMsgIdx] = useState(0);
@@ -98,165 +48,13 @@ export default function DiscoverTab() {
   }, []);
 
   const kMsg = KNIGHT_MESSAGES[kMsgIdx]!;
-  const cityName = city?.name ?? 'Croatia';
 
   return (
     <div style={{ paddingBottom: 16 }}>
-      {/* ── CITY OF THE DAY (text-only, always visible) ── */}
-      {city && (
-        <div
-          style={{
-            borderRadius: 18,
-            overflow: 'hidden',
-            marginBottom: 16,
-            boxShadow: '0 4px 20px rgba(0,0,0,.1)',
-            border: `1.5px solid ${cityColor}35`,
-          }}
-        >
-          {/* Accent bar */}
-          <div style={{ height: 4, background: cityColor }} />
-
-          <div
-            style={{
-              background: `linear-gradient(135deg, ${cityColor}12, ${cityColor}05)`,
-              padding: '16px 18px 18px',
-            }}
-          >
-            {/* Header row */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 12,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 900,
-                  color: cityColor,
-                  textTransform: 'uppercase',
-                  letterSpacing: '.12em',
-                }}
-              >
-                🗓️ City of the Day
-              </span>
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: cityColor,
-                  background: `${cityColor}18`,
-                  border: `1px solid ${cityColor}35`,
-                  borderRadius: 20,
-                  padding: '3px 10px',
-                }}
-              >
-                📍 {cityRegion}
-              </span>
-            </div>
-
-            {/* City name */}
-            <div
-              style={{
-                fontSize: 24,
-                fontWeight: 900,
-                color: 'var(--heading)',
-                fontFamily: "'Playfair Display', serif",
-                lineHeight: 1.15,
-                marginBottom: cityTagline ? 6 : 12,
-              }}
-            >
-              {cityIcon} {cityName}
-            </div>
-
-            {/* Tagline */}
-            {cityTagline ? (
-              <div
-                style={{
-                  fontSize: 12,
-                  color: cityColor,
-                  fontStyle: 'italic',
-                  fontWeight: 600,
-                  marginBottom: 12,
-                  lineHeight: 1.5,
-                }}
-              >
-                &ldquo;{cityTagline}&rdquo;
-              </div>
-            ) : null}
-
-            {/* Intro snippet — 3-line clamp */}
-            <div
-              style={{
-                fontSize: 13,
-                color: 'var(--body)',
-                lineHeight: 1.65,
-                marginBottom: 16,
-                overflow: 'hidden',
-                display: '-webkit-box',
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-              }}
-            >
-              {cityIntro}
-            </div>
-
-            {/* CTA */}
-            <button
-              onClick={() => setScr('cityofday')}
-              style={{
-                width: '100%',
-                background: aaButtonBg(cityColor),
-                color: '#fff',
-                border: 'none',
-                borderRadius: 12,
-                padding: '11px 0',
-                fontSize: 13,
-                fontWeight: 800,
-                cursor: 'pointer',
-                fontFamily: "'Outfit', sans-serif",
-                letterSpacing: '.025em',
-              }}
-            >
-              Explore {cityName} →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── DID YOU KNOW ── */}
-      {cityDidYouKnow ? (
-        <div
-          style={{
-            background: 'linear-gradient(135deg,rgba(124,58,237,.07),rgba(91,33,182,.04))',
-            border: '1.5px solid rgba(124,58,237,.2)',
-            borderRadius: 16,
-            padding: '14px 16px',
-            marginBottom: 12,
-            boxShadow: 'var(--card-shadow)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-            <span style={{ fontSize: 14 }}>💡</span>
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 900,
-                color: 'var(--lavender,#7c3aed)',
-                textTransform: 'uppercase',
-                letterSpacing: '.1em',
-              }}
-            >
-              Did You Know?
-            </span>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--body)', lineHeight: 1.65, fontWeight: 500 }}>
-            {cityDidYouKnow}
-          </div>
-        </div>
-      ) : null}
+      {/* City of the Day + its Did-You-Know block were removed from the
+          Croatia tab — they live on the Today tab as the daily-engagement
+          hook. Keeping the same city in two places duplicated the surface
+          without adding anything new for the user. */}
 
       {/* ── FEATURED STORY PREVIEW ── */}
       <button
