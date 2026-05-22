@@ -463,7 +463,7 @@ export default function ImmersionHub({
             </div>
           )}
           {filtered.map((m, i) => (
-            <MediaCard key={i} m={m as MediaItem} />
+            <MediaCard key={i} m={m as MediaItem} setScr={setScr} />
           ))}
         </div>
       )}
@@ -757,15 +757,30 @@ function JourneyCard({ j, color }: { j: JourneyItem; color: string }) {
   );
 }
 
-function MediaCard({ m }: { m: MediaItem }) {
+function MediaCard({
+  m,
+  setScr,
+}: {
+  m: MediaItem;
+  setScr?: (scr: unknown, ...args: unknown[]) => void;
+}) {
   const color = LC[m.level] || '#78716c';
   return (
     <div
       className="c"
       style={{ marginBottom: 12, padding: 16, cursor: 'pointer' }}
       onClick={() => {
-        if (m.scr) return;
-        window.open(m.web, '_blank', 'noopener,noreferrer');
+        // 2026-05-21 BUG FIX: items with an internal screen (m.scr) previously
+        // returned silently, so cards like "Pop Culture & Music" did nothing
+        // when tapped. Now: navigate to the internal screen if scr is set,
+        // otherwise open the external web URL. If neither is set, no-op.
+        if (m.scr && setScr) {
+          setScr(m.scr);
+          return;
+        }
+        if (m.web) {
+          window.open(m.web, '_blank', 'noopener,noreferrer');
+        }
       }}
     >
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 10 }}>
