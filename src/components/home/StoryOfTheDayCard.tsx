@@ -15,13 +15,25 @@ export interface StoryOfTheDayCardProps {
 }
 
 const STYLES = {
+  // Card is now a full-width button: tapping anywhere on it launches the
+  // story. Previously only the small "Read this story →" CTA at the bottom
+  // was clickable, which users reported as non-obvious — the card looked
+  // informational. all:'unset' resets default button styling so the visual
+  // matches the existing card design exactly.
   card: {
+    all: 'unset' as const,
+    boxSizing: 'border-box' as const,
+    display: 'block' as const,
+    width: '100%',
     background: 'var(--card)',
     border: '1px solid var(--card-b)',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+    cursor: 'pointer' as const,
+    textAlign: 'left' as const,
+    fontFamily: 'inherit',
   },
   header: {
     display: 'flex' as const,
@@ -113,9 +125,14 @@ export function StoryOfTheDayCard({
   const { story, rationale } = recommendation;
 
   return (
-    <div data-testid="story-of-the-day-card" style={STYLES.card}>
+    <button
+      data-testid="story-of-the-day-card"
+      style={STYLES.card}
+      onClick={() => launchStory(story.id)}
+      aria-label={`Read story: ${story.title}`}
+    >
       <div style={STYLES.header}>
-        <span style={STYLES.label}>📖 Story of the Day</span>
+        <span style={STYLES.label}>📖 Story of the Day · TAP TO READ →</span>
         <span
           style={{
             ...STYLES.levelBadge,
@@ -136,13 +153,6 @@ export function StoryOfTheDayCard({
         <span>·</span>
         <span>{story.focus}</span>
       </div>
-      <button
-        data-testid="story-of-the-day-cta"
-        style={STYLES.cta}
-        onClick={() => launchStory(story.id)}
-      >
-        Read this story →
-      </button>
-    </div>
+    </button>
   );
 }
