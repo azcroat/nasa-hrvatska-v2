@@ -793,6 +793,10 @@ function App() {
       const eligible = getUserCefr(stats.xp || 0, stats.lc || 0, stats.gc || 0);
       migrateGrandfatheredCertification(eligible);
     });
+    // Intentionally depending on the three primitive fields only — adding
+    // `stats` here would re-run on every identity change of the stats object
+    // (every render that recreates it) and risk infinite migration calls.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.xp, stats.lc, stats.gc]);
 
   // Force mobile layout in Capacitor native — the desktop sidebar layout uses

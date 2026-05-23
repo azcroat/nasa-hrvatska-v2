@@ -47,7 +47,6 @@ vi.mock('../data', () => ({
 
 import { usePreferences } from '../hooks/usePreferences';
 import { useSearch } from '../hooks/useSearch';
-import { useFamily } from '../hooks/useFamily';
 import { useJournal } from '../hooks/useJournal';
 import { useDaily } from '../hooks/useDaily';
 import { useTranslator } from '../hooks/useTranslator';
@@ -181,43 +180,6 @@ describe('useSearch', () => {
       result.current.setSrchOpen(true);
     });
     expect(result.current.srchOpen).toBe(true);
-  });
-});
-
-// ── useFamily ─────────────────────────────────────────────────────────────────
-describe('useFamily', () => {
-  it('initialises with null famData', () => {
-    const { result } = renderHook(() => useFamily());
-    expect(result.current.famData).toBeNull();
-  });
-  it('setFamData updates state', () => {
-    const { result } = renderHook(() => useFamily());
-    act(() => {
-      result.current.setFamData({ code: 'ABC123', name: 'Test Family' });
-    });
-    expect(result.current.famData.code).toBe('ABC123');
-  });
-  it('famMembers initialises as empty array', () => {
-    const { result } = renderHook(() => useFamily());
-    expect(result.current.famMembers).toEqual([]);
-  });
-  it('famTab defaults to main', () => {
-    const { result } = renderHook(() => useFamily());
-    expect(result.current.famTab).toBe('main');
-  });
-  it('setFamTab updates tab', () => {
-    const { result } = renderHook(() => useFamily());
-    act(() => {
-      result.current.setFamTab('leaderboard');
-    });
-    expect(result.current.famTab).toBe('leaderboard');
-  });
-  it('setFamErr sets error message', () => {
-    const { result } = renderHook(() => useFamily());
-    act(() => {
-      result.current.setFamErr('Family not found');
-    });
-    expect(result.current.famErr).toBe('Family not found');
   });
 });
 

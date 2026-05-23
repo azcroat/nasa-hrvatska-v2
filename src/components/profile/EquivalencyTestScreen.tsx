@@ -26,7 +26,7 @@
  * @see src/data/cefrEquivalencyItems.ts — item bank
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { CefrLevel } from '../../lib/cefr.js';
 import {
   canTakeEquivalencyTest,
