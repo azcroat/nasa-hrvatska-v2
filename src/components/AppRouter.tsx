@@ -203,7 +203,6 @@ const PronunciationContrast = lazyWithReload(() => import('./practice/Pronunciat
 const DialogueSim = lazyWithReload(() => import('./practice/DialogueSim'));
 const CefrTest = lazyWithReload(() => import('./practice/CefrTest'));
 const MyWordsScreen = lazyWithReload(() => import('./practice/MyWordsScreen'));
-const ProfileFriendsScreen = lazyWithReload(() => import('./profile/FriendsScreen'));
 const CertificateScreen = lazyWithReload(() => import('./profile/CertificateScreen'));
 const MistakesScreen = lazyWithReload(() => import('./practice/MistakesScreen'));
 const AnalyticsScreen = lazyWithReload(() => import('./profile/AnalyticsScreen'));
@@ -348,8 +347,6 @@ export default function AppRouter(props: Record<string, any>) {
     sCurEx,
     jWords: _jWords,
     setJWords,
-    famData: _famData,
-    setFamData: _setFamData,
     isPremium,
     refreshSub,
     requirePremium: _requirePremium,
@@ -360,18 +357,6 @@ export default function AppRouter(props: Record<string, any>) {
     setSrchOpen,
     doSearch,
 
-    famMembers: _famMembers,
-    setFamMembers: _setFamMembers,
-    famLoading: _famLoading,
-    setFamLoading: _setFamLoading,
-    famName: _famName,
-    setFamName: _setFamName,
-    famCode: _famCode,
-    setFamCode: _setFamCode,
-    famErr: _famErr,
-    setFamErr: _setFamErr,
-    famTab: _famTab,
-    setFamTab: _setFamTab,
     dchlA,
     sDchlA,
     dchlSl,
@@ -878,7 +863,6 @@ export default function AppRouter(props: Record<string, any>) {
                         <ProfileTab
                           syncReady={_syncReady}
                           onSyncNow={doSyncNow}
-                          onOpenFriends={() => setScr('family_group')}
                           lastSyncedAt={lastSyncedAt as number}
                           onTakeEquivalencyTest={() => setScr('equivalency')}
                           userEligible={getUserCefr(stats.xp || 0, stats.lc || 0, stats.gc || 0)}
@@ -1013,11 +997,6 @@ export default function AppRouter(props: Record<string, any>) {
               level={level}
               stats={stats}
             />
-          </ScreenErrorBoundary>
-        )}
-        {currentScreen === 'family_group' && (
-          <ScreenErrorBoundary key="family_group" name="family_group">
-            <ProfileFriendsScreen user={authUser} goBack={goBack} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'school' && (

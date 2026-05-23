@@ -31,16 +31,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Returns true if the authenticated user's email appears in a flat email list.
-    // Family documents store memberEmails (string[]) alongside the full members array
-    // so Firestore rules can enforce membership without iterating over maps.
-    // Comparison is case-insensitive — Firebase emails are lowercase-normalised but
-    // stored values may have been entered with mixed case by early users.
-    function isFamilyMember(memberEmails) {
-      return request.auth.token.email.lower() in memberEmails
-          || request.auth.token.email in memberEmails;
-    }
-
     // ─── XP validation helpers ─────────────────────────────────────────────
 
     // User-doc UPDATE: top-level xp field must be non-negative integer.
@@ -147,62 +137,6 @@ service cloud.firestore {
             ? (request.resource.data.level >= 1 && request.resource.data.level <= 6)
             : request.resource.data.level in ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
       allow delete: if false;
-    }
-
-    // ─── Friend codes ──────────────────────────────────────────────────────
-    // Lookup index: 6-char code → { uid, name, updated }.
-    // Written by fbRegisterFriendCode on every sign-in (upsert).
-    // Read by any authenticated user to resolve a code during friend-add.
-    // A user may only register a code that maps to their own UID.
-    match /friendCodes/{code} {
-      allow read: if isAuthenticated();
-      allow create, update: if isAuthenticated()
-        && request.resource.data.keys().hasAll(['uid', 'name', 'updated'])
-        && (request.resource.data.uid == request.auth.uid
-            || request.resource.data.uid == emailToId(request.auth.token.email));
-      allow delete: if false;
-    }
-
-    // ─── Family groups ─────────────────────────────────────────────────────
-    match /families/{familyCode} {
-      // get: any authenticated user can fetch a specific family doc by code.
-      //   Required for join-code validation — a user must read the doc to confirm
-      //   the code exists and retrieve the family name before writing themselves in.
-      // list: disabled — no client path queries across multiple family docs.
-      allow get: if isAuthenticated();
-      allow list: if false;
-
-      // Creator must be the sole initial member and include memberEmails for rule enforcement
-      allow create: if isAuthenticated()
-        && request.resource.data.keys().hasAll(['name', 'code', 'created', 'members', 'memberEmails'])
-        && request.resource.data.members.size() == 1
-        && request.resource.data.memberEmails.size() == 1
-        && request.auth.token.email in request.resource.data.memberEmails;
-
-      // Existing members can update (leave/rename). New users can join by adding their own email.
-      // memberEmails flat list enables O(1) membership check without map iteration.
-      // Join case: user is not yet in memberEmails but IS adding their email to the new list.
-      allow update: if isAuthenticated()
-        && (isFamilyMember(resource.data.memberEmails)
-            || request.auth.token.email in request.resource.data.memberEmails)
-        && request.resource.data.keys().hasAll(['name', 'code', 'created', 'members', 'memberEmails'])
-        && request.resource.data.members.size() <= 50
-        && request.resource.data.memberEmails.size() <= 50
-        && resource.data.created == request.resource.data.created
-        && resource.data.code == request.resource.data.code;
-
-      allow delete: if false;
-
-      // ─── Reactions subcollection ──────────────────────────────────────
-      // Any authenticated family member can read and write reactions.
-      // Keyed by achievementKey — one reaction document per achievement.
-      match /reactions/{reactionId} {
-        allow read: if isAuthenticated()
-          && isFamilyMember(get(/databases/$(database)/documents/families/$(familyCode)).data.memberEmails);
-        allow create, update: if isAuthenticated()
-          && isFamilyMember(get(/databases/$(database)/documents/families/$(familyCode)).data.memberEmails);
-        allow delete: if false;
-      }
     }
 
     // ─── SRS (Spaced Repetition) — separate collection to avoid 200KB blob limit ─
