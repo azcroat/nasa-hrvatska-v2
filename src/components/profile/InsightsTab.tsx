@@ -59,7 +59,7 @@ const B1_RESOURCES = [
   },
 ];
 
-export default function InsightsTab({ onOpenFriends }: { onOpenFriends?: () => void }) {
+export default function InsightsTab() {
   const { setScr } = useApp();
   const { stats: st, level } = useStats();
   const [imdOpen, setImdOpen] = useState(false);
@@ -496,38 +496,6 @@ export default function InsightsTab({ onOpenFriends }: { onOpenFriends?: () => v
           </div>
           <div style={{ fontSize: 'var(--text-xl)', color: 'var(--subtext)', opacity: 0.8 }}>›</div>
         </button>
-        {onOpenFriends && (
-          <button
-            className="tc"
-            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px' }}
-            onClick={onOpenFriends}
-          >
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 13,
-                background: 'rgba(74,222,128,.12)',
-                border: '1px solid rgba(74,222,128,.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 'var(--text-xl)',
-                flexShrink: 0,
-              }}
-            >
-              👥
-            </div>
-            <div style={{ textAlign: 'left', minWidth: 0 }}>
-              <div style={{ fontSize: 'var(--text-sm)', fontWeight: 800, color: 'var(--heading)' }}>
-                Friends & Family
-              </div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 1 }}>
-                Learn together
-              </div>
-            </div>
-          </button>
-        )}
       </div>
 
       {/* ── LETTER TO FUTURE ME ── */}

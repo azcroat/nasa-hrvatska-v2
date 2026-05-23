@@ -14,14 +14,12 @@ import type { CefrLevel } from '../../lib/cefr';
 export default function ProfileTab({
   syncReady,
   onSyncNow,
-  onOpenFriends,
   lastSyncedAt = 0,
   onTakeEquivalencyTest,
   userEligible,
 }: {
   syncReady: boolean;
   onSyncNow?: () => void;
-  onOpenFriends?: () => void;
   lastSyncedAt?: number;
   /** Wired by AppRouter; navigates to the equivalency test screen. */
   onTakeEquivalencyTest?: () => void;
@@ -115,7 +113,7 @@ export default function ProfileTab({
       )}
 
       {/* ── INSIGHTS TAB ── */}
-      {ptab === 'insights' && <InsightsTab onOpenFriends={onOpenFriends} />}
+      {ptab === 'insights' && <InsightsTab />}
 
       {/* ── SETTINGS TAB ── */}
       {ptab === 'settings' && <SettingsTab syncReady={syncReady} onSyncNow={onSyncNow} />}

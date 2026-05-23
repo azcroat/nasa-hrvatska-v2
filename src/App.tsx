@@ -25,7 +25,6 @@ import { repairStreak } from './lib/streak.js';
 import { cleanupStaleQuestKeys } from './lib/quests.js';
 import { getUserCefr } from './lib/cefr.js';
 import { trackAppOpen } from './lib/analytics.js';
-import { fbRegisterFriendCode } from './lib/firebase.js';
 import AppContext from './context/AppContext';
 import { StatsProvider } from './context/StatsContext';
 import type { Stats, AuthUser, StatsDelta } from './types/index.js';
@@ -33,7 +32,6 @@ import type { Stats, AuthUser, StatsDelta } from './types/index.js';
 import { usePreferences } from './hooks/usePreferences.js';
 import { useSearch } from './hooks/useSearch.js';
 import { useAuth } from './hooks/useAuth.js';
-import { useFamily } from './hooks/useFamily.js';
 import { useJournal } from './hooks/useJournal.js';
 import { useDaily } from './hooks/useDaily.js';
 import {
@@ -401,20 +399,6 @@ function App() {
   });
   const [showFirstWords, setShowFirstWords] = useState(false);
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
-  const [pendingJoinCode, setPendingJoinCode] = useState(() => {
-    try {
-      const c = new URLSearchParams(window.location.search).get('join') || null;
-      if (c && /^[A-Z2-9]{6}$/.test(c)) {
-        const u = new URL(window.location.href);
-        u.searchParams.delete('join');
-        window.history.replaceState({}, '', u.toString());
-        return c;
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  });
   const [_syncReady, _setSyncReady] = useState(false);
   const [_showBackupBannerLocal, _setShowBackupBannerLocal] = useState(false); // fallback if useSyncManager not ready
 
@@ -505,22 +489,6 @@ function App() {
     sCurEx,
   } = useAppScreenState();
   const { dchlA, sDchlA, dchlSl, sDchlSl } = useDaily();
-  const {
-    famData,
-    setFamData,
-    famMembers,
-    setFamMembers,
-    famLoading,
-    setFamLoading,
-    famName,
-    setFamName,
-    famCode,
-    setFamCode,
-    famErr,
-    setFamErr,
-    famTab,
-    setFamTab,
-  } = useFamily();
   const [tab, _setTab] = useState(() => PATH_TO_TAB[window.location.pathname] || 'home');
   // setTab: switch tab + navigate + reset to dashboard. Called directly from TabBar/Sidebar
   // buttons, so we reset currentScreen here instead of via setScr('dashboard') to avoid
@@ -685,8 +653,6 @@ function App() {
       dispatch({ type: 'RESET', payload: DS });
       setScr('welcome');
       setName('');
-      setFamData(null);
-      setFamMembers([]);
       setFavs([]);
       setJWords([]);
       resetComebackGuard();
@@ -699,8 +665,6 @@ function App() {
       if (_syncNowRef.current) await _syncNowRef.current();
     },
     applyRemoteProgress: (fp) => _applyRemoteRef.current?.(fp),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setFamData: setFamData as any,
     setSyncReady: _setSyncReady,
   });
 
@@ -842,12 +806,6 @@ function App() {
       }
     });
   }, []);
-
-  // Register friend code index once per session when auth is ready
-  useEffect(() => {
-    if (authUser?.u) fbRegisterFriendCode(authUser.u, authUser.d || name);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser?.u]);
 
   // Keep _uidRef current so usePreferences.toggleFav fires fbToggleFavorite
   useEffect(() => {
@@ -1030,7 +988,6 @@ function App() {
         bozic: 'croatia',
         cloze: 'practice',
         badges: 'profile',
-        family_group: 'profile',
         journal: 'profile',
         favorites: 'profile',
         learnpath: 'learn',
@@ -1115,17 +1072,6 @@ function App() {
         localStorage.setItem('nh_freeze_recharge_wk', thisWeek);
       }
     } catch {}
-
-    if (pendingJoinCode) {
-      try {
-        const u = new URL(window.location.href);
-        u.searchParams.delete('join');
-        window.history.replaceState({}, '', u.pathname);
-      } catch (_) {}
-      setFamCode(pendingJoinCode);
-      setFamTab('join');
-      setPendingJoinCode(null);
-    }
 
     checkNameDay(name);
     scheduleStreakReminder(stats.str || getStreak().count);
@@ -1562,11 +1508,9 @@ function App() {
       // Stats / gamification — award exposed here so croatia/learn screens using useApp() work
       sCurEx,
       award,
-      // Journal / family
+      // Journal
       jWords,
       setJWords,
-      famData,
-      setFamData,
       // Subscription
       isPremium,
       refreshSub,
@@ -1578,19 +1522,6 @@ function App() {
       srchOpen,
       setSrchOpen,
       doSearch,
-      // Family (extended)
-      famMembers,
-      setFamMembers,
-      famLoading,
-      setFamLoading,
-      famName,
-      setFamName,
-      famCode,
-      setFamCode,
-      famErr,
-      setFamErr,
-      famTab,
-      setFamTab,
       // Daily challenge
       dchlA,
       sDchlA,
@@ -1643,8 +1574,6 @@ function App() {
       award,
       jWords,
       setJWords,
-      famData,
-      setFamData,
       isPremium,
       refreshSub,
       requirePremium,
@@ -1654,18 +1583,6 @@ function App() {
       srchOpen,
       setSrchOpen,
       doSearch,
-      famMembers,
-      setFamMembers,
-      famLoading,
-      setFamLoading,
-      famName,
-      setFamName,
-      famCode,
-      setFamCode,
-      famErr,
-      setFamErr,
-      famTab,
-      setFamTab,
       dchlA,
       sDchlA,
       dchlSl,

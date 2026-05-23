@@ -25,15 +25,11 @@ import {
   fbLoginGoogle,
   fbResetPassword,
   fbLoadProgress,
-  fbLoadUserFamily,
   fbOnAuthStateChanged,
 } from '../data';
 import {
   initFirebase,
-  getLocalFamily,
-  saveLocalFamily,
   fbSaveProgress,
-  type FamilyData,
 } from '../lib/firebase.js';
 import { setSentryUser } from '../lib/sentryUserContext';
 import { updateStreak } from '../lib/appUtils.js';
@@ -49,7 +45,6 @@ interface AuthCallbacks {
   }) => void;
   onSignedOut: () => void;
   applyRemoteProgress: (progress: unknown) => void;
-  setFamData: (fam: unknown) => void;
   setSyncReady: (ready: boolean) => void;
   onBeforeSignOut?: () => Promise<void>;
 }
@@ -62,7 +57,6 @@ export function useAuth({
   onSignedIn,
   onSignedOut,
   applyRemoteProgress,
-  setFamData,
   setSyncReady,
   onBeforeSignOut,
 }: AuthCallbacks): {
@@ -101,7 +95,6 @@ export function useAuth({
     onSignedIn,
     onSignedOut,
     applyRemoteProgress,
-    setFamData,
     setSyncReady,
     onBeforeSignOut,
   });
@@ -109,7 +102,6 @@ export function useAuth({
     onSignedIn,
     onSignedOut,
     applyRemoteProgress,
-    setFamData,
     setSyncReady,
     onBeforeSignOut,
   };
@@ -172,8 +164,6 @@ export function useAuth({
         setSentryUser({ id: user.u, email: user.e });
         touchSession();
         updateStreak();
-        const lf = getLocalFamily();
-        if (lf) cb.current.setFamData(lf);
         cb.current.onSignedIn({ user, progress: cached });
         setAuthScreen('app');
       }
@@ -253,13 +243,6 @@ export function useAuth({
         cb.current.onSignedIn({ user, progress: localP });
         setAuthScreen('app');
       }
-
-      fbLoadUserFamily(k).then(function (f: unknown) {
-        if (f) {
-          saveLocalFamily(f as FamilyData);
-          cb.current.setFamData(f);
-        }
-      });
 
       let syncReadyFired = false;
       function fireSyncReady(): void {
@@ -415,17 +398,6 @@ export function useAuth({
           setAuthScreen('app');
 
           fireSyncReady();
-
-          (function () {
-            const famData = getLocalFamily() as Record<string, unknown> | null;
-            const latestProgress = (fp || gP(k)) as Record<string, unknown> | null;
-            const _lpSt =
-              latestProgress &&
-              ((latestProgress.stats || latestProgress.st) as Record<string, unknown>);
-            if (famData && famData.code && _lpSt && (_lpSt.xp as number) > 0) {
-              fbSaveProgress(k, latestProgress as Record<string, unknown>).catch(function () {});
-            }
-          })();
         })
         .catch(function () {
           clearTimeout(t);

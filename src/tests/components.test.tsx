@@ -334,7 +334,7 @@ describe('ProfileTab smoke render', () => {
       render(
         <AppContext.Provider value={mockContextValue}>
           <StatsProvider value={mockStatsValue}>
-            <ProfileTab syncReady={false} onSyncNow={vi.fn()} onOpenFriends={vi.fn()} />
+            <ProfileTab syncReady={false} onSyncNow={vi.fn()} />
           </StatsProvider>
         </AppContext.Provider>,
       );
