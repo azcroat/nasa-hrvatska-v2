@@ -2,11 +2,12 @@
  * ai-conversation.spec.js
  *
  * E2E tests for the AIConversation screen, accessible from:
- *   - Croatia tab → Culture section → "AI Voice Conversation" button
- *   - Practice tab → AI Voice Conversation hero button
+ *   - AI Tutor tab → "AI Voice Conversation" card (canonical entry; consolidated
+ *     in the 2026-05 refactor that removed the Practice hero and Culture-section
+ *     entry points)
  *
  * Covers:
- *   1. Navigation — AI Conversations button visible on Croatia tab, opens screen
+ *   1. Navigation — AI Conversations button visible on AI Tutor tab, opens screen
  *   2. Mode selection — write/conversation tab buttons, switching between modes
  *   3. Write mode — prompts list loads, selecting a prompt enables start, textarea appears
  *   4. Conversation mode setup — scenario grid, category filter, scenario selection,
@@ -85,43 +86,22 @@ async function mockConversationAPIs(page) {
 }
 
 // ---------------------------------------------------------------------------
-// Helper — navigate to the Croatia tab and wait for it to be fully rendered
+// Helper — navigate to AIConversation from the AI Tutor tab (canonical entry).
+// AI surfaces were consolidated to AITab in the 2026-05 refactor; Practice
+// hero + Croatia/Culture entry points were removed.
 // ---------------------------------------------------------------------------
-async function gotoCroatia(page) {
-  await page.goto('/croatia');
-  await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-  // CroatiaTab renders the Discover tab by default; wait for any stable landmark
-  await expect(page.locator('#section-discover')).toBeVisible({ timeout: 15_000 });
-}
-
-// ---------------------------------------------------------------------------
-// Helper — navigate to the Practice tab and open the AI Voice Conversation
-// ---------------------------------------------------------------------------
-async function openAIConvoFromPractice(page) {
-  await page.goto('/practice');
-  // SW may trigger a reload while caching the PracticeTab chunk on first run — absorb it
+async function openAIConvoFromAITab(page) {
+  await page.goto('/ai');
+  // SW may trigger a reload while caching the AITab chunk on first run — absorb it
   // before asserting navigation visibility, which briefly disappears during a reload.
   await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 20_000 });
-  // Wait for the hero AI Voice Conversation button — confirms Practice tab fully rendered
+  // Wait for the AI Voice Conversation card — confirms AITab fully rendered
   const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
   await expect(aiHeroBtn).toBeVisible({ timeout: 20_000 });
   await aiHeroBtn.click();
   // First-load of the lazy AIConversation chunk can be slow in CI.
   await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 20_000 });
-}
-
-// ---------------------------------------------------------------------------
-// Helper — navigate to AIConversation from the Croatia tab's Culture section
-// ---------------------------------------------------------------------------
-async function openAIConvoFromCroatia(page) {
-  await gotoCroatia(page);
-  // The "AI Voice Conversation" button lives in the Culture section of CultureTab.
-  // Scroll down to find it and click.
-  const aiConvoBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
-  await aiConvoBtn.scrollIntoViewIfNeeded();
-  await aiConvoBtn.click();
-  await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 10_000 });
 }
 
 // ---------------------------------------------------------------------------
@@ -149,18 +129,19 @@ async function startFreeTalkConversation(page) {
 // 1. Navigation
 // ===========================================================================
 
-test.describe('Navigation — AI Conversations from Croatia tab', () => {
+test.describe('Navigation — AI Conversations from AI Tutor tab', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
     await blockFirebase(page);
     await mockTTS(page);
     await mockContent(page);
     await mockConversationAPIs(page);
-    await gotoCroatia(page);
+    await page.goto('/ai');
+    await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 20_000 });
   });
 
-  test('AI Voice Conversation button is visible in the Culture section', async ({ page }) => {
-    // The button may be below the fold; scroll to find it
+  test('AI Voice Conversation button is visible on the AI Tutor tab', async ({ page }) => {
     const btn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
     await btn.scrollIntoViewIfNeeded();
     await expect(btn).toBeVisible({ timeout: 5_000 });
@@ -175,15 +156,8 @@ test.describe('Navigation — AI Conversations from Croatia tab', () => {
   });
 
   test('AIConversation screen shows "Native Croatian speaker · All levels" subtitle', async ({ page }) => {
-    await openAIConvoFromCroatia(page);
+    await openAIConvoFromAITab(page);
     await expect(page.getByText(/Native Croatian speaker · All levels/)).toBeVisible({ timeout: 5_000 });
-  });
-
-  test('back navigation from Practice hero button also opens AIConversation', async ({ page }) => {
-    await page.goto('/practice');
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
-    await page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first().click();
-    await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -198,7 +172,7 @@ test.describe('Mode selection', () => {
     await mockTTS(page);
     await mockContent(page);
     await mockConversationAPIs(page);
-    await openAIConvoFromPractice(page);
+    await openAIConvoFromAITab(page);
   });
 
   test('Conversation mode tab button "💬 Razgovor" is visible', async ({ page }) => {
@@ -243,7 +217,7 @@ test.describe('Write mode', () => {
     await mockTTS(page);
     await mockContent(page);
     await mockConversationAPIs(page);
-    await openAIConvoFromPractice(page);
+    await openAIConvoFromAITab(page);
     // Switch to write mode
     await page.locator('button').filter({ hasText: /✍️ Free Write/ }).click();
     await expect(page.getByText(/Write freely in Croatian/)).toBeVisible({ timeout: 5_000 });
@@ -328,7 +302,7 @@ test.describe('Conversation mode setup', () => {
     await mockTTS(page);
     await mockContent(page);
     await mockConversationAPIs(page);
-    await openAIConvoFromPractice(page);
+    await openAIConvoFromAITab(page);
   });
 
   test('scenario grid is visible with multiple scenario cards', async ({ page }) => {
@@ -400,7 +374,7 @@ test.describe('Conversation chat', () => {
     await mockTTS(page);
     await mockContent(page);
     await mockConversationAPIs(page);
-    await openAIConvoFromPractice(page);
+    await openAIConvoFromAITab(page);
   });
 
   test('starting a conversation shows the chat overlay with input', async ({ page }) => {
@@ -473,7 +447,7 @@ test.describe('Double-evaluation guard', () => {
     await mockTTS(page);
     await mockContent(page);
     await mockConversationAPIs(page);
-    await openAIConvoFromPractice(page);
+    await openAIConvoFromAITab(page);
   });
 
   test('rapid clicks on End & Evaluate only trigger evaluation once', async ({ page }) => {
