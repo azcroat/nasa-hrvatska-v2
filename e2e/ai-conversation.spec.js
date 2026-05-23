@@ -96,7 +96,10 @@ async function openAIConvoFromAITab(page) {
   // before asserting navigation visibility, which briefly disappears during a reload.
   await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 20_000 });
-  // Wait for the AI Voice Conversation card — confirms AITab fully rendered
+  // AITab is lazy-loaded and React.Suspense swaps the fallback for the real
+  // component once the chunk arrives; that swap can briefly invalidate any
+  // element handle resolved during the transient render. Wait for the
+  // button to be attached AND stable before any further action.
   const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
   await expect(aiHeroBtn).toBeVisible({ timeout: 20_000 });
   await aiHeroBtn.click();
@@ -142,14 +145,17 @@ test.describe('Navigation — AI Conversations from AI Tutor tab', () => {
   });
 
   test('AI Voice Conversation button is visible on the AI Tutor tab', async ({ page }) => {
+    // AITab is lazy-loaded; the React.Suspense fallback→component swap can
+    // detach a previously resolved element. Skip the manual scrollIntoView
+    // (Playwright's actionability check scrolls on demand anyway) and rely
+    // on toBeVisible's auto-retry to wait for a stable, attached element.
     const btn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
-    await btn.scrollIntoViewIfNeeded();
-    await expect(btn).toBeVisible({ timeout: 5_000 });
+    await expect(btn).toBeVisible({ timeout: 15_000 });
   });
 
   test('clicking AI Voice Conversation opens the AIConversation screen', async ({ page }) => {
     const btn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
-    await btn.scrollIntoViewIfNeeded();
+    await expect(btn).toBeVisible({ timeout: 15_000 });
     await btn.click();
     // AIConversationHeader renders "Razgovor s Majom" in the hero
     await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 10_000 });
