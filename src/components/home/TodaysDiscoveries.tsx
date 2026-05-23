@@ -35,13 +35,17 @@ interface TabSpec {
   /** rgb triple as comma string — used for both the indicator colour and
    *  for the tinted active-tab background (rgba(${color},0.08)). */
   color: string;
+  /** rgb triple used for the active label text. Decoupled from `color` so the
+   *  indicator/tint can stay bright while the label still meets WCAG 2.1 AA
+   *  4.5:1 contrast against its tinted background. */
+  textColor: string;
 }
 
 const TABS: TabSpec[] = [
-  { id: 'word', icon: '📝', label: 'Word', color: '217,119,6' },
-  { id: 'phrase', icon: '💬', label: 'Phrase', color: '204,0,0' },
-  { id: 'city', icon: '🏙️', label: 'City', color: '14,116,144' },
-  { id: 'story', icon: '📖', label: 'Story', color: '124,58,237' },
+  { id: 'word', icon: '📝', label: 'Word', color: '217,119,6', textColor: '146,64,14' },
+  { id: 'phrase', icon: '💬', label: 'Phrase', color: '204,0,0', textColor: '204,0,0' },
+  { id: 'city', icon: '🏙️', label: 'City', color: '14,116,144', textColor: '14,116,144' },
+  { id: 'story', icon: '📖', label: 'Story', color: '124,58,237', textColor: '124,58,237' },
 ];
 
 export default function TodaysDiscoveries({ wod, pod, setScr, launchStory }: Props) {
@@ -112,7 +116,6 @@ export default function TodaysDiscoveries({ wod, pod, setScr, launchStory }: Pro
       >
         {TABS.map((t) => {
           const isActive = active === t.id;
-          const accent = `rgb(${t.color})`;
           const tintBg = `rgba(${t.color},0.08)`;
           return (
             <button
@@ -149,7 +152,7 @@ export default function TodaysDiscoveries({ wod, pod, setScr, launchStory }: Pro
                 style={{
                   fontSize: 11,
                   fontWeight: 800,
-                  color: isActive ? accent : 'var(--subtext)',
+                  color: isActive ? `rgb(${t.textColor})` : 'var(--subtext)',
                   letterSpacing: '.02em',
                   transition: 'color .2s ease',
                 }}

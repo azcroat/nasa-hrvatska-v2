@@ -26,9 +26,12 @@ test.describe('Progress integrity', () => {
       timeout: 15_000,
     });
 
-    // The Streak stat pill shows the seeded value of 5
+    // The streak badge renders `<span>5</span><span>day streak</span>` adjacently,
+    // so textContent concatenates to "5day streak". Match the count+label together
+    // rather than relying on lookbehind around bare "5" (which fails when the
+    // preceding sibling is a digit like "Level 4").
     const bodyText = await page.locator('body').textContent({ timeout: 5_000 });
-    expect(bodyText).toMatch(/(?<!\d)5(?!\d)/);
+    expect(bodyText).toMatch(/5\s*day streak/i);
 
     // The stat pill renders a "Streak" label — confirm it is visible
     await expect(page.getByText(/streak/i).first()).toBeVisible({ timeout: 5_000 });
@@ -169,9 +172,10 @@ test.describe('Progress integrity', () => {
 
     await expect(nav).toBeVisible({ timeout: 15_000 });
 
-    // Streak text must still be present after reload
+    // Streak text must still be present after reload (see streak-badge test
+    // comment for why the count+label combo is matched).
     const bodyText = await page.locator('body').textContent({ timeout: 5_000 });
-    expect(bodyText).toMatch(/(?<!\d)5(?!\d)/);
+    expect(bodyText).toMatch(/5\s*day streak/i);
   });
 
   // ── 7. XP in localStorage is a non-negative integer ──────────────────────

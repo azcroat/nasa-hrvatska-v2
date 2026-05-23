@@ -34,6 +34,10 @@ export default defineConfig({
     // Force light mode so dark-mode CSS variable overrides never produce
     // low-contrast quest button colours that fail WCAG AA axe scans
     colorScheme: 'light',
+    // Reduce motion globally so tab-enter / slide-in animations don't
+    // re-attach DOM elements mid-action, which produced flakes like
+    // "Element is not attached to the DOM" on the first run.
+    reducedMotion: 'reduce',
   },
   projects: [
     // ── Desktop browsers ────────────────────────────────────────────────────
