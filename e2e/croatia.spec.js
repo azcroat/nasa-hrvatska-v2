@@ -38,15 +38,15 @@ test.describe('Croatia tab', () => {
       const btn = page.locator('button.exercise-card').filter({ hasText: 'Domovinski Rat' }).first();
       await btn.scrollIntoViewIfNeeded();
       await btn.click();
-      // CroatiaHistoryScreen renders a "Timeline" label above the events list
-      await expect(page.getByText('Timeline').first()).toBeVisible({ timeout: 5_000 });
+      // CroatiaHistoryScreen is lazy-loaded; first chunk fetch can exceed 5s.
+      await expect(page.getByText('Timeline').first()).toBeVisible({ timeout: 15_000 });
     });
 
     test('tab bar returns to Croatia after viewing history', async ({ page }) => {
       const btn = page.locator('button.exercise-card').filter({ hasText: 'Domovinski Rat' }).first();
       await btn.scrollIntoViewIfNeeded();
       await btn.click();
-      await expect(page.getByText('Timeline').first()).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByText('Timeline').first()).toBeVisible({ timeout: 15_000 });
       // Navigate back via the Croatia tab in the nav bar
       await page.getByRole('navigation', { name: 'Main navigation' })
         .getByRole('button', { name: 'Croatia', exact: true }).click();
@@ -57,8 +57,8 @@ test.describe('Croatia tab', () => {
       const btn = page.locator('button.exercise-card').filter({ hasText: 'Zagreb' }).first();
       await btn.scrollIntoViewIfNeeded();
       await btn.click();
-      // RegionScreen renders tabs: Overview, Timeline, People, Language, Quiz
-      await expect(page.getByText('Overview').first()).toBeVisible({ timeout: 5_000 });
+      // RegionScreen is lazy-loaded; tabs (Overview/Timeline/People/Language/Quiz) appear after chunk loads.
+      await expect(page.getByText('Overview').first()).toBeVisible({ timeout: 15_000 });
     });
   });
 

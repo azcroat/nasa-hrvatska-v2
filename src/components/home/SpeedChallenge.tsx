@@ -260,6 +260,7 @@ export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }
           {!playedToday && (
             <button
               onClick={start}
+              disabled={!content}
               style={{
                 flexShrink: 0,
                 background: '#7c3aed',
@@ -269,7 +270,8 @@ export default function SpeedChallenge({ onXP }: { onXP?: (xp: number) => void }
                 padding: '10px 16px',
                 fontSize: 13,
                 fontWeight: 800,
-                cursor: 'pointer',
+                cursor: content ? 'pointer' : 'progress',
+                opacity: content ? 1 : 0.6,
                 fontFamily: "'Outfit',sans-serif",
               }}
             >

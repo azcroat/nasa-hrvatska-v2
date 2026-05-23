@@ -212,6 +212,11 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     );
 
     await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
+      timeout: 15_000,
+    });
+    // The 2026-05-22 refactor put Story card behind a tab; open it first.
+    await page.getByRole('tab', { name: /Story/ }).click();
     await expect(page.getByTestId('story-of-the-day-card')).toBeVisible({
       timeout: 15_000,
     });
