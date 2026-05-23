@@ -44,7 +44,6 @@ import {
   nXP,
   shuffleArr,
   buildSearchIndex,
-  generateFamilyCode,
   friendlyError,
   getSR,
   saveSR,
@@ -161,20 +160,6 @@ describe('shMemo', () => {
     const arr = [1, 2, 3, 4, 5];
     const result = shMemo('len-key', arr, 3);
     expect(result).toHaveLength(3);
-  });
-});
-
-// ── generateFamilyCode ───────────────────────────────────────────────────────
-describe('generateFamilyCode', () => {
-  it('generates a 6-character code', () => expect(generateFamilyCode()).toHaveLength(6));
-  it('uses only allowed characters (no ambiguous 0/O/1/I)', () => {
-    for (let i = 0; i < 20; i++) {
-      expect(generateFamilyCode()).toMatch(/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]+$/);
-    }
-  });
-  it('generates unique codes', () => {
-    const codes = new Set(Array.from({ length: 50 }, () => generateFamilyCode()));
-    expect(codes.size).toBeGreaterThan(40);
   });
 });
 

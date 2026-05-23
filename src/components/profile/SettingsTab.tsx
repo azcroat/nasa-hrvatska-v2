@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import { fbDeleteAccount, fbLeaveFamily, getLocalFamily, sh } from '../../data';
+import { fbDeleteAccount, sh } from '../../data';
 import { useContent } from '../../hooks/useContent';
 import { fbExportUserData } from '../../lib/firebase.js';
 import type { LogEntry } from '../../lib/debugLog.js';
@@ -312,14 +312,6 @@ export default function SettingsTab({
     if (!au || !au.u) return;
     setDeleting(true);
     try {
-      const localFam = getLocalFamily();
-      if (localFam && localFam.code && au.e) {
-        try {
-          await fbLeaveFamily(localFam.code, au.e);
-        } catch {
-          /* Non-blocking */
-        }
-      }
       await fbDeleteAccount(au.u);
       doOut();
     } catch (e) {
