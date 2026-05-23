@@ -27,10 +27,7 @@ import {
   fbLoadProgress,
   fbOnAuthStateChanged,
 } from '../data';
-import {
-  initFirebase,
-  fbSaveProgress,
-} from '../lib/firebase.js';
+import { initFirebase, fbSaveProgress } from '../lib/firebase.js';
 import { setSentryUser } from '../lib/sentryUserContext';
 import { updateStreak } from '../lib/appUtils.js';
 import { getSR } from '../lib/srs.js';

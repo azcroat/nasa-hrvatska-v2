@@ -291,7 +291,6 @@ describe('/profiles/{userId}', () => {
   });
 });
 
-
 // ── /srs/{userId} ─────────────────────────────────────────────────────────────
 
 describe('/srs/{userId}', () => {
@@ -350,7 +349,6 @@ describe('/srs/{userId}', () => {
     await assertFails(db.doc(`srs/${uid}`).delete());
   });
 });
-
 
 // ── Deny-all catch-all ────────────────────────────────────────────────────────
 
