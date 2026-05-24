@@ -62,33 +62,23 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
       });
     });
 
-    await page.goto('/');
-    await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
-    await page.getByTestId(TID.NAV_PRACTICE).click();
-    // Use Drill → Advanced tile to reach the writing card (proven path in
-    // practice.spec.js:125). PracticeTab cold-render keeps creeping: 15.6s
-    // in run 26346293557, 25.6s in run 26348850121 (hit the 25s ceiling).
-    // 35s covers the slowest observed cold-render with margin.
-    const drillPill = page.locator('button').filter({ hasText: /^Drill$/ });
-    await expect(drillPill).toBeVisible({ timeout: 35_000 });
-    await drillPill.click();
-    const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
-    await advTile.scrollIntoViewIfNeeded();
-    await advTile.click();
-    await expect(advTile).toHaveAttribute('aria-expanded', 'true', { timeout: 5_000 });
-    // 20s timeout: covers the React MERGE_REMOTE hydration window where stats
-    // transition from DS=A1 to the forceCefr-seeded B1, which is when the
-    // writing card (cefr 'B1') joins availableExercises and appears in DOM.
-    const writingCard = page.getByTestId(TID.EXERCISE_CARD('writing'));
+    // AI Writing Feedback now lives exclusively on the AI Tutor tab, so this
+    // test navigates there directly instead of going through Practice →
+    // Drill → Advanced (the writing card was removed from PracticeTab).
+    await page.goto('/ai');
+    await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
+      timeout: 20_000,
+    });
+    const writingCard = page.locator('button').filter({ hasText: 'AI Writing Feedback' }).first();
     await expect(writingCard).toBeVisible({ timeout: 20_000 });
-    await writingCard.scrollIntoViewIfNeeded();
     await writingCard.click();
     // Confirm WritingScreen mounted and textarea is interactable before fill —
-    // exercise-card click triggers a lazy chunk; without this wait the fill can
-    // race the React mount and the controlled-input state never registers the
+    // card click triggers a lazy chunk; without this wait the fill can race
+    // the React mount and the controlled-input state never registers the
     // value, leaving checkWithAI() to bail at its `text.trim().length < 10`
     // guard and never firing the POST that the test waits for.
-    await expect(page.getByTestId(TID.WRITING_INPUT)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId(TID.WRITING_INPUT)).toBeVisible({ timeout: 15_000 });
     const writingText = 'Imam mama svaki dan svaki dan svaki dan svaki dan.';
     await page.getByTestId(TID.WRITING_INPUT).fill(writingText);
     await expect(page.getByTestId(TID.WRITING_INPUT)).toHaveValue(writingText);

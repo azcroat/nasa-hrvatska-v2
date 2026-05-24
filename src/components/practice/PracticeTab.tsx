@@ -197,10 +197,6 @@ export default function PracticeTab({
     setScr('review');
     sCurEx('review');
   }
-  function startWriting() {
-    setScr('writing');
-    sCurEx('writing');
-  }
   function startPitchAccent() {
     setScr('pitchaccent');
     sCurEx('pitchaccent');
@@ -212,22 +208,6 @@ export default function PracticeTab({
   function startAspectDrill() {
     setScr('aspectdrill');
     sCurEx('aspectdrill');
-  }
-  function startSpeakingSprint() {
-    setScr('speaking_sprint');
-    sCurEx('speaking_sprint');
-  }
-  function startAIListening() {
-    setScr('ai_listening');
-    sCurEx('ai_listening');
-  }
-  function startVideoLesson() {
-    setScr('video_lesson');
-    sCurEx('video_lesson');
-  }
-  function startGrammarDiagnosis() {
-    setScr('grammar_diagnosis');
-    sCurEx('grammar_diagnosis');
   }
 
   // Q-4: Screens (ZnamGame, Unjumble, PrepDrill, NumTime) all manage their own state internally.
@@ -990,16 +970,6 @@ export default function PracticeTab({
       action: startReview,
     },
     {
-      id: 'writing',
-      label: 'Free Writing',
-      icon: '✍️',
-      desc: 'Write & get AI feedback',
-      category: 'advanced',
-      cefr: 'B1',
-      duration: 'open-ended',
-      action: startWriting,
-    },
-    {
       id: 'aspectdrill',
       label: 'Aspect Drill',
       icon: '🔄',
@@ -1008,16 +978,6 @@ export default function PracticeTab({
       cefr: 'B1+',
       duration: '~10 min',
       action: startAspectDrill,
-    },
-    {
-      id: 'speaking_sprint',
-      label: 'Speaking Sprint',
-      icon: '🎤',
-      desc: 'Hear · Speak · Compare with native',
-      category: 'advanced',
-      cefr: 'A1+',
-      duration: '~15 min',
-      action: startSpeakingSprint,
     },
     {
       id: 'dialogue',
@@ -1088,7 +1048,7 @@ export default function PracticeTab({
       id: 'adaptive_review',
       label: 'Smart Review ✨',
       icon: '🧠',
-      desc: 'Personalized session built from your weak spots — AI-powered',
+      desc: 'Personalized session built from your weak spots',
       category: 'advanced',
       cefr: 'A1+',
       duration: '~10 min',
@@ -1096,49 +1056,6 @@ export default function PracticeTab({
         setScr('adaptive_review');
         sCurEx('adaptive_review');
       },
-    },
-    {
-      id: 'ai_listening',
-      label: 'AI Listening',
-      icon: '🎧',
-      desc: 'AI-generated dialogues + comprehension',
-      category: 'advanced',
-      cefr: 'A2+',
-      duration: '~10 min',
-      action: startAIListening,
-    },
-    {
-      id: 'ai_story',
-      label: 'AI Story',
-      icon: '📖',
-      desc: 'Story built from your weak words',
-      category: 'advanced',
-      cefr: 'A2+',
-      duration: '~8 min',
-      action: () => {
-        setScr('ai_story');
-        sCurEx('ai_story');
-      },
-    },
-    {
-      id: 'video_lesson',
-      label: 'Video Lesson',
-      icon: '🎬',
-      desc: 'Watch a Croatian scene · follow the dialogue · answer questions',
-      category: 'advanced',
-      cefr: 'A2+',
-      duration: '~12 min',
-      action: startVideoLesson,
-    },
-    {
-      id: 'grammar_diagnosis',
-      label: 'Grammar Blind Spots',
-      icon: '🔬',
-      desc: 'Weekly AI analysis of your weak points',
-      category: 'advanced',
-      cefr: 'A1+',
-      duration: 'weekly',
-      action: startGrammarDiagnosis,
     },
     {
       id: 'translate_drills',
@@ -1986,19 +1903,6 @@ export default function PracticeTab({
                   sCurEx('listening_comprehension');
                 },
               },
-              {
-                icon: '📖',
-                label: 'AI Story',
-                desc: 'Story built from your weak words',
-                color: 'rgba(5,150,105,.07)',
-                border: 'rgba(5,150,105,.25)',
-                grad: 'linear-gradient(135deg,#059669,#047857)',
-                shadow: 'rgba(5,150,105,.3)',
-                fn: () => {
-                  setScr('ai_story');
-                  sCurEx('ai_story');
-                },
-              },
             ].map((r, i) => (
               <button
                 key={i}
@@ -2627,132 +2531,6 @@ export default function PracticeTab({
                   </button>
                 );
               })}
-            </div>
-            <div className="section-hdr">
-              <div className="section-hdr-icon" style={{ background: 'rgba(124,58,237,.12)' }}>
-                🤖
-              </div>
-              <div className="section-hdr-text">
-                <div className="section-hdr-title">AI Challenges</div>
-                <div className="section-hdr-sub">Adaptive difficulty · powered by AI</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-              {[
-                {
-                  icon: '📷',
-                  label: 'Photo Vocab Scanner',
-                  desc: 'Photograph anything · get Croatian words for what you see',
-                  color: 'rgba(220,38,38,.08)',
-                  border: 'rgba(220,38,38,.25)',
-                  fn: () => {
-                    setScr('photo_vocab');
-                    sCurEx('photo_vocab');
-                  },
-                },
-                {
-                  icon: '🎧',
-                  label: 'AI Listening',
-                  desc: 'AI-generated dialogues + comprehension',
-                  color: 'rgba(14,116,144,.08)',
-                  border: 'rgba(14,116,144,.25)',
-                  fn: startAIListening,
-                },
-                {
-                  icon: '📖',
-                  label: 'AI Story',
-                  desc: 'Story built from your weak words',
-                  color: 'rgba(5,150,105,.08)',
-                  border: 'rgba(5,150,105,.25)',
-                  fn: () => {
-                    setScr('ai_story');
-                    sCurEx('ai_story');
-                  },
-                },
-                {
-                  icon: '🎓',
-                  label: 'CEFR Test',
-                  desc: 'A1→B2 proficiency check',
-                  color: 'rgba(14,116,144,.08)',
-                  border: 'rgba(14,116,144,.25)',
-                  fn: () => {
-                    setScr('cefrtest');
-                    sCurEx('cefrtest');
-                  },
-                },
-                {
-                  icon: '🎬',
-                  label: 'Video Lesson',
-                  desc: 'Watch · follow dialogue · answer questions',
-                  color: 'rgba(220,38,38,.08)',
-                  border: 'rgba(220,38,38,.25)',
-                  fn: startVideoLesson,
-                },
-                {
-                  icon: '🔬',
-                  label: 'Grammar Blind Spots',
-                  desc: 'Weekly AI analysis of your weak points',
-                  color: 'rgba(124,58,237,.08)',
-                  border: 'rgba(124,58,237,.25)',
-                  fn: startGrammarDiagnosis,
-                },
-              ].map((r, i) => (
-                <button
-                  key={i}
-                  onClick={r.fn}
-                  className="tc"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 14,
-                    padding: '14px 18px',
-                    border: `1.5px solid ${r.border}`,
-                    background: r.color,
-                    cursor: 'pointer',
-                    fontFamily: "'Outfit',sans-serif",
-                    textAlign: 'left',
-                    width: '100%',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 13,
-                      flexShrink: 0,
-                      background: 'var(--card)',
-                      border: `1.5px solid ${r.border}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 22,
-                      boxShadow: '0 2px 8px rgba(0,0,0,.06)',
-                    }}
-                  >
-                    {r.icon}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 800,
-                        color: 'var(--heading)',
-                        marginBottom: 2,
-                      }}
-                    >
-                      {r.label}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--subtext)', lineHeight: 1.4 }}>
-                      {r.desc}
-                    </div>
-                  </div>
-                  <div
-                    style={{ fontSize: 18, color: 'var(--subtext)', opacity: 0.6, fontWeight: 300 }}
-                  >
-                    ›
-                  </div>
-                </button>
-              ))}
             </div>
           </div>
         )}

@@ -72,10 +72,7 @@ const GOAL_FOCUS = {
     color: 'var(--lavender)',
     bg: 'rgba(124,58,237,.1)',
     border: 'rgba(124,58,237,.25)',
-    items: [
-      { icon: '🌊', label: 'Immersion', scr: 'immersion' },
-      { icon: '🤖', label: 'AI Convo', scr: 'aiconvo' },
-    ],
+    items: [{ icon: '🌊', label: 'Immersion', scr: 'immersion' }],
   },
   fluent: {
     label: 'Becoming Fluent',
@@ -359,7 +356,8 @@ export default function SettingsTab({
                       } else if (it.launch === 'speaking_family') {
                         const pool = sh([...(V['family'] || [])]).slice(0, 6);
                         if (pool.length > 0 && launchSpeaking) launchSpeaking(pool);
-                        else setScr('speaking_sprint');
+                        // Fallback to speaking_sprint removed — that surface
+                        // is now only launchable from the AI Tutor tab.
                       } else {
                         setScr(it.scr);
                       }

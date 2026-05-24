@@ -231,54 +231,6 @@ export default function DiscoverTab() {
         </div>
         <div style={{ fontSize: 20, color: 'rgba(255,255,255,.7)', fontWeight: 300 }}>›</div>
       </button>
-
-      {/* ── PHOTO VOCAB SCANNER ── */}
-      <button
-        onClick={() => setScr('photo_vocab')}
-        className="feature-card"
-        style={{
-          background: 'linear-gradient(135deg,#164e63,#0e7490)',
-          boxShadow: '0 4px 20px rgba(14,116,144,.35)',
-        }}
-      >
-        <div
-          style={{
-            width: 50,
-            height: 50,
-            borderRadius: 14,
-            flexShrink: 0,
-            background: 'rgba(255,255,255,.12)',
-            border: '1.5px solid rgba(255,255,255,.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 26,
-          }}
-        >
-          📷
-        </div>
-        <div style={{ flex: 1, textAlign: 'left' }}>
-          <div
-            style={{
-              fontSize: 9,
-              fontWeight: 900,
-              color: 'rgba(255,255,255,.6)',
-              letterSpacing: '.12em',
-              textTransform: 'uppercase',
-              marginBottom: 4,
-            }}
-          >
-            AI · Camera
-          </div>
-          <div className="feature-card-title" style={{ color: '#fff', marginBottom: 3 }}>
-            Photo Vocabulary Scanner
-          </div>
-          <div className="feature-card-desc" style={{ color: 'rgba(255,255,255,.72)' }}>
-            Point your camera at menus, signs or labels — learn the Croatian words instantly.
-          </div>
-        </div>
-        <div style={{ fontSize: 20, color: 'rgba(255,255,255,.7)', fontWeight: 300 }}>›</div>
-      </button>
     </div>
   );
 }

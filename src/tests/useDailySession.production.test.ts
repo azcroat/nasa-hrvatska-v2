@@ -48,9 +48,7 @@ describe('selectProductionExercise — happy path', () => {
       recentScreens: [],
     });
     expect(result).not.toBeNull();
-    expect(['speaking_sprint', 'shadowing', 'writing', 'dictation', 'productiondrill']).toContain(
-      result!.screen,
-    );
+    expect(['shadowing', 'dictation', 'productiondrill']).toContain(result!.screen);
   });
 });
 
@@ -68,25 +66,25 @@ describe('selectProductionExercise — CEFR gating', () => {
     expect(result).toBeNull();
   });
 
-  it('A2 user → has access to 2 of 5 (speaking_sprint, shadowing)', () => {
-    // With rnd()=0 mocked, returns the first eligible item: speaking_sprint
+  // After the AI-consolidation (speaking_sprint + writing moved to AI Tutor
+  // tab only), the production pool is: shadowing (A2), productiondrill (B1),
+  // dictation (B1). With rnd()=0 mocked, the first eligible item is picked.
+  it('A2 user → only shadowing is unlocked', () => {
     const result = selectProductionExercise({
       cefr: 'A2',
       micState: 'available',
       recentScreens: [],
     });
-    expect(result?.screen).toBe('speaking_sprint');
+    expect(result?.screen).toBe('shadowing');
   });
 
-  it('B1 user → has access to all 5', () => {
+  it('B1 user → first eligible is shadowing (with rnd()=0)', () => {
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'available',
       recentScreens: [],
     });
-    expect(result).not.toBeNull();
-    // With rnd()=0, returns first item: speaking_sprint
-    expect(result?.screen).toBe('speaking_sprint');
+    expect(result?.screen).toBe('shadowing');
   });
 });
 
@@ -95,37 +93,34 @@ describe('selectProductionExercise — mic state filtering', () => {
     localStorage.clear();
   });
 
-  it('mic denied at B1 → returns Writing or Dictation only', () => {
+  it('mic denied at B1 → returns Dictation only (productiondrill + shadowing both need mic)', () => {
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'denied',
       recentScreens: [],
     });
-    expect(['writing', 'dictation']).toContain(result?.screen);
+    expect(result?.screen).toBe('dictation');
   });
 
-  it('mic unsupported at B1 → returns Writing or Dictation only', () => {
+  it('mic unsupported at B1 → returns Dictation only', () => {
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'unsupported',
       recentScreens: [],
     });
-    expect(['writing', 'dictation']).toContain(result?.screen);
+    expect(result?.screen).toBe('dictation');
   });
 
-  it('mic unknown → fail-open (treated as available)', () => {
+  it('mic unknown → fail-open (treated as available), first eligible is shadowing', () => {
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'unknown',
       recentScreens: [],
     });
-    expect(result).not.toBeNull();
-    // With rnd()=0 and B1 unlocking all, picks the first: speaking_sprint
-    expect(result?.screen).toBe('speaking_sprint');
+    expect(result?.screen).toBe('shadowing');
   });
 
-  it('mic denied at A2 → returns null (no keyboard-only exercises at A2)', () => {
-    // Writing + Dictation both require B1; A2 user with denied mic gets nothing.
+  it('mic denied at A2 → returns null (only shadowing is A2-unlocked and it needs mic)', () => {
     const result = selectProductionExercise({
       cefr: 'A2',
       micState: 'denied',
@@ -141,35 +136,33 @@ describe('selectProductionExercise — recent-exclusion', () => {
   });
 
   it('excludes recent screens from selection', () => {
-    // With rnd()=0 and B1 user, normally returns speaking_sprint.
-    // Pre-seeded recent excludes it → returns shadowing (next in pool).
+    // With rnd()=0 and B1 user, normally returns shadowing.
+    // Pre-seeded recent excludes it → returns productiondrill (next in pool).
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'available',
-      recentScreens: ['speaking_sprint'],
+      recentScreens: ['shadowing'],
+    });
+    expect(result?.screen).toBe('productiondrill');
+  });
+
+  it('falls back to full pool when recent-exclusion empties it', () => {
+    // All 3 in recent list — fallback returns pre-exclusion first item.
+    const result = selectProductionExercise({
+      cefr: 'B1',
+      micState: 'available',
+      recentScreens: ['shadowing', 'productiondrill', 'dictation'],
     });
     expect(result?.screen).toBe('shadowing');
   });
 
-  it('falls back to full pool when recent-exclusion empties it', () => {
-    // All 5 in recent list — fallback returns pre-exclusion first item.
-    const result = selectProductionExercise({
-      cefr: 'B1',
-      micState: 'available',
-      recentScreens: ['speaking_sprint', 'shadowing', 'productiondrill', 'writing', 'dictation'],
-    });
-    expect(result).not.toBeNull();
-    expect(result?.screen).toBe('speaking_sprint'); // first in pool with rnd()=0
-  });
-
-  it('mic-denied + recent-eliminates-keyboard → falls back to keyboard pool', () => {
-    // Mic denied filters to writing+dictation. Both in recent list — fallback returns writing.
+  it('mic-denied + dictation in recent → falls back to dictation (only keyboard option)', () => {
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'denied',
-      recentScreens: ['writing', 'dictation'],
+      recentScreens: ['dictation'],
     });
-    expect(['writing', 'dictation']).toContain(result?.screen);
+    expect(result?.screen).toBe('dictation');
   });
 });
 
@@ -180,49 +173,38 @@ describe('buildSessionActivities — P2.5 production slot', () => {
 
   it('A2 session contains exactly one production-pool screen', () => {
     const result = buildSessionActivities('A2');
-    const productionScreens = [
-      'speaking_sprint',
-      'shadowing',
-      'writing',
-      'dictation',
-      'productiondrill',
-    ];
+    const productionScreens = ['shadowing', 'dictation', 'productiondrill'];
     const matches = result.filter((a) => productionScreens.includes(a.screen));
     expect(matches.length).toBe(1);
   });
 
   it('A1 session does NOT contain a production-pool screen (all locked)', () => {
     const result = buildSessionActivities('A1');
-    const productionScreens = [
-      'speaking_sprint',
-      'shadowing',
-      'writing',
-      'dictation',
-      'productiondrill',
-    ];
+    const productionScreens = ['shadowing', 'dictation', 'productiondrill'];
     const matches = result.filter((a) => productionScreens.includes(a.screen));
     expect(matches.length).toBe(0);
   });
 
-  it('mic-denied user at B1 gets Writing or Dictation as production slot', () => {
+  it('mic-denied user at B1 gets Dictation as production slot', () => {
     localStorage.setItem('nh_mic_state', 'denied');
     const result = buildSessionActivities('B1');
     const productionMatch = result.find((a) =>
-      ['speaking_sprint', 'shadowing', 'writing', 'dictation', 'productiondrill'].includes(
-        a.screen,
-      ),
+      ['shadowing', 'dictation', 'productiondrill'].includes(a.screen),
     );
-    expect(['writing', 'dictation']).toContain(productionMatch?.screen);
+    expect(productionMatch?.screen).toBe('dictation');
   });
 });
 
 describe('PRODUCTION_SCREEN_IDS — markDone integration surface', () => {
-  it('includes all five production screens', () => {
-    expect(PRODUCTION_SCREEN_IDS.has('speaking_sprint')).toBe(true);
+  it('includes the three remaining production screens', () => {
     expect(PRODUCTION_SCREEN_IDS.has('shadowing')).toBe(true);
     expect(PRODUCTION_SCREEN_IDS.has('productiondrill')).toBe(true);
-    expect(PRODUCTION_SCREEN_IDS.has('writing')).toBe(true);
     expect(PRODUCTION_SCREEN_IDS.has('dictation')).toBe(true);
+  });
+
+  it('does not include AI-only surfaces moved to AI Tutor tab', () => {
+    expect(PRODUCTION_SCREEN_IDS.has('speaking_sprint')).toBe(false);
+    expect(PRODUCTION_SCREEN_IDS.has('writing')).toBe(false);
   });
 
   it('excludes a non-production screen', () => {
@@ -241,14 +223,13 @@ describe('selectProductionExercise — determinism', () => {
   });
 
   it('with rnd()=0 mocked, returns the first item in the candidate pool deterministically', () => {
-    // rnd is mocked at top of file to return 0.
-    // Math.floor(0 * len) === 0, so the helper always returns the first eligible pool member.
+    // rnd is mocked at top of file to return 0. First eligible at B1: shadowing.
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'available',
       recentScreens: [],
     });
-    expect(result?.screen).toBe('speaking_sprint');
+    expect(result?.screen).toBe('shadowing');
   });
 
   it('Math.min clamp prevents out-of-bounds index (defensive coverage note)', () => {
