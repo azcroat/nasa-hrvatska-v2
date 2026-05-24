@@ -6,7 +6,6 @@
 //
 // 2026-05-22 visual treatment (Option A+C combined):
 //   - Color-coded per tab: word=orange, phrase=red, city=teal, story=purple.
-//   - Croatian-flag accent stripe (red/white/blue) along left edge.
 //   - Active tab gets a tinted background + colored label + scaled icon.
 //   - Sliding 4px indicator bar with colour/glow that morphs to match the
 //     active tab's accent on switch.
@@ -73,21 +72,6 @@ export default function TodaysDiscoveries({ wod, pod, setScr, launchStory }: Pro
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-
-      {/* Croatian flag accent stripe — red/white/blue vertically along left */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 4,
-          background:
-            'linear-gradient(180deg,#D40030 0%,#D40030 33.3%,#ffffff 33.3%,#ffffff 66.6%,#003DA5 66.6%,#003DA5 100%)',
-          pointerEvents: 'none',
-        }}
-      />
 
       {/* Section label */}
       <div
