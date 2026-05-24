@@ -24,23 +24,32 @@ jobs:
 
       - name: Delete orphans
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
           # NB: the trailing space in the name below is intentional — that's
-          # the actual orphan key on CF Pages. Quoted carefully so wrangler
-          # receives the exact byte sequence.
+          # the actual orphan key on CF Pages. URL-encoded to "%20" so the
+          # CF API path resolves to the exact name including the space.
+          # wrangler `pages secret delete` only handles secret_text entries,
+          # so plain_text orphans need the raw API.
           ORPHANS=(
             "AZURE_TTS_REGION "
           )
           for name in "${ORPHANS[@]}"; do
-            echo "  → deleting CF Pages env var: [$name] (len=${#name})"
-            # `pages secret delete` works for both secret_text and plain_text
-            # entries — it removes whatever entry has that name regardless
-            # of type.
-            npx --yes wrangler@3 pages secret delete "$name" \
-              --project-name=nasa-hrvatska-v2 \
-              --yes >/dev/null 2>&1 || echo "    (not present — no-op)"
+            encoded=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$name")
+            echo "  → deleting CF Pages env var: [$name] (len=${#name}, encoded=$encoded)"
+            RESPONSE=$(curl -s -w "\n__STATUS__%{http_code}" -X PATCH \
+              "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/nasa-hrvatska-v2" \
+              -H "Authorization: Bearer $CF_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "$(jq -n --arg n "$name" '{ deployment_configs: { production: { env_vars: { ($n): null } } } }')")
+            STATUS=$(echo "$RESPONSE" | tail -1 | sed 's/__STATUS__//')
+            BODY=$(echo "$RESPONSE" | sed '$d')
+            if [ "$STATUS" = "200" ]; then
+              echo "    ✓ removed"
+            else
+              echo "    ✗ HTTP $STATUS — $(echo "$BODY" | jq -c '.errors // .' 2>/dev/null)"
+            fi
           done
           echo "===== Cleanup pass complete ====="
