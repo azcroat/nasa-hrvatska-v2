@@ -91,6 +91,36 @@ const CARDS: AICard[] = [
     variant: 'secondary',
     accent: '#dc2626',
   },
+  {
+    id: 'ai_story',
+    emoji: '📖',
+    label: 'AI Story',
+    description: 'Personalized Croatian story built from your weakest words.',
+    screen: 'ai_story',
+    curEx: 'ai_story',
+    variant: 'secondary',
+    accent: '#059669',
+  },
+  {
+    id: 'grammar_diagnosis',
+    emoji: '🔬',
+    label: 'Grammar Blind Spots',
+    description: 'Weekly AI analysis of your weakest grammar points.',
+    screen: 'grammar_diagnosis',
+    curEx: 'grammar_diagnosis',
+    variant: 'secondary',
+    accent: '#0e7490',
+  },
+  {
+    id: 'photo_vocab',
+    emoji: '📷',
+    label: 'Photo Vocab Scanner',
+    description: 'Point your camera at anything — AI returns the Croatian words.',
+    screen: 'photo_vocab',
+    curEx: 'photo_vocab',
+    variant: 'secondary',
+    accent: '#b45309',
+  },
 ];
 
 export default function AITab({ setScr, sCurEx }: AITabProps) {
@@ -148,8 +178,9 @@ export default function AITab({ setScr, sCurEx }: AITabProps) {
             fontFamily: "'Playfair Display', serif",
           }}
         >
-          Six AI-powered learning surfaces. Conversation, listening, video, writing, pronunciation,
-          and a live tutor — all using your level and recent errors as context.
+          Every AI-powered learning surface in one place. Conversation, listening, video, writing,
+          pronunciation, story generation, grammar diagnostics, photo vocabulary, and a live tutor —
+          all using your level and recent errors as context.
         </div>
       </div>
 
