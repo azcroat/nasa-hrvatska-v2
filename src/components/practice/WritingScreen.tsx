@@ -379,12 +379,12 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
                               : '#ede9fe',
                       color:
                         prompt.level === 'A2'
-                          ? '#16a34a'
+                          ? '#166534' // green-800 on #dcfce7 (~7.0:1); green-600 was 3.0:1, failed WCAG AA
                           : prompt.level === 'B1'
                             ? '#a16207'
                             : prompt.level === 'B2'
                               ? '#b45309'
-                              : '#7c3aed',
+                              : '#5b21b6', // violet-800 on #ede9fe (~7.6:1); violet-600 was ~4.5:1 borderline
                     }}
                   >
                     {prompt.level}

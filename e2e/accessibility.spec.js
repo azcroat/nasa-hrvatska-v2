@@ -328,10 +328,11 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
     await page.getByTestId(TID.NAV_PRACTICE).click();
     // Drill → Advanced tile (proven path in practice.spec.js:125). Wait for
-    // Drill pill to be visible before click — workers:4 CI runs occasionally
-    // have a 60s first-render lag where pill click would silently no-op.
+    // Drill pill to be visible before click. CI cold-render of the lazy
+    // PracticeTab chunk routinely exceeds 15s on the first SP6 spec to load
+    // it; observed 15.6s timeout in run 26346293557 retry. 25s gives headroom.
     const drillPill = page.locator('button').filter({ hasText: /^Drill$/ });
-    await expect(drillPill).toBeVisible({ timeout: 15_000 });
+    await expect(drillPill).toBeVisible({ timeout: 25_000 });
     await drillPill.click();
     const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
     await advTile.scrollIntoViewIfNeeded();
