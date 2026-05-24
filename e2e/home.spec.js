@@ -29,10 +29,18 @@ test.describe('Home tab', () => {
     });
 
     test('shows Begin Session button', async ({ page }) => {
-      // The session card renders a "▶ Begin Session →" button for a fresh (not-started) session.
-      // Cold render of SessionCard's lazy chunk can exceed 10s on the first home-spec to load
-      // it; observed in run 26346293557 retry. 20s gives headroom.
-      await expect(page.getByRole('button', { name: /Begin Session/i }).first()).toBeVisible({ timeout: 20_000 });
+      // Use the stable session-begin-cta testid for the visibility check. The
+      // role-based locator matched on the *label* ("▶ Begin Session →"),
+      // which is rendered through an `inProgress ? 'Continue Session →' : '▶
+      // Begin Session →'` ternary. If the SessionCard mounts with
+      // inProgress=true (transient state during async useDailySession
+      // re-derive), the label is "Continue Session" and the regex never
+      // matches, so the test timed out even with 20s on CI run 26347877456.
+      // Asserting visibility on the testid first, then text afterward, makes
+      // the visibility check robust to label transitions.
+      const cta = page.getByTestId('session-begin-cta');
+      await expect(cta).toBeVisible({ timeout: 25_000 });
+      await expect(cta).toContainText('Begin Session');
     });
 
     test('shows session stat pills — Streak, Week XP, Due', async ({ page }) => {
