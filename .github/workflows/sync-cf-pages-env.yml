@@ -5,13 +5,18 @@ on:
 
 jobs:
   sync:
-    name: Push env vars to Cloudflare Pages
+    name: Push env vars to Cloudflare Pages via wrangler
     runs-on: ubuntu-latest
     steps:
-      - name: Patch CF Pages production deployment-config env vars
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Push each secret with wrangler
         env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
           PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
@@ -21,61 +26,44 @@ jobs:
           SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
         run: |
           set -euo pipefail
-          # GH Secrets pasted from a clipboard frequently carry trailing \r\n.
-          # On Functions runtime this turns env.VITE_FIREBASE_PROJECT_ID into
-          # "real-id\n", which makes the token iss-claim comparison fail and
-          # 401s every authenticated request. tr -d '[:space:]' strips it.
-          # Same root cause as memory/feedback_secret_paste_whitespace.md.
-          strip() { printf '%s' "$1" | tr -d '[:space:]'; }
-          API_KEY=$(strip "$API_KEY")
-          AUTH_DOMAIN=$(strip "$AUTH_DOMAIN")
-          PROJECT_ID=$(strip "$PROJECT_ID")
-          STORAGE_BUCKET=$(strip "$STORAGE_BUCKET")
-          MESSAGING_SENDER_ID=$(strip "$MESSAGING_SENDER_ID")
-          APP_ID=$(strip "$APP_ID")
-          SENTRY_DSN=$(strip "$SENTRY_DSN")
+          # The CF Pages project-level PATCH endpoint started returning
+          # 8000006 "Request body is incorrect" on 2026-05-21 (also tested
+          # the dedicated /deployment_configs/{env} endpoint — same 400).
+          # The supported CI path is wrangler `pages secret put`, which
+          # stores values as encrypted secrets (still available at runtime
+          # as env.VAR_NAME — same access pattern as plain_text env vars,
+          # better security at rest).
+          #
+          # GH Secrets pasted from a clipboard frequently carry trailing
+          # \r\n; tr -d '[:space:]' strips that so the value at runtime
+          # exactly matches what the Firebase project expects.
+          # See memory/feedback_secret_paste_whitespace.md.
 
-          # The project-level PATCH endpoint started returning 8000006
-          # "Request body is incorrect" around 2026-05-21. The dedicated
-          # /deployment_configs/{environment} endpoint accepts the narrower
-          # { env_vars: {...} } body and is what's used here.
-          BODY=$(jq -n \
-            --arg api_key "$API_KEY" \
-            --arg auth_domain "$AUTH_DOMAIN" \
-            --arg project_id "$PROJECT_ID" \
-            --arg storage_bucket "$STORAGE_BUCKET" \
-            --arg messaging_sender_id "$MESSAGING_SENDER_ID" \
-            --arg app_id "$APP_ID" \
-            --arg sentry_dsn "$SENTRY_DSN" \
-            '{
-              env_vars: {
-                VITE_FIREBASE_API_KEY: { value: $api_key, type: "plain_text" },
-                VITE_FIREBASE_AUTH_DOMAIN: { value: $auth_domain, type: "plain_text" },
-                VITE_FIREBASE_PROJECT_ID: { value: $project_id, type: "plain_text" },
-                VITE_FIREBASE_STORAGE_BUCKET: { value: $storage_bucket, type: "plain_text" },
-                VITE_FIREBASE_MESSAGING_SENDER_ID: { value: $messaging_sender_id, type: "plain_text" },
-                VITE_FIREBASE_APP_ID: { value: $app_id, type: "plain_text" },
-                VITE_SENTRY_DSN: { value: $sentry_dsn, type: "plain_text" }
-              }
-            }')
-          echo "===== Patching env_vars: $(echo "$BODY" | jq -r '.env_vars | keys | join(", ")') ====="
-          echo "===== Value lengths (post-strip; reveals if any are empty) ====="
-          jq -r '.env_vars | to_entries | map("  \(.key) = \(.value.value | length) chars") | .[]' <<<"$BODY"
-          echo "========================"
-          # -s silences progress, -w prints status. No -f so we see error bodies.
-          RESPONSE=$(curl -s -w "\n__STATUS__%{http_code}" -X PATCH \
-            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/nasa-hrvatska-v2/deployment_configs/production" \
-            -H "Authorization: Bearer $CF_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "$BODY")
-          STATUS=$(echo "$RESPONSE" | tail -1 | sed 's/__STATUS__//')
-          BODY_OUT=$(echo "$RESPONSE" | sed '$d')
-          echo "HTTP status: $STATUS"
-          echo "$BODY_OUT" | jq '{ success, errors, messages, result_env_var_keys: (.result.env_vars // {} | keys) }' 2>/dev/null || echo "$BODY_OUT"
-          if [ "$STATUS" != "200" ]; then
-            echo "::error::CF API returned $STATUS"
-            exit 1
-          fi
+          strip() { printf '%s' "$1" | tr -d '[:space:]'; }
+
+          push_secret() {
+            local name="$1" value="$2"
+            local clean
+            clean=$(strip "$value")
+            local len=${#clean}
+            if [ "$len" -eq 0 ]; then
+              echo "::error::Secret $name is empty — refusing to overwrite the live value with nothing"
+              return 1
+            fi
+            echo "  → $name ($len chars, stripped)"
+            printf '%s' "$clean" | npx --yes wrangler@3 pages secret put "$name" \
+              --project-name=nasa-hrvatska-v2 >/dev/null
+          }
+
+          echo "===== Pushing secrets to CF Pages production ====="
+          push_secret VITE_FIREBASE_API_KEY            "$API_KEY"
+          push_secret VITE_FIREBASE_AUTH_DOMAIN        "$AUTH_DOMAIN"
+          push_secret VITE_FIREBASE_PROJECT_ID         "$PROJECT_ID"
+          push_secret VITE_FIREBASE_STORAGE_BUCKET     "$STORAGE_BUCKET"
+          push_secret VITE_FIREBASE_MESSAGING_SENDER_ID "$MESSAGING_SENDER_ID"
+          push_secret VITE_FIREBASE_APP_ID             "$APP_ID"
+          push_secret VITE_SENTRY_DSN                  "$SENTRY_DSN"
+          echo "===== All secrets pushed ====="
 
       - name: Trigger CF Pages redeploy
         env:
