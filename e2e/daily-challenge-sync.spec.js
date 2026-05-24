@@ -64,7 +64,9 @@ test.describe('Home screen — authenticated', () => {
       .getByRole('button', { name: 'Practice', exact: true })
       .click();
     await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
-    await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 20_000 });
+    // PracticeTab lazy chunk cold-render on CI exceeded 20s in run 26348850121.
+    // 35s gives margin.
+    await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 35_000 });
     const questsBtn = page
       .locator('button')
       .filter({ hasText: /\d+ of \d+ complete/ })

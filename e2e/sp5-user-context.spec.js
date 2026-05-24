@@ -66,11 +66,11 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     await expect(page.getByTestId(TID.NAV_PRACTICE)).toBeVisible({ timeout: 15_000 });
     await page.getByTestId(TID.NAV_PRACTICE).click();
     // Use Drill → Advanced tile to reach the writing card (proven path in
-    // practice.spec.js:125). Cold-render of the lazy PracticeTab chunk
-    // routinely exceeds 15s; observed 15.6s timeout in run 26346293557 retry.
-    // 25s gives headroom.
+    // practice.spec.js:125). PracticeTab cold-render keeps creeping: 15.6s
+    // in run 26346293557, 25.6s in run 26348850121 (hit the 25s ceiling).
+    // 35s covers the slowest observed cold-render with margin.
     const drillPill = page.locator('button').filter({ hasText: /^Drill$/ });
-    await expect(drillPill).toBeVisible({ timeout: 25_000 });
+    await expect(drillPill).toBeVisible({ timeout: 35_000 });
     await drillPill.click();
     const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
     await advTile.scrollIntoViewIfNeeded();

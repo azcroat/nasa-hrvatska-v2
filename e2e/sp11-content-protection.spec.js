@@ -151,16 +151,20 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     // which lazily fetches /api/content/grammar on mount. SP11b moved grammar
     // behind this lazy hook, so goto('/') alone no longer fires the request.
     // Practice → All Exercises → Aspect Drill card is the most reliable path.
-    const requestPromise = page.waitForRequest('**/api/content/grammar', { timeout: 15_000 });
+    // Generous timeout: the request is only fired when AspectDrillScreen
+    // mounts (after Practice → Drill → Advanced → card click), and that
+    // chain routinely takes 25-30s on cold CI runs. Observed 15.2s timeout
+    // in run 26348850121 — chunk loads dominate the budget.
+    const requestPromise = page.waitForRequest('**/api/content/grammar', { timeout: 60_000 });
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice' }).click();
-    // Drill → Advanced tile (proven path in practice.spec.js:125). Wait for
-    // Cold-render of the lazy PracticeTab chunk routinely exceeds 15s; 25s
-    // gives headroom. See observed 15.6s flake in run 26346293557 retry.
+    // Drill → Advanced tile (proven path in practice.spec.js:125). The lazy
+    // PracticeTab cold-render keeps creeping: 15.6s in run 26346293557,
+    // 25.6s in run 26348850121 (hit the 25s ceiling). 35s gives margin.
     const drillPill = page.locator('button').filter({ hasText: /^Drill$/ });
-    await expect(drillPill).toBeVisible({ timeout: 25_000 });
+    await expect(drillPill).toBeVisible({ timeout: 35_000 });
     await drillPill.click();
     const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
     await advTile.scrollIntoViewIfNeeded();
