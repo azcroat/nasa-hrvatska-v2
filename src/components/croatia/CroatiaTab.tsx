@@ -304,7 +304,7 @@ export default function CroatiaTab({ sCurEx }: CroatiaTabProps) {
               Stories
             </div>
             <div style={{ fontSize: 12, color: 'var(--subtext)', marginTop: 2 }}>
-              Letters from Baka Marija
+              Letters from your Croatian family
             </div>
           </div>
         </div>
