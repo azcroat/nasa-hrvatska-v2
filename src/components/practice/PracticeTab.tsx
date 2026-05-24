@@ -2560,69 +2560,13 @@ export default function PracticeTab({
           /api/adaptive-insights), so it belongs only on the AI Tutor
           tab per the consolidation rule. Wasn't functioning here either. */}
 
-      {/* ── DAILY QUESTS STRIP (always visible) ─────────────────────────── */}
-      <div
-        style={{
-          marginTop: 8,
-          marginBottom: 16,
-          padding: '10px 14px',
-          background: 'var(--card)',
-          border: '1px solid var(--card-b)',
-          borderRadius: 14,
-          boxShadow: 'var(--card-shadow)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 800,
-              color: 'var(--subtext)',
-              textTransform: 'uppercase',
-              letterSpacing: '.08em',
-              flex: 1,
-            }}
-          >
-            Daily Quests
-          </span>
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 800,
-              color: practiceQuestsDone.done === 4 ? 'var(--success)' : 'var(--info)',
-              background: practiceQuestsDone.done === 4 ? 'var(--success-bg)' : 'var(--info-bg)',
-              border: `1px solid ${practiceQuestsDone.done === 4 ? 'var(--success-b)' : 'var(--info-b)'}`,
-              borderRadius: 20,
-              padding: '2px 8px',
-            }}
-          >
-            {practiceQuestsDone.done}/4 done
-          </span>
-        </div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {[
-            { key: 'speak', icon: '🎤', label: 'Speak' },
-            { key: 'grammar', icon: '📝', label: 'Grammar' },
-            { key: 'master', icon: '🃏', label: 'Words' },
-            { key: 'reading', icon: '📖', label: 'Read' },
-          ].map((q) => (
-            <div
-              key={q.key}
-              className={
-                'quest-tile ' +
-                ((practiceQuestsDone as Record<string, boolean | number>)[q.key]
-                  ? 'quest-tile--done'
-                  : 'quest-tile--pending')
-              }
-            >
-              <span className="quest-tile-icon">
-                {(practiceQuestsDone as Record<string, boolean | number>)[q.key] ? '✅' : q.icon}
-              </span>
-              <span className="quest-tile-label">{q.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Bottom "Daily Quests" strip removed — it was a non-actionable
+          presentational duplicate of the top quest pill (line ~1530),
+          which already shows the same {done}/4 count AND is clickable
+          to expand quest detail. Keeping both was visual clutter without
+          adding any function. The underlying quest-tracking system
+          (src/lib/quests.ts markQuest helper) is unchanged and still
+          drives the top pill. */}
     </div>
   );
 }
