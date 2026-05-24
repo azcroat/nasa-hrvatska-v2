@@ -35,17 +35,17 @@ test.describe('SP4b — production slot in daily session', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
     });
-    // With rnd=0 + mic-available + B1, selectProductionExercise picks the first
-    // PRODUCTION_POOL member that's CEFR-unlocked. PRODUCTION_POOL begins with
-    // `speaking_sprint` (label "Speaking Sprint") so that chip must be visible.
-    await expect(page.getByText('Speaking Sprint')).toBeVisible({ timeout: 15_000 });
+    // After the AI-consolidation, PRODUCTION_POOL is [shadowing, productiondrill,
+    // dictation] (speaking_sprint + writing now live only on the AI Tutor tab).
+    // With rnd=0 + mic-available + B1, the first eligible item is `shadowing`.
+    await expect(page.getByText('Shadowing')).toBeVisible({ timeout: 15_000 });
   });
 
   test('mic-denied user sees keyboard-only production label', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('nh_mic_state', 'denied');
       // Lock-in profile.st.xp=2000 (B1) so HomeTab's production selector
-      // sees a B1 user — keeps Free Writing in the eligible pool.
+      // sees a B1 user — keeps Dictation in the eligible pool.
       const uS = JSON.parse(localStorage.getItem('uS') || '{}');
       const email = uS.u;
       if (email) {
@@ -59,8 +59,8 @@ test.describe('SP4b — production slot in daily session', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
     });
-    // With mic-denied + B1, selectProductionExercise filters to writing+dictation.
-    // With rnd=0, the first eligible wins — 'writing' (label "Free Writing").
-    await expect(page.getByText('Free Writing')).toBeVisible({ timeout: 15_000 });
+    // With mic-denied + B1, selectProductionExercise filters out shadowing +
+    // productiondrill (both mic-required), leaving only dictation.
+    await expect(page.getByText('Dictation')).toBeVisible({ timeout: 15_000 });
   });
 });

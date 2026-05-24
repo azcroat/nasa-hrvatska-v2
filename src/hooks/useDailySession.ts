@@ -68,7 +68,9 @@ const CATEGORY_SCREEN_MAP: Partial<Record<SkillCategory, string>> = {
   'vocab-a2': 'znam',
   'vocab-b1': 'znam',
   'vocab-b2': 'znam',
-  speaking: 'speaking_sprint',
+  // 'speaking' category previously mapped to 'speaking_sprint'; that surface
+  // is AI-driven and now lives only on the AI Tutor tab. Speaking category
+  // adaptive picks no longer route to a daily-session activity.
 };
 
 /** CEFR-annotated exercise pool for Priority 3 fill */
@@ -127,13 +129,6 @@ const CEFR_EXERCISE_POOL: Array<{
   },
   { id: 'typing', label: 'Typing', screen: 'typing', cefr: 'A2', category: 'vocab-a2' },
   {
-    id: 'speaking_sprint',
-    label: 'Speaking Sprint',
-    screen: 'speaking_sprint',
-    cefr: 'A2',
-    category: 'speaking',
-  },
-  {
     id: 'aspectdrill',
     label: 'Aspect Drill',
     screen: 'aspectdrill',
@@ -156,7 +151,6 @@ const CEFR_EXERCISE_POOL: Array<{
     category: 'vocab-b1',
   },
   { id: 'clitic', label: 'Clitic Drill', screen: 'clitic', cefr: 'B2', category: 'clitics' },
-  { id: 'writing', label: 'Free Writing', screen: 'writing', cefr: 'B1', category: 'speaking' },
   { id: 'dictation', label: 'Dictation', screen: 'dictation', cefr: 'B1', category: 'speaking' },
 ];
 
@@ -567,14 +561,6 @@ const PRODUCTION_POOL: Array<{
   micRequired: boolean;
 }> = [
   {
-    id: 'speaking_sprint',
-    label: 'Speaking Sprint',
-    screen: 'speaking_sprint',
-    cefr: 'A2',
-    category: 'speaking',
-    micRequired: true,
-  },
-  {
     id: 'shadowing',
     label: 'Shadowing',
     screen: 'shadowing',
@@ -589,14 +575,6 @@ const PRODUCTION_POOL: Array<{
     cefr: 'B1',
     category: 'speaking',
     micRequired: true,
-  },
-  {
-    id: 'writing',
-    label: 'Free Writing',
-    screen: 'writing',
-    cefr: 'B1',
-    category: 'speaking',
-    micRequired: false,
   },
   {
     id: 'dictation',

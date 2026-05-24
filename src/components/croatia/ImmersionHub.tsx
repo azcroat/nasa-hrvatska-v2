@@ -306,60 +306,6 @@ export default function ImmersionHub({
       {/* JOURNEY TAB */}
       {activeTab === 'journey' && (
         <div>
-          {/* AI Conversation Partner hero */}
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => setScr && setScr('aiconvo')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setScr && setScr('aiconvo');
-              }
-            }}
-            style={{
-              background: 'linear-gradient(135deg,#1e1b4b,#3730a3)',
-              borderRadius: 20,
-              padding: '18px 20px',
-              marginBottom: 16,
-              cursor: 'pointer',
-              color: 'white',
-              boxShadow: '0 6px 24px rgba(55,48,163,.25)',
-              display: 'flex',
-              gap: 14,
-              alignItems: 'center',
-            }}
-            aria-label="Open AI Conversation Partner"
-          >
-            <div style={{ fontSize: 40, flexShrink: 0 }}>🤖</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 3 }}>
-                AI Conversation Partner
-              </div>
-              <div style={{ fontSize: 12, opacity: 0.85, lineHeight: 1.5 }}>
-                Practice real Croatian conversations with instant AI feedback and a personalised
-                grammar report.
-              </div>
-              <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {['8 scenarios', 'All levels', 'Free'].map((t) => (
-                  <span
-                    key={t}
-                    style={{
-                      background: 'rgba(255,255,255,.15)',
-                      borderRadius: 20,
-                      padding: '2px 8px',
-                      fontSize: 10,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div style={{ fontSize: 20, opacity: 0.7 }}>→</div>
-          </div>
-
           <div
             className="c"
             style={{
