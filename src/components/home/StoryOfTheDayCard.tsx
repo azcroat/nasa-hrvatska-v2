@@ -15,22 +15,16 @@ export interface StoryOfTheDayCardProps {
 }
 
 const STYLES = {
-  // Card is now a full-width button: tapping anywhere on it launches the
-  // story. Previously only the small "Read this story →" CTA at the bottom
-  // was clickable, which users reported as non-obvious — the card looked
-  // informational. all:'unset' resets default button styling so the visual
-  // matches the existing card design exactly.
+  // Renders inside the Today's Discoveries tabbed widget, which already
+  // provides the card chrome (background, border, padding). Outer
+  // background/border/padding/marginBottom/boxShadow were removed so the
+  // card no longer creates a redundant nested card frame. all:'unset'
+  // still resets default button styling.
   card: {
     all: 'unset' as const,
     boxSizing: 'border-box' as const,
     display: 'block' as const,
     width: '100%',
-    background: 'var(--card)',
-    border: '1px solid var(--card-b)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
     cursor: 'pointer' as const,
     textAlign: 'left' as const,
     fontFamily: 'inherit',

@@ -179,6 +179,9 @@ export function isValidEmail(e: string): boolean {
  */
 function _reconcileAtomicStats(docId: string, st: Record<string, unknown>): void {
   if (!_fbDb) return;
+  // Cooldown gate — same write queue, same back-off. Skip silently; the
+  // next fbSaveProgress after cooldown will run reconciliation then.
+  if (_resourceExhaustedAt && Date.now() - _resourceExhaustedAt < FB_COOLDOWN_MS) return;
   try {
     const _rv = (st.vs as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
     const _rc = (st.ct as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
@@ -188,7 +191,13 @@ function _reconcileAtomicStats(docId: string, st: Record<string, unknown>): void
     if (_rc.length) _rec['stats.ct'] = arrayUnion(..._rc);
     if (_rb.length) _rec['stats.badges'] = arrayUnion(..._rb);
     if (Object.keys(_rec).length) {
-      updateDoc(fsDoc(_fbDb, 'users', docId), _rec).catch(() => {});
+      updateDoc(fsDoc(_fbDb, 'users', docId), _rec).catch((e: unknown) => {
+        // If the SDK queue saturates here too, engage the global cooldown
+        // so subsequent writes back off rather than piling on.
+        if ((e as { code?: string })?.code === 'resource-exhausted') {
+          _resourceExhaustedAt = Date.now();
+        }
+      });
     }
   } catch (_) {}
 }
@@ -228,6 +237,15 @@ let _resourceExhaustedAt = 0;
  * Delays (base ±30% jitter): 600 ms → 1.2 s → 2.4 s
  */
 async function _withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 3): Promise<T> {
+  // Global cooldown gate. If a previous write surfaced resource-exhausted,
+  // refuse to issue further reads/writes until the SDK's internal queue has
+  // had FB_COOLDOWN_MS to drain. Throws a synthetic 'cooldown' error so
+  // callers' catch blocks handle it without retry pressure.
+  if (_resourceExhaustedAt && Date.now() - _resourceExhaustedAt < FB_COOLDOWN_MS) {
+    const err = new Error('Firestore queue cooldown') as Error & { code: string };
+    err.code = 'cooldown';
+    throw err;
+  }
   let lastErr: unknown;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
@@ -235,6 +253,18 @@ async function _withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 
     } catch (e: unknown) {
       lastErr = e;
       const code = (e as { code?: string })?.code ?? 'unknown';
+      // Any write path that surfaces resource-exhausted engages the global
+      // cooldown — not just fbSaveProgress. This stops fbApplyDelta /
+      // fbSaveSRS from continuing to enqueue writes into a saturated SDK
+      // queue while the cooldown set by another caller drains.
+      if (code === 'resource-exhausted') {
+        _resourceExhaustedAt = Date.now();
+        console.warn(
+          `[sync] ${label}: SDK write queue saturated — entering ` +
+            FB_COOLDOWN_MS / 1000 +
+            's cooldown. localStorage is authoritative; sync will resume after cooldown.',
+        );
+      }
       if (!_RETRYABLE_CODES.has(code) || attempt === maxAttempts - 1) {
         fbLogEvent('sync_error', { fn: label, code, attempt });
         throw e;
@@ -360,18 +390,9 @@ export async function fbSaveProgress(
     return { ok: true };
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
-    if (err?.code === 'resource-exhausted') {
-      // SDK write queue saturated. Record the timestamp so subsequent
-      // fbSaveProgress calls short-circuit via the cooldown gate until
-      // the SDK drains. Downgraded to warn — localStorage is
-      // authoritative, no data is lost, just deferred sync.
-      _resourceExhaustedAt = Date.now();
-      console.warn(
-        '[sync] fbSaveProgress: SDK write queue saturated — entering ' +
-          FB_COOLDOWN_MS / 1000 +
-          's cooldown. localStorage is authoritative; sync will resume after cooldown.',
-      );
-    } else {
+    // resource-exhausted and cooldown are already logged by _withRetry; only
+    // log unexpected failures here to avoid duplicate console noise.
+    if (err?.code !== 'resource-exhausted' && err?.code !== 'cooldown') {
       console.error('[sync] fbSaveProgress failed:', err?.code, err?.message);
     }
     return {
