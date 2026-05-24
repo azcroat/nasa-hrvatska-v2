@@ -10,7 +10,6 @@ import DailyListeningCard from '../home/DailyListeningCard';
 import WeakWordsPanel from '../home/WeakWordsPanel';
 import QuestTracker from '../home/QuestTracker';
 import SpeedChallenge from '../home/SpeedChallenge';
-import AdaptiveInsightsCard from '../profile/AdaptiveInsightsCard';
 import { useAdaptivePractice } from '../../hooks/useAdaptivePractice';
 import type { SkillCategory } from '../../lib/adaptive';
 
@@ -58,7 +57,7 @@ export default function PracticeTab({
   award,
   launchPathItem,
 }: PracticeTabProps) {
-  const { setScr, authUser } = useApp();
+  const { setScr } = useApp();
   const { stats: st } = useStats();
   const { content } = useContent();
   const V = useMemo(() => (content?.V ?? {}) as Record<string, any[]>, [content]);
@@ -2557,25 +2556,9 @@ export default function PracticeTab({
         )}
       </div>
 
-      {/* ── AI DAILY INSIGHTS — below category content per design spec ── */}
-      {authUser && lc >= 3 && (
-        <AdaptiveInsightsCard
-          uid={authUser.uid}
-          level={
-            st?.xp
-              ? st.xp >= 3000
-                ? 'B2'
-                : st.xp >= 1500
-                  ? 'B1'
-                  : st.xp >= 600
-                    ? 'A2'
-                    : 'A1'
-              : 'A1'
-          }
-          lessonsCompleted={lc}
-          goToScreen={setScr}
-        />
-      )}
+      {/* AdaptiveInsightsCard removed — AI-powered surface (hits
+          /api/adaptive-insights), so it belongs only on the AI Tutor
+          tab per the consolidation rule. Wasn't functioning here either. */}
 
       {/* ── DAILY QUESTS STRIP (always visible) ─────────────────────────── */}
       <div

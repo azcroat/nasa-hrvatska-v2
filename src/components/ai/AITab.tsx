@@ -121,6 +121,16 @@ const CARDS: AICard[] = [
     variant: 'secondary',
     accent: '#b45309',
   },
+  {
+    id: 'personas',
+    emoji: '🗣️',
+    label: 'Razgovaraj s Hrvatima',
+    description: 'Voice-to-voice AI with 4 Croatian personas — Maja, Marko, Ana, Baka Mara.',
+    screen: 'personas',
+    curEx: 'personas',
+    variant: 'primary',
+    accent: 'linear-gradient(135deg, #D4002D, #ff3d5a)',
+  },
 ];
 
 export default function AITab({ setScr, sCurEx }: AITabProps) {
