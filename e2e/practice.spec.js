@@ -127,13 +127,15 @@ test.describe('Practice tab structure', () => {
     await expect(page.locator('button.exercise-card').first()).toBeVisible({ timeout: 3_000 });
   });
 
-  test('Challenge panel shows Quick Games and AI Challenges sections', async ({ page }) => {
+  test('Challenge panel shows Quick Games section', async ({ page }) => {
+    // The "AI Challenges" section was removed in the AI-consolidation refactor
+    // — all AI surfaces now live exclusively on the AI Tutor tab. Quick Games
+    // remains as the sole sub-section under the Challenge intent.
     await page
       .locator('button')
       .filter({ hasText: /^Quick Game$/ })
       .click();
     await expect(page.getByText('Quick Games')).toBeVisible({ timeout: 5_000 });
-    await expect(page.getByText('AI Challenges')).toBeVisible({ timeout: 5_000 });
   });
 
   test('Daily Quests strip is always visible', async ({ page }) => {
