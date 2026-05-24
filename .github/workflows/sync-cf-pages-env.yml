@@ -8,7 +8,7 @@ jobs:
     name: Push env vars to Cloudflare Pages
     runs-on: ubuntu-latest
     steps:
-      - name: Patch CF Pages project env vars
+      - name: Patch CF Pages production deployment-config env vars
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -21,10 +21,24 @@ jobs:
           SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
         run: |
           set -euo pipefail
-          # VITE_-prefixed vars are read by Vite at BUILD time → embedded in the
-          # client bundle. The bare-named vars (FIREBASE_PROJECT_ID) are read
-          # at RUNTIME by CF Pages Functions for token verification, KV access,
-          # etc. They are separate concerns and both must be set.
+          # GH Secrets pasted from a clipboard frequently carry trailing \r\n.
+          # On Functions runtime this turns env.VITE_FIREBASE_PROJECT_ID into
+          # "real-id\n", which makes the token iss-claim comparison fail and
+          # 401s every authenticated request. tr -d '[:space:]' strips it.
+          # Same root cause as memory/feedback_secret_paste_whitespace.md.
+          strip() { printf '%s' "$1" | tr -d '[:space:]'; }
+          API_KEY=$(strip "$API_KEY")
+          AUTH_DOMAIN=$(strip "$AUTH_DOMAIN")
+          PROJECT_ID=$(strip "$PROJECT_ID")
+          STORAGE_BUCKET=$(strip "$STORAGE_BUCKET")
+          MESSAGING_SENDER_ID=$(strip "$MESSAGING_SENDER_ID")
+          APP_ID=$(strip "$APP_ID")
+          SENTRY_DSN=$(strip "$SENTRY_DSN")
+
+          # The project-level PATCH endpoint started returning 8000006
+          # "Request body is incorrect" around 2026-05-21. The dedicated
+          # /deployment_configs/{environment} endpoint accepts the narrower
+          # { env_vars: {...} } body and is what's used here.
           BODY=$(jq -n \
             --arg api_key "$API_KEY" \
             --arg auth_domain "$AUTH_DOMAIN" \
@@ -34,42 +48,30 @@ jobs:
             --arg app_id "$APP_ID" \
             --arg sentry_dsn "$SENTRY_DSN" \
             '{
-              deployment_configs: {
-                production: {
-                  env_vars: {
-                    VITE_FIREBASE_API_KEY: { value: $api_key, type: "plain_text" },
-                    VITE_FIREBASE_AUTH_DOMAIN: { value: $auth_domain, type: "plain_text" },
-                    VITE_FIREBASE_PROJECT_ID: { value: $project_id, type: "plain_text" },
-                    VITE_FIREBASE_STORAGE_BUCKET: { value: $storage_bucket, type: "plain_text" },
-                    VITE_FIREBASE_MESSAGING_SENDER_ID: { value: $messaging_sender_id, type: "plain_text" },
-                    VITE_FIREBASE_APP_ID: { value: $app_id, type: "plain_text" },
-                    VITE_SENTRY_DSN: { value: $sentry_dsn, type: "plain_text" }
-                    # NOTE: server-side functions read env.VITE_FIREBASE_PROJECT_ID
-                    # via a fallback in _authedRead.js / save-progress.js. The
-                    # architecturally clean approach is a separate, runtime-only
-                    # FIREBASE_PROJECT_ID env var, but the CF Pages API rejects
-                    # adding new env var names via this PATCH (code 8000006 —
-                    # "Request body is incorrect"), only allows updates to vars
-                    # that already exist in the project. Cleanup TODO: add
-                    # FIREBASE_PROJECT_ID via the CF Pages dashboard UI once,
-                    # then this workflow can include it here.
-                  }
-                }
+              env_vars: {
+                VITE_FIREBASE_API_KEY: { value: $api_key, type: "plain_text" },
+                VITE_FIREBASE_AUTH_DOMAIN: { value: $auth_domain, type: "plain_text" },
+                VITE_FIREBASE_PROJECT_ID: { value: $project_id, type: "plain_text" },
+                VITE_FIREBASE_STORAGE_BUCKET: { value: $storage_bucket, type: "plain_text" },
+                VITE_FIREBASE_MESSAGING_SENDER_ID: { value: $messaging_sender_id, type: "plain_text" },
+                VITE_FIREBASE_APP_ID: { value: $app_id, type: "plain_text" },
+                VITE_SENTRY_DSN: { value: $sentry_dsn, type: "plain_text" }
               }
             }')
-          echo "===== Request body ====="
-          echo "$BODY" | jq '.' 2>/dev/null || echo "$BODY"
+          echo "===== Patching env_vars: $(echo "$BODY" | jq -r '.env_vars | keys | join(", ")') ====="
+          echo "===== Value lengths (post-strip; reveals if any are empty) ====="
+          jq -r '.env_vars | to_entries | map("  \(.key) = \(.value.value | length) chars") | .[]' <<<"$BODY"
           echo "========================"
           # -s silences progress, -w prints status. No -f so we see error bodies.
           RESPONSE=$(curl -s -w "\n__STATUS__%{http_code}" -X PATCH \
-            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/nasa-hrvatska-v2" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/nasa-hrvatska-v2/deployment_configs/production" \
             -H "Authorization: Bearer $CF_TOKEN" \
             -H "Content-Type: application/json" \
             -d "$BODY")
           STATUS=$(echo "$RESPONSE" | tail -1 | sed 's/__STATUS__//')
           BODY_OUT=$(echo "$RESPONSE" | sed '$d')
           echo "HTTP status: $STATUS"
-          echo "$BODY_OUT" | jq '.' 2>/dev/null || echo "$BODY_OUT"
+          echo "$BODY_OUT" | jq '{ success, errors, messages, result_env_var_keys: (.result.env_vars // {} | keys) }' 2>/dev/null || echo "$BODY_OUT"
           if [ "$STATUS" != "200" ]; then
             echo "::error::CF API returned $STATUS"
             exit 1
