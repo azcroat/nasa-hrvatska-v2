@@ -1,0 +1,42 @@
+name: Diag CF Pages env after wrangler sync (read-only)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diag:
+    name: Compare deployment_configs.production env_vars + latest deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: GET project + latest deployment
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+
+          echo "===== Project deployment_configs.production.env_vars (names + types only) ====="
+          curl -s "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/nasa-hrvatska-v2" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            | jq '
+              .result.deployment_configs.production.env_vars
+              | to_entries
+              | map({ name: .key, type: .value.type })
+            '
+
+          echo ""
+          echo "===== Latest production deployment metadata ====="
+          curl -s "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/nasa-hrvatska-v2/deployments?env=production&per_page=3" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            | jq '
+              .result
+              | map({
+                  id: .id,
+                  short_id: .short_id,
+                  created_on: .created_on,
+                  stage: .latest_stage.name,
+                  stage_status: .latest_stage.status,
+                  url: .url,
+                  short_sha: (.deployment_trigger.metadata.commit_hash[:7])
+                })
+            '
