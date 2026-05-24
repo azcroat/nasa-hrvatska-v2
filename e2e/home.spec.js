@@ -29,8 +29,10 @@ test.describe('Home tab', () => {
     });
 
     test('shows Begin Session button', async ({ page }) => {
-      // The session card renders a "▶ Begin Session →" button for a fresh (not-started) session
-      await expect(page.getByRole('button', { name: /Begin Session/i }).first()).toBeVisible({ timeout: 10_000 });
+      // The session card renders a "▶ Begin Session →" button for a fresh (not-started) session.
+      // Cold render of SessionCard's lazy chunk can exceed 10s on the first home-spec to load
+      // it; observed in run 26346293557 retry. 20s gives headroom.
+      await expect(page.getByRole('button', { name: /Begin Session/i }).first()).toBeVisible({ timeout: 20_000 });
     });
 
     test('shows session stat pills — Streak, Week XP, Due', async ({ page }) => {
