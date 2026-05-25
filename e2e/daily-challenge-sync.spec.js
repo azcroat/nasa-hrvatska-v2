@@ -43,18 +43,10 @@ test.describe('Home screen — authenticated', () => {
       .getByRole('button', { name: 'Practice', exact: true })
       .click();
     await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
-    // Wait for any element on Practice tab to render (more reliable than waiting for the specific button straight away)
     await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 20_000 });
-    // Collapsed QuestTracker button: "N of M complete". Use .first() to disambiguate
-    // if multiple progress-shaped buttons render on the page during transitions.
-    const questsBtn = page
-      .locator('button')
-      .filter({ hasText: /\d+ of \d+ complete/ })
-      .first();
-    await expect(questsBtn).toBeVisible({ timeout: 20_000 });
-    await questsBtn.click();
-    // Small settle after click — collapsed-to-expanded transition isn't instant
-    await page.waitForTimeout(200);
+    // QuestTracker now defaults to expanded on Practice tab — the EARN BONUS XP
+    // label inside the full tracker is visible immediately, no click-to-expand
+    // needed.
     await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
   });
 
@@ -67,13 +59,8 @@ test.describe('Home screen — authenticated', () => {
     // PracticeTab lazy chunk cold-render on CI exceeded 20s in run 26348850121.
     // 35s gives margin.
     await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 35_000 });
-    const questsBtn = page
-      .locator('button')
-      .filter({ hasText: /\d+ of \d+ complete/ })
-      .first();
-    await expect(questsBtn).toBeVisible({ timeout: 20_000 });
-    await questsBtn.click();
-    await page.waitForTimeout(200);
+    // QuestTracker is expanded by default — EARN BONUS XP and the count
+    // line are visible immediately.
     await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
     // Verify the quest count/completion line is in the rendered body. Poll
     // for it rather than a single textContent snapshot — the QuestTracker
