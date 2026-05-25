@@ -1220,17 +1220,11 @@ function App() {
     return () => window.removeEventListener('nh:immersion-new-day', onImmersionDay);
   }, [authScreen, award]);
 
-  // Periodic Firebase sync every 5 minutes — catches XP from mini-games that don't trigger lesson sync
-  useEffect(() => {
-    if (authScreen !== 'app' || !authUser) return undefined;
-    const iv = setInterval(
-      () => {
-        doSyncNow();
-      },
-      5 * 60 * 1000,
-    );
-    return () => clearInterval(iv);
-  }, [authScreen, authUser, doSyncNow]);
+  // Periodic Firebase sync is owned by useSyncManager (5-min interval with
+  // mutex, online gate, and content-equality skip). The previous duplicate
+  // interval here was removed 2026-05-25 — two redundant 5-min intervals
+  // both calling fbSaveProgress added write-stream pressure for no benefit
+  // (mutex made one a no-op, but both still attempted every 5 min).
 
   // Self-healing: reconstruct ct from LEARN_PATH if lost. SP11e: LEARN_PATH
   // ships from /api/content/core via contentClient (cached + Bearer-gated).

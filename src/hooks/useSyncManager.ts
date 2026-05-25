@@ -73,6 +73,12 @@ export function useSyncManager({
   const [lastSyncedAt, setLastSyncedAt] = useState<number>(0);
   const _syncFailCount = useRef(0);
   const _isSavingRef = useRef(false); // mutex: prevents concurrent doSyncNow calls
+  // Signature of the snapshot from the most recent successful periodic push.
+  // The 5-min periodic tick skips when the current snapshot's signature equals
+  // this one — no point pushing a ~200KB blob that's byte-identical to what
+  // we already wrote. Event-driven syncs (doSyncNow, quest-done, unload) are
+  // NOT gated by this — they're intentional and always run.
+  const _lastPeriodicSigRef = useRef<string | null>(null);
   const _watcherUnsubRef = useRef<(() => void) | null>(null);
   const _idTokenRef = useRef('');
   // Sticky user ref: authUser can momentarily become null during Firebase token refresh.
@@ -459,12 +465,19 @@ export function useSyncManager({
             favs: fv,
             jWords: jw,
           });
+          // Content-equality skip: if the snapshot is byte-identical to the
+          // last one we successfully pushed, there's nothing new to sync.
+          // Pushing the same ~200KB blob every 5 min on an idle session is
+          // pure write-stream pressure for zero data benefit.
+          const sig = JSON.stringify(snap);
+          if (sig === _lastPeriodicSigRef.current) return;
           const result = (await fbSaveProgress(u.u, snap).catch((e: unknown) => {
             const err = e as { code?: string; message?: string };
             return { ok: false, code: err?.code, err: err?.message };
           })) as { ok?: boolean; code?: string; err?: string };
           if (result && result.ok !== false) {
             _syncFailCount.current = 0;
+            _lastPeriodicSigRef.current = sig;
             setLastSyncedAt(Date.now());
           } else {
             _syncFailCount.current += 1;
