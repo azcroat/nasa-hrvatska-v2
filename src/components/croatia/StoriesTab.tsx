@@ -259,7 +259,12 @@ function TodaysLetterSpotlight({ letter, isRead, onOpen }: SpotlightProps): Reac
       </div>
       <div
         style={{
-          background: meta.tint,
+          // Single guaranteed-AA pair (white on slate-800 → 12.6:1) so the CTA
+          // does not rely on the per-category tint. The Baka gold (#c8980a)
+          // tint failed WCAG AA (2.64:1) for white text. Visual hierarchy
+          // comes from the tinted card background; the CTA is a fixed dark
+          // pill on top.
+          background: '#1f2937',
           color: '#fff',
           borderRadius: 10,
           padding: '10px 14px',
@@ -302,7 +307,11 @@ function SenderFilterChips({
           borderRadius: 999,
           border: `1.5px solid ${isActive ? 'var(--info)' : 'var(--card-b)'}`,
           background: isActive ? 'var(--info-bg)' : 'var(--card)',
-          color: isActive ? 'var(--info)' : 'var(--text)',
+          // Active chip uses --heading (dark) on --info-bg (very light blue)
+          // for AA contrast. Previously used --info text on --info-bg, which
+          // resolved to 2.46:1 — the brand-token pair fails for normal 12px
+          // body weight. Border tint still uses --info to signal active state.
+          color: isActive ? 'var(--heading)' : 'var(--text)',
           fontSize: 12,
           fontWeight: 700,
           cursor: 'pointer',
@@ -319,7 +328,10 @@ function SenderFilterChips({
         {unread > 0 && (
           <span
             style={{
-              background: 'var(--info)',
+              // Hardcoded cyan-700 (= light-mode --info) so the white text
+              // hits AA across both themes. --info in dark mode is #38bdf8
+              // which fails AA against white at 9px.
+              background: '#0e7490',
               color: '#fff',
               borderRadius: 8,
               padding: '1px 5px',
@@ -429,7 +441,9 @@ function LetterRow({ letter, isRead, isOpen, onToggle, award }: RowProps): React
               {!isRead && (
                 <span
                   style={{
-                    background: 'var(--info)',
+                    // Hardcoded cyan-700 — see unread-count comment above for
+                    // dark-mode rationale.
+                    background: '#0e7490',
                     color: '#fff',
                     fontSize: 8,
                     fontWeight: 800,
