@@ -120,7 +120,12 @@ export default function PracticeTab({
     }
   });
 
-  const [questsExpanded, setQuestsExpanded] = useState(false);
+  // Default expanded so quests are visible without an extra tap. The
+  // previous default (collapsed) was paired with a redundant always-visible
+  // Daily Quests strip at the bottom of Practice; that strip was removed
+  // because it was non-functional, so defaulting the top tracker to
+  // collapsed would hide quests entirely.
+  const [questsExpanded, setQuestsExpanded] = useState(true);
   const [speedExpanded, setSpeedExpanded] = useState(false);
 
   const { practiceQueue } = useAdaptivePractice();
