@@ -434,6 +434,14 @@ export function useSyncManager({
         dchlSl: string[];
       };
       if (!u || as_ !== 'app') return;
+      // Skip the periodic push when offline. Without this guard, fbSaveProgress
+      // enqueues a write into the Firestore SDK queue every 60s during an
+      // outage; once the user is back online the queue is saturated and the
+      // SDK emits "Write stream exhausted maximum allowed queued writes" /
+      // "Using maximum backoff delay" logs. localStorage is authoritative —
+      // no data is lost by skipping; the next online tick will push a full
+      // snapshot containing everything that happened during the outage.
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
       const snap = buildProgressSnapshot({
         uid: u.u,
         name: nm,
@@ -472,6 +480,10 @@ export function useSyncManager({
           authScreen: string;
         };
         if (!u || as_ !== 'app') return;
+        // Same offline gate as the periodic push — no point in a 3min pull
+        // that will queue inside the SDK and time out. Resumes naturally when
+        // online again.
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
         try {
           const fp = (await fbLoadProgress(uid)) as Record<string, unknown> | null;
           if (!fp) return;
