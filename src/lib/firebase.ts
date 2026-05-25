@@ -179,9 +179,6 @@ export function isValidEmail(e: string): boolean {
  */
 function _reconcileAtomicStats(docId: string, st: Record<string, unknown>): void {
   if (!_fbDb) return;
-  // Cooldown gate — same write queue, same back-off. Skip silently; the
-  // next fbSaveProgress after cooldown will run reconciliation then.
-  if (_resourceExhaustedAt && Date.now() - _resourceExhaustedAt < FB_COOLDOWN_MS) return;
   try {
     const _rv = (st.vs as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
     const _rc = (st.ct as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
@@ -191,13 +188,7 @@ function _reconcileAtomicStats(docId: string, st: Record<string, unknown>): void
     if (_rc.length) _rec['stats.ct'] = arrayUnion(..._rc);
     if (_rb.length) _rec['stats.badges'] = arrayUnion(..._rb);
     if (Object.keys(_rec).length) {
-      updateDoc(fsDoc(_fbDb, 'users', docId), _rec).catch((e: unknown) => {
-        // If the SDK queue saturates here too, engage the global cooldown
-        // so subsequent writes back off rather than piling on.
-        if ((e as { code?: string })?.code === 'resource-exhausted') {
-          _resourceExhaustedAt = Date.now();
-        }
-      });
+      updateDoc(fsDoc(_fbDb, 'users', docId), _rec).catch(() => {});
     }
   } catch (_) {}
 }
@@ -207,26 +198,17 @@ function _reconcileAtomicStats(docId: string, st: Record<string, unknown>): void
 // (permission-denied, not-found, unauthenticated, invalid-argument, etc.)
 // are non-transient and are thrown immediately after a single attempt.
 //
-// Note: 'resource-exhausted' is intentionally NOT in this set. When the
-// Firestore SDK's client-side write queue is full (typical message:
-// "Write stream exhausted maximum allowed queued writes"), retrying
-// adds MORE writes to the queue and worsens the saturation. The right
-// response is to back off entirely and let the SDK drain — handled via
-// the cooldown gate at the top of fbSaveProgress.
+// 'resource-exhausted' is intentionally NOT in this set. Note that in
+// practice the SDK does NOT throw resource-exhausted to our code when its
+// WriteStream cap is hit — it logs the warning and queues the mutation
+// internally, then resolves the await successfully. The cap is handled by
+// rate-limiting our own write issuance (see COALESCE_MS for delta merging
+// and the 5-minute periodic-push interval in useSyncManager).
 const _RETRYABLE_CODES = new Set([
   'unavailable', // Service temporarily unavailable (most common)
   'deadline-exceeded', // Operation timed out
   'internal', // Unexpected server error
 ]);
-
-// Cooldown gate. When fbSaveProgress sees `resource-exhausted` from the
-// Firestore SDK, we record the timestamp and refuse to enqueue further
-// writes for FB_COOLDOWN_MS. localStorage remains authoritative; the
-// next save attempt after the cooldown re-enables Firestore sync. The
-// SDK's own max-backoff (it logs "Using maximum backoff delay …") drains
-// the queue in the background during the cooldown.
-const FB_COOLDOWN_MS = 30_000;
-let _resourceExhaustedAt = 0;
 
 /**
  * Retry an async operation with exponential backoff for transient Firestore errors.
@@ -237,15 +219,6 @@ let _resourceExhaustedAt = 0;
  * Delays (base ±30% jitter): 600 ms → 1.2 s → 2.4 s
  */
 async function _withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 3): Promise<T> {
-  // Global cooldown gate. If a previous write surfaced resource-exhausted,
-  // refuse to issue further reads/writes until the SDK's internal queue has
-  // had FB_COOLDOWN_MS to drain. Throws a synthetic 'cooldown' error so
-  // callers' catch blocks handle it without retry pressure.
-  if (_resourceExhaustedAt && Date.now() - _resourceExhaustedAt < FB_COOLDOWN_MS) {
-    const err = new Error('Firestore queue cooldown') as Error & { code: string };
-    err.code = 'cooldown';
-    throw err;
-  }
   let lastErr: unknown;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
@@ -253,18 +226,6 @@ async function _withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 
     } catch (e: unknown) {
       lastErr = e;
       const code = (e as { code?: string })?.code ?? 'unknown';
-      // Any write path that surfaces resource-exhausted engages the global
-      // cooldown — not just fbSaveProgress. This stops fbApplyDelta /
-      // fbSaveSRS from continuing to enqueue writes into a saturated SDK
-      // queue while the cooldown set by another caller drains.
-      if (code === 'resource-exhausted') {
-        _resourceExhaustedAt = Date.now();
-        console.warn(
-          `[sync] ${label}: SDK write queue saturated — entering ` +
-            FB_COOLDOWN_MS / 1000 +
-            's cooldown. localStorage is authoritative; sync will resume after cooldown.',
-        );
-      }
       if (!_RETRYABLE_CODES.has(code) || attempt === maxAttempts - 1) {
         fbLogEvent('sync_error', { fn: label, code, attempt });
         throw e;
@@ -286,13 +247,6 @@ export async function fbSaveProgress(
   data: Record<string, unknown>,
 ): Promise<{ ok: boolean; err?: string; code?: string }> {
   if (!_fbReady || !_fbDb) return { ok: false, err: 'Firebase not initialized' };
-  // Cooldown gate — if a previous call hit resource-exhausted, skip this
-  // attempt to avoid piling further writes on a saturated SDK queue.
-  // localStorage remains authoritative (sP writes there first), so no data
-  // is lost — just deferred sync. The cooldown expires after FB_COOLDOWN_MS.
-  if (_resourceExhaustedAt && Date.now() - _resourceExhaustedAt < FB_COOLDOWN_MS) {
-    return { ok: false, err: 'Firestore queue cooldown', code: 'cooldown' };
-  }
   // Flush any pending coalesced fbApplyDelta writes before the full snapshot
   // save. Both writes target the same user document, and the snapshot blob
   // includes the incremented stats already — so without a flush, the next
@@ -390,11 +344,7 @@ export async function fbSaveProgress(
     return { ok: true };
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
-    // resource-exhausted and cooldown are already logged by _withRetry; only
-    // log unexpected failures here to avoid duplicate console noise.
-    if (err?.code !== 'resource-exhausted' && err?.code !== 'cooldown') {
-      console.error('[sync] fbSaveProgress failed:', err?.code, err?.message);
-    }
+    console.error('[sync] fbSaveProgress failed:', err?.code, err?.message);
     return {
       ok: false,
       err: err?.message || 'Progress could not be saved. Check your connection.',
@@ -422,10 +372,18 @@ const _DELTA_ARRAYS = ['ct', 'vs', 'badges'];
 // on hard tab close. fbSaveProgress flushes pending deltas via
 // _flushPendingDelta(), and the unload/visibilitychange/pagehide handlers in
 // useSyncManager call fbSaveProgress — but the async chain may not complete
-// before the browser kills the page on close. A smaller window narrows the
-// loss exposure to ~1 s. Still ~5x fewer writes than no batching, so we keep
-// most of the quota benefit while reducing the worst-case data loss.
-const COALESCE_MS = 1200;
+// before the browser kills the page on close.
+//
+// 2026-05-25: raised from 1200 → 3000 ms to further reduce the rate at
+// which fbApplyDelta enqueues writes during burst activity (rapid
+// flashcards / quizzes). The Firestore SDK's WriteStream has a soft
+// in-flight cap and emits "Write stream exhausted maximum allowed queued
+// writes" / "Using maximum backoff delay" warnings when our enqueue rate
+// outpaces drain. Wider coalesce window = fewer enqueues = less SDK
+// back-pressure logging without changing user-facing behavior (XP and
+// stats are written via increment(), so timing differences don't lose
+// counts). Worst-case tab-kill loss exposure: ~3 s of in-memory delta.
+const COALESCE_MS = 3000;
 
 let _pendingDelta: Record<string, unknown> = {};
 let _pendingUid: string | null = null;
