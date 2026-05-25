@@ -410,62 +410,74 @@ export function useSyncManager({
     };
   }, [authUser, authScreen]);
 
-  // ─── Periodic push every 60s ───────────────────────────────────────────────
+  // ─── Periodic push every 5 minutes ─────────────────────────────────────────
+  // Raised from 60s → 300s (2026-05-25) to reduce Firestore write rate. The
+  // SDK's WriteStream was emitting "Write stream exhausted maximum allowed
+  // queued writes" / "Using maximum backoff delay" logs because periodic
+  // pushes plus fbApplyDelta bursts were outpacing the WriteStream drain.
+  // localStorage is authoritative; cross-device freshness gap of up to 5 min
+  // is acceptable. unload handler still flushes a final snapshot on tab close.
   useEffect(() => {
     if (!authUser || authScreen !== 'app') return undefined;
-    const iv = setInterval(async () => {
-      const {
-        authUser: u,
-        stats: st,
-        name: nm,
-        authScreen: as_,
-        favs: fv,
-        jWords: jw,
-        dchlA: da,
-        dchlSl: dsl,
-      } = _unloadRef.current as {
-        authUser: AuthUser | null;
-        stats: Stats;
-        name: string;
-        authScreen: string;
-        favs: unknown[];
-        jWords: unknown[];
-        dchlA: boolean[];
-        dchlSl: string[];
-      };
-      if (!u || as_ !== 'app') return;
-      // Skip the periodic push when offline. Without this guard, fbSaveProgress
-      // enqueues a write into the Firestore SDK queue every 60s during an
-      // outage; once the user is back online the queue is saturated and the
-      // SDK emits "Write stream exhausted maximum allowed queued writes" /
-      // "Using maximum backoff delay" logs. localStorage is authoritative —
-      // no data is lost by skipping; the next online tick will push a full
-      // snapshot containing everything that happened during the outage.
-      if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
-      const snap = buildProgressSnapshot({
-        uid: u.u,
-        name: nm,
-        stats: st,
-        dchlA: da,
-        dchlSl: dsl,
-        favs: fv,
-        jWords: jw,
-      });
-      const result = (await fbSaveProgress(u.u, snap).catch((e: unknown) => {
-        const err = e as { code?: string; message?: string };
-        return { ok: false, code: err?.code, err: err?.message };
-      })) as { ok?: boolean; code?: string; err?: string };
-      if (result && result.ok !== false) {
-        _syncFailCount.current = 0;
-        setLastSyncedAt(Date.now());
-      } else {
-        _syncFailCount.current += 1;
-        // Sync failures are handled silently — reconnect happens automatically
-        if (_syncFailCount.current >= 2) {
-          console.warn('[sync] periodic push failed', _syncFailCount.current, 'times');
+    const iv = setInterval(
+      async () => {
+        const {
+          authUser: u,
+          stats: st,
+          name: nm,
+          authScreen: as_,
+          favs: fv,
+          jWords: jw,
+          dchlA: da,
+          dchlSl: dsl,
+        } = _unloadRef.current as {
+          authUser: AuthUser | null;
+          stats: Stats;
+          name: string;
+          authScreen: string;
+          favs: unknown[];
+          jWords: unknown[];
+          dchlA: boolean[];
+          dchlSl: string[];
+        };
+        if (!u || as_ !== 'app') return;
+        // Skip when offline — writes can't drain.
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+        // In-flight guard via the same mutex doSyncNow uses. Prevents the
+        // periodic tick from stacking a second snapshot write on top of an
+        // already-pending one (e.g. a slow link where the previous push is
+        // still pending, or doSyncNow triggered between ticks).
+        if (_isSavingRef.current) return;
+        _isSavingRef.current = true;
+        try {
+          const snap = buildProgressSnapshot({
+            uid: u.u,
+            name: nm,
+            stats: st,
+            dchlA: da,
+            dchlSl: dsl,
+            favs: fv,
+            jWords: jw,
+          });
+          const result = (await fbSaveProgress(u.u, snap).catch((e: unknown) => {
+            const err = e as { code?: string; message?: string };
+            return { ok: false, code: err?.code, err: err?.message };
+          })) as { ok?: boolean; code?: string; err?: string };
+          if (result && result.ok !== false) {
+            _syncFailCount.current = 0;
+            setLastSyncedAt(Date.now());
+          } else {
+            _syncFailCount.current += 1;
+            if (_syncFailCount.current >= 2) {
+              console.warn('[sync] periodic push failed', _syncFailCount.current, 'times');
+            }
+          }
+        } finally {
+          _isSavingRef.current = false;
         }
-      }
-    }, 60 * 1000);
+      },
+      5 * 60 * 1000,
+    );
     return () => clearInterval(iv);
   }, [authUser, authScreen, setLastSyncedAt]);
 
