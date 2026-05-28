@@ -140,8 +140,17 @@ export async function onRequestPost(context) {
       // Structured log — visible in Cloudflare Pages → Functions → Logs
       console.error(JSON.stringify(structured));
 
-      // Browser extension noise — log only, do not forward to Sentry
-      const IGNORED_SENTRY_PATTERNS = ['invalid call to runtime.sendmessage', 'tab not found'];
+      // Browser-extension / WebKit-shim noise — log only, do not forward to Sentry.
+      // KEEP IN SYNC with src/main.tsx Sentry.init `ignoreErrors` list. The SDK
+      // path filters its own; this path (window.onerror → reportError → this
+      // worker → Sentry envelope) needs its own copy. Patterns are lowercased
+      // because msgLower below is lowercased before .includes().
+      const IGNORED_SENTRY_PATTERNS = [
+        'invalid call to runtime.sendmessage',
+        'tab not found',
+        'wkwebview api client did not respond',
+        'getboundingclientrect is not a function',
+      ];
       const msgLower = structured.message.toLowerCase();
       const isSentryIgnored = IGNORED_SENTRY_PATTERNS.some((p) => msgLower.includes(p));
 
