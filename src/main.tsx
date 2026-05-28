@@ -125,7 +125,15 @@ if (import.meta.env.VITE_SENTRY_DSN) {
         enabled: import.meta.env.PROD,
         tracesSampleRate: 0.1,
         replaysOnErrorSampleRate: 0.1, // capture replay for 10% of error sessions to aid sync debugging
-        integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+        // DDG Mobile's WebKit content-blocker shims break Sentry Replay's DOM
+        // snapshotter (getBoundingClientRect on stubbed nodes). Disable Replay
+        // on that browser; tracing still runs.
+        integrations: [
+          Sentry.browserTracingIntegration(),
+          ...(typeof navigator !== 'undefined' && /DuckDuckGo/.test(navigator.userAgent)
+            ? []
+            : [Sentry.replayIntegration()]),
+        ],
         // Filter browser-extension noise that is not actionable
         ignoreErrors: [
           // DuckDuckGo (and other browser extensions) fire this when their content
@@ -136,6 +144,9 @@ if (import.meta.env.VITE_SENTRY_DSN) {
           // their own webkit.messageHandlers; bundled third-party code probes
           // for native handlers and WKWebView rejects when no reply within timeout.
           'WKWebView API client did not respond to this postMessage',
+          // Belt-and-suspenders for the Replay/DDG snapshotter throw above — also
+          // covers any other browser that shims DOM nodes the same way.
+          'getBoundingClientRect is not a function',
         ],
         // Scrub PII from error reports
         beforeSend(event) {
