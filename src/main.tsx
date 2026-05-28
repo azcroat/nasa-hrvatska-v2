@@ -27,6 +27,7 @@ import { isNative, isAndroid } from './lib/platform.js';
 import { initPostHog } from './lib/analytics';
 import { registerSW } from 'virtual:pwa-register';
 import { isChunkLoadError, reloadWithCachePurge } from './lib/chunkErrors';
+import { shouldEnableSentryReplay } from './lib/sentryHelpers';
 
 // ─── Capacitor native: mark <html> for CSS animation overrides ────────────
 // Many CSS entrance animations start at opacity:0 with fill-mode:both.
@@ -126,13 +127,11 @@ if (import.meta.env.VITE_SENTRY_DSN) {
         tracesSampleRate: 0.1,
         replaysOnErrorSampleRate: 0.1, // capture replay for 10% of error sessions to aid sync debugging
         // DDG Mobile's WebKit content-blocker shims break Sentry Replay's DOM
-        // snapshotter (getBoundingClientRect on stubbed nodes). Disable Replay
-        // on that browser; tracing still runs.
+        // snapshotter (getBoundingClientRect on stubbed nodes). The shouldEnableSentryReplay
+        // helper UA-detects known-broken browsers; tracing still runs everywhere.
         integrations: [
           Sentry.browserTracingIntegration(),
-          ...(typeof navigator !== 'undefined' && /DuckDuckGo/.test(navigator.userAgent)
-            ? []
-            : [Sentry.replayIntegration()]),
+          ...(shouldEnableSentryReplay() ? [Sentry.replayIntegration()] : []),
         ],
         // Filter browser-extension noise that is not actionable
         ignoreErrors: [
