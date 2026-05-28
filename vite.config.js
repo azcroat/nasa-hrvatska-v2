@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import fs from 'fs';
 
 // Auto-generated on every build/dev-server start — never bump manually.
@@ -8,6 +9,13 @@ import fs from 'fs';
 // Every deploy gets a unique ID → old SW caches are purged automatically.
 const BUILD_ID = Date.now().toString();
 fs.writeFileSync('./public/version.json', JSON.stringify({ v: BUILD_ID }) + '\n');
+
+// Sentry source-map upload only runs when all three env vars are set
+// (typically only in CF Pages production builds). Local dev/preview builds
+// without these vars get a no-op plugin so nothing breaks.
+const SENTRY_UPLOAD_ENABLED = !!(
+  process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
+);
 
 // CSP guard: Vite inlines small public/ scripts into the built index.html,
 // which violates script-src 'self' (no 'unsafe-inline'). This plugin runs
@@ -61,6 +69,24 @@ export default defineConfig({
   plugins: [
     react(),
     keepPublicScriptsExternal(),
+    // Sentry source-map upload — last plugin, runs after bundle is written.
+    // No-ops silently when env vars are absent (local dev/preview).
+    ...(SENTRY_UPLOAD_ENABLED
+      ? [
+          sentryVitePlugin({
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            org: process.env.SENTRY_ORG,
+            project: process.env.SENTRY_PROJECT,
+            // Match the release name Sentry.init reads from __BUILD_ID__
+            // (src/main.tsx:120) so events bind to the right release.
+            release: { name: BUILD_ID },
+            // Plugin deletes source maps from dist/ after upload by default,
+            // so they aren't served to browsers — Sentry uses them server-side.
+            sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] },
+            telemetry: false,
+          }),
+        ]
+      : []),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: null,
@@ -136,7 +162,10 @@ export default defineConfig({
   build: {
     target: 'es2020',              // Modern target — native async/await, smaller output
     outDir: 'dist',
-    sourcemap: false,
+    // 'hidden' generates source maps but omits the //# sourceMappingURL comment,
+    // so browsers never download them. Sentry's plugin uploads them at build
+    // time then deletes the local files (see sourcemaps.filesToDeleteAfterUpload).
+    sourcemap: SENTRY_UPLOAD_ENABLED ? 'hidden' : false,
     minify: 'esbuild',
     cssCodeSplit: true,            // CSS per chunk (avoids one monolithic stylesheet)
     reportCompressedSize: false,   // Skip gzip-size computation at build time for faster builds
