@@ -494,32 +494,20 @@ export function useSyncManager({
     return () => clearInterval(iv);
   }, [authUser, authScreen, setLastSyncedAt]);
 
-  // ─── Periodic pull every 3 min ─────────────────────────────────────────────
-  useEffect(() => {
-    if (!authUser || authScreen !== 'app') return undefined;
-    const uid = authUser.u;
-    const iv = setInterval(
-      async () => {
-        const { authUser: u, authScreen: as_ } = _unloadRef.current as {
-          authUser: AuthUser | null;
-          authScreen: string;
-        };
-        if (!u || as_ !== 'app') return;
-        // Same offline gate as the periodic push — no point in a 3min pull
-        // that will queue inside the SDK and time out. Resumes naturally when
-        // online again.
-        if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
-        try {
-          const fp = (await fbLoadProgress(uid)) as Record<string, unknown> | null;
-          if (!fp) return;
-          const fpTs = (fp._fbUpdated as number) || 0;
-          enqueueSnapshot(fp, fpTs, uid);
-        } catch (_) {}
-      },
-      3 * 60 * 1000,
-    );
-    return () => clearInterval(iv);
-  }, [authUser, authScreen, enqueueSnapshot]);
+  // ─── Periodic pull: REMOVED (2026-05-28) ───────────────────────────────────
+  // A 3-minute setInterval that fired fbLoadProgress (getDoc on users/{id}).
+  // Removed because it was redundant AND actively harmful:
+  //  • Redundant: the real-time fbWatchProgress onSnapshot listener (above)
+  //    already delivers every cross-device change the instant it lands, and
+  //    visibilitychange / pageshow / online handlers cover wake-from-sleep.
+  //  • Harmful: when idle the doc isn't changing, so enqueueSnapshot early-
+  //    returned and the pull did nothing useful — but the bare getDoc still
+  //    WOKE the Firestore network connection every 3 min. If a write was stuck
+  //    in the SDK's IndexedDB mutation queue (from past burst writes exceeding
+  //    the ~1 write/sec/document soft limit on users/{id}), each wake-up made
+  //    the SDK re-attempt the write pipeline flush → "Write stream exhausted
+  //    maximum allowed queued writes" + max-backoff logs, every 3 min on the dot.
+  // fbLoadProgress is still used by the watcher-bootstrap fetchAndEnqueue path.
 
   // ─── Unload: localStorage flush + best-effort Firebase push ───────────────
   useEffect(() => {
