@@ -20,6 +20,9 @@ export default defineConfig({
       'node_modules/**',
       // Firestore rules tests require the Firebase Emulator — run with: npm run test:rules
       'src/tests/firestore-rules.test.js',
+      // Emulator-only: real Firestore merge-semantics check (needs 127.0.0.1:8080).
+      // Run: npx firebase emulators:exec --only firestore "vitest run src/tests/firestore-merge-semantics.test.js"
+      'src/tests/firestore-merge-semantics.test.js',
     ],
     coverage: {
       provider: 'v8',

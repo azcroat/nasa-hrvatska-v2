@@ -85,8 +85,12 @@ type SaveProgress = (
   uid: string,
   data: Record<string, unknown>,
 ) => Promise<{ ok: boolean; code?: string }>;
+type ApplyDelta = (uid: string, delta: Record<string, unknown>) => Promise<void>;
+type FlushDelta = () => Promise<void>;
 
 let fbSaveProgress: SaveProgress;
+let fbApplyDelta: ApplyDelta;
+let fbFlushPendingDelta: FlushDelta;
 
 /** Find the batch.set(...) call that targeted the users collection. */
 function usersSetCall(): unknown[] | undefined {
@@ -96,9 +100,12 @@ function usersSetCall(): unknown[] | undefined {
 beforeAll(async () => {
   // initFirebase() runs at module load and bails unless VITE_FIREBASE_API_KEY is set.
   vi.stubEnv('VITE_FIREBASE_API_KEY', 'test-api-key');
-  ({ fbSaveProgress } = (await import('../lib/firebase.js')) as unknown as {
-    fbSaveProgress: SaveProgress;
-  });
+  ({ fbSaveProgress, fbApplyDelta, fbFlushPendingDelta } =
+    (await import('../lib/firebase.js')) as unknown as {
+      fbSaveProgress: SaveProgress;
+      fbApplyDelta: ApplyDelta;
+      fbFlushPendingDelta: FlushDelta;
+    });
 });
 
 afterAll(() => {
@@ -160,5 +167,38 @@ describe('fbSaveProgress — single write to users/{id} (no reconcile double-wri
     const colls = m.batchSet.mock.calls.map((c) => (c[0] as { coll?: string })?.coll);
     expect(colls).toContain('users');
     expect(colls).toContain('profiles');
+  });
+});
+
+// ── Burst / rate-limit guard ────────────────────────────────────────────────
+// fbApplyDelta is the highest-frequency writer (one call per XP award). The fix
+// to the write-amplification problem relies on COALESCE_MS batching a burst of
+// rapid awards into a SINGLE updateDoc to users/{id} — otherwise a fast quiz
+// would fire one write per question and saturate the WriteStream. This guards
+// that coalescing so a future change can't quietly turn it back into 1:1 writes.
+describe('fbApplyDelta — burst coalescing into one write', () => {
+  it('coalesces a burst of rapid awards into a single users/{id} write', async () => {
+    vi.useFakeTimers();
+    try {
+      // 12 rapid awards within the coalesce window.
+      for (let i = 0; i < 12; i++) {
+        void fbApplyDelta('user@example.com', { xp: 1, vs: ['v' + i] });
+      }
+      // Still inside COALESCE_MS — nothing flushed yet.
+      expect(m.updateDoc).not.toHaveBeenCalled();
+      // Advance past the coalesce window so the single flush fires.
+      await vi.advanceTimersByTimeAsync(3500);
+      // Exactly one write, with the numeric deltas SUMMED and arrays unioned.
+      expect(m.updateDoc).toHaveBeenCalledTimes(1);
+      const update = m.updateDoc.mock.calls[0]![1] as Record<string, unknown>;
+      expect(update['stats.xp']).toEqual({ __op: 'increment', n: 12 });
+      expect(update['stats.vs']).toEqual({
+        __op: 'arrayUnion',
+        values: Array.from({ length: 12 }, (_, i) => 'v' + i),
+      });
+    } finally {
+      await fbFlushPendingDelta().catch(() => {});
+      vi.useRealTimers();
+    }
   });
 });
