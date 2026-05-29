@@ -166,9 +166,9 @@ export function isValidEmail(e: string): boolean {
 // ═══ FIREBASE SYNC ═══
 
 /**
- * Reconcile atomic stats.vs / stats.ct / stats.badges with the full arrays
- * from the current progress snapshot. Uses arrayUnion (idempotent) so it is
- * safe to call on every save. Fire-and-forget — failures are silently swallowed.
+ * Build the atomic-array reconciliation payload (stats.vs / stats.ct /
+ * stats.badges) as a nested map of arrayUnion() sentinels, suitable for
+ * folding directly into the fbSaveProgress writeBatch set({ merge: true }).
  *
  * Why this exists: writeDelta only fires for individual completions at the
  * moment they happen. If the device was offline, or the user was in guest mode,
@@ -176,21 +176,25 @@ export function isValidEmail(e: string): boolean {
  * progress blob is later overwritten by another device, the completions would
  * disappear from the load-side union (blob.vs ∪ stats.vs). Reconciling on every
  * fbSaveProgress call guarantees stats.vs is always a superset of the blob.
+ *
+ * 2026-05-28: this previously fired as a SEPARATE updateDoc immediately after
+ * the batch commit — a second back-to-back write to users/{id} on EVERY save.
+ * Under burst activity that doubling pushed writes past Firestore's ~1
+ * write/sec/document soft limit, backing up the local mutation queue until the
+ * SDK logged "Write stream exhausted maximum allowed queued writes" + max
+ * backoff. arrayUnion inside set({ merge: true }) is supported and idempotent,
+ * so folding it into the existing batch preserves the superset guarantee with
+ * HALF the writes to the hot document. Returns {} when there's nothing to union.
  */
-function _reconcileAtomicStats(docId: string, st: Record<string, unknown>): void {
-  if (!_fbDb) return;
-  try {
-    const _rv = (st.vs as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
-    const _rc = (st.ct as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
-    const _rb = (st.badges as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
-    const _rec: Record<string, unknown> = {};
-    if (_rv.length) _rec['stats.vs'] = arrayUnion(..._rv);
-    if (_rc.length) _rec['stats.ct'] = arrayUnion(..._rc);
-    if (_rb.length) _rec['stats.badges'] = arrayUnion(..._rb);
-    if (Object.keys(_rec).length) {
-      updateDoc(fsDoc(_fbDb, 'users', docId), _rec).catch(() => {});
-    }
-  } catch (_) {}
+function _buildStatsUnion(st: Record<string, unknown>): Record<string, unknown> {
+  const _rv = (st.vs as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
+  const _rc = (st.ct as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
+  const _rb = (st.badges as string[] | undefined)?.filter((s) => typeof s === 'string') ?? [];
+  const _u: Record<string, unknown> = {};
+  if (_rv.length) _u.vs = arrayUnion(..._rv);
+  if (_rc.length) _u.ct = arrayUnion(..._rc);
+  if (_rb.length) _u.badges = arrayUnion(..._rb);
+  return _u;
 }
 
 // ─── Retry infrastructure ──────────────────────────────────────────────────
@@ -316,13 +320,19 @@ export async function fbSaveProgress(
   // fbApplyDelta's increment() is idempotent-safe: if fbApplyDelta was skipped
   // (offline/guest), stats.lc in the progress blob is the authoritative fallback
   // loaded by fbLoadProgress via the Math.max merge at read time.
-  const userEntry = {
+  const userEntry: Record<string, unknown> = {
     progress: _progressJson,
     updated: serverTimestamp(),
     level: _bestLvl,
     streak: _bestStrk,
     lastActive: serverTimestamp(),
   };
+  // Fold atomic-array reconciliation (stats.vs / ct / badges) into THIS write
+  // instead of a separate follow-up updateDoc. set({ merge: true }) deep-merges
+  // the nested stats map, so stats.xp/lc (owned by fbApplyDelta increments) are
+  // preserved while the arrays are unioned — one write to users/{id}, not two.
+  const _statsUnion = _buildStatsUnion(_st);
+  if (Object.keys(_statsUnion).length) userEntry.stats = _statsUnion;
 
   // ── WriteBatch is recreated on each attempt — the SDK batch object is not
   // guaranteed to be re-committable after a failed commit, so we build a fresh
@@ -334,13 +344,9 @@ export async function fbSaveProgress(
       b.set(fsDoc(_fbDb!, 'profiles', id), profileEntry, { merge: true });
       await b.commit();
     }, 'fbSaveProgress');
-    // ── Atomic reconciliation ─────────────────────────────────────────────────
-    // Ensure stats.vs / stats.ct / stats.badges are a strict superset of the
-    // progress blob. This rescues completions that were done offline (when
-    // writeDelta was a no-op) before they can be lost by another device
-    // overwriting the progress blob. arrayUnion is idempotent — safe to call
-    // on every save. Fire-and-forget: non-critical since the main save succeeded.
-    _reconcileAtomicStats(id, _st);
+    // Atomic reconciliation (stats.vs / ct / badges superset guarantee) is now
+    // folded into the batched users/{id} write above via _buildStatsUnion — no
+    // separate follow-up updateDoc, so each save is a single write to the doc.
     return { ok: true };
   } catch (e: unknown) {
     const err = e as { code?: string; message?: string };
