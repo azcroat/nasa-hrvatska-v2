@@ -202,12 +202,15 @@ function _buildStatsUnion(st: Record<string, unknown>): Record<string, unknown> 
 // (permission-denied, not-found, unauthenticated, invalid-argument, etc.)
 // are non-transient and are thrown immediately after a single attempt.
 //
-// 'resource-exhausted' is intentionally NOT in this set. Note that in
-// practice the SDK does NOT throw resource-exhausted to our code when its
-// WriteStream cap is hit — it logs the warning and queues the mutation
-// internally, then resolves the await successfully. The cap is handled by
-// rate-limiting our own write issuance (see COALESCE_MS for delta merging
-// and the 5-minute periodic-push interval in useSyncManager).
+// 'resource-exhausted' is intentionally NOT in this set. The SDK CAN surface
+// it (observed in the browser console: "FirebaseError: [code=resource-exhausted]:
+// Write stream exhausted maximum allowed queued writes" + max-backoff), but
+// retrying it here is exactly the wrong move — an immediate retry adds yet
+// another write to an already-saturated WriteStream queue and deepens the
+// back-pressure. The real cure is reducing our write RATE and AMPLIFICATION:
+// COALESCE_MS for delta merging, the 5-minute periodic-push interval in
+// useSyncManager, and folding reconciliation into the single fbSaveProgress
+// batch (see _buildStatsUnion) so each save is one write to users/{id}, not two.
 const _RETRYABLE_CODES = new Set([
   'unavailable', // Service temporarily unavailable (most common)
   'deadline-exceeded', // Operation timed out
