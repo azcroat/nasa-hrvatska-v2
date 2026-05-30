@@ -13,6 +13,7 @@ import SpeedChallenge from '../home/SpeedChallenge';
 import { useAdaptivePractice } from '../../hooks/useAdaptivePractice';
 import { useSmartRecommendations } from '../../hooks/useSmartRecommendations';
 import ChallengePanel from './ChallengePanel';
+import ExerciseCard from './ExerciseCard';
 import type { SkillCategory } from '../../lib/adaptive';
 
 // ── Recently-played tracking ─────────────────────────────────────────────────
@@ -997,13 +998,6 @@ export default function PracticeTab({
     },
   ];
 
-  const CATEGORY_COLORS = {
-    grammar: '#7c3aed',
-    vocab: '#0e7490',
-    practical: '#059669',
-    advanced: '#d97706',
-  };
-
   const ADAPTIVE_CATEGORY_MAP: Partial<
     Record<SkillCategory, { label: string; icon: string; desc: string; action: () => void }>
   > = {
@@ -1149,51 +1143,6 @@ export default function PracticeTab({
       action: startSpeaking,
     },
   };
-
-  function ExerciseCard({
-    id,
-    label,
-    icon,
-    desc,
-    cefr,
-    duration,
-    action,
-    category,
-  }: {
-    id: string;
-    label: string;
-    icon: string;
-    desc: string;
-    cefr?: string;
-    duration?: string;
-    action?: () => void;
-    category?: string;
-  }) {
-    const catColor = (CATEGORY_COLORS as Record<string, string>)[category ?? ''] || 'var(--bar-bg)';
-    const cefrClass = cefr ? `cefr cefr-${cefr.toLowerCase().replace(/[^a-z]/g, '')}` : '';
-    return (
-      <button
-        data-testid={`exercise-card-${id}`}
-        onClick={action}
-        className="exercise-card"
-        style={{ borderLeftColor: catColor }}
-      >
-        <div className="exercise-card-icon">{icon}</div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div className="exercise-card-label">{label}</div>
-          <div className="exercise-card-desc">{desc}</div>
-          <div className="exercise-card-meta">
-            {cefr && <span className={cefrClass}>{cefr}</span>}
-            {duration && (
-              <span style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 600 }}>
-                ⏱ {duration}
-              </span>
-            )}
-          </div>
-        </div>
-      </button>
-    );
-  }
 
   const availableExercises = EXERCISES.filter((ex) => isUnlocked(ex.cefr, userCefr));
   const lockedExercises = EXERCISES.filter((ex) => !isUnlocked(ex.cefr, userCefr));
