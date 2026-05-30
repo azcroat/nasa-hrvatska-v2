@@ -144,6 +144,8 @@ export function buildProgressSnapshot({
       }
     })(),
     nh_prestige: parseInt(localStorage.getItem('nh_prestige') || '0', 10),
+    // Alka tournament personal best (0-9). Math.max on merge — never regresses.
+    nh_alka_best: parseInt(localStorage.getItem('nh_alka_best') || '0', 10),
     nh_checkpoints: (() => {
       try {
         return JSON.parse(localStorage.getItem('nh_checkpoints') || '{}');
