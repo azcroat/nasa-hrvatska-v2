@@ -20,6 +20,7 @@ import { getFreezesStored, purchaseFreeze, FREEZE_COST_XP } from '../../lib/stre
 import { isNative } from '../../lib/platform.ts';
 import { speak, getAudioDebugState } from '../../lib/audio.ts';
 import { getEntries } from '../../lib/debugLog.ts';
+import HeritageEntrySection from './sections/HeritageEntrySection';
 
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -1051,72 +1052,7 @@ export default function SettingsTab({
       )}
 
       {/* ── HERITAGE MODE ENTRY POINT ── */}
-      <div className="section-hdr" style={{ marginTop: 24 }}>
-        <div
-          className="section-hdr-icon"
-          style={{ background: 'linear-gradient(135deg,rgba(194,65,12,.15),rgba(234,88,12,.1))' }}
-        >
-          🇭🇷
-        </div>
-        <div className="section-hdr-text">
-          <div className="section-hdr-title">Heritage Learner</div>
-          <div className="section-hdr-sub">Diaspora-specific learning path</div>
-        </div>
-      </div>
-      <button
-        className="tc"
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-          padding: '16px',
-          marginBottom: 10,
-        }}
-        onClick={() => setScr('heritage_mode')}
-      >
-        <div
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 13,
-            background:
-              localStorage.getItem('nh_heritage_mode') === 'true'
-                ? 'linear-gradient(135deg,#7c2d12,#c2410c)'
-                : 'linear-gradient(135deg,#9a3412,#ea580c)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 'var(--text-xl)',
-            flexShrink: 0,
-          }}
-        >
-          🇭🇷
-        </div>
-        <div style={{ flex: 1, textAlign: 'left' }}>
-          <div style={{ fontSize: 'var(--text-base)', fontWeight: 800, color: 'var(--heading)' }}>
-            {localStorage.getItem('nh_heritage_mode') === 'true'
-              ? 'Heritage Mode Active'
-              : 'I grew up hearing Croatian at home →'}
-          </div>
-          <div
-            style={{
-              fontSize: 'var(--text-xs)',
-              color:
-                localStorage.getItem('nh_heritage_mode') === 'true'
-                  ? 'var(--success)'
-                  : 'var(--subtext)',
-              marginTop: 1,
-            }}
-          >
-            {localStorage.getItem('nh_heritage_mode') === 'true'
-              ? '✓ Dialect set · Gap analysis complete · Baka phrases saved'
-              : 'Diaspora-specific path: dialect check, gap analysis, family phrases'}
-          </div>
-        </div>
-        <div style={{ fontSize: 'var(--text-xl)', color: 'var(--subtext)', opacity: 0.8 }}>›</div>
-      </button>
-
+      <HeritageEntrySection setScr={setScr} />
       {/* ── STREAK PROTECTION ── */}
       <div className="section-hdr" style={{ marginTop: 24 }}>
         <div className="section-hdr-icon" style={{ background: 'rgba(56,189,248,.12)' }}>
