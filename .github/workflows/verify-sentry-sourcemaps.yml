@@ -1,0 +1,67 @@
+name: Verify Sentry source-map upload
+
+# Manual check that the Cloudflare Pages production build actually ran the
+# @sentry/vite-plugin and uploaded source maps. Also cross-checks the Sentry API.
+# Run: gh workflow run verify-sentry-sourcemaps.yml
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Inspect latest CF Pages build log + Sentry artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check build log and Sentry
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        run: |
+          set -euo pipefail
+          PROJECT=nasa-hrvatska-v2
+          cf() { curl -sf -H "Authorization: Bearer $CF_TOKEN" "$@"; }
+
+          echo "===== Latest PRODUCTION deployment ====="
+          DEPLOYS=$(cf "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/$PROJECT/deployments")
+          DID=$(echo "$DEPLOYS" | jq -r '[.result[] | select(.environment=="production")] | .[0].id')
+          DSHA=$(echo "$DEPLOYS" | jq -r '[.result[] | select(.environment=="production")] | .[0].deployment_trigger.metadata.commit_hash // "unknown"')
+          DSTAGE=$(echo "$DEPLOYS" | jq -r '[.result[] | select(.environment=="production")] | .[0].latest_stage.status // "unknown"')
+          echo "deployment id : $DID"
+          echo "commit        : $DSHA"
+          echo "stage status  : $DSTAGE"
+
+          echo "===== Build log: Sentry / source-map lines ====="
+          cf "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/$PROJECT/deployments/$DID/history/logs" \
+            | jq -r '.result.data[].line' > /tmp/buildlog.txt
+          echo "(build log is $(wc -l < /tmp/buildlog.txt) lines)"
+          grep -inE "sentry|source ?map|sourcemap|uploaded|debug.?id|artifact" /tmp/buildlog.txt \
+            || echo "(NO sentry/sourcemap/upload lines in build log)"
+
+          echo "===== Verdict: CF build ====="
+          CF_PASS=0
+          if grep -iqE "sentry.*plugin|uploaded .*(file|artifact|source ?map)|>\s*sentry|successfully uploaded" /tmp/buildlog.txt; then
+            echo "PASS: build log shows @sentry/vite-plugin upload activity"
+            CF_PASS=1
+          else
+            echo "FAIL/UNCLEAR: no upload activity. Most likely SENTRY_* are not present at BUILD time"
+            echo "  (CF Pages distinguishes build-time env vars from runtime secrets)."
+          fi
+
+          echo "===== Cross-check: Sentry API ====="
+          sentry() { curl -sf -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" "$@"; }
+          # Newest releases for the org (release name = BUILD_ID timestamp).
+          REL=$(sentry "https://sentry.io/api/0/organizations/$SENTRY_ORG/releases/?per_page=3" || echo '[]')
+          echo "Recent releases:"
+          echo "$REL" | jq -r '.[]? | "  \(.version)  created=\(.dateCreated)  newGroups=\(.newGroups)"' || echo "  (none / API error)"
+          # Modern @sentry/vite-plugin uploads debug-id artifact bundles; check that endpoint too.
+          echo "Artifact bundles (debug-id based):"
+          sentry "https://sentry.io/api/0/projects/$SENTRY_ORG/$SENTRY_PROJECT/files/artifact-bundles/?per_page=5" \
+            | jq -r '.[]? | "  bundleId=\(.bundleId)  fileCount=\(.fileCount)  date=\(.date)"' \
+            || echo "  (artifact-bundles endpoint returned nothing / not available)"
+
+          echo "===== DONE ====="
+          if [ "$CF_PASS" -ne 1 ]; then
+            echo "::warning::Sentry source-map upload not confirmed in the CF build log — see lines above."
+          fi
