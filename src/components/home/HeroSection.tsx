@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
@@ -10,16 +10,9 @@ const _isNative =
   typeof window !== 'undefined' &&
   window.location.hostname === 'localhost' &&
   !window.location.port;
-import { lXP, nXP, earnFreeze, getStreakFreezes, speak } from '../../data';
+import { lXP, nXP, speak } from '../../data';
 import { useContent } from '../../hooks/useContent';
-import {
-  getDailyXP,
-  getDailyXPGoal,
-  getXPBoost,
-  activateXPBoost,
-  canActivateXPBoost,
-  XP_BOOST_COST,
-} from '../../lib/appUtils.js';
+import { getDailyXP, getDailyXPGoal, XP_BOOST_COST } from '../../lib/appUtils.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import CroatianGrb from '../shared/CroatianGrb';
@@ -29,6 +22,7 @@ import { getDailyScene, getMascotMessage, getCEFR } from './heroHelpers';
 import TypewriterText from './TypewriterText';
 import QuickReplyBanner from './QuickReplyBanner';
 import { useKnightSpeech } from './useKnightSpeech';
+import { useHeroRewards } from './useHeroRewards';
 
 interface LearnPathItem {
   id?: string;
@@ -73,27 +67,9 @@ export default function HeroSection({
   launchPathItem?: (item: LearnPathItem) => void;
 }) {
   const { name } = useApp();
-  const { level, stats: st, award, setStats } = useStats();
+  const { level, stats: st } = useStats();
   const { content: coreContent } = useContent();
   const LEVEL_NARRATIVE = (coreContent?.LEVEL_NARRATIVE ?? {}) as Record<string, string[]>;
-
-  const [freezes, setFreezes] = useState(getStreakFreezes);
-  const [freezeMsg, setFreezeMsg] = useState('');
-  const [boost, setBoost] = useState(() => getXPBoost());
-  const [boostMsg, setBoostMsg] = useState('');
-
-  // Refresh boost countdown every 10 s while active
-  useEffect(() => {
-    if (!boost.active) return undefined;
-    const id = setInterval(() => {
-      const b = getXPBoost();
-      setBoost(b);
-      if (!b.active) clearInterval(id);
-    }, 10000);
-    return () => clearInterval(id);
-  }, [boost.active]);
-  const [streakRestored, setStreakRestored] = useState(false);
-  const [streakRestoreMsg, setStreakRestoreMsg] = useState('');
 
   // Hero is always expanded by default — users can still collapse it manually
   const [heroExpanded, setHeroExpanded] = useState(() => {
@@ -163,6 +139,19 @@ export default function HeroSection({
     level,
     practicedToday: streak.last === today,
   });
+
+  // ── Hero rewards (freezes, XP boost, streak recovery) ──
+  const {
+    freezes,
+    freezeMsg,
+    boost,
+    boostMsg,
+    streakRestored,
+    streakRestoreMsg,
+    activateBoost,
+    earnFreezeReward,
+    restoreStreak,
+  } = useHeroRewards({ today, onSyncNow });
 
   return (
     <motion.div
@@ -1048,21 +1037,7 @@ export default function HeroSection({
             ) : (
               <div style={{ marginBottom: 12 }}>
                 <button
-                  onClick={() => {
-                    if (st.xp < XP_BOOST_COST) {
-                      setBoostMsg(`Need ${XP_BOOST_COST} XP to activate boost`);
-                      setTimeout(() => setBoostMsg(''), 3000);
-                      return;
-                    }
-                    if (!canActivateXPBoost()) {
-                      setBoostMsg('Boost available once per 24 hours');
-                      setTimeout(() => setBoostMsg(''), 3000);
-                      return;
-                    }
-                    setStats((s) => ({ ...s, xp: Math.max(0, s.xp - XP_BOOST_COST) }));
-                    activateXPBoost();
-                    setBoost(getXPBoost());
-                  }}
+                  onClick={activateBoost}
                   style={{
                     background: 'rgba(251,191,36,0.10)',
                     border: '1.5px solid rgba(251,191,36,0.28)',
@@ -1111,15 +1086,7 @@ export default function HeroSection({
             {freezes === 0 && (
               <div>
                 <button
-                  onClick={() => {
-                    if (st.xp >= 200) {
-                      earnFreeze();
-                      setFreezes((f) => f + 1);
-                      setFreezeMsg(
-                        '✓ Streak freeze earned! Your streak is protected for one missed day.',
-                      );
-                    } else setFreezeMsg('You need 200 XP to earn a streak freeze. Keep going!');
-                  }}
+                  onClick={earnFreezeReward}
                   style={{
                     background: 'rgba(255,255,255,.09)',
                     border: '1.5px solid rgba(255,255,255,.25)',
@@ -1164,21 +1131,7 @@ export default function HeroSection({
               !localStorage.getItem('nh_streak_restored_' + today) && (
                 <div style={{ marginTop: 8 }}>
                   <button
-                    onClick={() => {
-                      award && award(-200, false, 'default');
-                      localStorage.setItem('nh_streak_restored_' + today, '1');
-                      // Write streak back to 1 using the uStreak key (same format as getStreak in data.jsx)
-                      localStorage.setItem('uStreak', JSON.stringify({ count: 1, last: today }));
-                      // Sync with streak.js repair key so canRepairStreak() returns false this session
-                      try {
-                        const rd = JSON.parse(localStorage.getItem('nh_streak_repair') || '{}');
-                        rd.lastRepair = today;
-                        localStorage.setItem('nh_streak_repair', JSON.stringify(rd));
-                      } catch (_) {}
-                      setStreakRestored(true);
-                      setStreakRestoreMsg('✓ Streak restored! Keep it alive today 🔥');
-                      if (onSyncNow) onSyncNow();
-                    }}
+                    onClick={restoreStreak}
                     style={{
                       background: 'transparent',
                       border: '1.5px solid rgba(255,255,255,.4)',
