@@ -570,8 +570,11 @@ const PRODUCTION_POOL: Array<{
   },
   {
     id: 'production_drill',
+    // screen MUST match the AppRouter route id ('production_drill', with
+    // underscore) — a prior 'productiondrill' typo routed Today's Session →
+    // Production to an empty page at B1+ (no such route). Audited 2026-05-30.
     label: 'Production',
-    screen: 'productiondrill',
+    screen: 'production_drill',
     cefr: 'B1',
     category: 'speaking',
     micRequired: true,
@@ -590,6 +593,21 @@ const PRODUCTION_POOL: Array<{
 export const PRODUCTION_SCREEN_IDS: ReadonlySet<string> = new Set(
   PRODUCTION_POOL.map((p) => p.screen),
 );
+
+/**
+ * Every screen id "Today's Session" can route to, across all CEFR levels and all
+ * priority slots. Derived from the pools so it can never drift. The
+ * session-routes test asserts each of these resolves to a real AppRouter route —
+ * a guard against the dead-lesson class of bug (e.g. the 'productiondrill' typo
+ * that routed B1 Production to an empty page, fixed 2026-05-30).
+ */
+export const SESSION_SCREEN_IDS: ReadonlySet<string> = new Set<string>([
+  'review', // Priority 1 SRS slot (hardcoded in buildSessionActivities)
+  ...(Object.values(CATEGORY_SCREEN_MAP).filter(Boolean) as string[]),
+  ...CEFR_EXERCISE_POOL.map((e) => e.screen),
+  ...CROATIA_POOL.map((c) => c.screen),
+  ...PRODUCTION_POOL.map((p) => p.screen),
+]);
 
 // ── Production exercise selector (SP4b) ──────────────────────────────────────
 // Pure function — returns one SessionActivity from PRODUCTION_POOL, applying
