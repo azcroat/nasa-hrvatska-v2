@@ -243,3 +243,5 @@ export function useSmartRecommendations({
   };
   return { dueReviews, weakCount, goalItems, isNewUser, userGoal, goalLabels };
 }
+
+export type Recommendations = ReturnType<typeof useSmartRecommendations>;
