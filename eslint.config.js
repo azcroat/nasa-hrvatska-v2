@@ -202,11 +202,9 @@ export default [
   // To remove a file from this list: split it into smaller modules first.
   {
     files: [
-      'src/components/practice/PracticeTab.tsx',
       'src/components/practice/ListeningComprehensionScreen.tsx',
       'src/components/AppRouter.tsx',
       'src/App.tsx',
-      'src/components/profile/SettingsTab.tsx',
       'src/components/learn/LearnTab.tsx',
       'src/components/croatia/CroatiaCulture.tsx',
       'src/components/croatia/AIConversation.tsx',
