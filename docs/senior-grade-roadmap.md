@@ -37,9 +37,27 @@ is there; architecture/maintainability in three named spots is not.
 | # | Item | Effort | Risk | Status |
 |---|---|---|---|---|
 | 0a | Wire emulator tests into CI (new `emulator` job: `test:emulator` + `test:rules`) | S | Low | **DONE 2026-05-28** |
-| 0b | Quantify write inventory to `users/{id}` (instrument `fbApplyDelta`/`fbSaveProgress`/`fbToggleFavorite` in a heavy session) — gates Phase 2 | S | Low | TODO |
+| 0b | Quantify write inventory to `users/{id}` (instrument `fbApplyDelta`/`fbSaveProgress`/`fbToggleFavorite`) — gates Phase 2 | S | Low | **DONE 2026-05-30** |
 
 0b's data decides whether Phase 2 is urgent or deferrable. Measure before the expensive, risky change.
+
+### 0b findings (2026-05-30) — measured via `src/tests/write-inventory-0b.test.ts`
+
+Per-action writes to `users/{id}` (exact, counted from a mocked Firestore SDK against the real `firebase.ts`):
+
+| Entry point | Writes to `users/{id}` | Notes |
+|---|---|---|
+| `fbApplyDelta` (dense burst, gaps < `COALESCE_MS`=3000ms) | **1** | burst coalesces into one `updateDoc` |
+| `fbApplyDelta` (spaced, gaps > 3000ms) | **1 per award** | timer resets per call → coalescing only helps *dense* bursts |
+| `fbSaveProgress` (no pending delta) | **1** | batched `set(users)`; `profiles/{id}` is a separate doc |
+| `fbSaveProgress` (pending delta) | **2** | flush `updateDoc` + batched `set` |
+| `fbToggleFavorite` | **1 each, uncoalesced** | the only un-throttled hot path |
+
+**Pessimistic power-user-day projection** (2 h active play, 1 XP item / 5 s, 40 favorites, 5-min periodic save): **≈1,504 writes/day to `users/{id}` = 7.5 % of the Spark 20,000/day cap.** Peak sustained rate: **0.33 writes/s** (dense, coalesced) / **0.20 writes/s** (spaced) — both under the ~1 write/s/doc soft limit.
+
+**Decision: Phase 2 (sharding) is NOT urgent → DEFER.** The 44e45e1 fix (single-write `fbSaveProgress` + 3 s coalescing + removed 3-min pull) keeps the hot doc well under both Firestore limits for realistic heavy usage. Re-evaluate only if (a) a paid plan / much larger DAU changes the cap math, or (b) telemetry shows real `resource-exhausted` recurrence.
+
+**One cheap follow-up (not Phase 2):** `fbToggleFavorite` is the only uncoalesced writer — pathological rapid-favoriting (e.g., 50 toggles in 30 s ≈ 1.6/s) could briefly exceed the 1/s soft limit. If that ever shows up, give it the same `COALESCE_MS` debounce as `fbApplyDelta` (S effort, Low risk). Low total volume today, so it's a watch-item, not a task.
 
 ## Phase 1 — Decompose the tangled god-components
 
@@ -74,8 +92,12 @@ Target: no stateful component >~600 lines. One file per PR. Tests + E2E are the 
 Only item that can corrupt/lose live data. Requires its own design doc, emulator
 coverage (now CI-gated via 0a), and a **staged rollout** (dual-write → backfill →
 cutover). The acute symptom was already fixed 2026-05-28 (commit 44e45e1), so this
-is "prevent recurrence under heavy load," not an emergency. **Do not start until 0b
-proves the write rate warrants it.** See [[reference_firestore_merge_semantics]].
+is "prevent recurrence under heavy load," not an emergency. **0b (2026-05-30)
+measured ~1,504 users/{id} writes on a pessimistic power-user day = 7.5 % of the
+Spark cap, peak 0.33/s < 1/s soft limit → DEFERRED.** Do not start unless the cap
+math changes (paid plan / much larger DAU) or telemetry shows real
+`resource-exhausted` recurrence. See [[reference_firestore_merge_semantics]] and
+the 0b findings under Phase 0.
 
 ## Phase 3 — Type discipline (continuous; weave into Phases 1–2)
 
@@ -87,7 +109,7 @@ proves the write rate warrants it.** See [[reference_firestore_merge_semantics]]
 
 ## Recommended order
 
-`0a → 0b → 1a → 1b → 1c → 1d → (decide on 2 from 0b) → 3 woven throughout`
+`0a ✅ → 0b ✅ → 1a ✅ → 1b → 1c → 1d → (2 DEFERRED per 0b) → 3 woven throughout`
 
 - Phase 0: cheap, closes the CI guard gap, produces the data to make Phase 2 a decision not a guess.
 - Phase 1: low-risk, high-velocity-ROI, behavior-preserving — build momentum on a cleaner base.
