@@ -88,3 +88,5 @@ export function useHeroRewards({ today, onSyncNow }: { today: string; onSyncNow?
     restoreStreak,
   };
 }
+
+export type RewardsState = ReturnType<typeof useHeroRewards>;
