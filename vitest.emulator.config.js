@@ -10,6 +10,13 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     testTimeout: 30000,
-    include: ['src/tests/firestore-merge-semantics.test.js'],
+    // Both emulator-backed suites. They must run via THIS config (not the main
+    // one) because vitest 4 honors the main config's `exclude` even for an
+    // explicitly-named file — so `vitest run src/tests/firestore-rules.test.js`
+    // finds "no test files". This config has no such exclude.
+    include: [
+      'src/tests/firestore-merge-semantics.test.js',
+      'src/tests/firestore-rules.test.js',
+    ],
   },
 });

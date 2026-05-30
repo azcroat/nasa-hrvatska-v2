@@ -125,11 +125,10 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools@15.10.1
 
-      - name: Firestore merge-semantics test (emulator)
+      # test:emulator runs BOTH emulator suites (merge-semantics + security-rules)
+      # under one emulator boot via vitest.emulator.config.js.
+      - name: Firestore emulator suites (merge-semantics + rules)
         run: npm run test:emulator
-
-      - name: Firestore security-rules test (emulator)
-        run: npm run test:rules
 
   sonar:
     name: SonarCloud Audit
