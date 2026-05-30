@@ -33,6 +33,8 @@ import {
   CONTEXTUAL_POOL,
 } from './heroData';
 import { getDailyScene, getKnightGreeting, getMascotMessage, getCEFR } from './heroHelpers';
+import TypewriterText from './TypewriterText';
+import QuickReplyBanner from './QuickReplyBanner';
 
 interface LearnPathItem {
   id?: string;
@@ -51,69 +53,6 @@ interface PathData {
   nextItem?: (LearnPathItem & { name?: string; title?: string }) | null;
   activeLv: PathLevel;
   activeLvDone: number;
-}
-
-function TypewriterText({ text, speed = 13 }: { text: string; speed?: number }) {
-  const [shown, setShown] = useState('');
-  useEffect(() => {
-    setShown('');
-    if (!text) return;
-    let i = 0;
-    const id = setInterval(() => {
-      i++;
-      setShown(text.slice(0, i));
-      if (i >= text.length) clearInterval(id);
-    }, speed);
-    return () => clearInterval(id);
-  }, [text, speed]);
-  const done = shown.length >= (text?.length || 0);
-  return (
-    <>
-      {shown}
-      {!done && (
-        <span
-          style={{
-            display: 'inline-block',
-            width: 2,
-            height: '0.85em',
-            background: 'rgba(255,255,255,0.85)',
-            verticalAlign: 'text-bottom',
-            marginLeft: 1,
-            animation: 'lk-blink .65s step-end infinite',
-          }}
-        />
-      )}
-    </>
-  );
-}
-
-function QuickReplyBanner({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        background: 'rgba(255,255,255,0.12)',
-        border: '1px solid rgba(255,255,255,0.22)',
-        borderRadius: 20,
-        padding: '5px 12px',
-        fontSize: 11,
-        fontWeight: 700,
-        color: 'rgba(255,255,255,0.88)',
-        cursor: 'pointer',
-        fontFamily: "'Outfit', sans-serif",
-        transition: 'background .15s ease',
-        flexShrink: 0,
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.22)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
-      }}
-    >
-      {label}
-    </button>
-  );
 }
 
 export default function HeroSection({
