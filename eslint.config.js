@@ -206,7 +206,6 @@ export default [
       'src/components/practice/ListeningComprehensionScreen.tsx',
       'src/components/AppRouter.tsx',
       'src/App.tsx',
-      'src/components/home/HeroSection.tsx',
       'src/components/profile/SettingsTab.tsx',
       'src/components/learn/LearnTab.tsx',
       'src/components/croatia/CroatiaCulture.tsx',
