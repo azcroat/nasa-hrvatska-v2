@@ -29,7 +29,7 @@
     "screenshots": "npx playwright test --config playwright.stealth.config.js e2e/screenshots.spec.js",
     "setup:cf": "node scripts/setup-cf-resources.mjs",
     "verify:firestore": "node scripts/verify-firestore.mjs",
-    "test:rules": "firebase emulators:exec --only firestore \"vitest run src/tests/firestore-rules.test.js\"",
+    "test:rules": "firebase emulators:exec --only firestore \"vitest run --config vitest.emulator.config.js src/tests/firestore-rules.test.js\"",
     "test:emulator": "firebase emulators:exec --only firestore \"vitest run --config vitest.emulator.config.js\"",
     "cap:sync": "npm run build && npx cap sync",
     "cap:android": "npm run build && npx cap sync android && npx cap open android",
