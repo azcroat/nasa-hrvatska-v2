@@ -187,11 +187,13 @@ export default [
     },
   },
 
-  // SP3a: src/data/** is curriculum content (vocabulary, scenarios, exercises,
-  // cultural). Length is determined by curriculum scope, not code complexity.
-  // Wholesale exempt — splitting would not improve maintainability.
+  // SP3a: curriculum content (vocabulary, scenarios, exercises, cultural).
+  // Length is determined by curriculum scope, not code complexity. Wholesale
+  // exempt — splitting would not improve maintainability. Mostly src/data/**;
+  // listening/exercises.ts is the comprehension-exercise corpus extracted from
+  // ListeningComprehensionScreen in 1b (data only, no logic).
   {
-    files: ['src/data/**/*.{js,ts,tsx}'],
+    files: ['src/data/**/*.{js,ts,tsx}', 'src/components/practice/listening/exercises.ts'],
     rules: { 'max-lines': 'off' },
   },
   // SP3a: grandfathered files over the 800-line threshold (audit 2026-05-16).
