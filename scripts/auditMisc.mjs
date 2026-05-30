@@ -177,7 +177,9 @@ function renderReport({ marketing, mockMissingKeys, prodMissingKeys, syncFinding
   lines.push('| File | Line | Claim | Context |');
   lines.push('|---|---|---|---|');
   for (const m of marketing.slice(0, 200)) {
-    lines.push(`| \`${m.file}\` | ${m.line} | \`${m.match}\` | ${m.context.replace(/\|/g, '\\|')} |`);
+    lines.push(
+      `| \`${m.file}\` | ${m.line} | \`${m.match}\` | ${m.context.replace(/\\/g, '\\\\').replace(/\|/g, '\\|')} |`,
+    );
   }
   if (marketing.length > 200) {
     lines.push(`| ... | ... | (truncated, ${marketing.length - 200} more) | ... |`);

@@ -51,8 +51,8 @@ const ALLOWED_RE = /^[\sa-zA-ZČčĆćĐđŠšŽž0-9À-ſȘ-ț,.!?'":;\-—–�
 
 // More targeted: a string is "suspicious" if it contains specific bad chars.
 // We focus on the encoding-bleed classes from the audit.
-const BAD_CHARS_RE = /[Ѐ-ӿԀ-ԯŢ-ţŞ-şĞ-ğİ-ıА-я]/g;
-//  ^ Cyrillic blocks + Romanian Ţ/ţ + Turkish Ş/ş Ğ/ğ İ/ı.
+const BAD_CHARS_RE = /[Ѐ-ӿԀ-ԯŢ-ţŞ-şĞ-ğİ-ı]/g;
+//  ^ Cyrillic blocks (Ѐ-ӿ already covers А-я) + Romanian Ţ/ţ + Turkish Ş/ş Ğ/ğ İ/ı.
 // Croatian never uses any of these — they are all bleeds from another script.
 
 // Match `hr: '...'` / `hr: "..."` / `hr: \`...\``
