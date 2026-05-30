@@ -21,7 +21,7 @@ export function runToZone(tiers: PerformanceTier[]): RingZone {
 export function rideTotal(runs: RingZone[]): number {
   return Math.min(
     MAX_RIDE_POINTS,
-    runs.reduce((sum, z) => sum + z, 0),
+    runs.reduce<number>((sum, z) => sum + z, 0),
   );
 }
 
