@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // On Android WebView (Capacitor), Framer Motion entry animations can stall
@@ -20,21 +20,15 @@ import {
   canActivateXPBoost,
   XP_BOOST_COST,
 } from '../../lib/appUtils.js';
-import { useTranslator } from '../../hooks/useTranslator';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import CroatianGrb from '../shared/CroatianGrb';
 import CroatianKnight from '../shared/CroatianKnight';
-import {
-  LEVEL_PALETTE,
-  QUICK_GRAMMAR,
-  QUICK_CULTURE,
-  QUICK_MOTIVATE,
-  CONTEXTUAL_POOL,
-} from './heroData';
-import { getDailyScene, getKnightGreeting, getMascotMessage, getCEFR } from './heroHelpers';
+import { LEVEL_PALETTE, QUICK_GRAMMAR, QUICK_CULTURE, QUICK_MOTIVATE } from './heroData';
+import { getDailyScene, getMascotMessage, getCEFR } from './heroHelpers';
 import TypewriterText from './TypewriterText';
 import QuickReplyBanner from './QuickReplyBanner';
+import { useKnightSpeech } from './useKnightSpeech';
 
 interface LearnPathItem {
   id?: string;
@@ -147,43 +141,28 @@ export default function HeroSection({
     practicedToday: streak.last === today,
   });
 
-  // ── Knight speech state ───────────────────────────────────────────────────
-  const [greeting, setGreeting] = useState(() =>
-    getKnightGreeting(st, streak.count, level, streak.last === today),
-  );
-  const [showTranslate, setShowTranslate] = useState(false);
-  const { tDir, setTDir, tIn, setTIn, tOut, setTOut, tL, doTr } = useTranslator();
-  const poolIdxRef = useRef(-1);
-  type LastPickCategory = 'grammar' | 'culture' | 'motivate';
-  const lastPickRef = useRef<Record<LastPickCategory, number>>({
-    grammar: -1,
-    culture: -1,
-    motivate: -1,
+  // ── Knight speech (greeting, translator, quick-reply pools) ──
+  const {
+    greeting,
+    setGreeting,
+    showTranslate,
+    setShowTranslate,
+    tDir,
+    setTDir,
+    tIn,
+    setTIn,
+    tOut,
+    setTOut,
+    tL,
+    doTr,
+    pickPool,
+    cycleBubble,
+  } = useKnightSpeech({
+    st,
+    streakCount: streak.count,
+    level,
+    practicedToday: streak.last === today,
   });
-
-  // Listen for knight:celebrate events (big XP awards from anywhere in the app)
-  useEffect(() => {
-    const onCelebrate = (e: Event) => {
-      const d = (e as CustomEvent<{ mood?: string; text?: string }>).detail || {};
-      if (d.text) setGreeting({ mood: d.mood || 'celebrating', text: d.text });
-    };
-    window.addEventListener('knight:celebrate', onCelebrate);
-    return () => window.removeEventListener('knight:celebrate', onCelebrate);
-  }, []);
-
-  function pickPool<T>(pool: T[], category: LastPickCategory): T {
-    let idx: number;
-    do {
-      idx = Math.floor(Math.random() * pool.length);
-    } while (idx === lastPickRef.current[category] && pool.length > 1);
-    lastPickRef.current[category] = idx;
-    return pool[idx]!;
-  }
-
-  const cycleBubble = () => {
-    poolIdxRef.current = (poolIdxRef.current + 1) % CONTEXTUAL_POOL.length;
-    if (CONTEXTUAL_POOL[poolIdxRef.current]) setGreeting(CONTEXTUAL_POOL[poolIdxRef.current]!);
-  };
 
   return (
     <motion.div
