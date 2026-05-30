@@ -93,6 +93,44 @@ jobs:
           path: coverage/
           retention-days: 1
 
+  emulator:
+    name: Emulator Tests (Firestore)
+    runs-on: ubuntu-latest
+    # Runs the emulator-backed suites that the default `vitest run` excludes
+    # (they need a live Firestore emulator on 127.0.0.1:8080):
+    #   - firestore-merge-semantics.test.js — proves set({merge:true}) deep-merge
+    #     (guards the 2026-05-28 fbSaveProgress single-write fix, 44e45e1)
+    #   - firestore-rules.test.js — security-rules suite (was never CI-gated before)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      # The Firestore emulator is a JVM process; pin the JDK for reproducibility
+      # rather than relying on whatever the runner image ships.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # firebase-tools is intentionally NOT in package.json — it is large and only
+      # this one job needs the `firebase` CLI. Installing it globally here keeps it
+      # out of every other job's `npm ci`. Pinned for determinism.
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools@15.10.1
+
+      - name: Firestore merge-semantics test (emulator)
+        run: npm run test:emulator
+
+      - name: Firestore security-rules test (emulator)
+        run: npm run test:rules
+
   sonar:
     name: SonarCloud Audit
     runs-on: ubuntu-latest
