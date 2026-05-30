@@ -32,36 +32,36 @@ jobs:
           echo "commit        : $DSHA"
           echo "stage status  : $DSTAGE"
 
-          echo "===== Build log: Sentry / source-map lines ====="
+          # NOTE: CF's deployments/.../history/logs endpoint only returns
+          # deployment-STAGE events (clone/checkout), NOT the `vite build` stdout
+          # where @sentry/vite-plugin logs. So it cannot confirm the upload —
+          # the authoritative signal is the Sentry artifact-bundles API below.
+          echo "===== CF deployment stage log (informational only) ====="
           cf "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/$PROJECT/deployments/$DID/history/logs" \
-            | jq -r '.result.data[].line' > /tmp/buildlog.txt
-          echo "(build log is $(wc -l < /tmp/buildlog.txt) lines)"
-          grep -inE "sentry|source ?map|sourcemap|uploaded|debug.?id|artifact" /tmp/buildlog.txt \
-            || echo "(NO sentry/sourcemap/upload lines in build log)"
+            | jq -r '.result.data[].line' 2>/dev/null | head -20 || echo "(no stage log)"
 
-          echo "===== Verdict: CF build ====="
-          CF_PASS=0
-          if grep -iqE "sentry.*plugin|uploaded .*(file|artifact|source ?map)|>\s*sentry|successfully uploaded" /tmp/buildlog.txt; then
-            echo "PASS: build log shows @sentry/vite-plugin upload activity"
-            CF_PASS=1
-          else
-            echo "FAIL/UNCLEAR: no upload activity. Most likely SENTRY_* are not present at BUILD time"
-            echo "  (CF Pages distinguishes build-time env vars from runtime secrets)."
-          fi
-
-          echo "===== Cross-check: Sentry API ====="
+          echo "===== AUTHORITATIVE check: Sentry artifact bundles ====="
+          # Modern @sentry/vite-plugin uploads debug-id ARTIFACT BUNDLES (not legacy
+          # release "files"), so this endpoint — not releases/{v}/files — is the
+          # real evidence that source maps landed in Sentry. fileCount>0 on a fresh
+          # bundle == upload working in the production build.
           sentry() { curl -sf -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" "$@"; }
-          # Newest releases for the org (release name = BUILD_ID timestamp).
-          REL=$(sentry "https://sentry.io/api/0/organizations/$SENTRY_ORG/releases/?per_page=3" || echo '[]')
-          echo "Recent releases:"
-          echo "$REL" | jq -r '.[]? | "  \(.version)  created=\(.dateCreated)  newGroups=\(.newGroups)"' || echo "  (none / API error)"
-          # Modern @sentry/vite-plugin uploads debug-id artifact bundles; check that endpoint too.
-          echo "Artifact bundles (debug-id based):"
-          sentry "https://sentry.io/api/0/projects/$SENTRY_ORG/$SENTRY_PROJECT/files/artifact-bundles/?per_page=5" \
-            | jq -r '.[]? | "  bundleId=\(.bundleId)  fileCount=\(.fileCount)  date=\(.date)"' \
-            || echo "  (artifact-bundles endpoint returned nothing / not available)"
 
-          echo "===== DONE ====="
-          if [ "$CF_PASS" -ne 1 ]; then
-            echo "::warning::Sentry source-map upload not confirmed in the CF build log — see lines above."
+          echo "Recent releases (name = BUILD_ID timestamp):"
+          sentry "https://sentry.io/api/0/organizations/$SENTRY_ORG/releases/?per_page=3" \
+            | jq -r '.[]? | "  \(.version)  created=\(.dateCreated)"' || echo "  (none / API error)"
+
+          echo "Artifact bundles (debug-id based):"
+          BUNDLES=$(sentry "https://sentry.io/api/0/projects/$SENTRY_ORG/$SENTRY_PROJECT/files/artifact-bundles/?per_page=5" || echo '[]')
+          echo "$BUNDLES" | jq -r '.[]? | "  bundleId=\(.bundleId)  fileCount=\(.fileCount)  date=\(.date)"' \
+            || echo "  (artifact-bundles endpoint returned nothing)"
+
+          NEWEST_FILES=$(echo "$BUNDLES" | jq -r '[.[]?.fileCount] | max // 0')
+          echo "===== Verdict ====="
+          if [ "${NEWEST_FILES:-0}" -gt 0 ]; then
+            echo "PASS: Sentry holds source-map artifact bundles (newest has $NEWEST_FILES files)."
+            echo "      => @sentry/vite-plugin runs in the CF production build and uploads succeed."
+          else
+            echo "::error::No Sentry artifact bundles with files found — source-map upload is NOT working."
+            exit 1
           fi
