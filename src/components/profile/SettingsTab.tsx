@@ -9,6 +9,7 @@ import { isNative } from '../../lib/platform.ts';
 import HeritageEntrySection from './sections/HeritageEntrySection';
 import GoalFocusSection from './sections/GoalFocusSection';
 import LearningPreferencesSection from './sections/LearningPreferencesSection';
+import DifficultySection from './sections/DifficultySection';
 
 const GOALS = [
   { id: 'heritage', icon: '🇭🇷', label: 'My heritage & roots' },
@@ -229,68 +230,7 @@ export default function SettingsTab({
 
       <LearningPreferencesSection />
 
-      {/* ── DIFFICULTY ── */}
-      <div style={{ padding: '14px 0', borderBottom: '1px solid var(--card-b)' }}>
-        <div style={{ marginBottom: 8 }}>
-          <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>🎯 Difficulty Level</div>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}>
-            Controls exercise complexity and content recommendations
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {(
-            [
-              {
-                id: 'beginner' as const,
-                label: 'Beginner',
-                desc: 'A1–A2: basic vocab and simple sentences',
-              },
-              {
-                id: 'intermediate' as const,
-                label: 'Intermediate',
-                desc: 'B1: grammar drills and everyday conversation',
-              },
-              {
-                id: 'advanced' as const,
-                label: 'Advanced',
-                desc: 'B2+: complex grammar, idioms, and nuance',
-              },
-            ] as const
-          ).map((d) => {
-            const active = (statsCtx.diff || 'beginner') === d.id;
-            return (
-              <button
-                key={d.id}
-                onClick={() => setStats((prev) => ({ ...prev, diff: d.id }))}
-                title={d.desc}
-                style={{
-                  flex: 1,
-                  padding: '8px 4px',
-                  borderRadius: 9,
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: "'Outfit',sans-serif",
-                  fontWeight: 700,
-                  fontSize: 11,
-                  background: active ? 'var(--info-bg,#e0f2fe)' : 'var(--bar-bg,#f1f5f9)',
-                  color: active ? 'var(--info,#0284c7)' : 'var(--subtext,#64748b)',
-                  outline: active ? '2px solid var(--info,#0284c7)' : 'none',
-                  transition: 'all .15s',
-                }}
-              >
-                {d.label}
-              </button>
-            );
-          })}
-        </div>
-        <div style={{ fontSize: 10, color: 'var(--subtext)', marginTop: 6, lineHeight: 1.4 }}>
-          {(statsCtx.diff || 'beginner') === 'beginner'
-            ? '📌 Beginner: essential vocabulary, simple grammar, and slow pronunciation'
-            : (statsCtx.diff || 'beginner') === 'intermediate'
-              ? '📌 Intermediate: case system, verb aspects, and natural conversation speed'
-              : '📌 Advanced: idioms, clitic ordering, formal register, and dialect nuance'}
-        </div>
-      </div>
+      <DifficultySection />
 
       {/* Goal selector */}
       <div className="tc" style={{ marginBottom: 10, overflow: 'hidden' }}>
