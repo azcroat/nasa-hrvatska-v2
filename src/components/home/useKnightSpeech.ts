@@ -73,3 +73,5 @@ export function useKnightSpeech(init: {
     cycleBubble,
   };
 }
+
+export type KnightSpeech = ReturnType<typeof useKnightSpeech>;
