@@ -48,7 +48,7 @@ describe('selectProductionExercise — happy path', () => {
       recentScreens: [],
     });
     expect(result).not.toBeNull();
-    expect(['shadowing', 'dictation', 'productiondrill']).toContain(result!.screen);
+    expect(['shadowing', 'dictation', 'production_drill']).toContain(result!.screen);
   });
 });
 
@@ -67,7 +67,7 @@ describe('selectProductionExercise — CEFR gating', () => {
   });
 
   // After the AI-consolidation (speaking_sprint + writing moved to AI Tutor
-  // tab only), the production pool is: shadowing (A2), productiondrill (B1),
+  // tab only), the production pool is: shadowing (A2), production_drill (B1),
   // dictation (B1). With rnd()=0 mocked, the first eligible item is picked.
   it('A2 user → only shadowing is unlocked', () => {
     const result = selectProductionExercise({
@@ -93,7 +93,7 @@ describe('selectProductionExercise — mic state filtering', () => {
     localStorage.clear();
   });
 
-  it('mic denied at B1 → returns Dictation only (productiondrill + shadowing both need mic)', () => {
+  it('mic denied at B1 → returns Dictation only (production_drill + shadowing both need mic)', () => {
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'denied',
@@ -137,13 +137,13 @@ describe('selectProductionExercise — recent-exclusion', () => {
 
   it('excludes recent screens from selection', () => {
     // With rnd()=0 and B1 user, normally returns shadowing.
-    // Pre-seeded recent excludes it → returns productiondrill (next in pool).
+    // Pre-seeded recent excludes it → returns production_drill (next in pool).
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'available',
       recentScreens: ['shadowing'],
     });
-    expect(result?.screen).toBe('productiondrill');
+    expect(result?.screen).toBe('production_drill');
   });
 
   it('falls back to full pool when recent-exclusion empties it', () => {
@@ -151,7 +151,7 @@ describe('selectProductionExercise — recent-exclusion', () => {
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'available',
-      recentScreens: ['shadowing', 'productiondrill', 'dictation'],
+      recentScreens: ['shadowing', 'production_drill', 'dictation'],
     });
     expect(result?.screen).toBe('shadowing');
   });
@@ -173,14 +173,14 @@ describe('buildSessionActivities — P2.5 production slot', () => {
 
   it('A2 session contains exactly one production-pool screen', () => {
     const result = buildSessionActivities('A2');
-    const productionScreens = ['shadowing', 'dictation', 'productiondrill'];
+    const productionScreens = ['shadowing', 'dictation', 'production_drill'];
     const matches = result.filter((a) => productionScreens.includes(a.screen));
     expect(matches.length).toBe(1);
   });
 
   it('A1 session does NOT contain a production-pool screen (all locked)', () => {
     const result = buildSessionActivities('A1');
-    const productionScreens = ['shadowing', 'dictation', 'productiondrill'];
+    const productionScreens = ['shadowing', 'dictation', 'production_drill'];
     const matches = result.filter((a) => productionScreens.includes(a.screen));
     expect(matches.length).toBe(0);
   });
@@ -189,7 +189,7 @@ describe('buildSessionActivities — P2.5 production slot', () => {
     localStorage.setItem('nh_mic_state', 'denied');
     const result = buildSessionActivities('B1');
     const productionMatch = result.find((a) =>
-      ['shadowing', 'dictation', 'productiondrill'].includes(a.screen),
+      ['shadowing', 'dictation', 'production_drill'].includes(a.screen),
     );
     expect(productionMatch?.screen).toBe('dictation');
   });
@@ -198,7 +198,7 @@ describe('buildSessionActivities — P2.5 production slot', () => {
 describe('PRODUCTION_SCREEN_IDS — markDone integration surface', () => {
   it('includes the three remaining production screens', () => {
     expect(PRODUCTION_SCREEN_IDS.has('shadowing')).toBe(true);
-    expect(PRODUCTION_SCREEN_IDS.has('productiondrill')).toBe(true);
+    expect(PRODUCTION_SCREEN_IDS.has('production_drill')).toBe(true);
     expect(PRODUCTION_SCREEN_IDS.has('dictation')).toBe(true);
   });
 
