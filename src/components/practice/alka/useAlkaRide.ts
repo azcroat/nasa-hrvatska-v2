@@ -3,6 +3,7 @@ import { scoreAnswer, type PerformanceTier } from '../../../lib/gamification/sco
 import {
   runToZone,
   rideTotal,
+  alkaRideXp,
   QUESTIONS_PER_RUN,
   type RingZone,
 } from '../../../lib/gamification/alkaRules';
@@ -150,11 +151,12 @@ export function useAlkaRide({
   useEffect(() => {
     if (state.status === 'result' && !xpFiredRef.current) {
       xpFiredRef.current = true;
-      onXp(state.score);
+      // Award XP derived from the ride total (0-9), not the raw game score.
+      onXp(alkaRideXp(state.total));
     } else if (state.status === 'playing') {
       xpFiredRef.current = false;
     }
-  }, [state.status, state.score, onXp]);
+  }, [state.status, state.total, onXp]);
 
   const answer = useCallback((optionIndex: number, responseMs: number) => {
     const q = questionsRef.current[idxRef.current];

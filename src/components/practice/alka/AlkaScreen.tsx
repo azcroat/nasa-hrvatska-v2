@@ -20,7 +20,9 @@ export default function AlkaScreen({
   );
   const ride = useAlkaRide({
     questions,
-    onXp: (xp) => award?.(xp, true, 'alka_ride'),
+    // 'vocabulary' is a registered activity type (server rejects unknown types,
+    // incl. 'default'); the Alka is a vocabulary MC drill.
+    onXp: (xp) => award?.(xp, true, 'vocabulary'),
   });
   const startedAt = useRef<number>(performance.now());
   const [picked, setPicked] = useState<number | null>(null);

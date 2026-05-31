@@ -3,6 +3,7 @@ import {
   runToZone,
   rideTotal,
   isUSridu,
+  alkaRideXp,
   QUESTIONS_PER_RUN,
   RUNS_PER_RIDE,
   MAX_RIDE_POINTS,
@@ -48,5 +49,21 @@ describe('isUSridu', () => {
 describe('config', () => {
   it('a run has 3 questions', () => {
     expect(QUESTIONS_PER_RUN).toBe(3);
+  });
+});
+
+describe('alkaRideXp', () => {
+  it('returns integer XP within the vocabulary cap (<=80) for all totals 0-9', () => {
+    for (let t = 0; t <= 9; t++) {
+      const xp = alkaRideXp(t);
+      expect(Number.isInteger(xp)).toBe(true);
+      expect(xp).toBeGreaterThanOrEqual(20); // participation floor
+      expect(xp).toBeLessThanOrEqual(80); // server 'vocabulary' cap
+    }
+  });
+  it('rewards a better ride with more XP, perfect 9 highest', () => {
+    expect(alkaRideXp(9)).toBeGreaterThan(alkaRideXp(3));
+    expect(alkaRideXp(0)).toBe(20);
+    expect(alkaRideXp(9)).toBe(72);
   });
 });
