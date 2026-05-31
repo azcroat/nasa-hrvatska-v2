@@ -45,4 +45,16 @@ describe('useAlkaRide', () => {
     });
     expect(result.current.runZones[0]).toBe(1);
   });
+
+  it('justLanded is null mid-run and set to the zone when a run completes', () => {
+    const { result } = renderHook(() => useAlkaRide({ questions: nineQuestions, onXp: () => {} }));
+    act(() => result.current.answer(1, 500)); // Q1 of run 1
+    expect(result.current.justLanded).toBeNull();
+    act(() => result.current.answer(1, 500)); // Q2
+    expect(result.current.justLanded).toBeNull();
+    act(() => result.current.answer(1, 500)); // Q3 → run 1 completes, perfect → zone 3
+    expect(result.current.justLanded).toBe(3);
+    act(() => result.current.answer(1, 500)); // Q1 of run 2 → cleared
+    expect(result.current.justLanded).toBeNull();
+  });
 });

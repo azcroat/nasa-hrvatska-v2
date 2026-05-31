@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ScreenHeader from '../../shared/ScreenHeader';
 import AlkaRing from './AlkaRing';
 import AlkaResult from './AlkaResult';
@@ -26,6 +26,14 @@ export default function AlkaScreen({
   });
   const startedAt = useRef<number>(performance.now());
   const [picked, setPicked] = useState<number | null>(null);
+  const timerRef = useRef<number | null>(null);
+  // Clear the pending reveal timer on unmount (e.g. user presses back mid-reveal).
+  useEffect(
+    () => () => {
+      if (timerRef.current != null) window.clearTimeout(timerRef.current);
+    },
+    [],
+  );
 
   if (questions.length < 9) {
     return (
@@ -60,10 +68,11 @@ export default function AlkaScreen({
   const onPick = (i: number) => {
     setPicked(i);
     const ms = performance.now() - startedAt.current;
-    window.setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       ride.answer(i, ms);
       setPicked(null);
       startedAt.current = performance.now();
+      timerRef.current = null;
     }, 400);
   };
 
@@ -83,7 +92,7 @@ export default function AlkaScreen({
         >
           Nišani — Take aim · Sinj, 1715
         </div>
-        <AlkaRing aim={ride.aim} />
+        <AlkaRing aim={ride.aim} landed={ride.justLanded} />
         <div
           style={{
             textAlign: 'right',
@@ -105,28 +114,49 @@ export default function AlkaScreen({
           }}
         >
           <div style={{ color: '#FFE070', fontWeight: 800, fontSize: 16 }}>{q.prompt}</div>
-          {q.options.map((opt, i) => (
-            <button
-              key={i}
-              onClick={() => onPick(i)}
-              disabled={picked !== null}
-              style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
-                background: picked === i ? 'rgba(34,197,94,.22)' : 'rgba(255,255,255,.07)',
-                border: '1px solid rgba(255,255,255,.14)',
-                borderRadius: 9,
-                padding: '9px 12px',
-                marginTop: 8,
-                color: '#fff',
-                fontSize: 14,
-                cursor: picked === null ? 'pointer' : 'default',
-              }}
-            >
-              {opt}
-            </button>
-          ))}
+          {q.options.map((opt, i) => {
+            // During the reveal window (picked !== null): always show the correct
+            // option green; if the player's pick was wrong, show it red. This is a
+            // learning tool — never flash a wrong answer as if it were correct.
+            const revealing = picked !== null;
+            const isCorrect = i === q.correctIndex;
+            const isWrongPick = revealing && i === picked && !isCorrect;
+            const bg = revealing
+              ? isCorrect
+                ? 'rgba(34,197,94,.22)'
+                : isWrongPick
+                  ? 'rgba(239,68,68,.22)'
+                  : 'rgba(255,255,255,.07)'
+              : 'rgba(255,255,255,.07)';
+            const border =
+              revealing && isCorrect
+                ? '1px solid rgba(34,197,94,.6)'
+                : isWrongPick
+                  ? '1px solid rgba(239,68,68,.55)'
+                  : '1px solid rgba(255,255,255,.14)';
+            return (
+              <button
+                key={i}
+                onClick={() => onPick(i)}
+                disabled={revealing}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'left',
+                  background: bg,
+                  border,
+                  borderRadius: 9,
+                  padding: '9px 12px',
+                  marginTop: 8,
+                  color: '#fff',
+                  fontSize: 14,
+                  cursor: revealing ? 'default' : 'pointer',
+                }}
+              >
+                {opt}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

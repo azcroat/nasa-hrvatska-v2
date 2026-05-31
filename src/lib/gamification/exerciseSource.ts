@@ -1,7 +1,8 @@
 import { getUserCefr, cefrRank } from '../cefr';
 import { PLACE } from '../../data/exercises.js';
 
-// PLACE is the MC vocab pool (~206 entries, {q,o,c,d,skill}, incl. some d:2).
+// PLACE is the MC vocab pool ({q,o,c,d,skill}, ~85 valid entries; ~21 at
+// difficulty <=1 for A1, the rest unlock at B1+). Comfortably >= the 9 a ride needs.
 
 export interface GameQuestion {
   id: string;

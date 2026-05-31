@@ -22,6 +22,9 @@ export interface UseAlkaRide {
   total: number;
   isNewBest: boolean;
   previousBest: number;
+  // The zone the lance just landed in when a run completed (0-3), else null.
+  // Drives the ring's "landed" snap; cleared on the next answer.
+  justLanded: RingZone | null;
   answer: (optionIndex: number, responseMs: number) => void;
   reset: () => void;
 }
@@ -42,6 +45,7 @@ interface RideState {
   runZones: RingZone[];
   total: number;
   isNewBest: boolean;
+  justLanded: RingZone | null;
 }
 
 const INITIAL: RideState = {
@@ -54,6 +58,7 @@ const INITIAL: RideState = {
   runZones: [],
   total: 0,
   isNewBest: false,
+  justLanded: null,
 };
 
 type RideAction =
@@ -93,6 +98,7 @@ function rideReducer(state: RideState, action: RideAction): RideState {
         total: t,
         isNewBest: newBest,
         idx: state.idx + 1,
+        justLanded: zone,
       };
     }
 
@@ -104,6 +110,7 @@ function rideReducer(state: RideState, action: RideAction): RideState {
       runTiers: [],
       runZones: nextZones,
       idx: state.idx + 1,
+      justLanded: zone,
     };
   }
 
@@ -114,6 +121,7 @@ function rideReducer(state: RideState, action: RideAction): RideState {
     aim: newAim,
     runTiers: nextTiers,
     idx: state.idx + 1,
+    justLanded: null,
   };
 }
 
@@ -185,6 +193,7 @@ export function useAlkaRide({
     total: state.total,
     isNewBest: state.isNewBest,
     previousBest,
+    justLanded: state.justLanded,
     answer,
     reset,
   };

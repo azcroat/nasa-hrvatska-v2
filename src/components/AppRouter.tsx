@@ -2147,7 +2147,16 @@ export default function AppRouter(props: Record<string, any>) {
         )}
         {currentScreen === 'arcade' && (
           <ScreenErrorBoundary key="arcade" name="arcade">
-            <ArcadeHub goBack={goBack} onLaunch={(modeId: string) => setScr(modeId)} />
+            <ArcadeHub
+              goBack={goBack}
+              onLaunch={(modeId: string) => {
+                // Set curEx to the mode id so award() keys its once-per-day XP
+                // cooldown on the game itself — not a stale exercise id, which
+                // would drop the ride's XP or poison another exercise's cooldown.
+                sCurEx(modeId);
+                setScr(modeId);
+              }}
+            />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'alka' && (
