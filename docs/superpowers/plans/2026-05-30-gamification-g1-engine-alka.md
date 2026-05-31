@@ -1279,7 +1279,7 @@ git commit -m "feat(gamification): prominent Arcade entry at top of Practice tab
 ```bash
 npx tsc -p tsconfig.json --noEmit
 npx vitest run
-npx eslint . --max-warnings=0
+npx eslint src functions --max-warnings=0   # project lint scope (NOT `eslint .`, which lints scripts/configs out of scope)
 ```
 Expected: all clean. In particular confirm no new file trips `max-lines` (all new files are well under 800 lines).
 
