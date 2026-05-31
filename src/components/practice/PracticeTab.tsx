@@ -306,6 +306,34 @@ export default function PracticeTab({
 
   return (
     <div>
+      {/* Arcade — prominent top entry (gamification G1). Not buried. */}
+      <button
+        onClick={() => setScr('arcade')}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          width: '100%',
+          textAlign: 'left',
+          background: 'linear-gradient(135deg, rgba(200,152,10,.22), rgba(10,35,72,.4))',
+          border: '1px solid rgba(200,152,10,.5)',
+          borderRadius: 16,
+          padding: '14px 16px',
+          marginBottom: 16,
+          color: '#fff',
+          cursor: 'pointer',
+          boxShadow: '0 6px 20px rgba(0,0,0,.3)',
+        }}
+      >
+        <span style={{ fontSize: 28 }}>🐎</span>
+        <span>
+          <span style={{ display: 'block', fontWeight: 900, fontSize: 16 }}>Arcade</span>
+          <span style={{ display: 'block', fontSize: 12, color: 'rgba(255,255,255,.7)' }}>
+            Play Croatian as a game — ride the Alka
+          </span>
+        </span>
+      </button>
+
       {/* ── PRACTICE TAB HERO ───────────────────────────────────────────── */}
       <div
         style={{
