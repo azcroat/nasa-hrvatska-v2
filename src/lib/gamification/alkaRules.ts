@@ -28,3 +28,12 @@ export function rideTotal(runs: RingZone[]): number {
 export function isUSridu(zone: RingZone): boolean {
   return zone === 3;
 }
+
+// XP awarded for completing a ride, derived from the ring total (0-9) — NOT the
+// raw in-game score (which is hundreds/thousands and is only the competitive
+// number). Returns an integer kept within the 'vocabulary' activity cap (80) so
+// the server XP-claim (functions/api/award.js) accepts it without clamping.
+export function alkaRideXp(total: number): number {
+  const t = Math.max(0, Math.min(MAX_RIDE_POINTS, Math.round(total)));
+  return Math.max(20, t * 8); // 20 (participation) .. 72 (perfect 9/9)
+}
