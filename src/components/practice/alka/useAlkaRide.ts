@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useRef, useCallback } from 'react';
+import { useMemo, useReducer, useRef, useCallback, useEffect } from 'react';
 import { scoreAnswer, type PerformanceTier } from '../../../lib/gamification/scoring';
 import {
   runToZone,
@@ -141,17 +141,20 @@ export function useAlkaRide({
   const questionsRef = useRef(questions);
   questionsRef.current = questions;
 
-  // XP side-effect: emit when ride ends (status flips to 'result').
-  // We track whether we've fired for this completion to avoid re-firing on
-  // re-renders. A ref avoids triggering additional renders.
+  // XP side-effect: emit once when the ride ends (status flips to 'result').
+  // Fired from an effect — NOT during render — so updating the parent's stats
+  // context (onXp → award) doesn't trigger a render-phase cross-component update.
+  // xpFiredRef guards against re-firing while status stays 'result'; it resets
+  // when a new ride begins (status back to 'playing').
   const xpFiredRef = useRef(false);
-  if (state.status === 'result' && !xpFiredRef.current) {
-    xpFiredRef.current = true;
-    onXp(state.score);
-  }
-  if (state.status === 'playing') {
-    xpFiredRef.current = false;
-  }
+  useEffect(() => {
+    if (state.status === 'result' && !xpFiredRef.current) {
+      xpFiredRef.current = true;
+      onXp(state.score);
+    } else if (state.status === 'playing') {
+      xpFiredRef.current = false;
+    }
+  }, [state.status, state.score, onXp]);
 
   const answer = useCallback((optionIndex: number, responseMs: number) => {
     const q = questionsRef.current[idxRef.current];
