@@ -35,10 +35,16 @@ function isValid(raw: RawExercise): boolean {
   );
 }
 
+// Fisher-Yates using the Web Crypto RNG. The randomness here is not
+// security-sensitive (it only shuffles quiz-question order), but using
+// crypto.getRandomValues avoids the weak-RNG static-analysis flag while
+// behaving identically for our purposes.
 function shuffle<T>(a: T[]): T[] {
   const b = [...a];
+  const rnd = new Uint32Array(1);
   for (let i = b.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    crypto.getRandomValues(rnd);
+    const j = rnd[0]! % (i + 1);
     [b[i], b[j]] = [b[j]!, b[i]!];
   }
   return b;
