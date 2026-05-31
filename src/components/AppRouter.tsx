@@ -260,6 +260,8 @@ const ProductionDrillScreen = lazyWithReload(() => import('./practice/Production
 const AdaptiveReviewScreen = lazyWithReload(() => import('./practice/AdaptiveReviewScreen'));
 const PastTenseLessonScreen = lazyWithReload(() => import('./learn/PastTenseLessonScreen'));
 const FutureTenseLessonScreen = lazyWithReload(() => import('./learn/FutureTenseLessonScreen'));
+const ArcadeHub = lazyWithReload(() => import('./practice/ArcadeHub'));
+const AlkaScreen = lazyWithReload(() => import('./practice/alka/AlkaScreen'));
 
 // Tab order used for slide direction. Defined at module scope so it's not
 // recreated on every render.
@@ -2141,6 +2143,16 @@ export default function AppRouter(props: Record<string, any>) {
         {currentScreen === 'certificate' && (
           <ScreenErrorBoundary key="certificate" name="certificate">
             <CertificateScreen name={name} level={level} st={stats} goBack={goBack} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'arcade' && (
+          <ScreenErrorBoundary key="arcade" name="arcade">
+            <ArcadeHub goBack={goBack} onLaunch={(modeId: string) => setScr(modeId)} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'alka' && (
+          <ScreenErrorBoundary key="alka" name="alka">
+            <AlkaScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
       </motion.div>
