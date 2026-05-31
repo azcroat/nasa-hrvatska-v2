@@ -80,4 +80,7 @@ export const TID = Object.freeze({
 
   // ── Reader / story detail (SP7) ───────────────────────────────────────
   STORY_READER_PARAGRAPH: (i) => `story-paragraph-${i}`,
+
+  // ── Arcade / Alka (gamification G1) ───────────────────────────────────
+  ALKA_OPTION: (i) => `alka-option-${i}`,
 });

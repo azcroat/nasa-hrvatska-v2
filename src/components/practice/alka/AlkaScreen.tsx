@@ -137,6 +137,7 @@ export default function AlkaScreen({
             return (
               <button
                 key={i}
+                data-testid={`alka-option-${i}`}
                 onClick={() => onPick(i)}
                 disabled={revealing}
                 style={{
