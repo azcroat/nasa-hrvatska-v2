@@ -152,23 +152,33 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
             -d "enable=false&projectKey=AzCroat_nasa-hrvatska-v2" || true
 
-      - name: Set up custom Quality Gate (Reliability A + Security Review A, no coverage req)
+      - name: Set up & assign Clean-as-You-Code Quality Gate (new-code Reliability A + Security A)
         run: |
+          # Why a custom gate: SonarCloud's default "Sonar way" gate fails PRs on
+          # OVERALL coverage/maintainability and on pre-existing bugs in unrelated
+          # files. We only want a PR to fail if IT introduces a real bug or a real
+          # vulnerability in NEW code. So: gate new_reliability_rating A +
+          # new_security_rating A only. No coverage condition (lcov attribution is
+          # unreliable here and coverage is enforced locally), no hotspot-review
+          # condition (hotspots are advisory and need manual UI clicks).
+          # NOTE: SonarCloud's select API uses gateName (gateId is deprecated).
           TOKEN="${{ secrets.SONAR_TOKEN }}"
           ORG="azcroat"
           PROJECT="AzCroat_nasa-hrvatska-v2"
-          QG_NAME="Nasa Hrvatska"
-          QG_ID=$(curl -s -u "$TOKEN:" "https://sonarcloud.io/api/qualitygates/list?organization=$ORG" | python3 -c "import sys,json;d=json.load(sys.stdin);r=[q['id'] for q in d.get('qualitygates',[]) if q['name']=='$QG_NAME'];print(r[0] if r else '')" 2>/dev/null)
-          if [ -z "$QG_ID" ]; then
-            QG_ID=$(curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create" -d "name=Nasa+Hrvatska&organization=$ORG" | python3 -c "import sys,json;print(json.load(sys.stdin)['id'])")
-            curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create_condition" -d "gateId=$QG_ID&metric=reliability_rating&op=GT&error=1&organization=$ORG" > /dev/null
-            curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create_condition" -d "gateId=$QG_ID&metric=security_review_rating&op=GT&error=1&organization=$ORG" > /dev/null
-            echo "Created Quality Gate: $QG_NAME (id=$QG_ID)"
+          QG="NH_CleanCode"
+          EXISTS=$(curl -s -u "$TOKEN:" "https://sonarcloud.io/api/qualitygates/list?organization=$ORG" | python3 -c "import sys,json;d=json.load(sys.stdin);print('yes' if any(q.get('name')=='$QG' for q in d.get('qualitygates',[])) else 'no')" 2>/dev/null)
+          if [ "$EXISTS" != "yes" ]; then
+            curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create" -d "name=$QG&organization=$ORG" > /dev/null
+            curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create_condition" --data-urlencode "gateName=$QG" -d "metric=new_reliability_rating&op=GT&error=1&organization=$ORG" > /dev/null
+            curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create_condition" --data-urlencode "gateName=$QG" -d "metric=new_security_rating&op=GT&error=1&organization=$ORG" > /dev/null
+            echo "Created Quality Gate: $QG (new_reliability_rating A + new_security_rating A)"
           else
-            echo "Quality Gate already exists: $QG_NAME (id=$QG_ID)"
+            echo "Quality Gate already exists: $QG"
           fi
-          curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/select" -d "gateId=$QG_ID&projectKey=$PROJECT&organization=$ORG" > /dev/null
-          echo "Assigned Quality Gate to project"
+          curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/select" --data-urlencode "gateName=$QG" -d "projectKey=$PROJECT&organization=$ORG" > /dev/null
+          ASSIGNED=$(curl -s -u "$TOKEN:" "https://sonarcloud.io/api/qualitygates/get_by_project?organization=$ORG&project=$PROJECT" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('qualityGate',{}).get('name','?'))" 2>/dev/null)
+          echo "Project quality gate is now: $ASSIGNED"
+          [ "$ASSIGNED" = "$QG" ] && echo "✓ gate assigned" || echo "⚠ gate assignment did NOT stick (got: $ASSIGNED)"
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -176,10 +186,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Fetch current bugs from SonarCloud
+      - name: Fetch current bugs + security hotspots from SonarCloud
         run: |
-          curl -s -u "${{ secrets.SONAR_TOKEN }}:" "https://sonarcloud.io/api/issues/search?componentKeys=AzCroat_nasa-hrvatska-v2&types=BUG&statuses=OPEN&ps=50" > /tmp/bugs.json
-          echo "=== OPEN BUGS ===" && cat /tmp/bugs.json | node -e "const d=require('/dev/stdin');if(d.total===0){console.log('0 bugs!')}else{d.issues.forEach(i=>console.log(i.severity,i.rule,i.component.split('/').pop()+':'+i.line,'-',i.message.slice(0,80)))}" 2>/dev/null || cat /tmp/bugs.json | python3 -c "import sys,json;d=json.load(sys.stdin);[print(i['severity'],i['rule'],i['component'].split('/')[-1]+':'+str(i.get('line','?')),'-',i['message'][:80]) for i in d.get('issues',[])] or print('0 bugs')"
+          TOKEN="${{ secrets.SONAR_TOKEN }}"
+          PROJECT="AzCroat_nasa-hrvatska-v2"
+          echo "=== OPEN BUGS (project-wide) ==="
+          curl -s -u "$TOKEN:" "https://sonarcloud.io/api/issues/search?componentKeys=$PROJECT&types=BUG&statuses=OPEN&ps=50" | python3 -c "import sys,json;d=json.load(sys.stdin);[print(i['severity'],i['rule'],i['component'].split('/')[-1]+':'+str(i.get('line','?')),'-',i['message'][:80]) for i in d.get('issues',[])] or print('0 bugs')"
+          echo ""
+          echo "=== VULNERABILITIES (project-wide) ==="
+          curl -s -u "$TOKEN:" "https://sonarcloud.io/api/issues/search?componentKeys=$PROJECT&types=VULNERABILITY&statuses=OPEN&ps=50" | python3 -c "import sys,json;d=json.load(sys.stdin);[print(i['severity'],i['rule'],i['component'].split('/')[-1]+':'+str(i.get('line','?')),'-',i['message'][:80]) for i in d.get('issues',[])] or print('0 vulnerabilities')"
+          echo ""
+          echo "=== SECURITY HOTSPOTS (to review) ==="
+          curl -s -u "$TOKEN:" "https://sonarcloud.io/api/hotspots/search?projectKey=$PROJECT&status=TO_REVIEW&ps=50" | python3 -c "import sys,json;d=json.load(sys.stdin);hs=d.get('hotspots',[]);print(len(hs),'hotspot(s) to review');[print('-',h.get('securityCategory','?'),h.get('component','').split('/')[-1]+':'+str(h.get('line','?')),'-',h.get('message','')[:80]) for h in hs[:30]]"
 
   e2e:
     name: E2E Tests (Cross-Browser)
