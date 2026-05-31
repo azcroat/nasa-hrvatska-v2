@@ -554,6 +554,8 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
   _maxNum('nh_placement_grammar', fp.nh_placement_grammar);
   _maxNum('nh_placement_culture', fp.nh_placement_culture);
   _maxNum('nh_immersion_days', fp.nh_immersion_days);
+  // Alka tournament personal best (0-9) — Math.max so it only ever increases.
+  _maxNum('nh_alka_best', fp.nh_alka_best);
 
   // ── Heritage learner settings — remote wins (2026-05-20) ─────────────────────
   // Matches the existing `nh_goal` / `nh_culture` convention in this file:
