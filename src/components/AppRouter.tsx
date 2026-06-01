@@ -262,6 +262,7 @@ const PastTenseLessonScreen = lazyWithReload(() => import('./learn/PastTenseLess
 const FutureTenseLessonScreen = lazyWithReload(() => import('./learn/FutureTenseLessonScreen'));
 const ArcadeHub = lazyWithReload(() => import('./practice/ArcadeHub'));
 const AlkaScreen = lazyWithReload(() => import('./practice/alka/AlkaScreen'));
+const MapScreen = lazyWithReload(() => import('./practice/MapScreen'));
 
 // Tab order used for slide direction. Defined at module scope so it's not
 // recreated on every render.
@@ -2162,6 +2163,11 @@ export default function AppRouter(props: Record<string, any>) {
         {currentScreen === 'alka' && (
           <ScreenErrorBoundary key="alka" name="alka">
             <AlkaScreen goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'map' && (
+          <ScreenErrorBoundary key="map" name="map">
+            <MapScreen goBack={goBack} />
           </ScreenErrorBoundary>
         )}
       </motion.div>
