@@ -152,33 +152,18 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
             -d "enable=false&projectKey=AzCroat_nasa-hrvatska-v2" || true
 
-      - name: Set up & assign Clean-as-You-Code Quality Gate (new-code Reliability A + Security A)
-        run: |
-          # Why a custom gate: SonarCloud's default "Sonar way" gate fails PRs on
-          # OVERALL coverage/maintainability and on pre-existing bugs in unrelated
-          # files. We only want a PR to fail if IT introduces a real bug or a real
-          # vulnerability in NEW code. So: gate new_reliability_rating A +
-          # new_security_rating A only. No coverage condition (lcov attribution is
-          # unreliable here and coverage is enforced locally), no hotspot-review
-          # condition (hotspots are advisory and need manual UI clicks).
-          # NOTE: SonarCloud's select API uses gateName (gateId is deprecated).
-          TOKEN="${{ secrets.SONAR_TOKEN }}"
-          ORG="azcroat"
-          PROJECT="AzCroat_nasa-hrvatska-v2"
-          QG="NH_CleanCode"
-          EXISTS=$(curl -s -u "$TOKEN:" "https://sonarcloud.io/api/qualitygates/list?organization=$ORG" | python3 -c "import sys,json;d=json.load(sys.stdin);print('yes' if any(q.get('name')=='$QG' for q in d.get('qualitygates',[])) else 'no')" 2>/dev/null)
-          if [ "$EXISTS" != "yes" ]; then
-            curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create" -d "name=$QG&organization=$ORG" > /dev/null
-            curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create_condition" --data-urlencode "gateName=$QG" -d "metric=new_reliability_rating&op=GT&error=1&organization=$ORG" > /dev/null
-            curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/create_condition" --data-urlencode "gateName=$QG" -d "metric=new_security_rating&op=GT&error=1&organization=$ORG" > /dev/null
-            echo "Created Quality Gate: $QG (new_reliability_rating A + new_security_rating A)"
-          else
-            echo "Quality Gate already exists: $QG"
-          fi
-          curl -s -u "$TOKEN:" -X POST "https://sonarcloud.io/api/qualitygates/select" --data-urlencode "gateName=$QG" -d "projectKey=$PROJECT&organization=$ORG" > /dev/null
-          ASSIGNED=$(curl -s -u "$TOKEN:" "https://sonarcloud.io/api/qualitygates/get_by_project?organization=$ORG&project=$PROJECT" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('qualityGate',{}).get('name','?'))" 2>/dev/null)
-          echo "Project quality gate is now: $ASSIGNED"
-          [ "$ASSIGNED" = "$QG" ] && echo "✓ gate assigned" || echo "⚠ gate assignment did NOT stick (got: $ASSIGNED)"
+      # NOTE (2026-06-01): We cannot assign a custom quality gate from CI. A
+      # custom "NH_CleanCode" gate (new_reliability_rating A + new_security_rating
+      # A) exists, but this SonarCloud org is plan-locked to the built-in
+      # "Sonar way" gate — qualitygates/select AND set_as_default both return
+      # 403 "Organization is not allowed to modify Quality gates" (even with an
+      # Owner token). So the PR "SonarCloud Code Analysis" check evaluates against
+      # "Sonar way" (strict 80% new-code coverage, 100% hotspot review, etc.) and
+      # will show red on most PRs. This job is `continue-on-error` (non-blocking);
+      # real bug/vulnerability signal comes from the diagnostic step below.
+      # To make the check green, change the org's default gate in the SonarCloud
+      # UI (Organization → Quality Gates) or upgrade the plan — neither is a code
+      # change. See knowledge_nh_sonarcloud_gate memory for the full diagnosis.
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
