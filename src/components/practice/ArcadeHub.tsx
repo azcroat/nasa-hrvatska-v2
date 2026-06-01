@@ -1,5 +1,7 @@
 import React from 'react';
 import ScreenHeader from '../shared/ScreenHeader';
+import { useStats } from '../../context/StatsContext';
+import { restoredCount, MAP_REGIONS } from '../../lib/gamification/mapRegions';
 
 interface ModeTile {
   id: string;
@@ -24,6 +26,8 @@ export default function ArcadeHub({
   goBack: () => void;
   onLaunch: (modeId: string) => void;
 }) {
+  const { stats } = useStats();
+  const restored = restoredCount(stats?.xp ?? 0);
   return (
     <div
       style={{
@@ -34,6 +38,39 @@ export default function ArcadeHub({
     >
       <ScreenHeader title="Arcade" goBack={goBack} />
       <div style={{ padding: 16 }}>
+        {/* Your Croatia — persistent collection layer, prominent above the game modes */}
+        <button
+          data-testid="arcade-your-croatia"
+          onClick={() => onLaunch('map')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 11,
+            width: '100%',
+            textAlign: 'left',
+            background: 'linear-gradient(135deg, rgba(34,197,94,.18), rgba(10,35,72,.45))',
+            border: '1px solid rgba(74,222,128,.45)',
+            borderRadius: 15,
+            padding: 13,
+            marginBottom: 14,
+            color: '#fff',
+            cursor: 'pointer',
+          }}
+        >
+          <span style={{ fontSize: 26 }}>🗺️</span>
+          <span>
+            <span style={{ display: 'block', fontWeight: 900, fontSize: 15 }}>Your Croatia</span>
+            <span style={{ display: 'block', fontSize: 11, color: 'rgba(255,255,255,.65)' }}>
+              Restore your heritage map
+            </span>
+          </span>
+          <span style={{ marginLeft: 'auto', textAlign: 'center' }}>
+            <b style={{ display: 'block', fontSize: 18, fontWeight: 900, color: '#4ade80' }}>
+              {restored}/{MAP_REGIONS.length}
+            </b>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,.5)' }}>regions</span>
+          </span>
+        </button>
         {MODES.map((m) => (
           <button
             key={m.id}
