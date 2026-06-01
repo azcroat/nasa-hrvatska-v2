@@ -22,18 +22,21 @@ jobs:
           QG="NH_CleanCode"
           api() { curl -sS -u "$SONAR_TOKEN:" -w $'\nHTTP:%{http_code}\n' "$@"; }
 
-          echo "### whoami (token validity + permissions)"
-          api "https://sonarcloud.io/api/users/current"
-          echo "### LIST GATES"
-          api "https://sonarcloud.io/api/qualitygates/list?organization=$ORG"
-          echo "### CREATE GATE $QG"
+          # SonarCloud's create_condition + select require gateId (NOT gateName).
+          # Ensure the gate exists, look up its id, (re)add the two new-code
+          # conditions idempotently, then assign it to the project by gateId.
+          echo "### ENSURE GATE EXISTS"
           api -X POST "https://sonarcloud.io/api/qualitygates/create" -d "name=$QG&organization=$ORG"
-          echo "### ADD CONDITION new_reliability_rating"
-          api -X POST "https://sonarcloud.io/api/qualitygates/create_condition" --data-urlencode "gateName=$QG" -d "metric=new_reliability_rating&op=GT&error=1&organization=$ORG"
-          echo "### ADD CONDITION new_security_rating"
-          api -X POST "https://sonarcloud.io/api/qualitygates/create_condition" --data-urlencode "gateName=$QG" -d "metric=new_security_rating&op=GT&error=1&organization=$ORG"
-          echo "### SELECT gate for project (gateName)"
-          api -X POST "https://sonarcloud.io/api/qualitygates/select" --data-urlencode "gateName=$QG" -d "projectKey=$PROJECT&organization=$ORG"
+          GID=$(curl -sS -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/qualitygates/list?organization=$ORG" | python3 -c "import sys,json;d=json.load(sys.stdin);print(next((str(g['id']) for g in d.get('qualitygates',[]) if g.get('name')=='$QG'),''))")
+          echo "### gateId=$GID"
+          echo "### EXISTING CONDITIONS"
+          api "https://sonarcloud.io/api/qualitygates/show?id=$GID&organization=$ORG"
+          echo "### ADD CONDITION new_reliability_rating (gateId)"
+          api -X POST "https://sonarcloud.io/api/qualitygates/create_condition" -d "gateId=$GID&metric=new_reliability_rating&op=GT&error=1&organization=$ORG"
+          echo "### ADD CONDITION new_security_rating (gateId)"
+          api -X POST "https://sonarcloud.io/api/qualitygates/create_condition" -d "gateId=$GID&metric=new_security_rating&op=GT&error=1&organization=$ORG"
+          echo "### SELECT gate for project (gateId)"
+          api -X POST "https://sonarcloud.io/api/qualitygates/select" -d "gateId=$GID&projectKey=$PROJECT&organization=$ORG"
           echo "### VERIFY get_by_project"
           api "https://sonarcloud.io/api/qualitygates/get_by_project?organization=$ORG&project=$PROJECT"
           echo "### DONE"
