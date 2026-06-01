@@ -22,6 +22,10 @@ describe('Arcade — no dead modes', () => {
     expect(ROUTED.has('arcade')).toBe(true);
   });
 
+  it('the Map screen (Your Croatia) is routed', () => {
+    expect(ROUTED.has('map')).toBe(true);
+  });
+
   it('found at least one live mode in the hub', () => {
     expect(LIVE_MODE_IDS.length).toBeGreaterThan(0);
     expect(LIVE_MODE_IDS).toContain('alka');
