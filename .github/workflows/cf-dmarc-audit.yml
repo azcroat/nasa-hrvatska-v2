@@ -1,14 +1,19 @@
 name: cf-dmarc-audit
 on:
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   audit:
     runs-on: ubuntu-latest
+    # Read the CF token per-job and strip whitespace inside each step that uses
+    # it, rather than round-tripping it through $GITHUB_OUTPUT (step outputs are
+    # retained in run metadata and are not masked the way secrets.* are).
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
-      - name: Resolve zone + token
+      - name: Resolve zone
         id: zone
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -e
           T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
@@ -16,14 +21,13 @@ jobs:
             "https://api.cloudflare.com/client/v4/zones?name=nasahrvatska.com" \
             -H "Authorization: Bearer $T" | jq -r '.result[0].id')
           echo "zone-id=$Z" >> "$GITHUB_OUTPUT"
-          echo "token-clean=$T" >> "$GITHUB_OUTPUT"
 
       - name: List ALL TXT records (DMARC, SPF, DKIM all live here)
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           echo "=== Raw response from DNS list endpoint ==="
           curl -sS \
             "https://api.cloudflare.com/client/v4/zones/$Z/dns_records?type=TXT&per_page=100" \
@@ -31,10 +35,10 @@ jobs:
 
       - name: Specifically check _dmarc record
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           echo "=== _dmarc.nasahrvatska.com ==="
           curl -sS \
             "https://api.cloudflare.com/client/v4/zones/$Z/dns_records?type=TXT&name=_dmarc.nasahrvatska.com" \

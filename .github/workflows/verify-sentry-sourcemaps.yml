@@ -6,6 +6,9 @@ name: Verify Sentry source-map upload
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     name: Inspect latest CF Pages build log + Sentry artifacts
