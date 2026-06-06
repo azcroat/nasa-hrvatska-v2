@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { isChunkLoadError, reloadWithCachePurge } from '../lib/chunkErrors';
+import { isEnvironmentalIdbError } from '../lib/sentryHelpers';
 
 // _isStaleBindingError and _reloadWithCachePurge remain inlined —
 // they are private to main.tsx and _reloadWithCachePurge uses an
@@ -42,6 +43,38 @@ describe('isChunkLoadError', () => {
     expect(isChunkLoadError('network error')).toBe(false);
     expect(isChunkLoadError('')).toBe(false);
     expect(isChunkLoadError('TypeError: null is not an object')).toBe(false);
+  });
+});
+
+describe('isEnvironmentalIdbError', () => {
+  it('detects the Chromium IndexedDB internal-server error (message only)', () => {
+    expect(
+      isEnvironmentalIdbError('an internal error was encountered in the indexed database server'),
+    ).toBe(true);
+  });
+  it('detects it with the UnknownError DOMException name prefix', () => {
+    expect(
+      isEnvironmentalIdbError(
+        'unknownerror: an internal error was encountered in the indexed database server',
+      ),
+    ).toBe(true);
+  });
+  it('does NOT match actionable IndexedDB errors (quota, version, constraint)', () => {
+    // These are real, fixable problems and must keep reporting at full priority.
+    expect(isEnvironmentalIdbError('quotaexceedederror: the quota has been exceeded')).toBe(false);
+    expect(isEnvironmentalIdbError('versionerror: the requested version is less than')).toBe(false);
+    expect(isEnvironmentalIdbError('constrainterror: key already exists')).toBe(false);
+  });
+  it('does not match unrelated errors or empty input', () => {
+    expect(isEnvironmentalIdbError('cannot read properties of undefined')).toBe(false);
+    expect(isEnvironmentalIdbError('failed to fetch')).toBe(false);
+    expect(isEnvironmentalIdbError('')).toBe(false);
+  });
+  it('expects lowercased input — caller must lowercase before calling', () => {
+    // Mirrors the isChunkLoadError contract: callers pass an already-lowercased msg.
+    expect(
+      isEnvironmentalIdbError('An internal error was encountered in the Indexed Database server'),
+    ).toBe(false);
   });
 });
 

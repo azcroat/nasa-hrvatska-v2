@@ -27,7 +27,7 @@ import { isNative, isAndroid } from './lib/platform.js';
 import { initPostHog } from './lib/analytics';
 import { registerSW } from 'virtual:pwa-register';
 import { isChunkLoadError, reloadWithCachePurge } from './lib/chunkErrors';
-import { shouldEnableSentryReplay } from './lib/sentryHelpers';
+import { shouldEnableSentryReplay, isEnvironmentalIdbError } from './lib/sentryHelpers';
 
 // ─── Capacitor native: mark <html> for CSS animation overrides ────────────
 // Many CSS entrance animations start at opacity:0 with fill-mode:both.
@@ -149,6 +149,20 @@ if (import.meta.env.VITE_SENTRY_DSN) {
         ],
         // Scrub PII from error reports
         beforeSend(event) {
+          // Environmental IndexedDB internal-server errors (flaky device storage,
+          // surfaced async from Firebase persistence) are non-actionable and
+          // degrade gracefully. Don't drop them — DOWNGRADE to info + a stable
+          // fingerprint so they stop paging as high-priority issues but a
+          // frequency spike from a real regression still surfaces. See
+          // isEnvironmentalIdbError() for the full rationale.
+          const idbMsg = (
+            event.exception?.values?.[0]?.value ??
+            (typeof event.message === 'string' ? event.message : '')
+          ).toLowerCase();
+          if (isEnvironmentalIdbError(idbMsg)) {
+            event.level = 'info';
+            event.fingerprint = ['environmental-indexeddb-server-error'];
+          }
           if (event.request?.url) {
             event.request.url = event.request.url.replace(/[?#].*/, '');
           }
@@ -311,6 +325,10 @@ window.onerror = function (message, _source, _lineno, _colno, error) {
   if (_isStaleBindingError(msg)) {
     if (_reloadWithCachePurge('nh_binding_reload')) return true; // suppress Sentry noise
   }
+  // Non-actionable environmental IndexedDB error — the Sentry SDK already
+  // captures it (downgraded in beforeSend). Skip the homegrown report so we
+  // don't create a duplicate Sentry issue via /api/report-error.
+  if (isEnvironmentalIdbError(msg.toLowerCase())) return true;
   reportError(error ?? new Error(String(message)), 'window.onerror');
   return false;
 };
@@ -327,6 +345,9 @@ window.onunhandledrejection = function (event) {
   // iOS in-app WKWebView containers (DuckDuckGo Mobile, FB, etc.) — third-party
   // bundled code probes native handlers; WKWebView rejects with no reply.
   if (rawMsg.includes('WKWebView API client did not respond')) return;
+  // Non-actionable environmental IndexedDB error (see beforeSend / window.onerror):
+  // the SDK already captures+downgrades it; skip the duplicate homegrown report.
+  if (isEnvironmentalIdbError(msg)) return;
   reportError(reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
 };
 
