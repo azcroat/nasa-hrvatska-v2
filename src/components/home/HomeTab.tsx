@@ -67,6 +67,7 @@ import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import { safeGetItem } from '../../hooks/useLocalStorage';
 import GoalSetterModal from '../shared/GoalSetterModal';
+import { shouldShowGoalModal } from '../../lib/onboardingGates';
 import StreakMilestoneToast, { checkAndMarkMilestone } from '../shared/StreakMilestoneToast';
 import WelcomeBackBanners from './WelcomeBackBanners';
 import { useDailySession } from '../../hooks/useDailySession';
@@ -208,8 +209,19 @@ export default function HomeTab({
   );
   const activeCampaign = useMemo(() => getActiveCampaign(SEASONAL_CAMPAIGNS), [SEASONAL_CAMPAIGNS]);
 
-  // Goal-setter modal: show for any user who hasn't set a goal yet
-  const [showGoalModal, setShowGoalModal] = useState(() => !localStorage.getItem('nh_goal_set'));
+  // Goal-setter modal ("What's your main goal?"). CRITICAL cross-device fix:
+  // gate on `syncReady` so we wait for the Firestore restore before deciding the user
+  // has no goal. `_syncReady` now opens only AFTER applyRemoteProgress has run, so by
+  // the time it's true a returning user's `nh_goal_set` has been restored and the modal
+  // stays hidden. Derived (not a one-shot useState) so it re-evaluates when syncReady
+  // flips — the old `useState(() => !localStorage…)` captured the pre-restore value and
+  // never re-checked, which re-prompted existing users for their goal on a new device.
+  const [goalModalDismissed, setGoalModalDismissed] = useState(false);
+  const showGoalModal = shouldShowGoalModal({
+    syncReady: !!syncReady,
+    dismissed: goalModalDismissed,
+    hasGoalSet: !!localStorage.getItem('nh_goal_set'),
+  });
 
   // Streak milestone celebration — fires once per milestone level
   const [streakMilestone, setStreakMilestone] = useState<number | null>(null);
@@ -413,7 +425,6 @@ export default function HomeTab({
   void activeCampaign;
   void activePalette;
   void pathData;
-  void syncReady;
   void onSyncNow;
   void isNewUserWindow;
   void daysSinceJoin;
@@ -433,8 +444,8 @@ export default function HomeTab({
 
   return (
     <React.Fragment>
-      {/* ── GOAL SETTER MODAL (new users only) ── */}
-      {showGoalModal && <GoalSetterModal onComplete={() => setShowGoalModal(false)} />}
+      {/* ── GOAL SETTER MODAL (genuinely new users only — see showGoalModal gating) ── */}
+      {showGoalModal && <GoalSetterModal onComplete={() => setGoalModalDismissed(true)} />}
 
       {/* ── STREAK MILESTONE CELEBRATION ── */}
       {streakMilestone && (
