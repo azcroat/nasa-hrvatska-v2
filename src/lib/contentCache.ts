@@ -18,10 +18,11 @@ let dbPromise: Promise<IDBPDatabase> | null = null;
 async function openContentDb(): Promise<IDBPDatabase> {
   try {
     return await openDB(DB_NAME, 1, {
+      // Version 1 + single store: upgrade runs only on first creation, so the
+      // store cannot already exist — create it unconditionally (the previous
+      // `if (!contains)` guard's else-branch was unreachable dead code).
       upgrade(db) {
-        if (!db.objectStoreNames.contains(STORE)) {
-          db.createObjectStore(STORE);
-        }
+        db.createObjectStore(STORE);
       },
     });
   } catch (err) {
