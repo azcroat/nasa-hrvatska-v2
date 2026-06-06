@@ -15,16 +15,29 @@ const STORE = 'resources';
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
-function getDb(): Promise<IDBPDatabase> {
-  if (!dbPromise) {
-    dbPromise = openDB(DB_NAME, 1, {
+async function openContentDb(): Promise<IDBPDatabase> {
+  try {
+    return await openDB(DB_NAME, 1, {
+      // Version 1 + single store: upgrade runs only on first creation, so the
+      // store cannot already exist — create it unconditionally (the previous
+      // `if (!contains)` guard's else-branch was unreachable dead code).
       upgrade(db) {
-        if (!db.objectStoreNames.contains(STORE)) {
-          db.createObjectStore(STORE);
-        }
+        db.createObjectStore(STORE);
       },
     });
+  } catch (err) {
+    // A transient IndexedDB open failure (e.g. the browser's "internal error in
+    // the Indexed Database server", or storage eviction) must not cache a
+    // rejected promise forever — that would permanently disable the content
+    // cache for the whole session. Clear the handle so the next call retries;
+    // the caller's own try/catch treats this rejection as a cache miss.
+    dbPromise = null;
+    throw err;
   }
+}
+
+function getDb(): Promise<IDBPDatabase> {
+  dbPromise ??= openContentDb();
   return dbPromise;
 }
 

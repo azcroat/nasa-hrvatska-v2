@@ -150,6 +150,13 @@ export async function onRequestPost(context) {
         'tab not found',
         'wkwebview api client did not respond',
         'getboundingclientrect is not a function',
+        // Environmental browser IndexedDB internal-server error (flaky device
+        // storage, surfaced async from Firebase persistence). Non-actionable;
+        // the client SDK retains it downgraded in beforeSend. The client window
+        // handlers already skip the homegrown report for this class, so this is
+        // belt-and-suspenders. KEEP IN SYNC with isEnvironmentalIdbError() in
+        // src/lib/sentryHelpers.ts.
+        'indexed database server',
       ];
       const msgLower = structured.message.toLowerCase();
       const isSentryIgnored = IGNORED_SENTRY_PATTERNS.some((p) => msgLower.includes(p));
