@@ -27,6 +27,32 @@ import { sanitizeStats } from '../lib/sanitizeStats.js';
 import * as offlineAwardQueue from '../lib/offlineAwardQueue.js';
 import type { Stats, AuthUser } from '../types/index.js';
 
+/** Metadata from a Firestore progress snapshot — distinguishes cache vs server emissions. */
+export interface SyncSnapshotMeta {
+  fromCache: boolean;
+  exists: boolean;
+}
+
+/**
+ * Decides WHEN `_syncReady` may open. `_syncReady` gates the "is this a brand-new user?"
+ * decision (onboarding tour + placement redirect), so it must only open once we KNOW the
+ * user's real state — never on the Firestore SDK's initial IndexedDB-cache emission, which
+ * is stale/empty on a fresh or Safari/iPad device.
+ *
+ *  - fromCache emission           → 'wait'             (not authoritative)
+ *  - server emission WITH data    → 'open-after-apply' (open only once applyRemoteProgress ran)
+ *  - server emission WITHOUT data → 'open-now'         (server-confirmed new user / no progress blob)
+ *
+ * Returning this as a pure decision keeps the (otherwise untestable) hook race covered by tests.
+ */
+export function syncReadyResolution(
+  meta: SyncSnapshotMeta,
+  hasData: boolean,
+): 'wait' | 'open-after-apply' | 'open-now' {
+  if (meta.fromCache) return 'wait';
+  return hasData ? 'open-after-apply' : 'open-now';
+}
+
 interface SyncManagerParams {
   authUser: AuthUser | null;
   authScreen: string;
@@ -281,32 +307,51 @@ export function useSyncManager({
       }
       const unsub = fbWatchProgress(
         uid,
-        (fp: Record<string, unknown>, fpTs: number) => {
+        (
+          fp: Record<string, unknown> | null,
+          fpTs: number,
+          meta: { fromCache: boolean; exists: boolean },
+        ) => {
           _reconnectAttempts = 0; // reset on success
-          if (setSyncReady) setSyncReady(true);
           _syncFailCount.current = 0;
-          if (!_initialPushDone) {
+
+          // Apply remote data as soon as it arrives (cache OR server) for fast hydration.
+          if (fp) enqueueSnapshot(fp, fpTs, uid);
+
+          // _syncReady gates the "is this a brand-new user?" decision — the onboarding
+          // tour (AppModals) and the placement redirect (App.tsx) both wait on it.
+          // CRITICAL: open it ONLY on an authoritative SERVER snapshot (never a fromCache
+          // emission, which is stale/empty on a fresh or Safari/iPad device), AND only
+          // AFTER applyRemoteProgress has actually run. enqueueSnapshot defers
+          // _processSnapshot onto _mergeQueueRef (a microtask), so setting _syncReady
+          // synchronously here would let the gates evaluate against un-restored state and
+          // treat a returning user as new. Chaining onto the queue closes that race.
+          const _resolution = syncReadyResolution(meta, !!fp);
+          if (setSyncReady && _resolution === 'open-after-apply') {
+            // Chain onto the merge queue so _syncReady opens only AFTER _processSnapshot
+            // (applyRemoteProgress) has run — gates then see the restored state.
+            _mergeQueueRef.current = _mergeQueueRef.current
+              .then(() => setSyncReady(true))
+              .catch(() => setSyncReady(true));
+          } else if (setSyncReady && _resolution === 'open-now') {
+            // Server confirmed no progress document → genuinely new user. Resolve now
+            // so onboarding/placement can legitimately show.
+            setSyncReady(true);
+          }
+
+          // Initial offline-push-if-newer. Decide ONLY on a SERVER snapshot so we never
+          // push stale local data based on the cache emission (which can be older than
+          // what another device already saved to Firebase).
+          if (!meta.fromCache && fp && !_initialPushDone) {
             _initialPushDone = true;
-            // Guard: only push local data if it is STRICTLY NEWER than what Firebase just
-            // delivered. The Firestore SDK fires onSnapshot from its IndexedDB cache before
-            // the server responds — that cached snapshot can be stale (from the last session
-            // on THIS device). If we blindly push 1 s later we can overwrite fresher progress
-            // that another device (e.g. Mobile) already saved to Firebase.
-            // Only push when the local savedAt timestamp post-dates the Firebase _fbUpdated
-            // timestamp, which means the user accumulated real progress offline on this device.
             const localSnap = gP(uid) as { savedAt?: number } | null;
             const localSavedAt = localSnap?.savedAt || 0;
             if (localSavedAt > (fpTs || 0)) {
               // Local progress is genuinely newer — push it so offline work is not lost.
-              // 800ms delay ensures applyRemoteProgress has run (microtask) before we build
-              // the progress snapshot, so getStreak() returns the Firebase-merged value.
+              // 800ms delay ensures applyRemoteProgress has run before we build the snapshot.
               setTimeout(() => doSyncNow(), 800);
             }
-            // Otherwise: Firebase is equal or newer. No push needed on startup.
-            // The 60 s periodic sync + pagehide handler will pick up any new activity.
           }
-          if (!fp) return;
-          enqueueSnapshot(fp, fpTs, uid);
         },
         (err: Error) => {
           // Watcher errored — reconnect silently with exponential backoff (no UI banner)
