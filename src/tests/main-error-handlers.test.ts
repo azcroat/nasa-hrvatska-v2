@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { isChunkLoadError, reloadWithCachePurge } from '../lib/chunkErrors';
-import { isEnvironmentalIdbError } from '../lib/sentryHelpers';
+import {
+  isEnvironmentalIdbError,
+  sentryEventMessage,
+  downgradeEnvironmentalIdbEvent,
+} from '../lib/sentryHelpers';
 
 // _isStaleBindingError and _reloadWithCachePurge remain inlined —
 // they are private to main.tsx and _reloadWithCachePurge uses an
@@ -75,6 +79,53 @@ describe('isEnvironmentalIdbError', () => {
     expect(
       isEnvironmentalIdbError('An internal error was encountered in the Indexed Database server'),
     ).toBe(false);
+  });
+});
+
+describe('sentryEventMessage', () => {
+  it('prefers the first exception value, lowercased', () => {
+    expect(
+      sentryEventMessage({
+        exception: { values: [{ value: 'UnknownError: Indexed Database SERVER' }] },
+        message: 'ignored',
+      }),
+    ).toBe('unknownerror: indexed database server');
+  });
+  it('falls back to a string message when there is no exception value', () => {
+    expect(sentryEventMessage({ message: 'Boom Happened' })).toBe('boom happened');
+  });
+  it('returns empty string when neither is present or message is not a string', () => {
+    expect(sentryEventMessage({})).toBe('');
+    expect(sentryEventMessage({ exception: { values: [] } })).toBe('');
+    expect(sentryEventMessage({ message: 42 })).toBe('');
+  });
+});
+
+describe('downgradeEnvironmentalIdbEvent', () => {
+  it('downgrades an environmental IndexedDB event to info + stable fingerprint', () => {
+    const event = {
+      level: 'error',
+      exception: {
+        values: [{ value: 'An internal error was encountered in the Indexed Database server' }],
+      },
+    };
+    const out = downgradeEnvironmentalIdbEvent(event);
+    expect(out.level).toBe('info');
+    expect(out.fingerprint).toEqual(['environmental-indexeddb-server-error']);
+  });
+  it('leaves unrelated events untouched (still high severity, no fingerprint)', () => {
+    const event = {
+      level: 'error',
+      exception: { values: [{ value: 'TypeError: cannot read properties of undefined' }] },
+    };
+    const out = downgradeEnvironmentalIdbEvent(event);
+    expect(out.level).toBe('error');
+    expect(out.fingerprint).toBeUndefined();
+  });
+  it('also matches via the message field', () => {
+    const event = { level: 'error' as string, message: 'Indexed Database server failure' };
+    downgradeEnvironmentalIdbEvent(event);
+    expect(event.level).toBe('info');
   });
 });
 

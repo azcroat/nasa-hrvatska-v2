@@ -27,7 +27,11 @@ import { isNative, isAndroid } from './lib/platform.js';
 import { initPostHog } from './lib/analytics';
 import { registerSW } from 'virtual:pwa-register';
 import { isChunkLoadError, reloadWithCachePurge } from './lib/chunkErrors';
-import { shouldEnableSentryReplay, isEnvironmentalIdbError } from './lib/sentryHelpers';
+import {
+  shouldEnableSentryReplay,
+  isEnvironmentalIdbError,
+  downgradeEnvironmentalIdbEvent,
+} from './lib/sentryHelpers';
 
 // ─── Capacitor native: mark <html> for CSS animation overrides ────────────
 // Many CSS entrance animations start at opacity:0 with fill-mode:both.
@@ -149,20 +153,11 @@ if (import.meta.env.VITE_SENTRY_DSN) {
         ],
         // Scrub PII from error reports
         beforeSend(event) {
-          // Environmental IndexedDB internal-server errors (flaky device storage,
-          // surfaced async from Firebase persistence) are non-actionable and
-          // degrade gracefully. Don't drop them — DOWNGRADE to info + a stable
-          // fingerprint so they stop paging as high-priority issues but a
-          // frequency spike from a real regression still surfaces. See
-          // isEnvironmentalIdbError() for the full rationale.
-          const idbMsg = (
-            event.exception?.values?.[0]?.value ??
-            (typeof event.message === 'string' ? event.message : '')
-          ).toLowerCase();
-          if (isEnvironmentalIdbError(idbMsg)) {
-            event.level = 'info';
-            event.fingerprint = ['environmental-indexeddb-server-error'];
-          }
+          // Downgrade non-actionable environmental IndexedDB errors (flaky device
+          // storage, surfaced async from Firebase persistence) so they stop paging
+          // as high-priority but are retained for frequency tracking. Logic +
+          // tests live in sentryHelpers.downgradeEnvironmentalIdbEvent.
+          downgradeEnvironmentalIdbEvent(event);
           if (event.request?.url) {
             event.request.url = event.request.url.replace(/[?#].*/, '');
           }

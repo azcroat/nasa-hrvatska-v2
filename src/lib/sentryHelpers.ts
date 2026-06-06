@@ -44,3 +44,40 @@ export function shouldEnableSentryReplay(userAgent?: string): boolean {
 export function isEnvironmentalIdbError(msg: string): boolean {
   return msg.includes('indexed database server');
 }
+
+/**
+ * Minimal structural view of the Sentry event fields we inspect. Declared
+ * locally so this helper and its tests don't need the Sentry SDK types — the
+ * real `Event` is structurally assignable to it.
+ */
+export interface MinimalSentryEvent {
+  exception?: { values?: Array<{ value?: string }> };
+  message?: unknown;
+  level?: string;
+  fingerprint?: string[];
+}
+
+/**
+ * Primary error text of a Sentry event, lowercased for matching: the first
+ * exception's `value`, else a string `message`, else ''.
+ */
+export function sentryEventMessage(event: MinimalSentryEvent): string {
+  const exceptionValue = event.exception?.values?.[0]?.value;
+  if (typeof exceptionValue === 'string') return exceptionValue.toLowerCase();
+  if (typeof event.message === 'string') return event.message.toLowerCase();
+  return '';
+}
+
+/**
+ * If `event` is an environmental IndexedDB internal-server error, downgrade it
+ * to 'info' with a stable fingerprint — it stops paging as a high-priority
+ * issue but is retained so a frequency spike from a real regression still
+ * surfaces. Mutates and returns the event. See isEnvironmentalIdbError().
+ */
+export function downgradeEnvironmentalIdbEvent<T extends MinimalSentryEvent>(event: T): T {
+  if (isEnvironmentalIdbError(sentryEventMessage(event))) {
+    event.level = 'info';
+    event.fingerprint = ['environmental-indexeddb-server-error'];
+  }
+  return event;
+}

@@ -15,23 +15,29 @@ const STORE = 'resources';
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
-function getDb(): Promise<IDBPDatabase> {
-  if (!dbPromise) {
-    dbPromise = openDB(DB_NAME, 1, {
+async function openContentDb(): Promise<IDBPDatabase> {
+  try {
+    return await openDB(DB_NAME, 1, {
       upgrade(db) {
         if (!db.objectStoreNames.contains(STORE)) {
           db.createObjectStore(STORE);
         }
       },
-    }).catch((e) => {
-      // A transient IndexedDB open failure (e.g. the browser's "internal error
-      // in the Indexed Database server", or storage eviction) must not cache a
-      // rejected promise forever — that would permanently disable the content
-      // cache for the whole session. Clear it so the next call can retry; the
-      // caller's own try/catch handles this rejection as a cache miss.
-      dbPromise = null;
-      throw e;
     });
+  } catch (err) {
+    // A transient IndexedDB open failure (e.g. the browser's "internal error in
+    // the Indexed Database server", or storage eviction) must not cache a
+    // rejected promise forever — that would permanently disable the content
+    // cache for the whole session. Clear the handle so the next call retries;
+    // the caller's own try/catch treats this rejection as a cache miss.
+    dbPromise = null;
+    throw err;
+  }
+}
+
+function getDb(): Promise<IDBPDatabase> {
+  if (!dbPromise) {
+    dbPromise = openContentDb();
   }
   return dbPromise;
 }
