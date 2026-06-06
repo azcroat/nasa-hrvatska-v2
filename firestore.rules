@@ -107,12 +107,20 @@ service cloud.firestore {
     }
 
     // ─── Public profiles ───────────────────────────────────────────────────
-    // Lightweight public stats used by the friends feature.
-    // Written by fbSaveProgress alongside /users/{uid} (owner-only).
-    // Readable by all authenticated users so friends can see each other's stats.
+    // Lightweight stats, written by fbSaveProgress alongside /users/{uid}.
+    // SECURITY (2026-06-06): read locked to owner-only. The previous
+    // `allow read: if isAuthenticated()` let ANY signed-in user enumerate the
+    // whole collection and harvest every user's email-derived doc ID + display
+    // name + stats — an authenticated-wide PII / GDPR exposure. No client code
+    // reads this collection except the admin dashboard (which must move
+    // server-side behind an Admin-SDK custom claim); the "friends see each
+    // other's stats" feature was never actually wired to a profiles read.
+    // Friend-scoped reads require re-keying profiles by the opaque Firebase uid
+    // first (email-as-doc-id can't be matched against request.auth.uid in
+    // rules) — see the Phase-1 migration plan. Until then: owner-only.
     // Schema: { name, xp, lc, streak, level, lastActive }
     match /profiles/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if isOwner(userId);
       // CREATE: enforce same shape + XP/lc bounds as UPDATE.
       // level validation mirrors UPDATE (int 1-6 or CEFR string for legacy writes).
       allow create: if isOwner(userId)

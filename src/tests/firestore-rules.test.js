@@ -232,9 +232,17 @@ describe('/profiles/{userId}', () => {
     });
   });
 
-  it('any authenticated user can read profiles', async () => {
-    const db = authed('someone_else', 'other@test.com').firestore();
+  it('owner can read their own profile', async () => {
+    const db = authed(uid, email).firestore();
     await assertSucceeds(db.doc(`profiles/${uid}`).get());
+  });
+
+  it('a DIFFERENT authenticated user CANNOT read another user profile (PII lockdown)', async () => {
+    // Regression guard for the 2026-06-06 fix: profiles read was previously
+    // `if isAuthenticated()`, letting any signed-in account enumerate every
+    // user's email-derived doc ID + name + stats. Must stay owner-only.
+    const db = authed('someone_else', 'other@test.com').firestore();
+    await assertFails(db.doc(`profiles/${uid}`).get());
   });
 
   it('unauthenticated user cannot read profiles', async () => {
