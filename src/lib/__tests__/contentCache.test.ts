@@ -1,6 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
-import { readCached, writeCached, bumpValidated, isStale, STALE_AFTER_MS } from '../contentCache';
+import {
+  readCached,
+  writeCached,
+  bumpValidated,
+  isStale,
+  isTooOldToServe,
+  STALE_AFTER_MS,
+  SERVE_STALE_BEFORE_MS,
+} from '../contentCache';
 
 describe('contentCache', () => {
   beforeEach(async () => {
@@ -59,5 +67,17 @@ describe('contentCache', () => {
       lastValidatedAt: Date.now(),
     };
     expect(isStale(fresh)).toBe(false);
+  });
+
+  it('isTooOldToServe respects SERVE_STALE_BEFORE_MS (uses default now)', () => {
+    const old = {
+      etag: 'e',
+      body: {},
+      fetchedAt: Date.now() - SERVE_STALE_BEFORE_MS - 1000,
+      lastValidatedAt: Date.now(),
+    };
+    const recent = { etag: 'e', body: {}, fetchedAt: Date.now(), lastValidatedAt: Date.now() };
+    expect(isTooOldToServe(old)).toBe(true);
+    expect(isTooOldToServe(recent)).toBe(false);
   });
 });
