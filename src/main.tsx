@@ -27,6 +27,7 @@ import { isNative, isAndroid } from './lib/platform.js';
 import { initPostHog } from './lib/analytics';
 import { registerSW } from 'virtual:pwa-register';
 import { isChunkLoadError, reloadWithCachePurge } from './lib/chunkErrors';
+import { isStaleBuild } from './lib/versionCheck';
 import { shouldEnableSentryReplay } from './lib/sentryHelpers';
 import { isEnvironmentalIdbError, downgradeEnvironmentalIdbEvent } from './lib/idbTelemetry';
 
@@ -343,26 +344,82 @@ window.onunhandledrejection = function (event) {
   reportError(reason ?? new Error('Unhandled rejection'), 'unhandledrejection');
 };
 
-// ─── App version check — independent of SW ────────────────────────────────
-// Fetches /version.json from the network (no-store) on every page load.
-// If the deployed version differs from what this session loaded, reload once.
-// This guarantees all users see new deploys even when SW cache is stuck.
-// Check /version.json (always from network) and reload if deployed version changed.
-// Runs on load AND every 5 minutes so open tabs stay current without any user action.
-const _VER_KEY = 'nh_app_ver';
+// ─── App version check — seamless auto-update ─────────────────────────────
+// Compares the build RUNNING in this tab (__BUILD_ID__, baked in at build time)
+// against the deployed build (/version.json, fetched no-store). If they differ,
+// the running code is stale → force a clean update. Comparing against the running
+// build (not a sessionStorage snapshot) is what catches a returning user who
+// booted a stale cached bundle. Decision is unit-tested via isStaleBuild().
+const _RUNNING_BUILD =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  typeof (globalThis as any).__BUILD_ID__ !== 'undefined'
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      String((globalThis as any).__BUILD_ID__)
+    : null;
+const _VER_RELOAD_KEY = 'nh_ver_reload';
+let _pendingVersionUpdate = false;
+
+// Force the tab onto the freshly-deployed build. Safe to call repeatedly:
+// guarded to at most 2 consecutive reloads per session (then it gives up — stale
+// but never an infinite loop). Never touches localStorage/IndexedDB → user
+// progress is untouched; only stale app code/asset caches are cleared.
+function _applyVersionUpdate() {
+  let n = 0;
+  try {
+    n = parseInt(sessionStorage.getItem(_VER_RELOAD_KEY) || '0', 10) || 0;
+  } catch (_) {}
+  if (n >= 2) return;
+  try {
+    sessionStorage.setItem(_VER_RELOAD_KEY, String(n + 1));
+  } catch (_) {}
+  // Activate any waiting new SW so its fresh precache serves after the reload.
+  try {
+    navigator.serviceWorker
+      ?.getRegistration()
+      .then((reg) => reg?.waiting?.postMessage({ type: 'SKIP_WAITING' }))
+      .catch(() => {});
+  } catch (_) {}
+  // Drop the app-CODE runtime caches (html + js) so a stale shell/bundle can't be
+  // served as a network-first fallback. Media/data caches are left alone.
+  if ('caches' in globalThis) {
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter(
+              (k) => k.startsWith('nasa-hrvatska-') && (k.includes('-html') || k.includes('-js')),
+            )
+            .map((k) => caches.delete(k)),
+        ),
+      )
+      .catch(() => {})
+      .finally(() => window.location.reload());
+  } else {
+    window.location.reload();
+  }
+}
+
 function _checkVersion(isPolling: boolean) {
   try {
     fetch('/version.json', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (!data?.v) return;
-        const next = String(data.v);
-        const stored = sessionStorage.getItem(_VER_KEY);
-        if (stored && stored !== next) {
-          sessionStorage.setItem(_VER_KEY, next);
-          window.location.reload();
-        } else if (!isPolling) {
-          sessionStorage.setItem(_VER_KEY, next);
+        if (!isStaleBuild(data?.v, _RUNNING_BUILD)) {
+          // On the latest build — reset the loop guard so a future deploy gets a
+          // fresh budget of reload attempts.
+          try {
+            sessionStorage.setItem(_VER_RELOAD_KEY, '0');
+          } catch (_) {}
+          return;
+        }
+        // Running code is stale. On initial load → update now (safe; before the
+        // user interacts). On the periodic poll → defer to the next foreground so
+        // we never interrupt an active lesson.
+        if (isPolling) {
+          _pendingVersionUpdate = true;
+        } else {
+          _applyVersionUpdate();
         }
       })
       .catch(() => {});
@@ -370,6 +427,14 @@ function _checkVersion(isPolling: boolean) {
 }
 _checkVersion(false);
 setInterval(() => _checkVersion(true), 5 * 60 * 1000);
+// Apply a deferred (poll-detected) update when the user re-foregrounds the tab —
+// a natural, non-disruptive reload point, never mid-lesson.
+document.addEventListener('visibilitychange', () => {
+  if (_pendingVersionUpdate && document.visibilityState === 'visible') {
+    _pendingVersionUpdate = false;
+    _applyVersionUpdate();
+  }
+});
 
 // ─── Service Worker registration ──────────────────────────────────────────
 // Skip entirely inside Capacitor Android/iOS — WebView does not support SW
