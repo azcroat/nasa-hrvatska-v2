@@ -36,9 +36,7 @@ async function openContentDb(): Promise<IDBPDatabase> {
 }
 
 function getDb(): Promise<IDBPDatabase> {
-  if (!dbPromise) {
-    dbPromise = openContentDb();
-  }
+  dbPromise ??= openContentDb();
   return dbPromise;
 }
 
