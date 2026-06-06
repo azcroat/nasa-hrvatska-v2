@@ -1,14 +1,17 @@
 name: cf-skip-bot-on-api
 on:
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   fix:
     runs-on: ubuntu-latest
+    # CF token read per-job + stripped inside each step (not via $GITHUB_OUTPUT).
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
-      - name: Resolve zone ID + clean token
+      - name: Resolve zone ID
         id: zone
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -e
           TOKEN=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
@@ -16,16 +19,15 @@ jobs:
             "https://api.cloudflare.com/client/v4/zones?name=nasahrvatska.com" \
             -H "Authorization: Bearer $TOKEN" | jq -r '.result[0].id')
           echo "zone-id=$ZONE_ID" >> "$GITHUB_OUTPUT"
-          echo "token-clean=$TOKEN" >> "$GITHUB_OUTPUT"
 
       # Try PATCH for every zone-settings endpoint that could be the bot trigger.
       # Print HTTP status + body for each; non-200 = scope-blocked.
       - name: PATCH bot_fight_mode = off
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           curl -sS -i -X PATCH \
             "https://api.cloudflare.com/client/v4/zones/$Z/settings/bot_fight_mode" \
             -H "Authorization: Bearer $T" \
@@ -35,10 +37,10 @@ jobs:
 
       - name: PATCH browser_check = off
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           curl -sS -X PATCH \
             "https://api.cloudflare.com/client/v4/zones/$Z/settings/browser_check" \
             -H "Authorization: Bearer $T" \
@@ -48,10 +50,10 @@ jobs:
 
       - name: PATCH challenge_ttl = 31536000 (1 year cache for solved challenges)
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           curl -sS -X PATCH \
             "https://api.cloudflare.com/client/v4/zones/$Z/settings/challenge_ttl" \
             -H "Authorization: Bearer $T" \
@@ -63,10 +65,10 @@ jobs:
       # (= WAF Custom Rules, separate from Page Rules).
       - name: Create WAF Custom Rule to skip on /api/*
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           # Get the current http_request_firewall_custom ruleset entrypoint
           RS=$(curl -sS \
             "https://api.cloudflare.com/client/v4/zones/$Z/rulesets" \

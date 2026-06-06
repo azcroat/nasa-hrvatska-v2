@@ -3,6 +3,9 @@ name: Sync CF Pages env vars
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   sync:
     name: Push env vars to Cloudflare Pages via wrangler
