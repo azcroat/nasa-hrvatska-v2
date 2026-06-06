@@ -27,11 +27,8 @@ import { isNative, isAndroid } from './lib/platform.js';
 import { initPostHog } from './lib/analytics';
 import { registerSW } from 'virtual:pwa-register';
 import { isChunkLoadError, reloadWithCachePurge } from './lib/chunkErrors';
-import {
-  shouldEnableSentryReplay,
-  isEnvironmentalIdbError,
-  downgradeEnvironmentalIdbEvent,
-} from './lib/sentryHelpers';
+import { shouldEnableSentryReplay } from './lib/sentryHelpers';
+import { isEnvironmentalIdbError, downgradeEnvironmentalIdbEvent } from './lib/idbTelemetry';
 
 // ─── Capacitor native: mark <html> for CSS animation overrides ────────────
 // Many CSS entrance animations start at opacity:0 with fill-mode:both.

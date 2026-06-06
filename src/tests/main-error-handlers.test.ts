@@ -4,7 +4,7 @@ import {
   isEnvironmentalIdbError,
   sentryEventMessage,
   downgradeEnvironmentalIdbEvent,
-} from '../lib/sentryHelpers';
+} from '../lib/idbTelemetry';
 
 // _isStaleBindingError and _reloadWithCachePurge remain inlined —
 // they are private to main.tsx and _reloadWithCachePurge uses an
