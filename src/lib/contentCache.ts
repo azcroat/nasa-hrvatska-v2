@@ -23,6 +23,14 @@ function getDb(): Promise<IDBPDatabase> {
           db.createObjectStore(STORE);
         }
       },
+    }).catch((e) => {
+      // A transient IndexedDB open failure (e.g. the browser's "internal error
+      // in the Indexed Database server", or storage eviction) must not cache a
+      // rejected promise forever — that would permanently disable the content
+      // cache for the whole session. Clear it so the next call can retry; the
+      // caller's own try/catch handles this rejection as a cache miss.
+      dbPromise = null;
+      throw e;
     });
   }
   return dbPromise;
