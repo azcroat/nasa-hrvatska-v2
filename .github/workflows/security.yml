@@ -7,35 +7,24 @@ on:
     - cron: '0 7 * * 1'  # Weekly Monday 7am UTC
 
 jobs:
-  trivy:
-    name: Trivy (CVE + Secret Scan)
+  # Trivy removed 2026-06-06 per owner request. Replacement coverage:
+  #  - Dependency CVEs  -> OSV-Scanner + npm audit + Dependabot (security updates ON).
+  #  - Secret scanning  -> GitHub native secret scanning + push protection (ON at the
+  #    platform level) PLUS the Gitleaks job below for custom patterns + full git history.
+  gitleaks:
+    name: Gitleaks (secret scan)
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
-
     steps:
       - uses: actions/checkout@v4
-
-      # SHA-pinned (v0.36.0, published 2026-04-22) — never use @master for third-party
-      # actions: any push to that branch gets executed in CI with our GITHUB_TOKEN.
-      # Update by running: gh api repos/aquasecurity/trivy-action/git/refs/tags/<version>
-      - name: Trivy — dependency CVEs and secrets
-        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8  # v0.36.0
         with:
-          scan-type: fs
-          scan-ref: .
-          format: sarif
-          output: trivy-results.sarif
-          severity: CRITICAL,HIGH
-          scanners: vuln,secret
-
-      - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: trivy-results.sarif
-          category: trivy
+          fetch-depth: 0 # full history so previously-committed secrets are caught
+      # SHA-pinned (gitleaks-action v2). Free for public/personal repos (no license).
+      - name: Gitleaks — repo + history secret scan
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   semgrep:
     name: Semgrep (SAST)
