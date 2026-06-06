@@ -3,6 +3,9 @@ name: Cleanup CF Pages orphan env vars
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 # One-shot maintenance workflow: removes CF Pages env-var entries whose
 # NAMES are corrupted (trailing whitespace, etc.) from clipboard-paste
 # bugs in the CF dashboard form. Each orphan is listed explicitly here —

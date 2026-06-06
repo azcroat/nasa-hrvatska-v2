@@ -15,6 +15,9 @@ on:
       - 'src/tests/firestore-rules.test.js'
       - 'firebase.json'
 
+permissions:
+  contents: read
+
 jobs:
   rules-test:
     name: Firestore Rules Unit Tests

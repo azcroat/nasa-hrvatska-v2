@@ -4,14 +4,18 @@ on:
   schedule:
     # Weekly Monday 14:00 UTC = 09:00 CT — proactive posture verification.
     - cron: '0 14 * * 1'
+permissions:
+  contents: read
 jobs:
   audit:
     runs-on: ubuntu-latest
+    # CF token read per-job + stripped inside each step (not via $GITHUB_OUTPUT,
+    # which is retained in run metadata and not masked like secrets.*).
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
-      - name: Resolve zone ID + clean token
+      - name: Resolve zone ID
         id: zone
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -e
           T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
@@ -19,7 +23,6 @@ jobs:
             "https://api.cloudflare.com/client/v4/zones?name=nasahrvatska.com" \
             -H "Authorization: Bearer $T" | jq -r '.result[0].id')
           echo "zone-id=$Z" >> "$GITHUB_OUTPUT"
-          echo "token-clean=$T" >> "$GITHUB_OUTPUT"
           echo "Zone: $Z"
 
       - name: security.txt — verify HTTPS 200 at /.well-known/security.txt
@@ -37,10 +40,10 @@ jobs:
 
       - name: WAF custom rules — list and flag any skip-action rule
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           RS_ID=$(curl -sS \
             "https://api.cloudflare.com/client/v4/zones/$Z/rulesets" \
             -H "Authorization: Bearer $T" \
@@ -70,10 +73,10 @@ jobs:
 
       - name: SBFM state — read-only check (informational; advisory expected stale)
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           # Bot Management read may need extra scope; attempt and surface result
           RESP=$(curl -sS \
             "https://api.cloudflare.com/client/v4/zones/$Z/bot_management" \
@@ -91,10 +94,10 @@ jobs:
 
       - name: Zone settings sanity (browser_check, challenge_ttl, security_level)
         env:
-          T: ${{ steps.zone.outputs.token-clean }}
           Z: ${{ steps.zone.outputs.zone-id }}
         run: |
           set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
           for S in browser_check challenge_ttl security_level; do
             V=$(curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/settings/$S" \
               -H "Authorization: Bearer $T" | jq -r '.result.value')
