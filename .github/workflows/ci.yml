@@ -166,7 +166,10 @@ jobs:
       # change. See knowledge_nh_sonarcloud_gate memory for the full diagnosis.
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        # SHA-pinned 2026-06-06 (was @master — a mutable branch is the worst
+        # supply-chain posture for a third-party action that runs with our tokens).
+        # NOTE: action is deprecated upstream; migrate to sonarqube-scan-action later.
+        uses: SonarSource/sonarcloud-github-action@ba3875ecf642b2129de2b589510c81a8b53dbf4e # master @ 2026-06-06
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
