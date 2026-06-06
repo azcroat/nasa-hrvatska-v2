@@ -828,7 +828,11 @@ export async function fbExportUserData(uid: string): Promise<Record<string, unkn
 
 export function fbWatchProgress(
   uid: string,
-  callback: (progress: Record<string, unknown>, updatedAt: number) => void,
+  callback: (
+    progress: Record<string, unknown> | null,
+    updatedAt: number,
+    meta: { fromCache: boolean; exists: boolean },
+  ) => void,
   onError?: (err: Error) => void,
 ): () => void {
   if (!_fbReady || !_fbDb) return () => {};
@@ -836,9 +840,23 @@ export function fbWatchProgress(
   return onSnapshot(
     fsDoc(_fbDb, 'users', id),
     function (snap) {
-      if (!snap.exists()) return;
+      // fromCache distinguishes the Firestore SDK's initial IndexedDB-cache emission
+      // (stale/empty on a fresh or Safari/iPad device) from the authoritative server
+      // snapshot. useSyncManager uses this to decide WHEN the user's state is truly known.
+      const fromCache = snap.metadata.fromCache;
+      if (!snap.exists()) {
+        // Signal resolution instead of returning silently. When fromCache === false this
+        // means the SERVER confirmed the user has no document → genuinely new user.
+        callback(null, 0, { fromCache, exists: false });
+        return;
+      }
       const _wd = snap.data({ serverTimestamps: 'estimate' }) as Record<string, unknown>;
-      if (!_wd.progress) return;
+      if (!_wd.progress) {
+        // Doc exists (e.g. delta-only stats) but no progress blob — signal resolution so
+        // the "new user?" gate doesn't hang waiting for data that won't arrive.
+        callback(null, 0, { fromCache, exists: true });
+        return;
+      }
       try {
         const p = JSON.parse(_wd.progress as string) as Record<string, unknown>;
         const _wu = _wd.updated as { toMillis?: () => number } | number | null;
@@ -907,7 +925,7 @@ export function fbWatchProgress(
             // via the union above; explicit removal requires fbToggleFavorite (tombstoning).
           } catch (_) {}
         }
-        callback(p, p._fbUpdated as number);
+        callback(p, p._fbUpdated as number, { fromCache, exists: true });
       } catch (e) {
         console.warn('fbWatchProgress parse error:', e);
       }
