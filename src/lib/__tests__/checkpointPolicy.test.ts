@@ -51,4 +51,18 @@ describe('interpretCheckpoint', () => {
     expect(o.kind).toBe('grace');
     expect(o.demotion).toBeNull();
   });
+
+  it('exactly 0.80 on a skill → pass_focus (lower boundary in focus band)', () => {
+    const scores: SkillScores = { vocab: 0.95, grammar: 0.9, speaking: 0.8 };
+    const o = interpretCheckpoint({ level: 'B1', scores, checkpoints: cp() });
+    expect(o.kind).toBe('pass_focus');
+    expect(o.focusSkills).toContain('speaking');
+  });
+
+  it('exactly 0.875 on a skill → clean pass (upper boundary excluded from focus)', () => {
+    const scores: SkillScores = { vocab: 0.95, grammar: 0.9, speaking: 0.875 };
+    const o = interpretCheckpoint({ level: 'B1', scores, checkpoints: cp() });
+    expect(o.kind).toBe('pass');
+    expect(o.focusSkills).toEqual([]);
+  });
 });
