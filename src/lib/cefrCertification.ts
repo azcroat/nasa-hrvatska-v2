@@ -74,10 +74,18 @@ export type SkillScore = number; // 0..1 per skill
 export interface SkillScores {
   vocab: SkillScore;
   grammar: SkillScore;
-  reading: SkillScore;
+  /** Optional — only present if the test had a reading section. */
+  reading?: SkillScore;
   /** Optional — only present if the test had a listening section. */
   listening?: SkillScore;
+  /** Optional in the type (legacy equivalency tests have none); REQUIRED by
+   *  checkpoint composition (a speaking task is always included — see Plan 1
+   *  examComposer). */
+  speaking?: SkillScore;
 }
+
+/** Every skill a test can score. */
+export type SkillKey = 'vocab' | 'grammar' | 'reading' | 'listening' | 'speaking';
 
 export interface CertificationPass {
   passedAt: number; // epoch ms
@@ -254,6 +262,7 @@ export function computePassed(scores: SkillScores): {
   skillValues.push(scores.grammar);
   if (scores.reading !== undefined) skillValues.push(scores.reading);
   if (scores.listening !== undefined) skillValues.push(scores.listening);
+  if (scores.speaking !== undefined) skillValues.push(scores.speaking); // NEW
   if (skillValues.length === 0) return { passed: false, overall: 0 };
   const overall = skillValues.reduce((a, b) => a + b, 0) / skillValues.length;
   const minSkill = Math.min(...skillValues);
