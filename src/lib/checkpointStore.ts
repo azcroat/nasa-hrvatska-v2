@@ -42,6 +42,9 @@ export function recordCheckpointResult(opts: {
 
   if (outcome.focusSkills.length > 0) {
     state.checkpoints.focusSkills[opts.level] = outcome.focusSkills;
+  } else if (outcome.kind === 'pass') {
+    // Clean pass — no focus needed; clear any stale focus flag for this level.
+    delete state.checkpoints.focusSkills[opts.level];
   }
 
   if (outcome.kind === 'pass' || outcome.kind === 'pass_focus') {

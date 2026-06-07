@@ -62,4 +62,21 @@ describe('recordCheckpointResult', () => {
     expect(s.checkpoints.lastCheckpointAt).toBe(777);
     expect(s.checkpoints.focusSkills.B1).toContain('vocab');
   });
+
+  it('clears a stale focus flag on a clean pass', () => {
+    seed(['A2', 'B1']);
+    // Pre-set a stale focus flag for B1 (as if a prior pass_focus happened).
+    const pre = getCertificationState();
+    pre.checkpoints.focusSkills.B1 = ['speaking'];
+    localStorage.setItem(KEY, JSON.stringify(pre));
+    // Clean pass (every skill >= 0.88).
+    recordCheckpointResult({
+      level: 'B1',
+      scores: { vocab: 0.95, grammar: 0.92, speaking: 0.95 },
+      activeDayCount: 10,
+      now: 600,
+    });
+    const s = getCertificationState();
+    expect(s.checkpoints.focusSkills.B1).toBeUndefined();
+  });
 });
