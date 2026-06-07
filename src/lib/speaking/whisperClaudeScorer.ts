@@ -42,16 +42,19 @@ export const whisperClaudeScorer: SpeakingScorer = {
         confidence?: number;
       };
       const s = data.scores;
-      if (!s || typeof s.range !== 'number') return null;
+      if (
+        !s ||
+        typeof s.range !== 'number' ||
+        typeof s.accuracy !== 'number' ||
+        typeof s.fluency !== 'number' ||
+        typeof s.task !== 'number'
+      ) {
+        return null;
+      }
       const confidence = typeof data.confidence === 'number' ? data.confidence : 0;
       if (confidence < MIN_CONFIDENCE) return null;
 
-      const scores = {
-        range: s.range,
-        accuracy: s.accuracy ?? 0,
-        fluency: s.fluency ?? 0,
-        task: s.task ?? 0,
-      };
+      const scores = { range: s.range, accuracy: s.accuracy, fluency: s.fluency, task: s.task };
       return {
         transcript: data.transcript ?? '',
         scores,

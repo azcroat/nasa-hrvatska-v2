@@ -58,6 +58,21 @@ describe('whisperClaudeScorer', () => {
     expect(res).toBeNull();
   });
 
+  it('returns null when required score fields are missing (partial body)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({ transcript: 'x', scores: { range: 0.9 }, confidence: 0.9 }),
+            { status: 200 },
+          ),
+      ),
+    );
+    const res = await whisperClaudeScorer.assess(blob(), { level: 'B1', prompt: 'x' });
+    expect(res).toBeNull();
+  });
+
   it('returns null when confidence is below the usable floor', async () => {
     vi.stubGlobal(
       'fetch',
