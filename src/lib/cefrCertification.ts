@@ -199,7 +199,7 @@ export function getCertificationState(): CertificationState {
   }
 }
 
-function writeCertificationState(state: CertificationState): void {
+export function writeCertificationState(state: CertificationState): void {
   if (typeof localStorage === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -232,6 +232,33 @@ export function getCertifiedLevel(): CefrLevel {
     }
   }
   return best;
+}
+
+/** The level one rank below `level`, or null if `level` is the floor (A1). */
+function levelBelow(level: CefrLevel): CefrLevel | null {
+  const idx = CEFR_ORDER.indexOf(level);
+  if (idx <= 0) return null;
+  return CEFR_ORDER[idx - 1]!;
+}
+
+/**
+ * Lowers the certified level by exactly one rank by removing the top pass,
+ * so `getCertifiedLevel()` returns the level below. Records the demotion and
+ * clears the grace counter for the demoted level. No-op (returns null) at A1
+ * — A1 is the floor. Does NOT touch XP, streak, or eligible level.
+ */
+export function demoteOneLevel(
+  reason: 'checkpoint_fail',
+): { from: CefrLevel; to: CefrLevel } | null {
+  const current = getCertifiedLevel();
+  const to = levelBelow(current);
+  if (to === null) return null; // A1 floor
+  const state = getCertificationState();
+  delete state.passes[current];
+  state.checkpoints.demotions.push({ from: current, to, at: Date.now(), reason });
+  state.checkpoints.consecutiveFails[current] = 0;
+  writeCertificationState(state);
+  return { from: current, to };
 }
 
 /**
