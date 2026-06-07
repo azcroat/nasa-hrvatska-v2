@@ -102,12 +102,27 @@ export interface CertificationAttempt {
   overall: number;
 }
 
+export interface CheckpointState {
+  /** Epoch ms of the last COMPLETED checkpoint that reset the cadence. */
+  lastCheckpointAt: number | null;
+  /** Active-day count snapshot at that checkpoint (see activeDayTracker). */
+  activeDaysAtLastCheckpoint: number;
+  /** Grace counter per level: 0 = none, 1 = one fail pending (next fail demotes). */
+  consecutiveFails: Partial<Record<CefrLevel, number>>;
+  /** Carry-forward focus skills, keyed by the level they apply to. */
+  focusSkills: Partial<Record<CefrLevel, SkillKey[]>>;
+  /** Demotion history. */
+  demotions: Array<{ from: CefrLevel; to: CefrLevel; at: number; reason: 'checkpoint_fail' }>;
+  /** "Remind me tonight" — checkpoint suppressed until this epoch ms. */
+  snoozedUntil: number | null;
+}
+
 export interface CertificationState {
   passes: Partial<Record<CefrLevel, CertificationPass>>;
   attempts: CertificationAttempt[];
   lastFailedAt: Partial<Record<CefrLevel, number>>;
-  /** Schema version for future migrations. Bump when shape changes. */
-  v: 1;
+  checkpoints: CheckpointState; // NEW
+  v: 2; // bumped
 }
 
 const STORAGE_KEY = 'nh_cefr_certifications';
@@ -117,8 +132,19 @@ const PASS_THRESHOLD = 0.8; // 80% per skill AND overall
 
 // ── Read / write state ────────────────────────────────────────────────────────
 
+function emptyCheckpointState(): CheckpointState {
+  return {
+    lastCheckpointAt: null,
+    activeDaysAtLastCheckpoint: 0,
+    consecutiveFails: {},
+    focusSkills: {},
+    demotions: [],
+    snoozedUntil: null,
+  };
+}
+
 function emptyState(): CertificationState {
-  return { passes: {}, attempts: [], lastFailedAt: {}, v: 1 };
+  return { passes: {}, attempts: [], lastFailedAt: {}, checkpoints: emptyCheckpointState(), v: 2 };
 }
 
 /**
@@ -134,14 +160,34 @@ export function getCertificationState(): CertificationState {
     if (!raw) return emptyState();
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== 'object') return emptyState();
-    const state = parsed as CertificationState;
-    if (state.v !== 1) return emptyState(); // future-proofing
+    const state = parsed as Partial<CertificationState> & { v?: number };
+    // Accept v1 (migrate up) and v2. Anything else → empty.
+    if (state.v !== 1 && state.v !== 2) return emptyState();
     if (!state.passes || typeof state.passes !== 'object') state.passes = {};
     if (!Array.isArray(state.attempts)) state.attempts = [];
     if (!state.lastFailedAt || typeof state.lastFailedAt !== 'object') {
       state.lastFailedAt = {};
     }
-    return state;
+    // Migrate / normalise the checkpoints block.
+    const def = emptyCheckpointState();
+    const cp = (
+      state.checkpoints && typeof state.checkpoints === 'object' ? state.checkpoints : {}
+    ) as Partial<CheckpointState>;
+    state.checkpoints = {
+      lastCheckpointAt:
+        typeof cp.lastCheckpointAt === 'number' ? cp.lastCheckpointAt : def.lastCheckpointAt,
+      activeDaysAtLastCheckpoint:
+        typeof cp.activeDaysAtLastCheckpoint === 'number'
+          ? cp.activeDaysAtLastCheckpoint
+          : def.activeDaysAtLastCheckpoint,
+      consecutiveFails:
+        cp.consecutiveFails && typeof cp.consecutiveFails === 'object' ? cp.consecutiveFails : {},
+      focusSkills: cp.focusSkills && typeof cp.focusSkills === 'object' ? cp.focusSkills : {},
+      demotions: Array.isArray(cp.demotions) ? cp.demotions : [],
+      snoozedUntil: typeof cp.snoozedUntil === 'number' ? cp.snoozedUntil : def.snoozedUntil,
+    };
+    state.v = 2;
+    return state as CertificationState;
   } catch {
     return emptyState();
   }
@@ -335,7 +381,7 @@ export function snapshotCertifications(): CertificationState | undefined {
  */
 export function mergeRemoteCertifications(remote: CertificationState | null | undefined): void {
   if (!remote || typeof remote !== 'object') return;
-  if (remote.v !== 1) return;
+  if (remote.v !== 1 && remote.v !== 2) return;
   const local = getCertificationState();
 
   // Passes — additive, prefer earlier passedAt
