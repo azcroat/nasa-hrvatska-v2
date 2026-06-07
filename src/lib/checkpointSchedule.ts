@@ -36,3 +36,23 @@ export function isCheckpointDue(input: DueInput): DueResult {
   }
   return { due: true, reason: 'due' };
 }
+
+/** Screens during which an exam popup is acceptable (never mid-lesson). */
+const SAFE_SCREENS = new Set(['dashboard', 'home', 'profile', 'stats']);
+
+/**
+ * App-layer gate for showing the checkpoint invite. Combines the `due` result
+ * with runtime conditions: only after cross-device sync resolves, only inside
+ * the app shell, and only on a non-exercise screen. Mirrors the goal-modal
+ * discipline (PRs #12/#13) but is App-scoped so it fires on foreground.
+ */
+export function shouldShowCheckpoint(args: {
+  syncReady: boolean;
+  authScreen: string;
+  currentScreen: string;
+  due: boolean;
+}): boolean {
+  return (
+    args.syncReady && args.authScreen === 'app' && SAFE_SCREENS.has(args.currentScreen) && args.due
+  );
+}
