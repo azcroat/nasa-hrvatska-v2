@@ -483,6 +483,46 @@ export function mergeRemoteCertifications(remote: CertificationState | null | un
     local.attempts = out.slice(-100);
   }
 
+  // checkpoints — most-recent cadence wins; grace counters take MAX so a
+  // stale device cannot erase a pending demotion. snoozedUntil takes MAX.
+  if (remote.checkpoints && typeof remote.checkpoints === 'object') {
+    const rc = remote.checkpoints;
+    const lc = local.checkpoints;
+    if (typeof rc.lastCheckpointAt === 'number') {
+      lc.lastCheckpointAt =
+        lc.lastCheckpointAt == null
+          ? rc.lastCheckpointAt
+          : Math.max(lc.lastCheckpointAt, rc.lastCheckpointAt);
+    }
+    if (typeof rc.activeDaysAtLastCheckpoint === 'number') {
+      lc.activeDaysAtLastCheckpoint = Math.max(
+        lc.activeDaysAtLastCheckpoint,
+        rc.activeDaysAtLastCheckpoint,
+      );
+    }
+    if (rc.consecutiveFails && typeof rc.consecutiveFails === 'object') {
+      for (const k of Object.keys(rc.consecutiveFails) as CefrLevel[]) {
+        const r = rc.consecutiveFails[k] ?? 0;
+        const l = lc.consecutiveFails[k] ?? 0;
+        lc.consecutiveFails[k] = Math.max(l, r);
+      }
+    }
+    if (rc.focusSkills && typeof rc.focusSkills === 'object') {
+      for (const k of Object.keys(rc.focusSkills) as CefrLevel[]) {
+        if (!lc.focusSkills[k] && rc.focusSkills[k]) lc.focusSkills[k] = rc.focusSkills[k];
+      }
+    }
+    if (Array.isArray(rc.demotions)) {
+      const seen = new Set(lc.demotions.map((d) => d.at));
+      for (const d of rc.demotions) if (d && !seen.has(d.at)) lc.demotions.push(d);
+      lc.demotions.sort((a, b) => a.at - b.at);
+    }
+    if (typeof rc.snoozedUntil === 'number') {
+      lc.snoozedUntil =
+        lc.snoozedUntil == null ? rc.snoozedUntil : Math.max(lc.snoozedUntil, rc.snoozedUntil);
+    }
+  }
+
   writeCertificationState(local);
 }
 
