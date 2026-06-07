@@ -262,7 +262,7 @@ export function computePassed(scores: SkillScores): {
   skillValues.push(scores.grammar);
   if (scores.reading !== undefined) skillValues.push(scores.reading);
   if (scores.listening !== undefined) skillValues.push(scores.listening);
-  if (scores.speaking !== undefined) skillValues.push(scores.speaking); // NEW
+  if (scores.speaking !== undefined) skillValues.push(scores.speaking);
   if (skillValues.length === 0) return { passed: false, overall: 0 };
   const overall = skillValues.reduce((a, b) => a + b, 0) / skillValues.length;
   const minSkill = Math.min(...skillValues);
@@ -366,6 +366,12 @@ export function mergeRemoteCertifications(remote: CertificationState | null | un
               : r.scores.listening === undefined
                 ? l.scores.listening
                 : Math.max(l.scores.listening, r.scores.listening),
+          speaking:
+            l.scores.speaking === undefined
+              ? r.scores.speaking
+              : r.scores.speaking === undefined
+                ? l.scores.speaking
+                : Math.max(l.scores.speaking, r.scores.speaking),
         };
         local.passes[k] = { passedAt, overall, scores };
       }
