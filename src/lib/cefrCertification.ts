@@ -488,6 +488,12 @@ export function mergeRemoteCertifications(remote: CertificationState | null | un
   if (remote.checkpoints && typeof remote.checkpoints === 'object') {
     const rc = remote.checkpoints;
     const lc = local.checkpoints;
+
+    // Capture original timestamps BEFORE any MAX-overwrite so the focusSkills
+    // freshness comparison below is based on the original values.
+    const lcTime = lc.lastCheckpointAt ?? -1;
+    const rcTime = typeof rc.lastCheckpointAt === 'number' ? rc.lastCheckpointAt : -1;
+
     if (typeof rc.lastCheckpointAt === 'number') {
       lc.lastCheckpointAt =
         lc.lastCheckpointAt == null
@@ -507,10 +513,21 @@ export function mergeRemoteCertifications(remote: CertificationState | null | un
         lc.consecutiveFails[k] = Math.max(l, r);
       }
     }
+    // focusSkills: adopt the WHOLE map from whichever side has the fresher
+    // checkpoint. A remote CLEAR (key absent in remote.focusSkills) must win
+    // when the remote checkpoint is newer, so we cannot do a per-key union.
     if (rc.focusSkills && typeof rc.focusSkills === 'object') {
-      for (const k of Object.keys(rc.focusSkills) as CefrLevel[]) {
-        if (!lc.focusSkills[k] && rc.focusSkills[k]) lc.focusSkills[k] = rc.focusSkills[k];
+      if (rcTime > lcTime) {
+        // Remote checkpoint is fresher → its focus map is authoritative.
+        // This also propagates a remote CLEAR: a level absent in remote is dropped.
+        lc.focusSkills = { ...rc.focusSkills };
+      } else if (rcTime === lcTime) {
+        // Same freshness (or both unset) → union, keep local where set.
+        for (const k of Object.keys(rc.focusSkills) as CefrLevel[]) {
+          if (!lc.focusSkills[k] && rc.focusSkills[k]) lc.focusSkills[k] = rc.focusSkills[k];
+        }
       }
+      // else local is fresher → keep local focusSkills unchanged.
     }
     if (Array.isArray(rc.demotions)) {
       const seen = new Set(lc.demotions.map((d) => d.at));
