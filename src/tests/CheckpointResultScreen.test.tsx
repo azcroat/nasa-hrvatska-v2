@@ -4,8 +4,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import CheckpointResultScreen from '../components/exam/CheckpointResultScreen.js';
 import type { CheckpointOutcome } from '../lib/checkpointPolicy.js';
 
-const cont = () => vi.fn();
-
 function out(
   kind: CheckpointOutcome['kind'],
   extra: Partial<CheckpointOutcome> = {},
@@ -14,12 +12,34 @@ function out(
 }
 
 describe('CheckpointResultScreen', () => {
-  it('clean pass shows confirmation', () => {
-    render(<CheckpointResultScreen level="B1" outcome={out('pass')} onContinue={cont()} />);
+  it('clean pass shows confirmation and fires onContinue', () => {
+    const onContinue = vi.fn();
+    render(<CheckpointResultScreen level="B1" outcome={out('pass')} onContinue={onContinue} />);
     expect(screen.getByTestId('result-pass')).toBeTruthy();
+    // result-focus must NOT appear for a clean pass
+    expect(screen.queryByTestId('result-focus')).toBeNull();
+    // continue button calls the handler
+    fireEvent.click(screen.getByText(/Keep going/));
+    expect(onContinue).toHaveBeenCalledOnce();
+  });
+
+  it('pass_focus renders result-pass AND result-focus with skill label', () => {
+    const onContinue = vi.fn();
+    render(
+      <CheckpointResultScreen
+        level="B1"
+        outcome={out('pass_focus', { focusSkills: ['speaking'] })}
+        onContinue={onContinue}
+      />,
+    );
+    expect(screen.getByTestId('result-pass')).toBeTruthy();
+    const focusNode = screen.getByTestId('result-focus');
+    expect(focusNode).toBeTruthy();
+    expect(focusNode.textContent).toContain('Speaking');
   });
 
   it('demote shows the level drop and reassurance', () => {
+    const onContinue = vi.fn();
     render(
       <CheckpointResultScreen
         level="B1"
@@ -28,7 +48,7 @@ describe('CheckpointResultScreen', () => {
           focusSkills: ['vocab'],
           demotion: { from: 'B1', to: 'A2' },
         })}
-        onContinue={cont()}
+        onContinue={onContinue}
       />,
     );
     const node = screen.getByTestId('result-demote');
@@ -38,11 +58,12 @@ describe('CheckpointResultScreen', () => {
 
   it('grace offers an immediate retry', () => {
     const onRetry = vi.fn();
+    const onContinue = vi.fn();
     render(
       <CheckpointResultScreen
         level="B1"
         outcome={out('grace', { failedSkills: ['speaking'] })}
-        onContinue={cont()}
+        onContinue={onContinue}
         onRetry={onRetry}
       />,
     );
