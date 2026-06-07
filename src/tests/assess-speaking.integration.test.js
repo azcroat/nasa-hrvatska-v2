@@ -10,10 +10,25 @@ vi.mock('../../functions/api/_verifyToken.js', () => ({
 
 import { onRequestPost } from '../../functions/api/assess-speaking.js';
 
+/** Minimal KV stub that satisfies the quota helper's get/put interface. */
+function makeKvStub() {
+  const store = new Map();
+  return {
+    get: async (key) => store.get(key) ?? null,
+    put: async (key, value) => {
+      store.set(key, value);
+    },
+  };
+}
+
 function req(body, auth) {
   return new Request('https://nasahrvatska.com/api/assess-speaking', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(auth ? { authorization: auth } : {}) },
+    headers: {
+      'Content-Type': 'application/json',
+      origin: 'https://nasahrvatska.com',
+      ...(auth ? { authorization: auth } : {}),
+    },
     body: JSON.stringify(body),
   });
 }
@@ -22,6 +37,8 @@ const env = () => ({
   FIREBASE_PROJECT_ID: 'proj',
   ANTHROPIC_API_KEY: 'k',
   AI: { run: vi.fn(async () => ({ text: 'Putovao sam u Zagreb prošli tjedan.' })) },
+  // Quota helper requires at least one storage binding to avoid fail-closed rejection.
+  PUSH_SUBSCRIPTIONS: makeKvStub(),
 });
 
 describe('POST /api/assess-speaking', () => {
@@ -80,5 +97,27 @@ describe('POST /api/assess-speaking', () => {
       '@cf/openai/whisper',
       expect.objectContaining({ audio: expect.any(Array) }),
     );
+  });
+
+  it('429 when daily quota is exceeded', async () => {
+    // Seed the KV store with turns already at the per-day limit (100) so the
+    // real checkAIQuota helper returns not-allowed for uid-1.
+    const overLimitKv = makeKvStub();
+    const today = new Date().toISOString().slice(0, 10);
+    await overLimitKv.put(`quota:uid-1:${today}`, JSON.stringify({ turns: 100 }));
+
+    const res = await onRequestPost({
+      request: req(
+        { level: 'B1', prompt: 'Opišite putovanje.', audioBase64: 'AAAA', mime: 'audio/webm' },
+        'Bearer good',
+      ),
+      env: {
+        ...env(),
+        PUSH_SUBSCRIPTIONS: overLimitKv,
+      },
+    });
+    expect(res.status).toBe(429);
+    const json = await res.json();
+    expect(json.error).toBe('daily_quota_exceeded');
   });
 });

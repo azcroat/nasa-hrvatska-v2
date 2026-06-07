@@ -1,9 +1,37 @@
 // functions/api/assess-speaking.js
 import { getFirebaseUid } from './_verifyToken.js';
+import { checkRateLimit } from './_rateLimit.js';
+import { checkAIQuota } from './_aiQuota.js';
 
 const MAX_AUDIO_B64 = 2_000_000; // ~90s compressed
 const MIN_WORDS_FOR_CONFIDENCE = 3;
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
+const VALID_CEFR = new Set(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
+
+function sanitizeParam(value, maxLen = 200) {
+  return String(value || '')
+    .replace(/[\r\n]/g, ' ')
+    .replace(/[`\\]/g, '')
+    .trim()
+    .slice(0, maxLen);
+}
+
+function isAllowedOrigin(origin, isDev) {
+  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
+  if (!origin) return true;
+  try {
+    const hostname = new URL(origin).hostname;
+    if (isDev && hostname === 'localhost') return true;
+    return (
+      hostname === 'nasahrvatska.com' ||
+      hostname.endsWith('.nasahrvatska.com') ||
+      hostname === 'nasa-hrvatska-v2.pages.dev' ||
+      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
+    );
+  } catch {
+    return false;
+  }
+}
 
 function CORS(origin) {
   return {
@@ -37,7 +65,16 @@ const RUBRIC = (level, prompt, transcript) =>
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const origin = request.headers.get('origin') || '';
+  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+  const isDev = env.ENVIRONMENT !== 'production';
+
+  // 0. CORS allow-list — mirror correct.js.
+  if (!isAllowedOrigin(origin, isDev)) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: CORS(origin),
+    });
+  }
 
   // 1. Auth — hard reject anonymous (closes the anon-AI-cost vector).
   const uid = env.FIREBASE_PROJECT_ID
@@ -45,7 +82,29 @@ export async function onRequestPost(context) {
     : null;
   if (!uid) return err(401, 'unauthenticated', origin);
 
-  // 2. Body + clip cap.
+  // 2. Rate limit (mirror correct.js: 20 req/min per IP).
+  const allowed = await checkRateLimit(request, 20, env);
+  if (!allowed) {
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+      status: 429,
+      headers: CORS(origin),
+    });
+  }
+
+  // 3. Daily AI quota (cost 1 — two paid services per request).
+  const quota = await checkAIQuota(request, env, uid, 1);
+  if (!quota.allowed) {
+    return new Response(
+      JSON.stringify({
+        error: 'daily_quota_exceeded',
+        message: 'Daily AI limit reached. Resets at midnight UTC.',
+        resetAt: quota.resetAt,
+      }),
+      { status: 429, headers: CORS(origin) },
+    );
+  }
+
+  // 4. Body + clip cap.
   let body;
   try {
     body = await request.json();
@@ -55,9 +114,17 @@ export async function onRequestPost(context) {
   const { level, prompt, audioBase64 } = body || {};
   if (!level || !prompt || typeof audioBase64 !== 'string')
     return err(400, 'missing_fields', origin);
+
+  // Validate level against known CEFR values.
+  const safeLevel = sanitizeParam(level, 2);
+  if (!VALID_CEFR.has(safeLevel)) return err(400, 'invalid_level', origin);
+
+  // Sanitize prompt before interpolation into rubric template.
+  const safePrompt = sanitizeParam(prompt, 500);
+
   if (audioBase64.length > MAX_AUDIO_B64) return err(413, 'audio_too_large', origin);
 
-  // 3. Transcribe with Workers AI Whisper.
+  // 5. Transcribe with Workers AI Whisper.
   let transcript = '';
   try {
     const stt = await env.AI.run('@cf/openai/whisper', { audio: b64ToBytes(audioBase64) });
@@ -69,7 +136,7 @@ export async function onRequestPost(context) {
   const wordCount = transcript ? transcript.split(/\s+/).length : 0;
   const confidence = wordCount >= MIN_WORDS_FOR_CONFIDENCE ? 0.9 : wordCount > 0 ? 0.3 : 0;
 
-  // 4. Rubric-score with Claude.
+  // 6. Rubric-score with Claude.
   let scores;
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -84,7 +151,10 @@ export async function onRequestPost(context) {
         model: CLAUDE_MODEL,
         max_tokens: 100,
         messages: [
-          { role: 'user', content: RUBRIC(level, prompt, transcript || '(no speech detected)') },
+          {
+            role: 'user',
+            content: RUBRIC(safeLevel, safePrompt, transcript || '(no speech detected)'),
+          },
         ],
       }),
     });
