@@ -132,7 +132,7 @@ const PASS_THRESHOLD = 0.8; // 80% per skill AND overall
 
 // ── Read / write state ────────────────────────────────────────────────────────
 
-function emptyCheckpointState(): CheckpointState {
+export function emptyCheckpointState(): CheckpointState {
   return {
     lastCheckpointAt: null,
     activeDaysAtLastCheckpoint: 0,
@@ -160,7 +160,13 @@ export function getCertificationState(): CertificationState {
     if (!raw) return emptyState();
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== 'object') return emptyState();
-    const state = parsed as Partial<CertificationState> & { v?: number };
+    const state = parsed as {
+      v?: number;
+      passes?: unknown;
+      attempts?: unknown;
+      lastFailedAt?: unknown;
+      checkpoints?: unknown;
+    };
     // Accept v1 (migrate up) and v2. Anything else → empty.
     if (state.v !== 1 && state.v !== 2) return emptyState();
     if (!state.passes || typeof state.passes !== 'object') state.passes = {};
@@ -187,7 +193,7 @@ export function getCertificationState(): CertificationState {
       snoozedUntil: typeof cp.snoozedUntil === 'number' ? cp.snoozedUntil : def.snoozedUntil,
     };
     state.v = 2;
-    return state as CertificationState;
+    return state as unknown as CertificationState;
   } catch {
     return emptyState();
   }
@@ -381,7 +387,8 @@ export function snapshotCertifications(): CertificationState | undefined {
  */
 export function mergeRemoteCertifications(remote: CertificationState | null | undefined): void {
   if (!remote || typeof remote !== 'object') return;
-  if (remote.v !== 1 && remote.v !== 2) return;
+  const remoteV = (remote as { v?: number }).v;
+  if (remoteV !== 1 && remoteV !== 2) return;
   const local = getCertificationState();
 
   // Passes — additive, prefer earlier passedAt
