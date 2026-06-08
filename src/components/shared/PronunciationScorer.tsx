@@ -82,8 +82,8 @@ export default function PronunciationScorer({
       s
         .toLowerCase()
         .replace(/[čć]/g, 'c')
-        .replace(/[šš]/g, 's')
-        .replace(/[žž]/g, 'z')
+        .replace(/š/g, 's')
+        .replace(/ž/g, 'z')
         .replace(/đ/g, 'd')
         .replace(/[.,!?;:'"]/g, '')
         .trim();
@@ -359,9 +359,14 @@ export default function PronunciationScorer({
 
       setAzureResult(data);
       setState('scored');
-      const overallScore = typeof data['overall'] === 'number' ? data['overall'] : 0;
+      // A "successful" Azure response missing a numeric `overall` is NOT a real acoustic
+      // score — emit null (recognized but not scored) rather than a fabricated 0. This is
+      // distinct from the translation-only path: a missing-overall is not a translation match,
+      // so we do NOT set recognizedViaTranslation here.
+      const overallScore = typeof data['overall'] === 'number' ? data['overall'] : null;
       if (onScore) onScore({ spoken: targetText, score: overallScore });
-      fetchCoaching(targetText, overallScore);
+      // No numeric score → nothing to coach on (mirrors the translation-only null path).
+      if (overallScore !== null) fetchCoaching(targetText, overallScore);
     } catch (fetchErr) {
       clearTimeout(tid);
       console.warn(
