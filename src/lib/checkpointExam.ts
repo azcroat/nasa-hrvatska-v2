@@ -3,7 +3,7 @@ import type { CefrLevel } from './cefr.js';
 import { CEFR_ORDER, cefrRank } from './cefr.js';
 import type { SkillKey, CertificationState } from './cefrCertification.js';
 import { buildCheckpointBlueprint } from './examBlueprint.js';
-import { composeExam, type ComposerBanks, type ExamItem, type Rng } from './examComposer.js';
+import { composeExam, pick, type ComposerBanks, type ExamItem, type Rng } from './examComposer.js';
 import { getNextTestFor } from '../data/cefrEquivalencyItems.js';
 import { getSpeakingTasks, type SpeakingTask } from '../data/speakingTasks.js';
 import { CHECKPOINT_CORE_COUNT } from './checkpointConfig.js';
@@ -42,16 +42,6 @@ function questionsForLevel(level: CefrLevel): RunnerQuestion[] {
   }));
 }
 
-function sample<T>(arr: T[], n: number, rng: Rng): T[] {
-  const pool = [...arr];
-  const out: T[] = [];
-  while (out.length < n && pool.length > 0) {
-    const idx = Math.floor(rng() * pool.length) % pool.length;
-    out.push(pool.splice(idx, 1)[0]!);
-  }
-  return out;
-}
-
 /**
  * Builds a concrete checkpoint exam: CHECKPOINT_CORE_COUNT current-level
  * questions, 2 retention questions from below (weak-skill-weighted, via the
@@ -75,23 +65,24 @@ export function buildCheckpointExam(
     itemsByLevel[lvl] = qs.map<ExamItem>((q) => ({ id: q.id, skill: q.skill, level: q.level }));
   }
 
+  const tasks = getSpeakingTasks(level);
   const speakingFlagged = (certState.checkpoints.focusSkills[level] ?? []).includes(
     'speaking' as SkillKey,
   );
   const bp = buildCheckpointBlueprint(level, { speakingFlagged });
   const banks: ComposerBanks = {
     itemsByLevel,
-    speakingTasksByLevel: { [level]: getSpeakingTasks(level).map((t) => ({ id: t.id })) },
+    speakingTasksByLevel: { [level]: tasks.map((t) => ({ id: t.id })) },
   };
   const composed = composeExam(bp, banks, { weakTopics: weakSkills }, rng);
 
   // Core: composer returns ALL current-level items → sample CHECKPOINT_CORE_COUNT.
-  const core = sample(composed.coreItems, CHECKPOINT_CORE_COUNT, rng)
+  const core = pick(composed.coreItems, CHECKPOINT_CORE_COUNT, rng)
     .map((it) => lookup.get(it.id)!)
     .filter(Boolean);
   const retention = composed.retentionItems.map((it) => lookup.get(it.id)!).filter(Boolean);
 
-  const tasksById = new Map(getSpeakingTasks(level).map((t) => [t.id, t]));
+  const tasksById = new Map(tasks.map((t) => [t.id, t]));
   const speakingTasks = composed.speakingTasks.map((s) => tasksById.get(s.id)!).filter(Boolean);
 
   return { level, questions: [...core, ...retention], speaking: { level, tasks: speakingTasks } };

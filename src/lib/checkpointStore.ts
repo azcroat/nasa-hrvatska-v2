@@ -3,6 +3,7 @@ import {
   getCertificationState,
   writeCertificationState,
   demoteOneLevel,
+  getCertifiedLevel,
   type SkillScores,
   type CertificationAttempt,
 } from './cefrCertification.js';
@@ -58,6 +59,15 @@ export function recordCheckpointResult(opts: {
     writeCertificationState(state); // cadence NOT refreshed
   } else {
     // demote: persist attempt+focus first, then demote (demoteOneLevel writes again).
+    // Invariant: demoteOneLevel() derives its `from` level from getCertifiedLevel(),
+    // which the App layer guarantees equals opts.level at this call site. Warn (do
+    // NOT throw) in dev if that ever diverges, so the mismatch is visible without
+    // altering happy-path behavior.
+    if (import.meta.env.DEV && opts.level !== getCertifiedLevel()) {
+      console.warn(
+        `[checkpointStore] demote level mismatch: opts.level=${opts.level} != certified=${getCertifiedLevel()}`,
+      );
+    }
     state.checkpoints.lastCheckpointAt = now;
     state.checkpoints.activeDaysAtLastCheckpoint = opts.activeDayCount;
     writeCertificationState(state);

@@ -26,7 +26,8 @@ export interface ComposedExam {
 /** Injected RNG returning [0,1); pass a seeded fn in tests (no Math.random in pure code). */
 export type Rng = () => number;
 
-function pick<T>(arr: T[], n: number, rng: Rng): T[] {
+/** Randomly selects up to `n` distinct items from `arr` using the injected rng. */
+export function pick<T>(arr: T[], n: number, rng: Rng): T[] {
   const pool = [...arr];
   const out: T[] = [];
   while (out.length < n && pool.length > 0) {

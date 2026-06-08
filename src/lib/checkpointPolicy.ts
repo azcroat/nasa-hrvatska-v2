@@ -1,6 +1,6 @@
 // src/lib/checkpointPolicy.ts
 import type { CefrLevel } from './cefr.js';
-import { CEFR_ORDER } from './cefr.js';
+import { levelBelow } from './cefr.js';
 import { computePassed } from './cefrCertification.js';
 import type { SkillScores, SkillKey, CheckpointState } from './cefrCertification.js';
 
@@ -24,11 +24,6 @@ const ORDER: SkillKey[] = ['vocab', 'grammar', 'reading', 'listening', 'speaking
 
 function presentSkills(scores: SkillScores): Array<[SkillKey, number]> {
   return ORDER.filter((k) => scores[k] !== undefined).map((k) => [k, scores[k] as number]);
-}
-
-function levelBelow(level: CefrLevel): CefrLevel | null {
-  const idx = CEFR_ORDER.indexOf(level);
-  return idx <= 0 ? null : CEFR_ORDER[idx - 1]!;
 }
 
 export interface InterpretInput {

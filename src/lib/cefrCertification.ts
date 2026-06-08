@@ -43,7 +43,7 @@
  */
 
 import type { CefrLevel } from './cefr.js';
-import { CEFR_ORDER, cefrRank, getEffectiveLevel } from './cefr.js';
+import { CEFR_ORDER, cefrRank, getEffectiveLevel, levelBelow } from './cefr.js';
 
 // ── Feature flag ──────────────────────────────────────────────────────────────
 //
@@ -232,13 +232,6 @@ export function getCertifiedLevel(): CefrLevel {
     }
   }
   return best;
-}
-
-/** The level one rank below `level`, or null if `level` is the floor (A1). */
-function levelBelow(level: CefrLevel): CefrLevel | null {
-  const idx = CEFR_ORDER.indexOf(level);
-  if (idx <= 0) return null;
-  return CEFR_ORDER[idx - 1]!;
 }
 
 /**
