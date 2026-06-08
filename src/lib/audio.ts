@@ -711,6 +711,156 @@ export async function speak(text: string): Promise<string> {
   return 'azure';
 }
 
+/** POST to /api/tts with an explicit prosody descriptor (pitch, contour, rate).
+ *  Uses the same `_ttsPost` path as `speakAzure` — native-safe (Capacitor endpoint
+ *  fallback included). The prosody object is included in the cache key so different
+ *  contours never collide with each other or with the plain speakAzure cache. */
+export async function speakProsody(
+  text: string,
+  prosody: { pitch?: string; contour?: string; rate?: string },
+): Promise<boolean> {
+  if (!text || !text.trim()) return false;
+  dbgInfo(
+    `[TTS] speakProsody called | text="${text.slice(0, 40)}" prosody=${JSON.stringify(prosody)} isNative=${isNative()}`,
+  );
+  uA();
+  stopAudio();
+  const myGen = ++_speakGen;
+  const voicePref = getVoicePreference();
+  const prosodyKey = JSON.stringify(prosody);
+  const cacheKey = text + '|prosody:' + prosodyKey + '|' + voicePref;
+  const cached = _cacheGet(cacheKey);
+
+  try {
+    let url: string;
+    let freshBlob: Blob | null = null;
+    if (cached) {
+      dbgInfo('[TTS] speakProsody cache HIT — skipping fetch');
+      url = cached;
+    } else {
+      if (!_ttsAllowed()) {
+        dbgWarn('[TTS] rate limit — speakProsody request blocked');
+        return false;
+      }
+      const body: Record<string, unknown> = { text, prosody };
+      if (voicePref !== 'auto') body.voice = voicePref;
+      _ttsAbort = new AbortController();
+      const timeoutSignal = (
+        AbortSignal as unknown as { timeout?: (ms: number) => AbortSignal }
+      ).timeout?.(15000);
+      const abortSignal = timeoutSignal
+        ? ((AbortSignal as unknown as { any?: (s: AbortSignal[]) => AbortSignal }).any?.([
+            _ttsAbort.signal,
+            timeoutSignal,
+          ]) ?? _ttsAbort.signal)
+        : _ttsAbort.signal;
+      const r = await _ttsPost(body, abortSignal);
+      _ttsAbort = null;
+      if (_speakGen !== myGen) {
+        dbgWarn('[TTS] speakProsody generation mismatch after fetch — aborting');
+        return false;
+      }
+      if (!r || !r.ok) {
+        const backends = r?.headers.get('x-tts-backends') || 'none';
+        const rb = r ? await r.text().catch(() => '') : 'no response (all endpoints failed)';
+        dbgError(
+          `[TTS] speakProsody HTTP ${r?.status ?? 'N/A'} backends=${backends} — ${rb.slice(0, 200)}`,
+        );
+        return false;
+      }
+      const backends = r.headers.get('x-tts-backends') || 'unknown';
+      freshBlob = await r.blob();
+      dbgInfo(
+        `[TTS] speakProsody blob received size=${freshBlob.size} type="${freshBlob.type}" backends=${backends}`,
+      );
+      if (_speakGen !== myGen) return false;
+      const reader = new FileReader();
+      url = await new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(freshBlob!);
+      });
+      dbgInfo(`[TTS] speakProsody data URL ready (length=${url.length})`);
+      _cacheSet(cacheKey, url);
+    }
+
+    // iOS: use HTMLAudio directly (same reason as speakAzure)
+    if (_ctx && !_iOS) {
+      dbgInfo(`[TTS] speakProsody trying AudioContext path — state="${_ctx.state}"`);
+      try {
+        await _ctx.resume();
+        if (_ctx.state !== 'running') {
+          throw new Error(`AudioContext not running after resume (state="${_ctx.state}")`);
+        }
+        if (_speakGen !== myGen) return false;
+        const ab = freshBlob ? await freshBlob.arrayBuffer() : _dataUrlToArrayBuffer(url);
+        if (_speakGen !== myGen) return false;
+        const decoded = await _ctx.decodeAudioData(ab);
+        if (_speakGen !== myGen) return false;
+        const src = _ctx.createBufferSource();
+        src.buffer = decoded;
+        src.playbackRate.value = getSpeechRate();
+        src.connect(_ctx.destination);
+        _currentAudio = {
+          pause: () => {
+            try {
+              src.stop();
+            } catch {}
+          },
+          currentTime: 0,
+        };
+        src.start(0);
+        dbgInfo('[TTS] speakProsody AudioContext playback started');
+        await new Promise<void>((resolve) => {
+          src.onended = () => resolve();
+        });
+        dbgInfo('[TTS] speakProsody AudioContext playback ended — success');
+        return true;
+      } catch (e) {
+        dbgError('[TTS] speakProsody AudioContext path FAILED — falling through to HTMLAudio:', e);
+        if (_speakGen !== myGen) return false;
+      }
+    }
+
+    // HTMLAudio path
+    if (_speakGen !== myGen) return false;
+    const a: HTMLAudioElement = _htmlAudio ?? new Audio();
+    if (_htmlAudio) {
+      try {
+        _htmlAudio.pause();
+      } catch {}
+      _htmlAudio.currentTime = 0;
+    }
+    a.volume = 1.0;
+    a.playbackRate = getSpeechRate();
+    _currentAudio = a;
+    a.src = url;
+    try {
+      await a.play();
+      dbgInfo('[TTS] speakProsody HTMLAudio play() started');
+    } catch (playErr) {
+      dbgError('[TTS] speakProsody HTMLAudio play() FAILED:', playErr);
+      return false;
+    }
+    await new Promise<void>((resolve) => {
+      a.addEventListener('ended', () => resolve(), { once: true });
+      a.addEventListener(
+        'error',
+        (ev) => {
+          dbgError('[TTS] speakProsody HTMLAudio error event:', (ev as ErrorEvent).message || ev);
+          resolve();
+        },
+        { once: true },
+      );
+      a.addEventListener('pause', () => resolve(), { once: true });
+      a.addEventListener('abort', () => resolve(), { once: true });
+    });
+    return true;
+  } catch (e) {
+    dbgError('[TTS] speakProsody unhandled error:', e);
+    return false;
+  }
+}
+
 export async function speakSlow(text: string): Promise<string> {
   if (!text) return 'none';
   const t = prepTTS(text);

@@ -132,10 +132,28 @@ declare global {
 }
 
 interface PronScore {
-  score: number;
+  // null = no acoustic score available (legacy path has no Azure measurement).
+  // We keep qualitative feedback (match_quality + encouragement) but never a fabricated number.
+  score: number | null;
   match_quality: string;
   phonetic_tips: string[];
   encouragement: string;
+}
+
+// Shared, honest text-similarity ratio (0-100) between a transcript and the target word.
+// This is a RECOGNITION/text signal, NOT an acoustic pronunciation measurement — it is only
+// ever sent to /api/pronunciation-coach (which labels it "text-similarity, not acoustic"),
+// never displayed as a pronunciation %.
+function textSimilarity(a: string, b: string): number {
+  const na = a.toLowerCase().trim();
+  const nb = b.toLowerCase().trim();
+  if (!na || !nb) return 0;
+  if (na === nb) return 100;
+  const longer = na.length >= nb.length ? na : nb;
+  const shorter = na.length >= nb.length ? nb : na;
+  if (longer.length === 0) return 100;
+  const shared = shorter.split('').filter((c: string) => longer.includes(c)).length;
+  return Math.round((shared / longer.length) * 100);
 }
 
 // Map SpeechRecognition error codes to user-friendly messages
@@ -218,16 +236,19 @@ export default function SpeakingScreen({
   // AI pronunciation feedback state
   const [pronScore, setPronScore] = useState<PronScore | null>(null);
 
-  // Per-word accuracy score from PronunciationScorer
+  // Per-word accuracy from PronunciationScorer.
+  // score is a real Azure acoustic % when available, or null when the word was only
+  // recognized (translation-only) / the prompt was open-ended (participation, not acoustic).
   const [currentWordScore, setCurrentWordScore] = useState<{
     spoken: string;
-    score: number;
+    score: number | null;
   } | null>(null);
 
-  // Session scores: array of { word: string, score: number }
-  const [wordScores, setWordScores] = useState<{ word: string; meaning: string; score: number }[]>(
-    [],
-  );
+  // Session scores. score: number = real Azure acoustic %, null = recognized/participated but
+  // not acoustically scored. The summary computes averages over the scored-only subset.
+  const [wordScores, setWordScores] = useState<
+    { word: string; meaning: string; score: number | null }[]
+  >([]);
 
   // Results summary screen (shown before goBack after all words done)
   const [showSummary, setShowSummary] = useState(false);
@@ -303,28 +324,43 @@ export default function SpeakingScreen({
   // Called by PronunciationScorer when it gets a result.
   // If score >= 60, auto-mark the word as done so "Next →" appears immediately —
   // previously users had to also tap "I Said It Correctly!" as a second step.
-  function handleScorerResult({ spoken, score }: { spoken: string; score: number }) {
-    // For open-ended prompts, any response (any spoken words) counts as a pass
+  // score is null when recognized only via English translation (no acoustic score).
+  function handleScorerResult({ spoken, score }: { spoken: string; score: number | null }) {
     const promptType = sw[2] as string | undefined;
     const isOE = OPEN_ENDED_TYPES.includes(promptType ?? '');
-    const effectiveScore = isOE
-      ? spoken.split(/\s+/).filter(Boolean).length >= 5
-        ? 88
-        : 55
-      : score;
 
-    setCurrentWordScore({ spoken, score: effectiveScore });
+    // ── Genuine DISPLAYED value ──────────────────────────────────────────────
+    // The only legitimate pronunciation % is a real Azure acoustic number. Everything else
+    // (translation-only recognition, open-ended completion) is stored as null — recognized /
+    // participated, but NOT acoustically scored. We never fabricate a number for display.
+    const displayScore: number | null = isOE ? null : score;
+
+    // ── Internal flow-control decision (NOT a displayed score) ───────────────
+    // Advance when: real Azure score is good enough (>=60), OR recognized via translation
+    // (score === null on a word prompt), OR an open-ended prompt was completed (>=5 words).
+    const oeCompleted = isOE && spoken.split(/\s+/).filter(Boolean).length >= 5;
+    const recognizedViaTranslation = !isOE && score === null;
+    const acousticPass = typeof score === 'number' && score >= 60;
+    const shouldAdvance = oeCompleted || recognizedViaTranslation || acousticPass;
+
+    setCurrentWordScore({ spoken, score: displayScore });
     setWordScores((prev) => {
       const existing = prev.find((ws) => ws.word === sw[0]);
       if (existing) {
-        return prev.map((ws) =>
-          ws.word === sw[0] ? { ...ws, score: Math.max(ws.score, effectiveScore) } : ws,
-        );
+        // Keep the best genuine acoustic number; never let null clobber a real score,
+        // and never let a real score regress.
+        const mergedScore =
+          existing.score === null
+            ? displayScore
+            : displayScore === null
+              ? existing.score
+              : Math.max(existing.score, displayScore);
+        return prev.map((ws) => (ws.word === sw[0] ? { ...ws, score: mergedScore } : ws));
       }
-      return [...prev, { word: sw[0] as string, meaning: sw[1] as string, score: effectiveScore }];
+      return [...prev, { word: sw[0] as string, meaning: sw[1] as string, score: displayScore }];
     });
-    // Auto-advance sr state when pronunciation is good enough (≥60 = close enough)
-    if (effectiveScore >= 60 && sr !== 'ok') {
+
+    if (shouldAdvance && sr !== 'ok') {
       sSr('ok');
       sSsc((s: number) => s + 1);
     }
@@ -378,12 +414,14 @@ export default function SpeakingScreen({
   }
 
   async function analyzePronunciation(transcript: string, targetWord: string) {
-    // Fallback score used whenever API is unavailable or returns garbage.
-    // pronScore must ALWAYS be set to a non-null value — leaving it null
-    // keeps the AIProgressBar visible forever.
+    // This legacy Web-Speech path has NO acoustic measurement — Web Speech only tells us
+    // WHAT was recognized, never how well it was pronounced. So score is ALWAYS null here
+    // (no fabricated number). We keep a qualitative match_quality + the coach's text feedback.
+    // pronScore must ALWAYS be set to a non-null OBJECT — leaving the object null keeps the
+    // AIProgressBar spinning forever — but its .score field is null (unscored).
     const isClose = transcript.toLowerCase().includes(targetWord.toLowerCase().slice(0, 3));
-    const fallback = {
-      score: isClose ? 68 : 38,
+    const fallback: PronScore = {
+      score: null,
       match_quality: isClose ? 'close' : 'off',
       phonetic_tips: [],
       encouragement: isClose ? 'Blizu! / Close!' : 'Pokušaj još jednom! / Try again!',
@@ -397,6 +435,10 @@ export default function SpeakingScreen({
       return;
     }
 
+    // Real text-similarity ratio (recognition signal, not acoustic). The endpoint labels this
+    // as "text-similarity, not acoustic", so sending a genuine ratio is honest.
+    const similarity = textSimilarity(transcript, targetWord);
+
     const controller = new AbortController();
     const tid = setTimeout(() => controller.abort(), 7000); // 7s max — never block UI
 
@@ -404,7 +446,12 @@ export default function SpeakingScreen({
       const res = await apiFetch('/api/pronunciation-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ word: targetWord, spoken: transcript, score: 50, level: 'B1' }),
+        body: JSON.stringify({
+          word: targetWord,
+          spoken: transcript,
+          score: similarity,
+          level: 'B1',
+        }),
         signal: controller.signal,
       });
       clearTimeout(tid);
@@ -415,8 +462,8 @@ export default function SpeakingScreen({
       const data = await res.json();
       if (data && data.feedback) {
         setPronScore({
-          score: 70,
-          match_quality: 'close',
+          score: null, // no acoustic score on this path — keep the coach feedback, drop the number
+          match_quality: isClose ? 'close' : 'partial',
           phonetic_tips: (data.drills || []).map((d: any) => d.tip).filter(Boolean),
           encouragement: data.feedback,
         });
@@ -482,8 +529,10 @@ export default function SpeakingScreen({
           sSr('ok');
           sSsc((s: number) => s + 1);
         }
+        // Open-ended prompts are a PARTICIPATION signal, not an acoustic measurement —
+        // never a pronunciation %. score: null = recognized/responded but not scored.
         setPronScore({
-          score: matched ? 85 : 45,
+          score: null,
           match_quality: matched ? 'close' : 'off',
           phonetic_tips: [],
           encouragement: matched

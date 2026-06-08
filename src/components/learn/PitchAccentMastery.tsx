@@ -7,6 +7,7 @@
  */
 import React, { useState, useRef, useEffect } from 'react';
 import { speak } from '../../data';
+import { speakProsody } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { knightSpeak } from '../../lib/knightSpeak.js';
@@ -19,6 +20,18 @@ const LESSON_BY_ACCENT = {
   kratkouzlazni: PITCH_ACCENT_LESSONS.find((l) => l.id === 'short_rising'),
   dugosilazni: PITCH_ACCENT_LESSONS.find((l) => l.id === 'long_falling'),
   dugouzlazni: PITCH_ACCENT_LESSONS.find((l) => l.id === 'long_rising'),
+};
+
+// ── Prosody descriptors for each accent ───────────────────────────────────────
+// These are approximate SSML contours; they cannot perfectly reproduce native
+// pitch-accent but create an acoustically DIFFERENT rendering for each accent type.
+// The two members of any minimal pair always have different accents, so they will
+// always receive different prosody descriptors — giving learners an audible contrast.
+const ACCENT_PROSODY: Record<string, { pitch?: string; contour?: string; rate?: string }> = {
+  kratkosilazni: { rate: '+0%', contour: '(0%,+8%) (100%,-22%)' }, // short-falling: starts high, drops sharply
+  dugosilazni: { rate: '-25%', contour: '(0%,+12%) (100%,-28%)' }, // long-falling: sustained then drops
+  kratkouzlazni: { rate: '+0%', contour: '(0%,-10%) (100%,+15%)' }, // short-rising: dips then rises
+  dugouzlazni: { rate: '-25%', contour: '(0%,-15%) (100%,+22%)' }, // long-rising: sustained low-to-high
 };
 
 // ── Accent system data ────────────────────────────────────────────────────────
@@ -69,18 +82,18 @@ const ACCENTS = [
     ],
     pairs: [
       {
-        a: { hr: 'grȁd', en: 'hail', audio: 'grad' },
-        b: { hr: 'grȃd', en: 'city', audio: 'grad' },
+        a: { hr: 'grȁd', en: 'hail', audio: 'grad', accentId: 'kratkosilazni' },
+        b: { hr: 'grȃd', en: 'city', audio: 'grad', accentId: 'dugosilazni' },
         note: 'Same spelling in everyday text — context tells you which one',
       },
       {
-        a: { hr: 'pȁs', en: 'dog', audio: 'pas' },
-        b: { hr: 'pȃs', en: 'belt / waist', audio: 'pas' },
+        a: { hr: 'pȁs', en: 'dog', audio: 'pas', accentId: 'kratkosilazni' },
+        b: { hr: 'pȃs', en: 'belt / waist', audio: 'pas', accentId: 'dugosilazni' },
         note: 'Crucial for market shopping — different objects entirely',
       },
       {
-        a: { hr: 'lȕka', en: 'harbor', audio: 'luka' },
-        b: { hr: 'lûka', en: 'Luke (name)', audio: 'luka' },
+        a: { hr: 'lȕka', en: 'harbor', audio: 'luka', accentId: 'kratkosilazni' },
+        b: { hr: 'lûka', en: 'Luke (name)', audio: 'luka', accentId: 'dugouzlazni' },
         note: 'Place vs person — pitch accent makes the difference',
       },
     ],
@@ -148,18 +161,28 @@ const ACCENTS = [
     ],
     pairs: [
       {
-        a: { hr: 'vòda', en: 'water', audio: 'voda' },
-        b: { hr: 'vȍda', en: 'water (archaic/dialectal)', audio: 'voda' },
+        a: { hr: 'vòda', en: 'water', audio: 'voda', accentId: 'kratkouzlazni' },
+        b: {
+          hr: 'vȍda',
+          en: 'water (archaic/dialectal)',
+          audio: 'voda',
+          accentId: 'kratkosilazni',
+        },
         note: 'Standard Croatian uses the rising form — the most common Croatian word for water',
       },
       {
-        a: { hr: 'nòga', en: 'leg (nom.)', audio: 'noga' },
-        b: { hr: 'nòge', en: 'legs / of the leg (gen.)', audio: 'noge' },
-        note: 'The accent stays short-rising in related forms',
+        a: { hr: 'nòga', en: 'leg (nom.)', audio: 'noga', accentId: 'kratkouzlazni' },
+        b: {
+          hr: 'nȏga',
+          en: 'leg (some dialects, long-rising variant)',
+          audio: 'noga',
+          accentId: 'dugouzlazni',
+        },
+        note: 'Hear the difference: short-rising vs long-rising on the first syllable',
       },
       {
-        a: { hr: 'glàva', en: 'head', audio: 'glava' },
-        b: { hr: 'glâva', en: 'head (some dialects)', audio: 'glava' },
+        a: { hr: 'glàva', en: 'head', audio: 'glava', accentId: 'kratkouzlazni' },
+        b: { hr: 'glâva', en: 'head (some dialects)', audio: 'glava', accentId: 'dugosilazni' },
         note: 'Standard uses kratkouzlazni; Dalmatian variants may differ',
       },
     ],
@@ -228,18 +251,23 @@ const ACCENTS = [
     ],
     pairs: [
       {
-        a: { hr: 'grȃd', en: 'city', audio: 'grad' },
-        b: { hr: 'grȁd', en: 'hail', audio: 'grad' },
+        a: { hr: 'grȃd', en: 'city', audio: 'grad', accentId: 'dugosilazni' },
+        b: { hr: 'grȁd', en: 'hail', audio: 'grad', accentId: 'kratkosilazni' },
         note: 'The word for "city" sounds more important — the long vowel adds weight',
       },
       {
-        a: { hr: 'pȃs', en: 'belt / waist', audio: 'pas' },
-        b: { hr: 'pȁs', en: 'dog', audio: 'pas' },
+        a: { hr: 'pȃs', en: 'belt / waist', audio: 'pas', accentId: 'dugosilazni' },
+        b: { hr: 'pȁs', en: 'dog', audio: 'pas', accentId: 'kratkosilazni' },
         note: 'Long vowel = belt; short vowel = dog. Context is everything.',
       },
       {
-        a: { hr: 'rȃd', en: 'work (noun)', audio: 'rad' },
-        b: { hr: 'ràd', en: 'willing/glad to (as in rad ću)', audio: 'rad' },
+        a: { hr: 'rȃd', en: 'work (noun)', audio: 'rad', accentId: 'dugosilazni' },
+        b: {
+          hr: 'ràd',
+          en: 'willing/glad to (as in rad ću)',
+          audio: 'rad',
+          accentId: 'kratkouzlazni',
+        },
         note: '"Rado" (gladly) has a different pitch pattern than "rad" (work)',
       },
     ],
@@ -304,26 +332,26 @@ const ACCENTS = [
         tip: 'Home furniture — the word itself sounds solid yet uplifted',
       },
       {
-        hr: 'brȃt',
-        en: 'brother',
-        audio: 'brat',
-        tip: 'Wait — brat is actually dugosilazni. This is one learners often confuse.',
+        hr: 'mȏre',
+        en: 'sea',
+        audio: 'more',
+        tip: 'The Dalmatian spirit — hear the long, rising quality on the first syllable',
       },
     ],
     pairs: [
       {
-        a: { hr: 'lûka', en: 'Luke (name)', audio: 'luka' },
-        b: { hr: 'lȕka', en: 'harbor', audio: 'luka' },
+        a: { hr: 'lûka', en: 'Luke (name)', audio: 'luka', accentId: 'dugouzlazni' },
+        b: { hr: 'lȕka', en: 'harbor', audio: 'luka', accentId: 'kratkosilazni' },
         note: 'Long-rising for the person, short-falling for the place',
       },
       {
-        a: { hr: 'rûka', en: 'hand/arm', audio: 'ruka' },
-        b: { hr: 'rùka', en: 'hand (dialectal variant)', audio: 'ruka' },
+        a: { hr: 'rûka', en: 'hand/arm', audio: 'ruka', accentId: 'dugouzlazni' },
+        b: { hr: 'rùka', en: 'hand (dialectal variant)', audio: 'ruka', accentId: 'kratkouzlazni' },
         note: 'Standard Croatian uses the long-rising form for "hand"',
       },
       {
-        a: { hr: 'nȏž', en: 'knife (nom.)', audio: 'nož' },
-        b: { hr: 'nòžu', en: 'to/for the knife (dat.)', audio: 'nožu' },
+        a: { hr: 'nȏž', en: 'knife (nom.)', audio: 'nož', accentId: 'dugouzlazni' },
+        b: { hr: 'nòžu', en: 'to/for the knife (dat.)', audio: 'nožu', accentId: 'kratkouzlazni' },
         note: 'Case endings can shift the accent — this is advanced, but notice the change',
       },
     ],
@@ -988,11 +1016,16 @@ export default function PitchAccentMastery({
               <strong style={{ color: 'var(--heading)' }}>Minimal pairs</strong> are words that look
               identical in everyday text but have different pitch accents — and therefore different
               meanings. Croatian accent marks are only used in dictionaries and linguistic texts, so
-              spoken context is crucial.
+              spoken context is crucial.{' '}
+              <span style={{ fontStyle: 'italic', color: '#a16207' }}>
+                Audio uses an approximate synthesized pitch contour — not a native recording, but
+                acoustically distinct between the two members.
+              </span>
             </div>
             {accent.pairs.map((pair, i) => (
               <div
                 key={i}
+                data-testid={`pair-card-${accent.id}-${i}`}
                 style={{
                   background: 'var(--card)',
                   border: '1px solid var(--card-b)',
@@ -1003,7 +1036,15 @@ export default function PitchAccentMastery({
               >
                 <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
                   <button
-                    onClick={() => speak(pair.a.audio)}
+                    data-testid={`pair-member-a-${accent.id}-${i}`}
+                    onClick={() =>
+                      speakProsody(
+                        pair.a.audio,
+                        ACCENT_PROSODY[
+                          (pair.a as { accentId?: string }).accentId ?? 'kratkosilazni'
+                        ] ?? ACCENT_PROSODY.kratkosilazni!,
+                      )
+                    }
                     style={{
                       flex: 1,
                       padding: '14px 10px',
@@ -1039,7 +1080,15 @@ export default function PitchAccentMastery({
                     vs
                   </div>
                   <button
-                    onClick={() => speak(pair.b.audio)}
+                    data-testid={`pair-member-b-${accent.id}-${i}`}
+                    onClick={() =>
+                      speakProsody(
+                        pair.b.audio,
+                        ACCENT_PROSODY[
+                          (pair.b as { accentId?: string }).accentId ?? 'kratkouzlazni'
+                        ] ?? ACCENT_PROSODY.kratkouzlazni!,
+                      )
+                    }
                     style={{
                       flex: 1,
                       padding: '14px 10px',

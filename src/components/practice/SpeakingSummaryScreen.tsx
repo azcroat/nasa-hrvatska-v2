@@ -4,8 +4,12 @@ import { H } from '../../data';
 interface WordScore {
   word: string;
   meaning: string;
-  score: number;
+  // null = recognized / practiced but NOT acoustically scored (no Azure number).
+  score: number | null;
 }
+
+// Narrowed type for the scored-only subset (score guaranteed numeric).
+type ScoredWord = WordScore & { score: number };
 
 interface Props {
   wordScores: WordScore[];
@@ -27,18 +31,25 @@ function scoreBadgeLabel(s: number) {
 }
 
 export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
-  const scored = wordScores;
+  const totalWords = wordScores.length;
+  // Averages / best / worst are computed over the ACOUSTICALLY-SCORED subset only —
+  // null entries (recognized but not scored) never drag the average toward 0.
+  const scored: ScoredWord[] = wordScores.filter(
+    (ws): ws is ScoredWord => typeof ws.score === 'number',
+  );
+  const scoredCount = scored.length;
   const avg =
-    scored.length > 0
-      ? Math.round(scored.reduce((sum: number, ws: WordScore) => sum + ws.score, 0) / scored.length)
+    scoredCount > 0
+      ? Math.round(scored.reduce((sum: number, ws: ScoredWord) => sum + ws.score, 0) / scoredCount)
       : null;
+  // best/worst highlights only make sense with 2+ scored words.
   const best =
-    scored.length > 0
-      ? scored.reduce((b: WordScore, ws: WordScore) => (ws.score > b.score ? ws : b), scored[0]!)
+    scoredCount >= 2
+      ? scored.reduce((b: ScoredWord, ws: ScoredWord) => (ws.score > b.score ? ws : b), scored[0]!)
       : null;
   const worst =
-    scored.length > 0
-      ? scored.reduce((b: WordScore, ws: WordScore) => (ws.score < b.score ? ws : b), scored[0]!)
+    scoredCount >= 2
+      ? scored.reduce((b: ScoredWord, ws: ScoredWord) => (ws.score < b.score ? ws : b), scored[0]!)
       : null;
 
   return (
@@ -101,6 +112,21 @@ export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
                     ? '🟠 Keep practicing!'
                     : '🔴 Keep at it!'}
             </div>
+          </div>
+        )}
+
+        {/* Honest coverage note when some words were recognized but not acoustically scored */}
+        {avg !== null && scoredCount < totalWords && (
+          <div
+            style={{
+              fontSize: 'var(--text-xs)',
+              color: 'var(--subtext)',
+              marginTop: -8,
+              marginBottom: 16,
+            }}
+          >
+            {scoredCount} of {totalWords} words acoustically scored (others recognized but not
+            scored)
           </div>
         )}
 
@@ -196,8 +222,9 @@ export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
           </div>
         )}
 
-        {/* Per-word breakdown */}
-        {scored.length > 0 && (
+        {/* Per-word breakdown — covers ALL practiced words. Acoustically-scored words show their
+            real %; recognized-but-unscored words show a neutral ✓ (no fabricated number). */}
+        {totalWords > 0 && (
           <div
             style={{
               background: 'var(--card)',
@@ -220,8 +247,15 @@ export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
             >
               Word-by-word breakdown
             </div>
-            {scored.map((ws: WordScore, idx: number) => {
-              const colors = scoreBadgeColor(ws.score);
+            {wordScores.map((ws: WordScore, idx: number) => {
+              const hasNumber = typeof ws.score === 'number';
+              const colors = hasNumber
+                ? scoreBadgeColor(ws.score as number)
+                : {
+                    bg: 'var(--success-bg)',
+                    border: 'var(--success-b)',
+                    text: 'var(--success)',
+                  };
               return (
                 <div
                   key={idx}
@@ -230,7 +264,7 @@ export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
                     alignItems: 'center',
                     gap: 12,
                     padding: '10px 16px',
-                    borderBottom: idx < scored.length - 1 ? '1px solid var(--card-b)' : 'none',
+                    borderBottom: idx < wordScores.length - 1 ? '1px solid var(--card-b)' : 'none',
                   }}
                 >
                   <div
@@ -249,7 +283,7 @@ export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
                       color: colors.text,
                     }}
                   >
-                    {ws.score}%
+                    {hasNumber ? `${ws.score}%` : '✓'}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div
@@ -277,7 +311,7 @@ export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {scoreBadgeLabel(ws.score)}
+                    {hasNumber ? scoreBadgeLabel(ws.score as number) : '✓ Recognized'}
                   </div>
                 </div>
               );
@@ -285,8 +319,27 @@ export default function SpeakingSummaryScreen({ wordScores, onDone }: Props) {
           </div>
         )}
 
-        {/* No scores — all self-assessed */}
-        {scored.length === 0 && (
+        {/* Zero acoustic scores — neutral completion summary, NO fabricated average */}
+        {scoredCount === 0 && totalWords > 0 && (
+          <div
+            style={{
+              fontSize: 'var(--text-base)',
+              fontWeight: 700,
+              color: 'var(--heading)',
+              marginBottom: 20,
+              padding: '16px',
+              background: 'var(--bar-bg)',
+              borderRadius: 12,
+              border: '1.5px solid var(--card-b)',
+            }}
+          >
+            🎤 {totalWords} {totalWords === 1 ? 'word' : 'words'} practiced ✓ — accent not
+            acoustically scored this session.
+          </div>
+        )}
+
+        {/* Truly empty session — no words at all */}
+        {totalWords === 0 && (
           <div
             style={{
               fontSize: 'var(--text-sm)',

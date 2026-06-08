@@ -37,7 +37,8 @@ function scoreBadgeLabel(s: number) {
 }
 
 interface PronScore {
-  score: number;
+  // null = no acoustic score (legacy/translation/open-ended) — render qualitative status, no %.
+  score: number | null;
   match_quality?: string;
   phonetic_tips?: string[];
   encouragement?: string;
@@ -55,14 +56,14 @@ interface SpeakingPracticePanelProps {
   currentLang: string;
   waveform: number[];
   pronScore: PronScore | null;
-  currentWordScore: { score: number } | null;
+  currentWordScore: { score: number | null } | null;
   recordingURL: string | null;
   onStartMic: () => void;
   onStopMic: () => void;
   onSelfAssess: () => void;
   onAdvanceWord: () => void;
   onClearRecording: () => void;
-  onScore: (r: { spoken: string; score: number }) => void;
+  onScore: (r: { spoken: string; score: number | null }) => void;
 }
 
 export default function SpeakingPracticePanel({
@@ -249,23 +250,41 @@ export default function SpeakingPracticePanel({
         </div>
       )}
 
-      {/* Per-word score badge shown after PronunciationScorer fires */}
-      {currentWordScore !== null && (
-        <div
-          style={{
-            marginTop: 10,
-            padding: '10px 16px',
-            borderRadius: 12,
-            background: scoreBadgeColor(currentWordScore.score).bg,
-            border: `1.5px solid ${scoreBadgeColor(currentWordScore.score).border}`,
-            fontWeight: 800,
-            fontSize: 'var(--text-base)',
-            color: scoreBadgeColor(currentWordScore.score).text,
-          }}
-        >
-          {scoreBadgeLabel(currentWordScore.score)}
-        </div>
-      )}
+      {/* Per-word badge shown after PronunciationScorer fires.
+          A real Azure number → numeric "%" badge. null (recognized / participated but not
+          acoustically scored) → neutral qualitative badge, NO fabricated percentage. */}
+      {currentWordScore !== null &&
+        (typeof currentWordScore.score === 'number' ? (
+          <div
+            style={{
+              marginTop: 10,
+              padding: '10px 16px',
+              borderRadius: 12,
+              background: scoreBadgeColor(currentWordScore.score).bg,
+              border: `1.5px solid ${scoreBadgeColor(currentWordScore.score).border}`,
+              fontWeight: 800,
+              fontSize: 'var(--text-base)',
+              color: scoreBadgeColor(currentWordScore.score).text,
+            }}
+          >
+            {scoreBadgeLabel(currentWordScore.score)}
+          </div>
+        ) : (
+          <div
+            style={{
+              marginTop: 10,
+              padding: '10px 16px',
+              borderRadius: 12,
+              background: 'var(--success-bg)',
+              border: '1.5px solid var(--success-b)',
+              fontWeight: 800,
+              fontSize: 'var(--text-base)',
+              color: 'var(--success)',
+            }}
+          >
+            ✓ Recognized (accent not scored)
+          </div>
+        ))}
 
       {/* Legacy mic button + AI score panel — only shown when BOTH Web Speech AND MediaRecorder
           are absent (PronunciationScorer handles all cases where scorerCanRun is true) */}
@@ -367,68 +386,96 @@ export default function SpeakingPracticePanel({
             />
           )}
 
-          {/* AI pronunciation score */}
-          {pronScore && (
-            <div
-              data-testid="speaking-result"
-              className="c"
-              style={{
-                padding: '12px 16px',
-                marginTop: 8,
-                borderLeft: `4px solid ${pronScore.score >= 80 ? 'var(--success)' : pronScore.score >= 60 ? 'var(--info)' : 'var(--error)'}`,
-                animation: 'fadeIn .3s ease',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+          {/* AI pronunciation feedback.
+              When score is a real number → numeric "X/100" + threshold emoji/color.
+              When score is null (no acoustic measurement on this legacy path) → qualitative
+              status from match_quality + coach feedback, NEUTRAL border (no red/green by number). */}
+          {pronScore &&
+            (() => {
+              const s = pronScore.score;
+              const hasNumber = typeof s === 'number';
+              const accent = !hasNumber
+                ? 'var(--info)'
+                : s >= 80
+                  ? 'var(--success)'
+                  : s >= 60
+                    ? 'var(--info)'
+                    : 'var(--error)';
+              const iconBg = !hasNumber
+                ? 'var(--info-bg)'
+                : s >= 80
+                  ? 'var(--success-bg)'
+                  : s >= 60
+                    ? 'var(--info-bg)'
+                    : 'var(--error-bg)';
+              const icon = !hasNumber ? '🎤' : s >= 80 ? '🌟' : s >= 60 ? '👍' : '🎯';
+              const titleText = hasNumber
+                ? `Pronunciation: ${s}/100`
+                : pronScore.match_quality === 'exact' || pronScore.match_quality === 'close'
+                  ? '✓ Recognized'
+                  : 'Heard — keep practicing';
+              return (
                 <div
+                  data-testid="speaking-result"
+                  className="c"
                   style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    flexShrink: 0,
-                    background:
-                      pronScore.score >= 80
-                        ? 'var(--success-bg)'
-                        : pronScore.score >= 60
-                          ? 'var(--info-bg)'
-                          : 'var(--error-bg)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 22,
+                    padding: '12px 16px',
+                    marginTop: 8,
+                    borderLeft: `4px solid ${accent}`,
+                    animation: 'fadeIn .3s ease',
                   }}
                 >
-                  {pronScore.score >= 80 ? '🌟' : pronScore.score >= 60 ? '👍' : '🎯'}
-                </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)' }}>
-                    Pronunciation: {pronScore.score}/100
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: '50%',
+                        flexShrink: 0,
+                        background: iconBg,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 22,
+                      }}
+                    >
+                      {icon}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)' }}>
+                        {titleText}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
+                        {pronScore.match_quality === 'exact'
+                          ? 'Perfect match!'
+                          : pronScore.match_quality === 'close'
+                            ? 'Very close!'
+                            : pronScore.match_quality === 'partial'
+                              ? 'Getting there'
+                              : 'Keep practicing'}
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
-                    {pronScore.match_quality === 'exact'
-                      ? 'Perfect match!'
-                      : pronScore.match_quality === 'close'
-                        ? 'Very close!'
-                        : pronScore.match_quality === 'partial'
-                          ? 'Getting there'
-                          : 'Keep practicing'}
-                  </div>
+                  {(pronScore.phonetic_tips?.length ?? 0) > 0 && (
+                    <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
+                      💡 {pronScore.phonetic_tips![0]}
+                    </div>
+                  )}
+                  {pronScore.encouragement && (
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: 'var(--success)',
+                        fontWeight: 600,
+                        marginTop: 6,
+                      }}
+                    >
+                      {pronScore.encouragement}
+                    </div>
+                  )}
                 </div>
-              </div>
-              {(pronScore.phonetic_tips?.length ?? 0) > 0 && (
-                <div style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6 }}>
-                  💡 {pronScore.phonetic_tips![0]}
-                </div>
-              )}
-              {pronScore.encouragement && (
-                <div
-                  style={{ fontSize: 13, color: 'var(--success)', fontWeight: 600, marginTop: 6 }}
-                >
-                  {pronScore.encouragement}
-                </div>
-              )}
-            </div>
-          )}
+              );
+            })()}
 
           {recordingURL && (
             <div
