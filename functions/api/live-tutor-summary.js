@@ -2,9 +2,8 @@
 // After a LiveTutor voice session ends, generates a brief personalized summary
 // of the session from Marija's perspective.
 
-import { checkRateLimit } from './_rateLimit.js';
-import { checkAIQuota } from './_aiQuota.js';
-import { getFirebaseUid } from './_verifyToken.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -21,37 +20,17 @@ function sanitizeParam(value, maxLen = 200) {
     .slice(0, maxLen);
 }
 
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  return {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Cache-Control': 'no-cache',
-  };
-}
-
 function ok(body, origin) {
-  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
 }
 function err(status, msg, origin) {
-  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify({ error: msg }), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
 }
 
 // ── Validation ────────────────────────────────────────────────────────────────
@@ -87,47 +66,20 @@ function staticFallback(durationSecs, turnCount, origin) {
 // ── PREFLIGHT ──────────────────────────────────────────────────────────────────
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(request.headers.get('origin') || ''),
+  });
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-export async function onRequestPost({ request, env }) {
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+export async function onRequestPost(context) {
+  const { request, env } = context;
 
-  const isDev = env.ENVIRONMENT !== 'production';
-  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
-
-  const allowed = await checkRateLimit(request, 20, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
-      status: 429,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  // Require Firebase auth — even though no personal data is stored, Anthropic
-  // is paid per request. Without auth, a rotating-IP attacker drains the budget.
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  let _uid = null;
-  if (FIREBASE_PROJECT_ID) {
-    _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
-    if (!_uid) return err(401, 'unauthorized', origin);
-  }
-
-  // Quota check (cost 1) — keyed on uid for per-user enforcement
-  const quota = await checkAIQuota(request, env, _uid, 1);
-  if (!quota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'daily_quota_exceeded',
-        message: 'Daily AI limit reached. Resets at midnight UTC.',
-        resetAt: quota.resetAt,
-      }),
-      { status: 429, headers: corsHeaders(origin) },
-    );
-  }
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 20 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_KEY) return err(503, 'AI_KEY_MISSING', origin);

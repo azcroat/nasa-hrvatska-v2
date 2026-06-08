@@ -4,9 +4,8 @@
 //   charlotte (opt-in):  ElevenLabs Charlotte eleven_multilingual_v2 → Azure hr-HR-GabrijelaNeural
 // Client falls back to Web Speech API when this endpoint returns 503.
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 // ── Azure TTS ─────────────────────────────────────────────────────────────────
 // hr-HR-GabrijelaNeural: native Croatian Neural voice.
@@ -334,35 +333,11 @@ async function tryGoogle(text, slow, serviceAccountJson) {
   }
 }
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
-// `localhost` is always allowed regardless of isDev — it is the Capacitor native
-// WebView origin (androidScheme: 'https' sets Origin: https://localhost).
-// External browsers cannot send Origin: https://localhost, so this is safe.
-function isAllowedOrigin(origin, isDev) {
-  if (!origin) return true; // PWA standalone mode / no-origin requests
-  try {
-    const hostname = new URL(origin).hostname;
-    if (hostname === 'localhost') return true; // Capacitor native WebView (all envs)
-    if (isDev && hostname === 'localhost') return true; // dev server only — never allow-all
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  // Echo the request origin so the browser's CORS check passes for any allowed origin.
-  // Fall back to the production domain for null-origin (PWA standalone, Capacitor native).
-  const allowOrigin = origin || 'https://nasahrvatska.com';
+// ── TTS-specific CORS extras ──────────────────────────────────────────────────
+// Audio responses expose X-TTS-Backends diagnostic header and vary on Origin.
+function ttsCorsHeaders(origin) {
   return {
-    'Access-Control-Allow-Origin': allowOrigin,
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    ...corsHeaders(origin),
     'Access-Control-Expose-Headers': 'X-TTS-Backends',
     Vary: 'Origin',
   };
@@ -370,52 +345,16 @@ function corsHeaders(origin) {
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  return new Response(null, { status: 204, headers: ttsCorsHeaders(origin) });
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  // Default to production-safe mode when ENVIRONMENT is not set.
-  // Using !== 'production' would open all origins if the env var is misconfigured.
-  const isDev = env.ENVIRONMENT === 'development';
-  if (!isAllowedOrigin(origin, isDev)) {
-    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
-  }
-
-  const allowed = await checkRateLimit(request, 60, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
-      status: 429,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  // Require Firebase auth to prevent unbounded Azure/Google TTS billing.
-  // Unauthenticated callers (including rotating-IP attackers) are rejected before any API call.
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  let _ttsUid = null;
-  if (FIREBASE_PROJECT_ID) {
-    _ttsUid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
-    if (!_ttsUid) {
-      return new Response(JSON.stringify({ error: 'unauthorized' }), {
-        status: 401,
-        headers: corsHeaders(origin),
-      });
-    }
-  }
-
-  // Per-user AI quota — 1 turn per TTS request, 100 turns/day cap.
-  // Prevents authenticated users from draining Azure/ElevenLabs budget via high-frequency polling.
-  const _quota = await checkAIQuota(request, env, _ttsUid, 1);
-  if (!_quota.allowed) {
-    return new Response(JSON.stringify({ error: 'quota_exceeded', resetAt: _quota.resetAt }), {
-      status: 429,
-      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
-    });
-  }
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 60 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
 
   const AZURE_KEY = env.AZURE_TTS_KEY;
   const PRIMARY_REGION = env.AZURE_TTS_REGION || 'westeurope';
@@ -439,7 +378,7 @@ export async function onRequestPost(context) {
   try {
     const ct = request.headers.get('content-type') || '';
     if (!ct.includes('application/json')) {
-      return new Response('Invalid content type', { status: 400, headers: corsHeaders(origin) });
+      return new Response('Invalid content type', { status: 400, headers: ttsCorsHeaders(origin) });
     }
     const body = await request.json();
     const text = body.text;
@@ -448,7 +387,7 @@ export async function onRequestPost(context) {
     const voice = body.voice === 'charlotte' ? 'charlotte' : 'gabrijela';
 
     if (typeof text !== 'string' || !text.trim() || text.length > 500) {
-      return new Response('Invalid text', { status: 400, headers: corsHeaders(origin) });
+      return new Response('Invalid text', { status: 400, headers: ttsCorsHeaders(origin) });
     }
 
     // ── Edge cache (POST responses aren't auto-cached by Cloudflare) ──────────
@@ -539,7 +478,7 @@ export async function onRequestPost(context) {
             ].join(',');
       return new Response(`TTS unavailable — ${whyFailed}`, {
         status: 503,
-        headers: { ...corsHeaders(origin), 'X-TTS-Backends': diagBackends },
+        headers: { ...ttsCorsHeaders(origin), 'X-TTS-Backends': diagBackends },
       });
     }
 
@@ -548,7 +487,7 @@ export async function onRequestPost(context) {
       headers: {
         'Content-Type': 'audio/mpeg',
         'Cache-Control': 'public, max-age=86400',
-        ...corsHeaders(origin),
+        ...ttsCorsHeaders(origin),
       },
     });
 
@@ -563,6 +502,6 @@ export async function onRequestPost(context) {
 
     return ttsResponse;
   } catch {
-    return new Response('TTS proxy error', { status: 500, headers: corsHeaders(origin) });
+    return new Response('TTS proxy error', { status: 500, headers: ttsCorsHeaders(origin) });
   }
 }

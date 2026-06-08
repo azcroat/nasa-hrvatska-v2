@@ -2,9 +2,8 @@
 // Maja Kovačević: 34-year-old Croatian language teacher from Zadar, lives in Zagreb
 // Keeps the API key server-side; never exposed to the browser
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -21,48 +20,26 @@ function sanitizeParam(value, maxLen = 200) {
     .slice(0, maxLen);
 }
 
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin is allowed: this occurs in PWA standalone mode (iOS/Android home screen)
-  // and Capacitor native apps. Firebase token auth provides the security boundary.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  return {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Cache-Control': 'no-cache',
-  };
-}
-
 function corsStreamHeaders(origin) {
   return {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    ...corsHeaders(origin),
   };
 }
 
 function ok(body, origin) {
-  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
 }
 function err(status, msg, origin) {
-  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify({ error: msg }), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
 }
 
 // ── Input validation ──────────────────────────────────────────────────────────
@@ -648,49 +625,19 @@ function majaFallback() {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(request.headers.get('origin') || ''),
+  });
 }
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
-  // CORS check
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
-  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
-
-  const allowed = await checkRateLimit(request, 40, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
-      status: 429,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  // Require valid Firebase auth token for AI endpoints
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-  if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), {
-      status: 401,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  // Daily AI quota check (cost 2 — streaming conversation is heavier)
-  const quota = await checkAIQuota(request, env, uid, 2);
-  if (!quota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'daily_quota_exceeded',
-        message: 'Daily AI limit reached. Resets at midnight UTC.',
-        resetAt: quota.resetAt,
-      }),
-      { status: 429, headers: corsHeaders(origin) },
-    );
-  }
+  const gate = await requireAuthedAI(context, { cost: 2, rateLimit: 40 });
+  if (!gate.ok) return gate.response;
+  const { origin, isDev } = gate;
 
   // API key check
   if (!ANTHROPIC_KEY) return err(503, 'AI_KEY_MISSING', origin);
