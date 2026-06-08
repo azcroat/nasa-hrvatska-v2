@@ -1090,8 +1090,17 @@ function App() {
   }, [authScreen]);
 
   // Count today as an active day (drives the checkpoint cadence).
+  // Hold the count in state so AppModals always reads the post-write value;
+  // without this the inline getActiveDayCount() call in the render is stale
+  // on the day the count increments (off-by-one).
+  const [checkpointActiveDayCount, setCheckpointActiveDayCount] = useState(() =>
+    getActiveDayCount(),
+  );
   useEffect(() => {
-    if (authScreen === 'app') recordActiveDayNow();
+    if (authScreen === 'app') {
+      recordActiveDayNow();
+      setCheckpointActiveDayCount(getActiveDayCount());
+    }
   }, [authScreen]);
 
   // Session expiry guard
@@ -1868,7 +1877,7 @@ function App() {
                 setTab={setTab}
                 name={name}
                 checkpointCertifiedLevel={certifiedLevel}
-                checkpointActiveDayCount={getActiveDayCount()}
+                checkpointActiveDayCount={checkpointActiveDayCount}
               />
               <AppToasts
                 comebackBonus={comebackBonus}

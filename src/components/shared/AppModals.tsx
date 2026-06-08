@@ -120,13 +120,18 @@ export function AppModals({
       (window as unknown as { __NH_CHECKPOINTS_FORCE__?: boolean }).__NH_CHECKPOINTS_FORCE__ ===
         true);
 
-  const due = isCheckpointDue({
-    enabled,
-    certified: checkpointCertifiedLevel,
-    activeDayCount: checkpointActiveDayCount,
-    checkpoints: getCertificationState().checkpoints,
-    now: Date.now(),
-  }).due;
+  // Gate the localStorage parse behind `enabled` so getCertificationState() is
+  // never called when the flag is off (hot-path perf). Do NOT useMemo — a stale
+  // memo would wrongly re-show the invite right after a snooze/completion.
+  const due =
+    enabled &&
+    isCheckpointDue({
+      enabled,
+      certified: checkpointCertifiedLevel,
+      activeDayCount: checkpointActiveDayCount,
+      checkpoints: getCertificationState().checkpoints,
+      now: Date.now(),
+    }).due;
 
   const showCheckpointInvite =
     cp.phase === 'idle' &&
