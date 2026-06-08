@@ -9,12 +9,14 @@ interface PronunciationScorerProps {
   targetText: string;
   targetEnglish?: string;
   level?: string;
-  onScore?: (r: { spoken: string; score: number }) => void;
+  onScore?: (r: { spoken: string; score: number | null }) => void;
 }
 
 interface ScoredResult {
   spoken: string;
-  score: number;
+  /** null when the word was recognised only via its English translation (Web Speech fallback).
+   *  In that case pronunciation quality cannot be assessed — no fabricated number is emitted. */
+  score: number | null;
   recognizedViaTranslation?: boolean;
 }
 interface CoachingResult {
@@ -165,13 +167,18 @@ export default function PronunciationScorer({
           return tn === engNorm || tn.includes(engNorm) || engNorm.includes(tn);
         });
         if (translationMatch) {
-          // Score 82: clearly correct pronunciation (browser understood the meaning) but not perfect
-          // since we cannot confirm exact accent quality without hr-HR model scoring.
-          const r = { spoken: targetText, score: 82, recognizedViaTranslation: true };
+          // The browser decoded the Croatian word via its English meaning — pronunciation was
+          // correct enough to be understood, but we cannot produce an acoustic quality score
+          // from a meaning-match alone. Emit a qualitative result with no fabricated number.
+          const r: ScoredResult = {
+            spoken: targetText,
+            score: null,
+            recognizedViaTranslation: true,
+          };
           setResult(r);
           setState('scored');
           if (onScore) onScore(r);
-          fetchCoaching(targetText, 82);
+          // No coaching fetch for translation-only path: there is no numeric score to coach on.
           return;
         }
       }
@@ -567,7 +574,11 @@ export default function PronunciationScorer({
           result={result}
           coaching={coaching}
           onRetry={resetAll}
-          onGetCoaching={() => fetchCoaching(result.spoken, result.score)}
+          onGetCoaching={
+            result.score !== null
+              ? () => fetchCoaching(result.spoken, result.score as number)
+              : undefined
+          }
         />
       )}
     </div>

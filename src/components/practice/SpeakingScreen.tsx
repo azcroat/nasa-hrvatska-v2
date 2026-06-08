@@ -303,15 +303,20 @@ export default function SpeakingScreen({
   // Called by PronunciationScorer when it gets a result.
   // If score >= 60, auto-mark the word as done so "Next →" appears immediately —
   // previously users had to also tap "I Said It Correctly!" as a second step.
-  function handleScorerResult({ spoken, score }: { spoken: string; score: number }) {
+  // score is null when recognized only via English translation (no acoustic score).
+  function handleScorerResult({ spoken, score }: { spoken: string; score: number | null }) {
     // For open-ended prompts, any response (any spoken words) counts as a pass
     const promptType = sw[2] as string | undefined;
     const isOE = OPEN_ENDED_TYPES.includes(promptType ?? '');
+    // When score is null (translation-only recognition), treat it as a good pass (75) so the
+    // user advances naturally. This is not stored as an acoustic score — it's only used for
+    // flow control (auto-advance) and the transient currentWordScore badge.
+    const baseScore = score ?? 75;
     const effectiveScore = isOE
       ? spoken.split(/\s+/).filter(Boolean).length >= 5
         ? 88
         : 55
-      : score;
+      : baseScore;
 
     setCurrentWordScore({ spoken, score: effectiveScore });
     setWordScores((prev) => {

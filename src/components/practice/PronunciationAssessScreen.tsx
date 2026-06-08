@@ -224,7 +224,8 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   }, [level]);
 
   const [step, setStep] = useState(0); // 0 = intro, 1..n = phrase n-1, n+1 = results
-  const [scores, setScores] = useState<Record<number, number>>({}); // phraseIdx → score
+  // null means recognised via translation only — no numeric score (not averaged in).
+  const [scores, setScores] = useState<Record<number, number | null>>({}); // phraseIdx → score
   const xpAwarded = useRef(false);
 
   const totalPhrases = phrases.length;
@@ -233,15 +234,15 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   const isResults = step > totalPhrases;
   const currentPhrase = !isIntro && !isResults ? phrases[currentIdx] : null;
   const completedCount = Object.keys(scores).length;
+  // Only real numeric scores contribute to the average — null (translation-only) results are excluded.
+  const numericScores = Object.values(scores).filter((s): s is number => s !== null);
   const avgScore =
-    completedCount > 0
-      ? Math.round(
-          Object.values(scores).reduce((a: number, b: number) => a + b, 0) / completedCount,
-        )
+    numericScores.length > 0
+      ? Math.round(numericScores.reduce((a: number, b: number) => a + b, 0) / numericScores.length)
       : 0;
 
   const handleScore = useCallback(
-    (result: { score: number }) => {
+    (result: { score: number | null }) => {
       setScores((prev) => ({ ...prev, [currentIdx]: result.score }));
     },
     [currentIdx],
@@ -293,8 +294,9 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
             Pronunciation Assessment
           </h1>
           <p style={{ fontSize: 14, color: 'var(--subtext)', lineHeight: 1.6, marginBottom: 0 }}>
-            Speak 8 Croatian phrases and receive a personalised pronunciation score. Powered by
-            Azure Speech recognition for hr-HR Croatian.
+            Speak 8 Croatian phrases and receive a personalised pronunciation score. Uses Azure
+            Speech recognition for hr-HR Croatian when available, or browser speech recognition as a
+            fallback.
           </p>
         </div>
 
@@ -498,10 +500,12 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--subtext)' }}>{p.en}</div>
                 </div>
-                {s !== undefined ? (
-                  <ScoreChip score={s} />
-                ) : (
+                {s === undefined ? (
                   <span style={{ fontSize: 11, color: 'var(--subtext)' }}>—</span>
+                ) : s === null ? (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#16a34a' }}>✓</span>
+                ) : (
+                  <ScoreChip score={s} />
                 )}
               </div>
             );
@@ -561,7 +565,9 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   }
 
   // ── Assessment phrase screen ──────────────────────────────────────────────
+  // phraseScore is number (real score), null (translation-only), or undefined (not yet scored).
   const phraseScore = scores[currentIdx];
+  // isScored is true for both real numeric scores AND null (translation-only) results.
   const isScored = phraseScore !== undefined;
   const isLast = currentIdx === totalPhrases - 1;
 
@@ -657,15 +663,26 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
               gap: 10,
               padding: '16px',
               borderRadius: 12,
-              background: `${scoreColor(phraseScore)}10`,
-              border: `1px solid ${scoreColor(phraseScore)}30`,
+              background: phraseScore !== null ? `${scoreColor(phraseScore)}10` : '#16a34a10',
+              border:
+                phraseScore !== null
+                  ? `1px solid ${scoreColor(phraseScore)}30`
+                  : '1px solid #16a34a30',
               marginBottom: 16,
             }}
           >
-            <ScoreChip score={phraseScore} />
-            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--heading)' }}>
-              {scoreLabel(phraseScore)}
-            </span>
+            {phraseScore !== null ? (
+              <>
+                <ScoreChip score={phraseScore} />
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--heading)' }}>
+                  {scoreLabel(phraseScore)}
+                </span>
+              </>
+            ) : (
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#16a34a' }}>
+                ✓ Recognized (accent not scored)
+              </span>
+            )}
           </div>
 
           <button

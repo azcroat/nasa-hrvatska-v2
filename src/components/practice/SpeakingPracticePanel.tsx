@@ -62,7 +62,7 @@ interface SpeakingPracticePanelProps {
   onSelfAssess: () => void;
   onAdvanceWord: () => void;
   onClearRecording: () => void;
-  onScore: (r: { spoken: string; score: number }) => void;
+  onScore: (r: { spoken: string; score: number | null }) => void;
 }
 
 export default function SpeakingPracticePanel({
