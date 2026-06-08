@@ -29,6 +29,22 @@ export default function SpeakingTaskScreen({
   // is a reliable "have I handled this one yet?" key across re-renders.
   const assessedBlobRef = useRef<Blob | null>(null);
 
+  // Latest props held in refs so the assessment effect can depend ONLY on the
+  // recorder's [state, audioBlob]. If we listed `scorer`/`onScore`/`task` in the
+  // dep array, a parent re-render that changes any of those identities (ExamRunner
+  // passes an inline `onScore`) would tear down and re-run the effect MID-ASSESSMENT —
+  // the cleanup would set cancelled=true, the re-run would early-return on the
+  // assessedBlobRef guard, and `onScore` would never fire → the screen hangs forever
+  // on "Assessing…". Reading these via refs keeps the in-flight assessment alive.
+  const scorerRef = useRef(scorer);
+  const onScoreRef = useRef(onScore);
+  const levelRef = useRef(level);
+  const promptRef = useRef(task.prompt);
+  scorerRef.current = scorer;
+  onScoreRef.current = onScore;
+  levelRef.current = level;
+  promptRef.current = task.prompt;
+
   function startRecording() {
     setPhase('idle');
     assessedBlobRef.current = null;
@@ -37,7 +53,10 @@ export default function SpeakingTaskScreen({
     rec.startRecording({ countdown: 0, maxDurationMs: task.seconds * 1000 });
   }
 
-  // Assess exactly once when the recorder produces a finished blob.
+  // Assess exactly once when the recorder produces a finished blob. Depends only on
+  // the recorder outputs (which change once per recording) — never on parent-supplied
+  // callbacks — so a re-render can't cancel an in-flight assessment. The `cancelled`
+  // flag now guards solely against genuine unmount.
   useEffect(() => {
     if (rec.state !== 'done' || !rec.audioBlob) return;
     if (assessedBlobRef.current === rec.audioBlob) return;
@@ -46,18 +65,23 @@ export default function SpeakingTaskScreen({
     let cancelled = false;
     setPhase('assessing');
     void (async () => {
-      const result = await scorer.assess(blob, { level, prompt: task.prompt });
+      const result = await scorerRef.current.assess(blob, {
+        level: levelRef.current,
+        prompt: promptRef.current,
+      });
       if (cancelled) return;
       if (result === null) {
         setPhase('retry'); // not scored → retry, never a failing score
         return;
       }
-      onScore(result.overall);
+      onScoreRef.current(result.overall);
     })();
     return () => {
       cancelled = true;
     };
-  }, [rec.state, rec.audioBlob, scorer, level, task.prompt, onScore]);
+    // NOTE: deps are intentionally ONLY [state, audioBlob]; scorer/onScore/level/prompt
+    // are read via refs so a parent re-render can't cancel an in-flight assessment.
+  }, [rec.state, rec.audioBlob]);
 
   const denied = rec.state === 'denied' || rec.state === 'unsupported';
   const recording = rec.state === 'recording' || rec.state === 'countdown';
