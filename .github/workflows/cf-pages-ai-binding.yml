@@ -1,0 +1,77 @@
+name: CF Pages AI Binding
+
+# One-off ops workflow: add the Workers AI "AI" binding to the Pages project
+# (prerequisite for functions/api/assess-speaking.js). Uses the existing
+# CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID secrets. The PATCH is MINIMAL
+# (only ai_bindings — never env_vars) so production secrets can't be clobbered,
+# and the run fails if the env_vars count drops or the AI binding is missing
+# afterward. Run `recon` first to inspect, then `enable-ai`.
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'recon (read-only) | enable-ai (PATCH)'
+        required: true
+        default: recon
+        type: choice
+        options:
+          - recon
+          - enable-ai
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Pages AI binding
+        env:
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACTION: ${{ inputs.action }}
+        run: |
+          set -euo pipefail
+          PROJECT=nasa-hrvatska-v2
+          TOK=$(printf '%s' "$CF_TOKEN" | tr -d '[:space:]')
+          BASE="https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/$PROJECT"
+          get() { curl -sS -H "Authorization: Bearer $TOK" -H "Content-Type: application/json" "$BASE"; }
+
+          echo "::group::Current production bindings / env (names + types only)"
+          get > proj.json
+          jq -e '.success==true' proj.json >/dev/null || { echo "GET failed:"; jq -c '.errors' proj.json; exit 1; }
+          jq '.result.deployment_configs.production
+                | {env_var_names:((.env_vars // {})|keys),
+                   kv:((.kv_namespaces // {})|keys),
+                   d1:((.d1_databases // {})|keys),
+                   ai:(.ai_bindings // {}),
+                   services:((.services // {})|keys),
+                   r2:((.r2_buckets // {})|keys)}' proj.json
+          echo "preview ai_bindings:"; jq -c '.result.deployment_configs.preview.ai_bindings // {}' proj.json
+          BEFORE=$(jq '((.result.deployment_configs.production.env_vars) // {}) | length' proj.json)
+          echo "production env_vars count BEFORE: $BEFORE"
+          echo "::endgroup::"
+
+          if [ "$ACTION" != "enable-ai" ]; then
+            echo "recon only — no changes made."; exit 0
+          fi
+
+          echo "::group::PATCH — minimal payload (ai_bindings only, no env_vars)"
+          printf '%s' '{"deployment_configs":{"production":{"ai_bindings":{"AI":{}}},"preview":{"ai_bindings":{"AI":{}}}}}' > patch.json
+          cat patch.json
+          curl -sS -X PATCH -H "Authorization: Bearer $TOK" -H "Content-Type: application/json" "$BASE" --data @patch.json > patched.json
+          jq -e '.success==true' patched.json >/dev/null || { echo "PATCH failed:"; jq -c '.errors' patched.json; exit 1; }
+          echo "PATCH success."
+          echo "::endgroup::"
+
+          echo "::group::Verify"
+          get > after.json
+          echo "production ai_bindings:"; jq -c '.result.deployment_configs.production.ai_bindings' after.json
+          echo "preview ai_bindings:";    jq -c '.result.deployment_configs.preview.ai_bindings' after.json
+          AFTER=$(jq '((.result.deployment_configs.production.env_vars) // {}) | length' after.json)
+          echo "production env_vars count AFTER: $AFTER (before: $BEFORE)"
+          if [ "$AFTER" -lt "$BEFORE" ]; then
+            echo "::error::env_vars count dropped ($BEFORE -> $AFTER). Possible clobber — re-run sync-cf-pages-env to restore."; exit 1
+          fi
+          jq -e '.result.deployment_configs.production.ai_bindings.AI != null' after.json >/dev/null \
+            || { echo "::error::AI binding not present after PATCH."; exit 1; }
+          echo "OK: AI binding present in production; env_vars preserved."
+          echo "::endgroup::"
