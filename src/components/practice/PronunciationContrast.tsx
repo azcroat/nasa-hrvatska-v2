@@ -13,7 +13,7 @@ function shLocal<T>(a: T[]): T[] {
   return b;
 }
 
-const DATA = [
+export const DATA = [
   {
     q: "'To read' in Croatian:",
     opts: ['čitati', 'ćitati', 'šitati', 'žitati'],
@@ -23,7 +23,7 @@ const DATA = [
   },
   {
     q: "'Human' in Croatian:",
-    opts: ['čovjek', 'ćovjek', 'čovjek', 'đovjek'],
+    opts: ['čovjek', 'ćovjek', 'šovjek', 'đovjek'],
     answer: 'čovjek',
     en: 'čovjek = human/person',
     tip: "Č in čovjek: hard 'ch'. Never ć (soft) at the start here",
@@ -37,7 +37,7 @@ const DATA = [
   },
   {
     q: "'Begin' in Croatian:",
-    opts: ['početi', 'početi', 'početi', 'poćeti'],
+    opts: ['početi', 'počéti', 'poćeti', 'počete'],
     answer: 'početi',
     en: 'početi = to begin',
     tip: "'Početi' has č (hard). The ć (soft) would make a different, incorrect word",
@@ -51,28 +51,28 @@ const DATA = [
   },
   {
     q: "'Uncle/Sir' (informal) in Croatian:",
-    opts: ['ujak', 'ćutak', 'ujak', 'ûjak'],
+    opts: ['ujak', 'ćutak', 'ujac', 'ujaĉ'],
     answer: 'ujak',
     en: 'ujak = maternal uncle',
     tip: "'Ujak' — maternal uncle (different from 'stric' = paternal uncle)",
   },
   {
     q: "Which spells 'to want'?",
-    opts: ['htjeti', 'ćtjeti', 'htjeti', 'htjéti'],
+    opts: ['htjeti', 'ćtjeti', 'htjéti', 'htjedi'],
     answer: 'htjeti',
     en: 'htjeti = to want/will',
     tip: "'Htjeti' — the h is silent in many forms. 'Hoću' = I want/will",
   },
   {
     q: "'Bridge' in Croatian:",
-    opts: ['most', 'mošt', 'mozt', 'most'],
+    opts: ['most', 'mošt', 'mozt', 'mosc'],
     answer: 'most',
     en: 'most = bridge',
     tip: "'Most' — simple word. Compare: 'moštanica' (a type of grape brandy area)",
   },
   {
     q: "'Key' in Croatian:",
-    opts: ['ključ', 'ćluč', 'ključ', 'ključ'],
+    opts: ['ključ', 'ćluč', 'kljuc', 'kljuć'],
     answer: 'ključ',
     en: 'ključ = key',
     tip: "'Ključ' ends in č (hard). The lj is a single soft sound like 'lj' fused",
@@ -86,35 +86,35 @@ const DATA = [
   },
   {
     q: "'Grandfather' in Croatian:",
-    opts: ['djed', 'djet', 'đed', 'djed'],
+    opts: ['djed', 'djet', 'đed', 'djeđ'],
     answer: 'djed',
     en: 'djed = grandfather',
     tip: "'Djed' — dj is two separate letters here (d+j), not a single phoneme like đ",
   },
   {
     q: "'Gentleman/Sir' in Croatian:",
-    opts: ['gospodin', 'gozpodin', 'gospođin', 'gospodin'],
+    opts: ['gospodin', 'gozpodin', 'gospođin', 'gospadin'],
     answer: 'gospodin',
     en: 'gospodin = Mr/gentleman',
     tip: "'Gospodin' — note 'gospođa' (Mrs) uses đ (soft)",
   },
   {
     q: "'Mrs/Madam' in Croatian:",
-    opts: ['gospođa', 'gospoda', 'gospoda', 'gospóđa'],
+    opts: ['gospođa', 'gospoda', 'gospóda', 'gospéda'],
     answer: 'gospođa',
     en: 'gospođa = Mrs/Madam',
     tip: "'Gospođa' uses đ (soft d). 'Gospodin' (Mr) uses d",
   },
   {
     q: "'Yellow' in Croatian:",
-    opts: ['žut', 'šut', 'zut', 'žût'],
+    opts: ['žut', 'šut', 'zut', 'džut'],
     answer: 'žut',
     en: 'žut = yellow',
     tip: "'Žut' — ž is like the French 'j' in 'bonjour' or 's' in 'measure'",
   },
   {
     q: "'Forest' in Croatian:",
-    opts: ['šuma', 'žuma', 'suma', 'šûma'],
+    opts: ['šuma', 'žuma', 'suma', 'čuma'],
     answer: 'šuma',
     en: 'šuma = forest',
     tip: "'Šuma' — š is like English 'sh'. Very common word!",
@@ -128,14 +128,14 @@ const DATA = [
   },
   {
     q: "'Night' in Croatian:",
-    opts: ['noć', 'noc', 'noč', 'noc'],
+    opts: ['noć', 'noc', 'noč', 'nož'],
     answer: 'noć',
     en: 'noć = night',
     tip: "'Noć' ends in ć (soft ch). 'Laku noć' = Good night",
   },
   {
     q: "'Star' in Croatian:",
-    opts: ['zvijezda', 'zvjezda', 'zviezda', 'zvijezda'],
+    opts: ['zvijezda', 'zvjezda', 'zviezda', 'zvjiezda'],
     answer: 'zvijezda',
     en: 'zvijezda = star',
     tip: "Standard Croatian: 'zvijezda' (Ijekavian — ije). Ekavian dialects say 'zvezda'",
@@ -149,7 +149,7 @@ const DATA = [
   },
   {
     q: "'Love' (noun) in Croatian:",
-    opts: ['ljubav', 'ljubav', 'ljübav', 'ljūbav'],
+    opts: ['ljubav', 'ljübav', 'ljūbav', 'ljubas'],
     answer: 'ljubav',
     en: 'ljubav = love',
     tip: "'Ljubav' — lj is a soft fused sound. The -av ending makes it feminine noun",
@@ -184,62 +184,47 @@ const DATA = [
   },
   {
     q: "'Enough' in Croatian:",
-    opts: ['dosta', 'dôsta', 'dosta', 'doška'],
+    opts: ['dosta', 'dôsta', 'doška', 'dôška'],
     answer: 'dosta',
     en: 'dosta = enough',
     tip: "'Dosta' — essential word. 'To je dosta' = That's enough",
   },
 ];
 
-// Detect which sound contrast is at play in a question's options
-function detectContrast(opts: string[]): string {
-  const joined = opts.join(' ');
-  const hasC = (c: string) => joined.includes(c);
-  if (hasC('č') && hasC('ć')) return 'c_soft';
-  if (hasC('š') && hasC('ž')) return 's_voiced';
-  if (hasC('đ') || hasC('dž')) return 'dj';
-  return 'generic';
-}
-
-const CONTRAST_BARS = {
+// Map option sets to articulation descriptions for honest qualitative guidance.
+// No percentages or bars — these are articulation facts, not acoustic measurements.
+const ARTICULATION_LABELS: Record<string, Array<{ sound: string; desc: string }>> = {
   c_soft: [
-    { label: 'č — harder', sublabel: '"ch" in church', pct: 85, color: 'var(--info, #0284c7)' },
-    {
-      label: 'ć — softer',
-      sublabel: '"ch" in cheap (palatalized)',
-      pct: 45,
-      color: 'var(--accent, #e0805a)',
-    },
+    { sound: 'č', desc: 'retroflex — tongue tip curls back, like "ch" in "church"' },
+    { sound: 'ć', desc: 'palatal — tongue blade touches palate, softer "ch" in "cheap"' },
   ],
   s_voiced: [
-    { label: 'š — unvoiced', sublabel: '"sh" in shop', pct: 70, color: '#7c3aed' },
-    { label: 'ž — voiced', sublabel: '"s" in measure', pct: 90, color: '#db2777' },
+    { sound: 'š', desc: 'unvoiced — like "sh" in "shop" (vocal cords silent)' },
+    { sound: 'ž', desc: 'voiced — like "s" in "measure" (vocal cords vibrate)' },
   ],
   dj: [
-    { label: 'đ — soft fused', sublabel: 'like "dj" merged', pct: 55, color: '#059669' },
-    { label: 'dj — separate', sublabel: 'd + j distinct', pct: 75, color: '#0284c7' },
-  ],
-  generic: [
-    { label: 'Option A', sublabel: 'first sound', pct: 60, color: 'var(--info, #0284c7)' },
-    { label: 'Option B', sublabel: 'second sound', pct: 80, color: 'var(--accent, #e0805a)' },
+    { sound: 'đ', desc: 'fused palatal — single soft sound, tongue touches palate' },
+    { sound: 'dj', desc: 'two separate letters — d then j, not merged' },
   ],
 };
 
-const VIZ_KEYFRAMES = `
-@keyframes barGrow {
-  from { width: 0; }
-  to   { width: var(--target-w); }
+function detectContrastKey(opts: string[]): string | null {
+  const joined = opts.join(' ');
+  const has = (c: string) => joined.includes(c);
+  if (has('č') && has('ć')) return 'c_soft';
+  if (has('š') && has('ž')) return 's_voiced';
+  if (has('đ') || has('dž')) return 'dj';
+  return null;
 }
-`;
 
-interface FrequencyVizProps {
+interface ArticulationGuideProps {
   opts: string[];
 }
-function FrequencyViz({ opts }: FrequencyVizProps) {
-  const contrast = detectContrast(opts);
-  const bars =
-    (CONTRAST_BARS as Record<string, typeof CONTRAST_BARS.generic>)[contrast] ??
-    CONTRAST_BARS.generic;
+function ArticulationGuide({ opts }: ArticulationGuideProps) {
+  const key = detectContrastKey(opts);
+  if (!key) return null;
+  const pairs = ARTICULATION_LABELS[key];
+  if (!pairs) return null;
   return (
     <div
       style={{
@@ -257,31 +242,25 @@ function FrequencyViz({ opts }: FrequencyVizProps) {
           color: '#64748b',
           textTransform: 'uppercase',
           letterSpacing: '0.06em',
-          marginBottom: 10,
+          marginBottom: 8,
         }}
       >
-        Sound Comparison
+        Articulation
       </div>
-      {bars.map((bar, i) => (
-        <div key={i} style={{ marginBottom: i < bars.length - 1 ? 10 : 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: bar.color }}>{bar.label}</span>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>{bar.sublabel}</span>
-          </div>
-          <div style={{ height: 10, background: '#e2e8f0', borderRadius: 6, overflow: 'hidden' }}>
-            <div
-              style={
-                {
-                  height: '100%',
-                  width: `${bar.pct}%`,
-                  background: bar.color,
-                  borderRadius: 6,
-                  animation: `barGrow 0.6s ease ${i * 0.15}s both`,
-                  '--target-w': `${bar.pct}%`,
-                } as React.CSSProperties
-              }
-            />
-          </div>
+      {pairs.map((p, i) => (
+        <div
+          key={i}
+          style={{
+            display: 'flex',
+            gap: 8,
+            alignItems: 'baseline',
+            marginBottom: i < pairs.length - 1 ? 6 : 0,
+          }}
+        >
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#0e7490', minWidth: 20 }}>
+            {p.sound}
+          </span>
+          <span style={{ fontSize: 12, color: '#475569' }}>{p.desc}</span>
         </div>
       ))}
     </div>
@@ -348,7 +327,6 @@ export default function PronunciationContrast({ goBack, award }: PronunciationCo
 
   return (
     <div className="scr-wrap">
-      <style>{VIZ_KEYFRAMES}</style>
       {H('🔤 Sound Contrast', 'Master č/ć, š/ž, đ/dž and more', goBack)}
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <span>
@@ -439,7 +417,7 @@ export default function PronunciationContrast({ goBack, award }: PronunciationCo
           <div style={{ fontSize: 13, color: '#075985' }}>{q.tip}</div>
         </div>
       )}
-      {answered && <FrequencyViz opts={q.opts} />}
+      {answered && <ArticulationGuide opts={q.opts} />}
       {answered && (
         <button
           className="b bp"
