@@ -24,6 +24,8 @@ import { localDateStr, weekKey } from './lib/dateUtils.js';
 import { repairStreak } from './lib/streak.js';
 import { cleanupStaleQuestKeys } from './lib/quests.js';
 import { getUserCefr } from './lib/cefr.js';
+import { recordActiveDayNow, getActiveDayCount } from './lib/activeDayTracker.js';
+import { getEffectiveLevelForUnlock } from './lib/cefrCertification.js';
 import { trackAppOpen } from './lib/analytics.js';
 import AppContext from './context/AppContext';
 import { StatsProvider } from './context/StatsContext';
@@ -1087,6 +1089,11 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authScreen]);
 
+  // Count today as an active day (drives the checkpoint cadence).
+  useEffect(() => {
+    if (authScreen === 'app') recordActiveDayNow();
+  }, [authScreen]);
+
   // Session expiry guard
   useEffect(() => {
     if (authScreen !== 'app') return undefined;
@@ -1458,6 +1465,7 @@ function App() {
     return { lessons: stats.lc, grammar: stats.gc, streak: getStreak().count, weak, strong };
   }, [stats]);
   const level = useMemo(() => lvl(stats.xp), [stats.xp]);
+  const certifiedLevel = getEffectiveLevelForUnlock(getUserCefr(stats.xp, stats.lc, stats.gc));
   const daysSinceJoin = useMemo(() => getDaysSinceJoin(authUser), [authUser]);
   const isNewUserWindow = daysSinceJoin !== null && daysSinceJoin >= 1 && daysSinceJoin <= 10;
   // getDueReviews() reads localStorage — keep it out of useMemo to avoid stale badge count
@@ -1859,6 +1867,8 @@ function App() {
                 setScr={setScr}
                 setTab={setTab}
                 name={name}
+                checkpointCertifiedLevel={certifiedLevel}
+                checkpointActiveDayCount={getActiveDayCount()}
               />
               <AppToasts
                 comebackBonus={comebackBonus}

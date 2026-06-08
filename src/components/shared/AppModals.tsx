@@ -15,8 +15,20 @@ import PremiumWelcomeBanner from './PremiumWelcomeBanner';
 // speak is lazy-loaded on first use — audio.js lives in chunk-data (loaded with first screen)
 const _speakLazy = (text: string) => import('../../lib/audio.js').then((m) => m.speak(text));
 import { trackOnboardingComplete } from '../../lib/analytics.js';
+import { useCheckpoint } from '../../hooks/useCheckpoint.js';
+import { isCheckpointDue, shouldShowCheckpoint } from '../../lib/checkpointSchedule.js';
+import { CHECKPOINTS_ENABLED } from '../../lib/checkpointConfig.js';
+import { getCertificationState } from '../../lib/cefrCertification.js';
+import CheckpointInviteModal from '../exam/CheckpointInviteModal.js';
+import ExamRunner from '../exam/ExamRunner.js';
+import CheckpointResultScreen from '../exam/CheckpointResultScreen.js';
+import type { CefrLevel } from '../../lib/cefr.js';
+import type { SkillKey } from '../../lib/cefrCertification.js';
 
 const PaywallScreen = lazy(() => import('./PaywallScreen'));
+
+/** Module-level constant so useCheckpoint's useCallback identity stays stable. */
+const NO_WEAK_SKILLS: SkillKey[] = [];
 
 interface AppModalsProps {
   // Celebration / gamification
@@ -52,6 +64,9 @@ interface AppModalsProps {
   setScr: (v: string) => void;
   setTab: (v: string) => void;
   name: string;
+  // Checkpoint flow
+  checkpointCertifiedLevel: CefrLevel;
+  checkpointActiveDayCount: number;
 }
 
 export function AppModals({
@@ -88,7 +103,35 @@ export function AppModals({
   setScr,
   setTab,
   name,
+  // Checkpoint flow
+  checkpointCertifiedLevel,
+  checkpointActiveDayCount,
 }: AppModalsProps) {
+  const cp = useCheckpoint({
+    certifiedLevel: checkpointCertifiedLevel,
+    weakSkills: NO_WEAK_SKILLS,
+    activeDayCount: checkpointActiveDayCount,
+  });
+
+  // Force flag for E2E (Task 10): enables checkpoints in tests without flipping the prod flag.
+  const enabled =
+    CHECKPOINTS_ENABLED ||
+    (typeof window !== 'undefined' &&
+      (window as unknown as { __NH_CHECKPOINTS_FORCE__?: boolean }).__NH_CHECKPOINTS_FORCE__ ===
+        true);
+
+  const due = isCheckpointDue({
+    enabled,
+    certified: checkpointCertifiedLevel,
+    activeDayCount: checkpointActiveDayCount,
+    checkpoints: getCertificationState().checkpoints,
+    now: Date.now(),
+  }).due;
+
+  const showCheckpointInvite =
+    cp.phase === 'idle' &&
+    shouldShowCheckpoint({ syncReady: !!_syncReady, authScreen, currentScreen, due });
+
   return (
     <Suspense fallback={null}>
       {showCelebration && (
@@ -226,8 +269,52 @@ export function AppModals({
         />
       )}
       {showPremiumWelcome && <PremiumWelcomeBanner onClose={() => setShowPremiumWelcome(false)} />}
+      {showCheckpointInvite && (
+        <CheckpointInviteModal
+          level={checkpointCertifiedLevel}
+          onStart={cp.start}
+          onSnooze={() => cp.snooze(endOfLocalDayMs())}
+        />
+      )}
+      {cp.phase === 'running' && cp.exam && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-card">
+            <ExamRunner
+              questions={cp.exam.questions}
+              speaking={{
+                level: cp.exam.speaking.level,
+                tasks: cp.exam.speaking.tasks,
+                scorer: cp.scorer,
+              }}
+              onComplete={cp.complete}
+            />
+          </div>
+        </div>
+      )}
+      {cp.phase === 'result' && cp.outcome && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-card">
+            <CheckpointResultScreen
+              level={checkpointCertifiedLevel}
+              outcome={cp.outcome}
+              onContinue={() => {
+                cp.reset();
+                setTab('learn');
+              }}
+              onRetry={cp.start}
+            />
+          </div>
+        </div>
+      )}
     </Suspense>
   );
 }
 
 export default AppModals;
+
+/** Epoch ms at the end of the user's local day — used for "remind me tonight". */
+function endOfLocalDayMs(): number {
+  const d = new Date();
+  d.setHours(23, 59, 59, 999);
+  return d.getTime();
+}
