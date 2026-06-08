@@ -23,10 +23,12 @@ function isSafeContour(s) {
   return parts.length >= 1 && parts.length <= 6 && parts.every((p) => TUPLE.test(p));
 }
 
-export function buildAzureSsml(
-  text,
-  { slow = false, prosody = null, voice = 'hr-HR-GabrijelaNeural' } = {},
-) {
+// Safe Azure neural voice name pattern: e.g. hr-HR-GabrijelaNeural, en-US-JennyNeural
+const SAFE_VOICE = /^[A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]+$/;
+const DEFAULT_VOICE = 'hr-HR-GabrijelaNeural';
+
+export function buildAzureSsml(text, { slow = false, prosody = null, voice = DEFAULT_VOICE } = {}) {
+  const safeVoice = SAFE_VOICE.test(voice) ? voice : DEFAULT_VOICE;
   const safeText = String(text).replace(
     /[<>&"']/g,
     (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c],
@@ -49,7 +51,7 @@ export function buildAzureSsml(
   } else {
     attrs.push(`rate="${slow ? '-25%' : '-8%'}"`);
   }
-  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody ${attrs.join(' ')}>${safeText}</prosody></voice></speak>`;
+  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${safeVoice}"><prosody ${attrs.join(' ')}>${safeText}</prosody></voice></speak>`;
 }
 
 // ── Azure TTS ─────────────────────────────────────────────────────────────────

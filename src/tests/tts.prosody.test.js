@@ -30,4 +30,20 @@ describe('buildAzureSsml prosody', () => {
     expect(s).not.toContain('evil');
     expect(s).not.toContain('DROP');
   });
+  it('rejects contour injection / overflow / empty (no contour attr emitted)', () => {
+    const inj = buildAzureSsml('x', { prosody: { contour: '(0%,+20%)" onload="bad' } });
+    expect(inj).not.toContain('onload');
+    expect(inj).not.toContain('contour=');
+    const overflow = buildAzureSsml('x', {
+      prosody: { contour: '(0%,+1%) (10%,+1%) (20%,+1%) (30%,+1%) (40%,+1%) (50%,+1%) (60%,+1%)' },
+    });
+    expect(overflow).not.toContain('contour=');
+    const empty = buildAzureSsml('x', { prosody: { contour: '' } });
+    expect(empty).not.toContain('contour=');
+  });
+  it('rejects a malicious voice value, falling back to the default voice', () => {
+    const s = buildAzureSsml('x', { voice: 'evil"><inject', prosody: null });
+    expect(s).not.toContain('inject');
+    expect(s).toContain('hr-HR-GabrijelaNeural');
+  });
 });
