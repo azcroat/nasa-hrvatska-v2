@@ -43,7 +43,7 @@
  */
 
 import type { CefrLevel } from './cefr.js';
-import { CEFR_ORDER, cefrRank, getEffectiveLevel } from './cefr.js';
+import { CEFR_ORDER, cefrRank, getEffectiveLevel, levelBelow } from './cefr.js';
 
 // ── Feature flag ──────────────────────────────────────────────────────────────
 //
@@ -74,10 +74,18 @@ export type SkillScore = number; // 0..1 per skill
 export interface SkillScores {
   vocab: SkillScore;
   grammar: SkillScore;
-  reading: SkillScore;
+  /** Optional — only present if the test had a reading section. */
+  reading?: SkillScore;
   /** Optional — only present if the test had a listening section. */
   listening?: SkillScore;
+  /** Optional in the type (legacy equivalency tests have none); REQUIRED by
+   *  checkpoint composition (a speaking task is always included — see Plan 1
+   *  examComposer). */
+  speaking?: SkillScore;
 }
+
+/** Every skill a test can score. */
+export type SkillKey = 'vocab' | 'grammar' | 'reading' | 'listening' | 'speaking';
 
 export interface CertificationPass {
   passedAt: number; // epoch ms
@@ -94,12 +102,27 @@ export interface CertificationAttempt {
   overall: number;
 }
 
+export interface CheckpointState {
+  /** Epoch ms of the last COMPLETED checkpoint that reset the cadence. */
+  lastCheckpointAt: number | null;
+  /** Active-day count snapshot at that checkpoint (see activeDayTracker). */
+  activeDaysAtLastCheckpoint: number;
+  /** Grace counter per level: 0 = none, 1 = one fail pending (next fail demotes). */
+  consecutiveFails: Partial<Record<CefrLevel, number>>;
+  /** Carry-forward focus skills, keyed by the level they apply to. */
+  focusSkills: Partial<Record<CefrLevel, SkillKey[]>>;
+  /** Demotion history. */
+  demotions: Array<{ from: CefrLevel; to: CefrLevel; at: number; reason: 'checkpoint_fail' }>;
+  /** "Remind me tonight" — checkpoint suppressed until this epoch ms. */
+  snoozedUntil: number | null;
+}
+
 export interface CertificationState {
   passes: Partial<Record<CefrLevel, CertificationPass>>;
   attempts: CertificationAttempt[];
   lastFailedAt: Partial<Record<CefrLevel, number>>;
-  /** Schema version for future migrations. Bump when shape changes. */
-  v: 1;
+  checkpoints: CheckpointState; // NEW
+  v: 2; // bumped
 }
 
 const STORAGE_KEY = 'nh_cefr_certifications';
@@ -109,8 +132,19 @@ const PASS_THRESHOLD = 0.8; // 80% per skill AND overall
 
 // ── Read / write state ────────────────────────────────────────────────────────
 
+export function emptyCheckpointState(): CheckpointState {
+  return {
+    lastCheckpointAt: null,
+    activeDaysAtLastCheckpoint: 0,
+    consecutiveFails: {},
+    focusSkills: {},
+    demotions: [],
+    snoozedUntil: null,
+  };
+}
+
 function emptyState(): CertificationState {
-  return { passes: {}, attempts: [], lastFailedAt: {}, v: 1 };
+  return { passes: {}, attempts: [], lastFailedAt: {}, checkpoints: emptyCheckpointState(), v: 2 };
 }
 
 /**
@@ -126,20 +160,46 @@ export function getCertificationState(): CertificationState {
     if (!raw) return emptyState();
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== 'object') return emptyState();
-    const state = parsed as CertificationState;
-    if (state.v !== 1) return emptyState(); // future-proofing
+    const state = parsed as {
+      v?: number;
+      passes?: unknown;
+      attempts?: unknown;
+      lastFailedAt?: unknown;
+      checkpoints?: unknown;
+    };
+    // Accept v1 (migrate up) and v2. Anything else → empty.
+    if (state.v !== 1 && state.v !== 2) return emptyState();
     if (!state.passes || typeof state.passes !== 'object') state.passes = {};
     if (!Array.isArray(state.attempts)) state.attempts = [];
     if (!state.lastFailedAt || typeof state.lastFailedAt !== 'object') {
       state.lastFailedAt = {};
     }
-    return state;
+    // Migrate / normalise the checkpoints block.
+    const def = emptyCheckpointState();
+    const cp = (
+      state.checkpoints && typeof state.checkpoints === 'object' ? state.checkpoints : {}
+    ) as Partial<CheckpointState>;
+    state.checkpoints = {
+      lastCheckpointAt:
+        typeof cp.lastCheckpointAt === 'number' ? cp.lastCheckpointAt : def.lastCheckpointAt,
+      activeDaysAtLastCheckpoint:
+        typeof cp.activeDaysAtLastCheckpoint === 'number'
+          ? cp.activeDaysAtLastCheckpoint
+          : def.activeDaysAtLastCheckpoint,
+      consecutiveFails:
+        cp.consecutiveFails && typeof cp.consecutiveFails === 'object' ? cp.consecutiveFails : {},
+      focusSkills: cp.focusSkills && typeof cp.focusSkills === 'object' ? cp.focusSkills : {},
+      demotions: Array.isArray(cp.demotions) ? cp.demotions : [],
+      snoozedUntil: typeof cp.snoozedUntil === 'number' ? cp.snoozedUntil : def.snoozedUntil,
+    };
+    state.v = 2;
+    return state as unknown as CertificationState;
   } catch {
     return emptyState();
   }
 }
 
-function writeCertificationState(state: CertificationState): void {
+export function writeCertificationState(state: CertificationState): void {
   if (typeof localStorage === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -172,6 +232,26 @@ export function getCertifiedLevel(): CefrLevel {
     }
   }
   return best;
+}
+
+/**
+ * Lowers the certified level by exactly one rank by removing the top pass,
+ * so `getCertifiedLevel()` returns the level below. Records the demotion and
+ * clears the grace counter for the demoted level. No-op (returns null) at A1
+ * — A1 is the floor. Does NOT touch XP, streak, or eligible level.
+ */
+export function demoteOneLevel(
+  reason: 'checkpoint_fail',
+): { from: CefrLevel; to: CefrLevel } | null {
+  const current = getCertifiedLevel();
+  const to = levelBelow(current);
+  if (to === null) return null; // A1 floor
+  const state = getCertificationState();
+  delete state.passes[current];
+  state.checkpoints.demotions.push({ from: current, to, at: Date.now(), reason });
+  state.checkpoints.consecutiveFails[current] = 0;
+  writeCertificationState(state);
+  return { from: current, to };
 }
 
 /**
@@ -254,6 +334,7 @@ export function computePassed(scores: SkillScores): {
   skillValues.push(scores.grammar);
   if (scores.reading !== undefined) skillValues.push(scores.reading);
   if (scores.listening !== undefined) skillValues.push(scores.listening);
+  if (scores.speaking !== undefined) skillValues.push(scores.speaking);
   if (skillValues.length === 0) return { passed: false, overall: 0 };
   const overall = skillValues.reduce((a, b) => a + b, 0) / skillValues.length;
   const minSkill = Math.min(...skillValues);
@@ -326,7 +407,8 @@ export function snapshotCertifications(): CertificationState | undefined {
  */
 export function mergeRemoteCertifications(remote: CertificationState | null | undefined): void {
   if (!remote || typeof remote !== 'object') return;
-  if (remote.v !== 1) return;
+  const remoteV = (remote as { v?: number }).v;
+  if (remoteV !== 1 && remoteV !== 2) return;
   const local = getCertificationState();
 
   // Passes — additive, prefer earlier passedAt
@@ -357,6 +439,12 @@ export function mergeRemoteCertifications(remote: CertificationState | null | un
               : r.scores.listening === undefined
                 ? l.scores.listening
                 : Math.max(l.scores.listening, r.scores.listening),
+          speaking:
+            l.scores.speaking === undefined
+              ? r.scores.speaking
+              : r.scores.speaking === undefined
+                ? l.scores.speaking
+                : Math.max(l.scores.speaking, r.scores.speaking),
         };
         local.passes[k] = { passedAt, overall, scores };
       }
@@ -386,6 +474,63 @@ export function mergeRemoteCertifications(remote: CertificationState | null | un
     }
     out.sort((a, b) => a.takenAt - b.takenAt);
     local.attempts = out.slice(-100);
+  }
+
+  // checkpoints — most-recent cadence wins; grace counters take MAX so a
+  // stale device cannot erase a pending demotion. snoozedUntil takes MAX.
+  if (remote.checkpoints && typeof remote.checkpoints === 'object') {
+    const rc = remote.checkpoints;
+    const lc = local.checkpoints;
+
+    // Capture original timestamps BEFORE any MAX-overwrite so the focusSkills
+    // freshness comparison below is based on the original values.
+    const lcTime = lc.lastCheckpointAt ?? -1;
+    const rcTime = typeof rc.lastCheckpointAt === 'number' ? rc.lastCheckpointAt : -1;
+
+    if (typeof rc.lastCheckpointAt === 'number') {
+      lc.lastCheckpointAt =
+        lc.lastCheckpointAt == null
+          ? rc.lastCheckpointAt
+          : Math.max(lc.lastCheckpointAt, rc.lastCheckpointAt);
+    }
+    if (typeof rc.activeDaysAtLastCheckpoint === 'number') {
+      lc.activeDaysAtLastCheckpoint = Math.max(
+        lc.activeDaysAtLastCheckpoint,
+        rc.activeDaysAtLastCheckpoint,
+      );
+    }
+    if (rc.consecutiveFails && typeof rc.consecutiveFails === 'object') {
+      for (const k of Object.keys(rc.consecutiveFails) as CefrLevel[]) {
+        const r = rc.consecutiveFails[k] ?? 0;
+        const l = lc.consecutiveFails[k] ?? 0;
+        lc.consecutiveFails[k] = Math.max(l, r);
+      }
+    }
+    // focusSkills: adopt the WHOLE map from whichever side has the fresher
+    // checkpoint. A remote CLEAR (key absent in remote.focusSkills) must win
+    // when the remote checkpoint is newer, so we cannot do a per-key union.
+    if (rc.focusSkills && typeof rc.focusSkills === 'object') {
+      if (rcTime > lcTime) {
+        // Remote checkpoint is fresher → its focus map is authoritative.
+        // This also propagates a remote CLEAR: a level absent in remote is dropped.
+        lc.focusSkills = { ...rc.focusSkills };
+      } else if (rcTime === lcTime) {
+        // Same freshness (or both unset) → union, keep local where set.
+        for (const k of Object.keys(rc.focusSkills) as CefrLevel[]) {
+          if (!lc.focusSkills[k] && rc.focusSkills[k]) lc.focusSkills[k] = rc.focusSkills[k];
+        }
+      }
+      // else local is fresher → keep local focusSkills unchanged.
+    }
+    if (Array.isArray(rc.demotions)) {
+      const seen = new Set(lc.demotions.map((d) => d.at));
+      for (const d of rc.demotions) if (d && !seen.has(d.at)) lc.demotions.push(d);
+      lc.demotions.sort((a, b) => a.at - b.at);
+    }
+    if (typeof rc.snoozedUntil === 'number') {
+      lc.snoozedUntil =
+        lc.snoozedUntil == null ? rc.snoozedUntil : Math.max(lc.snoozedUntil, rc.snoozedUntil);
+    }
   }
 
   writeCertificationState(local);

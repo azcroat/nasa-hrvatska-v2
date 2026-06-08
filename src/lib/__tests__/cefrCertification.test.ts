@@ -14,6 +14,7 @@ import {
   CERTIFICATION_REQUIRED,
   canTakeEquivalencyTest,
   computePassed,
+  emptyCheckpointState,
   getCertifiedLevel,
   getCertificationState,
   getEffectiveLevelForUnlock,
@@ -220,7 +221,7 @@ describe('mergeRemoteCertifications', () => {
       currentLessonCount: 10,
     });
     mergeRemoteCertifications({
-      v: 1,
+      v: 2,
       passes: {
         B1: {
           passedAt: Date.now() - 1000,
@@ -230,6 +231,7 @@ describe('mergeRemoteCertifications', () => {
       },
       attempts: [],
       lastFailedAt: {},
+      checkpoints: emptyCheckpointState(),
     });
     expect(getCertifiedLevel()).toBe('B1');
   });
@@ -243,7 +245,7 @@ describe('mergeRemoteCertifications', () => {
     const earlierAt = Date.now() - 100_000;
     const laterAt = Date.now() - 50_000;
     mergeRemoteCertifications({
-      v: 1,
+      v: 2,
       passes: {
         A2: {
           passedAt: laterAt,
@@ -253,9 +255,10 @@ describe('mergeRemoteCertifications', () => {
       },
       attempts: [],
       lastFailedAt: {},
+      checkpoints: emptyCheckpointState(),
     });
     mergeRemoteCertifications({
-      v: 1,
+      v: 2,
       passes: {
         A2: {
           passedAt: earlierAt,
@@ -265,6 +268,7 @@ describe('mergeRemoteCertifications', () => {
       },
       attempts: [],
       lastFailedAt: {},
+      checkpoints: emptyCheckpointState(),
     });
     const state = getCertificationState();
     expect(state.passes.A2?.passedAt).toBe(earlierAt);
@@ -277,6 +281,7 @@ describe('mergeRemoteCertifications', () => {
       passes: { A2: { passedAt: 1, scores: { vocab: 1, grammar: 1, reading: 1 }, overall: 100 } },
       attempts: [],
       lastFailedAt: {},
+      checkpoints: emptyCheckpointState(),
     });
     expect(getCertifiedLevel()).toBe('A1');
   });

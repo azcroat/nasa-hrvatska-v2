@@ -20,6 +20,17 @@ export function cefrRank(cefr: string): number {
 }
 
 /**
+ * Returns the CEFR level one rank below `level`, or null when `level` is the
+ * floor (A1). Used by certification/checkpoint demotion logic.
+ * @example levelBelow('B1') → 'A2'
+ * @example levelBelow('A1') → null
+ */
+export function levelBelow(level: CefrLevel): CefrLevel | null {
+  const idx = CEFR_ORDER.indexOf(level);
+  return idx <= 0 ? null : CEFR_ORDER[idx - 1]!;
+}
+
+/**
  * Returns true when an exercise is unlocked for the user.
  * Unlocked if: exerciseCefr rank ≤ userCefr rank
  *

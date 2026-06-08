@@ -17,16 +17,18 @@
  * UI states:
  *   - intro:  shows level being tested, item count, time estimate, "Begin"
  *   - cooldown: shows why retake is blocked + cooldown timer / lessons remaining
- *   - question: shows current item with 4 options; optional passage above
+ *   - question: delegated to ExamRunner (MCQ runner with data-testid answer-N,
+ *               exam-next, exam-progress)
  *   - result: pass/fail with per-skill bars + recommended next step
  *
  * Design echoes PlacementTest.tsx so users get a familiar interaction style.
  *
  * @see src/lib/cefrCertification.ts — recording + cooldown logic
  * @see src/data/cefrEquivalencyItems.ts — item bank
+ * @see src/components/exam/ExamRunner.tsx — shared MCQ runner
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { CefrLevel } from '../../lib/cefr.js';
 import {
   canTakeEquivalencyTest,
@@ -35,11 +37,9 @@ import {
   getCertifiedLevel,
   type SkillScores,
 } from '../../lib/cefrCertification.js';
-import {
-  getNextTestFor,
-  type EquivalencyItem,
-  type EquivalencyTestSet,
-} from '../../data/cefrEquivalencyItems.js';
+import { getNextTestFor, type EquivalencyTestSet } from '../../data/cefrEquivalencyItems.js';
+import ExamRunner from '../exam/ExamRunner.js';
+import type { RunnerQuestion } from '../../lib/checkpointExam.js';
 
 interface EquivalencyTestScreenProps {
   /** User's eligible (activity-derived) level. Used to show context only. */
@@ -53,28 +53,6 @@ interface EquivalencyTestScreenProps {
 }
 
 type Phase = 'intro' | 'cooldown' | 'question' | 'result';
-
-interface SkillAccumulator {
-  total: number;
-  correct: number;
-}
-
-/**
- * Compute per-skill scores from accumulator. Returns 0..1 per skill.
- * Skills with zero items asked return undefined (the SkillScores type
- * permits this for `reading` and `listening`; vocab/grammar are always
- * present in our tests).
- */
-function scoresFromAcc(
-  acc: Record<'vocab' | 'grammar' | 'reading', SkillAccumulator>,
-): SkillScores {
-  const safe = (a: SkillAccumulator) => (a.total > 0 ? a.correct / a.total : 0);
-  return {
-    vocab: safe(acc.vocab),
-    grammar: safe(acc.grammar),
-    reading: acc.reading.total > 0 ? safe(acc.reading) : undefined,
-  } as SkillScores;
-}
 
 function SkillBar({ icon, label, score }: { icon: string; label: string; score: number }) {
   const pct = Math.round(score * 100);
@@ -144,16 +122,40 @@ export default function EquivalencyTestScreen({
       ? 'cooldown'
       : 'intro';
   const [phase, setPhase] = useState<Phase>(initialPhase);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [answered, setAnswered] = useState(false);
-  const [acc, setAcc] = useState<Record<'vocab' | 'grammar' | 'reading', SkillAccumulator>>({
-    vocab: { total: 0, correct: 0 },
-    grammar: { total: 0, correct: 0 },
-    reading: { total: 0, correct: 0 },
-  });
   const [resultPassed, setResultPassed] = useState<boolean | null>(null);
   const [resultScores, setResultScores] = useState<SkillScores | null>(null);
+
+  // Map the test set's items to ExamRunner's RunnerQuestion shape.
+  // EquivalencyItem stores the 4 options in field `o` (not `options`).
+  const runnerQuestions: RunnerQuestion[] = useMemo(
+    () =>
+      (testSet?.items ?? []).map((it, i) => ({
+        id: `${testSet!.levelFrom}#${i}`,
+        skill: it.skill,
+        prompt: it.q,
+        options: [...it.o], // it.o is the 4-option tuple on EquivalencyItem
+        correctIndex: it.c,
+        passage: it.passage,
+        level: testSet!.levelFrom,
+      })),
+    [testSet],
+  );
+
+  // Called by ExamRunner when all questions have been answered.
+  const onExamComplete = useCallback(
+    (scores: SkillScores) => {
+      const { passed } = computePassed(scores);
+      recordEquivalencyAttempt({
+        level: testSet!.levelFrom,
+        scores,
+        currentLessonCount: userLessonCount,
+      });
+      setResultPassed(passed);
+      setResultScores(scores);
+      setPhase('result');
+    },
+    [testSet, userLessonCount],
+  );
 
   // No-test edge case: user is already C2 (no further test exists).
   if (!testSet) {
@@ -186,50 +188,6 @@ export default function EquivalencyTestScreen({
         </div>
       </div>
     );
-  }
-
-  const currentItem: EquivalencyItem | undefined = testSet.items[questionIndex];
-
-  function handleSelect(i: number) {
-    if (answered) return;
-    setSelectedIndex(i);
-    setAnswered(true);
-    if (!currentItem) return;
-    const isCorrect = i === currentItem.c;
-    const skill = currentItem.skill;
-    setAcc((prev) => ({
-      ...prev,
-      [skill]: {
-        total: prev[skill].total + 1,
-        correct: prev[skill].correct + (isCorrect ? 1 : 0),
-      },
-    }));
-  }
-
-  function handleNext() {
-    setSelectedIndex(null);
-    setAnswered(false);
-    // testSet is narrowed at the top of render but the closure-captured
-    // reference here loses that narrowing. Re-assert with a local const so
-    // tsc strict-null-checks pass without `!` everywhere.
-    const set = testSet;
-    if (!set) return;
-    if (questionIndex + 1 >= set.items.length) {
-      // Test complete — record + show result.
-      const finalAcc = acc;
-      const scores = scoresFromAcc(finalAcc);
-      const { passed } = computePassed(scores);
-      recordEquivalencyAttempt({
-        level: set.levelFrom,
-        scores,
-        currentLessonCount: userLessonCount,
-      });
-      setResultPassed(passed);
-      setResultScores(scores);
-      setPhase('result');
-      return;
-    }
-    setQuestionIndex((i) => i + 1);
   }
 
   // ── Intro ────────────────────────────────────────────────────────────────
@@ -369,133 +327,13 @@ export default function EquivalencyTestScreen({
   }
 
   // ── Question ────────────────────────────────────────────────────────────
-  if (phase === 'question' && currentItem) {
+  // Delegated to ExamRunner, which renders data-testid="answer-N", "exam-next",
+  // and "exam-progress". No speaking prop — equivalency keeps its existing skill
+  // set (vocab, grammar, reading only).
+  if (phase === 'question') {
     return (
       <div className="scr-wrap">
-        <div style={{ padding: 16 }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontSize: 12,
-              color: 'var(--subtext)',
-              marginBottom: 12,
-            }}
-          >
-            <span>
-              Question {questionIndex + 1} / {testSet.items.length}
-            </span>
-            <span style={{ textTransform: 'uppercase', fontWeight: 700 }}>{currentItem.skill}</span>
-          </div>
-          {/* Progress bar */}
-          <div
-            style={{
-              height: 4,
-              background: '#e5e7eb',
-              borderRadius: 2,
-              marginBottom: 18,
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                width: `${((questionIndex + (answered ? 1 : 0)) / testSet.items.length) * 100}%`,
-                background: 'linear-gradient(90deg,#16a34a,#0e7490)',
-                height: '100%',
-                transition: 'width .3s',
-              }}
-            />
-          </div>
-          {currentItem.passage && (
-            <div
-              style={{
-                background: '#fffbeb',
-                border: '1.5px solid #fde68a',
-                borderRadius: 10,
-                padding: '12px 14px',
-                fontSize: 14,
-                lineHeight: 1.6,
-                marginBottom: 14,
-                color: '#78350f',
-              }}
-            >
-              {currentItem.passage}
-            </div>
-          )}
-          <p
-            style={{
-              fontSize: 16,
-              fontWeight: 700,
-              color: 'var(--heading)',
-              marginBottom: 14,
-              lineHeight: 1.4,
-            }}
-          >
-            {currentItem.q}
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 }}>
-            {currentItem.o.map((opt, i) => {
-              const isSelected = selectedIndex === i;
-              const isCorrect = answered && i === currentItem.c;
-              const isWrongSelection = answered && isSelected && i !== currentItem.c;
-              const colour = isCorrect
-                ? '#16a34a'
-                : isWrongSelection
-                  ? '#dc2626'
-                  : isSelected
-                    ? '#0e7490'
-                    : 'var(--card-b)';
-              const bg = isCorrect
-                ? '#dcfce7'
-                : isWrongSelection
-                  ? '#fee2e2'
-                  : isSelected
-                    ? '#e0f2fe'
-                    : 'var(--card)';
-              return (
-                <button
-                  key={i}
-                  data-testid={`equivalency-opt-${i}`}
-                  onClick={() => handleSelect(i)}
-                  disabled={answered}
-                  style={{
-                    padding: '14px 16px',
-                    textAlign: 'left',
-                    background: bg,
-                    border: `1.5px solid ${colour}`,
-                    borderRadius: 12,
-                    fontSize: 15,
-                    color: 'var(--heading)',
-                    cursor: answered ? 'default' : 'pointer',
-                    fontWeight: isCorrect ? 700 : 500,
-                    transition: 'background .15s, border .15s',
-                  }}
-                >
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
-          <button
-            data-testid="equivalency-next"
-            onClick={handleNext}
-            disabled={!answered}
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '14px',
-              background: answered ? 'linear-gradient(135deg,#16a34a,#15803d)' : '#e5e7eb',
-              color: answered ? '#fff' : '#9ca3af',
-              border: 'none',
-              borderRadius: 12,
-              fontSize: 15,
-              fontWeight: 800,
-              cursor: answered ? 'pointer' : 'not-allowed',
-            }}
-          >
-            {questionIndex + 1 >= testSet.items.length ? 'Finish Test' : 'Next Question →'}
-          </button>
-        </div>
+        <ExamRunner questions={runnerQuestions} onComplete={onExamComplete} />
       </div>
     );
   }

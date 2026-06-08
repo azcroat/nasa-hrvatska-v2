@@ -43,6 +43,14 @@ const TARGETS = [
   'src/data/cultural/regions.js',
   'src/data/cultural/language.js',
   'src/data/cultural/events.js',
+  // CEFR equivalency item bank — A1 inline (TypeScript) + A2–C1 JSON banks.
+  // Included to catch encoding-bleed (Cyrillic homoglyphs, U+00AD soft hyphens,
+  // mojibake, etc.) introduced by subagent authoring of the expanded 60/60/30 sets.
+  'src/data/cefrEquivalencyItems.ts',
+  'src/data/cefrEquivalencyItems/a2_to_b1.json',
+  'src/data/cefrEquivalencyItems/b1_to_b2.json',
+  'src/data/cefrEquivalencyItems/b2_to_c1.json',
+  'src/data/cefrEquivalencyItems/c1_to_c2.json',
 ];
 
 // Whitelist: Croatian Latin + common punctuation + digits + typographic marks.
@@ -51,9 +59,9 @@ const ALLOWED_RE = /^[\sa-zA-ZČčĆćĐđŠšŽž0-9À-ſȘ-ț,.!?'":;\-—–�
 
 // More targeted: a string is "suspicious" if it contains specific bad chars.
 // We focus on the encoding-bleed classes from the audit.
-const BAD_CHARS_RE = /[Ѐ-ӿԀ-ԯŢ-ţŞ-şĞ-ğİ-ı]/g;
-//  ^ Cyrillic blocks (Ѐ-ӿ already covers А-я) + Romanian Ţ/ţ + Turkish Ş/ş Ğ/ğ İ/ı.
-// Croatian never uses any of these — they are all bleeds from another script.
+const BAD_CHARS_RE = /[Ѐ-ӿԀ-ԯŢ-ţŞ-şĞ-ğİ-ı­]/g;
+//  ^ Cyrillic blocks (Ѐ-ӿ already covers А-я) + Romanian Ţ/ţ + Turkish Ş/ş Ğ/ğ İ/ı
+//  + U+00AD SOFT HYPHEN (invisible; breaks copy-paste and TTS in JSON item banks).
 
 // Match `hr: '...'` / `hr: "..."` / `hr: \`...\``
 // and similar fields that hold Croatian text.
