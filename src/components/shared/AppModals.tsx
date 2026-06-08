@@ -4,7 +4,7 @@
  * Extracted from App.jsx render to keep the main JSX tree readable.
  * Every modal here is conditionally rendered; none affect the page layout.
  */
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import type { Stats } from '../../types';
 import CelebrationModal from './CelebrationModal';
 import StreakMilestoneModal from './StreakMilestoneModal';
@@ -113,12 +113,16 @@ export function AppModals({
     activeDayCount: checkpointActiveDayCount,
   });
 
+  // Local dismissed flag: set true on snooze so the invite hides immediately (React
+  // won't re-render just from setPhase('idle') when phase is already 'idle').
+  const [cpDismissed, setCpDismissed] = useState(false);
+
   // Force flag for E2E (Task 10): enables checkpoints in tests without flipping the prod flag.
-  const enabled =
-    CHECKPOINTS_ENABLED ||
-    (typeof window !== 'undefined' &&
-      (window as unknown as { __NH_CHECKPOINTS_FORCE__?: boolean }).__NH_CHECKPOINTS_FORCE__ ===
-        true);
+  // Also overrides the syncReady gate so tests can reach the invite without live Firebase.
+  const forced =
+    typeof window !== 'undefined' &&
+    (window as unknown as { __NH_CHECKPOINTS_FORCE__?: boolean }).__NH_CHECKPOINTS_FORCE__ === true;
+  const enabled = CHECKPOINTS_ENABLED || forced;
 
   // Gate the localStorage parse behind `enabled` so getCertificationState() is
   // never called when the flag is off (hot-path perf). Do NOT useMemo — a stale
@@ -134,8 +138,9 @@ export function AppModals({
     }).due;
 
   const showCheckpointInvite =
+    !cpDismissed &&
     cp.phase === 'idle' &&
-    shouldShowCheckpoint({ syncReady: !!_syncReady, authScreen, currentScreen, due });
+    shouldShowCheckpoint({ syncReady: forced || !!_syncReady, authScreen, currentScreen, due });
 
   return (
     <Suspense fallback={null}>
@@ -277,8 +282,14 @@ export function AppModals({
       {showCheckpointInvite && (
         <CheckpointInviteModal
           level={checkpointCertifiedLevel}
-          onStart={cp.start}
-          onSnooze={() => cp.snooze(endOfLocalDayMs())}
+          onStart={() => {
+            setCpDismissed(false);
+            cp.start();
+          }}
+          onSnooze={() => {
+            setCpDismissed(true);
+            cp.snooze(endOfLocalDayMs());
+          }}
         />
       )}
       {cp.phase === 'running' && cp.exam && (
