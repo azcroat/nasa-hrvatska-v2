@@ -767,7 +767,7 @@ const A1_TO_A2_ITEMS: EquivalencyItem[] = [
     skill: 'grammar',
   },
   {
-    q: "'Ja pijem kavu' — what does the ending '-em' in 'pijem' tell us about the subject?",
+    q: "'Ja pijem kavu' — what does the ending '-m' in 'pijem' tell us about the subject?",
     o: [
       'The subject is second person singular (ti)',
       'The subject is first person singular (ja)',
