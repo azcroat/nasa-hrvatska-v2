@@ -3,7 +3,9 @@ import { requireAuthedAI } from './_requireAuth.js';
 import { corsHeaders } from './_helpers.js';
 
 const MAX_AUDIO_B64 = 2_000_000; // ~90s compressed
-const MIN_WORDS_FOR_CONFIDENCE = 3;
+// Minimum word count before we consider the transcript "long enough" to score fairly.
+// This drives `transcriptSufficiency` below — a transcript-length heuristic, NOT acoustic confidence.
+const MIN_WORDS_FOR_SUFFICIENCY = 3;
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 const VALID_CEFR = new Set(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
 
@@ -73,14 +75,23 @@ export async function onRequestPost(context) {
   // 5. Transcribe with Workers AI Whisper.
   let transcript = '';
   try {
-    const stt = await env.AI.run('@cf/openai/whisper', { audio: b64ToBytes(audioBase64) });
+    // Pin language to Croatian (ISO-639-1 'hr'); mirrors the `language: 'hr'` shape used
+    // by functions/api/stt.js for both Deepgram and OpenAI Whisper. Without this pin, short
+    // Croatian utterances get auto-detected as Italian/Romanian and transcribed wrong.
+    const stt = await env.AI.run('@cf/openai/whisper', {
+      audio: b64ToBytes(audioBase64),
+      language: 'hr',
+    });
     transcript = (stt && stt.text ? String(stt.text) : '').trim();
   } catch (e) {
     console.error('[assess-speaking] STT failed:', e && e.message);
     return err(502, 'stt_failed', origin);
   }
   const wordCount = transcript ? transcript.split(/\s+/).length : 0;
-  const confidence = wordCount >= MIN_WORDS_FOR_CONFIDENCE ? 0.9 : wordCount > 0 ? 0.3 : 0;
+  // transcriptSufficiency is a transcript-LENGTH heuristic (word-count bucket), NOT an
+  // acoustic/STT confidence. Below the consumer's floor it signals "too little speech to score".
+  const transcriptSufficiency =
+    wordCount >= MIN_WORDS_FOR_SUFFICIENCY ? 0.9 : wordCount > 0 ? 0.3 : 0;
 
   // 6. Rubric-score with Claude.
   let scores;
@@ -121,7 +132,7 @@ export async function onRequestPost(context) {
     return err(502, 'rubric_failed', origin);
   }
 
-  return new Response(JSON.stringify({ transcript, scores, confidence }), {
+  return new Response(JSON.stringify({ transcript, scores, transcriptSufficiency }), {
     status: 200,
     headers: CORS(origin),
   });
