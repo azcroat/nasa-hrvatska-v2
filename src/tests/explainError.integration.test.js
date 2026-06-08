@@ -1,5 +1,15 @@
 // src/tests/explainError.integration.test.js
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('../../functions/api/_requireAuth.js', () => ({
+  requireAuthedAI: vi.fn(async (context) => ({
+    ok: true,
+    uid: 'test-uid',
+    origin: context?.request?.headers?.get?.('origin') || 'https://nasahrvatska.com',
+    isDev: false,
+  })),
+}));
+
 import { onRequestPost } from '../../functions/api/explain-error.js';
 
 let capturedClaudeBody = null;

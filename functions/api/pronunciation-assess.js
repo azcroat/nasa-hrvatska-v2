@@ -3,43 +3,27 @@
 // Cognitive Services Pronunciation Assessment REST API, and returns phoneme-level
 // scores. Requires Firebase auth token (Authorization: Bearer <token>).
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-
-// ── CORS helpers (same pattern as pronunciation-coach.js) ─────────────────────
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  return {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Cache-Control': 'no-cache',
-  };
-}
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 function ok(body, origin) {
-  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      ...corsHeaders(origin),
+    },
+  });
 }
 function err(status, msg, origin) {
   return new Response(JSON.stringify({ ok: false, error: msg }), {
     status,
-    headers: corsHeaders(origin),
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      ...corsHeaders(origin),
+    },
   });
 }
 
@@ -97,25 +81,12 @@ export async function onRequestOptions({ request }) {
 }
 
 // ── Main handler ──────────────────────────────────────────────────────────────
-export async function onRequestPost({ request, env }) {
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
+export async function onRequestPost(context) {
+  const { request, env } = context;
 
-  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
-
-  // Rate limit: 10 requests per minute per IP
-  const allowed = await checkRateLimit(request, 10, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ ok: false, error: 'rate_limit' }), {
-      status: 429,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  if (!FIREBASE_PROJECT_ID) return err(500, 'Server misconfigured', origin);
-  const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
-  if (!uid) return err(401, 'Unauthorized', origin);
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 10 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
 
   // Check env vars early — return a clear signal so the client can fall back.
   const AZURE_KEY = env.AZURE_SPEECH_KEY;

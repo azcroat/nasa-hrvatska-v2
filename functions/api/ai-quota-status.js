@@ -49,8 +49,14 @@ export async function onRequestGet(context) {
   }
 
   const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-  if (FIREBASE_PROJECT_ID && !uid) {
+  if (!FIREBASE_PROJECT_ID) {
+    return new Response(JSON.stringify({ error: 'server_misconfigured' }), {
+      status: 500,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
+  }
+  const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
+  if (!uid) {
     return new Response(JSON.stringify({ error: 'unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },

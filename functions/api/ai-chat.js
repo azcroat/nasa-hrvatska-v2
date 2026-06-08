@@ -2,9 +2,8 @@
 // Keeps the API key server-side; never exposed to the browser
 // systemPrompt is built server-side from mode + params to prevent prompt injection
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 import { parseUserContext, renderContextPrompt } from './_userContext.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
@@ -49,38 +48,17 @@ function sanitizeCategory(cat) {
   return VALID.includes(cat) ? cat : 'greeting';
 }
 
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  return {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Cache-Control': 'no-cache',
-  };
-}
-
 function ok(body, origin) {
-  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
 }
 function err(status, msg, origin) {
-  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify({ error: msg }), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
 }
 
 // ── Server-side prompt builders ──────────────────────────────────────────────
@@ -528,48 +506,19 @@ function buildSystemPrompt(mode, params) {
 }
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(request.headers.get('origin') || ''),
+  });
 }
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
-  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
-
-  const allowed = await checkRateLimit(request, 40, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
-      status: 429,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  // Require valid Firebase auth token for AI endpoints
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-  if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), {
-      status: 401,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  // Daily AI quota check (cost 1)
-  const quota = await checkAIQuota(request, env, uid, 1);
-  if (!quota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'daily_quota_exceeded',
-        message: 'Daily AI limit reached. Resets at midnight UTC.',
-        resetAt: quota.resetAt,
-      }),
-      { status: 429, headers: corsHeaders(origin) },
-    );
-  }
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 40 });
+  if (!gate.ok) return gate.response;
+  const { origin, isDev } = gate;
 
   if (!ANTHROPIC_KEY) return err(503, 'AI_KEY_MISSING', origin);
 
@@ -799,8 +748,7 @@ export async function onRequestPost(context) {
       /* not JSON */
     }
     console.error('ai-chat.js: Anthropic API error', res.status, errMsg);
-    const isProduction = (env.ENVIRONMENT || 'production') !== 'development';
-    const clientMsg = isProduction
+    const clientMsg = !isDev
       ? 'AI service temporarily unavailable'
       : errMsg || 'Anthropic API error: HTTP ' + res.status;
     return err(res.status >= 500 ? 502 : res.status, clientMsg, origin);

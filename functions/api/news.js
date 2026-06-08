@@ -1,9 +1,8 @@
 // Cloudflare Pages Function — Croatian News RSS Proxy + Claude Simplification
 // Fetches real Croatian news and simplifies it to the user's CEFR level
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders as _corsHeaders } from './_helpers.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -15,37 +14,19 @@ const RSS_FEEDS = [
   { name: 'Večernji list', url: 'https://www.vecernji.hr/feeds/latest', category: 'news' },
 ];
 
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
+function newsCorsHeaders(origin) {
   return {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type',
     'Cache-Control': 'public, max-age=1800', // 30 min cache
+    ..._corsHeaders(origin),
   };
 }
 
 function ok(body, origin) {
-  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify(body), { status: 200, headers: newsCorsHeaders(origin) });
 }
 function err(status, msg, origin) {
-  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify({ error: msg }), { status, headers: newsCorsHeaders(origin) });
 }
 
 // Parse RSS XML into article objects
@@ -180,23 +161,35 @@ Include 5-6 key vocabulary items. Keep facts accurate.`;
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  return new Response(null, { status: 204, headers: _corsHeaders(origin) });
 }
 
 export async function onRequestGet(context) {
   const { request, env } = context;
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
-
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
-  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
-  const allowed = await checkRateLimit(request, 10, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
-      status: 429,
-      headers: corsHeaders(origin),
-    });
+  const gate = await requireAuthedAI(context, { cost: 4, rateLimit: 10 });
+  // For news, quota-429 serves curated fallback rather than a hard error.
+  // Other gate failures (403, 401, 500) are returned as-is.
+  if (!gate.ok) {
+    let gateBody;
+    try {
+      gateBody = await gate.response.clone().json();
+    } catch {
+      gateBody = {};
+    }
+    if (gateBody.error === 'daily_quota_exceeded') {
+      return ok(
+        {
+          articles: FALLBACK_ARTICLES.map((a) => ({ ...a, level: 'B1' })),
+          source: 'curated',
+          timestamp: Date.now(),
+        },
+        origin,
+      );
+    }
+    return gate.response;
   }
 
   if (!ANTHROPIC_KEY) return err(500, 'AI_KEY_MISSING', origin);
@@ -226,22 +219,6 @@ export async function onRequestGet(context) {
 
   if (rawArticles.length === 0) {
     // Return curated fallback articles if RSS fails
-    return ok(
-      {
-        articles: FALLBACK_ARTICLES.map((a) => ({ ...a, level })),
-        source: 'curated',
-        timestamp: Date.now(),
-      },
-      origin,
-    );
-  }
-
-  // Quota check before calling Claude 4× (one per article)
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-  const quota = await checkAIQuota(request, env, uid, 4);
-  if (!quota.allowed) {
-    // Serve curated fallback when daily limit reached — better than an error
     return ok(
       {
         articles: FALLBACK_ARTICLES.map((a) => ({ ...a, level })),

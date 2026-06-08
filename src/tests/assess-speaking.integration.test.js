@@ -100,11 +100,12 @@ describe('POST /api/assess-speaking', () => {
   });
 
   it('429 when daily quota is exceeded', async () => {
-    // Seed the KV store with turns already at the per-day limit (100) so the
+    // Seed the KV store with turns already at the per-day limit (300) so the
     // real checkAIQuota helper returns not-allowed for uid-1.
+    // NOTE: limit was raised from 100 → 300 in Task 1 (generous abuse ceiling).
     const overLimitKv = makeKvStub();
     const today = new Date().toISOString().slice(0, 10);
-    await overLimitKv.put(`quota:uid-1:${today}`, JSON.stringify({ turns: 100 }));
+    await overLimitKv.put(`quota:uid-1:${today}`, JSON.stringify({ turns: 300 }));
 
     const res = await onRequestPost({
       request: req(

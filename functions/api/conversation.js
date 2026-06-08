@@ -16,9 +16,8 @@
 // Response: Server-Sent Events stream. Each chunk is a JSON line ending in "\n\n".
 // Final event: { done: true, ...fullResponseObject }
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 import { parseUserContext, renderContextPrompt } from './_userContext.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
@@ -50,31 +49,6 @@ function sanitizeParam(value, maxLen = 200) {
       .trim()
       .slice(0, maxLen)
   );
-}
-
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  return {
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
 }
 
 const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -408,8 +382,10 @@ FIELD RULES:
 // ── CORS ───────────────────────────────────────────────────────────────────────
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(request.headers.get('origin') || ''),
+  });
 }
 
 // ── Main handler ───────────────────────────────────────────────────────────────
@@ -418,48 +394,13 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
-  // CORS
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
-  if (!isAllowedOrigin(origin, isDev)) {
-    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
-  }
-
-  // Stricter rate limit for conversation (expensive endpoint)
-  const allowed = await checkRateLimit(request, SESSION_RATE_LIMIT_PER_MINUTE, env);
-  if (!allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'rate_limit_exceeded',
-        message: 'Too many requests. Please wait a moment before sending another message.',
-        resetAt: new Date(Date.now() + 60000).toISOString(),
-      }),
-      { status: 429, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } },
-    );
-  }
-
-  // Auth
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-  if (FIREBASE_PROJECT_ID && !uid) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), {
-      status: 401,
-      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
-    });
-  }
-
-  // Daily AI quota check (cost 2 — streaming conversation is heavier)
-  const quota = await checkAIQuota(request, env, uid, 2);
-  if (!quota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'daily_quota_exceeded',
-        message: 'Daily AI limit reached. Resets at midnight UTC.',
-        resetAt: quota.resetAt,
-      }),
-      { status: 429, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } },
-    );
-  }
+  // Gate: origin allow-list → rate limit (4/min for streaming) → fail-closed auth → quota (cost 2)
+  const gate = await requireAuthedAI(context, {
+    cost: 2,
+    rateLimit: SESSION_RATE_LIMIT_PER_MINUTE,
+  });
+  if (!gate.ok) return gate.response;
+  const { origin, isDev } = gate;
 
   if (!ANTHROPIC_KEY) {
     // Return AI_KEY_MISSING so the client's existing error check in callMaja()

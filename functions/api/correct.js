@@ -1,100 +1,36 @@
 // Cloudflare Pages Function — AI Croatian Writing Correction
 // Uses Anthropic Claude to correct Croatian writing and provide feedback
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 import { parseUserContext, renderContextPrompt } from './_userContext.js';
-
-function sanitizeParam(value, maxLen = 200) {
-  return String(value || '')
-    .replace(/[\r\n]/g, ' ')
-    .replace(/[`\\]/g, '')
-    .trim()
-    .slice(0, maxLen);
-}
-
-function CORS(origin) {
-  return {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-}
-
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
+import { sanitizeParam } from './_helpers.js';
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: CORS(origin) });
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(request.headers.get('origin') || ''),
+  });
 }
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
-  if (!isAllowedOrigin(origin, isDev)) {
-    return new Response(JSON.stringify({ error: 'Forbidden' }), {
-      status: 403,
-      headers: CORS(origin),
-    });
-  }
-
-  const allowed = await checkRateLimit(request, 20, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
-      status: 429,
-      headers: CORS(origin),
-    });
-  }
-
-  // Auth — optional (guests use IP-based quota)
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-
-  // Daily AI quota (cost 1 — short correction call)
-  const quota = await checkAIQuota(request, env, uid, 1);
-  if (!quota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'daily_quota_exceeded',
-        message: 'Daily AI limit reached. Resets at midnight UTC.',
-        resetAt: quota.resetAt,
-      }),
-      { status: 429, headers: CORS(origin) },
-    );
-  }
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 20 });
+  if (!gate.ok) return gate.response;
+  const { origin, isDev } = gate;
+  const headers = { 'Content-Type': 'application/json', ...corsHeaders(origin) };
 
   if (!ANTHROPIC_KEY) {
-    return new Response(JSON.stringify({ error: 'AI_KEY_MISSING' }), {
-      status: 503,
-      headers: CORS(origin),
-    });
+    return new Response(JSON.stringify({ error: 'AI_KEY_MISSING' }), { status: 503, headers });
   }
 
   const ct = request.headers.get('content-type') || '';
   if (!ct.includes('application/json')) {
     return new Response(JSON.stringify({ error: 'Invalid content type' }), {
       status: 400,
-      headers: CORS(origin),
+      headers,
     });
   }
 
@@ -102,23 +38,17 @@ export async function onRequestPost(context) {
   try {
     reqBody = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
-      status: 400,
-      headers: CORS(origin),
-    });
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
   }
 
   const { prompt, text } = reqBody;
   if (typeof text !== 'string' || !text.trim()) {
-    return new Response(JSON.stringify({ error: 'Invalid input' }), {
-      status: 400,
-      headers: CORS(origin),
-    });
+    return new Response(JSON.stringify({ error: 'Invalid input' }), { status: 400, headers });
   }
   if (text.length > 3000) {
     return new Response(JSON.stringify({ error: 'Text too long (max 3000 chars)' }), {
       status: 400,
-      headers: CORS(origin),
+      headers,
     });
   }
 
@@ -184,7 +114,7 @@ If unsure, use "other". This field is required.`;
     console.error('[correct] network error calling Anthropic:', fetchErr.message);
     return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
       status: 502,
-      headers: CORS(origin),
+      headers,
     });
   }
 
@@ -196,7 +126,7 @@ If unsure, use "other". This field is required.`;
     console.error('[correct] failed to read Anthropic response body:', bodyErr.message);
     return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
       status: 502,
-      headers: CORS(origin),
+      headers,
     });
   }
 
@@ -215,7 +145,7 @@ If unsure, use "other". This field is required.`;
           ? errMsg || 'Anthropic API error: HTTP ' + response.status
           : 'AI service error',
       }),
-      { status: response.status >= 500 ? 502 : response.status, headers: CORS(origin) },
+      { status: response.status >= 500 ? 502 : response.status, headers },
     );
   }
 
@@ -227,7 +157,7 @@ If unsure, use "other". This field is required.`;
     console.error('[correct] JSON parse failed on Anthropic response:', rawBody.slice(0, 200));
     return new Response(JSON.stringify({ error: 'Invalid response from AI' }), {
       status: 502,
-      headers: CORS(origin),
+      headers,
     });
   }
 
@@ -251,6 +181,6 @@ If unsure, use "other". This field is required.`;
 
   return new Response(JSON.stringify(result), {
     status: 200,
-    headers: { ...CORS(origin), 'Cache-Control': 'no-store' },
+    headers: { ...headers, 'Cache-Control': 'no-store' },
   });
 }
