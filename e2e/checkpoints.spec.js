@@ -96,7 +96,9 @@ test.beforeEach(async ({ page }) => {
       body: JSON.stringify({
         transcript: 'Putovao sam u Zagreb.',
         scores: { range: 0.9, accuracy: 0.9, fluency: 0.9, task: 0.9 },
-        confidence: 0.9,
+        // R3.5 renamed the wire field confidence → transcriptSufficiency (a word-count
+        // length heuristic, not acoustic confidence). The scorer reads this exact key.
+        transcriptSufficiency: 0.9,
       }),
     }),
   );
