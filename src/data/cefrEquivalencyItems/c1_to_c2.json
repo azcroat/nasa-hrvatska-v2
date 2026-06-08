@@ -124,6 +124,246 @@
       "skill": "vocab"
     },
     {
+      "q": "What does the literary noun 'tlapnja' mean?",
+      "o": ["A solemn vow", "A delusion / vain illusion", "A loud quarrel", "A heavy burden"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In essayistic register, 'okoštao' (e.g. 'okoštale dogme') most precisely connotes:",
+      "o": ["Newly formulated", "Rigid and ossified / fossilized", "Widely accepted", "Carefully argued"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The idiom 'bacati novac kroz prozor' means:",
+      "o": ["To save money frugally", "To squander money recklessly", "To donate to charity", "To hide one's wealth"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the phrase 'trn u oku' connote?",
+      "o": ["A source of constant irritation / an eyesore", "A precious possession", "A passing fancy", "A trusted ally"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The collocation 'nepokolebljiva odlučnost' means:",
+      "o": ["Wavering hesitation", "Unshakeable resolve", "Reluctant agreement", "Sudden impulse"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In which register does 'rabiti' (rather than 'koristiti') most naturally belong?",
+      "o": ["Casual slang", "Elevated / formal-standard register", "Children's speech", "Regional dialect only"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The verb 'natuknuti' (e.g. 'natuknuo je mogućnost ostavke') means:",
+      "o": ["To declare openly and at length", "To hint / intimate briefly", "To firmly deny", "To loudly demand"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The idiom 'držati nekomu palčeve' means:",
+      "o": ["To threaten someone", "To keep one's fingers crossed for someone", "To owe someone money", "To envy someone"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the abstract noun 'mlakost' connote in a critical text (e.g. 'mlakost reakcije')?",
+      "o": ["Excessive zeal", "Lukewarmness / half-hearted tepidity", "Open hostility", "Cold precision"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The phrase 'sila boga ne moli' is a proverb meaning:",
+      "o": ["Might makes its own rules / the powerful need ask no one", "God helps those who pray", "Power corrupts the faithful", "Prayer overcomes all force"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "In journalistic register, 'eskalacija sukoba' means:",
+      "o": ["De-escalation of conflict", "Escalation / intensification of conflict", "Resolution of conflict", "Postponement of conflict"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The verb 'oprimjeriti' in academic prose means:",
+      "o": ["To refute with counter-examples", "To illustrate with an example", "To summarize briefly", "To translate literally"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'prešutjeti' mean (e.g. 'prešutio je istinu')?",
+      "o": ["To shout out", "To pass over in silence / withhold", "To repeat insistently", "To misremember"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The idiom 'pasti s konja na magarca' means:",
+      "o": ["To recover from a setback", "To go from bad to worse", "To make an unexpected profit", "To change one's mind suddenly"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In literary register, 'suton' most evocatively denotes:",
+      "o": ["Dawn", "Dusk / twilight", "Noon", "Midnight"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The adjective 'oporbeni' (e.g. 'oporbeni zastupnik') means:",
+      "o": ["Belonging to the governing party", "Belonging to the (parliamentary) opposition", "Independent / unaffiliated", "Newly elected"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'načeti temu' mean idiomatically?",
+      "o": ["To exhaust a topic completely", "To broach / touch upon a topic", "To avoid a topic", "To conclude a topic"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The noun 'predumišljaj' (legal register) means:",
+      "o": ["Premeditation", "Negligence", "Self-defence", "Confession"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The phrase 'kap koja je prelila čašu' means:",
+      "o": ["A generous gesture", "The last straw / final provocation", "A fortunate coincidence", "An empty threat"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In formal register, the connector 'štoviše' signals that what follows is:",
+      "o": ["A contradiction of the previous claim", "An even stronger / intensifying point ('moreover, indeed')", "A concession", "A mere repetition"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The verb 'okrznuti' (e.g. 'tek je okrznuo problem') connotes:",
+      "o": ["To analyse exhaustively", "To touch upon only superficially / graze", "To resolve definitively", "To exaggerate"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the literary adjective 'mrzovoljan' mean?",
+      "o": ["Cheerful", "Sullen / ill-tempered", "Generous", "Talkative"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The collocation 'oštrouman' describes a person who is:",
+      "o": ["Sharp-witted / perspicacious", "Stubborn", "Absent-minded", "Hot-tempered"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The idiom 'imati putra na glavi' means:",
+      "o": ["To be wealthy", "To have something to hide / not be blameless oneself", "To be very clever", "To be in a hurry"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The verb 'razobličiti' in critical prose means:",
+      "o": ["To disguise", "To expose / unmask", "To beautify", "To duplicate"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What nuance does 'navodno' add to a journalistic sentence?",
+      "o": ["Confirmed certainty", "Reported but unverified / 'allegedly'", "Strong endorsement", "Past completion"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The phrase 'tek toliko da se nešto kaže' implies the remark was:",
+      "o": ["Carefully considered", "Said merely for form's sake / perfunctory", "Deeply offensive", "Strictly confidential"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In elevated register, 'spoznaja' is best glossed as:",
+      "o": ["Recognition (greeting an acquaintance)", "Cognition / (act of) knowing, insight", "Confession", "Reminder"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The adjective 'suvisao' (e.g. 'suvisao odgovor') means:",
+      "o": ["Coherent / sensible and to the point", "Lengthy", "Hesitant", "Aggressive"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The idiom 'lije kao iz kabla' describes:",
+      "o": ["A drought", "Pouring rain", "A gentle breeze", "Dense fog"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'okosnica' mean (e.g. 'okosnica argumenta')?",
+      "o": ["A weak point", "The backbone / core framework", "A digression", "A footnote"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The verb 'posvjedočiti' in formal register means:",
+      "o": ["To bear witness / attest", "To deny under oath", "To consecrate", "To forecast"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The phrase 'nositi se s posljedicama' means:",
+      "o": ["To anticipate consequences", "To cope with / face up to the consequences", "To avoid consequences", "To exaggerate consequences"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the noun 'prijepor' mean in public-discourse register?",
+      "o": ["A firm consensus", "A point of contention / dispute", "A formal proposal", "A casual remark"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The collocation 'temeljita preinaka' means:",
+      "o": ["A superficial touch-up", "A thorough overhaul / modification", "A complete cancellation", "A temporary delay"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In elevated register, 'zaludu' means:",
+      "o": ["In vain / to no avail", "On purpose", "At once", "By chance"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the idiom 'okrenuti novi list' mean?",
+      "o": ["To turn over a new leaf / make a fresh start", "To betray a friend", "To repeat an old mistake", "To read more carefully"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The verb 'opovrgnuti' means:",
+      "o": ["To confirm", "To refute / rebut", "To postpone", "To summarize"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "In a critical review, 'patetičan' (in the Croatian sense) most often connotes:",
+      "o": ["Genuinely moving", "Overwrought / mawkishly grandiose", "Coldly factual", "Briefly humorous"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The connector 'utoliko' in 'utoliko je kritika opravdana' signals:",
+      "o": ["A flat contradiction", "A qualified extent ('to that extent / insofar')", "A temporal sequence", "An unrelated aside"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
       "q": "Choose the correct active past participle (glagolski pridjev radni) of 'doći' in m.sg.:",
       "o": ["došavši", "došao", "dolazeći", "dolazivši"],
       "c": 1,
@@ -244,6 +484,246 @@
       "skill": "grammar"
     },
     {
+      "q": "Complete with the correct case after the preposition 'usprkos': 'Usprkos ___, projekt je dovršen.'",
+      "o": ["svim poteškoćama", "svih poteškoća", "sve poteškoće", "svim poteškoća"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the standard genitive plural: 'Nemamo dovoljno ___.'",
+      "o": ["zadataka", "zadatka", "zadatci", "zadace"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which form correctly completes the comparative of quality: 'Ovaj je tekst ___ od prethodnoga.' (use 'dobar')",
+      "o": ["dobriji", "bolji", "najbolji", "boljiji"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the correct aspect: 'Dok sam ___ pismo, zazvonio je telefon.'",
+      "o": ["napisao", "pisao", "napišem", "napisavši"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the correct aspect: 'Čim ___ pismo, izašao je iz sobe.'",
+      "o": ["je pisao", "je napisao", "piše", "bi pisao"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct instrumental of accompaniment: 'Razgovarao je ___.'",
+      "o": ["s prijateljem", "prijateljem", "s prijatelja", "prijatelju"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct instrumental of means (no preposition): 'Pisao je ___.'",
+      "o": ["s olovkom", "olovkom", "olovku", "olovke"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence shows the correct partitive genitive after a quantity adverb?",
+      "o": ["Malo je ljudi došlo.", "Malo su ljudi došli.", "Malo ljudima došlo je.", "Malo ljude došlo je."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the grammatically required negative genitive: 'Nemam ___.'",
+      "o": ["vremena", "vrijeme", "vremenom", "vremenu"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct vocative: 'Dragi ___, hvala vam na pozivu.' (use 'prijatelj')",
+      "o": ["prijatelje", "prijatelju", "prijatelja", "prijatelji"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence uses 'koji' with correct animate accusative agreement?",
+      "o": ["Vidio sam čovjeka koji je čekao.", "Vidio sam čovjeka kojeg je čekao.", "Vidio sam čovjeka koji sam čekao.", "Vidio sam čovjeka kojega sam čekao."],
+      "c": 3,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional in a polite request: '___ li mi pomoći?'",
+      "o": ["Hoćete", "Biste", "Budete", "Htjedoste"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence correctly uses 'da' + present to express purpose after a verb of motion?",
+      "o": ["Došao je da pomogne.", "Došao je da je pomogao.", "Došao je da bi pomagao stalno.", "Došao je pomognuti."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the correct case after 'radi' (purpose): 'Otišao je ___ posla.'",
+      "o": ["radi", "zbog", "za", "po"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which preposition is correct for cause here: '___ kiše utakmica je odgođena.'",
+      "o": ["radi", "zbog", "uslijed čega", "zaradi"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Govorio je o ___ knjigama.' (use 'svoj')",
+      "o": ["svojim", "svojima", "svoje", "svojih"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence correctly distinguishes 'svoj' from 'njegov'? 'Ivan je uzeo ___ kaput (his own).'",
+      "o": ["njegov", "svoj", "njegovog", "svojega ga"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the locative after 'po': 'Šetali su ___ gradu.'",
+      "o": ["po grad", "po gradu", "po grada", "po gradom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which numeral construction is standard: 'U sobi su bila ___.'",
+      "o": ["dva prozora", "dvije prozora", "dva prozori", "dvaju prozora"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct genitive after the number 'pet': 'U razredu je ___.'",
+      "o": ["pet učenika", "pet učenici", "pet učenik", "pet učenicima"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence shows correct past-tense agreement with a feminine plural subject?",
+      "o": ["Žene su došle.", "Žene su došli.", "Žene su došla.", "Žene je došlo."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the correct comparative adverb: 'Radi ___ nego prije.' (use 'brzo')",
+      "o": ["brže", "brzije", "najbrže", "brzlje"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence correctly uses the aorist for vivid narration?",
+      "o": ["Ustadoh i iziđoh.", "Ustao iziđoh.", "Ustadoh i izaći.", "Ustanem i iziđoh."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the standard form of the imperfect of 'biti' (3rd sg.):",
+      "o": ["bijaše", "bivši", "budnem", "bijati"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the correct supine-like infinitive of intent after 'ići': 'Idem ___ kruh.' (most natural standard)",
+      "o": ["kupiti", "kupivši", "kupujući", "kupovati da"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which is the correct dative of 'ja' in 'Daj ___ knjigu.'?",
+      "o": ["mi", "me", "mnom", "meni je"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct clitic placement after a sentence-initial conjunction: 'Ako ___ vremena, doći ću.'",
+      "o": ["budem imao", "imam budem", "budem imati", "imati budem"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence correctly uses 'trebati' impersonally? ('One should rest.')",
+      "o": ["Treba se odmoriti.", "Treba odmoriti se.", "Treba da odmara se.", "Trebaju odmoriti."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the correct genitive after 'tijekom': 'Tijekom ___ mnogo se promijenilo.'",
+      "o": ["godine", "godinu", "godini", "godinom"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which form is the standard l-participle of 'htjeti' (m.sg.)?",
+      "o": ["htio", "htjeo", "hoćao", "htijao"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct reflexive passive (se-passive): 'Ovdje ___ hrvatski.'",
+      "o": ["govori se", "se govoriti", "je govoren", "govoreći se"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence correctly forms the comparative of 'lak' (easy/light)?",
+      "o": ["Ovaj je zadatak lakši.", "Ovaj je zadatak lakiji.", "Ovaj je zadatak lakšiji.", "Ovaj je zadatak laglji."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the negated existential: 'U sobi ___ nikoga.'",
+      "o": ["nema", "ne ima", "nije ima", "nemaju"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which is the standard accusative of 'tko' in 'Koga si vidio?'?",
+      "o": ["Koga", "Kome", "Kim", "Tko"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct construction: 'Nadam se ___ ćeš uspjeti.'",
+      "o": ["da", "kako da", "neka", "li"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence places the second-position clitic correctly with an object fronted for emphasis? ('I gave THE BOOK to him.')",
+      "o": ["Knjigu sam mu dao.", "Knjigu mu sam dao.", "Knjigu dao sam mu.", "Sam knjigu mu dao."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Complete with the standard genitive plural of 'sestra': 'Imam pet ___.'",
+      "o": ["sestara", "sestri", "sestre", "sestrah"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which option correctly expresses 'the older I get, the more I understand'?",
+      "o": ["Što sam stariji, to više razumijem.", "Kako stariji, više razumijem.", "Više stariji, više razumijem.", "Dok stariji, to razumijem."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'protiv': 'Glasovao je protiv ___.' (use 'prijedlog')",
+      "o": ["prijedloga", "prijedlog", "prijedlogu", "prijedlogom"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Which sentence correctly uses the verb 'sjećati se' with the required genitive object?",
+      "o": ["Sjećam se onoga ljeta.", "Sjećam se ono ljeto.", "Sjećam onomu ljetu.", "Sjećam se onome ljetu."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
       "q": "According to the passage, what is Krleža's principal contribution as described here?",
       "o": ["The introduction of folk poetry into elite circles", "The fusion of Central European modernism with a distinctly Croatian critical conscience", "The systematic translation of French symbolism", "The codification of Štokavian as a literary norm"],
       "c": 1,
@@ -312,6 +792,146 @@
       "c": 0,
       "skill": "reading",
       "passage": "Pitanje statusa zavičajnih govora u odnosu prema standardnome jeziku rijetko se može razriješiti jednoznačnim sudom. Standard, oblikovan kao instrument javne komunikacije, počiva na svjesnom izboru i nužnoj normizaciji; dijalekti pak žive sporijim, organskim ritmom, prenoseći se obiteljskom i lokalnom uporabom. Napetost među njima nije patološka, nego, gledano dugoročno, plodonosna: standard se obogaćuje povremenim posuđenicama iz živih idioma, dok dijalekti, ondje gdje su podržani književnim i medijskim prisustvom, opstaju usprkos pritisku homogenizacije. Osiromašiti jedno znači osiromašiti i drugo — što ozbiljna jezična politika ne smije previdjeti."
+    },
+    {
+      "q": "What is the author's stance toward the 'nostalgičari' described in the passage?",
+      "o": ["Wholehearted agreement with their idealization of the past.", "Sympathy for the loss they feel, combined with a critique of their selective, idealized memory.", "Complete indifference to their concerns.", "An accusation that they are deliberately falsifying history."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Nostalgičari za nekadašnjom čaršijom skloni su prošlost slikati u toplim, gotovo idiličnim tonovima. Nesumnjivo, nešto se uistinu izgubilo: onaj polagani ritam ulice, prepoznatljiva lica, osjećaj pripadnosti. No takvo je sjećanje, valja priznati, izrazito probirljivo. Ono prešućuje tijesne stanove bez grijanja, krutu društvenu kontrolu i skučenost obzora koja je mnoge tjerala u bijeg. Idealizirana prošlost nije laž, ali jest poluistina — pažljivo uređena tako da iz nje ispadne sve što ne pristaje uz željenu sliku. Razumjeti tu selektivnost ne znači prezreti čežnju; znači je smjestiti u realniji okvir."
+    },
+    {
+      "q": "What does the phrase 'poluistina — pažljivo uređena' imply about idealized memory in the passage?",
+      "o": ["It is an outright fabrication with no basis.", "It is partly true but deliberately curated to exclude inconvenient facts.", "It is a fully accurate historical record.", "It is irrelevant to understanding the past."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Nostalgičari za nekadašnjom čaršijom skloni su prošlost slikati u toplim, gotovo idiličnim tonovima. Nesumnjivo, nešto se uistinu izgubilo: onaj polagani ritam ulice, prepoznatljiva lica, osjećaj pripadnosti. No takvo je sjećanje, valja priznati, izrazito probirljivo. Ono prešućuje tijesne stanove bez grijanja, krutu društvenu kontrolu i skučenost obzora koja je mnoge tjerala u bijeg. Idealizirana prošlost nije laž, ali jest poluistina — pažljivo uređena tako da iz nje ispadne sve što ne pristaje uz željenu sliku. Razumjeti tu selektivnost ne znači prezreti čežnju; znači je smjestiti u realniji okvir."
+    },
+    {
+      "q": "The closing sentence ('Razumjeti tu selektivnost ne znači prezreti čežnju') most precisely signals that the author:",
+      "o": ["Dismisses nostalgia as contemptible.", "Distinguishes analysing the bias of nostalgia from scorning the longing itself.", "Urges readers to abandon all attachment to the past.", "Concludes that the past was objectively better."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Nostalgičari za nekadašnjom čaršijom skloni su prošlost slikati u toplim, gotovo idiličnim tonovima. Nesumnjivo, nešto se uistinu izgubilo: onaj polagani ritam ulice, prepoznatljiva lica, osjećaj pripadnosti. No takvo je sjećanje, valja priznati, izrazito probirljivo. Ono prešućuje tijesne stanove bez grijanja, krutu društvenu kontrolu i skučenost obzora koja je mnoge tjerala u bijeg. Idealizirana prošlost nije laž, ali jest poluistina — pažljivo uređena tako da iz nje ispadne sve što ne pristaje uz željenu sliku. Razumjeti tu selektivnost ne znači prezreti čežnju; znači je smjestiti u realniji okvir."
+    },
+    {
+      "q": "What is the dominant tone of the narrator toward the official's speech in this passage?",
+      "o": ["Earnest admiration", "Subtle irony bordering on sarcasm", "Neutral, detached reportage", "Open, furious denunciation"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Gospodin ministar govorio je, kao i obično, s onim dostojanstvenim mirom čovjeka koji je već davno prestao slušati samoga sebe. Riječi su tekle glatko, uglađeno, besprijekorno — i savršeno prazno. Publika je pljeskala na predviđenim mjestima, jer je tako red, a novinari su marljivo bilježili rečenice koje će sutra, pretočene u naslove, zvučati jednako uvjerljivo i jednako ništavno. Bila je to predstava u kojoj su svi znali svoje uloge, pa i mi koji smo se pretvarali da nam nije dosadno."
+    },
+    {
+      "q": "The phrase 'savršeno prazno' (about the minister's words) functions in the passage to convey that:",
+      "o": ["The speech was concise and efficient.", "The speech was polished in form yet devoid of substance.", "The speech was emotionally overwhelming.", "The speech contained classified information."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Gospodin ministar govorio je, kao i obično, s onim dostojanstvenim mirom čovjeka koji je već davno prestao slušati samoga sebe. Riječi su tekle glatko, uglađeno, besprijekorno — i savršeno prazno. Publika je pljeskala na predviđenim mjestima, jer je tako red, a novinari su marljivo bilježili rečenice koje će sutra, pretočene u naslove, zvučati jednako uvjerljivo i jednako ništavno. Bila je to predstava u kojoj su svi znali svoje uloge, pa i mi koji smo se pretvarali da nam nije dosadno."
+    },
+    {
+      "q": "What does the narrator imply by 'pa i mi koji smo se pretvarali da nam nije dosadno'?",
+      "o": ["The audience, narrator included, was complicit in maintaining a hollow ritual.", "Only the journalists were bored.", "The narrator alone found the speech genuinely engaging.", "The minister deliberately bored the audience as a tactic."],
+      "c": 0,
+      "skill": "reading",
+      "passage": "Gospodin ministar govorio je, kao i obično, s onim dostojanstvenim mirom čovjeka koji je već davno prestao slušati samoga sebe. Riječi su tekle glatko, uglađeno, besprijekorno — i savršeno prazno. Publika je pljeskala na predviđenim mjestima, jer je tako red, a novinari su marljivo bilježili rečenice koje će sutra, pretočene u naslove, zvučati jednako uvjerljivo i jednako ništavno. Bila je to predstava u kojoj su svi znali svoje uloge, pa i mi koji smo se pretvarali da nam nije dosadno."
+    },
+    {
+      "q": "What is the author's principal argument about the role of doubt in scholarship?",
+      "o": ["Doubt is a weakness that scholars must overcome to reach truth.", "Methodical doubt is not the opposite of knowledge but its precondition.", "Doubt should be reserved only for the work of one's opponents.", "Certainty is always preferable to doubt in any discipline."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "U javnosti se sumnja često poistovjećuje s neznanjem ili kolebljivošću, kao da je čvrsta tvrdnja sama po sebi znak intelektualne snage. Ozbiljna znanost, međutim, počiva na suprotnoj pretpostavci. Metodička sumnja nije zazor pred spoznajom, nego njezin preduvjet: tek onaj tko je spreman propitati i vlastite zaključke može razlikovati provjereno od tek vjerovanog. Dogmatik koji ne sumnja ni u što zapravo ne zna mnogo — on samo vjeruje glasno. Paradoks je u tome što upravo spremnost na sumnju, koja se izvana doima kao slabost, omogućuje najtrajnije oblike znanja."
+    },
+    {
+      "q": "What does the author mean by 'on samo vjeruje glasno' (about the dogmatist)?",
+      "o": ["The dogmatist possesses superior, well-founded knowledge.", "The dogmatist mistakes loud conviction for genuine knowledge.", "The dogmatist is merely shy about expressing doubt.", "The dogmatist quietly questions everything."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "U javnosti se sumnja često poistovjećuje s neznanjem ili kolebljivošću, kao da je čvrsta tvrdnja sama po sebi znak intelektualne snage. Ozbiljna znanost, međutim, počiva na suprotnoj pretpostavci. Metodička sumnja nije zazor pred spoznajom, nego njezin preduvjet: tek onaj tko je spreman propitati i vlastite zaključke može razlikovati provjereno od tek vjerovanog. Dogmatik koji ne sumnja ni u što zapravo ne zna mnogo — on samo vjeruje glasno. Paradoks je u tome što upravo spremnost na sumnju, koja se izvana doima kao slabost, omogućuje najtrajnije oblike znanja."
+    },
+    {
+      "q": "The 'paradoks' the author identifies in the final sentence is that:",
+      "o": ["Loud belief is the surest route to truth.", "What appears outwardly as weakness (willingness to doubt) enables the most durable knowledge.", "Knowledge and belief are ultimately indistinguishable.", "Scholars should avoid questioning their own conclusions."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "U javnosti se sumnja često poistovjećuje s neznanjem ili kolebljivošću, kao da je čvrsta tvrdnja sama po sebi znak intelektualne snage. Ozbiljna znanost, međutim, počiva na suprotnoj pretpostavci. Metodička sumnja nije zazor pred spoznajom, nego njezin preduvjet: tek onaj tko je spreman propitati i vlastite zaključke može razlikovati provjereno od tek vjerovanog. Dogmatik koji ne sumnja ni u što zapravo ne zna mnogo — on samo vjeruje glasno. Paradoks je u tome što upravo spremnost na sumnju, koja se izvana doima kao slabost, omogućuje najtrajnije oblike znanja."
+    },
+    {
+      "q": "What is the author's main claim about technological convenience in this passage?",
+      "o": ["Convenience is an unqualified good that should be maximized.", "Each gain in convenience quietly exacts a cost we are slow to perceive.", "Technology has no measurable effect on how we live.", "Older technologies were always superior to newer ones."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Svaka nova udobnost dolazi s neviđenim računom koji se plaća na rate, gotovo neprimjetno. Kad smo prepustili pamćenje brojeva uređajima, oslobodili smo um — ali smo ujedno zaboravili kako se pamti. Kad su nas algoritmi počeli voditi kroz grad, prestali smo graditi unutarnju kartu prostora. Ništa od toga nije katastrofa, niti poziv na povratak u prošlost; bilo bi smiješno odricati se onoga što olakšava život. Riječ je tek o tome da budemo svjesni razmjene: za svaku stvar koju stroj preuzme, jedna se naša sposobnost tiho povlači u stranu. Pitanje nije trebamo li takve alate, nego znamo li još i bez njih."
+    },
+    {
+      "q": "The metaphor 'račun koji se plaća na rate' (a bill paid in instalments) conveys that the cost of convenience is:",
+      "o": ["Paid all at once and immediately obvious.", "Incurred gradually and almost imperceptibly over time.", "Entirely avoidable with no trade-off.", "Borne only by future generations, never the present."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Svaka nova udobnost dolazi s neviđenim računom koji se plaća na rate, gotovo neprimjetno. Kad smo prepustili pamćenje brojeva uređajima, oslobodili smo um — ali smo ujedno zaboravili kako se pamti. Kad su nas algoritmi počeli voditi kroz grad, prestali smo graditi unutarnju kartu prostora. Ništa od toga nije katastrofa, niti poziv na povratak u prošlost; bilo bi smiješno odricati se onoga što olakšava život. Riječ je tek o tome da budemo svjesni razmjene: za svaku stvar koju stroj preuzme, jedna se naša sposobnost tiho povlači u stranu. Pitanje nije trebamo li takve alate, nego znamo li još i bez njih."
+    },
+    {
+      "q": "The final question ('znamo li još i bez njih') implies that the author's chief concern is:",
+      "o": ["Whether such tools should be banned outright.", "Whether we retain the underlying abilities once the tools are removed.", "Whether the tools are affordable for everyone.", "Whether future tools will be even more convenient."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Svaka nova udobnost dolazi s neviđenim računom koji se plaća na rate, gotovo neprimjetno. Kad smo prepustili pamćenje brojeva uređajima, oslobodili smo um — ali smo ujedno zaboravili kako se pamti. Kad su nas algoritmi počeli voditi kroz grad, prestali smo graditi unutarnju kartu prostora. Ništa od toga nije katastrofa, niti poziv na povratak u prošlost; bilo bi smiješno odricati se onoga što olakšava život. Riječ je tek o tome da budemo svjesni razmjene: za svaku stvar koju stroj preuzme, jedna se naša sposobnost tiho povlači u stranu. Pitanje nije trebamo li takve alate, nego znamo li još i bez njih."
+    },
+    {
+      "q": "What attitude does the speaker in this passage take toward the praise she receives?",
+      "o": ["Sincere gratitude and pride", "Discomfort and quiet self-deprecation that undercuts the praise", "Open resentment toward those praising her", "Complete indifference verging on boredom"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kažu mi da sam hrabra. Klimam glavom, zahvaljujem, smješkam se onako kako se to od mene očekuje. A zapravo, da budem iskrena, nisam učinila ništa što bi zasluživalo tu krupnu riječ. Samo sam radila ono što se moralo, dan za danom, jer drugoga izbora naprosto nije bilo. Hrabrost, koliko ja znam, podrazumijeva izbor — mogućnost da se ustukne, pa da se ipak ostane. Ja nisam birala; bila sam gurnuta. Pa ipak, lakše je drugima vjerovati u priču o junakinji nego prihvatiti da je riječ tek o ženi koja nije imala kamo pobjeći."
+    },
+    {
+      "q": "Why does the speaker resist the word 'hrabrost' (courage) as applied to her?",
+      "o": ["Because she believes she did far more than mere courage would require.", "Because, in her view, courage presupposes a genuine choice she never had.", "Because she considers courage an insult.", "Because she does not understand what the word means."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kažu mi da sam hrabra. Klimam glavom, zahvaljujem, smješkam se onako kako se to od mene očekuje. A zapravo, da budem iskrena, nisam učinila ništa što bi zasluživalo tu krupnu riječ. Samo sam radila ono što se moralo, dan za danom, jer drugoga izbora naprosto nije bilo. Hrabrost, koliko ja znam, podrazumijeva izbor — mogućnost da se ustukne, pa da se ipak ostane. Ja nisam birala; bila sam gurnuta. Pa ipak, lakše je drugima vjerovati u priču o junakinji nego prihvatiti da je riječ tek o ženi koja nije imala kamo pobjeći."
+    },
+    {
+      "q": "The closing observation ('lakše je drugima vjerovati u priču o junakinji') implies that, for the speaker, the heroic narrative chiefly serves:",
+      "o": ["Her own need for recognition.", "The emotional comfort of the observers rather than the truth of her situation.", "A factual and accurate account of events.", "An attempt to secure material reward."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kažu mi da sam hrabra. Klimam glavom, zahvaljujem, smješkam se onako kako se to od mene očekuje. A zapravo, da budem iskrena, nisam učinila ništa što bi zasluživalo tu krupnu riječ. Samo sam radila ono što se moralo, dan za danom, jer drugoga izbora naprosto nije bilo. Hrabrost, koliko ja znam, podrazumijeva izbor — mogućnost da se ustukne, pa da se ipak ostane. Ja nisam birala; bila sam gurnuta. Pa ipak, lakše je drugima vjerovati u priču o junakinji nego prihvatiti da je riječ tek o ženi koja nije imala kamo pobjeći."
+    },
+    {
+      "q": "What is the author's central argument about the relationship between freedom and responsibility?",
+      "o": ["Freedom and responsibility are opposing forces; more of one means less of the other.", "Genuine freedom is inseparable from responsibility, and freedom without it degenerates into mere caprice.", "Responsibility is a constraint imposed from outside that diminishes freedom.", "Freedom is an illusion, so responsibility is meaningless."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "U svakodnevnom govoru sloboda se rado zamišlja kao odsutnost svake prepreke — mogućnost da se čini što se hoće. No takvo je shvaćanje, ako se domisli do kraja, jalovo. Sloboda lišena odgovornosti nije sloboda nego puka samovolja, a samovolja se redovito izvrgne u tlačenje drugih. Tek kad svoj izbor prepoznam kao nešto za što ću odgovarati — pred drugima i pred samim sobom — taj izbor postaje istinski moj. Stoga odgovornost nije okov nametnut slobodi izvana; ona je, naprotiv, ono što slobodi daje težinu i smisao. Sloboda bez odgovornosti lebdi, ničemu obvezana i ničemu privržena."
+    },
+    {
+      "q": "What is the prevailing mood evoked in this descriptive passage?",
+      "o": ["Festive exuberance", "Hushed, melancholic stillness on the edge of departure", "Tense anticipation of danger", "Brisk, businesslike efficiency"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kasna je jesen već ogolila aleju, i lišće, sad smeđe i krhko, šuštalo je pod nogama poput nečega što se oprašta. Kavane su se praznile ranije nego inače; konobari su brisali stolove polako, kao da im se nikamo ne žuri, jer ionako više nikoga nema. Grad je utonuo u onu tišinu koja ne donosi mir nego sjetu — tišinu pred zimu, kad se čini da je svaki rastanak konačan, a svaki odlazak malo umiranje. Stajao sam na uglu i gledao kako se gase prozori, jedan za drugim, poput zvijezda koje netko strpljivo skida s neba."
+    },
+    {
+      "q": "The simile 'poput zvijezda koje netko strpljivo skida s neba' (windows going dark like stars being taken down) chiefly reinforces:",
+      "o": ["A sense of festive illumination", "A sense of gradual, deliberate extinguishing and loss", "An impression of sudden violence", "A feeling of mechanical routine devoid of emotion"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kasna je jesen već ogolila aleju, i lišće, sad smeđe i krhko, šuštalo je pod nogama poput nečega što se oprašta. Kavane su se praznile ranije nego inače; konobari su brisali stolove polako, kao da im se nikamo ne žuri, jer ionako više nikoga nema. Grad je utonuo u onu tišinu koja ne donosi mir nego sjetu — tišinu pred zimu, kad se čini da je svaki rastanak konačan, a svaki odlazak malo umiranje. Stajao sam na uglu i gledao kako se gase prozori, jedan za drugim, poput zvijezda koje netko strpljivo skida s neba."
+    },
+    {
+      "q": "What is the author's main point about the popular phrase 'samo iznosim činjenice' ('I'm just stating facts')?",
+      "o": ["Facts can indeed be presented entirely free of interpretation.", "The very selection and arrangement of 'facts' already embeds a judgement, so the claim of pure neutrality is itself a rhetorical move.", "Facts are always false and should be distrusted.", "Only experts are entitled to state facts in public debate."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Malo je rečenica u javnoj raspravi podmuklijih od one koja počinje riječima: 'Ja samo iznosim činjenice.' Time govornik nastoji sebe smjestiti izvan spora, kao puki prenositelj onoga što jest, dok protivnika prešutno svrstava među pristrane. No nijedan iskaz o svijetu nije tek popis činjenica: već sam izbor što će se spomenuti, a što izostaviti, kojim će se redom poredati i kojom bojom obojiti, nosi sud. Pozivanje na 'gole činjenice' stoga nije izlazak iz retorike, nego jedan od njezinih najprobranijih poteza — utoliko djelotvorniji što se predstavlja kao njezina suprotnost."
+    },
+    {
+      "q": "Why does the author call the appeal to 'gole činjenice' especially effective ('utoliko djelotvorniji')?",
+      "o": ["Because it openly admits its own bias.", "Because it disguises a rhetorical move as the very opposite of rhetoric.", "Because facts are inherently more persuasive than arguments.", "Because it is used only by genuine experts."],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Malo je rečenica u javnoj raspravi podmuklijih od one koja počinje riječima: 'Ja samo iznosim činjenice.' Time govornik nastoji sebe smjestiti izvan spora, kao puki prenositelj onoga što jest, dok protivnika prešutno svrstava među pristrane. No nijedan iskaz o svijetu nije tek popis činjenica: već sam izbor što će se spomenuti, a što izostaviti, kojim će se redom poredati i kojom bojom obojiti, nosi sud. Pozivanje na 'gole činjenice' stoga nije izlazak iz retorike, nego jedan od njezinih najprobranijih poteza — utoliko djelotvorniji što se predstavlja kao njezina suprotnost."
     }
   ]
 }

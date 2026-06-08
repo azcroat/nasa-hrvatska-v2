@@ -312,6 +312,629 @@
       "c": 2,
       "skill": "reading",
       "passage": "Petra živi u Kanadi, ali njezini djed i baka došli su iz Hrvatske. Iako razumije osnovne riječi, željela bi naučiti hrvatski dovoljno dobro da može razgovarati s rođacima kad ih posjeti. Svaki dan koristi jednu aplikaciju na mobitelu petnaest minuta prije spavanja. Kaže da joj se najviše sviđa što može učiti kad god ima vremena, čak i u autobusu na putu do posla. Najteže joj padaju padeži, ali misli da će uz redovito vježbanje uspjeti."
+    },
+
+    {
+      "q": "What does 'utjecaj' mean?",
+      "o": ["influence", "entrance", "escape", "outcome"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'svrha' mean?",
+      "o": ["surface", "purpose", "summary", "survey"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'nedostatak' mean?",
+      "o": ["advantage", "necessity", "disadvantage / shortcoming", "agreement"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'prednost' mean?",
+      "o": ["advantage", "preference only", "front door", "prediction"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'iskreno' mean?",
+      "o": ["surprisingly", "honestly / sincerely", "carefully", "unfortunately"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'društvo' mean?",
+      "o": ["destiny", "society / company", "duty", "decade"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'vlast' mean?",
+      "o": ["property", "authority / power (government)", "loyalty", "freedom"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'to develop' in Croatian?",
+      "o": ["razviti", "razdvojiti", "raspraviti", "razmisliti"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'to achieve' in Croatian?",
+      "o": ["postići", "postojati", "postaviti", "postupiti"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'svjestan' mean?",
+      "o": ["worldly", "aware / conscious", "fresh", "festive"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'pretpostaviti' mean?",
+      "o": ["to present", "to postpone", "to assume / suppose", "to prepare"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'zahtjev' mean?",
+      "o": ["request / demand", "gratitude", "warmth", "achievement"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'sposobnost' mean?",
+      "o": ["possibility", "ability", "responsibility", "personality"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'okolnost' mean?",
+      "o": ["surroundings", "circumstance", "occasion", "boundary"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'to suggest / propose' in Croatian?",
+      "o": ["predložiti", "predstaviti", "predvidjeti", "preuzeti"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'posljedica' mean?",
+      "o": ["consequence", "sequence", "possession", "position"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'nažalost' mean?",
+      "o": ["luckily", "unfortunately", "definitely", "frankly"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'zabrinut' mean?",
+      "o": ["bored", "worried / concerned", "entertained", "abandoned"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'znanje' mean?",
+      "o": ["science", "knowledge", "sign", "meaning"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'to notice' in Croatian?",
+      "o": ["primijetiti", "primiti", "pripremiti", "približiti"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'iznenađenje' mean?",
+      "o": ["disappointment", "surprise", "annoyance", "excitement"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'troškovi' mean?",
+      "o": ["traces", "costs / expenses", "trophies", "tracks"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "How do you say 'to allow / permit' in Croatian?",
+      "o": ["dopustiti", "dopuniti", "dopisati", "doputovati"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'cilj' mean?",
+      "o": ["circle", "goal / aim", "ceiling", "value"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'ponašanje' mean?",
+      "o": ["offering", "behaviour", "repetition", "ownership"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the word that best means 'although / even though' to start a concessive clause:",
+      "o": ["zato", "iako", "dakle", "naime"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which connector best expresses 'therefore / for that reason'?",
+      "o": ["međutim", "stoga", "premda", "usprkos"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which connector means 'however' (contrast)?",
+      "o": ["jer", "naime", "međutim", "čim"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What is the most precise meaning of 'uglavnom'?",
+      "o": ["mainly / for the most part", "immediately", "rarely", "by chance"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The phrase 'imati pravo' most commonly means:",
+      "o": ["to have the law", "to be right (correct)", "to have a lawyer", "to go straight"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "'Voditi računa o nečemu' is an idiom meaning:",
+      "o": ["to lead an account", "to take care of / pay attention to something", "to do the maths", "to keep a diary"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word fits a formal register for 'to obtain / acquire'?",
+      "o": ["zgrabiti", "steći", "ukrasti", "uzeti"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "'Naprotiv' is used to signal:",
+      "o": ["agreement and addition", "the opposite of what was just said", "a conclusion", "an example"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which is the closest synonym for 'gotovo' in the sense of 'almost'?",
+      "o": ["potpuno", "skoro", "uvijek", "rijetko"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The verb 'odustati' means:",
+      "o": ["to stand up", "to give up / quit", "to stay", "to insist"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which best captures the nuance of 'zapravo'?",
+      "o": ["actually / in fact", "right away", "on purpose", "by the way"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "'Sumnjati' means:",
+      "o": ["to summarise", "to doubt / suspect", "to assume", "to sum up"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which adjective best means 'reliable' (a person you can count on)?",
+      "o": ["pouzdan", "poslušan", "ponosan", "popularan"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "The expression 'po mom mišljenju' is used to:",
+      "o": ["report someone else's words", "introduce a personal opinion", "give a command", "ask a question"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word means 'on the contrary, instead' and links two clauses, as in 'Ne ljutim se, ___ mi je drago'?",
+      "o": ["nego", "jer", "ali ipak", "dok"],
+      "c": 0,
+      "skill": "vocab"
+    },
+
+    {
+      "q": "Choose the correct aspect: 'Obično ___ ručak oko podne, ali danas neću stići.'",
+      "o": ["pojedem", "jedem", "pojeo sam", "pojesti"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Čim ___ pismo, javit ću ti se.' (as soon as I write/finish it)",
+      "o": ["pišem", "napišem", "pisao", "pisati"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Svaki put kad ga ___, sjetim se djetinjstva.' (whenever I see/hear it — repeated, imperfective)",
+      "o": ["čujem", "začujem", "čuti", "čuo"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct verb form after 'bojati se' (to fear): 'Bojim se ___.'",
+      "o": ["mrak", "mraka", "mraku", "mrakom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'radovati se' (to look forward to): 'Radujem se ___.'",
+      "o": ["ljeto", "ljeta", "ljetu", "ljetom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'sjećati se' (to remember): 'Sjećam se ___.'",
+      "o": ["taj dan", "tog dana", "tom danu", "tim danom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'baviti se' (to be engaged in): 'Bavim se ___.'",
+      "o": ["sport", "sporta", "sportu", "sportom"],
+      "c": 3,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional: 'Da sam znao, ___ ti rekao ranije.'",
+      "o": ["budem", "bih", "bi", "ću"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional for 'they would help': 'Oni ___ pomogli kad bi mogli.'",
+      "o": ["bi", "bih", "bismo", "biste"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional in the polite request: '___ li mi pomoći?' (Would you (formal) help me?)",
+      "o": ["Bi", "Biste", "Bih", "Bismo"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative pronoun (accusative, masc. inanimate object): 'Ovo je film ___ sam gledao jučer.'",
+      "o": ["koji", "kojeg", "kojem", "kojim"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative pronoun (animate object): 'To je prijatelj ___ sam upoznao u Splitu.'",
+      "o": ["koji", "kojeg", "kojem", "kojim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative form (instrumental): 'Olovka ___ pišem je nova.'",
+      "o": ["koja", "koju", "kojom", "kojoj"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative form (dative): 'Žena ___ sam dao knjigu je profesorica.'",
+      "o": ["koja", "koju", "kojoj", "kojom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Reported speech: 'Rekao je da ___ sutra doći.' (He said he would come tomorrow.)",
+      "o": ["ću", "će", "bi", "je"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Reported speech: 'Pitala me ___ sam gladan.' (She asked me whether I was hungry.)",
+      "o": ["da", "što", "jesam li", "je li"],
+      "c": 3,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'bez' (without): 'Ne mogu živjeti bez ___.'",
+      "o": ["glazba", "glazbu", "glazbe", "glazbom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'prema' (towards): 'Idemo prema ___.'",
+      "o": ["centar", "centra", "centru", "centrom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'zbog' (because of): 'Kasnim zbog ___.'",
+      "o": ["promet", "prometa", "prometu", "prometom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'tijekom' (during): 'Tijekom ___ puno smo naučili.'",
+      "o": ["godina", "godine", "godinu", "godinom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct comparative: 'Ova knjiga je ___ od one.' (more interesting)",
+      "o": ["zanimljiva", "zanimljivija", "najzanimljivija", "zanimljivo"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct superlative: 'To je ___ grad u Hrvatskoj.' (the biggest)",
+      "o": ["velik", "veći", "najveći", "velikom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the irregular comparative of 'dobar' (good): 'Danas mi je ___ nego jučer.'",
+      "o": ["dobrije", "bolje", "najbolje", "dobro"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Što više čitam, to ___ razumijem.' (the more I understand)",
+      "o": ["više", "najviše", "mnogo", "puno"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct reflexive/passive: 'Hrvatski jezik ___ u školi.' (Croatian is studied/learned at school.)",
+      "o": ["uči", "uči se", "učimo", "učen"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: 'Ostat ću kod kuće ___ pada kiša.' (because)",
+      "o": ["jer", "da", "iako", "ako"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: '___ budem imao vremena, doći ću.' (If — open/real condition)",
+      "o": ["Da", "Ako", "Iako", "Jer"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conjunction: '___ je bilo kasno, nastavili smo raditi.' (Although)",
+      "o": ["Jer", "Iako", "Dakle", "Čim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct clitic order: 'On ___ jučer dao knjigu.' (He gave me the book yesterday — 'mi je')",
+      "o": ["mi je", "je mi", "mi sam", "je me"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct order of clitics: 'Nadam se da ___ vidjeti sutra.' (that we will see each other — 'ćemo se')",
+      "o": ["se ćemo", "ćemo se", "ćemo si", "se hoćemo"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct past tense agreement: 'Djevojke ___ u kino.' (The girls went.)",
+      "o": ["je otišao", "su otišle", "su otišli", "je otišla"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct number agreement: 'U sobi su bila ___ djeteta.' (three children)",
+      "o": ["tri", "trojica", "troje", "tre"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'pet' (numbers 5+): 'Imam pet ___.' (five books)",
+      "o": ["knjige", "knjiga", "knjigu", "knjigama"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct verb government: 'Trebam ___ za putovanje.' (I need money — accusative object)",
+      "o": ["novac", "novca", "novcu", "novcem"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Volio bih da ___ sa mnom.' (that you would come — informal)",
+      "o": ["dođeš", "dolaziš", "doći", "došao"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Dvije sam ga godine ___ svaki tjedan.' (I visited him every week — habitual past, imperfective)",
+      "o": ["posjetio", "posjećivao", "posjetiti", "posjeti"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Why is the perfective 'kupiti' wrong in 'Dok sam ___ namirnice, srela sam susjedu'?",
+      "o": ["Because the background action is ongoing, so the imperfective 'kupovala' is needed", "Because 'dok' always takes the future", "Because 'srela' is also perfective", "It is not wrong"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'protiv' (against): 'Glasali su protiv ___.' (against the proposal)",
+      "o": ["prijedlog", "prijedloga", "prijedlogu", "prijedlogom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct verb government: 'Sve ovisi o ___.' (It all depends on you — locative after 'ovisiti o')",
+      "o": ["tebe", "tebi", "ti", "tobom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the grammatically correct sentence:",
+      "o": ["Veselim se na ljeto.", "Veselim se ljetu.", "Veselim se ljeta.", "Veselim ljeto."],
+      "c": 1,
+      "skill": "grammar"
+    },
+
+    {
+      "q": "What is the author's main attitude towards remote work in this text?",
+      "o": ["Strongly opposed to it", "Balanced — sees clear benefits but also real drawbacks", "Indifferent", "Convinced it suits everyone"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Rad od kuće postao je sve popularniji posljednjih godina. Mnogi cijene slobodu da sami organiziraju svoje vrijeme i činjenicu da ne moraju svaki dan putovati na posao. S druge strane, neki priznaju da im nedostaje izravan kontakt s kolegama i da se kod kuće teže koncentriraju. Stručnjaci stoga savjetuju da svatko sam procijeni odgovara li mu takav način rada, jer ono što jednome savršeno odgovara, drugome može biti pravo opterećenje."
+    },
+    {
+      "q": "What do experts advise according to the text?",
+      "o": ["That everyone should work from home", "That nobody should work from home", "That each person should judge for themselves whether it suits them", "That companies should ban remote work"],
+      "c": 2,
+      "skill": "reading",
+      "passage": "Rad od kuće postao je sve popularniji posljednjih godina. Mnogi cijene slobodu da sami organiziraju svoje vrijeme i činjenicu da ne moraju svaki dan putovati na posao. S druge strane, neki priznaju da im nedostaje izravan kontakt s kolegama i da se kod kuće teže koncentriraju. Stručnjaci stoga savjetuju da svatko sam procijeni odgovara li mu takav način rada, jer ono što jednome savršeno odgovara, drugome može biti pravo opterećenje."
+    },
+    {
+      "q": "What can be inferred about the phrase 'drugome može biti pravo opterećenje'?",
+      "o": ["Remote work is objectively a burden", "The same arrangement can be experienced very differently by different people", "Colleagues are a burden", "Travelling to work is relaxing"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Rad od kuće postao je sve popularniji posljednjih godina. Mnogi cijene slobodu da sami organiziraju svoje vrijeme i činjenicu da ne moraju svaki dan putovati na posao. S druge strane, neki priznaju da im nedostaje izravan kontakt s kolegama i da se kod kuće teže koncentriraju. Stručnjaci stoga savjetuju da svatko sam procijeni odgovara li mu takav način rada, jer ono što jednome savršeno odgovara, drugome može biti pravo opterećenje."
+    },
+    {
+      "q": "Why did Maja eventually change her mind about living in a big city?",
+      "o": ["She got a better job offer in the village", "She realised the calm and lower costs of a smaller town suited her better", "Her friends all moved away", "The city became too expensive to visit"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Maja je oduvijek sanjala o životu u velikom gradu. Čim je završila fakultet, preselila se u Zagreb i zaposlila se u marketinškoj agenciji. Prve su je godine oduševljavali kazališta, koncerti i mnoštvo ljudi. No s vremenom je počela primjećivati koliko je umorna od gužve, buke i visokih troškova stanovanja. Lani je dobila priliku raditi na daljinu pa se vratila u rodni gradić. Sada kaže da joj mir i niži troškovi puno više odgovaraju nego što je ikad mislila."
+    },
+    {
+      "q": "What does the phrase 'puno više odgovaraju nego što je ikad mislila' suggest about Maja?",
+      "o": ["She always knew she would return", "Her preference surprised even herself", "She still regrets leaving the city", "She dislikes her hometown"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Maja je oduvijek sanjala o životu u velikom gradu. Čim je završila fakultet, preselila se u Zagreb i zaposlila se u marketinškoj agenciji. Prve su je godine oduševljavali kazališta, koncerti i mnoštvo ljudi. No s vremenom je počela primjećivati koliko je umorna od gužve, buke i visokih troškova stanovanja. Lani je dobila priliku raditi na daljinu pa se vratila u rodni gradić. Sada kaže da joj mir i niži troškovi puno više odgovaraju nego što je ikad mislila."
+    },
+    {
+      "q": "What made Maja's return to her hometown possible?",
+      "o": ["A promotion at the agency", "The chance to work remotely", "Cheaper transport", "A family inheritance"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Maja je oduvijek sanjala o životu u velikom gradu. Čim je završila fakultet, preselila se u Zagreb i zaposlila se u marketinškoj agenciji. Prve su je godine oduševljavali kazališta, koncerti i mnoštvo ljudi. No s vremenom je počela primjećivati koliko je umorna od gužve, buke i visokih troškova stanovanja. Lani je dobila priliku raditi na daljinu pa se vratila u rodni gradić. Sada kaže da joj mir i niži troškovi puno više odgovaraju nego što je ikad mislila."
+    },
+    {
+      "q": "What is the main purpose of this notice?",
+      "o": ["To advertise a new bus line", "To inform residents about a temporary change to the schedule", "To complain about traffic", "To sell monthly tickets"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Obavještavamo putnike da će zbog radova na cesti autobusna linija broj 12 od ponedjeljka do petka voziti izmijenjenim putem. Tijekom tog razdoblja autobus neće stajati na stanici kod tržnice, već na privremenoj stanici ispred pošte. Molimo putnike da računaju na moguća kašnjenja od pet do deset minuta. Redovan raspored vraća se sljedeće subote. Zahvaljujemo na razumijevanju."
+    },
+    {
+      "q": "Where will the bus stop during the works?",
+      "o": ["At the market stop", "At a temporary stop in front of the post office", "At the train station", "It will not stop at all"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Obavještavamo putnike da će zbog radova na cesti autobusna linija broj 12 od ponedjeljka do petka voziti izmijenjenim putem. Tijekom tog razdoblja autobus neće stajati na stanici kod tržnice, već na privremenoj stanici ispred pošte. Molimo putnike da računaju na moguća kašnjenja od pet do deset minuta. Redovan raspored vraća se sljedeće subote. Zahvaljujemo na razumijevanju."
+    },
+    {
+      "q": "When does the regular schedule return?",
+      "o": ["Next Monday", "Next Saturday", "In five to ten minutes", "It does not say"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Obavještavamo putnike da će zbog radova na cesti autobusna linija broj 12 od ponedjeljka do petka voziti izmijenjenim putem. Tijekom tog razdoblja autobus neće stajati na stanici kod tržnice, već na privremenoj stanici ispred pošte. Molimo putnike da računaju na moguća kašnjenja od pet do deset minuta. Redovan raspored vraća se sljedeće subote. Zahvaljujemo na razumijevanju."
+    },
+    {
+      "q": "What is Goran's main reason for recommending the language course?",
+      "o": ["It was very cheap", "The teacher made grammar understandable and lessons felt useful", "It was close to his home", "He received a certificate"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Prijateljica mi je preporučila tečaj hrvatskoga jezika pa sam se prošle jeseni upisao. Iskreno, na početku sam bio skeptičan jer sam već probao učiti sam i odustao nakon mjesec dana. Međutim, ovaj je tečaj bio sasvim drukčije iskustvo. Profesorica je gramatiku objašnjavala tako jasno da su mi se padeži napokon počeli činiti logičnima, a ne kao niz pravila koja treba napamet naučiti. Svaki sat imali smo i razgovor o svakodnevnim temama, pa sam brzo stekao samopouzdanje. Svima koji oklijevaju toplo preporučujem da pokušaju."
+    },
+    {
+      "q": "Why had Goran's earlier attempt to learn the language failed?",
+      "o": ["The course was too expensive", "He had tried to study alone and gave up after a month", "He could not find a teacher", "He moved to another city"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Prijateljica mi je preporučila tečaj hrvatskoga jezika pa sam se prošle jeseni upisao. Iskreno, na početku sam bio skeptičan jer sam već probao učiti sam i odustao nakon mjesec dana. Međutim, ovaj je tečaj bio sasvim drukčije iskustvo. Profesorica je gramatiku objašnjavala tako jasno da su mi se padeži napokon počeli činiti logičnima, a ne kao niz pravila koja treba napamet naučiti. Svaki sat imali smo i razgovor o svakodnevnim temama, pa sam brzo stekao samopouzdanje. Svima koji oklijevaju toplo preporučujem da pokušaju."
+    },
+    {
+      "q": "What does Goran imply about how he used to perceive Croatian cases?",
+      "o": ["As logical from the start", "As a set of rules to memorise without understanding", "As unimportant for speaking", "As easier than vocabulary"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Prijateljica mi je preporučila tečaj hrvatskoga jezika pa sam se prošle jeseni upisao. Iskreno, na početku sam bio skeptičan jer sam već probao učiti sam i odustao nakon mjesec dana. Međutim, ovaj je tečaj bio sasvim drukčije iskustvo. Profesorica je gramatiku objašnjavala tako jasno da su mi se padeži napokon počeli činiti logičnima, a ne kao niz pravila koja treba napamet naučiti. Svaki sat imali smo i razgovor o svakodnevnim temama, pa sam brzo stekao samopouzdanje. Svima koji oklijevaju toplo preporučujem da pokušaju."
+    },
+    {
+      "q": "What is the writer's overall message about social media in this text?",
+      "o": ["It should be banned for young people", "It is purely harmful", "It can be useful if used in moderation and with awareness", "It is only useful for businesses"],
+      "c": 2,
+      "skill": "reading",
+      "passage": "Društvene mreže danas su dio gotovo svakodnevice. One nam omogućuju da ostanemo u kontaktu s prijateljima koji žive daleko i da brzo dođemo do informacija. No mnogi stručnjaci upozoravaju da pretjerano korištenje može utjecati na san, koncentraciju pa čak i raspoloženje. Ključ nije u tome da ih potpuno izbjegavamo, nego da budemo svjesni koliko vremena na njima provodimo. Ako ih koristimo s mjerom, mogu biti koristan alat, a ne teret."
+    },
+    {
+      "q": "According to the text, what is the key to a healthy relationship with social media?",
+      "o": ["Avoiding them completely", "Being aware of how much time we spend on them", "Using them only at night", "Following more accounts"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Društvene mreže danas su dio gotovo svakodnevice. One nam omogućuju da ostanemo u kontaktu s prijateljima koji žive daleko i da brzo dođemo do informacija. No mnogi stručnjaci upozoravaju da pretjerano korištenje može utjecati na san, koncentraciju pa čak i raspoloženje. Ključ nije u tome da ih potpuno izbjegavamo, nego da budemo svjesni koliko vremena na njima provodimo. Ako ih koristimo s mjerom, mogu biti koristan alat, a ne teret."
+    },
+    {
+      "q": "Which possible negative effect of overuse is NOT mentioned in the text?",
+      "o": ["Sleep", "Concentration", "Mood", "Eyesight"],
+      "c": 3,
+      "skill": "reading",
+      "passage": "Društvene mreže danas su dio gotovo svakodnevice. One nam omogućuju da ostanemo u kontaktu s prijateljima koji žive daleko i da brzo dođemo do informacija. No mnogi stručnjaci upozoravaju da pretjerano korištenje može utjecati na san, koncentraciju pa čak i raspoloženje. Ključ nije u tome da ih potpuno izbjegavamo, nego da budemo svjesni koliko vremena na njima provodimo. Ako ih koristimo s mjerom, mogu biti koristan alat, a ne teret."
+    },
+    {
+      "q": "What does the email writer mainly want from the reader?",
+      "o": ["To confirm whether they can attend the meeting and on which day", "To pay an invoice", "To send a report immediately", "To cancel the project"],
+      "c": 0,
+      "skill": "reading",
+      "passage": "Poštovani gospodine Horvat, javljam Vam se u vezi sastanka o novom projektu. Predlažem da se nađemo idući tjedan, u utorak ili srijedu, kako bismo na vrijeme dogovorili sve pojedinosti. Molim Vas da mi do petka potvrdite koji Vam termin više odgovara. Ako Vam nijedan dan ne odgovara, slobodno predložite drugi. Unaprijed zahvaljujem i srdačno Vas pozdravljam."
+    },
+    {
+      "q": "What register and relationship does the email suggest between the writer and Mr Horvat?",
+      "o": ["Close friends, very informal", "A formal, professional relationship", "Family members", "Strangers who have never communicated and never will again"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Poštovani gospodine Horvat, javljam Vam se u vezi sastanka o novom projektu. Predlažem da se nađemo idući tjedan, u utorak ili srijedu, kako bismo na vrijeme dogovorili sve pojedinosti. Molim Vas da mi do petka potvrdite koji Vam termin više odgovara. Ako Vam nijedan dan ne odgovara, slobodno predložite drugi. Unaprijed zahvaljujem i srdačno Vas pozdravljam."
+    },
+    {
+      "q": "What does the writer offer if neither proposed day works?",
+      "o": ["To cancel the project", "That Mr Horvat may suggest another day", "To meet the same week regardless", "To send the details by email instead"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Poštovani gospodine Horvat, javljam Vam se u vezi sastanka o novom projektu. Predlažem da se nađemo idući tjedan, u utorak ili srijedu, kako bismo na vrijeme dogovorili sve pojedinosti. Molim Vas da mi do petka potvrdite koji Vam termin više odgovara. Ako Vam nijedan dan ne odgovara, slobodno predložite drugi. Unaprijed zahvaljujem i srdačno Vas pozdravljam."
+    },
+    {
+      "q": "What is the main point the grandmother makes in her advice to Tina?",
+      "o": ["That money is the most important thing in life", "That it is worth choosing work you enjoy, even if it pays less", "That Tina should never change jobs", "That young people work too little"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kad sam bila tvojih godina, govorila mi je baka, svi su me nagovarali da prihvatim posao u banci jer je bio siguran i dobro plaćen. Ja sam, međutim, oduvijek voljela raditi s djecom pa sam na kraju postala učiteljica. Plaća nikad nije bila velika, ali svako sam jutro odlazila na posao s veseljem. Zato ti, Tina, savjetujem da dobro razmisliš što te zaista usrećuje. Novac je važan, ali život je predug da bi ga provela radeći nešto što ne voliš."
+    },
+    {
+      "q": "Why did the grandmother become a teacher rather than work in a bank?",
+      "o": ["The bank rejected her", "She had always loved working with children", "Teaching paid better", "Her family owned a school"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kad sam bila tvojih godina, govorila mi je baka, svi su me nagovarali da prihvatim posao u banci jer je bio siguran i dobro plaćen. Ja sam, međutim, oduvijek voljela raditi s djecom pa sam na kraju postala učiteljica. Plaća nikad nije bila velika, ali svako sam jutro odlazila na posao s veseljem. Zato ti, Tina, savjetujem da dobro razmisliš što te zaista usrećuje. Novac je važan, ali život je predug da bi ga provela radeći nešto što ne voliš."
     }
   ]
 }
