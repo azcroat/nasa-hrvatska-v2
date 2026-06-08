@@ -244,6 +244,486 @@
       "skill": "grammar"
     },
     {
+      "q": "What does 'pravosuđe' mean?",
+      "o": ["legislation", "judiciary (justice system)", "the police", "taxation"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the abstract noun 'ravnodušnost' mean?",
+      "o": ["fairness", "indifference", "equality", "balance"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'gospodarstvo' (in the economic sense):",
+      "o": ["household", "the economy", "ownership", "leadership"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the verbal noun 'donošenje' mean (as in 'donošenje odluka')?",
+      "o": ["the bringing/making (of)", "the rejection (of)", "the delay (of)", "the announcement (of)"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'sumnjičav' mean?",
+      "o": ["confident", "suspicious / distrustful", "generous", "careless"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the best meaning of the idiom 'trljati ruke'",
+      "o": ["to be cold", "to gloat / relish an advantage", "to be nervous", "to work hard"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'nepristran' mean?",
+      "o": ["impartial", "impatient", "unreliable", "indifferent"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word is the formal/literary register for 'house' (as opposed to the everyday 'kuća')?",
+      "o": ["zgrada", "dom", "stan", "koliba"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'nadležnost'",
+      "o": ["responsibility/jurisdiction (competence to decide)", "negligence", "supervision", "membership"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the idiom 'gledati kroz prste (nekome)' mean?",
+      "o": ["to watch carefully", "to turn a blind eye / let something slide", "to be jealous", "to count money"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'oporavak' mean?",
+      "o": ["recovery", "departure", "complaint", "agreement"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'zlouporaba'",
+      "o": ["misuse / abuse", "usefulness", "frequent use", "reuse"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the connector 'štoviše' signal?",
+      "o": ["however (contrast)", "moreover / what is more (intensifying addition)", "therefore (result)", "for example"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the connector 'naprotiv' mean?",
+      "o": ["likewise", "on the contrary", "in addition", "meanwhile"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'unaprijed' ",
+      "o": ["backwards", "in advance / beforehand", "gradually", "by chance"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'ishod' mean?",
+      "o": ["entrance", "outcome / result", "income", "exception"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of the idiom 'staviti na kocku'",
+      "o": ["to put in order", "to put at stake / risk", "to set aside", "to give up"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'pristran' mean?",
+      "o": ["accessible", "biased / partial", "approachable", "decent"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'suzdržan'",
+      "o": ["reserved / restrained", "talkative", "generous", "stubborn"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'posljedica' mean?",
+      "o": ["cause", "consequence", "condition", "coincidence"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which is the more formal/bureaucratic word for 'to enable / make possible'?",
+      "o": ["dati", "omogućiti", "pustiti", "pokazati"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the verbal noun 'poboljšanje' mean?",
+      "o": ["worsening", "improvement", "comparison", "explanation"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of the idiom 'ići niz vodu'",
+      "o": ["to go swimming", "to go to ruin / fall apart", "to relax", "to travel far"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'okosnica' mean (e.g. 'okosnica programa')?",
+      "o": ["the backbone / core", "the appendix", "the summary", "the introduction"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'temeljit'",
+      "o": ["superficial", "thorough", "temporary", "tempting"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'navodno' signal in a sentence?",
+      "o": ["certainly / for sure", "allegedly / supposedly (reported, not confirmed)", "unfortunately", "obviously"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'pretjerivanje'",
+      "o": ["exaggeration", "preparation", "interruption", "comparison"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the idiom 'držati nekoga na oku' mean?",
+      "o": ["to keep an eye on someone", "to ignore someone", "to trust someone", "to console someone"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'nepovjerenje' mean?",
+      "o": ["confidence", "distrust", "carelessness", "ingratitude"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'razborit'",
+      "o": ["reckless", "sensible / prudent", "talkative", "generous"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'uzajaman' mean (e.g. 'uzajamno poštovanje')?",
+      "o": ["one-sided", "mutual / reciprocal", "occasional", "unconditional"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of the idiom 'naći zajednički jezik'",
+      "o": ["to learn a foreign language", "to find common ground / reach understanding", "to translate something", "to argue loudly"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'preinaka' mean?",
+      "o": ["a copy", "a modification / alteration", "a cancellation", "a repetition"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the more formal/literary word for 'to begin' (as opposed to colloquial 'početi'):",
+      "o": ["započeti", "stati", "krenuti", "otići"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'dvojba' mean?",
+      "o": ["a duty", "a dilemma / doubt", "a duel", "a duplicate"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of 'opravdan'",
+      "o": ["forgiven", "justified", "delayed", "obligatory"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the connector 'doduše' signal?",
+      "o": ["a concession (admittedly / it's true that…)", "a cause", "a purpose", "a sequence"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'sveobuhvatan' mean?",
+      "o": ["partial", "comprehensive / all-encompassing", "occasional", "superficial"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the meaning of the idiom 'baciti sjenu na nešto'",
+      "o": ["to brighten something", "to cast a shadow over / tarnish something", "to hide something", "to praise something"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'pothvat' mean?",
+      "o": ["an undertaking / venture", "a punishment", "a misunderstanding", "a shortcut"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "Choose the correct aspect: 'Svaki dan ___ na posao u osam sati.' (Every day I go to work at eight — habitual.)",
+      "o": ["odem", "odlazim", "otići ću", "otišao sam"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Čim ___ pismo, javit ću ti.' (As soon as I write the letter, I'll let you know — single completed future action.)",
+      "o": ["pišem", "budem pisao", "napišem", "pisat ću"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct verb: 'Već tri godine ___ na istom projektu.' (I have been working on the same project for three years.)",
+      "o": ["radim", "uradim", "odradim", "radio sam"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Sat vremena ___ taj tekst i napokon ga razumio.' (I read that text for an hour and finally understood it.)",
+      "o": ["pročitao sam", "čitao sam", "čitam", "čitat ću"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct mood: 'Tražili su da svi ___ na vrijeme.' (They demanded that everyone arrive on time.)",
+      "o": ["dolaze", "dođu", "dolazili", "doći će"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the grammatically correct sentence (object case after a negated verb):",
+      "o": ["Nemam vremena.", "Nemam vrijeme.", "Nemam vremenu.", "Nemam vremenom."],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Bojim se ___.' (I'm afraid of the dark.)",
+      "o": ["mrak", "mraka", "mraku", "mrakom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'unatoč': 'Unatoč ___ , nastavili su raditi.' (Despite the difficulties, they kept working.)",
+      "o": ["poteškoće", "poteškoća", "poteškoćama", "poteškoćom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Sjećam se ___ djetinjstva.' (I remember my childhood.)",
+      "o": ["svoje", "svog", "svojem", "svojim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct passive (impersonal se-passive): 'O tom problemu ___ već godinama.' (That problem has been discussed for years.)",
+      "o": ["raspravlja se", "raspravlja ga", "raspravljano", "raspravljati se"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct verbal-noun construction: '___ stranih jezika otvara mnoga vrata.' (Learning foreign languages opens many doors.)",
+      "o": ["Učiti", "Učenje", "Naučiti", "Učen"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct connector: 'Nije došao na sastanak, ___ nije ni nazvao.' (He didn't come to the meeting; what's more, he didn't even call.)",
+      "o": ["nego", "štoviše", "premda", "dok"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form (animate accusative): 'Vidio sam ___ u parku.' (I saw your brother in the park.)",
+      "o": ["tvoj brat", "tvojeg brata", "tvom bratu", "tvojim bratom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form (inanimate accusative): 'Kupio sam novi ___.' (I bought a new car.)",
+      "o": ["auto", "auta", "autu", "autom"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct comparative: 'Ovaj je zadatak ___ od prošloga.' (This task is more difficult than the last one.)",
+      "o": ["teži", "teža", "teško", "najteži"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct superlative form: 'To je ___ rješenje koje smo imali.' (That is the best solution we had.)",
+      "o": ["bolje", "najbolje", "dobro", "boljem"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct connector: 'Ostao je miran ___ je situacija bila vrlo napeta.' (He stayed calm even though the situation was very tense.)",
+      "o": ["jer", "premda", "pa", "te"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative pronoun (genitive): 'Pisac ___ knjigu čitam dobio je nagradu.' (The writer whose book I'm reading won an award.)",
+      "o": ["koji", "kojeg", "čiju", "kojemu"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct form: 'Nakon što ___ ručak, otišli smo u šetnju.' (After we had eaten lunch, we went for a walk.)",
+      "o": ["jedemo", "smo pojeli", "jeli smo", "jedimo"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct word order (clitic placement, second position): 'Jučer ___ u kazalištu.' (Yesterday I saw them at the theatre.)",
+      "o": ["sam ih vidio", "ih sam vidio", "vidio sam ih jučer", "sam vidio ih"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'prema': 'Bili su ljubazni prema ___.' (They were kind to the guests.)",
+      "o": ["goste", "gostiju", "gostima", "gosti"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct dative reflexive: 'Kupila ___ novu haljinu.' (She bought herself a new dress.)",
+      "o": ["se", "si", "ju", "je"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct mood after 'možda': 'Možda ___ sutra, ako stignem.' (Maybe I'll come tomorrow, if I manage.)",
+      "o": ["dođem", "dođoh", "dolazio bih", "dolazi"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct connector expressing result: 'Toliko je padala kiša ___ se rijeka izlila.' (It rained so much that the river overflowed.)",
+      "o": ["jer", "da", "iako", "dok"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct future-exact (futur drugi): 'Ako ___ vremena, pomoći ću ti.' (If I have time, I'll help you.)",
+      "o": ["budem imao", "imam", "imao bih", "imat ću"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct verb agreement (mixed-gender plural subject): 'Marko i Ana ___ rano.' (Marko and Ana left early.)",
+      "o": ["otišla su", "otišli su", "otišle su", "otišao je"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct genitive after a number: 'U sobi je bilo pet ___.' (There were five students in the room.)",
+      "o": ["studenti", "studenta", "studenata", "studentima"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct connector: '___ da je sve pripremio, ipak je zaboravio ključeve.' (Despite having prepared everything, he still forgot the keys.)",
+      "o": ["Zato", "Usprkos tome", "Jer", "Čim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Nemoj ___ vrata, hladno je.' (Don't open the door, it's cold — negative imperative, repeated/general prohibition.)",
+      "o": ["otvoriti", "otvarati", "otvori", "otvorivši"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'zbog': 'Kasnili smo zbog ___.' (We were late because of the traffic jam.)",
+      "o": ["gužva", "gužvu", "gužve", "gužvom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional in a polite request: '___ li mi pomoći oko prijevoda?' (Would you help me with the translation?)",
+      "o": ["Hoćeš", "Bi", "Biste", "Možeš"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct instrumental of means: 'Pismo je poslano ___.' (The letter was sent by mail.)",
+      "o": ["pošta", "poštu", "pošti", "poštom"],
+      "c": 3,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct reflexive passive agreement: 'Nove zgrade ___ vrlo brzo.' (New buildings are being built very quickly.)",
+      "o": ["gradi se", "grade se", "građene", "gradio se"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct connector signalling concession then contrast: 'Trudio se, ___ ipak nije uspio.' (He tried hard, but nevertheless did not succeed.)",
+      "o": ["pa", "no", "jer", "dok"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct verbal noun: 'Zabranjeno je ___ na ovom mjestu.' (Parking is forbidden in this place.)",
+      "o": ["parkirati", "parkiranje", "parkiran", "parkira"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Ova je odluka u skladu sa ___.' (This decision is in accordance with the law.)",
+      "o": ["zakon", "zakona", "zakonu", "zakonom"],
+      "c": 3,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect pairing for repeated past habit: 'Kao dijete, često ___ kod bake.' (As a child, I often used to stay at grandma's.)",
+      "o": ["ostanem", "ostajao sam", "ostao sam", "ostajem"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct relative clause form: 'To je grad u ___ sam odrastao.' (That is the city in which I grew up.)",
+      "o": ["koji", "kojem", "kojeg", "kojim"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct aspect: 'Dok ___ večeru, zazvonio je telefon.' (While I was making dinner, the phone rang — ongoing background action.)",
+      "o": ["spremim", "spremam", "spremio sam", "spremit ću"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'tijekom': 'Tijekom ___ puno je padala kiša.' (It rained a lot during the night.)",
+      "o": ["noć", "noći", "noću", "noćom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
       "q": "What is the main argument of the passage?",
       "o": [
         "Social networks are mainly used for entertainment.",
@@ -362,6 +842,246 @@
       "c": 1,
       "skill": "reading",
       "passage": "Iako se posljednjih godina mnogo govori o krizi čitanja, brojke pokazuju složeniju sliku. Prodaja tiskanih knjiga u Hrvatskoj blago opada, ali istodobno raste broj korisnika knjižnica i slušatelja audioknjiga. Mlađi naraštaji često biraju digitalne formate, dok stariji ostaju vjerni klasičnoj knjizi. Književni kritičari naglašavaju da se mijenjaju navike, ali ne i potreba za pričom: ljudi i dalje žele biti dirnuti, informirani i potaknuti na razmišljanje. U tom smislu, knjige, neovisno o obliku, zadržavaju važnu ulogu u kulturnom životu društva."
+    },
+    {
+      "q": "What is the author's attitude toward the proposed reform?",
+      "o": [
+        "Enthusiastically supportive without reservations.",
+        "Cautiously skeptical — welcoming the intent but doubting the execution.",
+        "Completely opposed on principle.",
+        "Entirely indifferent to the outcome."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Najavljena reforma obrazovanja zvuči, na prvi pogled, kao dugo očekivani korak naprijed. Tko bi se, uostalom, mogao protiviti modernijim programima i manje nabijenim učionicama? Ipak, kad se prijeđe preko velikih riječi, ostaje neugodno pitanje: tko će sve to provesti i čime? Nastavnici su već preopterećeni, a obećana sredstva tek su brojke na papiru. Ne sumnjam u dobre namjere predlagatelja; sumnjam u to hoće li ijedna od tih namjera preživjeti susret sa stvarnošću."
+    },
+    {
+      "q": "What is the tone of the closing sentence ('sumnjam u to hoće li ijedna od tih namjera preživjeti susret sa stvarnošću')?",
+      "o": [
+        "Hopeful and reassuring.",
+        "Ironic and resigned.",
+        "Angry and accusatory.",
+        "Neutral and purely factual."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Najavljena reforma obrazovanja zvuči, na prvi pogled, kao dugo očekivani korak naprijed. Tko bi se, uostalom, mogao protiviti modernijim programima i manje nabijenim učionicama? Ipak, kad se prijeđe preko velikih riječi, ostaje neugodno pitanje: tko će sve to provesti i čime? Nastavnici su već preopterećeni, a obećana sredstva tek su brojke na papiru. Ne sumnjam u dobre namjere predlagatelja; sumnjam u to hoće li ijedna od tih namjera preživjeti susret sa stvarnošću."
+    },
+    {
+      "q": "What can be inferred about the narrator's feelings toward the village she returns to?",
+      "o": [
+        "She is indifferent and only visits out of obligation.",
+        "She feels a bittersweet mix of belonging and estrangement.",
+        "She is eager to move back permanently.",
+        "She resents the village and never wishes to return."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kad god se vratim u rodno selo, isti me osjećaj dočeka na ulazu: kao da me ono i prepoznaje i ne prepoznaje. Kuće su iste, no prozori su slijepi, a dvorišta tiha. Susjedi koji su nekoć sjedili pred vratima sada su tek imena na nadgrobnim pločama. Hodam ulicama svojeg djetinjstva poput stranca koji slučajno zna gdje se što nalazi. I dok mi srce zna da sam tu kod kuće, sve ostalo govori da kući više nema povratka."
+    },
+    {
+      "q": "Which phrase best captures the central paradox the narrator describes?",
+      "o": [
+        "The village has grown larger but emptier.",
+        "She is at home in a place to which there is no return.",
+        "She no longer remembers her childhood.",
+        "The neighbours have forgotten her name."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kad god se vratim u rodno selo, isti me osjećaj dočeka na ulazu: kao da me ono i prepoznaje i ne prepoznaje. Kuće su iste, no prozori su slijepi, a dvorišta tiha. Susjedi koji su nekoć sjedili pred vratima sada su tek imena na nadgrobnim pločama. Hodam ulicama svojeg djetinjstva poput stranca koji slučajno zna gdje se što nalazi. I dok mi srce zna da sam tu kod kuće, sve ostalo govori da kući više nema povratka."
+    },
+    {
+      "q": "What is the author's main stance on remote work in the passage?",
+      "o": [
+        "It is unequivocally better than office work.",
+        "Its benefits are real but come with costs that are too often ignored.",
+        "It should be abolished and everyone should return to offices.",
+        "It makes no measurable difference to productivity."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Rad od kuće često se predstavlja kao čista dobit: nema gubljenja vremena na putovanje, više slobode, veća produktivnost. Sve je to djelomično točno. No ono što se rjeđe spominje jest cijena koja se plaća u sitnim ratama — zamagljena granica između posla i privatnog života, osjećaj izoliranosti, tiho iščezavanje onih usputnih razgovora iz kojih se nekoć rađala suradnja. Tvrditi da je rad od kuće naprosto bolji jednako je pojednostavnjeno kao i tvrditi da je gori. Istina, kao i obično, prebiva negdje između."
+    },
+    {
+      "q": "What rhetorical strategy does the author use in the final sentence?",
+      "o": [
+        "Issuing a direct command to the reader.",
+        "Rejecting both extremes and locating the truth in the middle.",
+        "Quoting a famous authority.",
+        "Posing an unanswerable question."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Rad od kuće često se predstavlja kao čista dobit: nema gubljenja vremena na putovanje, više slobode, veća produktivnost. Sve je to djelomično točno. No ono što se rjeđe spominje jest cijena koja se plaća u sitnim ratama — zamagljena granica između posla i privatnog života, osjećaj izoliranosti, tiho iščezavanje onih usputnih razgovora iz kojih se nekoć rađala suradnja. Tvrditi da je rad od kuće naprosto bolji jednako je pojednostavnjeno kao i tvrditi da je gori. Istina, kao i obično, prebiva negdje između."
+    },
+    {
+      "q": "According to the passage, what is the principal cause of rural depopulation in Croatia?",
+      "o": [
+        "A sudden rise in the cost of farmland.",
+        "The lack of jobs and services that pushes the young toward cities and abroad.",
+        "An official government policy of resettlement.",
+        "Climate change making villages uninhabitable."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Iseljavanje iz ruralnih krajeva nije nova pojava, ali se posljednjih desetljeća ubrzalo do zabrinjavajućih razmjera. Mladi odlaze jer u rodnim mjestima ne nalaze ni posla ni osnovnih usluga — često ni liječnika ni redovite autobusne linije. Sela tako stare i prazne se, a sa svakim odlaskom slabi i ono malo gospodarske aktivnosti što je preostalo, čime se začarani krug samo dodatno zatvara. Demografi upozoravaju da pojedinačne mjere, poput jednokratnih novčanih poticaja, ne mogu nadomjestiti ono što nedostaje: dugoročnu viziju i ulaganje u temeljnu infrastrukturu."
+    },
+    {
+      "q": "What does the phrase 'začarani krug' (vicious circle) refer to in the passage?",
+      "o": [
+        "A traditional folk dance performed in villages.",
+        "The self-reinforcing cycle in which departures weaken the economy, prompting still more departures.",
+        "A government program that failed once and was repeated.",
+        "The seasonal migration of farm workers."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Iseljavanje iz ruralnih krajeva nije nova pojava, ali se posljednjih desetljeća ubrzalo do zabrinjavajućih razmjera. Mladi odlaze jer u rodnim mjestima ne nalaze ni posla ni osnovnih usluga — često ni liječnika ni redovite autobusne linije. Sela tako stare i prazne se, a sa svakim odlaskom slabi i ono malo gospodarske aktivnosti što je preostalo, čime se začarani krug samo dodatno zatvara. Demografi upozoravaju da pojedinačne mjere, poput jednokratnih novčanih poticaja, ne mogu nadomjestiti ono što nedostaje: dugoročnu viziju i ulaganje u temeljnu infrastrukturu."
+    },
+    {
+      "q": "What is the author's overall judgement of the new museum?",
+      "o": [
+        "The building is impressive, but the exhibition itself is disappointingly shallow.",
+        "Both the building and the exhibition are outstanding.",
+        "The building is ugly but the exhibition redeems it.",
+        "The museum should never have been built."
+      ],
+      "c": 0,
+      "skill": "reading",
+      "passage": "Treba odmah priznati: zgrada novog muzeja oduzima dah. Staklo i čelik poigravaju se svjetlom, a prostor diše na način kakav rijetko viđamo u našim gradovima. Šteta je samo što se isti trud nije uložio i u ono zbog čega muzej, naposljetku, postoji — u samu izložbu. Eksponati su nabacani bez jasne priče, opisi su šturi, a posjetitelj izlazi zadivljen arhitekturom, ali ništa pametniji o onome što je navodno došao vidjeti. Lijepa ljuska, nažalost, oko poprilično prazne jezgre."
+    },
+    {
+      "q": "What does the metaphor 'lijepa ljuska oko poprilično prazne jezgre' convey?",
+      "o": [
+        "That the museum is unfinished and still under construction.",
+        "That an attractive exterior surrounds disappointing content.",
+        "That the exhibition is rich but the building is plain.",
+        "That the museum is too crowded with exhibits."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Treba odmah priznati: zgrada novog muzeja oduzima dah. Staklo i čelik poigravaju se svjetlom, a prostor diše na način kakav rijetko viđamo u našim gradovima. Šteta je samo što se isti trud nije uložio i u ono zbog čega muzej, naposljetku, postoji — u samu izložbu. Eksponati su nabacani bez jasne priče, opisi su šturi, a posjetitelj izlazi zadivljen arhitekturom, ali ništa pametniji o onome što je navodno došao vidjeti. Lijepa ljuska, nažalost, oko poprilično prazne jezgre."
+    },
+    {
+      "q": "What is the central claim of this passage about language and identity?",
+      "o": [
+        "Minority languages inevitably disappear and nothing can be done.",
+        "A language is not merely a means of communication but a carrier of collective memory and worldview.",
+        "Everyone should speak only one global language for efficiency.",
+        "Dialects are a sign of a poorly educated population."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kad jezik nestane, ne gubi se tek skup riječi i pravila; gasi se jedan osobit način gledanja na svijet. U svakom jeziku pohranjena je stoljetna memorija zajednice — njezine šale, strahovi, način na koji imenuje boje neba ili stupnjeve kiše. Zato briga za male jezike nije puka nostalgija, nego pitanje raznolikosti ljudskoga iskustva. Onaj tko misli da je jezik samo oruđe za prenošenje obavijesti, previđa da upravo kroz njega mislimo, pamtimo i postajemo to što jesmo."
+    },
+    {
+      "q": "According to the passage, why is concern for small languages 'not mere nostalgia'?",
+      "o": [
+        "Because small languages are easier to learn than large ones.",
+        "Because each language preserves a distinct worldview and the diversity of human experience.",
+        "Because governments profit from protecting them.",
+        "Because they are spoken by the majority of the world's population."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Kad jezik nestane, ne gubi se tek skup riječi i pravila; gasi se jedan osobit način gledanja na svijet. U svakom jeziku pohranjena je stoljetna memorija zajednice — njezine šale, strahovi, način na koji imenuje boje neba ili stupnjeve kiše. Zato briga za male jezike nije puka nostalgija, nego pitanje raznolikosti ljudskoga iskustva. Onaj tko misli da je jezik samo oruđe za prenošenje obavijesti, previđa da upravo kroz njega mislimo, pamtimo i postajemo to što jesmo."
+    },
+    {
+      "q": "What is the writer's main concern about the rise of online reviews?",
+      "o": [
+        "That reviews are written in poor grammar.",
+        "That manipulated or fake reviews erode the very trust that makes them useful.",
+        "That there are too few reviews to be helpful.",
+        "That reviews take too long to write."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Recenzije na internetu trebale su biti glas običnog kupca — iskreno upozorenje ili pohvala, oslobođeno reklamnih trikova. U teoriji, divna zamisao. U praksi, sve teže razlikujemo pravo mišljenje od plaćene objave. Kompanije naručuju lažne pohvale, a konkurenti podmeću lažne pritužbe, pa prosječan čitatelj na kraju ne zna komu vjerovati. Paradoks je očit: što više recenzija imamo, to nam je teže pronaći onu jednu kojoj se može vjerovati. Alat zamišljen da gradi povjerenje polako ga, čini se, nagriza."
+    },
+    {
+      "q": "What paradox does the author point out?",
+      "o": [
+        "The more reviews exist, the harder it becomes to find a trustworthy one.",
+        "Reviews are free but cost companies a great deal.",
+        "Honest reviews are always longer than fake ones.",
+        "Customers prefer products with no reviews at all."
+      ],
+      "c": 0,
+      "skill": "reading",
+      "passage": "Recenzije na internetu trebale su biti glas običnog kupca — iskreno upozorenje ili pohvala, oslobođeno reklamnih trikova. U teoriji, divna zamisao. U praksi, sve teže razlikujemo pravo mišljenje od plaćene objave. Kompanije naručuju lažne pohvale, a konkurenti podmeću lažne pritužbe, pa prosječan čitatelj na kraju ne zna komu vjerovati. Paradoks je očit: što više recenzija imamo, to nam je teže pronaći onu jednu kojoj se može vjerovati. Alat zamišljen da gradi povjerenje polako ga, čini se, nagriza."
+    },
+    {
+      "q": "What is the author's attitude toward the trend of 'digital detox' retreats?",
+      "o": [
+        "Wholehearted endorsement as the solution to modern anxiety.",
+        "Gentle mockery — sympathetic to the impulse but amused that disconnecting has itself become a product to be sold.",
+        "Outright hostility toward anyone who attends them.",
+        "Complete indifference to the phenomenon."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Postoji nešto duboko ironično u tome da za bijeg od zaslona danas treba platiti. Takozvani 'digitalni detoks' niknuo je kao unosna grana turizma: skupi pansioni u kojima vam, uz dodatnu naknadu, ljubazno oduzmu mobitel i obećaju mir. Razumijem poriv — svi smo umorni od neprestanog zujanja u džepu. Pa ipak, teško se oteti smiješku pred prizorom u kojem je i sama tišina postala roba s cjenikom. Možda je pravi luksuz, na kraju, jednostavno ugasiti telefon i ne praviti od toga događaj."
+    },
+    {
+      "q": "What does the author suggest is the 'real luxury' in the final sentence?",
+      "o": [
+        "Paying for an expensive retreat.",
+        "Simply turning off one's phone without making an event of it.",
+        "Buying a newer, quieter phone.",
+        "Travelling to a remote location abroad."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Postoji nešto duboko ironično u tome da za bijeg od zaslona danas treba platiti. Takozvani 'digitalni detoks' niknuo je kao unosna grana turizma: skupi pansioni u kojima vam, uz dodatnu naknadu, ljubazno oduzmu mobitel i obećaju mir. Razumijem poriv — svi smo umorni od neprestanog zujanja u džepu. Pa ipak, teško se oteti smiješku pred prizorom u kojem je i sama tišina postala roba s cjenikom. Možda je pravi luksuz, na kraju, jednostavno ugasiti telefon i ne praviti od toga događaj."
+    },
+    {
+      "q": "What position does the author take on volunteering in the passage?",
+      "o": [
+        "Volunteering is pointless unless it is paid.",
+        "Volunteering benefits the community, but society should not use it as an excuse to neglect its own responsibilities.",
+        "Only retired people should volunteer.",
+        "Volunteering should be made legally compulsory."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Volonterstvo zaslužuje svaku pohvalu: tisuće ljudi nesebično daruju svoje vrijeme onima kojima je pomoć potrebna. No postoji i tiha opasnost koju ne bismo smjeli previdjeti. Kad se na dobrovoljce počne oslanjati ondje gdje bi država ili lokalna zajednica morale obaviti svoj posao, plemenita gesta pretvara se u zgodan izgovor. Pomoć bližnjemu ne smije postati zamjena za odgovornost institucija, nego njezina nadopuna. Inače riskiramo da dobrotu dobrih ljudi iskoristimo kako bismo prikrili propuste onih koji su za to plaćeni."
+    },
+    {
+      "q": "What distinction does the author draw between 'nadopuna' and 'zamjena'?",
+      "o": [
+        "Volunteering should complement institutional responsibility, not replace it.",
+        "Volunteering should replace institutions entirely.",
+        "Institutions should replace all volunteers.",
+        "There is no meaningful difference between the two."
+      ],
+      "c": 0,
+      "skill": "reading",
+      "passage": "Volonterstvo zaslužuje svaku pohvalu: tisuće ljudi nesebično daruju svoje vrijeme onima kojima je pomoć potrebna. No postoji i tiha opasnost koju ne bismo smjeli previdjeti. Kad se na dobrovoljce počne oslanjati ondje gdje bi država ili lokalna zajednica morale obaviti svoj posao, plemenita gesta pretvara se u zgodan izgovor. Pomoć bližnjemu ne smije postati zamjena za odgovornost institucija, nego njezina nadopuna. Inače riskiramo da dobrotu dobrih ljudi iskoristimo kako bismo prikrili propuste onih koji su za to plaćeni."
+    },
+    {
+      "q": "What is the main idea of this passage about the Croatian dialects?",
+      "o": [
+        "All Croats should abandon dialects in favour of the standard language.",
+        "The three dialect groups are a living part of cultural heritage that enriches rather than threatens the standard language.",
+        "Dialects make communication between regions impossible.",
+        "Only the kajkavian dialect deserves to be preserved."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Hrvatski jezik nije monolit, nego bogata mreža narječja — štokavskog, kajkavskog i čakavskog — od kojih svako nosi svoju glazbu i svoju povijest. Standardni jezik, koji učimo u školi i čujemo u vijestima, nužan je kao zajednički most, no bilo bi pogrešno u narječjima vidjeti tek zaostatak ili prepreku. Naprotiv, ona su živi spomenik raznolikosti unutar jednog naroda. Onaj tko uz standard čuva i govor svojega kraja, ne osiromašuje jezik, nego ga obogaćuje slojem koji se ne da nadoknaditi."
+    },
+    {
+      "q": "According to the passage, what is the relationship between dialects and the standard language?",
+      "o": [
+        "Dialects are obstacles that the standard language must overcome.",
+        "The standard serves as a common bridge, while dialects enrich the language with irreplaceable layers.",
+        "Dialects and the standard language are completely identical.",
+        "The standard language is a relic, and only dialects are living speech."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Hrvatski jezik nije monolit, nego bogata mreža narječja — štokavskog, kajkavskog i čakavskog — od kojih svako nosi svoju glazbu i svoju povijest. Standardni jezik, koji učimo u školi i čujemo u vijestima, nužan je kao zajednički most, no bilo bi pogrešno u narječjima vidjeti tek zaostatak ili prepreku. Naprotiv, ona su živi spomenik raznolikosti unutar jednog naroda. Onaj tko uz standard čuva i govor svojega kraja, ne osiromašuje jezik, nego ga obogaćuje slojem koji se ne da nadoknaditi."
     }
   ]
 }
