@@ -38,8 +38,8 @@ function _mwFallbackCheck(key, limit) {
 }
 
 // ── Rate limit config ─────────────────────────────────────────────────────────
-const AI_ENDPOINTS = ['/api/ai-chat', '/api/news', '/api/correct'];
-const AI_RATE_LIMIT = 20; // per minute
+// Per-endpoint AI rate limiting is owned by requireAuthedAI (D1-backed, globally
+// consistent). Middleware applies a uniform general limit only.
 const GENERAL_RATE_LIMIT = 60; // per minute
 
 async function getRateLimit(cache, key) {
@@ -67,8 +67,7 @@ export async function onRequest(context) {
   // Use only cf-connecting-ip — x-forwarded-for is client-controlled and spoofable.
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
 
-  const isAI = AI_ENDPOINTS.some((ep) => pathname.startsWith(ep));
-  const limit = isAI ? AI_RATE_LIMIT : GENERAL_RATE_LIMIT;
+  const limit = GENERAL_RATE_LIMIT;
   const cacheKey = `rl:${ip}:${pathname}`;
 
   try {
