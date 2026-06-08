@@ -636,9 +636,9 @@ const A1_TO_A2_ITEMS: EquivalencyItem[] = [
     skill: 'grammar',
   },
   {
-    q: "The accusative singular of 'brat' (brother, inanimate noun) is:",
+    q: "The accusative singular of 'brat' (brother, masculine animate) is:",
     o: ['brat', 'brata', 'bratu', 'braće'],
-    c: 0,
+    c: 1,
     skill: 'grammar',
   },
   {
