@@ -6,8 +6,12 @@ import {
   type SpeakingAssessment,
 } from './SpeakingScorer.js';
 
-/** Below this STT confidence we cannot fairly score; treat as "retry". */
-const MIN_CONFIDENCE = 0.4;
+/**
+ * Below this transcript-sufficiency value we cannot fairly score; treat as "retry".
+ * `transcriptSufficiency` is a transcript-LENGTH heuristic (word-count bucket) from the
+ * server, NOT an acoustic/STT confidence.
+ */
+const MIN_TRANSCRIPT_SUFFICIENCY = 0.4;
 
 async function blobToBase64(blob: Blob): Promise<string> {
   const buf = new Uint8Array(await blob.arrayBuffer());
@@ -36,7 +40,8 @@ export const whisperClaudeScorer: SpeakingScorer = {
       const data = (await r.json()) as {
         transcript?: string;
         scores?: Record<string, number>;
-        confidence?: number;
+        // transcript-LENGTH heuristic (word-count bucket), NOT acoustic/STT confidence.
+        transcriptSufficiency?: number;
       };
       const s = data.scores;
       if (
@@ -48,15 +53,18 @@ export const whisperClaudeScorer: SpeakingScorer = {
       ) {
         return null;
       }
-      const confidence = typeof data.confidence === 'number' ? data.confidence : 0;
-      if (confidence < MIN_CONFIDENCE) return null;
+      const transcriptSufficiency =
+        typeof data.transcriptSufficiency === 'number' ? data.transcriptSufficiency : 0;
+      if (transcriptSufficiency < MIN_TRANSCRIPT_SUFFICIENCY) return null;
 
       const scores = { range: s.range, accuracy: s.accuracy, fluency: s.fluency, task: s.task };
       return {
         transcript: data.transcript ?? '',
         scores,
         overall: computeSpeakingOverall(scores),
-        confidence,
+        // SpeakingAssessment.confidence is the scorer's output contract; we populate it from
+        // the transcript-sufficiency heuristic (the only signal available in v1).
+        confidence: transcriptSufficiency,
       };
     } catch {
       return null; // network/parse failure → not scored

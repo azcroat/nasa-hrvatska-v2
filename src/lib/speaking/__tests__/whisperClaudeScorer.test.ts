@@ -26,7 +26,7 @@ describe('whisperClaudeScorer', () => {
         JSON.stringify({
           transcript: 'Bok',
           scores: { range: 0.8, accuracy: 0.8, fluency: 0.8, task: 0.8 },
-          confidence: 0.9,
+          transcriptSufficiency: 0.9,
         }),
         { status: 200 },
       ),
@@ -55,7 +55,7 @@ describe('whisperClaudeScorer', () => {
         JSON.stringify({
           transcript: 'Bok',
           scores: { range: 0.8, accuracy: 0.8, fluency: 0.8, task: 0.8 },
-          confidence: 0.9,
+          transcriptSufficiency: 0.9,
         }),
         { status: 200 },
       ),
@@ -84,21 +84,24 @@ describe('whisperClaudeScorer', () => {
 
   it('returns null when required score fields are missing (partial body)', async () => {
     nativePostMock.mockResolvedValue(
-      new Response(JSON.stringify({ transcript: 'x', scores: { range: 0.9 }, confidence: 0.9 }), {
-        status: 200,
-      }),
+      new Response(
+        JSON.stringify({ transcript: 'x', scores: { range: 0.9 }, transcriptSufficiency: 0.9 }),
+        {
+          status: 200,
+        },
+      ),
     );
     const res = await whisperClaudeScorer.assess(blob(), { level: 'B1', prompt: 'x' });
     expect(res).toBeNull();
   });
 
-  it('returns null when confidence is below the usable floor', async () => {
+  it('returns null when transcript sufficiency is below the usable floor', async () => {
     nativePostMock.mockResolvedValue(
       new Response(
         JSON.stringify({
           transcript: '',
           scores: { range: 0.9, accuracy: 0.9, fluency: 0.9, task: 0.9 },
-          confidence: 0.1,
+          transcriptSufficiency: 0.1,
         }),
         { status: 200 },
       ),
