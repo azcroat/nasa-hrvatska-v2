@@ -1,5 +1,5 @@
 // src/lib/speaking/whisperClaudeScorer.ts
-import { getFirebaseBearer } from '../audio.js';
+import { _nativePost } from '../nativePost.js';
 import {
   computeSpeakingOverall,
   type SpeakingScorer,
@@ -20,20 +20,17 @@ export const whisperClaudeScorer: SpeakingScorer = {
   async assess(audio, ctx): Promise<SpeakingAssessment | null> {
     try {
       const audioBase64 = await blobToBase64(audio);
-      const bearer = await getFirebaseBearer();
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (bearer) headers.Authorization = `Bearer ${bearer}`;
 
-      const r = await fetch('/api/assess-speaking', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          level: ctx.level,
-          prompt: ctx.prompt,
-          audioBase64,
-          mime: audio.type || 'audio/webm',
-        }),
+      // Route through the shared native-safe POST helper: it resolves the absolute
+      // base URL on Capacitor native (relative URLs break there) and attaches the
+      // Firebase bearer. Returns null on total transport failure.
+      const r = await _nativePost('/api/assess-speaking', {
+        level: ctx.level,
+        prompt: ctx.prompt,
+        audioBase64,
+        mime: audio.type || 'audio/webm',
       });
+      if (!r) return null; // total transport failure → not scored (caller retries)
       if (!r.ok) return null; // any error → not scored (caller retries)
 
       const data = (await r.json()) as {
