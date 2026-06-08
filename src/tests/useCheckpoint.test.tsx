@@ -29,5 +29,7 @@ describe('useCheckpoint', () => {
     );
     act(() => result.current.snooze(999999));
     expect(result.current.phase).toBe('idle');
+    const saved = JSON.parse(localStorage.getItem('nh_cefr_certifications')!);
+    expect(saved.checkpoints.snoozedUntil).toBe(999999);
   });
 });
