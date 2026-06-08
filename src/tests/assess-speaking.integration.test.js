@@ -92,10 +92,14 @@ describe('POST /api/assess-speaking', () => {
     const json = await res.json();
     expect(json.transcript).toContain('Zagreb');
     expect(json.scores.fluency).toBe(0.9);
-    expect(json.confidence).toBeGreaterThan(0);
+    // Honest relabel: word-count heuristic is `transcriptSufficiency`, not `confidence`.
+    expect(json.transcriptSufficiency).toBeGreaterThan(0);
+    expect(json.confidence).toBeUndefined();
+    // Whisper must be pinned to Croatian so short utterances aren't auto-detected as
+    // Italian/Romanian etc.
     expect(e.AI.run).toHaveBeenCalledWith(
       '@cf/openai/whisper',
-      expect.objectContaining({ audio: expect.any(Array) }),
+      expect.objectContaining({ audio: expect.any(Array), language: 'hr' }),
     );
   });
 

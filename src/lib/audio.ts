@@ -908,3 +908,9 @@ export function getAudioDebugState(): Record<string, string | number | boolean> 
 export async function getFirebaseBearer(forceRefresh = false): Promise<string | null> {
   return _getFirebaseBearer(forceRefresh);
 }
+
+// R3: re-export the platform `isNative` from audio so the shared native-safe POST
+// helper (`_nativePost` in ./nativePost) and its tests can import both transport
+// primitives (`getFirebaseBearer` + `isNative`) from a single module. Behavior is
+// the canonical `./platform` implementation — this is a pure re-export, no change.
+export { isNative } from './platform';
