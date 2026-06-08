@@ -7,10 +7,8 @@
 // D-ID authentication: Basic auth with API key as username, empty password
 // Typical generation time: 10-25 seconds (polled internally, up to 25s)
 
-import { checkRateLimit } from './_rateLimit.js';
-import { corsHeaders, isAllowedOrigin, sanitizeParam, ok, err } from './_helpers.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders, sanitizeParam, ok, err } from './_helpers.js';
 
 const CROATIAN_VOICES = {
   female: 'hr-HR-GabrijelaNeural',
@@ -24,27 +22,10 @@ export async function onRequestOptions({ request }) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
 
-  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
-
-  // Strict rate limit — D-ID is expensive
-  const allowed = await checkRateLimit(request, 5, env);
-  if (!allowed) return err(429, 'Rate limited', origin);
-
-  // Require Firebase auth — D-ID is paid per video (~$0.30+). Without auth, a rotating-IP
-  // attacker can drain the D-ID budget even with rate limit in place.
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  let _uid = null;
-  if (FIREBASE_PROJECT_ID) {
-    _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
-    if (!_uid) return err(401, 'unauthorized', origin);
-  }
-
-  // Per-user daily AI quota — caps how many D-ID videos any single user can request.
-  const _quota = await checkAIQuota(request, env, _uid, 1);
-  if (!_quota.allowed) return err(429, 'quota_exceeded', origin);
+  const gate = await requireAuthedAI(context, { cost: 3, rateLimit: 5 });
+  if (!gate.ok) return gate.response;
+  const { origin, isDev } = gate;
 
   const DID_API_KEY = env.DID_API_KEY;
   if (!DID_API_KEY) return err(503, 'Avatar video not configured', origin);

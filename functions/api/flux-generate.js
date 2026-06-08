@@ -5,9 +5,8 @@
 // Body (custom): { type: "custom", prompt: "..." }
 // Returns: { imageUrl: "https://..." }
 
-import { checkRateLimit } from './_rateLimit.js';
-import { corsHeaders, isAllowedOrigin, sanitizeParam, ok, err } from './_helpers.js';
-import { getFirebaseUid } from './_verifyToken.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders, sanitizeParam, ok, err } from './_helpers.js';
 
 function buildVocabPrompt(word, meaning) {
   const clean = meaning.toLowerCase().replace(/^to\s+/, '');
@@ -31,18 +30,10 @@ export async function onRequestOptions({ request }) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
 
-  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
-
-  const allowed = await checkRateLimit(request, 4, env);
-  if (!allowed) return err(429, 'Rate limited', origin);
-
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  if (!FIREBASE_PROJECT_ID) return err(500, 'Server misconfigured', origin);
-  const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
-  if (!uid) return err(401, 'Unauthorized', origin);
+  const gate = await requireAuthedAI(context, { cost: 3, rateLimit: 4 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
 
   const REPLICATE_API_KEY = env.REPLICATE_API_KEY;
   if (!REPLICATE_API_KEY) return err(503, 'Image generation not configured', origin);
