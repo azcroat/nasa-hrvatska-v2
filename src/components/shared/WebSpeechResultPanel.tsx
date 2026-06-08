@@ -12,7 +12,8 @@ interface WebSpeechCoaching {
   drills?: WebSpeechDrill[];
 }
 interface WebSpeechResult {
-  score: number;
+  /** null when the word was recognised only via English translation — no acoustic score available. */
+  score: number | null;
   spoken?: string;
   recognizedViaTranslation?: boolean;
 }
@@ -27,48 +28,84 @@ export default function WebSpeechResultPanel({
   onRetry?: () => void;
   onGetCoaching?: () => void;
 }) {
+  // When score is null the word was only matched via English translation — no numeric score.
+  const isUnscored = result.score === null;
+  // Safe colour/emoji/label helpers — only called when score is a real number.
+  const scoreNum = result.score ?? 0;
+
   return (
     <div
       style={{
         background: 'var(--card)',
         borderRadius: 12,
         padding: '14px 16px',
-        border: `2px solid ${scoreColor(result.score)}22`,
+        border: isUnscored ? '2px solid #16a34a44' : `2px solid ${scoreColor(scoreNum)}22`,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-        <div
-          style={{
-            width: 52,
-            height: 52,
-            borderRadius: '50%',
-            flexShrink: 0,
-            background: `${scoreColor(result.score)}20`,
-            border: `3px solid ${scoreColor(result.score)}`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 17,
-            fontWeight: 900,
-            color: scoreColor(result.score),
-          }}
-        >
-          {result.score}%
-        </div>
+        {isUnscored ? (
+          /* Translation-only result: qualitative badge, no number */
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: '50%',
+              flexShrink: 0,
+              background: '#16a34a20',
+              border: '3px solid #16a34a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 22,
+            }}
+          >
+            ✓
+          </div>
+        ) : (
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: '50%',
+              flexShrink: 0,
+              background: `${scoreColor(scoreNum)}20`,
+              border: `3px solid ${scoreColor(scoreNum)}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 17,
+              fontWeight: 900,
+              color: scoreColor(scoreNum),
+            }}
+          >
+            {scoreNum}%
+          </div>
+        )}
         <div>
-          <div style={{ fontWeight: 800, fontSize: 15, color: scoreColor(result.score) }}>
-            {scoreEmoji(result.score)} {scoreLabel(result.score)} {result.score}%
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
-            {result.recognizedViaTranslation
-              ? `Pronunciation recognized — browser matched the meaning ✓`
-              : `You said: "${result.spoken}"`}
-          </div>
+          {isUnscored ? (
+            <>
+              <div style={{ fontWeight: 800, fontSize: 15, color: '#16a34a' }}>
+                Recognized ✓ (accent not scored)
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
+                Browser matched the meaning — pronunciation was understood
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontWeight: 800, fontSize: 15, color: scoreColor(scoreNum) }}>
+                {scoreEmoji(scoreNum)} {scoreLabel(scoreNum)} {scoreNum}%
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--subtext)' }}>
+                You said: &ldquo;{result.spoken}&rdquo;
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* AI Coaching button — only if score < 90 and no coaching yet */}
-      {result.score < 90 && !coaching && (
+      {/* AI Coaching button — only when a real numeric score is available and < 90 */}
+      {!isUnscored && scoreNum < 90 && !coaching && (
         <button
           onClick={onGetCoaching}
           style={{
@@ -202,7 +239,9 @@ export default function WebSpeechResultPanel({
         </button>
       </div>
       <div style={{ fontSize: '0.75rem', color: 'var(--subtext,#94a3b8)', marginTop: 8 }}>
-        Score based on Web Speech API recognition — not a professional pronunciation evaluator.
+        {isUnscored
+          ? 'Browser speech recognition — accent not professionally scored'
+          : 'Score based on Web Speech API recognition — not a professional pronunciation evaluator.'}
       </div>
     </div>
   );

@@ -21,9 +21,11 @@ function textToWaveform(text: string): number[] {
   });
 }
 
-function userWaveform(nativeBars: number[]): number[] {
-  // Simulate a slightly varied recording waveform
-  return nativeBars.map((h) => (h <= 5 ? 5 : Math.round(h * (0.75 + Math.random() * 0.45))));
+function recordedWaveform(nativeBars: number[]): number[] {
+  // Static decorative bars indicating a recording was captured — no randomness.
+  // Heights are derived deterministically from the native pattern so the visual
+  // resembles speech cadence without implying acoustic analysis.
+  return nativeBars.map((h) => (h <= 5 ? 5 : Math.round(h * 0.85)));
 }
 
 interface WaveformSVGProps {
@@ -74,25 +76,28 @@ const MIC_DURATION = 8000; // 8s gives learners enough time to shadow longer phr
 interface WaveformPanelProps {
   text: string;
   audioBlob: Blob | null;
+  /** Real acoustic score from PronunciationScorer (Azure or Web Speech). Null = not yet available. */
+  acousticScore: number | null;
   onTryAgain: () => void;
   onNailedIt: () => void;
 }
 
-function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }: WaveformPanelProps) {
+function WaveformPanel({
+  text,
+  audioBlob,
+  acousticScore,
+  onTryAgain,
+  onNailedIt,
+}: WaveformPanelProps) {
   const nativeBars = textToWaveform(text);
   // Stable user bars: recompute only when blob changes
   const userBarsRef = useRef<number[] | null>(null);
   const prevBlobRef = useRef<Blob | null>(null);
   if (audioBlob !== prevBlobRef.current) {
     prevBlobRef.current = audioBlob;
-    userBarsRef.current = audioBlob ? userWaveform(nativeBars) : null;
+    userBarsRef.current = audioBlob ? recordedWaveform(nativeBars) : null;
   }
   const userBars = userBarsRef.current;
-
-  // Match score: simulate based on blob size vs text length
-  const matchScore = audioBlob
-    ? Math.min(95, Math.max(40, 55 + Math.floor((audioBlob.size % 100) / 2.5)))
-    : null;
 
   return (
     <div
@@ -143,20 +148,27 @@ function WaveformPanel({ text, audioBlob, onTryAgain, onNailedIt }: WaveformPane
           </div>
         )}
       </div>
-      {matchScore !== null && (
-        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: '#475569' }}>
-          Match score:{' '}
+      {acousticScore !== null ? (
+        <div
+          data-testid="shadowing-acoustic-score"
+          style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: '#475569' }}
+        >
+          Pronunciation score:{' '}
           <span
             style={{
               fontWeight: 800,
-              color: matchScore >= 70 ? 'var(--success,#16a34a)' : '#d97706',
+              color: acousticScore >= 70 ? 'var(--success,#16a34a)' : '#d97706',
             }}
           >
-            {matchScore}%
+            {acousticScore}%
           </span>
-          <div style={{ fontSize: '0.75rem', color: 'var(--subtext, #94a3b8)', marginTop: 3 }}>
-            (Approximate score — not acoustic analysis)
-          </div>
+        </div>
+      ) : (
+        <div
+          data-testid="shadowing-no-score"
+          style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#94a3b8' }}
+        >
+          Recorded ✓ — compare to the model above
         </div>
       )}
       <div
@@ -390,6 +402,8 @@ export default function ShadowingScreen({
   const [done, setDone] = useState(false);
   const [reps, setReps] = useState(0);
   const [showWaveform, setShowWaveform] = useState(false);
+  /** Real acoustic score from PronunciationScorer (Azure path gives 0-100; Web Speech gives similarity). Null until scorer fires. */
+  const [acousticScore, setAcousticScore] = useState<number | null>(null);
 
   const {
     state: recState,
@@ -420,6 +434,7 @@ export default function ShadowingScreen({
     setShowWaveform(false);
     setSaid(false);
     setPlays(0);
+    setAcousticScore(null);
   }
 
   if (done) {
@@ -475,6 +490,7 @@ export default function ShadowingScreen({
                 setReps(0);
                 resetRecorder();
                 setShowWaveform(false);
+                setAcousticScore(null);
               }}
             >
               Retry
@@ -587,7 +603,7 @@ export default function ShadowingScreen({
           </div>
         )}
 
-        <PronunciationScorer targetText={item.hr} />
+        <PronunciationScorer targetText={item.hr} onScore={(r) => setAcousticScore(r.score)} />
 
         {/* Record My Attempt — shown before "said" */}
         {!said && (
@@ -607,9 +623,11 @@ export default function ShadowingScreen({
           <WaveformPanel
             text={item.hr}
             audioBlob={audioBlob}
+            acousticScore={acousticScore}
             onTryAgain={() => {
               resetRecorder();
               setShowWaveform(false);
+              setAcousticScore(null);
             }}
             onNailedIt={handleNailedIt}
           />
@@ -649,6 +667,7 @@ export default function ShadowingScreen({
                 setPlays(0);
                 resetRecorder();
                 setShowWaveform(false);
+                setAcousticScore(null);
               }}
             >
               🔁 Say Again

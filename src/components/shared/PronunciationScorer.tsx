@@ -9,12 +9,14 @@ interface PronunciationScorerProps {
   targetText: string;
   targetEnglish?: string;
   level?: string;
-  onScore?: (r: { spoken: string; score: number }) => void;
+  onScore?: (r: { spoken: string; score: number | null }) => void;
 }
 
 interface ScoredResult {
   spoken: string;
-  score: number;
+  /** null when the word was recognised only via its English translation (Web Speech fallback).
+   *  In that case pronunciation quality cannot be assessed — no fabricated number is emitted. */
+  score: number | null;
   recognizedViaTranslation?: boolean;
 }
 interface CoachingResult {
@@ -80,8 +82,8 @@ export default function PronunciationScorer({
       s
         .toLowerCase()
         .replace(/[čć]/g, 'c')
-        .replace(/[šš]/g, 's')
-        .replace(/[žž]/g, 'z')
+        .replace(/š/g, 's')
+        .replace(/ž/g, 'z')
         .replace(/đ/g, 'd')
         .replace(/[.,!?;:'"]/g, '')
         .trim();
@@ -165,13 +167,18 @@ export default function PronunciationScorer({
           return tn === engNorm || tn.includes(engNorm) || engNorm.includes(tn);
         });
         if (translationMatch) {
-          // Score 82: clearly correct pronunciation (browser understood the meaning) but not perfect
-          // since we cannot confirm exact accent quality without hr-HR model scoring.
-          const r = { spoken: targetText, score: 82, recognizedViaTranslation: true };
+          // The browser decoded the Croatian word via its English meaning — pronunciation was
+          // correct enough to be understood, but we cannot produce an acoustic quality score
+          // from a meaning-match alone. Emit a qualitative result with no fabricated number.
+          const r: ScoredResult = {
+            spoken: targetText,
+            score: null,
+            recognizedViaTranslation: true,
+          };
           setResult(r);
           setState('scored');
           if (onScore) onScore(r);
-          fetchCoaching(targetText, 82);
+          // No coaching fetch for translation-only path: there is no numeric score to coach on.
           return;
         }
       }
@@ -352,9 +359,14 @@ export default function PronunciationScorer({
 
       setAzureResult(data);
       setState('scored');
-      const overallScore = typeof data['overall'] === 'number' ? data['overall'] : 0;
+      // A "successful" Azure response missing a numeric `overall` is NOT a real acoustic
+      // score — emit null (recognized but not scored) rather than a fabricated 0. This is
+      // distinct from the translation-only path: a missing-overall is not a translation match,
+      // so we do NOT set recognizedViaTranslation here.
+      const overallScore = typeof data['overall'] === 'number' ? data['overall'] : null;
       if (onScore) onScore({ spoken: targetText, score: overallScore });
-      fetchCoaching(targetText, overallScore);
+      // No numeric score → nothing to coach on (mirrors the translation-only null path).
+      if (overallScore !== null) fetchCoaching(targetText, overallScore);
     } catch (fetchErr) {
       clearTimeout(tid);
       console.warn(
@@ -567,7 +579,11 @@ export default function PronunciationScorer({
           result={result}
           coaching={coaching}
           onRetry={resetAll}
-          onGetCoaching={() => fetchCoaching(result.spoken, result.score)}
+          onGetCoaching={
+            result.score !== null
+              ? () => fetchCoaching(result.spoken, result.score as number)
+              : undefined
+          }
         />
       )}
     </div>

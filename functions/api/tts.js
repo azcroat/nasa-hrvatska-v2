@@ -7,21 +7,60 @@
 import { requireAuthedAI } from './_requireAuth.js';
 import { corsHeaders } from './_helpers.js';
 
+// ── Azure SSML builder ────────────────────────────────────────────────────────
+// Exported for unit-testing. Accepts optional prosody object with whitelisted
+// pitch, contour, and rate values to prevent SSML injection.
+// Whitelist prosody values to safe SSML tokens (prevents SSML injection via prosody attrs).
+const SAFE_PCT = /^[+-]?\d{1,3}%$/; // e.g. -8%, +15%
+const SAFE_ST = /^[+-]?\d{1,2}(\.\d)?st$/; // semitones, e.g. +2st
+// Validates an SSML prosody contour string like "(0%,+20%) (100%,-10%)".
+// Each tuple: (offset%,delta%) where offset/delta are 1-3 digit integers with optional sign.
+// Uses a per-tuple function instead of a complex quantified regex to avoid ReDoS flags.
+function isSafeContour(s) {
+  if (typeof s !== 'string' || s.length > 120) return false;
+  const TUPLE = /^\(\d{1,3}%,[+-]?\d{1,3}%\)$/;
+  const parts = s.split(' ');
+  return parts.length >= 1 && parts.length <= 6 && parts.every((p) => TUPLE.test(p));
+}
+
+// Safe Azure neural voice name pattern: e.g. hr-HR-GabrijelaNeural, en-US-JennyNeural
+const SAFE_VOICE = /^[A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]+$/;
+const DEFAULT_VOICE = 'hr-HR-GabrijelaNeural';
+
+export function buildAzureSsml(text, { slow = false, prosody = null, voice = DEFAULT_VOICE } = {}) {
+  const safeVoice = SAFE_VOICE.test(voice) ? voice : DEFAULT_VOICE;
+  const safeText = String(text).replace(
+    /[<>&"']/g,
+    (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c],
+  );
+  const attrs = [];
+  if (prosody && typeof prosody === 'object') {
+    if (
+      typeof prosody.pitch === 'string' &&
+      (SAFE_PCT.test(prosody.pitch) || SAFE_ST.test(prosody.pitch))
+    )
+      attrs.push(`pitch="${prosody.pitch}"`);
+    if (isSafeContour(prosody.contour)) attrs.push(`contour="${prosody.contour}"`);
+    const r =
+      typeof prosody.rate === 'string' && SAFE_PCT.test(prosody.rate)
+        ? prosody.rate
+        : slow
+          ? '-25%'
+          : '-8%';
+    attrs.push(`rate="${r}"`);
+  } else {
+    attrs.push(`rate="${slow ? '-25%' : '-8%'}"`);
+  }
+  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${safeVoice}"><prosody ${attrs.join(' ')}>${safeText}</prosody></voice></speak>`;
+}
+
 // ── Azure TTS ─────────────────────────────────────────────────────────────────
 // hr-HR-GabrijelaNeural: native Croatian Neural voice.
 // Phonemically accurate for all Croatian diacritics (č, ć, š, ž, đ) and pitch accent.
 // Prosody rate: -8% normal, -25% slow mode (study pace).
 // Regional failover: tries each region in order until one succeeds.
-async function tryAzure(text, slow, azureKey, primaryRegion) {
-  const voice = 'hr-HR-GabrijelaNeural';
-  const safeText = text.replace(
-    /[<>&"']/g,
-    (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c],
-  );
-
-  const ssml = slow
-    ? `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="-25%">${safeText}</prosody></voice></speak>`
-    : `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="hr-HR"><voice name="${voice}"><prosody rate="-8%">${safeText}</prosody></voice></speak>`;
+async function tryAzure(text, { slow, prosody }, azureKey, primaryRegion) {
+  const ssml = buildAzureSsml(text, { slow, prosody });
 
   const regions = [
     primaryRegion,
@@ -385,6 +424,9 @@ export async function onRequestPost(context) {
     const slow = body.slow === true;
     // 'charlotte' = ElevenLabs Charlotte voice; anything else = Azure Gabriela (default)
     const voice = body.voice === 'charlotte' ? 'charlotte' : 'gabrijela';
+    // Optional prosody object for minimal-pair pitch-accent contrasts (Azure path only).
+    // Validated inside buildAzureSsml — only whitelisted values are emitted into SSML.
+    const prosody = body.prosody && typeof body.prosody === 'object' ? body.prosody : null;
 
     if (typeof text !== 'string' || !text.trim() || text.length > 500) {
       return new Response('Invalid text', { status: 400, headers: ttsCorsHeaders(origin) });
@@ -392,8 +434,10 @@ export async function onRequestPost(context) {
 
     // ── Edge cache (POST responses aren't auto-cached by Cloudflare) ──────────
     // Voice is included in the key so Gabriela and Charlotte audio never collide.
+    // Prosody fingerprint ensures different contours don't serve each other's cached audio.
+    const prosodyKey = prosody ? encodeURIComponent(JSON.stringify(prosody)) : '';
     const cacheKey = new Request(
-      `https://tts-cache.internal/v3/${voice}/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}`,
+      `https://tts-cache.internal/v3/${voice}/${encodeURIComponent(text.slice(0, 400))}?slow=${slow}&prosody=${prosodyKey}`,
       { method: 'GET' },
     );
     let edgeCache;
@@ -418,7 +462,7 @@ export async function onRequestPost(context) {
       }
       if (!buffer && AZURE_KEY) {
         try {
-          buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
+          buffer = await tryAzure(text, { slow, prosody }, AZURE_KEY, PRIMARY_REGION);
         } catch {
           /* fall through */
         }
@@ -428,7 +472,7 @@ export async function onRequestPost(context) {
       // ── 1. Azure hr-HR-GabrijelaNeural (primary) ────────────────────────────
       if (AZURE_KEY) {
         try {
-          buffer = await tryAzure(text, slow, AZURE_KEY, PRIMARY_REGION);
+          buffer = await tryAzure(text, { slow, prosody }, AZURE_KEY, PRIMARY_REGION);
         } catch {
           /* fall through */
         }

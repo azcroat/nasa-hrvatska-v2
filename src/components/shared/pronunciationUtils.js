@@ -15,7 +15,7 @@ export const PHONEME_GUIDES = {
     approx: 'Like "ch" in "church" — alveo-palatal affricate',
     articulate:
       'Tongue tip curls slightly up toward the ridge behind upper teeth. Lips rounded/neutral. Harder, more forward than ć.',
-    example: 'čaj, čovjek, noč',
+    example: 'čaj, čovjek, noć',
     contrast: 'Harder than ć — tongue tip is forward, lips more rounded',
     lips: 'neutral',
     tongue: 'alveolar',

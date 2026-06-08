@@ -224,7 +224,8 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   }, [level]);
 
   const [step, setStep] = useState(0); // 0 = intro, 1..n = phrase n-1, n+1 = results
-  const [scores, setScores] = useState<Record<number, number>>({}); // phraseIdx → score
+  // null means recognised via translation only — no numeric score (not averaged in).
+  const [scores, setScores] = useState<Record<number, number | null>>({}); // phraseIdx → score
   const xpAwarded = useRef(false);
 
   const totalPhrases = phrases.length;
@@ -233,15 +234,17 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   const isResults = step > totalPhrases;
   const currentPhrase = !isIntro && !isResults ? phrases[currentIdx] : null;
   const completedCount = Object.keys(scores).length;
-  const avgScore =
-    completedCount > 0
-      ? Math.round(
-          Object.values(scores).reduce((a: number, b: number) => a + b, 0) / completedCount,
-        )
-      : 0;
+  // Only real numeric scores contribute to the average — null (translation-only) results are excluded.
+  const numericScores = Object.values(scores).filter((s): s is number => s !== null);
+  // null when NO phrase was acoustically scored — never a fabricated 0 (which would render
+  // a "0 / 100" grade-F headline that contradicts the per-phrase ✓ breakdown below).
+  const avgScore: number | null =
+    numericScores.length > 0
+      ? Math.round(numericScores.reduce((a: number, b: number) => a + b, 0) / numericScores.length)
+      : null;
 
   const handleScore = useCallback(
-    (result: { score: number }) => {
+    (result: { score: number | null }) => {
       setScores((prev) => ({ ...prev, [currentIdx]: result.score }));
     },
     [currentIdx],
@@ -254,7 +257,10 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   const handleFinish = useCallback(() => {
     if (!xpAwarded.current && typeof award === 'function' && completedCount > 0) {
       xpAwarded.current = true;
-      award(20 + Math.round(avgScore / 5), false, 'speaking'); // 20–40 XP based on quality
+      // 20–40 XP based on quality when acoustically scored; participation floor (20) when no
+      // numeric score exists — never derive XP from a fabricated 0.
+      const xp = avgScore !== null ? 20 + Math.round(avgScore / 5) : 20;
+      award(xp, false, 'speaking');
       markQuest('speak');
     }
     setStep(totalPhrases + 1);
@@ -293,8 +299,9 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
             Pronunciation Assessment
           </h1>
           <p style={{ fontSize: 14, color: 'var(--subtext)', lineHeight: 1.6, marginBottom: 0 }}>
-            Speak 8 Croatian phrases and receive a personalised pronunciation score. Powered by
-            Azure Speech recognition for hr-HR Croatian.
+            Speak 8 Croatian phrases and receive a personalised pronunciation score. Uses Azure
+            Speech recognition for hr-HR Croatian when available, or browser speech recognition as a
+            fallback.
           </p>
         </div>
 
@@ -384,7 +391,8 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
 
   // ── Results screen ────────────────────────────────────────────────────────
   if (isResults) {
-    const grade = overallGrade(avgScore);
+    // grade/headline are only meaningful when at least one phrase was acoustically scored.
+    const grade = avgScore !== null ? overallGrade(avgScore) : null;
     return (
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '0 16px 100px' }}>
         <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0 12px', gap: 8 }}>
@@ -404,45 +412,80 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
           </button>
         </div>
 
-        {/* Overall grade card */}
-        <div
-          style={{
-            background: `linear-gradient(135deg, ${grade.color}15, ${grade.color}08)`,
-            border: `1.5px solid ${grade.color}40`,
-            borderRadius: 16,
-            padding: '28px 24px',
-            marginBottom: 20,
-            textAlign: 'center',
-          }}
-        >
+        {/* Overall grade card — only when at least one phrase was acoustically scored.
+            When grade === null (zero numeric scores) we render a NEUTRAL completion card
+            instead, so the headline never fabricates a "0 / 100" grade F that contradicts
+            the per-phrase ✓ breakdown below. */}
+        {grade !== null ? (
           <div
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 72,
-              height: 72,
-              borderRadius: '50%',
-              background: `${grade.color}20`,
-              border: `2px solid ${grade.color}50`,
-              fontSize: 32,
-              fontWeight: 900,
-              color: grade.color,
-              marginBottom: 12,
+              background: `linear-gradient(135deg, ${grade.color}15, ${grade.color}08)`,
+              border: `1.5px solid ${grade.color}40`,
+              borderRadius: 16,
+              padding: '28px 24px',
+              marginBottom: 20,
+              textAlign: 'center',
             }}
           >
-            {grade.letter}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 72,
+                height: 72,
+                borderRadius: '50%',
+                background: `${grade.color}20`,
+                border: `2px solid ${grade.color}50`,
+                fontSize: 32,
+                fontWeight: 900,
+                color: grade.color,
+                marginBottom: 12,
+              }}
+            >
+              {grade.letter}
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: grade.color, marginBottom: 4 }}>
+              {avgScore} / 100
+            </div>
+            <div
+              style={{ fontSize: 16, fontWeight: 700, color: 'var(--heading)', marginBottom: 8 }}
+            >
+              {grade.label}
+            </div>
+            {/* Honest coverage note when some (not all) phrases were acoustically scored. */}
+            {numericScores.length < completedCount && (
+              <div style={{ fontSize: 12, color: 'var(--subtext)', marginBottom: 8 }}>
+                {numericScores.length} of {completedCount} phrases acoustically scored
+              </div>
+            )}
+            <p style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6, margin: 0 }}>
+              {grade.advice}
+            </p>
           </div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: grade.color, marginBottom: 4 }}>
-            {avgScore} / 100
+        ) : (
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1.5px solid var(--card-b)',
+              borderRadius: 16,
+              padding: '28px 24px',
+              marginBottom: 20,
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: 40, marginBottom: 8 }}>🎤</div>
+            <div
+              style={{ fontSize: 18, fontWeight: 800, color: 'var(--heading)', marginBottom: 8 }}
+            >
+              {completedCount} {completedCount === 1 ? 'phrase' : 'phrases'} practiced ✓
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6, margin: 0 }}>
+              Accent not acoustically scored this session. For a graded pronunciation score, try
+              again in Chrome or Edge where Azure Speech is available.
+            </p>
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--heading)', marginBottom: 8 }}>
-            {grade.label}
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--subtext)', lineHeight: 1.6, margin: 0 }}>
-            {grade.advice}
-          </p>
-        </div>
+        )}
 
         {/* Phrase-by-phrase breakdown */}
         <div
@@ -498,10 +541,12 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--subtext)' }}>{p.en}</div>
                 </div>
-                {s !== undefined ? (
-                  <ScoreChip score={s} />
-                ) : (
+                {s === undefined ? (
                   <span style={{ fontSize: 11, color: 'var(--subtext)' }}>—</span>
+                ) : s === null ? (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#16a34a' }}>✓</span>
+                ) : (
+                  <ScoreChip score={s} />
                 )}
               </div>
             );
@@ -561,7 +606,9 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
   }
 
   // ── Assessment phrase screen ──────────────────────────────────────────────
+  // phraseScore is number (real score), null (translation-only), or undefined (not yet scored).
   const phraseScore = scores[currentIdx];
+  // isScored is true for both real numeric scores AND null (translation-only) results.
   const isScored = phraseScore !== undefined;
   const isLast = currentIdx === totalPhrases - 1;
 
@@ -657,15 +704,26 @@ export default function PronunciationAssessScreen({ goBack, award }: Pronunciati
               gap: 10,
               padding: '16px',
               borderRadius: 12,
-              background: `${scoreColor(phraseScore)}10`,
-              border: `1px solid ${scoreColor(phraseScore)}30`,
+              background: phraseScore !== null ? `${scoreColor(phraseScore)}10` : '#16a34a10',
+              border:
+                phraseScore !== null
+                  ? `1px solid ${scoreColor(phraseScore)}30`
+                  : '1px solid #16a34a30',
               marginBottom: 16,
             }}
           >
-            <ScoreChip score={phraseScore} />
-            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--heading)' }}>
-              {scoreLabel(phraseScore)}
-            </span>
+            {phraseScore !== null ? (
+              <>
+                <ScoreChip score={phraseScore} />
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--heading)' }}>
+                  {scoreLabel(phraseScore)}
+                </span>
+              </>
+            ) : (
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#16a34a' }}>
+                ✓ Recognized (accent not scored)
+              </span>
+            )}
           </div>
 
           <button

@@ -381,9 +381,22 @@ export default function PhonemePracticeScreen({
             }}
           >
             <div
-              style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 12 }}
+              style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)', marginBottom: 4 }}
             >
-              👂 Minimal Pair — Hear the Difference
+              🔤 Articulation Contrast
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                color: 'var(--subtext)',
+                marginBottom: 12,
+                lineHeight: 1.5,
+                fontStyle: 'italic',
+              }}
+            >
+              This contrast is about mouth position, not pitch — focus on tongue placement.
+              Synthesized audio cannot reproduce the articulation difference; use the tongue
+              guidance above as your primary reference.
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button
