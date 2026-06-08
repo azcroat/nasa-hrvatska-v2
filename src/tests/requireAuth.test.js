@@ -37,6 +37,7 @@ describe('requireAuthedAI', () => {
     const g = await requireAuthedAI(ctx(null), { cost: 1, rateLimit: 20 });
     expect(g.ok).toBe(false);
     expect(g.response.status).toBe(401);
+    expect(g.response.headers.get('content-type')).toContain('application/json');
   });
 
   it('passes for a signed-in user and charges quota with the given cost', async () => {

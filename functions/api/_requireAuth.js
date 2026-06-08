@@ -20,7 +20,7 @@ export async function requireAuthedAI(context, { cost = 1, rateLimit = 20 } = {}
   const { request, env } = context;
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
   const isDev = env.ENVIRONMENT === 'development';
-  const headers = corsHeaders(origin);
+  const headers = { 'Content-Type': 'application/json', ...corsHeaders(origin) };
   const fail = (status, error, extra) => ({
     ok: false,
     response: new Response(JSON.stringify({ error, ...extra }), { status, headers }),
