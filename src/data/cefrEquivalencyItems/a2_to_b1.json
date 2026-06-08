@@ -312,6 +312,705 @@
       "c": 2,
       "skill": "reading",
       "passage": "U subotu navečer naći ćemo se s prijateljima u jednom kafiću u starom dijelu grada. Petar će doći vlakom iz Rijeke, a Marija dolazi autobusom iz Karlovca. Poslije ćemo zajedno ići na večeru u novi restoran koji se nalazi blizu glavnog trga."
+    },
+
+    {
+      "q": "What does 'povrće' mean?",
+      "o": ["fruit", "vegetables", "meat", "spices"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'susjed' mean?",
+      "o": ["relative", "colleague", "neighbour", "stranger"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'zrakoplov' mean?",
+      "o": ["train", "ship", "aeroplane", "helicopter"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word means 'cloudy' (the weather)?",
+      "o": ["sunčano", "kišovito", "oblačno", "vjetrovito"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'odmor' mean?",
+      "o": ["work", "rest / holiday", "meeting", "journey"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the verb 'pomoći' mean?",
+      "o": ["to thank", "to help", "to ask", "to promise"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'novčanik' mean?",
+      "o": ["wallet", "bag", "key", "ticket"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word means 'expensive'?",
+      "o": ["jeftino", "skupo", "besplatno", "novo"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'zdravlje' mean?",
+      "o": ["illness", "health", "hospital", "medicine"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'ponedjeljak' mean?",
+      "o": ["Sunday", "Monday", "Tuesday", "Friday"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the verb 'naručiti' mean (in a restaurant)?",
+      "o": ["to pay", "to cook", "to order", "to serve"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'prozor' mean?",
+      "o": ["door", "window", "wall", "floor"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'ključ' mean?",
+      "o": ["lock", "key", "door", "handle"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word means 'slowly'?",
+      "o": ["brzo", "polako", "glasno", "tiho"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'godišnje doba' mean?",
+      "o": ["a year", "a season (of the year)", "a holiday", "a birthday"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the verb 'doručkovati' mean?",
+      "o": ["to have dinner", "to have lunch", "to have breakfast", "to cook"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'cijena' mean?",
+      "o": ["price", "money", "bill", "change"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'bolnica' mean?",
+      "o": ["pharmacy", "clinic", "hospital", "surgery"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word means 'tired' in the feminine form?",
+      "o": ["umoran", "umorna", "umorno", "umorni"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the verb 'putovati' contrast with — which means 'to arrive'?",
+      "o": ["stići", "otići", "hodati", "voziti"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'kat' mean (in a building)?",
+      "o": ["roof", "floor / storey", "basement", "lift"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'razglednica' mean?",
+      "o": ["letter", "postcard", "stamp", "envelope"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does the verb 'zaboraviti' mean?",
+      "o": ["to remember", "to forget", "to learn", "to repeat"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word means 'healthy'?",
+      "o": ["bolestan", "zdrav", "umoran", "slab"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What does 'prtljaga' mean?",
+      "o": ["ticket", "luggage", "passport", "seat"],
+      "c": 1,
+      "skill": "vocab"
+    },
+
+    {
+      "q": "Croatian has two verbs for 'to know'. Which one means to know a fact or piece of information?",
+      "o": ["poznavati", "znati", "razumjeti", "misliti"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which verb means 'to know / be acquainted with a person'?",
+      "o": ["znati", "poznavati", "vidjeti", "čuti"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Both 'kuhati' and 'skuhati' relate to cooking. Which one expresses a single completed action (perfective)?",
+      "o": ["kuhati", "skuhati", "both equally", "neither"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which pair correctly matches imperfective–perfective for 'to write'?",
+      "o": ["pisati – napisati", "napisati – pisati", "pisati – pisivati", "pisati – pisnuti"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "You want to say 'See you tomorrow!' informally. Which is most natural?",
+      "o": ["Vidimo se sutra!", "Doviđenja sutra!", "Laku noć sutra!", "Dobar dan sutra!"],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "'Sviđa mi se' is used to say you like something. It literally means closest to:",
+      "o": ["I love it", "It is pleasing to me", "I want it", "I need it"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "What is the difference between 'večer' and 'večera'?",
+      "o": [
+        "'večer' = evening; 'večera' = dinner",
+        "'večer' = dinner; 'večera' = evening",
+        "they are identical",
+        "'večer' = yesterday; 'večera' = tonight"
+      ],
+      "c": 0,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word would you use for 'a single (one-way) ticket'?",
+      "o": ["povratna karta", "jednosmjerna karta", "mjesečna karta", "ulaznica"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "'Trebati' can mean 'to need'. 'Trebam odmor' means:",
+      "o": ["I have a rest", "I need a rest", "I want to work", "I am resting"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which is the correct way to say 'I am cold' (feeling cold) in Croatian?",
+      "o": ["Ja sam hladan.", "Hladno mi je.", "Imam hladno.", "Ja hladim."],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The verb 'ići' means 'to go (on foot/generally)'. Which verb specifically means 'to go by vehicle / to drive'?",
+      "o": ["hodati", "voziti se", "šetati", "stići"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "'Kasniti' means 'to be late'. What does 'Žurim se' mean?",
+      "o": ["I am late", "I am in a hurry", "I am waiting", "I am resting"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "Which word means 'enough'?",
+      "o": ["previše", "premalo", "dovoljno", "uvijek"],
+      "c": 2,
+      "skill": "vocab"
+    },
+    {
+      "q": "'Jučer', 'danas' and 'sutra' are days relative to now. Which means 'the day after tomorrow'?",
+      "o": ["prekjučer", "preksutra", "sinoć", "uskoro"],
+      "c": 1,
+      "skill": "vocab"
+    },
+    {
+      "q": "The phrase 'Nema na čemu' is the polite response to:",
+      "o": ["an apology (oprostite)", "a thank-you (hvala)", "a greeting (bok)", "a question (molim?)"],
+      "c": 1,
+      "skill": "vocab"
+    },
+
+    {
+      "q": "Choose the correct case: 'Bila sam kod ___.' (I was at the doctor's.)",
+      "o": ["liječnik", "liječnika", "liječniku", "liječnikom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Putujem u ___.' (I am travelling to Zagreb — direction.)",
+      "o": ["Zagreb", "Zagreba", "Zagrebu", "Zagrebom"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Živim u ___.' (I live in Zagreb — location.)",
+      "o": ["Zagreb", "Zagreba", "Zagrebu", "Zagrebom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct comparative: 'Ova knjiga je ___ od one.' (This book is more interesting than that one.)",
+      "o": ["zanimljiva", "zanimljivija", "najzanimljivija", "zanimljivo"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct comparative of 'dobar' (good): 'On je ___ student od mene.'",
+      "o": ["dobar", "dobriji", "bolji", "najbolji"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'prema': 'Idemo prema ___.' (We are going towards the centre.)",
+      "o": ["centar", "centra", "centru", "centrom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct future tense (fem. speaker): 'Sutra ___ ujutro.' (Tomorrow I will get up early.)",
+      "o": ["ustajem", "sam ustala", "ću ustati", "ustala"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Dao sam knjigu ___.' (I gave the book to my brother.)",
+      "o": ["brat", "brata", "bratu", "bratom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Pišem ___.' (I am writing to my friend — fem., 'prijateljica'.)",
+      "o": ["prijateljica", "prijateljicu", "prijateljici", "prijateljicom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Putujemo ___.' (We are travelling by train.)",
+      "o": ["vlak", "vlaka", "vlaku", "vlakom"],
+      "c": 3,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'do': 'Radim od jutra do ___.' (I work from morning until evening.)",
+      "o": ["večer", "večera", "večeri", "večerom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct possessive agreement: 'To je ___ sestra.' (That is my sister.)",
+      "o": ["moj", "moja", "moje", "moju"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct past tense (plural): 'Mi ___ cijeli dan.' (We worked all day.)",
+      "o": ["radimo", "smo radili", "ćemo raditi", "radili"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Sjedim između ___ i Marka.' (I sit between Ana and Marko — 'Ana'.)",
+      "o": ["Ana", "Anu", "Ane", "Ani"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct accusative: 'Vidim ___.' (I see a dog — 'pas', masculine animate.)",
+      "o": ["pas", "psa", "psu", "psom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct accusative: 'Vidim ___.' (I see the city — 'grad', masculine inanimate.)",
+      "o": ["grad", "grada", "gradu", "gradom"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'sa': 'Putujem ___.' (I am travelling with a friend — masc., 'prijatelj'.)",
+      "o": ["prijatelj", "prijatelja", "prijatelju", "prijateljem"],
+      "c": 3,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct dative: 'Telefoniram ___.' (I am phoning my mother.)",
+      "o": ["majka", "majku", "majci", "majkom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct superlative: 'Ovo je ___ restoran u gradu.' (This is the best restaurant in the city.)",
+      "o": ["dobar", "bolji", "najbolji", "dobro"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Čaša je puna ___.' (The glass is full of water.)",
+      "o": ["voda", "vodu", "vode", "vodom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+
+    {
+      "q": "Aspect: 'Svaki dan ___ novine.' (Every day I read the newspaper — habitual action.)",
+      "o": ["čitam", "pročitam", "sam pročitao", "ću pročitati"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Aspect: 'Jučer sam ___ cijelu knjigu.' (Yesterday I read a whole book — completed.)",
+      "o": ["čitao", "pročitao", "čitam", "pročitam"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Aspect: 'Dok sam ___ ručak, zazvonio je telefon.' (While I was making lunch, the phone rang.)",
+      "o": ["kuhao", "skuhao", "kuham", "skuham"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Aspect: 'Kad ___ pismo, poslat ću ti ga.' (When I (have) write(n) the letter, I'll send it to you.)",
+      "o": ["pišem", "napišem", "sam pisao", "ću pisati"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Aspect: 'Obično ___ u sedam, ali danas sam ustao u šest.' (I usually get up at seven.)",
+      "o": ["ustajem", "ustanem", "sam ustao", "ću ustati"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Aspect: 'Konačno sam ___ taj film sinoć.' (I finally watched that film last night — completed.)",
+      "o": ["gledao", "odgledao", "gledam", "gledao bih"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Preposition + case: 'Knjiga je ___ stolu.' (The book is on the table — location.)",
+      "o": ["na", "u", "za", "od"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Preposition + case: 'Stavi knjigu ___ stol.' (Put the book on the table — direction, accusative.)",
+      "o": ["na stolu", "na stol", "u stolu", "za stolom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Register: You are speaking to an elderly stranger. Which is appropriate for 'Where do you live?'",
+      "o": ["Gdje živiš?", "Gdje živite?", "Gdje žive?", "Gdje živimo?"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Verb government: 'Bojim se ___.' (I am afraid of the dog — 'pas'; bojati se takes genitive.)",
+      "o": ["pas", "psa", "psu", "psom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Verb government: 'Sjećam se ___.' (I remember the summer — 'ljeto'; takes genitive.)",
+      "o": ["ljeto", "ljeta", "ljetu", "ljetom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'kroz': 'Šetamo ___ park.' (We walk through the park.)",
+      "o": ["park", "parka", "parku", "parkom"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'pored': 'Sjedi ___.' (He sits next to me — 'ja'.)",
+      "o": ["ja", "mene", "meni", "mnom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Aspect: 'Često ___ prijatelje vikendom.' (I often visit friends at weekends — habitual.)",
+      "o": ["posjećujem", "posjetim", "sam posjetio", "ću posjetiti"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case: 'Nemam ___.' (I don't have time — 'vrijeme'; negation of object takes genitive.)",
+      "o": ["vrijeme", "vremena", "vremenu", "vremenom"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct preposition: 'Vraćam se ___ posla.' (I am returning from work — source, genitive.)",
+      "o": ["s", "od", "iz", "do"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'zbog': 'Ostao sam kod kuće ___ kiše.' (I stayed home because of the rain.)",
+      "o": ["kiša", "kišu", "kiše", "kišom"],
+      "c": 2,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct reflexive past (fem.): 'Ana ___ rano jutros.' (Ana woke up early this morning.)",
+      "o": ["se probudila", "se probudio", "će se probuditi", "probudi se"],
+      "c": 0,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct case after 'nakon': 'Nakon ___ idem kući.' (After the lecture I go home — 'predavanje'.)",
+      "o": ["predavanje", "predavanja", "predavanju", "predavanjem"],
+      "c": 1,
+      "skill": "grammar"
+    },
+    {
+      "q": "Choose the correct conditional/polite request: '___ li mi pomoći?' (Could you help me? — formal.)",
+      "o": ["Možeš", "Možete", "Biste mogli", "Mogu"],
+      "c": 2,
+      "skill": "grammar"
+    },
+
+    {
+      "q": "Why is the family going to the seaside this year instead of the mountains?",
+      "o": [
+        "Because the mountains were too expensive",
+        "Because the children wanted to swim",
+        "Because grandmother lives by the sea",
+        "Because it rained in the mountains last year"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Ove godine idemo na more, a ne u planine kao prošle godine. Djeca su rekla da žele plivati i graditi kule od pijeska. Rezervirali smo mali apartman blizu plaže. Putovat ćemo autom u subotu rano ujutro da izbjegnemo gužvu."
+    },
+    {
+      "q": "When will they travel, and why at that time?",
+      "o": [
+        "Saturday evening, to arrive before dark",
+        "Saturday early morning, to avoid the traffic",
+        "Sunday morning, because it is cheaper",
+        "Friday night, to have a full weekend"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Ove godine idemo na more, a ne u planine kao prošle godine. Djeca su rekla da žele plivati i graditi kule od pijeska. Rezervirali smo mali apartman blizu plaže. Putovat ćemo autom u subotu rano ujutro da izbjegnemo gužvu."
+    },
+    {
+      "q": "What kind of accommodation did they book?",
+      "o": ["A large hotel", "A small apartment near the beach", "A room at grandmother's", "A campsite"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Ove godine idemo na more, a ne u planine kao prošle godine. Djeca su rekla da žele plivati i graditi kule od pijeska. Rezervirali smo mali apartman blizu plaže. Putovat ćemo autom u subotu rano ujutro da izbjegnemo gužvu."
+    },
+    {
+      "q": "We can infer that last year the family went on holiday to:",
+      "o": ["the seaside", "the mountains", "a foreign country", "the city"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Ove godine idemo na more, a ne u planine kao prošle godine. Djeca su rekla da žele plivati i graditi kule od pijeska. Rezervirali smo mali apartman blizu plaže. Putovat ćemo autom u subotu rano ujutro da izbjegnemo gužvu."
+    },
+
+    {
+      "q": "Why hasn't Sara phoned her friend back yet?",
+      "o": [
+        "She lost her phone",
+        "She has been very busy at work",
+        "She is angry with her friend",
+        "She forgot the number"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Draga Marija, oprosti što se nisam javila ranije. Zadnjih tjedan dana imala sam jako puno posla i vraćala sam se kući kasno svaku večer. Ovaj vikend sam slobodna, pa se možemo naći na kavi. Javi mi kada ti odgovara. Pozdrav, Sara."
+    },
+    {
+      "q": "What does Sara propose they do this weekend?",
+      "o": ["Go to the cinema", "Meet for coffee", "Travel to the coast", "Have dinner at her house"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Draga Marija, oprosti što se nisam javila ranije. Zadnjih tjedan dana imala sam jako puno posla i vraćala sam se kući kasno svaku večer. Ovaj vikend sam slobodna, pa se možemo naći na kavi. Javi mi kada ti odgovara. Pozdrav, Sara."
+    },
+    {
+      "q": "What is the form of this text?",
+      "o": ["A newspaper article", "A short personal message/letter", "A shopping list", "A restaurant review"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Draga Marija, oprosti što se nisam javila ranije. Zadnjih tjedan dana imala sam jako puno posla i vraćala sam se kući kasno svaku večer. Ovaj vikend sam slobodna, pa se možemo naći na kavi. Javi mi kada ti odgovara. Pozdrav, Sara."
+    },
+    {
+      "q": "Sara asks Marija to 'javi mi kada ti odgovara'. What does she want Marija to do?",
+      "o": [
+        "Pay for the coffee",
+        "Let her know when a time suits her",
+        "Apologise for being late",
+        "Bring a friend along"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Draga Marija, oprosti što se nisam javila ranije. Zadnjih tjedan dana imala sam jako puno posla i vraćala sam se kući kasno svaku večer. Ovaj vikend sam slobodna, pa se možemo naći na kavi. Javi mi kada ti odgovara. Pozdrav, Sara."
+    },
+
+    {
+      "q": "What does the sign tell customers about Mondays?",
+      "o": [
+        "The shop opens later than usual",
+        "The shop is closed",
+        "There is a discount on Mondays",
+        "The shop is open all day"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "OBAVIJEST: Poštovani kupci, naša trgovina radi od utorka do subote, od 8 do 20 sati. Nedjeljom radimo od 9 do 13 sati. Ponedjeljkom je trgovina zatvorena. Hvala na razumijevanju."
+    },
+    {
+      "q": "On which day does the shop have the shortest opening hours?",
+      "o": ["Tuesday", "Saturday", "Sunday", "Monday"],
+      "c": 2,
+      "skill": "reading",
+      "passage": "OBAVIJEST: Poštovani kupci, naša trgovina radi od utorka do subote, od 8 do 20 sati. Nedjeljom radimo od 9 do 13 sati. Ponedjeljkom je trgovina zatvorena. Hvala na razumijevanju."
+    },
+    {
+      "q": "If you want to shop at 7 p.m. on a Wednesday, can you?",
+      "o": [
+        "No, the shop closes at 6 p.m.",
+        "Yes, the shop is open until 8 p.m.",
+        "No, the shop is closed on Wednesdays",
+        "Only if you arrive before 1 p.m."
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "OBAVIJEST: Poštovani kupci, naša trgovina radi od utorka do subote, od 8 do 20 sati. Nedjeljom radimo od 9 do 13 sati. Ponedjeljkom je trgovina zatvorena. Hvala na razumijevanju."
+    },
+    {
+      "q": "The notice begins 'Poštovani kupci'. This greeting signals that the text is:",
+      "o": ["informal and friendly", "formal and polite", "humorous", "a private letter"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "OBAVIJEST: Poštovani kupci, naša trgovina radi od utorka do subote, od 8 do 20 sati. Nedjeljom radimo od 9 do 13 sati. Ponedjeljkom je trgovina zatvorena. Hvala na razumijevanju."
+    },
+
+    {
+      "q": "What was the main problem with Ivan's weekend trip?",
+      "o": [
+        "The hotel was fully booked",
+        "It rained the whole time",
+        "He missed his train",
+        "The restaurant was closed"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Prošli vikend htio sam ići na izlet u prirodu, ali nije išlo po planu. Cijelo vrijeme je padala kiša, pa smo ostali u apartmanu i igrali karte. U nedjelju je konačno izašlo sunce, ali tada smo se već morali vraćati kući. Sljedeći put ću provjeriti vremensku prognozu prije puta."
+    },
+    {
+      "q": "What did they end up doing instead?",
+      "o": ["Hiking in the rain", "Playing cards in the apartment", "Visiting a museum", "Going to the beach"],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Prošli vikend htio sam ići na izlet u prirodu, ali nije išlo po planu. Cijelo vrijeme je padala kiša, pa smo ostali u apartmanu i igrali karte. U nedjelju je konačno izašlo sunce, ali tada smo se već morali vraćati kući. Sljedeći put ću provjeriti vremensku prognozu prije puta."
+    },
+    {
+      "q": "What lesson did Ivan learn for next time?",
+      "o": [
+        "To book a better hotel",
+        "To check the weather forecast before the trip",
+        "To travel by car instead of train",
+        "To go in summer instead"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Prošli vikend htio sam ići na izlet u prirodu, ali nije išlo po planu. Cijelo vrijeme je padala kiša, pa smo ostali u apartmanu i igrali karte. U nedjelju je konačno izašlo sunce, ali tada smo se već morali vraćati kući. Sljedeći put ću provjeriti vremensku prognozu prije puta."
+    },
+    {
+      "q": "Why couldn't they enjoy the sunshine on Sunday?",
+      "o": [
+        "It was too hot",
+        "They already had to head home",
+        "The sun came out only briefly",
+        "They were too tired"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Prošli vikend htio sam ići na izlet u prirodu, ali nije išlo po planu. Cijelo vrijeme je padala kiša, pa smo ostali u apartmanu i igrali karte. U nedjelju je konačno izašlo sunce, ali tada smo se već morali vraćati kući. Sljedeći put ću provjeriti vremensku prognozu prije puta."
+    },
+
+    {
+      "q": "What does Nina want to become, and what is she doing about it?",
+      "o": [
+        "A doctor; she is studying medicine",
+        "A teacher; she is studying and helping children with homework",
+        "A nurse; she works at a hospital",
+        "A writer; she writes every evening"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Nina studira na fakultetu i želi postati učiteljica. Popodne radi kao volonterka i pomaže djeci s domaćom zadaćom. Kaže da voli taj posao jer joj djeca daju puno energije. Kad završi studij, želi raditi u školi u svom rodnom gradu."
+    },
+    {
+      "q": "Why does Nina enjoy her afternoon work?",
+      "o": [
+        "It pays well",
+        "The children give her a lot of energy",
+        "It is close to her home",
+        "She gets to travel"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Nina studira na fakultetu i želi postati učiteljica. Popodne radi kao volonterka i pomaže djeci s domaćom zadaćom. Kaže da voli taj posao jer joj djeca daju puno energije. Kad završi studij, želi raditi u školi u svom rodnom gradu."
+    },
+    {
+      "q": "Where does Nina hope to work after finishing her studies?",
+      "o": [
+        "Abroad",
+        "In a school in her home town",
+        "In the capital city",
+        "At the university"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Nina studira na fakultetu i želi postati učiteljica. Popodne radi kao volonterka i pomaže djeci s domaćom zadaćom. Kaže da voli taj posao jer joj djeca daju puno energije. Kad završi studij, želi raditi u školi u svom rodnom gradu."
+    },
+    {
+      "q": "From the text we can infer that Nina's afternoon role is:",
+      "o": [
+        "a well-paid full-time job",
+        "unpaid voluntary work",
+        "a university lecture",
+        "a part-time job at a shop"
+      ],
+      "c": 1,
+      "skill": "reading",
+      "passage": "Nina studira na fakultetu i želi postati učiteljica. Popodne radi kao volonterka i pomaže djeci s domaćom zadaćom. Kaže da voli taj posao jer joj djeca daju puno energije. Kad završi studij, želi raditi u školi u svom rodnom gradu."
     }
   ]
 }
