@@ -1,7 +1,6 @@
 // functions/api/assess-speaking.js
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkRateLimit } from './_rateLimit.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 const MAX_AUDIO_B64 = 2_000_000; // ~90s compressed
 const MIN_WORDS_FOR_CONFIDENCE = 3;
@@ -16,29 +15,10 @@ function sanitizeParam(value, maxLen = 200) {
     .slice(0, maxLen);
 }
 
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
 function CORS(origin) {
   return {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    ...corsHeaders(origin),
     'Cache-Control': 'no-store',
   };
 }
@@ -65,46 +45,12 @@ const RUBRIC = (level, prompt, transcript) =>
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
 
-  // 0. CORS allow-list — mirror correct.js.
-  if (!isAllowedOrigin(origin, isDev)) {
-    return new Response(JSON.stringify({ error: 'Forbidden' }), {
-      status: 403,
-      headers: CORS(origin),
-    });
-  }
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 20 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
 
-  // 1. Auth — hard reject anonymous (closes the anon-AI-cost vector).
-  const uid = env.FIREBASE_PROJECT_ID
-    ? await getFirebaseUid(request, env.FIREBASE_PROJECT_ID)
-    : null;
-  if (!uid) return err(401, 'unauthenticated', origin);
-
-  // 2. Rate limit (mirror correct.js: 20 req/min per IP).
-  const allowed = await checkRateLimit(request, 20, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
-      status: 429,
-      headers: CORS(origin),
-    });
-  }
-
-  // 3. Daily AI quota (cost 1 — two paid services per request).
-  const quota = await checkAIQuota(request, env, uid, 1);
-  if (!quota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'daily_quota_exceeded',
-        message: 'Daily AI limit reached. Resets at midnight UTC.',
-        resetAt: quota.resetAt,
-      }),
-      { status: 429, headers: CORS(origin) },
-    );
-  }
-
-  // 4. Body + clip cap.
+  // Body + clip cap.
   let body;
   try {
     body = await request.json();

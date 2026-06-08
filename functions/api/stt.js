@@ -99,19 +99,18 @@ export async function onRequestPost(context) {
   const DEEPGRAM_KEY = env.DEEPGRAM_API_KEY;
   const OPENAI_KEY = env.OPENAI_API_KEY;
 
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 30 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
+
   // 503 is the agreed signal for useWhisperSTT to fall back to Web Speech API silently.
-  // Check BEFORE the auth gate so the client gets a clean fallback even when keys aren't set.
+  // Check AFTER the auth gate: anon callers get 401; 503 only reaches authenticated users.
   if (!DEEPGRAM_KEY && !OPENAI_KEY) {
-    const origin = request.headers.get('origin') || request.headers.get('referer') || '';
     return new Response(JSON.stringify({ error: 'stt_not_configured' }), {
       status: 503,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
     });
   }
-
-  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 30 });
-  if (!gate.ok) return gate.response;
-  const { origin } = gate;
 
   // Validate audio Content-Type
   const ct = request.headers.get('content-type') || 'audio/webm';
