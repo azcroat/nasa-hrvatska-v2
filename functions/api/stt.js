@@ -10,32 +10,8 @@
 // Audio format: raw bytes, Content-Type = audio/webm | audio/ogg | audio/mp4 | audio/wav
 // MediaRecorder output: audio/webm;codecs=opus (Chrome/Edge), audio/ogg (Firefox), audio/mp4 (Safari)
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-
-function isAllowedOrigin(origin, isDev) {
-  if (!origin) return true; // PWA standalone / Capacitor
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  return {
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
-}
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
@@ -120,48 +96,22 @@ async function transcribeWhisper(audioBuffer, mimeType, apiKey) {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
-
-  if (!isAllowedOrigin(origin, isDev)) {
-    return new Response('Forbidden', { status: 403, headers: corsHeaders(origin) });
-  }
-
   const DEEPGRAM_KEY = env.DEEPGRAM_API_KEY;
   const OPENAI_KEY = env.OPENAI_API_KEY;
 
+  // 503 is the agreed signal for useWhisperSTT to fall back to Web Speech API silently.
+  // Check BEFORE the auth gate so the client gets a clean fallback even when keys aren't set.
   if (!DEEPGRAM_KEY && !OPENAI_KEY) {
-    // 503 is the agreed signal for useWhisperSTT to fall back to Web Speech API silently.
-    // Set DEEPGRAM_API_KEY or OPENAI_API_KEY in Cloudflare Pages → Settings → Env Vars.
+    const origin = request.headers.get('origin') || request.headers.get('referer') || '';
     return new Response(JSON.stringify({ error: 'stt_not_configured' }), {
       status: 503,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
     });
   }
 
-  // Rate limit: 30 requests/minute (each VAD clip is ~2–5 s of audio)
-  const allowed = await checkRateLimit(request, 30, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
-      status: 429,
-      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
-    });
-  }
-
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  if (!FIREBASE_PROJECT_ID) {
-    return new Response(JSON.stringify({ error: 'server_misconfigured' }), {
-      status: 500,
-      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
-    });
-  }
-  const uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
-  if (!uid) {
-    return new Response(JSON.stringify({ error: 'unauthorized' }), {
-      status: 401,
-      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
-    });
-  }
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 30 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
 
   // Validate audio Content-Type
   const ct = request.headers.get('content-type') || 'audio/webm';

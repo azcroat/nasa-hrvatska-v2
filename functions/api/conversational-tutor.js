@@ -2,9 +2,8 @@
 // Architecture: Claude Haiku generates tutor response, ElevenLabs TTS plays it
 // Breakdown detection: if user struggles 3x on same concept, switch to English explanation
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 const MODEL = 'claude-haiku-4-5-20251001';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
@@ -70,77 +69,25 @@ RESPOND WITH VALID JSON ONLY:
 }`;
 }
 
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  return {
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
-}
-
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(request.headers.get('origin') || ''),
+  });
 }
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
 
-  if (!isAllowedOrigin(origin, isDev)) {
-    return new Response(JSON.stringify({ error: 'Forbidden' }), {
-      status: 403,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  const allowed = await checkRateLimit(request, 30, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit' }), {
-      status: 429,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-
-  // Daily AI quota check (cost 2 — streaming conversation is heavier)
-  const quota = await checkAIQuota(request, env, uid, 2);
-  if (!quota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'daily_quota_exceeded',
-        message: 'Daily AI limit reached. Resets at midnight UTC.',
-        resetAt: quota.resetAt,
-      }),
-      { status: 429, headers: corsHeaders(origin) },
-    );
-  }
+  const gate = await requireAuthedAI(context, { cost: 2, rateLimit: 30 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
 
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY;
   if (!ANTHROPIC_KEY) {
     return new Response(JSON.stringify({ error: 'AI_KEY_MISSING' }), {
       status: 503,
-      headers: corsHeaders(origin),
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
     });
   }
 
@@ -149,7 +96,7 @@ export async function onRequestPost(context) {
     if (!ct.includes('application/json')) {
       return new Response(JSON.stringify({ error: 'invalid_content_type' }), {
         status: 400,
-        headers: corsHeaders(origin),
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
 
@@ -159,7 +106,7 @@ export async function onRequestPost(context) {
     if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: 'invalid_messages' }), {
         status: 400,
-        headers: corsHeaders(origin),
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
 
@@ -230,7 +177,7 @@ export async function onRequestPost(context) {
         const errText = await res.text().catch(() => '');
         return new Response(JSON.stringify({ error: 'api_error', detail: errText.slice(0, 200) }), {
           status: 502,
-          headers: corsHeaders(origin),
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
         });
       }
 
@@ -242,7 +189,7 @@ export async function onRequestPost(context) {
         console.error('[conversational-tutor] failed to read response body:', bodyErr.message);
         return new Response(JSON.stringify({ error: 'server_error' }), {
           status: 502,
-          headers: corsHeaders(origin),
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
         });
       }
 
@@ -253,7 +200,7 @@ export async function onRequestPost(context) {
         console.error('[conversational-tutor] JSON parse failed:', rawBody.slice(0, 200));
         return new Response(JSON.stringify({ error: 'server_error' }), {
           status: 502,
-          headers: corsHeaders(origin),
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
         });
       }
       raw = data.content?.[0]?.text || '';
@@ -299,12 +246,12 @@ export async function onRequestPost(context) {
     if (e.name === 'AbortError') {
       return new Response(JSON.stringify({ error: 'timeout' }), {
         status: 504,
-        headers: corsHeaders(origin),
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
     return new Response(JSON.stringify({ error: 'server_error' }), {
       status: 500,
-      headers: corsHeaders(origin),
+      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
     });
   }
 }

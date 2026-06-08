@@ -1,46 +1,23 @@
 // Cloudflare Pages Function — Listening Exercise Generator
 // Generates a complete AI Croatian listening exercise: dialogue or monologue + comprehension questions.
 
-import { checkRateLimit } from './_rateLimit.js';
-import { getFirebaseUid } from './_verifyToken.js';
-import { checkAIQuota } from './_aiQuota.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
 
-// ── Security helpers ──────────────────────────────────────────────────────────
-
-function isAllowedOrigin(origin, isDev) {
-  // Empty origin: PWA standalone mode (iOS/Android) and Capacitor. Auth is enforced via Firebase token.
-  if (!origin) return true;
-  try {
-    const hostname = new URL(origin).hostname;
-    if (isDev && hostname === 'localhost') return true;
-    return (
-      hostname === 'nasahrvatska.com' ||
-      hostname.endsWith('.nasahrvatska.com') ||
-      hostname === 'nasa-hrvatska-v2.pages.dev' ||
-      hostname.endsWith('.nasa-hrvatska-v2.pages.dev')
-    );
-  } catch {
-    return false;
-  }
-}
-
-function corsHeaders(origin) {
-  return {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': origin || 'https://nasahrvatska.com',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Cache-Control': 'no-cache',
-  };
-}
-
 function ok(body, origin) {
-  return new Response(JSON.stringify(body), { status: 200, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
 }
 function err(status, msg, origin) {
-  return new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders(origin) });
+  return new Response(JSON.stringify({ error: msg }), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+  });
 }
 
 // ── Input validation ──────────────────────────────────────────────────────────
@@ -116,42 +93,19 @@ function validateCroatianContent(data) {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function onRequestOptions({ request }) {
-  const origin = request.headers.get('origin') || '';
-  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders(request.headers.get('origin') || ''),
+  });
 }
 
-export async function onRequestPost({ request, env }) {
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-
+export async function onRequestPost(context) {
+  const { request, env } = context;
   const ANTHROPIC_KEY = env.ANTHROPIC_API_KEY;
 
-  // CORS check
-  const isDev = env.ENVIRONMENT !== 'production';
-  if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
-
-  const allowed = await checkRateLimit(request, 20, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit_exceeded' }), {
-      status: 429,
-      headers: corsHeaders(origin),
-    });
-  }
-
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  const uid = FIREBASE_PROJECT_ID ? await getFirebaseUid(request, FIREBASE_PROJECT_ID) : null;
-
-  // Daily AI quota check (cost 1)
-  const quota = await checkAIQuota(request, env, uid, 1);
-  if (!quota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'daily_quota_exceeded',
-        message: 'Daily AI limit reached. Resets at midnight UTC.',
-        resetAt: quota.resetAt,
-      }),
-      { status: 429, headers: corsHeaders(origin) },
-    );
-  }
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 20 });
+  if (!gate.ok) return gate.response;
+  const { origin, isDev } = gate;
 
   // API key check
   if (!ANTHROPIC_KEY) return err(503, 'AI_KEY_MISSING', origin);

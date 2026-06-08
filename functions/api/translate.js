@@ -3,9 +3,8 @@
 // hit an external domain directly — avoids CSP connect-src issues.
 // Adding MYMEMORY_EMAIL env var lifts the limit from 1k → 10k words/day.
 
-import { checkRateLimit } from './_rateLimit.js';
-import { corsHeaders, isAllowedOrigin } from './_helpers.js';
-import { getFirebaseUid } from './_verifyToken.js';
+import { requireAuthedAI } from './_requireAuth.js';
+import { corsHeaders } from './_helpers.js';
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
@@ -13,38 +12,10 @@ export async function onRequestOptions({ request }) {
 }
 
 export async function onRequestPost(context) {
+  const gate = await requireAuthedAI(context, { cost: 1, rateLimit: 30 });
+  if (!gate.ok) return gate.response;
+  const { origin } = gate;
   const { request, env } = context;
-  const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
-
-  if (!isAllowedOrigin(origin, isDev)) {
-    return new Response(JSON.stringify({ error: 'forbidden' }), {
-      status: 403,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
-    });
-  }
-
-  const allowed = await checkRateLimit(request, 30, env);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'rate_limit' }), {
-      status: 429,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
-    });
-  }
-
-  // Require Firebase auth — even though MyMemory is free, the quota is shared.
-  // Without auth, a rotating-IP attacker can exhaust the daily translation quota
-  // for all real users.
-  const FIREBASE_PROJECT_ID = env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || '';
-  if (FIREBASE_PROJECT_ID) {
-    const _uid = await getFirebaseUid(request, FIREBASE_PROJECT_ID);
-    if (!_uid) {
-      return new Response(JSON.stringify({ error: 'unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
-      });
-    }
-  }
 
   try {
     const { text, from, to } = await request.json();
