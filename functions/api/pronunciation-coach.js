@@ -126,47 +126,6 @@ function analyzeCroatianPhonemes(target, spoken) {
   return issues.length > 0 ? issues : null;
 }
 
-// ---------------------------------------------------------------------------
-// Format Deepgram word-level data into a concise coaching note.
-// wordData shape: { confidence: 0–1, start: float, end: float, word: string }
-// ---------------------------------------------------------------------------
-function formatWordData(wordData) {
-  if (!wordData || typeof wordData !== 'object') return null;
-
-  const confidence =
-    typeof wordData.confidence === 'number' ? Math.round(wordData.confidence * 100) : null;
-  const duration =
-    typeof wordData.start === 'number' && typeof wordData.end === 'number'
-      ? Math.round((wordData.end - wordData.start) * 1000)
-      : null;
-
-  const parts = [];
-  if (confidence !== null) {
-    parts.push(
-      `Deepgram word confidence: ${confidence}% (${
-        confidence >= 85
-          ? 'high — the recognizer heard it clearly'
-          : confidence >= 60
-            ? 'moderate — the recognizer is unsure'
-            : 'low — heavily mispronounced or unclear'
-      })`,
-    );
-  }
-  if (duration !== null) {
-    parts.push(
-      `spoken duration: ${duration}ms (${
-        duration < 200
-          ? 'very short — may have been clipped or rushed'
-          : duration > 1500
-            ? 'very long — possible hesitation or false start'
-            : 'normal range'
-      })`,
-    );
-  }
-
-  return parts.length > 0 ? parts.join('; ') : null;
-}
-
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
   return new Response(null, {
@@ -194,8 +153,7 @@ export async function onRequestPost(context) {
     return err(400, 'Invalid JSON in request body', origin);
   }
 
-  // wordData is optional — sent when Deepgram returns per-word timing/confidence.
-  const { word, spoken, score, level, wordData } = body;
+  const { word, spoken, score, level } = body;
 
   if (typeof word !== 'string' || !word.trim()) return err(400, 'Missing word', origin);
 
@@ -206,13 +164,10 @@ export async function onRequestPost(context) {
 
   // Run the local phoneme rule engine before building the Claude prompt.
   const phonemeIssues = analyzeCroatianPhonemes(safeWord, safeSpoken);
-  const wordDataNote = formatWordData(wordData);
 
   const phonemeContext = phonemeIssues
     ? `\nDetected Croatian phoneme issues for English speakers:\n${phonemeIssues.map((i) => `  • ${i.phoneme} [${i.ipa}]: ${i.hint}`).join('\n')}`
     : '';
-
-  const wordDataContext = wordDataNote ? `\nDeepgram acoustic signal data: ${wordDataNote}` : '';
 
   const performanceContext =
     safeScore >= 85
@@ -223,8 +178,7 @@ export async function onRequestPost(context) {
 
   const userMsg = `A Croatian learner (CEFR ${safeLevel}) attempted to pronounce: "${safeWord}"
 Speech recognition heard: "${safeSpoken || 'unclear/nothing'}"
-Text similarity score: ${safeScore}% (100 = perfect match)
-${wordDataContext}
+Text-similarity score (not an acoustic measurement): ${safeScore}% (100 = exact text match; this is Levenshtein string distance, not a phonetic score)
 
 ${performanceContext}
 ${phonemeContext}
