@@ -92,7 +92,7 @@ export async function onRequestPost(context) {
 
   // CORS check
   const origin = request.headers.get('origin') || request.headers.get('referer') || '';
-  const isDev = env.ENVIRONMENT !== 'production';
+  const isDev = env.ENVIRONMENT === 'development'; // default-closed: unset/prod never leaks internals
   if (!isAllowedOrigin(origin, isDev)) return err(403, 'Forbidden', origin);
 
   // Rate limit
