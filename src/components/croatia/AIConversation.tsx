@@ -727,16 +727,11 @@ export default function AIConversation({
       };
       setMessages((prev) => [...prev, assistantMsg]);
 
-      // Corrections come embedded in the streaming response — no separate API call needed
+      // Corrections come embedded in the streaming response — no separate API call needed.
+      // NOTE: logError is intentionally NOT called here. Mistakes are logged once, in the
+      // evaluation phase (endAndEvaluate → ev.mistakes loop), to avoid double-counting.
       if (result.correction?.corrected && isMountedRef.current) {
         setCorrections((prev) => ({ ...prev, [userMsgIndex]: result.correction }));
-        if (result.correction.corrected !== userText) {
-          logError(result.errorPatterns?.[0] || 'conversation_grammar', 'grammar', {
-            wrong: userText,
-            correct: result.correction.corrected,
-            source: 'conversation',
-          });
-        }
       }
 
       if (!muted) await speakWithAnim(result.croatian);
