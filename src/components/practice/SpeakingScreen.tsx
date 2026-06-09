@@ -10,6 +10,7 @@ import { useAndroidMicPermission } from '../../hooks/useAndroidMicPermission';
 import { isNative } from '../../lib/platform.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
+import { charOverlapPct } from '../../lib/text/similarity';
 
 // ── Open-ended speaking prompt pools ──────────────────────────────────────────
 // Format: [Croatian text, English instruction, type, ?imageKey]
@@ -140,21 +141,11 @@ interface PronScore {
   encouragement: string;
 }
 
-// Shared, honest text-similarity ratio (0-100) between a transcript and the target word.
+// Text-similarity ratio (0-100) between a transcript and the target word.
 // This is a RECOGNITION/text signal, NOT an acoustic pronunciation measurement — it is only
 // ever sent to /api/pronunciation-coach (which labels it "text-similarity, not acoustic"),
 // never displayed as a pronunciation %.
-function textSimilarity(a: string, b: string): number {
-  const na = a.toLowerCase().trim();
-  const nb = b.toLowerCase().trim();
-  if (!na || !nb) return 0;
-  if (na === nb) return 100;
-  const longer = na.length >= nb.length ? na : nb;
-  const shorter = na.length >= nb.length ? nb : na;
-  if (longer.length === 0) return 100;
-  const shared = shorter.split('').filter((c: string) => longer.includes(c)).length;
-  return Math.round((shared / longer.length) * 100);
-}
+// Implemented via charOverlapPct from ../../lib/text/similarity (char-overlap, no diacritic normalization).
 
 // Map SpeechRecognition error codes to user-friendly messages
 function srError(code: string) {
@@ -437,7 +428,7 @@ export default function SpeakingScreen({
 
     // Real text-similarity ratio (recognition signal, not acoustic). The endpoint labels this
     // as "text-similarity, not acoustic", so sending a genuine ratio is honest.
-    const similarity = textSimilarity(transcript, targetWord);
+    const similarity = charOverlapPct(transcript, targetWord);
 
     const controller = new AbortController();
     const tid = setTimeout(() => controller.abort(), 7000); // 7s max — never block UI
@@ -543,17 +534,13 @@ export default function SpeakingScreen({
       }
       const target = (sw[0] as string).toLowerCase().trim();
       // Generous matching: exact, contains, or at least 60% character overlap
-      const levenshteinClose = (a: string, b: string) => {
-        if (!a || !b) return false;
-        const longer = a.length > b.length ? a : b;
-        const shorter = a.length > b.length ? b : a;
-        if (longer.length === 0) return true;
-        const shared = shorter.split('').filter((c: string) => longer.includes(c)).length;
-        return shared / longer.length >= 0.6;
-      };
+      // (charOverlapPct returns 0..100; >= 60 reproduces the old levenshteinClose threshold)
       const matched = alts.some(
         (a: string) =>
-          a === target || a.includes(target) || target.includes(a) || levenshteinClose(a, target),
+          a === target ||
+          a.includes(target) ||
+          target.includes(a) ||
+          charOverlapPct(a, target) >= 60,
       );
       setRecResult(matched ? 'match' : 'nomatch');
       setListening(false);
