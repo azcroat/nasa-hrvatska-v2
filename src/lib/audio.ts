@@ -104,127 +104,27 @@ export function _dataUrlToArrayBuffer(dataUrl: string): ArrayBuffer {
   return bytes.buffer;
 }
 
-// POST to /api/tts, trying each native endpoint in sequence until one succeeds.
-// On web, a single relative URL is used (no fallback needed).
+// POST to /api/tts — thin delegate to `_nativePost` in ./nativePost.
 //
-// NATIVE PATH: uses CapacitorHttp (Android OkHttp) instead of WebView fetch().
-// On some Android tablets the WebView's fetch() fails silently — SSL cert chain
-// issues, WebView network policy, or OEM browser restrictions. CapacitorHttp
-// bypasses the WebView entirely and uses Android's own HTTP client + CA bundle.
+// The ~90-line body that previously lived here (CapacitorHttp loop + fetch loop +
+// bearer attachment) is now fully covered by `_nativePost`, which was built to
+// mirror it exactly (Task 7 added blob support + passthroughHeaders).
+//
+// CYCLE GUARD: nativePost.ts has a static import of audio.ts
+// (`import { getFirebaseBearer, isNative, _dataUrlToArrayBuffer } from './audio.js'`).
+// A static `import { _nativePost } from './nativePost'` here would create a
+// module-evaluation cycle. The `await import(...)` defers to call-time, so both
+// modules finish evaluating before the first call arrives — no cycle at runtime.
 async function _ttsPost(
   body: Record<string, unknown>,
   signal: AbortSignal,
 ): Promise<Response | null> {
-  const endpoints = isNative() ? _NATIVE_ENDPOINTS : [''];
-
-  // Attach Firebase Bearer token so the server-side auth gate passes.
-  // Without this, /api/tts returns 401 and TTS silently falls through to
-  // Web Speech — which fails on devices without a Croatian voice.
-  const bearer = await _getFirebaseBearer();
-  const authHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (bearer) {
-    authHeaders.Authorization = `Bearer ${bearer}`;
-  } else {
-    dbgWarn('[TTS] no Firebase user signed in — request will be unauthenticated');
-  }
-
-  if (isNative()) {
-    // Try CapacitorHttp (native Android HTTP — bypasses WebView fetch() failures)
-    type _CapHttp = {
-      post: (
-        o: Record<string, unknown>,
-      ) => Promise<{ status: number; data: unknown; headers: Record<string, string> }>;
-    };
-    let capHttp: _CapHttp | null = null;
-    try {
-      // Dynamic import keeps @capacitor/core out of the web bundle's main chunk.
-      const capacitorModule = (await import('@capacitor/core')) as unknown as {
-        CapacitorHttp?: _CapHttp;
-      };
-      capHttp = capacitorModule.CapacitorHttp ?? null;
-      if (capHttp) dbgInfo('[TTS] CapacitorHttp available — using native HTTP');
-    } catch {
-      dbgWarn('[TTS] CapacitorHttp import failed — falling back to fetch()');
-    }
-
-    if (capHttp) {
-      for (const base of endpoints) {
-        const url = `${base}/api/tts`;
-        try {
-          dbgInfo(`[TTS] CapacitorHttp POST → "${url}"`);
-          const resp = await capHttp.post({
-            url,
-            headers: authHeaders,
-            data: body,
-            responseType: 'blob',
-          });
-          dbgInfo(`[TTS] CapacitorHttp status=${resp.status} data-type=${typeof resp.data}`);
-          if (resp.status >= 200 && resp.status < 300) {
-            const backends =
-              resp.headers['x-tts-backends'] || resp.headers['X-TTS-Backends'] || 'capacitor';
-            // Native bridge returns binary blob as base64 string; convert to Blob
-            let blob: Blob;
-            if (resp.data instanceof Blob) {
-              blob = resp.data;
-            } else if (typeof resp.data === 'string' && resp.data.length > 0) {
-              const ab = _dataUrlToArrayBuffer(`data:audio/mpeg;base64,${resp.data}`);
-              blob = new Blob([ab], { type: 'audio/mpeg' });
-            } else {
-              dbgWarn(
-                `[TTS] CapacitorHttp unexpected data type "${typeof resp.data}" len=${String(resp.data).length} — trying next`,
-              );
-              continue;
-            }
-            return new Response(blob, {
-              status: 200,
-              headers: new Headers({ 'Content-Type': 'audio/mpeg', 'X-TTS-Backends': backends }),
-            });
-          }
-          if (resp.status >= 400 && resp.status < 500) {
-            // 4xx — bad request, don't retry other endpoints
-            return new Response('', {
-              status: resp.status,
-              headers: new Headers({ 'X-TTS-Backends': resp.headers['x-tts-backends'] || '' }),
-            });
-          }
-          // 5xx: try next endpoint
-        } catch (e: unknown) {
-          const err = e as Error;
-          dbgWarn(
-            `[TTS] CapacitorHttp → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 100)} — trying next`,
-          );
-        }
-      }
-      dbgWarn('[TTS] CapacitorHttp: all endpoints failed');
-      return null;
-    }
-    // CapacitorHttp unavailable — fall through to fetch()
-  }
-
-  // Web (and native fallback): standard fetch()
-  for (const base of endpoints) {
-    const url = `${base}/api/tts`;
-    try {
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify(body),
-        signal,
-      });
-      dbgInfo(`[TTS] fetch POST → "${url}" status=${r.status}`);
-      if (r.ok) return r;
-      // 4xx from server: bad request — don't retry other endpoints
-      if (r.status >= 400 && r.status < 500) return r;
-      // 5xx or other: try next endpoint
-    } catch (e: unknown) {
-      const err = e as Error;
-      if (err?.name === 'AbortError') throw e; // propagate abort immediately
-      dbgWarn(
-        `[TTS] fetch → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 80)} — trying next`,
-      );
-    }
-  }
-  return null; // all endpoints failed
+  const { _nativePost } = await import('./nativePost');
+  return _nativePost('/api/tts', body, {
+    signal,
+    responseType: 'blob',
+    passthroughHeaders: ['X-TTS-Backends'],
+  });
 }
 
 let _au = false;
