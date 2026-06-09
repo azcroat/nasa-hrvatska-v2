@@ -1,5 +1,6 @@
 // src/lib/speaking/whisperClaudeScorer.ts
 import { _nativePost } from '../nativePost.js';
+import { blobToBase64 } from '../audio.js';
 import {
   computeSpeakingOverall,
   type SpeakingScorer,
@@ -12,13 +13,6 @@ import {
  * server, NOT an acoustic/STT confidence.
  */
 const MIN_TRANSCRIPT_SUFFICIENCY = 0.4;
-
-async function blobToBase64(blob: Blob): Promise<string> {
-  const buf = new Uint8Array(await blob.arrayBuffer());
-  let binary = '';
-  for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i]!);
-  return btoa(binary);
-}
 
 export const whisperClaudeScorer: SpeakingScorer = {
   async assess(audio, ctx): Promise<SpeakingAssessment | null> {

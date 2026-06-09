@@ -15,6 +15,20 @@ import { _dataUrlToArrayBuffer } from './nativeTransport.js';
 export { getFirebaseBearer, _dataUrlToArrayBuffer } from './nativeTransport.js';
 export { isNative } from './nativeTransport.js';
 
+/**
+ * Encode a Blob's bytes as base64 (chunked to avoid call-stack limits on large inputs).
+ * Safe for audio blobs of any size — processes in 8 KiB chunks rather than byte-by-byte.
+ */
+export async function blobToBase64(blob: Blob): Promise<string> {
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  const CHUNK = 8192;
+  let binary = '';
+  for (let i = 0; i < buf.length; i += CHUNK) {
+    binary += String.fromCharCode(...buf.subarray(i, i + CHUNK));
+  }
+  return btoa(binary);
+}
+
 // POST to /api/tts — thin delegate to `_nativePost` in ./nativePost.
 //
 // The ~90-line body that previously lived here (CapacitorHttp loop + fetch loop +

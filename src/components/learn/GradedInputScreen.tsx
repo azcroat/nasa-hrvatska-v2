@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { speak } from '../../data';
-import { apiFetch } from '../../lib/apiFetch.js';
-import { unlockAudio, ttsFetch } from '../../lib/audio.js';
+import { unlockAudio, ttsFetch, blobToBase64 } from '../../lib/audio.js';
+import { _nativePost } from '../../lib/nativePost.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { getStoryCatalog, getStory } from '../../lib/contentClient';
 import type { StoryCatalogEntry } from '../../types/content';
@@ -293,18 +293,14 @@ function StoryList({ onSelect, goBack }: { onSelect: (id: string) => void; goBac
 
 // ─── Pronunciation assessment helper ─────────────────────────────────────────
 async function assessPronunciation(audioBlob: Blob, referenceText: string) {
-  const arrayBuffer = await audioBlob.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i] ?? 0);
-  const base64 = btoa(binary);
-
-  const res = await apiFetch('/api/pronunciation-assess', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ audio: base64, text: referenceText, locale: 'hr-HR' }),
+  const audioBase64 = await blobToBase64(audioBlob);
+  const res = await _nativePost('/api/pronunciation-assess', {
+    audioBase64,
+    referenceText,
+    locale: 'hr-HR',
+    audioMimeType: audioBlob.type || 'audio/webm',
   });
-  if (!res.ok) throw new Error('Assessment failed');
+  if (!res || !res.ok) throw new Error('Assessment failed');
   return res.json();
 }
 

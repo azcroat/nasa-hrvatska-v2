@@ -19,8 +19,8 @@
  */
 
 import { useRef, useState, useCallback, useEffect } from 'react';
-import { apiFetch } from '../lib/apiFetch.js';
-import { stopAudio, getAudioContext, unlockAudio } from '../lib/audio.ts';
+import { stopAudio, getAudioContext, unlockAudio, blobToBase64 } from '../lib/audio.ts';
+import { _nativePost } from '../lib/nativePost.js';
 import { isNative } from '../lib/platform.js';
 
 // ── VAD tuning constants ──────────────────────────────────────────────────────
@@ -191,14 +191,16 @@ export default function useWhisperSTT({ onResult, onInterrupt, onError, isSpeaki
       try {
         if (!navigator.onLine) throw new Error('offline');
 
-        const res = await apiFetch('/api/stt', {
-          method: 'POST',
-          headers: { 'Content-Type': blob.type || 'audio/webm' },
-          body: blob,
+        const audioBase64 = await blobToBase64(blob);
+        const res = await _nativePost('/api/stt', {
+          audioBase64,
+          mimeType: blob.type || 'audio/webm',
         });
 
-        if (res.status === 503) {
-          // Whisper not configured — mark unavailable and let the component fall back
+        // null = total transport failure (Capacitor native unreachable endpoint, etc.)
+        // !res.ok (including 503 = Whisper not configured) → fall back to Web Speech
+        if (!res || res.status === 503) {
+          // Whisper not configured or transport failed — mark unavailable and let the component fall back
           whisperAvailRef.current = false;
           cleanup();
           return;
