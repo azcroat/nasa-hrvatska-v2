@@ -45,7 +45,7 @@ const CARDS: AICard[] = [
     id: 'live_tutor',
     emoji: '🎓',
     label: 'Live AI Tutor',
-    description: '1:1 personalized AI tutoring session — Hrvoje explains, drills, and corrects.',
+    description: '1:1 personalized AI tutoring session — Marija explains, drills, and corrects.',
     screen: 'live_tutor',
     curEx: 'live_tutor',
     variant: 'primary',
