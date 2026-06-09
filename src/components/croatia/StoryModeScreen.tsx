@@ -3,9 +3,8 @@ import type { AwardActivityType } from '../../types/index.js';
 import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
-import { apiFetch } from '../../lib/apiFetch.js';
 import { _aiPost } from '../../lib/aiPost';
-import { getAudioContext } from '../../lib/audio.js';
+import { getAudioContext, ttsFetch } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { STORY_CITIES, GOAL_META } from './StoryModeData.js';
 import StorySetupPanel from './StorySetupPanel';
@@ -47,12 +46,8 @@ const _iosDevice =
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 async function playTTS(text: string): Promise<AudioPlayer | HTMLAudioElement> {
-  const res = await apiFetch('/api/tts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
-  });
-  if (!res.ok) throw new Error('TTS failed');
+  const res = await ttsFetch({ text, slow: false, voice: getVoicePreference() });
+  if (!res || !res.ok) throw new Error('TTS failed');
   const blob = await res.blob();
 
   // iOS path: AudioContext — use blob.arrayBuffer() directly, no blob URL needed

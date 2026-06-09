@@ -129,15 +129,30 @@ vi.mock('../lib/learnerErrors.js', () => ({
   logError: vi.fn(),
   getErrorsForAPI: vi.fn(() => []),
 }));
-vi.mock('../lib/apiFetch.js', () => ({
-  apiFetch: vi.fn(() =>
-    Promise.resolve({ ok: false, status: 503, json: () => Promise.resolve({}) }),
+
+// ── apiFetch: returns failure by default; tests can override per-call ─────────
+const mockApiFetch = vi.hoisted(() =>
+  vi.fn(() => Promise.resolve({ ok: false, status: 503, json: () => Promise.resolve({}) })),
+);
+vi.mock('../lib/apiFetch.js', () => ({ apiFetch: mockApiFetch }));
+
+// ── _aiPost: returns a fake SSE stream by default; tests can override ─────────
+const mockAiPost = vi.hoisted(() =>
+  vi.fn(() =>
+    Promise.resolve({
+      ok: true,
+      status: 200,
+      body: null as ReadableStream | null,
+    }),
   ),
-}));
+);
+vi.mock('../lib/aiPost', () => ({ _aiPost: mockAiPost }));
+
 vi.mock('../lib/audio.ts', () => ({
   stopAudio: vi.fn(),
   getAudioContext: vi.fn(() => null),
   unlockAudio: vi.fn(),
+  getFirebaseBearer: vi.fn(() => Promise.resolve(null)),
 }));
 
 // ── Data mock — keep real SCENARIOS but stub speak/srMark ────────────────────
@@ -148,8 +163,15 @@ vi.mock('../data', async (importOriginal) => {
 });
 
 // ── Child component stubs — prevent deep render trees ────────────────────────
+// Capture onEndEvaluate so tests can call it directly.
+const capturedChatProps = vi.hoisted(() => ({
+  onEndEvaluate: null as (() => void) | null,
+}));
 vi.mock('../components/croatia/AIConversationChat', () => ({
-  default: () => React.createElement('div', { 'data-testid': 'ai-chat' }),
+  default: (props: { onEndEvaluate?: () => void }) => {
+    if (props?.onEndEvaluate) capturedChatProps.onEndEvaluate = props.onEndEvaluate;
+    return React.createElement('div', { 'data-testid': 'ai-chat' });
+  },
 }));
 vi.mock('../components/croatia/AIConversationResult', () => ({
   default: () => React.createElement('div', { 'data-testid': 'ai-result' }),
@@ -167,6 +189,7 @@ vi.mock('../components/croatia/AIWordTooltip', () => ({
 }));
 
 import AIConversation from '../components/croatia/AIConversation';
+import * as learnerErrors from '../lib/learnerErrors.js';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -301,5 +324,176 @@ describe('AIConversation — STT text normalization', () => {
     });
     // Component should still be in the DOM — check for any stable scenario text
     expect(screen.getAllByText(/Razgovor|Café|Kafić/i).length).toBeGreaterThan(0);
+  });
+});
+
+// ── Duplicate logError guard ──────────────────────────────────────────────────
+// Each mistake must be logged to weak-areas exactly ONCE per session.
+// Before the fix: the streaming path (~line 734) fires logError once, then the
+// evaluation path (~line 932) fires it again → 2 calls total.
+// After the fix: only the evaluation-phase logError remains → 1 call total.
+
+/** Build a minimal ReadableStream that emits a single SSE `done` frame. */
+function makeSseStream(result: Record<string, unknown>): ReadableStream<Uint8Array> {
+  const line = `data: ${JSON.stringify({ type: 'done', result })}\n\n`;
+  const encoded = new TextEncoder().encode(line);
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoded);
+      controller.close();
+    },
+  });
+}
+
+/** Build a fake MajaResult carrying one correction. */
+function majaResultWithCorrection(userText: string, corrected: string): Record<string, unknown> {
+  return {
+    croatian: 'Dobro jutro!',
+    english_gloss: 'Good morning!',
+    scaffolding_level: 'A1',
+    emotion: 'neutral',
+    correction: { corrected, echo: corrected },
+    errorPatterns: ['verb_agreement'],
+    is_session_end: false,
+  };
+}
+
+/** Build a fake MajaResult with no correction (used for the opener / second turn). */
+function majaResultNoCorrection(): Record<string, unknown> {
+  return {
+    croatian: 'Kako si?',
+    english_gloss: 'How are you?',
+    scaffolding_level: 'A1',
+    emotion: 'neutral',
+    correction: null,
+    is_session_end: false,
+  };
+}
+
+describe('AIConversation — duplicate logError guard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Reset captured props between tests
+    capturedChatProps.onEndEvaluate = null;
+  });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('logs each mistake to weak-areas only once per session', async () => {
+    const WRONG_TEXT = 'ja idu u kafić';
+    const CORRECTED_TEXT = 'ja idem u kafić';
+
+    // ── 1. Wire up _aiPost mock ──────────────────────────────────────────────
+    // Call order: opener (no correction), turn-1 (with correction), turn-2 (no correction)
+    mockAiPost
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        body: makeSseStream(majaResultNoCorrection()), // opener (startConversation)
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        body: makeSseStream(majaResultWithCorrection(WRONG_TEXT, CORRECTED_TEXT)), // turn 1
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        body: makeSseStream(majaResultNoCorrection()), // turn 2 (needed for >=2 user msgs guard)
+      });
+
+    // ── 2. Wire up apiFetch mock for evaluation + npc-video ─────────────────
+    // /api/npc-video → ok:false (skip video); /api/ai-chat → eval response
+    const evalResponse = {
+      score: 72,
+      mistakes: [{ type: 'verb_agreement', original: WRONG_TEXT, correction: CORRECTED_TEXT }],
+      feedback: 'Good effort.',
+    };
+    mockApiFetch.mockImplementation((url: string) => {
+      if (typeof url === 'string' && url.includes('/api/npc-video')) {
+        return Promise.resolve({ ok: false, status: 404, json: () => Promise.resolve({}) });
+      }
+      if (typeof url === 'string' && url.includes('/api/ai-chat')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ text: JSON.stringify(evalResponse) }),
+        });
+      }
+      // /api/srs-sync and any other calls → fail gracefully
+      return Promise.resolve({ ok: false, status: 503, json: () => Promise.resolve({}) });
+    });
+
+    // ── 3. Spy on the already-mocked logError ────────────────────────────────
+    const logErrorSpy = vi.spyOn(learnerErrors, 'logError');
+
+    // ── 4. Render and pick a scenario to start the conversation ─────────────
+    renderConversation();
+
+    // Scenario cards are <div> elements (not buttons) — find by text content.
+    // "At a Café" is the first scenario in the real SCENARIOS data.
+    const allElements = screen.getAllByText(/At a Café|At a cafe|Kafić|café/i);
+    expect(allElements.length).toBeGreaterThan(0);
+    const cafeTile = allElements[0].closest('[style*="cursor: pointer"]') ?? allElements[0];
+
+    // Click the scenario card to select it
+    await act(async () => {
+      fireEvent.click(cafeTile);
+    });
+
+    // After selecting a scenario, click the Start button.
+    // The button text is "Start — <title> (<level>)" when a scenario is selected.
+    const startButton = await screen.findByRole('button', { name: /^Start —/i });
+    await act(async () => {
+      fireEvent.click(startButton);
+    });
+
+    // Wait for the opener callMaja to complete and phase to become 'chat'
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // ── 5. Send turn-1 (with correction) via STT onResult ───────────────────
+    if (capturedSttCallbacks.onResult) {
+      await act(async () => {
+        capturedSttCallbacks.onResult!(WRONG_TEXT);
+      });
+      // Wait for async sendMessageCore to complete
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 0));
+      });
+    }
+
+    // ── 6. Send turn-2 (no correction) to satisfy >=2 user msgs guard ───────
+    if (capturedSttCallbacks.onResult) {
+      await act(async () => {
+        capturedSttCallbacks.onResult!('Dobro, hvala!');
+      });
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 0));
+      });
+    }
+
+    // ── 7. Trigger evaluation via the captured onEndEvaluate prop ────────────
+    expect(capturedChatProps.onEndEvaluate).toBeTypeOf('function');
+    await act(async () => {
+      capturedChatProps.onEndEvaluate!();
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    // ── 8. Assert exactly ONE logError call with source==='conversation' ─────
+    const conversationLogs = logErrorSpy.mock.calls.filter(
+      (call) => (call[2] as Record<string, unknown> | undefined)?.source === 'conversation',
+    );
+    expect(conversationLogs).toHaveLength(1);
   });
 });

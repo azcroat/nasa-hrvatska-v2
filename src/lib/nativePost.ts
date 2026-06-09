@@ -17,11 +17,16 @@
 //       falls back to fetch() if CapacitorHttp is unavailable.
 //   (d) Failover: on 5xx, try the next endpoint; on 4xx, return immediately;
 //       returns null only on total transport failure so callers can fall through.
-import { getFirebaseBearer, isNative } from './audio.js';
+import { getFirebaseBearer, isNative, _dataUrlToArrayBuffer } from './nativeTransport.js';
 import { dbgInfo, dbgWarn } from './debugLog';
 
 export interface NativePostOpts {
   signal?: AbortSignal;
+  /** 'json' (default) returns a JSON-wrapped Response; 'blob' preserves binary
+   *  bodies (e.g. audio/mpeg from /api/tts) and passes through response headers. */
+  responseType?: 'json' | 'blob';
+  /** Response header names to preserve on the blob path (e.g. ['X-TTS-Backends']). */
+  passthroughHeaders?: string[];
 }
 
 // In Capacitor native builds, relative URLs resolve to the bundled WebView server
@@ -94,13 +99,48 @@ export async function _nativePost(
         const url = `${base}${path}`;
         try {
           dbgInfo(`[nativePost] CapacitorHttp POST → "${url}"`);
-          const resp = await capHttp.post({ url, headers, data: body });
-          dbgInfo(`[nativePost] CapacitorHttp status=${resp.status}`);
+          const capOpts: Record<string, unknown> = { url, headers, data: body };
+          if (opts?.responseType === 'blob') capOpts.responseType = 'blob';
+          const resp = await capHttp.post(capOpts);
+          dbgInfo(
+            `[nativePost] CapacitorHttp status=${resp.status}${opts?.responseType === 'blob' ? ` data-type=${typeof resp.data}` : ''}`,
+          );
           if (resp.status >= 200 && resp.status < 300) {
+            if (opts?.responseType === 'blob') {
+              // Mirror _ttsPost in audio.ts exactly: native bridge returns binary as
+              // a base64 string; convert to Blob and build a proper Response.
+              let blob: Blob;
+              if (resp.data instanceof Blob) {
+                blob = resp.data;
+              } else if (typeof resp.data === 'string' && resp.data.length > 0) {
+                const ab = _dataUrlToArrayBuffer(`data:audio/mpeg;base64,${resp.data}`);
+                blob = new Blob([ab], { type: 'audio/mpeg' });
+              } else {
+                dbgWarn(
+                  `[nativePost] CapacitorHttp blob: unexpected data type "${typeof resp.data}" len=${String(resp.data).length} — trying next`,
+                );
+                continue;
+              }
+              // Build passthrough headers from the CapacitorHttp response
+              const outHeaders: Record<string, string> = { 'Content-Type': 'audio/mpeg' };
+              for (const name of opts?.passthroughHeaders ?? []) {
+                const val = resp.headers[name.toLowerCase()] ?? resp.headers[name] ?? '';
+                outHeaders[name] = val;
+              }
+              return new Response(blob, { status: 200, headers: new Headers(outHeaders) });
+            }
             return _capDataToResponse(resp.status, resp.data);
           }
           if (resp.status >= 400 && resp.status < 500) {
             // 4xx — bad request, don't retry other endpoints
+            if (opts?.responseType === 'blob') {
+              // Mirror _ttsPost ~183–188: return a minimal Response preserving status
+              const h: Record<string, string> = {};
+              for (const name of opts?.passthroughHeaders ?? []) {
+                h[name] = resp.headers[name.toLowerCase()] ?? resp.headers[name] ?? '';
+              }
+              return new Response('', { status: resp.status, headers: new Headers(h) });
+            }
             return _capDataToResponse(resp.status, resp.data);
           }
           // 5xx: try next endpoint

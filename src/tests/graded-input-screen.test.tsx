@@ -56,6 +56,8 @@ vi.mock('firebase/firestore', () => ({
 const mockMarkQuest = vi.hoisted(() => vi.fn());
 const mockWriteDelta = vi.hoisted(() => vi.fn());
 const mockSetStats = vi.hoisted(() => vi.fn());
+const mockTtsFetch = vi.hoisted(() => vi.fn());
+const mockSpeak = vi.hoisted(() => vi.fn());
 const MOCK_STORY_HOISTED = vi.hoisted(() => ({
   id: 'gs_test_1',
   level: 'A1',
@@ -100,7 +102,10 @@ vi.mock('../lib/apiFetch.js', () => ({
 }));
 
 // ── audio mock ────────────────────────────────────────────────────────────────
-vi.mock('../lib/audio.js', () => ({ unlockAudio: vi.fn() }));
+vi.mock('../lib/audio.js', () => ({
+  unlockAudio: vi.fn(),
+  ttsFetch: mockTtsFetch,
+}));
 vi.mock('../lib/soundSettings.js', () => ({
   getVoicePreference: vi.fn(() => 'hr-HR-GabrijelaNeural'),
 }));
@@ -122,7 +127,7 @@ vi.mock('../context/StatsContext', () => ({
 // ── data mock — speak() must be stubbed ──────────────────────────────────────
 vi.mock('../data', async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, speak: vi.fn() };
+  return { ...actual, speak: mockSpeak };
 });
 
 // ── contentClient mock — single story with 3-question quiz ──────────────────
@@ -275,5 +280,82 @@ describe('GradedInputScreen — completion contract', () => {
     const updater = mockSetStats.mock.calls[0]![0] as (prev: { vs: string[] }) => { vs: string[] };
     const result = updater({ vs: [] });
     expect(result.vs).toContain('story-comprehension');
+  });
+});
+
+// ── TTS blob path tests ───────────────────────────────────────────────────────
+// These tests verify the fixed playTTS function uses ttsFetch (native-safe blob
+// path) rather than the dead JSON path that preceded it.
+
+describe('GradedInputScreen — playTTS blob path', () => {
+  beforeEach(() => {
+    mockTtsFetch.mockReset();
+    mockSpeak.mockReset();
+    // jsdom Audio.play is a no-op but needs to return a Promise
+    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  async function renderAndOpenReader() {
+    await act(async () => {
+      render(<GradedInputScreen goBack={vi.fn()} award={vi.fn()} />);
+    });
+    // Click into the story reader
+    await act(async () => {
+      fireEvent.click(screen.getByText('Testna Prica'));
+    });
+  }
+
+  it('uses ttsFetch blob path and does NOT fall back to speak() when TTS succeeds', async () => {
+    // Arrange: ttsFetch returns a valid audio/mpeg blob response
+    const fakeBlob = new Blob([new Uint8Array([1, 2, 3])], { type: 'audio/mpeg' });
+    mockTtsFetch.mockResolvedValue({
+      ok: true,
+      blob: () => Promise.resolve(fakeBlob),
+    });
+
+    await renderAndOpenReader();
+
+    // Act: click the "Listen to paragraph" button
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('Listen to paragraph'));
+    });
+
+    // Assert: ttsFetch was called with the paragraph text
+    expect(mockTtsFetch).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'Ana ide na tržnicu.' }),
+    );
+    // speak() fallback must NOT have been called (Azure path used)
+    expect(mockSpeak).not.toHaveBeenCalled();
+  });
+
+  it('falls back to speak(text) when ttsFetch returns null', async () => {
+    // Arrange: ttsFetch returns null (transport failure)
+    mockTtsFetch.mockResolvedValue(null);
+
+    await renderAndOpenReader();
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('Listen to paragraph'));
+    });
+
+    // speak() fallback must have been called
+    expect(mockSpeak).toHaveBeenCalledWith('Ana ide na tržnicu.');
+  });
+
+  it('falls back to speak(text) when ttsFetch returns a non-ok response', async () => {
+    // Arrange: ttsFetch returns a server error
+    mockTtsFetch.mockResolvedValue({ ok: false });
+
+    await renderAndOpenReader();
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('Listen to paragraph'));
+    });
+
+    expect(mockSpeak).toHaveBeenCalledWith('Ana ide na tržnicu.');
   });
 });

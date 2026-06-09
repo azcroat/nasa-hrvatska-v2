@@ -1,8 +1,10 @@
 // src/tests/nativePost.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock dependencies the helper uses (mirror how whisperClaudeScorer.test.ts mocks audio).
-vi.mock('../lib/audio', () => ({
+// Mock the transport primitives the helper uses. After the audio↔nativePost
+// cycle was broken, nativePost imports getFirebaseBearer/isNative from
+// ./nativeTransport (not ./audio), so the mock targets that module.
+vi.mock('../lib/nativeTransport', () => ({
   getFirebaseBearer: vi.fn(async () => 'tok123'),
   isNative: vi.fn(() => false),
 }));
@@ -25,8 +27,8 @@ describe('_nativePost', () => {
   });
 
   it('omits Authorization when no bearer is available', async () => {
-    const audio = await import('../lib/audio');
-    (audio.getFirebaseBearer as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
+    const transport = await import('../lib/nativeTransport');
+    (transport.getFirebaseBearer as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
     const fetchMock = vi.fn(async () => new Response('{}', { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
     await _nativePost('/api/assess-speaking', {});

@@ -53,7 +53,7 @@ function scorerReturning(value: number | null): SpeakingScorer {
             transcript: 't',
             scores: { range: value, accuracy: value, fluency: value, task: value },
             overall: value,
-            confidence: 0.9,
+            transcriptSufficiency: 0.9,
           },
     ),
   };
@@ -144,7 +144,7 @@ describe('SpeakingTaskScreen', () => {
       transcript: 't',
       scores: { range: 0.8, accuracy: 0.8, fluency: 0.8, task: 0.8 },
       overall: 0.8,
-      confidence: 0.9,
+      transcriptSufficiency: 0.9,
     });
 
     // The latest onScore MUST fire (no hang); assessment ran exactly once.

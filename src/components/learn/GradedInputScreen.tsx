@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { speak } from '../../data';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { unlockAudio } from '../../lib/audio.js';
+import { unlockAudio, ttsFetch } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { getStoryCatalog, getStory } from '../../lib/contentClient';
 import type { StoryCatalogEntry } from '../../types/content';
@@ -106,16 +106,18 @@ async function playTTS(text: string, audioRef: React.MutableRefObject<HTMLAudioE
     audioRef.current = null;
   }
 
-  // Try the app's TTS API first, fall back to Web Speech
+  // Try the app's TTS API first (native-safe), fall back to Web Speech
   try {
-    const rawRes = await apiFetch('/api/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, voice: getVoicePreference() }),
-    });
-    const res = (rawRes.ok ? await rawRes.json() : null) as { audioUrl?: string } | null;
-    if (res?.audioUrl) {
-      const a = new Audio(res.audioUrl);
+    const res = await ttsFetch({ text, voice: getVoicePreference() });
+    if (res && res.ok) {
+      const blob = await res.blob();
+      // Use a base64 data URL — blob: URLs fail silently on some Android OEM WebViews
+      const url = await new Promise<string>((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.readAsDataURL(blob);
+      });
+      const a = new Audio(url);
       a.volume = 1.0; // required: low volume blocks activation on some WebViews
       audioRef.current = a;
       a.play().catch(() => speak(text));

@@ -6,6 +6,7 @@ import { recordTopicResult } from '../../lib/adaptive.js';
 import { markQuest } from '../../lib/quests.js';
 import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 import { useStats } from '../../context/StatsContext';
+import { levenshtein } from '../../lib/text/similarity';
 
 // ── Answer checking helpers ───────────────────────────────────────────────────
 
@@ -18,31 +19,6 @@ function normalize(s: string) {
     .replace(/[šś]/g, 's')
     .replace(/[žź]/g, 'z')
     .replace(/đ/g, 'd');
-}
-
-/** Levenshtein edit distance between two strings */
-function levenshtein(a: string, b: string): number {
-  const m = a.length,
-    n = b.length;
-  const dp: number[][] = [];
-  for (let i = 0; i <= m; i++) {
-    dp[i] = [i];
-    for (let j = 1; j <= n; j++) (dp[i] as number[])[j] = i === 0 ? j : 0;
-  }
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      (dp[i] as number[])[j] =
-        a[i - 1] === b[j - 1]
-          ? (dp[i - 1] as number[])[j - 1]!
-          : 1 +
-            Math.min(
-              (dp[i - 1] as number[])[j]!,
-              (dp[i] as number[])[j - 1]!,
-              (dp[i - 1] as number[])[j - 1]!,
-            );
-    }
-  }
-  return (dp[m] as number[])[n]!;
 }
 
 /**

@@ -4,7 +4,7 @@ import { H } from '../../data';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { markQuest } from '../../lib/quests.js';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { getAudioContext, unlockAudio } from '../../lib/audio.js';
+import { getAudioContext, unlockAudio, ttsFetch } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -104,12 +104,8 @@ const _iosDevice =
 
 async function playTTS(text: string) {
   unlockAudio(); // must be synchronous before any await — iOS activation
-  const res = await apiFetch('/api/tts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
-  });
-  if (!res.ok) throw new Error('TTS failed');
+  const res = await ttsFetch({ text, slow: false, voice: getVoicePreference() });
+  if (!res || !res.ok) throw new Error('TTS failed');
   const blob = await res.blob();
 
   // iOS path: AudioContext — use blob.arrayBuffer() directly, no blob URL needed

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { getAudioContext, unlockAudio } from '../../lib/audio.js';
+import { getAudioContext, unlockAudio, ttsFetch, isNative } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -98,7 +98,7 @@ function injectCSS() {
 // ─────────────────────────────────────────────
 export default function LiveTutorScreen({ goBack, award }: Props) {
   injectCSS();
-  const isOnline = useOnlineStatus();
+  const { isOnline } = useOnlineStatus();
 
   // ── Settings ──────────────────────────────
   const [level, setLevel] = useState('A2');
@@ -335,7 +335,8 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
         const newTurn = turnCount + 1;
         setTurnCount(newTurn);
         if (typeof award === 'function') {
-          award(5, false, 'speaking');
+          // Per-turn XP is capped at the first 10 turns to prevent endless-turn farming.
+          if (newTurn <= 10) award(5, false, 'speaking');
           if (newTurn === 10 && !milestone10Fired.current) {
             milestone10Fired.current = true;
             award(20, false, 'speaking');
@@ -422,6 +423,26 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
     unlockAudio(); // must be synchronous before any await — iOS activation
     setPlaying(true);
     setPhase('speaking');
+
+    // Native (Capacitor) can't stream over CapacitorHttp and relative-URL fetch fails on
+    // device — use the native-safe blob path. Web with MSE keeps the streaming path below.
+    if (isNative() || !window.MediaSource || !MediaSource.isTypeSupported('audio/mpeg')) {
+      try {
+        const res = await ttsFetch({ text, slow: false, voice: getVoicePreference() });
+        if (res && res.ok) {
+          await playBlob(await res.blob());
+          ttsFailCountRef.current = 0;
+          setShowAudioWarning(false);
+        }
+      } catch {
+        /* silent — text still displayed */
+      } finally {
+        setPlaying(false);
+        setPhase('none');
+      }
+      return;
+    }
+
     let mseUrl = null;
     try {
       const res = await apiFetch('/api/tts', {
@@ -523,12 +544,8 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
       }
       let blobOk = false;
       try {
-        const res2 = await apiFetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
-        });
-        if (res2.ok) {
+        const res2 = await ttsFetch({ text, slow: false, voice: getVoicePreference() });
+        if (res2 && res2.ok) {
           const blob = await res2.blob();
           await playBlob(blob);
           blobOk = true;

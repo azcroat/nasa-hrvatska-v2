@@ -31,7 +31,7 @@ function _fmt(...args: unknown[]): string {
 function _push(level: LogLevel, msg: string) {
   _entries.push({ t: Date.now(), level, msg });
   if (_entries.length > MAX_ENTRIES) _entries.splice(0, _entries.length - MAX_ENTRIES);
-  window.dispatchEvent(new Event('nh:debuglog'));
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('nh:debuglog'));
 }
 
 export function dbgInfo(...args: unknown[]): void {
@@ -55,7 +55,7 @@ export function getEntries(): readonly LogEntry[] {
 }
 export function clearEntries(): void {
   _entries.length = 0;
-  window.dispatchEvent(new Event('nh:debuglog'));
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('nh:debuglog'));
 }
 
 // Intercept unhandled errors and promise rejections so they appear on screen too.

@@ -15,8 +15,8 @@ export interface SpeakingAssessment {
   scores: SpeakingRubricScores;
   /** Weighted overall (0..1). */
   overall: number;
-  /** STT confidence → intelligibility proxy (0..1). */
-  confidence: number;
+  /** Transcript sufficiency heuristic (0..1) from word count — NOT acoustic STT confidence. */
+  transcriptSufficiency: number;
 }
 
 export interface SpeakingContext {
