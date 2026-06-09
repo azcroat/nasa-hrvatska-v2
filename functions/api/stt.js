@@ -112,16 +112,42 @@ export async function onRequestPost(context) {
     });
   }
 
-  // Validate audio Content-Type
+  // Accept either base64-JSON (native-safe, sent via _nativePost) or a raw audio/* body.
   const ct = request.headers.get('content-type') || 'audio/webm';
-  if (!ct.startsWith('audio/')) {
-    return new Response(JSON.stringify({ error: 'Expected audio/* Content-Type' }), {
+  let audioBuffer;
+  let audioCt;
+  if (ct.includes('application/json')) {
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+        status: 400,
+        headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+      });
+    }
+    const { audioBase64, mimeType } = body || {};
+    if (!audioBase64 || typeof audioBase64 !== 'string') {
+      return new Response(JSON.stringify({ error: 'Missing audioBase64' }), {
+        status: 400,
+        headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+      });
+    }
+    const bin = atob(audioBase64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    audioBuffer = bytes.buffer;
+    audioCt =
+      typeof mimeType === 'string' && mimeType.startsWith('audio/') ? mimeType : 'audio/webm';
+  } else if (ct.startsWith('audio/')) {
+    audioBuffer = await request.arrayBuffer();
+    audioCt = ct;
+  } else {
+    return new Response(JSON.stringify({ error: 'Expected audio/* or application/json' }), {
       status: 400,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
     });
   }
-
-  const audioBuffer = await request.arrayBuffer();
 
   if (!audioBuffer.byteLength) {
     return new Response(JSON.stringify({ error: 'Empty audio body' }), {
@@ -143,7 +169,7 @@ export async function onRequestPost(context) {
 
   if (DEEPGRAM_KEY) {
     try {
-      text = await transcribeDeepgram(audioBuffer, ct, DEEPGRAM_KEY);
+      text = await transcribeDeepgram(audioBuffer, audioCt, DEEPGRAM_KEY);
     } catch (e) {
       console.error('[STT] Deepgram failed, trying Whisper fallback:', e.message);
       lastError = e;
@@ -153,7 +179,7 @@ export async function onRequestPost(context) {
   // Try Whisper if Deepgram failed or wasn't configured
   if (!text && OPENAI_KEY) {
     try {
-      text = await transcribeWhisper(audioBuffer, ct, OPENAI_KEY);
+      text = await transcribeWhisper(audioBuffer, audioCt, OPENAI_KEY);
       lastError = null;
     } catch (e) {
       console.error('[STT] Whisper also failed:', e.message);
