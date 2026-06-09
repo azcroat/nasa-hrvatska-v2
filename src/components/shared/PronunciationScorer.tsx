@@ -6,6 +6,18 @@ import { apiFetch } from '../../lib/apiFetch.js';
 import { _nativePost } from '../../lib/nativePost.js';
 import { isNative } from '../../lib/platform.js';
 import { similarityPct } from '../../lib/text/similarity';
+import { useRecorder } from '../../hooks/useRecorder';
+
+// Azure-preferred MIME negotiation order — format-sensitive for pronunciation assessment.
+// Azure explicitly supports audio/ogg;codecs=opus and audio/wav; WebM is handled in practice.
+// This order MUST be preserved via mimePriority — do NOT fall back to useRecorder's webm-first default.
+const AZURE_MIME_PRIORITY = [
+  'audio/ogg;codecs=opus',
+  'audio/wav',
+  'audio/webm;codecs=opus',
+  'audio/webm',
+  'audio/ogg',
+] as const;
 
 interface PronunciationScorerProps {
   targetText: string;
@@ -47,8 +59,9 @@ export default function PronunciationScorer({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recRef = useRef<any>(null); // SpeechRecognition — not in lib.dom.d.ts until TS 6
-  const mediaRecRef = useRef<MediaRecorder | null>(null); // MediaRecorder ref
-  const chunksRef = useRef<Blob[]>([]); // recorded audio chunks
+
+  // ── useRecorder: replaces raw getUserMedia/MediaRecorder for Azure path ───
+  const rec = useRecorder();
 
   // ── Browser capability checks ─────────────────────────────────────────────
   const webSpeechSupported = !!(
@@ -56,6 +69,8 @@ export default function PronunciationScorer({
     /** @type {any} */ (window.SpeechRecognition ||
       /** @type {any} */ window.webkitSpeechRecognition)
   );
+  // mediaRecorderSupported: used only to decide whether to attempt Azure path.
+  // useRecorder handles actual support internally (transitions to 'unsupported' if unavailable).
   const mediaRecorderSupported = !!(
     typeof window !== 'undefined' &&
     typeof navigator !== 'undefined' &&
@@ -63,10 +78,8 @@ export default function PronunciationScorer({
     typeof MediaRecorder !== 'undefined'
   );
 
-  // ── Stream ref for cleanup ────────────────────────────────────────────────
-  const streamRef = useRef<MediaStream | null>(null);
-
-  // ── Unmount cleanup — stop mic, abort recognition ─────────────────────────
+  // ── Unmount cleanup — abort Web Speech recognition ────────────────────────
+  // useRecorder handles its own mic/stream cleanup.
   useEffect(() => {
     return () => {
       if (recRef.current) {
@@ -75,17 +88,6 @@ export default function PronunciationScorer({
         } catch (_) {}
         recRef.current = null;
       }
-      if (mediaRecRef.current && mediaRecRef.current.state !== 'inactive') {
-        try {
-          mediaRecRef.current.stop();
-        } catch (_) {}
-        mediaRecRef.current = null;
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-      }
-      chunksRef.current = [];
     };
   }, []);
 
@@ -95,8 +97,9 @@ export default function PronunciationScorer({
     setCoaching(null);
     setSrErrorMsg(null);
     setAzureResult(null);
+    setPermissionDenied(false);
     setState('idle');
-    chunksRef.current = [];
+    rec.reset();
   }
 
   // ── Web Speech API mode ───────────────────────────────────────────────────
@@ -193,92 +196,18 @@ export default function PronunciationScorer({
     setState('listening');
   }
 
-  // ── Azure mode: record → assess ───────────────────────────────────────────
-  async function startAzureRecording() {
-    if (!mediaRecorderSupported) {
-      setSrErrorMsg('Audio recording not supported in this browser.');
-      return;
-    }
+  // ── Azure mode: record → assess (via useRecorder) ────────────────────────
+  // AZURE_MIME_PRIORITY is passed as mimePriority to preserve Azure format sensitivity.
+  function startAzureRecording() {
     setSrErrorMsg(null);
     setAzureResult(null);
     setResult(null);
-
-    let stream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      streamRef.current = stream;
-    } catch (e) {
-      const errName = e instanceof Error ? e.name : '';
-      if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
-        setPermissionDenied(true);
-      }
-      const msg =
-        errName === 'NotAllowedError' || errName === 'PermissionDeniedError'
-          ? isNative()
-            ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
-            : 'Microphone permission denied. Please allow mic access in your browser settings.'
-          : 'Could not access microphone. Please check your device settings.';
-      setSrErrorMsg(msg);
-      return;
-    }
-
-    // Prefer audio/ogg;codecs=opus (Azure-supported), then audio/wav, then WebM fallback.
-    // Chrome does NOT support audio/wav or audio/ogg via MediaRecorder — it always uses WebM.
-    // We pass the actual mimeType to the server so it can set the correct Content-Type for Azure.
-    // Azure explicitly supports: audio/wav, audio/ogg;codecs=opus. WebM is sent as-is and Azure
-    // handles it in practice (same Opus codec, different container).
-    const preferredMime =
-      [
-        'audio/ogg;codecs=opus',
-        'audio/wav',
-        'audio/webm;codecs=opus',
-        'audio/webm',
-        'audio/ogg',
-      ].find((t) => MediaRecorder.isTypeSupported(t)) || '';
-
-    let recorder;
-    try {
-      recorder = new MediaRecorder(stream, preferredMime ? { mimeType: preferredMime } : {});
-    } catch (e) {
-      stream.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-      setSrErrorMsg('Audio recording initialization failed. Please try again.');
-      return;
-    }
-    chunksRef.current = [];
-
-    recorder.ondataavailable = (e) => {
-      if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
-    };
-
-    recorder.onerror = () => {
-      stream.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-      setState('idle');
-      setSrErrorMsg('Recording error — please try again.');
-    };
-
-    recorder.onstop = async () => {
-      // Stop all tracks so the mic indicator light goes off.
-      stream.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-
-      const mimeType = recorder.mimeType || 'audio/webm';
-      const blob = new Blob(chunksRef.current, { type: mimeType });
-      chunksRef.current = [];
-      setState('processing');
-      await submitToAzure(blob, mimeType);
-    };
-
-    mediaRecRef.current = recorder;
-    recorder.start();
+    rec.startRecording({ countdown: 0, mimePriority: AZURE_MIME_PRIORITY });
     setState('recording');
   }
 
   function stopAzureRecording() {
-    if (mediaRecRef.current && mediaRecRef.current.state === 'recording') {
-      mediaRecRef.current.stop();
-    }
+    rec.stopRecording();
   }
 
   async function submitToAzure(blob: Blob, mimeType = 'audio/webm') {
@@ -345,6 +274,37 @@ export default function PronunciationScorer({
       }
     }
   }
+
+  // ── Stable ref to submitToAzure — prevents stale closure in the effect ───
+  const submitRef = useRef(submitToAzure);
+  useEffect(() => {
+    submitRef.current = submitToAzure;
+  });
+
+  // ── Effect: react to useRecorder state transitions for the Azure path ─────
+  // Deps: [rec.state, rec.audioBlob] only — submitToAzure read via ref to prevent re-fire.
+  useEffect(() => {
+    if (rec.state === 'done' && rec.audioBlob) {
+      setState('processing');
+      submitRef.current(rec.audioBlob, rec.mimeType ?? 'audio/webm');
+      rec.reset();
+    } else if (rec.state === 'denied') {
+      setPermissionDenied(true);
+      setSrErrorMsg(
+        isNative()
+          ? 'Microphone access denied. Go to Settings → Apps → Naša Hrvatska → Permissions, enable Microphone, then force-close and reopen the app.'
+          : 'Microphone permission denied. Please allow mic access in your browser settings.',
+      );
+      setState('idle');
+    } else if (rec.state === 'unsupported') {
+      setSrErrorMsg('Audio recording not supported in this browser.');
+      setState('idle');
+    } else if (rec.state === 'error') {
+      setSrErrorMsg('Recording error — please try again.');
+      setState('idle');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rec.state, rec.audioBlob]);
 
   // ── Mode selection & unified start ───────────────────────────────────────
   // 'auto': try Azure first; if not available, fall back to Web Speech.

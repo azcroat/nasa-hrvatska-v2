@@ -6,6 +6,7 @@ import { _nativePost } from '../../lib/nativePost.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { useRecorder } from '../../hooks/useRecorder';
 import LiveTutorSetup from './LiveTutorSetup';
 import LiveTutorDebrief from './LiveTutorDebrief';
 import LiveTutorControls from './LiveTutorControls';
@@ -118,7 +119,8 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
   const [turnCount, setTurnCount] = useState(0);
 
   // ── Mic / STT state ───────────────────────
-  const [isRecording, setIsRecording] = useState(false);
+  const rec = useRecorder();
+  const isRecording = rec.state === 'recording';
   const [useFallbackInput, setUseFallbackInput] = useState(false);
   const [textInput, setTextInput] = useState('');
   // 'unknown' | 'prompt' | 'granted' | 'denied' | 'unavailable'
@@ -141,14 +143,11 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
   const [showAudioWarning, setShowAudioWarning] = useState(false);
 
   // ── Refs ──────────────────────────────────
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<{ pause: () => void; currentTime: number } | HTMLAudioElement | null>(
     null,
   );
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const apiMsgsRef = useRef<{ role: string; content: string }[]>([]); // mirrors messages but only role+content for API calls
-  const recordingStreamRef = useRef<MediaStream | null>(null);
   const milestone10Fired = useRef<boolean>(false);
 
   // ── Check mic permission on mount ─────────
@@ -601,8 +600,8 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
     [breakdownCount, sessionHistory, sendToTutor],
   );
 
-  // ── STT: start recording via MediaRecorder ─
-  const startRecording = useCallback(async () => {
+  // ── STT: start recording via useRecorder hook ─
+  const startRecording = useCallback(() => {
     // Don't start if already busy
     if (isRecording || thinking || playing) return;
 
@@ -612,55 +611,43 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
       setPlaying(false);
     }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      recordingStreamRef.current = stream;
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : MediaRecorder.isTypeSupported('audio/mp4')
-            ? 'audio/mp4'
-            : '';
-      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-      audioChunksRef.current = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
-      recorder.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
-        recordingStreamRef.current = null;
-        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-        if (blob.size < 1000) {
-          setIsRecording(false);
-          return;
-        } // too short, ignore
-        await transcribeAudio(blob, recorder.mimeType || 'audio/webm');
-      };
-      recorder.start();
-      mediaRecorderRef.current = recorder;
-      setIsRecording(true);
-    } catch (err: unknown) {
-      const e = err as Error;
-      if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-        setMicPermission('denied');
-      } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
-        setMicPermission('unavailable');
-      }
-      setUseFallbackInput(true);
-    }
-  }, [isRecording, thinking, playing, transcribeAudio]);
+    rec.startRecording({ countdown: 0 });
+  }, [isRecording, thinking, playing, rec]);
 
   // ── STT: stop recording ────────────────────
   const stopRecording = useCallback(() => {
-    if (
-      mediaRecorderRef.current &&
-      (mediaRecorderRef.current as MediaRecorder).state === 'recording'
-    ) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
+    rec.stopRecording();
+  }, [rec]);
+
+  // ── STT: transcribe when recording completes ─
+  // Use a ref so the effect deps stay stable — prevents double-fire on parent re-render.
+  const transcribeRef = useRef(transcribeAudio);
+  useEffect(() => {
+    transcribeRef.current = transcribeAudio;
+  });
+  useEffect(() => {
+    if (rec.state === 'done' && rec.audioBlob) {
+      const blob = rec.audioBlob;
+      if (blob.size >= 1000) {
+        transcribeRef.current(blob, rec.mimeType ?? 'audio/webm');
+      }
+      rec.reset();
     }
-  }, []);
+    // deps = ONLY [rec.state, rec.audioBlob] — read transcribeAudio via ref to avoid
+    // re-running mid-recording (Phase-1 R3 lesson: parent re-render must not re-fire).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rec.state, rec.audioBlob]);
+
+  // ── STT: sync mic-denied/unavailable → fallback input ─
+  useEffect(() => {
+    if (rec.state === 'denied') {
+      setMicPermission('denied');
+      setUseFallbackInput(true);
+    } else if (rec.state === 'unsupported') {
+      setMicPermission('unavailable');
+      setUseFallbackInput(true);
+    }
+  }, [rec.state]);
 
   // ── End session → fetch debrief from Marija ─
   const endSession = useCallback(async () => {
@@ -727,22 +714,11 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
   );
 
   // ── Cleanup on unmount ─────────────────────
+  // Note: mic/stream cleanup is handled by useRecorder's own unmount effect.
   useEffect(() => {
     return () => {
-      if (
-        mediaRecorderRef.current &&
-        (mediaRecorderRef.current as MediaRecorder).state === 'recording'
-      ) {
-        try {
-          mediaRecorderRef.current.stop();
-        } catch {}
-      }
       if (audioRef.current) {
         audioRef.current.pause();
-      }
-      if (recordingStreamRef.current) {
-        recordingStreamRef.current.getTracks().forEach((t) => t.stop());
-        recordingStreamRef.current = null;
       }
     };
   }, []);
