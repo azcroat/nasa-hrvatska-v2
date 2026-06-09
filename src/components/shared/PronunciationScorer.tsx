@@ -3,6 +3,7 @@ import AzureResultPanel from './AzureResultPanel';
 import WebSpeechResultPanel from './WebSpeechResultPanel';
 import MicPermissionDeniedExplainer from './MicPermissionDeniedExplainer';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { _nativePost } from '../../lib/nativePost.js';
 import { isNative } from '../../lib/platform.js';
 import { similarityPct } from '../../lib/text/similarity';
 
@@ -302,17 +303,12 @@ export default function PronunciationScorer({
     const tid = setTimeout(() => controller.abort(), 12000); // 12s client timeout — server has 20s Azure timeout
 
     try {
-      const res = await apiFetch('/api/pronunciation-assess', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          audioBase64,
-          referenceText: targetText,
-          locale: 'hr-HR',
-          audioMimeType: mimeType, // passed so server uses correct Content-Type for Azure
-        }),
-        signal: controller.signal,
-      });
+      const res = await _nativePost(
+        '/api/pronunciation-assess',
+        { audioBase64, referenceText: targetText, locale: 'hr-HR', audioMimeType: mimeType },
+        { signal: controller.signal },
+      );
+      if (!res) throw new Error('assess_transport_failed');
       clearTimeout(tid);
       const data = (await res.json()) as Record<string, unknown>;
 
