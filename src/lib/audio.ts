@@ -95,7 +95,7 @@ const _NATIVE_ENDPOINTS = ['https://nasahrvatska.com', 'https://nasa-hrvatska-v2
 
 // Decode a data: URL to an ArrayBuffer without using fetch() — fetch(data:) is
 // unreliable on some Android WebView versions and may throw or return an empty body.
-function _dataUrlToArrayBuffer(dataUrl: string): ArrayBuffer {
+export function _dataUrlToArrayBuffer(dataUrl: string): ArrayBuffer {
   const comma = dataUrl.indexOf(',');
   const b64 = dataUrl.slice(comma + 1);
   const binary = atob(b64);
