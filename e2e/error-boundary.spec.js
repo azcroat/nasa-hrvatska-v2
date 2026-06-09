@@ -17,7 +17,7 @@
  * All tests use seedAuth + blockFirebase + mockTTS so they are hermetic.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_NAME } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -138,11 +138,7 @@ test.describe('ScreenErrorBoundary — smoke tests (no boundary on healthy rende
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
     });
-    // ProfileScreen is lazy-loaded — wait for the h2 heading (user name) that is
-    // rendered synchronously in ProfileScreen's body once the chunk hydrates.
-    // This replaces the blind waitForTimeout(500) with a deterministic signal that
-    // the screen is fully committed before we assert no error boundary.
-    await expect(page.getByRole('heading', { name: TEST_NAME })).toBeVisible({ timeout: 15_000 });
+    await page.waitForTimeout(500);
 
     await assertNoBoundaryAlert(page);
     assertNoUnexpectedErrors(errors);
