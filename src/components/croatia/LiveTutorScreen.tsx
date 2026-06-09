@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { getAudioContext, unlockAudio, ttsFetch } from '../../lib/audio.js';
+import { getAudioContext, unlockAudio, ttsFetch, isNative } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -423,6 +423,26 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
     unlockAudio(); // must be synchronous before any await — iOS activation
     setPlaying(true);
     setPhase('speaking');
+
+    // Native (Capacitor) can't stream over CapacitorHttp and relative-URL fetch fails on
+    // device — use the native-safe blob path. Web with MSE keeps the streaming path below.
+    if (isNative() || !window.MediaSource || !MediaSource.isTypeSupported('audio/mpeg')) {
+      try {
+        const res = await ttsFetch({ text, slow: false, voice: getVoicePreference() });
+        if (res && res.ok) {
+          await playBlob(await res.blob());
+          ttsFailCountRef.current = 0;
+          setShowAudioWarning(false);
+        }
+      } catch {
+        /* silent — text still displayed */
+      } finally {
+        setPlaying(false);
+        setPhase('none');
+      }
+      return;
+    }
+
     let mseUrl = null;
     try {
       const res = await apiFetch('/api/tts', {

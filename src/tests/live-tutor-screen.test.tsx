@@ -62,9 +62,14 @@ vi.mock('../lib/soundSettings.js', () => ({
   getVoicePreference: vi.fn(() => 'alloy'),
 }));
 
+const mockLtTtsFetch = vi.hoisted(() => vi.fn());
+const mockIsNative = vi.hoisted(() => vi.fn(() => false));
+
 vi.mock('../lib/audio.js', () => ({
   getAudioContext: vi.fn(() => null),
   unlockAudio: vi.fn(),
+  ttsFetch: mockLtTtsFetch,
+  isNative: mockIsNative,
 }));
 
 // ── apiFetch — default returns a failing response to keep tests simple ────────
@@ -421,6 +426,89 @@ describe('LiveTutorScreen — debrief phase', () => {
       },
       { timeout: 3000 },
     );
+  });
+});
+
+// ── Native TTS short-circuit ──────────────────────────────────────────────────
+// Verifies that on Capacitor native, playTTSStreaming uses ttsFetch (blob path)
+// instead of apiFetch('/api/tts', { stream: true }) which fails on device.
+
+describe('LiveTutorScreen — native TTS short-circuit', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockIsNative.mockReturnValue(true);
+
+    // Fake blob response for ttsFetch
+    const fakeBlob = new Blob([new Uint8Array([1, 2, 3])], { type: 'audio/mpeg' });
+    mockLtTtsFetch.mockResolvedValue({
+      ok: true,
+      blob: () => Promise.resolve(fakeBlob),
+    });
+
+    // Tutor API returns a valid message so the TTS call is triggered
+    mockApiFetch.mockImplementation((url: string) => {
+      if (String(url).includes('conversational-tutor')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              croatian: 'Zdravo!',
+              english_gloss: 'Hello!',
+              comprehension_prompt: null,
+              correction: null,
+              scaffold_action: 'none',
+              breakdown_count: 0,
+              internal_note: '',
+            }),
+        });
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 503,
+        json: () => Promise.resolve({}),
+      });
+    });
+
+    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    mockIsNative.mockReturnValue(false);
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
+  it('on native: uses ttsFetch blob path and does NOT call apiFetch with stream:true', async () => {
+    renderScreen();
+
+    // Start session — triggers opener which calls playTTSStreaming
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('start-btn'));
+    });
+
+    // Wait for TTS to be triggered (ttsFetch called)
+    await waitFor(
+      () => {
+        expect(mockLtTtsFetch).toHaveBeenCalled();
+      },
+      { timeout: 5000 },
+    );
+
+    // The streaming apiFetch('/api/tts', { stream: true }) must NOT have been called
+    const streamingTtsCall = mockApiFetch.mock.calls.find((call) => {
+      const body = call[1]?.body;
+      if (typeof body !== 'string') return false;
+      try {
+        return JSON.parse(body)?.stream === true;
+      } catch {
+        return false;
+      }
+    });
+    expect(streamingTtsCall).toBeUndefined();
+
+    // ttsFetch WAS called (native blob path used)
+    expect(mockLtTtsFetch).toHaveBeenCalledWith(expect.objectContaining({ slow: false }));
   });
 });
 
