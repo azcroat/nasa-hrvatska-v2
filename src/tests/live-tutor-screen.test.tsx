@@ -310,6 +310,12 @@ describe('LiveTutorScreen — offline guard', () => {
     mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
   });
 
+  // Restore the online default after every test so an offline override can never
+  // leak into an unrelated test regardless of file ordering.
+  afterEach(() => {
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
   it('shows the offline notice when the network is down', async () => {
     mockUseOnlineStatus.mockReturnValue({ isOnline: false, backOnline: false });
     renderScreen();
