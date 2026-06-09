@@ -62,9 +62,7 @@ export const whisperClaudeScorer: SpeakingScorer = {
         transcript: data.transcript ?? '',
         scores,
         overall: computeSpeakingOverall(scores),
-        // SpeakingAssessment.confidence is the scorer's output contract; we populate it from
-        // the transcript-sufficiency heuristic (the only signal available in v1).
-        confidence: transcriptSufficiency,
+        transcriptSufficiency,
       };
     } catch {
       return null; // network/parse failure → not scored
