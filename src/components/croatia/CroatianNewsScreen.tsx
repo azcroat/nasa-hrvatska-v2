@@ -6,7 +6,7 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { markQuest } from '../../lib/quests.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
-import { unlockAudio } from '../../lib/audio.js';
+import { unlockAudio, ttsFetch } from '../../lib/audio.js';
 import { LEVEL_COLORS } from './MediaPlayerUtils';
 
 // ── Fallback articles shown when the live API is unavailable ─────────────────
@@ -260,16 +260,12 @@ function ArticleCard({
     unlockAudio(); // must be synchronous before any await — iOS activation
     setPlaying(true);
     try {
-      const res = await apiFetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: article.simplified_text,
-          slow: false,
-          voice: getVoicePreference(),
-        }),
+      const res = await ttsFetch({
+        text: article.simplified_text,
+        slow: false,
+        voice: getVoicePreference(),
       });
-      if (!res.ok) throw new Error('TTS failed');
+      if (!res || !res.ok) throw new Error('TTS failed');
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
       const url = await new Promise<string>((resolve) => {

@@ -5,7 +5,7 @@ import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
-import { unlockAudio } from '../../lib/audio.js';
+import { unlockAudio, ttsFetch } from '../../lib/audio.js';
 
 /**
  * Interleave dialogue lines turn-by-turn across speakers, so the rendered
@@ -127,18 +127,16 @@ export default function AIListeningScreen({
         fullText = data.narrator || '';
       }
 
-      const ttsRes = await apiFetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const ttsRes = await ttsFetch(
+        {
           text: fullText.trim(),
           slow: speed < 1,
           voice: getVoicePreference(),
-        }),
-        signal: AbortSignal.timeout(20000),
-      });
+        },
+        AbortSignal.timeout(20000),
+      );
       if (!mountedRef.current) return;
-      if (!ttsRes.ok) {
+      if (!ttsRes || !ttsRes.ok) {
         if (mountedRef.current) setAudioSource('unavailable');
       } else {
         const blob = await ttsRes.blob();

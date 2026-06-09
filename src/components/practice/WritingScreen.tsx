@@ -5,8 +5,8 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { rnd } from '../../lib/random.js';
 import { useStats } from '../../context/StatsContext';
 import { logError } from '../../lib/learnerErrors.js';
-import { apiFetch } from '../../lib/apiFetch.js';
 import { _aiPost } from '../../lib/aiPost';
+import { ttsFetch } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { addWordToSRS } from '../../lib/srs.js';
@@ -264,16 +264,12 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
   async function playTTS(ttsText: string) {
     setTtsLoading(true);
     try {
-      const res = await apiFetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: ttsText.slice(0, 400),
-          slow: false,
-          voice: getVoicePreference(),
-        }),
+      const res = await ttsFetch({
+        text: ttsText.slice(0, 400),
+        slow: false,
+        voice: getVoicePreference(),
       });
-      if (!res.ok) return;
+      if (!res || !res.ok) return;
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
       const url = await new Promise<string>((resolve) => {

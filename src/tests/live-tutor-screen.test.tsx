@@ -62,9 +62,14 @@ vi.mock('../lib/soundSettings.js', () => ({
   getVoicePreference: vi.fn(() => 'alloy'),
 }));
 
+const mockLtTtsFetch = vi.hoisted(() => vi.fn());
+const mockIsNative = vi.hoisted(() => vi.fn(() => false));
+
 vi.mock('../lib/audio.js', () => ({
   getAudioContext: vi.fn(() => null),
   unlockAudio: vi.fn(),
+  ttsFetch: mockLtTtsFetch,
+  isNative: mockIsNative,
 }));
 
 // ── apiFetch — default returns a failing response to keep tests simple ────────
@@ -80,8 +85,9 @@ const mockApiFetch = vi.hoisted(() =>
 vi.mock('../lib/apiFetch.js', () => ({ apiFetch: mockApiFetch }));
 
 // ── Online status ─────────────────────────────────────────────────────────────
+const mockUseOnlineStatus = vi.hoisted(() => vi.fn(() => ({ isOnline: true, backOnline: false })));
 vi.mock('../hooks/useOnlineStatus', () => ({
-  useOnlineStatus: () => true,
+  useOnlineStatus: mockUseOnlineStatus,
 }));
 
 // ── Child component stubs ─────────────────────────────────────────────────────
@@ -129,7 +135,17 @@ vi.mock('../components/croatia/LiveTutorSetup', () => ({
 }));
 
 vi.mock('../components/croatia/LiveTutorControls', () => ({
-  default: ({ onEndSession }: { onEndSession: () => void }) =>
+  default: ({
+    onEndSession,
+    onTextSubmit,
+    setTextInput,
+    textInput,
+  }: {
+    onEndSession: () => void;
+    onTextSubmit: (e: React.FormEvent) => void;
+    setTextInput: (v: string) => void;
+    textInput: string;
+  }) =>
     React.createElement(
       'div',
       { 'data-testid': 'live-tutor-controls' },
@@ -137,6 +153,20 @@ vi.mock('../components/croatia/LiveTutorControls', () => ({
         'button',
         { 'data-testid': 'end-session-btn', onClick: onEndSession },
         'End Session',
+      ),
+      React.createElement(
+        'form',
+        { 'data-testid': 'turn-form', onSubmit: onTextSubmit },
+        React.createElement('input', {
+          'data-testid': 'turn-input',
+          value: textInput,
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => setTextInput(e.target.value),
+        }),
+        React.createElement(
+          'button',
+          { 'data-testid': 'send-turn-btn', type: 'submit' },
+          'Send Turn',
+        ),
       ),
     ),
 }));
@@ -301,6 +331,37 @@ describe('LiveTutorScreen — session start', () => {
   });
 });
 
+// ── Offline guard ─────────────────────────────────────────────────────────────
+
+describe('LiveTutorScreen — offline guard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
+  // Restore the online default after every test so an offline override can never
+  // leak into an unrelated test regardless of file ordering.
+  afterEach(() => {
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
+  it('shows the offline notice when the network is down', async () => {
+    mockUseOnlineStatus.mockReturnValue({ isOnline: false, backOnline: false });
+    renderScreen();
+    expect(
+      await screen.findByText(/You're offline\. AI features need an internet connection/i),
+    ).toBeInTheDocument();
+  });
+
+  it('does NOT show the offline notice when online', () => {
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+    renderScreen();
+    expect(
+      screen.queryByText(/You're offline\. AI features need an internet connection/i),
+    ).toBeNull();
+  });
+});
+
 // ── Debrief transition ────────────────────────────────────────────────────────
 
 describe('LiveTutorScreen — debrief phase', () => {
@@ -365,5 +426,163 @@ describe('LiveTutorScreen — debrief phase', () => {
       },
       { timeout: 3000 },
     );
+  });
+});
+
+// ── Native TTS short-circuit ──────────────────────────────────────────────────
+// Verifies that on Capacitor native, playTTSStreaming uses ttsFetch (blob path)
+// instead of apiFetch('/api/tts', { stream: true }) which fails on device.
+
+describe('LiveTutorScreen — native TTS short-circuit', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockIsNative.mockReturnValue(true);
+
+    // Fake blob response for ttsFetch
+    const fakeBlob = new Blob([new Uint8Array([1, 2, 3])], { type: 'audio/mpeg' });
+    mockLtTtsFetch.mockResolvedValue({
+      ok: true,
+      blob: () => Promise.resolve(fakeBlob),
+    });
+
+    // Tutor API returns a valid message so the TTS call is triggered
+    mockApiFetch.mockImplementation((url: string) => {
+      if (String(url).includes('conversational-tutor')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              croatian: 'Zdravo!',
+              english_gloss: 'Hello!',
+              comprehension_prompt: null,
+              correction: null,
+              scaffold_action: 'none',
+              breakdown_count: 0,
+              internal_note: '',
+            }),
+        });
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 503,
+        json: () => Promise.resolve({}),
+      });
+    });
+
+    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    mockIsNative.mockReturnValue(false);
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
+  it('on native: uses ttsFetch blob path and does NOT call apiFetch with stream:true', async () => {
+    renderScreen();
+
+    // Start session — triggers opener which calls playTTSStreaming
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('start-btn'));
+    });
+
+    // Wait for TTS to be triggered (ttsFetch called)
+    await waitFor(
+      () => {
+        expect(mockLtTtsFetch).toHaveBeenCalled();
+      },
+      { timeout: 5000 },
+    );
+
+    // The streaming apiFetch('/api/tts', { stream: true }) must NOT have been called
+    const streamingTtsCall = mockApiFetch.mock.calls.find((call) => {
+      const body = call[1]?.body;
+      if (typeof body !== 'string') return false;
+      try {
+        return JSON.parse(body)?.stream === true;
+      } catch {
+        return false;
+      }
+    });
+    expect(streamingTtsCall).toBeUndefined();
+
+    // ttsFetch WAS called (native blob path used)
+    expect(mockLtTtsFetch).toHaveBeenCalledWith(expect.objectContaining({ slow: false }));
+  });
+});
+
+// ── XP anti-farm cap ──────────────────────────────────────────────────────────
+
+describe('LiveTutorScreen — XP anti-farm cap', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Return a successful tutor response so sendToTutor completes without error,
+    // and a failing TTS response (503) so playTTSStreaming exits quickly.
+    mockApiFetch.mockImplementation((url: string) => {
+      if (String(url).includes('conversational-tutor')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              croatian: 'Dobro!',
+              english_gloss: 'Good!',
+              comprehension_prompt: null,
+              correction: null,
+              scaffold_action: 'none',
+              breakdown_count: 0,
+              internal_note: '',
+            }),
+        });
+      }
+      // All other endpoints (TTS, summary, etc.) fail quickly
+      return Promise.resolve({
+        ok: false,
+        status: 503,
+        json: () => Promise.resolve({ error: 'Service unavailable' }),
+      });
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
+  it('stops awarding per-turn XP after turn 10 (anti-farm cap)', async () => {
+    const awardSpy = vi.fn();
+    renderScreen({ award: awardSpy });
+
+    // Start the session (fires the opener — turn 0, no XP)
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('start-btn'));
+    });
+
+    // Drive 12 user turns through the text-input path
+    const TURNS = 12;
+    for (let i = 0; i < TURNS; i++) {
+      // Set text input value
+      await act(async () => {
+        fireEvent.change(screen.getByTestId('turn-input'), { target: { value: 'Bok' } });
+      });
+      // Submit the turn (handleTextSubmit reads textInput state)
+      await act(async () => {
+        fireEvent.submit(screen.getByTestId('turn-form'));
+      });
+      // Wait for the async sendToTutor → playTTSStreaming cycle to complete
+      await waitFor(
+        () => {
+          // thinking and playing both become false once the turn fully resolves
+          expect(screen.getByTestId('turn-input')).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
+    }
+
+    // Count only the 5-XP per-turn award calls (milestone-20 is a separate call)
+    const perTurnXpCalls = awardSpy.mock.calls.filter((c) => c[0] === 5).length;
+    // Cap is 10: even though we drove 12 turns, only the first 10 should award XP
+    expect(perTurnXpCalls).toBe(10);
   });
 });

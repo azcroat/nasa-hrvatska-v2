@@ -4,227 +4,48 @@
 import { getVoicePreference, getSpeechRate } from './soundSettings';
 import { isNative, isIos } from './platform';
 import { dbgInfo, dbgWarn, dbgError } from './debugLog';
+import { _nativePost } from './nativePost.js';
+// Transport primitives now live in ./nativeTransport (extracted to break the
+// audio.ts ↔ nativePost.ts import cycle). Imported here for internal use and
+// re-exported below to preserve audio.ts's public API for existing importers.
+import { _dataUrlToArrayBuffer } from './nativeTransport.js';
 
-// Server-side /api/tts and /api/content/* require Firebase auth (security
-// audit 406d772). Returns the current Firebase user's ID token as a bearer,
-// or null if there is no signed-in user.
+// Preserve audio.ts's public API: other modules import these FROM './audio'.
+// They now originate in ./nativeTransport — pure re-export, no behavior change.
+export { getFirebaseBearer, _dataUrlToArrayBuffer } from './nativeTransport.js';
+export { isNative } from './nativeTransport.js';
+
+// POST to /api/tts — thin delegate to `_nativePost` in ./nativePost.
 //
-// 2026-05-21 BUG FIX: previously checked auth.currentUser synchronously.
-// Firebase restores the user from IndexedDB asynchronously after page load
-// — calls during that ~tick window saw currentUser === null and returned
-// null. Authenticated endpoints then 401'd, polluting console with
-// "Failed to load resource: 401" on every cold start. Now: if the auth
-// state has not yet settled, we subscribe to onAuthStateChanged and resolve
-// as soon as Firebase decides. Concurrent callers share one promise.
-let _bearerPromise: Promise<string | null> | null = null;
-let _bearerCachedFor: string | null = null;
-
-async function _getFirebaseBearer(forceRefresh = false): Promise<string | null> {
-  try {
-    const { getAuth, onAuthStateChanged } = await import('firebase/auth');
-    const auth = getAuth();
-
-    // Hot path: auth restored, user known. When forceRefresh, bypass the
-    // cached promise — long-running tabs can sit on a stale 1-hour token
-    // and a 401 retry needs a guaranteed-fresh mint.
-    if (auth.currentUser) {
-      if (forceRefresh || _bearerCachedFor !== auth.currentUser.uid) {
-        _bearerCachedFor = auth.currentUser.uid;
-        _bearerPromise = auth.currentUser.getIdToken(forceRefresh).then((t) => t || null);
-      }
-      return (await _bearerPromise) ?? null;
-    }
-
-    // Cold path: wait for onAuthStateChanged to fire with a NON-NULL user,
-    // then mint. Cache the in-flight promise so a burst of fetches shares
-    // one observer.
-    //
-    // 2026-05-21 SECOND BUG FIX: my first attempt unsubscribed on the very
-    // first onAuthStateChanged callback, but Firebase fires that callback
-    // IMMEDIATELY with user === null on cold load (before IndexedDB
-    // restoration completes). The previous logic accepted that null and
-    // returned, then content fetches fired unauthenticated. Now we stay
-    // subscribed until either:
-    //   - a non-null user arrives (the real "auth restored" signal), or
-    //   - the 3 s failsafe trips (genuinely unauthenticated / offline).
-    if (!_bearerPromise || _bearerCachedFor !== '__pending__') {
-      _bearerCachedFor = '__pending__';
-      _bearerPromise = new Promise<string | null>((resolve) => {
-        let settled = false;
-        let unsub: (() => void) | null = null;
-        const finish = (t: string | null) => {
-          if (settled) return;
-          settled = true;
-          if (unsub) unsub();
-          resolve(t);
-        };
-        unsub = onAuthStateChanged(auth, async (user) => {
-          // Ignore the synchronous null fire — keep waiting for a real user.
-          if (!user) return;
-          try {
-            const token = await user.getIdToken(false);
-            _bearerCachedFor = user.uid;
-            finish(token || null);
-          } catch {
-            finish(null);
-          }
-        });
-        // Failsafe: if no user ever arrives (genuinely anonymous, or auth
-        // bootstrap failed), resolve null after 6 s so callers don't hang.
-        // Bumped from 3 s to 6 s 2026-05-22 — slow devices with large
-        // IndexedDB stores or slow disk can take 3-5 s to complete the
-        // initial auth restore; 3 s was tripping the timeout on authenticated
-        // users and leaking null bearers (→ sporadic 401s on cold load).
-        setTimeout(() => finish(null), 6000);
-      });
-    }
-    return await _bearerPromise;
-  } catch (e) {
-    dbgWarn('[TTS] could not get Firebase ID token:', (e as Error)?.message ?? e);
-    return null;
-  }
-}
-
-// In Capacitor native builds, relative URLs resolve to the bundled WebView server
-// (https://localhost), not to the live domain. We try each endpoint in order and
-// use the first one that returns a successful response.
-// Two entries guard against the custom domain not being configured in Cloudflare Pages:
-//   1. nasahrvatska.com  — production custom domain (primary)
-//   2. nasa-hrvatska-v2.pages.dev — Cloudflare Pages default (always works)
-const _NATIVE_ENDPOINTS = ['https://nasahrvatska.com', 'https://nasa-hrvatska-v2.pages.dev'];
-
-// Decode a data: URL to an ArrayBuffer without using fetch() — fetch(data:) is
-// unreliable on some Android WebView versions and may throw or return an empty body.
-function _dataUrlToArrayBuffer(dataUrl: string): ArrayBuffer {
-  const comma = dataUrl.indexOf(',');
-  const b64 = dataUrl.slice(comma + 1);
-  const binary = atob(b64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes.buffer;
-}
-
-// POST to /api/tts, trying each native endpoint in sequence until one succeeds.
-// On web, a single relative URL is used (no fallback needed).
+// The ~90-line body that previously lived here (CapacitorHttp loop + fetch loop +
+// bearer attachment) is now fully covered by `_nativePost`, which was built to
+// mirror it exactly (Task 7 added blob support + passthroughHeaders).
 //
-// NATIVE PATH: uses CapacitorHttp (Android OkHttp) instead of WebView fetch().
-// On some Android tablets the WebView's fetch() fails silently — SSL cert chain
-// issues, WebView network policy, or OEM browser restrictions. CapacitorHttp
-// bypasses the WebView entirely and uses Android's own HTTP client + CA bundle.
+// The audio.ts ↔ nativePost.ts cycle is gone: both now import their shared
+// transport primitives from ./nativeTransport, so this can be a plain static
+// import of `_nativePost`.
 async function _ttsPost(
   body: Record<string, unknown>,
   signal: AbortSignal,
 ): Promise<Response | null> {
-  const endpoints = isNative() ? _NATIVE_ENDPOINTS : [''];
+  return _nativePost('/api/tts', body, {
+    signal,
+    responseType: 'blob',
+    passthroughHeaders: ['X-TTS-Backends'],
+  });
+}
 
-  // Attach Firebase Bearer token so the server-side auth gate passes.
-  // Without this, /api/tts returns 401 and TTS silently falls through to
-  // Web Speech — which fails on devices without a Croatian voice.
-  const bearer = await _getFirebaseBearer();
-  const authHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (bearer) {
-    authHeaders.Authorization = `Bearer ${bearer}`;
-  } else {
-    dbgWarn('[TTS] no Firebase user signed in — request will be unauthenticated');
-  }
-
-  if (isNative()) {
-    // Try CapacitorHttp (native Android HTTP — bypasses WebView fetch() failures)
-    type _CapHttp = {
-      post: (
-        o: Record<string, unknown>,
-      ) => Promise<{ status: number; data: unknown; headers: Record<string, string> }>;
-    };
-    let capHttp: _CapHttp | null = null;
-    try {
-      // Dynamic import keeps @capacitor/core out of the web bundle's main chunk.
-      const capacitorModule = (await import('@capacitor/core')) as unknown as {
-        CapacitorHttp?: _CapHttp;
-      };
-      capHttp = capacitorModule.CapacitorHttp ?? null;
-      if (capHttp) dbgInfo('[TTS] CapacitorHttp available — using native HTTP');
-    } catch {
-      dbgWarn('[TTS] CapacitorHttp import failed — falling back to fetch()');
-    }
-
-    if (capHttp) {
-      for (const base of endpoints) {
-        const url = `${base}/api/tts`;
-        try {
-          dbgInfo(`[TTS] CapacitorHttp POST → "${url}"`);
-          const resp = await capHttp.post({
-            url,
-            headers: authHeaders,
-            data: body,
-            responseType: 'blob',
-          });
-          dbgInfo(`[TTS] CapacitorHttp status=${resp.status} data-type=${typeof resp.data}`);
-          if (resp.status >= 200 && resp.status < 300) {
-            const backends =
-              resp.headers['x-tts-backends'] || resp.headers['X-TTS-Backends'] || 'capacitor';
-            // Native bridge returns binary blob as base64 string; convert to Blob
-            let blob: Blob;
-            if (resp.data instanceof Blob) {
-              blob = resp.data;
-            } else if (typeof resp.data === 'string' && resp.data.length > 0) {
-              const ab = _dataUrlToArrayBuffer(`data:audio/mpeg;base64,${resp.data}`);
-              blob = new Blob([ab], { type: 'audio/mpeg' });
-            } else {
-              dbgWarn(
-                `[TTS] CapacitorHttp unexpected data type "${typeof resp.data}" len=${String(resp.data).length} — trying next`,
-              );
-              continue;
-            }
-            return new Response(blob, {
-              status: 200,
-              headers: new Headers({ 'Content-Type': 'audio/mpeg', 'X-TTS-Backends': backends }),
-            });
-          }
-          if (resp.status >= 400 && resp.status < 500) {
-            // 4xx — bad request, don't retry other endpoints
-            return new Response('', {
-              status: resp.status,
-              headers: new Headers({ 'X-TTS-Backends': resp.headers['x-tts-backends'] || '' }),
-            });
-          }
-          // 5xx: try next endpoint
-        } catch (e: unknown) {
-          const err = e as Error;
-          dbgWarn(
-            `[TTS] CapacitorHttp → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 100)} — trying next`,
-          );
-        }
-      }
-      dbgWarn('[TTS] CapacitorHttp: all endpoints failed');
-      return null;
-    }
-    // CapacitorHttp unavailable — fall through to fetch()
-  }
-
-  // Web (and native fallback): standard fetch()
-  for (const base of endpoints) {
-    const url = `${base}/api/tts`;
-    try {
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify(body),
-        signal,
-      });
-      dbgInfo(`[TTS] fetch POST → "${url}" status=${r.status}`);
-      if (r.ok) return r;
-      // 4xx from server: bad request — don't retry other endpoints
-      if (r.status >= 400 && r.status < 500) return r;
-      // 5xx or other: try next endpoint
-    } catch (e: unknown) {
-      const err = e as Error;
-      if (err?.name === 'AbortError') throw e; // propagate abort immediately
-      dbgWarn(
-        `[TTS] fetch → "${url}" error: ${err?.name} — ${err?.message?.slice(0, 80)} — trying next`,
-      );
-    }
-  }
-  return null; // all endpoints failed
+/**
+ * Native-safe POST to /api/tts. Use this from components instead of
+ * apiFetch('/api/tts', ...) — apiFetch sends a relative URL that resolves to
+ * https://localhost on Capacitor native and silently fails. Returns the audio
+ * Response, or null on total transport failure (caller should fall through).
+ */
+export async function ttsFetch(
+  body: Record<string, unknown>,
+  signal?: AbortSignal,
+): Promise<Response | null> {
+  return _ttsPost(body, signal ?? new AbortController().signal);
 }
 
 let _au = false;
@@ -902,15 +723,3 @@ export function getAudioDebugState(): Record<string, string | number | boolean> 
     isNative: isNative(),
   };
 }
-
-// SP5: expose Firebase Bearer fetcher for AI POST wrapper (`_aiPost`).
-// Wraps the internal `_getFirebaseBearer` without renaming it (preserves internal call sites).
-export async function getFirebaseBearer(forceRefresh = false): Promise<string | null> {
-  return _getFirebaseBearer(forceRefresh);
-}
-
-// R3: re-export the platform `isNative` from audio so the shared native-safe POST
-// helper (`_nativePost` in ./nativePost) and its tests can import both transport
-// primitives (`getFirebaseBearer` + `isNative`) from a single module. Behavior is
-// the canonical `./platform` implementation — this is a pure re-export, no change.
-export { isNative } from './platform';

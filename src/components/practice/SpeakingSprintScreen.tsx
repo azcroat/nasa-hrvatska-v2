@@ -3,7 +3,7 @@ import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { isSpeechRecognitionSupported } from '../../lib/platform.js';
-import { apiFetch } from '../../lib/apiFetch.js';
+import { ttsFetch } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import SprintSetupScreen from './SprintSetupScreen';
 import SprintCountdownScreen from './SprintCountdownScreen';
@@ -373,12 +373,8 @@ export default function SpeakingSprintScreen({ goBack, award }: Props) {
       audioUrlRef.current = null;
     }
     try {
-      const res = await apiFetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
-      });
-      if (!res.ok) throw new Error(`TTS ${res.status}`);
+      const res = await ttsFetch({ text, slow: false, voice: getVoicePreference() });
+      if (!res || !res.ok) throw new Error(`TTS ${res?.status ?? 'failed'}`);
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
       const url = await new Promise<string>((resolve) => {

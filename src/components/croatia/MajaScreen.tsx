@@ -4,7 +4,7 @@ import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
-import { unlockAudio } from '../../lib/audio.js';
+import { unlockAudio, ttsFetch } from '../../lib/audio.js';
 import MajaOrb from './MajaOrb';
 import ConversationBubble from './ConversationBubble';
 import DebriefScreen from './MajaDebrief';
@@ -224,13 +224,9 @@ export default function MajaScreen() {
         audioUrlRef.current = null;
       }
 
-      const res = await apiFetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
-      });
+      const res = await ttsFetch({ text, slow: false, voice: getVoicePreference() });
 
-      if (!res.ok) throw new Error(`TTS ${res.status}`);
+      if (!res || !res.ok) throw new Error(`TTS ${res?.status ?? 'failed'}`);
 
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
