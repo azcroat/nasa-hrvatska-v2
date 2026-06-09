@@ -655,6 +655,154 @@ describe('useRecorder', () => {
   });
 });
 
+describe('useRecorder — mimeType exposure + mimePriority override', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    (globalThis as unknown as { MediaRecorder: unknown }).MediaRecorder = MockMediaRecorder;
+    (globalThis as unknown as { FileReader: unknown }).FileReader = MockFileReader;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    // restore default isTypeSupported
+    (MockMediaRecorder as unknown as { isTypeSupported: (m: string) => boolean }).isTypeSupported =
+      (m: string) => m.startsWith('audio/webm');
+  });
+
+  it('mimeType is null initially', () => {
+    const { result } = renderHook(() => useRecorder());
+    expect(result.current.mimeType).toBeNull();
+  });
+
+  it('mimeType equals the negotiated type after recording completes', async () => {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording({ countdown: 0 });
+    });
+    expect(result.current.state).toBe('recording');
+
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('done');
+    // MockMediaRecorder is constructed with 'audio/webm;codecs=opus' (first webm match)
+    expect(result.current.mimeType).toBe('audio/webm;codecs=opus');
+    // mimeType should match the blob's type
+    expect(result.current.audioBlob?.type).toBe(result.current.mimeType);
+  });
+
+  it('reset() clears mimeType back to null', async () => {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording({ countdown: 0 });
+    });
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.mimeType).not.toBeNull();
+
+    act(() => {
+      result.current.reset();
+    });
+    expect(result.current.mimeType).toBeNull();
+  });
+
+  it('mimePriority override is honored: uses first supported type from custom order', async () => {
+    // Only support audio/mp4 in this test
+    (MockMediaRecorder as unknown as { isTypeSupported: (m: string) => boolean }).isTypeSupported =
+      (m: string) => m === 'audio/mp4';
+
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording({ countdown: 0, mimePriority: ['audio/mp4', 'audio/webm'] });
+    });
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('done');
+    expect(result.current.mimeType).toBe('audio/mp4');
+  });
+
+  it('mimePriority override: falls through to next supported type when first is unsupported', async () => {
+    // Support only audio/webm (not audio/ogg)
+    (MockMediaRecorder as unknown as { isTypeSupported: (m: string) => boolean }).isTypeSupported =
+      (m: string) => m === 'audio/webm';
+
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording({
+        countdown: 0,
+        mimePriority: ['audio/ogg', 'audio/webm'],
+      });
+    });
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('done');
+    expect(result.current.mimeType).toBe('audio/webm');
+  });
+
+  it('default behavior unchanged when mimePriority is not passed', async () => {
+    // Default isTypeSupported: supports audio/webm;codecs=opus and audio/webm
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: () => Promise.resolve(fakeStream) },
+    });
+
+    const { result } = renderHook(() => useRecorder());
+    await act(async () => {
+      result.current.startRecording({ countdown: 0 });
+    });
+    await act(async () => {
+      result.current.stopRecording();
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.state).toBe('done');
+    // Should still use default MIME_PRIORITY order: audio/webm;codecs=opus first
+    expect(result.current.mimeType).toBe('audio/webm;codecs=opus');
+  });
+});
+
 describe('useRecorder — mic state persistence (SP4b)', () => {
   beforeEach(() => {
     localStorage.clear();
