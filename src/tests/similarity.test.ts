@@ -76,6 +76,22 @@ describe('similarity util', () => {
     it('case-insensitive comparison', () => {
       expect(charOverlapPct('KUĆA', 'kuća')).toBe(100);
     });
+    it('does NOT strip diacritics (contract: distinct from similarityPct)', () => {
+      // similarityPct('kuca','kuća') === 100 (diacritics normalized away).
+      // charOverlapPct must NOT normalize: longer="kuca"(4), shorter="kuća"(4),
+      // chars of "kuća" present in "kuca" = k,u,a (bare ć is NOT in "kuca") → 3/4 = 75.
+      // If someone swapped in a diacritic-stripping variant this would become 100 and fail.
+      expect(charOverlapPct('kuca', 'kuća')).toBe(75);
+    });
+    it('tie-break on equal length uses >= (na is longer) — documents levenshteinClose unification', () => {
+      // The old SpeakingScreen levenshteinClose used strict `a.length > b.length` for its
+      // longer/shorter pick, while textSimilarity used `>=`. Both callsites now share
+      // charOverlapPct (which uses `>=`), unifying the tie-break. For equal-length strings
+      // with asymmetric char multiplicity this can differ: old levenshteinClose('aaa','abc')
+      // picked longer="abc" → 3/3 = true; charOverlapPct('aaa','abc') picks longer="aaa" → 1/3 = 33.
+      // This is an intentional, documented normalization of an arbitrary tie-break in a loose matcher.
+      expect(charOverlapPct('aaa', 'abc')).toBe(33);
+    });
   });
 
   // ── Pinning tests: SpeakingScreen.levenshteinClose semantics ────────────────
