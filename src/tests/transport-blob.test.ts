@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../lib/audio.js', () => ({
+vi.mock('../lib/nativeTransport', () => ({
   isNative: () => false,
   getFirebaseBearer: async () => 'tok',
   _dataUrlToArrayBuffer: (u: string) => {

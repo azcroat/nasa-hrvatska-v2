@@ -17,7 +17,7 @@
 //       falls back to fetch() if CapacitorHttp is unavailable.
 //   (d) Failover: on 5xx, try the next endpoint; on 4xx, return immediately;
 //       returns null only on total transport failure so callers can fall through.
-import { getFirebaseBearer, isNative, _dataUrlToArrayBuffer } from './audio.js';
+import { getFirebaseBearer, isNative, _dataUrlToArrayBuffer } from './nativeTransport.js';
 import { dbgInfo, dbgWarn } from './debugLog';
 
 export interface NativePostOpts {
