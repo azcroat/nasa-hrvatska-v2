@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { getAudioContext, unlockAudio, ttsFetch, isNative } from '../../lib/audio.js';
+import { getAudioContext, unlockAudio, ttsFetch, isNative, blobToBase64 } from '../../lib/audio.js';
+import { _nativePost } from '../../lib/nativePost.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -570,12 +571,13 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
       const controller = new AbortController();
       const tid = setTimeout(() => controller.abort(), 15000); // 15s max
       try {
-        const res = await apiFetch('/api/stt', {
-          method: 'POST',
-          headers: { 'Content-Type': mimeType },
-          body: blob,
-          signal: controller.signal,
-        });
+        const audioBase64 = await blobToBase64(blob);
+        const res = await _nativePost(
+          '/api/stt',
+          { audioBase64, mimeType },
+          { signal: controller.signal },
+        );
+        if (!res) throw new Error('stt_transport_failed');
         clearTimeout(tid);
         // Non-2xx (e.g. 503 when STT keys not configured) → fall back to text input
         if (!res.ok) {
