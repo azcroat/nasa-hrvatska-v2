@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { apiFetch } from '../../lib/apiFetch.js';
-import { getAudioContext, unlockAudio } from '../../lib/audio.js';
+import { getAudioContext, unlockAudio, ttsFetch } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { markQuest } from '../../lib/quests.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -524,12 +524,8 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
       }
       let blobOk = false;
       try {
-        const res2 = await apiFetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, slow: false, voice: getVoicePreference() }),
-        });
-        if (res2.ok) {
+        const res2 = await ttsFetch({ text, slow: false, voice: getVoicePreference() });
+        if (res2 && res2.ok) {
           const blob = await res2.blob();
           await playBlob(blob);
           blobOk = true;

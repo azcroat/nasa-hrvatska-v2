@@ -35,6 +35,19 @@ async function _ttsPost(
   });
 }
 
+/**
+ * Native-safe POST to /api/tts. Use this from components instead of
+ * apiFetch('/api/tts', ...) — apiFetch sends a relative URL that resolves to
+ * https://localhost on Capacitor native and silently fails. Returns the audio
+ * Response, or null on total transport failure (caller should fall through).
+ */
+export async function ttsFetch(
+  body: Record<string, unknown>,
+  signal?: AbortSignal,
+): Promise<Response | null> {
+  return _ttsPost(body, signal ?? new AbortController().signal);
+}
+
 let _au = false;
 let _voices: SpeechSynthesisVoice[] = [];
 let _voicesLoaded = false;

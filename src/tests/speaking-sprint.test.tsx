@@ -72,7 +72,24 @@ vi.mock('../lib/quests.js', () => ({ markQuest: mockMarkQuest }));
 vi.mock('../hooks/useOnlineStatus', () => ({ useOnlineStatus: () => ({ isOnline: false }) }));
 
 // ── Platform mock ─────────────────────────────────────────────────────────────
-vi.mock('../lib/platform.js', () => ({ isSpeechRecognitionSupported: vi.fn(() => false) }));
+vi.mock('../lib/platform.js', () => ({
+  isSpeechRecognitionSupported: vi.fn(() => false),
+  isNative: vi.fn(() => false),
+  isIos: vi.fn(() => false),
+}));
+
+// ── audio mock (ttsFetch now imported directly from audio.ts) ─────────────────
+vi.mock('../lib/audio.js', () => ({
+  ttsFetch: vi.fn(() => Promise.resolve({ ok: true, blob: () => Promise.resolve(new Blob()) })),
+  unlockAudio: vi.fn(),
+  stopAudio: vi.fn(),
+  speak: vi.fn(() => Promise.resolve('azure')),
+  speakAzure: vi.fn(() => Promise.resolve(true)),
+  preloadAudio: vi.fn(() => Promise.resolve()),
+  getAudioContext: vi.fn(() => null),
+  getAudioDebugState: vi.fn(() => ({})),
+  isNative: vi.fn(() => false),
+}));
 
 // ── apiFetch mock ─────────────────────────────────────────────────────────────
 vi.mock('../lib/apiFetch.js', () => ({

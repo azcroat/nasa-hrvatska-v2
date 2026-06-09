@@ -4,6 +4,7 @@ import { H } from '../../data';
 import { useStats } from '../../context/StatsContext';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
+import { ttsFetch } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 
 interface WordBreakdown {
@@ -409,12 +410,12 @@ export default function PhraseOfDayScreen({
     if (playing || !phraseData) return;
     setPlaying(true);
     try {
-      const res = await apiFetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: phraseData.phrase, slow: false, voice: getVoicePreference() }),
+      const res = await ttsFetch({
+        text: phraseData.phrase,
+        slow: false,
+        voice: getVoicePreference(),
       });
-      if (!res.ok) throw new Error('TTS failed');
+      if (!res || !res.ok) throw new Error('TTS failed');
       const blob = await res.blob();
       // Use base64 data URL — blob: URLs fail silently on some Android OEM WebViews
       const url = await new Promise<string>((resolve) => {
