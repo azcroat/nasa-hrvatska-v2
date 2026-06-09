@@ -130,7 +130,17 @@ vi.mock('../components/croatia/LiveTutorSetup', () => ({
 }));
 
 vi.mock('../components/croatia/LiveTutorControls', () => ({
-  default: ({ onEndSession }: { onEndSession: () => void }) =>
+  default: ({
+    onEndSession,
+    onTextSubmit,
+    setTextInput,
+    textInput,
+  }: {
+    onEndSession: () => void;
+    onTextSubmit: (e: React.FormEvent) => void;
+    setTextInput: (v: string) => void;
+    textInput: string;
+  }) =>
     React.createElement(
       'div',
       { 'data-testid': 'live-tutor-controls' },
@@ -138,6 +148,20 @@ vi.mock('../components/croatia/LiveTutorControls', () => ({
         'button',
         { 'data-testid': 'end-session-btn', onClick: onEndSession },
         'End Session',
+      ),
+      React.createElement(
+        'form',
+        { 'data-testid': 'turn-form', onSubmit: onTextSubmit },
+        React.createElement('input', {
+          'data-testid': 'turn-input',
+          value: textInput,
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => setTextInput(e.target.value),
+        }),
+        React.createElement(
+          'button',
+          { 'data-testid': 'send-turn-btn', type: 'submit' },
+          'Send Turn',
+        ),
       ),
     ),
 }));
@@ -397,5 +421,80 @@ describe('LiveTutorScreen — debrief phase', () => {
       },
       { timeout: 3000 },
     );
+  });
+});
+
+// ── XP anti-farm cap ──────────────────────────────────────────────────────────
+
+describe('LiveTutorScreen — XP anti-farm cap', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Return a successful tutor response so sendToTutor completes without error,
+    // and a failing TTS response (503) so playTTSStreaming exits quickly.
+    mockApiFetch.mockImplementation((url: string) => {
+      if (String(url).includes('conversational-tutor')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              croatian: 'Dobro!',
+              english_gloss: 'Good!',
+              comprehension_prompt: null,
+              correction: null,
+              scaffold_action: 'none',
+              breakdown_count: 0,
+              internal_note: '',
+            }),
+        });
+      }
+      // All other endpoints (TTS, summary, etc.) fail quickly
+      return Promise.resolve({
+        ok: false,
+        status: 503,
+        json: () => Promise.resolve({ error: 'Service unavailable' }),
+      });
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
+  it('stops awarding per-turn XP after turn 10 (anti-farm cap)', async () => {
+    const awardSpy = vi.fn();
+    renderScreen({ award: awardSpy });
+
+    // Start the session (fires the opener — turn 0, no XP)
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('start-btn'));
+    });
+
+    // Drive 12 user turns through the text-input path
+    const TURNS = 12;
+    for (let i = 0; i < TURNS; i++) {
+      // Set text input value
+      await act(async () => {
+        fireEvent.change(screen.getByTestId('turn-input'), { target: { value: 'Bok' } });
+      });
+      // Submit the turn (handleTextSubmit reads textInput state)
+      await act(async () => {
+        fireEvent.submit(screen.getByTestId('turn-form'));
+      });
+      // Wait for the async sendToTutor → playTTSStreaming cycle to complete
+      await waitFor(
+        () => {
+          // thinking and playing both become false once the turn fully resolves
+          expect(screen.getByTestId('turn-input')).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
+    }
+
+    // Count only the 5-XP per-turn award calls (milestone-20 is a separate call)
+    const perTurnXpCalls = awardSpy.mock.calls.filter((c) => c[0] === 5).length;
+    // Cap is 10: even though we drove 12 turns, only the first 10 should award XP
+    expect(perTurnXpCalls).toBe(10);
   });
 });

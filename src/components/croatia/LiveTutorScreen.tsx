@@ -335,7 +335,8 @@ export default function LiveTutorScreen({ goBack, award }: Props) {
         const newTurn = turnCount + 1;
         setTurnCount(newTurn);
         if (typeof award === 'function') {
-          award(5, false, 'speaking');
+          // Per-turn XP is capped at the first 10 turns to prevent endless-turn farming.
+          if (newTurn <= 10) award(5, false, 'speaking');
           if (newTurn === 10 && !milestone10Fired.current) {
             milestone10Fired.current = true;
             award(20, false, 'speaking');
