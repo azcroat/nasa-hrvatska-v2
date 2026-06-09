@@ -70,6 +70,7 @@ vi.mock('../lib/audio.js', () => ({
   unlockAudio: vi.fn(),
   ttsFetch: mockLtTtsFetch,
   isNative: mockIsNative,
+  blobToBase64: vi.fn(() => Promise.resolve('data:audio/webm;base64,AAAA')),
 }));
 
 // ── apiFetch — default returns a failing response to keep tests simple ────────
@@ -88,6 +89,36 @@ vi.mock('../lib/apiFetch.js', () => ({ apiFetch: mockApiFetch }));
 const mockUseOnlineStatus = vi.hoisted(() => vi.fn(() => ({ isOnline: true, backOnline: false })));
 vi.mock('../hooks/useOnlineStatus', () => ({
   useOnlineStatus: mockUseOnlineStatus,
+}));
+
+// ── _nativePost — captures STT calls ─────────────────────────────────────────
+const mockNativePost = vi.hoisted(() => vi.fn());
+vi.mock('../lib/nativePost.js', () => ({ _nativePost: mockNativePost }));
+
+// ── useRecorder — controllable mock ──────────────────────────────────────────
+// mockUseRecorder is a vi.fn() so tests can call mockImplementation to control
+// the returned state on each render cycle, enabling re-render-driven state transitions.
+const mockStartRecording = vi.hoisted(() => vi.fn());
+const mockStopRecording = vi.hoisted(() => vi.fn());
+const mockReset = vi.hoisted(() => vi.fn());
+const mockUseRecorder = vi.hoisted(() =>
+  vi.fn(() => ({
+    state: 'idle' as const,
+    audioBlob: null,
+    mimeType: null,
+    micAvailable: null,
+    error: null,
+    countdown: 0,
+    audioUrl: null,
+    startRecording: mockStartRecording,
+    stopRecording: mockStopRecording,
+    playback: vi.fn(),
+    reset: mockReset,
+  })),
+);
+
+vi.mock('../hooks/useRecorder', () => ({
+  useRecorder: mockUseRecorder,
 }));
 
 // ── Child component stubs ─────────────────────────────────────────────────────
@@ -584,5 +615,154 @@ describe('LiveTutorScreen — XP anti-farm cap', () => {
     const perTurnXpCalls = awardSpy.mock.calls.filter((c) => c[0] === 5).length;
     // Cap is 10: even though we drove 12 turns, only the first 10 should award XP
     expect(perTurnXpCalls).toBe(10);
+  });
+});
+
+// ── useRecorder integration ───────────────────────────────────────────────────
+// Verifies that LiveTutorScreen uses the useRecorder hook for mic capture.
+// Strategy: mockUseRecorder is a vi.fn() — tests call mockImplementation to
+// control the returned state. After calling rerender(), React picks up the new
+// hook return value and runs effects, triggering transcription.
+
+describe('LiveTutorScreen — useRecorder integration', () => {
+  // Helper: returns the default "idle" recorder mock
+  function idleRec() {
+    return {
+      state: 'idle' as const,
+      audioBlob: null,
+      mimeType: null,
+      micAvailable: null,
+      error: null,
+      countdown: 0,
+      audioUrl: null,
+      startRecording: mockStartRecording,
+      stopRecording: mockStopRecording,
+      playback: vi.fn(),
+      reset: mockReset,
+    };
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Default: idle
+    mockUseRecorder.mockImplementation(() => idleRec());
+
+    // _nativePost returns a successful STT response by default
+    mockNativePost.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ text: 'Dobar dan' }),
+    });
+
+    // apiFetch: tutor succeeds so sendToTutor completes
+    mockApiFetch.mockImplementation((url: string) => {
+      if (String(url).includes('conversational-tutor')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              croatian: 'Dobar dan!',
+              english_gloss: 'Good day!',
+              comprehension_prompt: null,
+              correction: null,
+              scaffold_action: 'none',
+              breakdown_count: 0,
+              internal_note: '',
+            }),
+        });
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 503,
+        json: () => Promise.resolve({}),
+      });
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    mockUseRecorder.mockImplementation(() => idleRec());
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
+  it('does not call rec.startRecording spuriously on render', async () => {
+    renderScreen();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('start-btn'));
+    });
+    // startRecording should NOT be called without user interaction
+    expect(mockStartRecording).not.toHaveBeenCalled();
+  });
+
+  it('calls transcribeAudio (via _nativePost to /api/stt) when recorder transitions to done with a valid blob', async () => {
+    const fakeBlob = new Blob([new Uint8Array(1500)], { type: 'audio/webm' });
+
+    // Render with idle state first
+    const { rerender } = render(<LiveTutorScreen goBack={vi.fn()} award={vi.fn()} />);
+
+    // Start session
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('start-btn'));
+    });
+
+    // Now switch useRecorder to return 'done' state — rerender triggers the effect
+    mockUseRecorder.mockImplementation(() => ({
+      ...idleRec(),
+      state: 'done' as const,
+      audioBlob: fakeBlob,
+      mimeType: 'audio/webm',
+    }));
+
+    await act(async () => {
+      rerender(<LiveTutorScreen goBack={vi.fn()} award={vi.fn()} />);
+    });
+
+    // The effect watching rec.state / rec.audioBlob should fire transcribeAudio
+    await waitFor(
+      () => {
+        expect(mockNativePost).toHaveBeenCalledWith(
+          '/api/stt',
+          expect.objectContaining({ mimeType: 'audio/webm' }),
+          expect.anything(),
+        );
+      },
+      { timeout: 3000 },
+    );
+
+    // transcribeAudio runs exactly once for this blob
+    const sttCalls = mockNativePost.mock.calls.filter((c) => c[0] === '/api/stt');
+    expect(sttCalls).toHaveLength(1);
+
+    // reset() was called after transcription started
+    expect(mockReset).toHaveBeenCalled();
+  });
+
+  it('skips transcribeAudio when blob is too short (< 1000 bytes)', async () => {
+    const tinyBlob = new Blob([new Uint8Array(100)], { type: 'audio/webm' });
+
+    const { rerender } = render(<LiveTutorScreen goBack={vi.fn()} award={vi.fn()} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('start-btn'));
+    });
+
+    // Switch to 'done' with a tiny blob
+    mockUseRecorder.mockImplementation(() => ({
+      ...idleRec(),
+      state: 'done' as const,
+      audioBlob: tinyBlob,
+      mimeType: 'audio/webm',
+    }));
+
+    await act(async () => {
+      rerender(<LiveTutorScreen goBack={vi.fn()} award={vi.fn()} />);
+    });
+
+    // Give the effect a chance to run
+    await new Promise((r) => setTimeout(r, 100));
+
+    // _nativePost to /api/stt should NOT have been called (blob too short)
+    const sttCalls = mockNativePost.mock.calls.filter((c) => c[0] === '/api/stt');
+    expect(sttCalls).toHaveLength(0);
   });
 });

@@ -28,6 +28,8 @@ export interface RecorderError {
 export interface StartRecordingOpts {
   countdown?: number;
   maxDurationMs?: number;
+  /** Override MIME negotiation order (e.g. Azure-preferred). Defaults to MIME_PRIORITY. */
+  mimePriority?: readonly string[];
 }
 
 export interface UseRecorderResult {
@@ -35,6 +37,7 @@ export interface UseRecorderResult {
   micAvailable: boolean | null;
   audioBlob: Blob | null;
   audioUrl: string | null;
+  mimeType: string | null;
   countdown: number;
   error: RecorderError | null;
   startRecording: (opts?: StartRecordingOpts) => void;
@@ -48,6 +51,7 @@ export function useRecorder(): UseRecorderResult {
   const [micAvailable, setMicAvailable] = useState<boolean | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [mimeType, setMimeType] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState<RecorderError | null>(null);
 
@@ -135,7 +139,8 @@ export function useRecorder(): UseRecorderResult {
             clearInterval(countdownTimerRef.current);
             countdownTimerRef.current = null;
           }
-          const mime = negotiateMimeType(MediaRecorder.isTypeSupported.bind(MediaRecorder));
+          const order = opts?.mimePriority ?? MIME_PRIORITY;
+          const mime = order.find((m) => MediaRecorder.isTypeSupported(m)) ?? null;
           if (mime === null) {
             setState('unsupported');
             busyRef.current = false;
@@ -150,8 +155,10 @@ export function useRecorder(): UseRecorderResult {
           rec.onstop = () => {
             stream.getTracks().forEach((t) => t.stop());
             streamRef.current = null;
-            const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+            const type = rec.mimeType || 'audio/webm';
+            const blob = new Blob(chunks, { type });
             if (!mountedRef.current) return;
+            setMimeType(type);
             setAudioBlob(blob);
             const reader = new FileReader();
             reader.onload = () => {
@@ -268,6 +275,7 @@ export function useRecorder(): UseRecorderResult {
     }
     setAudioBlob(null);
     setAudioUrl(null);
+    setMimeType(null);
     setError(null);
     setCountdown(0);
     setState('idle');
@@ -279,6 +287,7 @@ export function useRecorder(): UseRecorderResult {
     micAvailable,
     audioBlob,
     audioUrl,
+    mimeType,
     countdown,
     error,
     startRecording,
