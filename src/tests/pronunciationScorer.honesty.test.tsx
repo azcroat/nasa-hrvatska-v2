@@ -71,12 +71,23 @@ vi.mock('../lib/apiFetch.js', () => ({
   apiFetch: vi.fn(async () => ({ ok: false, json: async () => ({ ok: false }) })),
 }));
 
-// platform: isNative() → false
+// platform: include all exports used transitively (isNative, isIos, getMicPermissionPlatform)
 vi.mock('../lib/platform.js', () => ({
   isNative: () => false,
+  isIos: () => false,
+  getMicPermissionPlatform: () => 'desktop',
 }));
 vi.mock('../lib/platform', () => ({
   isNative: () => false,
+  isIos: () => false,
+  getMicPermissionPlatform: () => 'desktop',
+}));
+
+// useRecorder: stub so the hook doesn't run real MediaRecorder logic;
+// these tests only exercise the Web Speech path.
+const recorderMockHonesty = vi.fn();
+vi.mock('../hooks/useRecorder', () => ({
+  useRecorder: () => recorderMockHonesty(),
 }));
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -86,6 +97,20 @@ describe('PronunciationScorer — translation-only path emits no fabricated scor
 
   beforeEach(() => {
     stub = makeSpeechRecognitionStub();
+    // useRecorder mock: return idle state so it doesn't interfere with Web Speech tests
+    recorderMockHonesty.mockReturnValue({
+      state: 'idle',
+      micAvailable: null,
+      audioBlob: null,
+      audioUrl: null,
+      mimeType: null,
+      countdown: 0,
+      error: null,
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      playback: vi.fn(),
+      reset: vi.fn(),
+    });
     // Disable MediaRecorder so the component goes straight to Web Speech
     Object.defineProperty(global, 'MediaRecorder', { value: undefined, configurable: true });
     Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true });
