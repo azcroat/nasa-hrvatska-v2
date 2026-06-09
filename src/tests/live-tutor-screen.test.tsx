@@ -80,8 +80,9 @@ const mockApiFetch = vi.hoisted(() =>
 vi.mock('../lib/apiFetch.js', () => ({ apiFetch: mockApiFetch }));
 
 // ── Online status ─────────────────────────────────────────────────────────────
+const mockUseOnlineStatus = vi.hoisted(() => vi.fn(() => ({ isOnline: true, backOnline: false })));
 vi.mock('../hooks/useOnlineStatus', () => ({
-  useOnlineStatus: () => true,
+  useOnlineStatus: mockUseOnlineStatus,
 }));
 
 // ── Child component stubs ─────────────────────────────────────────────────────
@@ -298,6 +299,31 @@ describe('LiveTutorScreen — session start', () => {
       },
       { timeout: 3000 },
     );
+  });
+});
+
+// ── Offline guard ─────────────────────────────────────────────────────────────
+
+describe('LiveTutorScreen — offline guard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+  });
+
+  it('shows the offline notice when the network is down', async () => {
+    mockUseOnlineStatus.mockReturnValue({ isOnline: false, backOnline: false });
+    renderScreen();
+    expect(
+      await screen.findByText(/You're offline\. AI features need an internet connection/i),
+    ).toBeInTheDocument();
+  });
+
+  it('does NOT show the offline notice when online', () => {
+    mockUseOnlineStatus.mockReturnValue({ isOnline: true, backOnline: false });
+    renderScreen();
+    expect(
+      screen.queryByText(/You're offline\. AI features need an internet connection/i),
+    ).toBeNull();
   });
 });
 

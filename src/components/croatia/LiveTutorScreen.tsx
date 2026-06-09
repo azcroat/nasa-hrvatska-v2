@@ -98,7 +98,7 @@ function injectCSS() {
 // ─────────────────────────────────────────────
 export default function LiveTutorScreen({ goBack, award }: Props) {
   injectCSS();
-  const isOnline = useOnlineStatus();
+  const { isOnline } = useOnlineStatus();
 
   // ── Settings ──────────────────────────────
   const [level, setLevel] = useState('A2');
