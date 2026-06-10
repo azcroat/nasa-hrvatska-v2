@@ -298,6 +298,7 @@ describe('contentClient.getGrammar', () => {
       PHONOLOGY: {},
       PITCH_ACCENT: [],
       PADEZI_FULL: {},
+      VERBS: [],
     };
     mockFetch([
       async () =>
@@ -327,6 +328,7 @@ describe('contentClient.getGrammar', () => {
       PHONOLOGY: {},
       PITCH_ACCENT: [],
       PADEZI_FULL: {},
+      VERBS: [],
     };
     await seedStaleCacheForGrammar(BODY);
     mockFetch([async () => new Response(null, { status: 304 })]);

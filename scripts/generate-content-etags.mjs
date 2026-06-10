@@ -68,7 +68,9 @@ async function main() {
     grammarUnits[u.id] = await computeEtag(u);
   }
 
-  // SP11b: hash all 13 grammar exports as a single composite resource.
+  // SP11b: hash all grammar exports as a single composite resource.
+  // VERBS (conjugation curriculum dataset) MUST be included so the grammar etag
+  // changes when verb data changes — otherwise cached clients 304 and never see it.
   const grammarExports = {
     PADEZI: grammarMod.PADEZI,
     GRAM: grammarMod.GRAM,
@@ -83,6 +85,7 @@ async function main() {
     PHONOLOGY: grammarMod.PHONOLOGY,
     PITCH_ACCENT: grammarMod.PITCH_ACCENT,
     PADEZI_FULL: grammarMod.PADEZI_FULL,
+    VERBS: grammarMod.VERBS,
   };
   const grammar = await computeEtag(grammarExports);
 

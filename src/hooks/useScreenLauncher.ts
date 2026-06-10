@@ -93,6 +93,8 @@ const BLACK_HOLE_SCREENS: Record<string, string> = {
   proverbs: 'lc',
   bureaucratic: 'lc',
   conjdrill: 'gc',
+  conjlab: 'gc',
+  conjpractice: 'gc',
   padezi: 'gc',
   modal: 'gc',
   past_tense_lesson: 'gc',
@@ -717,7 +719,7 @@ export function useScreenLauncher({
   // (flashcards, mcgame, match) async-load V and initialise their pools; all
   // other exercises navigate directly. Called from HomeTab's SessionCard.
   const launchSessionActivity = useCallback(
-    async (screen: string): Promise<void> => {
+    async (screen: string, category?: string): Promise<void> => {
       returnContextRef.current = { tab: 'home', screen: 'dashboard' };
 
       if (screen === 'flashcards' || screen === 'mcgame' || screen === 'match') {
@@ -782,7 +784,10 @@ export function useScreenLauncher({
         trackStart('listening');
         setScr('listening');
       } else {
-        sCurEx(screen);
+        // Conjugation drill carries its target category in curEx so the screen
+        // can pick the right form-type; screen id stays 'conjpractice' for routing.
+        const ex = screen === 'conjpractice' && category ? `conjpractice:${category}` : screen;
+        sCurEx(ex);
         sessionStorage.setItem('nh_ex_start', Date.now().toString());
         setScr(screen);
       }

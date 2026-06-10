@@ -15,6 +15,24 @@ vi.mock('../lib/srs', () => ({
 
 vi.mock('../lib/adaptive', () => ({
   getDueCategoryQueue: vi.fn(() => []),
+  CONJ_CATEGORIES: new Set([
+    'present-tense',
+    'past-tense',
+    'future-tense',
+    'conditional',
+    'aspect-imperfective',
+    'aspect-perfective',
+    'aspect-negation',
+  ]),
+  CATEGORY_MIN_CEFR: {
+    'present-tense': 'A1',
+    'past-tense': 'A2',
+    'future-tense': 'A2',
+    conditional: 'B1',
+    'aspect-imperfective': 'B1',
+    'aspect-negation': 'B1',
+    'aspect-perfective': 'B2',
+  },
 }));
 
 beforeEach(() => {
