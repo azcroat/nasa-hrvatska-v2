@@ -73,6 +73,18 @@ describe('VERBS morphology correctness', () => {
     }
   });
 
+  it('has at least 50 A1 verbs', () => {
+    expect(verbs.filter((v) => v.cefr === 'A1').length).toBeGreaterThanOrEqual(50);
+  });
+
+  it('no infinitive appears at two levels', () => {
+    const seen = new Map<string, string>();
+    for (const v of verbs) {
+      expect(seen.has(v.inf), `${v.inf} duplicated`).toBe(false);
+      seen.set(v.inf, v.cefr);
+    }
+  });
+
   it('hand-trusted (irregular) forms stay a minority of authored forms', () => {
     let total = 0;
     let exempt = 0;
