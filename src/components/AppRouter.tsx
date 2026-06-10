@@ -169,6 +169,7 @@ const Unjumble = lazyWithReload(() => import('./practice/Unjumble'));
 const PrepDrill = lazyWithReload(() => import('./practice/PrepDrill'));
 const TypingScreen = lazyWithReload(() => import('./practice/TypingScreen'));
 const ConjugationDrill = lazyWithReload(() => import('./practice/ConjugationDrill'));
+const ConjugationLab = lazyWithReload(() => import('./practice/ConjugationLab'));
 const ZnamGame = lazyWithReload(() => import('./practice/ZnamGame'));
 const BojeGame = lazyWithReload(() => import('./practice/BojeGame'));
 const MatchGame = lazyWithReload(() => import('./practice/MatchGame'));
@@ -1494,6 +1495,11 @@ export default function AppRouter(props: Record<string, any>) {
         {currentScreen === 'conjdrill' && (
           <ScreenErrorBoundary key="conjdrill" name="conjdrill">
             <ConjugationDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'conjlab' && (
+          <ScreenErrorBoundary key="conjlab" name="conjlab">
+            <ConjugationLab goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'znam' && (

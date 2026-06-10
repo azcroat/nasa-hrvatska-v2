@@ -347,6 +347,16 @@ export function buildExercises({
       action: go('verbdrill'),
     },
     {
+      id: 'conjlab',
+      label: 'Conjugation Lab',
+      icon: '🔄',
+      desc: 'Master verb conjugation A1–B2',
+      category: 'grammar',
+      cefr: 'A1+',
+      duration: '~10 min',
+      action: go('conjlab'),
+    },
+    {
       id: 'pronouns',
       label: 'Pronouns',
       icon: '🎯',

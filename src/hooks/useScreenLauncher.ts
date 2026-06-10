@@ -93,6 +93,7 @@ const BLACK_HOLE_SCREENS: Record<string, string> = {
   proverbs: 'lc',
   bureaucratic: 'lc',
   conjdrill: 'gc',
+  conjlab: 'gc',
   padezi: 'gc',
   modal: 'gc',
   past_tense_lesson: 'gc',
