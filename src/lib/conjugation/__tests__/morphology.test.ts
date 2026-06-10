@@ -98,3 +98,39 @@ describe('expectedForms — conditional', () => {
     ]);
   });
 });
+
+// -jeti verbs have an irregular l-participle: voljeti → volio/voljela/voljelo (not voljeo).
+const voljeti: ConjVerb = { ...base, inf: 'voljeti', klass: 'i-im' };
+
+describe('expectedForms — -jeti participles', () => {
+  it('present is regular i-im', () => {
+    expect(expectedForms(voljeti, 'present')).toEqual([
+      'volim',
+      'voliš',
+      'voli',
+      'volimo',
+      'volite',
+      'vole',
+    ]);
+  });
+  it('past uses -io / -jela / -jelo', () => {
+    expect(expectedForms(voljeti, 'past')).toEqual({
+      m: ['volio sam', 'volio si', 'volio je', 'voljeli smo', 'voljeli ste', 'voljeli su'],
+      f: ['voljela sam', 'voljela si', 'voljela je', 'voljele smo', 'voljele ste', 'voljele su'],
+      n: ['voljelo sam', 'voljelo si', 'voljelo je', 'voljela smo', 'voljela ste', 'voljela su'],
+    });
+  });
+  it('conditional uses the -jeti participle', () => {
+    expect(expectedForms(voljeti, 'conditional')).toEqual([
+      'volio bih',
+      'volio bi',
+      'volio bi',
+      'voljeli bismo',
+      'voljeli biste',
+      'voljeli bi',
+    ]);
+  });
+  it('future elides -i', () => {
+    expect((expectedForms(voljeti, 'future1') as string[])[0]).toBe('voljet ću');
+  });
+});
