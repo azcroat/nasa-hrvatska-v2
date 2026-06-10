@@ -86,6 +86,45 @@ describe('expectedForms — imperative', () => {
   });
 });
 
+describe('expectedForms — imperative of -uj / -aj stems', () => {
+  // a-em verbs whose present stem ends in vowel+j form the imperative without -i.
+  const sudjelovati: ConjVerb = {
+    ...base,
+    inf: 'sudjelovati',
+    klass: 'a-em',
+    presentStem: 'sudjeluj',
+  };
+  const priznavati: ConjVerb = {
+    ...base,
+    inf: 'priznavati',
+    klass: 'a-em',
+    presentStem: 'priznaj',
+  };
+  // consonant-final stem still takes -i.
+  const predlagati: ConjVerb = {
+    ...base,
+    inf: 'predlagati',
+    klass: 'a-em',
+    presentStem: 'predlaž',
+  };
+
+  it('vowel+j stem: no -i', () => {
+    expect(expectedForms(sudjelovati, 'imperative')).toEqual([
+      'sudjeluj',
+      'sudjelujmo',
+      'sudjelujte',
+    ]);
+    expect(expectedForms(priznavati, 'imperative')).toEqual(['priznaj', 'priznajmo', 'priznajte']);
+  });
+  it('consonant stem: keeps -i', () => {
+    expect(expectedForms(predlagati, 'imperative')).toEqual([
+      'predlaži',
+      'predlažimo',
+      'predlažite',
+    ]);
+  });
+});
+
 describe('expectedForms — conditional', () => {
   it('participle + bih', () => {
     expect(expectedForms(citati, 'conditional')).toEqual([

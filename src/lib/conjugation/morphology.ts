@@ -101,7 +101,9 @@ function imperative(verb: ConjVerb): string[] | null {
   const root = presentRoot(verb);
   if (root == null) return null;
   if (verb.klass === 'a-am') return [root + 'j', root + 'jmo', root + 'jte']; // čitaj
-  // i-im and a-em → root + i / imo / ite (govori, piši)
+  // Stems ending in vowel+j (-uj/-aj, the -ovati/-ivati/-avati e-presents) take no -i:
+  // sudjeluj/sudjelujmo/sudjelujte, priznaj/… . Consonant stems take -i: piši, predlaži, govori.
+  if (/[aeiou]j$/.test(root)) return [root, root + 'mo', root + 'te'];
   return [root + 'i', root + 'imo', root + 'ite'];
 }
 
