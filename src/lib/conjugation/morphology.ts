@@ -11,10 +11,41 @@ const FUT_CLITICS = ['ću', 'ćeš', 'će', 'ćemo', 'ćete', 'će'];
 const COND_CLITICS = ['bih', 'bi', 'bi', 'bismo', 'biste', 'bi'];
 const PAST_AUX = ['sam', 'si', 'je', 'smo', 'ste', 'su'];
 
-// l-participle stem from a regular infinitive: drop -ti, keep the theme vowel.
-// čitati→čita, govoriti→govori, voljeti→volje, pisati→pisa. Returns null for -ći etc.
-function participleStem(inf: string): string | null {
-  if (inf.endsWith('ti')) return inf.slice(0, -2);
+// l-participle endings per gender/number from a regular infinitive.
+//  -ati/-iti: čitati→čitao/čitala/čitalo, čitali/čitale/čitala (drop -ti + o/la/lo, li/le/la).
+//  -jeti:     voljeti→volio (m sg, irregular) but voljela/voljelo, voljeli/voljele/voljela.
+// Returns null for -ći and other irregular infinitives (caller flags).
+interface ParticipleParts {
+  mSg: string;
+  mPl: string;
+  fSg: string;
+  fPl: string;
+  nSg: string;
+  nPl: string;
+}
+function participleParts(inf: string): ParticipleParts | null {
+  if (inf.endsWith('jeti')) {
+    const s = inf.slice(0, -4); // voljeti → vol
+    return {
+      mSg: s + 'io',
+      mPl: s + 'jeli',
+      fSg: s + 'jela',
+      fPl: s + 'jele',
+      nSg: s + 'jelo',
+      nPl: s + 'jela',
+    };
+  }
+  if (inf.endsWith('ti')) {
+    const s = inf.slice(0, -2); // čita / govori / pisa
+    return {
+      mSg: s + 'o',
+      mPl: s + 'li',
+      fSg: s + 'la',
+      fPl: s + 'le',
+      nSg: s + 'lo',
+      nPl: s + 'la',
+    };
+  }
   return null; // -ći and others are irregular → caller flags
 }
 
@@ -46,23 +77,23 @@ function future1(verb: ConjVerb): string[] | null {
 }
 
 function past(verb: ConjVerb): PastForms | null {
-  const stem = participleStem(verb.inf);
-  if (stem == null) return null;
+  const p = participleParts(verb.inf);
+  if (p == null) return null;
   const mk = (sg: string, pl: string) =>
     [0, 1, 2]
-      .map((i) => `${stem}${sg} ${PAST_AUX[i]}`)
-      .concat([3, 4, 5].map((i) => `${stem}${pl} ${PAST_AUX[i]}`));
+      .map((i) => `${sg} ${PAST_AUX[i]}`)
+      .concat([3, 4, 5].map((i) => `${pl} ${PAST_AUX[i]}`));
   return {
-    m: mk('o', 'li'),
-    f: mk('la', 'le'),
-    n: mk('lo', 'la'),
+    m: mk(p.mSg, p.mPl),
+    f: mk(p.fSg, p.fPl),
+    n: mk(p.nSg, p.nPl),
   };
 }
 
 function conditional(verb: ConjVerb): string[] | null {
-  const stem = participleStem(verb.inf);
-  if (stem == null) return null;
-  return COND_CLITICS.map((c, i) => `${stem}${i < 3 ? 'o' : 'li'} ${c}`);
+  const p = participleParts(verb.inf);
+  if (p == null) return null;
+  return COND_CLITICS.map((c, i) => `${i < 3 ? p.mSg : p.mPl} ${c}`);
 }
 
 function imperative(verb: ConjVerb): string[] | null {
