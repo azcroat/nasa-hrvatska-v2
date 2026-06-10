@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { AuthUser } from '../../types';
+import { CONJ_LAB_ENABLED } from '../../lib/conjugation/conjugationConfig';
 
 interface LearnPathItem {
   id?: string;
@@ -457,6 +458,41 @@ export default function HomeTab({
 
       {/* ── WELCOME BACK / COMEBACK BANNERS ── */}
       <WelcomeBackBanners comebackBonus={comebackBonus ?? false} longAbsence={longAbsence} />
+
+      {/* ── DAILY CONJUGATION SET (flag-gated; CONJ_LAB_ENABLED) ── */}
+      {CONJ_LAB_ENABLED && (
+        <button
+          data-testid="home-daily-conjugation"
+          onClick={() => {
+            if (launchActivity) void launchActivity('conjlab');
+            else {
+              setScr('conjlab');
+              if (sCurEx) sCurEx('conjlab');
+            }
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '14px 16px',
+            width: '100%',
+            cursor: 'pointer',
+            border: 'none',
+            borderRadius: 14,
+            background: 'linear-gradient(135deg, #0e7490, #164e63)',
+            color: '#fff',
+            marginBottom: 12,
+          }}
+        >
+          <span style={{ fontSize: 28 }}>🔄</span>
+          <span style={{ textAlign: 'left' }}>
+            <span style={{ display: 'block', fontWeight: 800 }}>Daily Conjugation</span>
+            <span style={{ display: 'block', fontSize: 12, opacity: 0.85 }}>
+              Drill verbs you’re forgetting — A1–B2
+            </span>
+          </span>
+        </button>
+      )}
 
       {/* ── GUEST SAVE-PROGRESS BANNER ── */}
       {!authUser && st.xp > 0 && (
