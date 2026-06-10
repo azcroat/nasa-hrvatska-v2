@@ -1,9 +1,8 @@
 // src/lib/conjugation/category.ts
 // Pure mapping from an adaptive SkillCategory to conjugation drill content.
 import type { SkillCategory } from '../adaptive';
-import type { FormType, ConjVerb, ConjCell } from './types';
-import { UNITS } from './curriculum';
-import { cellsForUnit } from './cells';
+import type { FormType, ConjVerb, ConjCell, Gender } from './types';
+import { formFor } from './forms';
 import { selectDailySet } from './dailySet';
 import { buildCardKey } from './cardKey';
 
@@ -53,24 +52,35 @@ export function cellsForCategory(
   if (!formType) return [];
   const { size = 12, daySeed = 0, dueKeys = new Set<string>() } = opts;
 
+  // Drill the full level-appropriate verb pool (not just curriculum-unit examples),
+  // so any verb added to VERBS with the right cefr + forms surfaces automatically.
   const isAspect = ASPECT_CATEGORIES.has(category);
-  const units = UNITS.filter((u) => {
-    if (!u.formTypes.includes(formType)) return false;
-    if (cefrRank(u.cefr as Cefr) > cefrRank(userCefr)) return false;
-    // Aspect categories drill only the aspect-themed units (their ids start with 'aspect').
-    if (isAspect && !u.id.startsWith('aspect')) return false;
-    return true;
-  });
-
+  const GENDERS: Gender[] = ['m', 'f', 'n'];
   const candidates: ConjCell[] = [];
   const seen = new Set<string>();
-  for (const u of units) {
-    for (const cell of cellsForUnit(u, verbs)) {
-      if (cell.formType !== formType) continue; // a unit may declare multiple form types
-      const k = buildCardKey(cell);
-      if (seen.has(k)) continue;
-      seen.add(k);
-      candidates.push(cell);
+  for (const v of verbs) {
+    if (cefrRank(v.cefr as Cefr) > cefrRank(userCefr)) continue;
+    if (isAspect && !v.pair) continue; // aspect categories drill aspect-pair verbs only
+    const persons = formType === 'imperative' ? 3 : 6;
+    for (let p = 0; p < persons; p++) {
+      if (formType === 'past') {
+        // Only past is gendered (PastForms m/f/n). Conditional is masculine-baseline flat.
+        for (const g of GENDERS) {
+          const cell: ConjCell = { inf: v.inf, formType, personIdx: p, gender: g };
+          if (formFor(v, cell) == null) continue;
+          const k = buildCardKey(cell);
+          if (seen.has(k)) continue;
+          seen.add(k);
+          candidates.push(cell);
+        }
+      } else {
+        const cell: ConjCell = { inf: v.inf, formType, personIdx: p };
+        if (formFor(v, cell) == null) continue;
+        const k = buildCardKey(cell);
+        if (seen.has(k)) continue;
+        seen.add(k);
+        candidates.push(cell);
+      }
     }
   }
 
