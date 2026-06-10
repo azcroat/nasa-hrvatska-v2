@@ -1,7 +1,8 @@
 // src/lib/conjugation/__tests__/verbsData.test.ts
 import { describe, it, expect } from 'vitest';
 import { VERBS } from '../../../../functions/api/content/_data/grammar.js';
-import type { ConjVerb } from '../types';
+import type { ConjVerb, FormType } from '../types';
+import { expectedForms } from '../morphology';
 
 const KLASSES = new Set(['a-am', 'a-em', 'i-im', 'irr']);
 const ASPECTS = new Set(['impf', 'pf', 'bi']);
@@ -53,5 +54,36 @@ describe('VERBS dataset integrity', () => {
         expect(infs.has(v.pair)).toBe(true);
       }
     }
+  });
+});
+
+describe('VERBS morphology correctness', () => {
+  const verbs = VERBS as ConjVerb[];
+  const FORMS: FormType[] = ['present', 'past', 'future1', 'imperative', 'conditional'];
+
+  it('every non-exempt authored form matches the derived regular form', () => {
+    for (const v of verbs) {
+      for (const ft of FORMS) {
+        if (!v[ft]) continue;
+        if (v.irregular || v.irregularForms?.includes(ft)) continue; // exempt → shape test covers it
+        const exp = expectedForms(v, ft);
+        expect(exp, `${v.inf}.${ft}: no derivation but not flagged irregular`).not.toBeNull();
+        expect(v[ft], `${v.inf}.${ft} mismatch vs morphology rule`).toEqual(exp);
+      }
+    }
+  });
+
+  it('hand-trusted (irregular) forms stay a minority of authored forms', () => {
+    let total = 0;
+    let exempt = 0;
+    for (const v of verbs)
+      for (const ft of FORMS) {
+        if (!v[ft]) continue;
+        total++;
+        if (v.irregular || v.irregularForms?.includes(ft)) exempt++;
+      }
+    // Guard against dodging the validator by over-flagging. Generous headroom for
+    // early phases where irregular A1 verbs dominate.
+    expect(exempt / total, `exempt ratio ${exempt}/${total}`).toBeLessThanOrEqual(0.6);
   });
 });
