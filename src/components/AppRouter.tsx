@@ -170,6 +170,7 @@ const PrepDrill = lazyWithReload(() => import('./practice/PrepDrill'));
 const TypingScreen = lazyWithReload(() => import('./practice/TypingScreen'));
 const ConjugationDrill = lazyWithReload(() => import('./practice/ConjugationDrill'));
 const ConjugationLab = lazyWithReload(() => import('./practice/ConjugationLab'));
+const ConjugationSessionDrill = lazyWithReload(() => import('./practice/ConjugationSessionDrill'));
 const ZnamGame = lazyWithReload(() => import('./practice/ZnamGame'));
 const BojeGame = lazyWithReload(() => import('./practice/BojeGame'));
 const MatchGame = lazyWithReload(() => import('./practice/MatchGame'));
@@ -1500,6 +1501,28 @@ export default function AppRouter(props: Record<string, any>) {
         {currentScreen === 'conjlab' && (
           <ScreenErrorBoundary key="conjlab" name="conjlab">
             <ConjugationLab goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'conjpractice' && (
+          <ScreenErrorBoundary key="conjpractice" name="conjpractice">
+            <ConjugationSessionDrill
+              category={
+                (typeof _curEx === 'string' && _curEx.startsWith('conjpractice:')
+                  ? _curEx.slice('conjpractice:'.length)
+                  : 'present-tense') as React.ComponentProps<
+                  typeof ConjugationSessionDrill
+                >['category']
+              }
+              cefr={
+                getUserCefr(stats.xp || 0, stats.lc || 0, stats.gc || 0) as
+                  | 'A1'
+                  | 'A2'
+                  | 'B1'
+                  | 'B2'
+              }
+              goBack={goBack}
+              award={award}
+            />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'znam' && (
