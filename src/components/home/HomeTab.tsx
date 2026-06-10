@@ -53,7 +53,7 @@ interface HomeTabProps {
   isNewUserWindow?: boolean;
   daysSinceJoin?: number | null;
   resumeLesson?: (() => void) | null;
-  launchActivity?: (screen: string) => void | Promise<void>;
+  launchActivity?: (screen: string, category?: string) => void | Promise<void>;
   launchStory?: (storyId: string) => void;
 }
 
@@ -590,7 +590,7 @@ export default function HomeTab({
               // launchActivity initialises pool data for exercises that need it
               // (flashcards, mcgame, match) before navigating — fixes the ScreenGuard
               // "start from Practice tab" fallback that appeared when bare setScr was used.
-              void launchActivity(nextActivity.screen);
+              void launchActivity(nextActivity.screen, nextActivity.category);
             } else {
               setScr(nextActivity.screen);
               if (sCurEx) sCurEx(nextActivity.screen);
@@ -614,7 +614,7 @@ export default function HomeTab({
             sessionStorage.setItem('nh_session_started', act.screen);
           } catch {}
           if (launchActivity) {
-            void launchActivity(act.screen);
+            void launchActivity(act.screen, act.category);
           } else {
             setScr(act.screen);
             if (sCurEx) sCurEx(act.screen);
