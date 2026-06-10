@@ -31,6 +31,11 @@ export interface ConjVerb {
   future1?: string[]; // 6
   imperative?: string[]; // 3: [2sg, 1pl, 2pl]
   conditional?: string[]; // 6 (masculine baseline; gender handled by note + past data)
+  // e-present stem for the 'a-em' class (e.g. pisati → 'piš'); enables present derivation.
+  presentStem?: string;
+  // Per-form exemptions from the morphology validator's equality check (still shape-checked).
+  // Use for verbs regular except one form; for wholly irregular verbs prefer `irregular: true`.
+  irregularForms?: FormType[];
 }
 
 // A single drillable unit of conjugation.

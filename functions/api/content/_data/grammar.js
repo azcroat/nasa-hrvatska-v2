@@ -1395,6 +1395,7 @@ export const VERBS = [
     cefr: 'A1',
     irregular: false,
     note: 'present stem palatalizes s→š',
+    presentStem: 'piš',
     present: ['pišem', 'pišeš', 'piše', 'pišemo', 'pišete', 'pišu'],
     past: {
       m: ['pisao sam', 'pisao si', 'pisao je', 'pisali smo', 'pisali ste', 'pisali su'],
@@ -1414,6 +1415,7 @@ export const VERBS = [
     cefr: 'B2',
     irregular: false,
     note: 'perfective partner of pisati; present forms carry future meaning',
+    presentStem: 'napiš',
     present: ['napišem', 'napišeš', 'napiše', 'napišemo', 'napišete', 'napišu'],
   },
   // ---- class i-im (-iti/-jeti → -im) ----

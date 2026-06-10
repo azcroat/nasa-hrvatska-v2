@@ -81,8 +81,44 @@ describe('cellsForCategory', () => {
     expect(cells.every((c) => c.formType === 'present')).toBe(true);
   });
 
-  it('gates out higher-CEFR forms: past-tense yields nothing for an A1 user', () => {
-    const cells = cellsForCategory('past-tense', verbs, 'A1', {
+  it('drills any level-appropriate verb in the pool, regardless of curriculum units', () => {
+    const orphan: ConjVerb = {
+      inf: 'kuhati',
+      en: 'to cook',
+      aspect: 'impf',
+      pair: null,
+      klass: 'a-am',
+      cefr: 'A1',
+      irregular: false,
+      present: ['kuham', 'kuhaš', 'kuha', 'kuhamo', 'kuhate', 'kuhaju'],
+    };
+    const cells = cellsForCategory('present-tense', [orphan], 'A1', {
+      size: 50,
+      daySeed: 1,
+      dueKeys: new Set(),
+    });
+    expect(cells.some((c) => c.inf === 'kuhati' && c.formType === 'present')).toBe(true);
+  });
+
+  it('excludes verbs above the user CEFR', () => {
+    const b2: ConjVerb = {
+      inf: 'razmišljati',
+      en: 'to ponder',
+      aspect: 'impf',
+      pair: null,
+      klass: 'a-am',
+      cefr: 'B2',
+      irregular: false,
+      present: [
+        'razmišljam',
+        'razmišljaš',
+        'razmišlja',
+        'razmišljamo',
+        'razmišljate',
+        'razmišljaju',
+      ],
+    };
+    const cells = cellsForCategory('present-tense', [b2], 'A1', {
       size: 50,
       daySeed: 1,
       dueKeys: new Set(),
