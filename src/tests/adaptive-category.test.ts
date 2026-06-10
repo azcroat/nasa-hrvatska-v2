@@ -3,6 +3,9 @@ import {
   rateCategorySession,
   getDueCategoryQueue,
   getCategoryDifficulty,
+  ALL_CATEGORIES,
+  CATEGORY_MIN_CEFR,
+  CONJ_CATEGORIES,
   type SkillCategory,
 } from '../lib/adaptive';
 
@@ -108,5 +111,37 @@ describe('getCategoryDifficulty', () => {
     localStorage.setItem('nh_cat_sr', JSON.stringify(catData));
     const d = getCategoryDifficulty('instrumental' as SkillCategory);
     expect(d).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('conjugation category metadata', () => {
+  it('present-tense is a registered category', () => {
+    expect(ALL_CATEGORIES).toContain('present-tense');
+  });
+  it('CONJ_CATEGORIES are the 7 tense/aspect categories', () => {
+    expect([...CONJ_CATEGORIES].sort()).toEqual(
+      [
+        'aspect-imperfective',
+        'aspect-negation',
+        'aspect-perfective',
+        'conditional',
+        'future-tense',
+        'past-tense',
+        'present-tense',
+      ].sort(),
+    );
+  });
+  it('min CEFR ascends present→aspect', () => {
+    expect(CATEGORY_MIN_CEFR['present-tense']).toBe('A1');
+    expect(CATEGORY_MIN_CEFR['past-tense']).toBe('A2');
+    expect(CATEGORY_MIN_CEFR['future-tense']).toBe('A2');
+    expect(CATEGORY_MIN_CEFR['conditional']).toBe('B1');
+    expect(CATEGORY_MIN_CEFR['aspect-imperfective']).toBe('B1');
+    expect(CATEGORY_MIN_CEFR['aspect-negation']).toBe('B1');
+    expect(CATEGORY_MIN_CEFR['aspect-perfective']).toBe('B2');
+  });
+  it('rateCategorySession schedules present-tense', () => {
+    rateCategorySession('present-tense', 0.8);
+    expect(ALL_CATEGORIES).toContain('present-tense');
   });
 });

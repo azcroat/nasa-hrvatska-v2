@@ -242,6 +242,7 @@ export type SkillCategory =
   | 'dative-locative'
   | 'instrumental'
   | 'vocative'
+  | 'present-tense'
   | 'past-tense'
   | 'future-tense'
   | 'aspect-imperfective'
@@ -254,12 +255,13 @@ export type SkillCategory =
   | 'vocab-b2'
   | 'speaking';
 
-const ALL_CATEGORIES: SkillCategory[] = [
+export const ALL_CATEGORIES: SkillCategory[] = [
   'genitive',
   'accusative',
   'dative-locative',
   'instrumental',
   'vocative',
+  'present-tense',
   'past-tense',
   'future-tense',
   'aspect-imperfective',
@@ -272,6 +274,29 @@ const ALL_CATEGORIES: SkillCategory[] = [
   'vocab-b2',
   'speaking',
 ];
+
+// Conjugation categories: drilled by the conjugation engine (flag-gated).
+export const CONJ_CATEGORIES: ReadonlySet<SkillCategory> = new Set([
+  'present-tense',
+  'past-tense',
+  'future-tense',
+  'conditional',
+  'aspect-imperfective',
+  'aspect-perfective',
+  'aspect-negation',
+]);
+
+// Minimum CEFR at which each conjugation category may surface in the session.
+// Mirrors the owning curriculum unit's CEFR (see src/lib/conjugation/curriculum.ts).
+export const CATEGORY_MIN_CEFR: Partial<Record<SkillCategory, 'A1' | 'A2' | 'B1' | 'B2'>> = {
+  'present-tense': 'A1',
+  'past-tense': 'A2',
+  'future-tense': 'A2',
+  conditional: 'B1',
+  'aspect-imperfective': 'B1',
+  'aspect-negation': 'B1',
+  'aspect-perfective': 'B2',
+};
 
 // ─── Category card schema ──────────────────────────────────────────────────────
 
