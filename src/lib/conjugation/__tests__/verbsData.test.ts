@@ -77,6 +77,10 @@ describe('VERBS morphology correctness', () => {
     expect(verbs.filter((v) => v.cefr === 'A1').length).toBeGreaterThanOrEqual(50);
   });
 
+  it('has at least 50 A2 verbs', () => {
+    expect(verbs.filter((v) => v.cefr === 'A2').length).toBeGreaterThanOrEqual(50);
+  });
+
   it('no infinitive appears at two levels', () => {
     const seen = new Map<string, string>();
     for (const v of verbs) {
