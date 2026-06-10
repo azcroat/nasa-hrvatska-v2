@@ -46,8 +46,9 @@ test.describe('Home screen — authenticated', () => {
     await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 20_000 });
     // QuestTracker now defaults to expanded on Practice tab — the EARN BONUS XP
     // label inside the full tracker is visible immediately, no click-to-expand
-    // needed.
-    await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
+    // needed. PracticeTab is lazy-loaded; match the sibling test's 20s budget
+    // for cold-render CI variance (run 26348850121 showed >10s on first load).
+    await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 20_000 });
   });
 
   test('Practice tab shows quest count or all-complete message', async ({ page }) => {

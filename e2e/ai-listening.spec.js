@@ -174,8 +174,11 @@ test.describe('AIListeningScreen', () => {
       .locator('button.b.bp')
       .filter({ hasText: /Generate →/ })
       .click();
-    // The component sets readyVisible after 5s or after audio ends; our mock audio is empty (0 bytes)
-    // so the Audio element fires 'ended' immediately, which sets readyVisible=true.
-    await expect(page.getByText("I'm Ready — Take the Quiz →")).toBeVisible({ timeout: 10_000 });
+    // The component sets readyVisible after 5s or after audio ends. The audio onended path only
+    // fires when the user clicks play (getAudio() is called lazily); since this test never clicks
+    // play, the only trigger is the 5s timer. Under CI load: generate API + TTS mock + blob→dataURL
+    // + React render + 5s timer can exceed 10s. 20s absorbs CI variance without weakening the
+    // assertion — readyVisible=true is a real UI state that must appear.
+    await expect(page.getByText("I'm Ready — Take the Quiz →")).toBeVisible({ timeout: 20_000 });
   });
 });
