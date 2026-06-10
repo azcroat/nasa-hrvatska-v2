@@ -1,8 +1,10 @@
 // src/hooks/useDailySession.ts
 import { useState, useCallback, useEffect } from 'react';
 import { getDueReviews, getServableReviewCount } from '../lib/srs';
-import { getDueCategoryQueue } from '../lib/adaptive';
+import { getDueCategoryQueue, CONJ_CATEGORIES, CATEGORY_MIN_CEFR } from '../lib/adaptive';
 import type { SkillCategory } from '../lib/adaptive';
+import { CONJ_LAB_ENABLED } from '../lib/conjugation/conjugationConfig';
+import { cefrRank, type Cefr } from '../lib/conjugation/category';
 import { isUnlocked } from '../lib/cefr';
 import { localDateStr } from '../lib/dateUtils';
 import { rnd } from '../lib/random.js';
@@ -168,6 +170,28 @@ const CROATIA_POOL: SessionActivity[] = [
 
 // ── Pure helpers (exported for unit tests) ───────────────────────────────────
 
+// Choose the adaptive grammar activity for this session. CEFR-gates and re-points
+// conjugation categories to the conjugation drill when CONJ_LAB_ENABLED. Returns
+// null when no eligible category maps to an unused screen.
+export function resolveAdaptiveActivity(
+  userCefr: string,
+  usedScreens: Set<string>,
+): SessionActivity | null {
+  const queue = getDueCategoryQueue(6);
+  for (const { category } of queue) {
+    const isConj = CONJ_LAB_ENABLED && CONJ_CATEGORIES.has(category);
+    if (isConj) {
+      const min = CATEGORY_MIN_CEFR[category];
+      if (min && cefrRank(userCefr as Cefr) < cefrRank(min)) continue; // not yet unlocked
+    }
+    const screen = isConj ? 'conjpractice' : CATEGORY_SCREEN_MAP[category];
+    if (!screen || usedScreens.has(screen)) continue;
+    const label = category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    return { id: `cat_${category}`, label, screen, category };
+  }
+  return null;
+}
+
 export function buildSessionActivities(
   userCefr: string,
   poolWords?: Set<string>,
@@ -189,20 +213,13 @@ export function buildSessionActivities(
     });
   }
 
-  // Priority 2: Adaptive category (top due category → mapped screen)
-  const catQueue = getDueCategoryQueue(6);
-  if (catQueue.length > 0) {
-    const top = catQueue[0]!;
-    const screen = CATEGORY_SCREEN_MAP[top.category];
-    if (screen && !activities.find((a) => a.screen === screen)) {
-      activities.push({
-        id: `cat_${top.category}`,
-        label: top.category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-        screen,
-        category: top.category,
-      });
-    }
-  }
+  // Priority 2: Adaptive grammar topic (CEFR-gated; conjugation categories route
+  // to the conjugation drill when CONJ_LAB_ENABLED).
+  const adaptiveActivity = resolveAdaptiveActivity(
+    userCefr,
+    new Set(activities.map((a) => a.screen)),
+  );
+  if (adaptiveActivity) activities.push(adaptiveActivity);
 
   // Build usedScreens once, here, so P2.5 and P3 both dedup against it.
   const usedScreens = new Set(activities.map((a) => a.screen));

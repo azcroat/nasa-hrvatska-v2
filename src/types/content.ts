@@ -86,6 +86,7 @@ export interface Grammar {
   PHONOLOGY: Record<string, unknown>;
   PITCH_ACCENT: unknown[];
   PADEZI_FULL: Record<string, unknown>;
+  VERBS: unknown[];
 }
 
 // SP11c: lesson list shape. slides[] is the IP body.
