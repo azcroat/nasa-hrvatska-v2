@@ -85,6 +85,14 @@ describe('VERBS morphology correctness', () => {
     expect(verbs.filter((v) => v.cefr === 'B1').length).toBeGreaterThanOrEqual(50);
   });
 
+  it('has at least 50 B2 verbs', () => {
+    expect(verbs.filter((v) => v.cefr === 'B2').length).toBeGreaterThanOrEqual(50);
+  });
+
+  it('has aspect-pair verbs for the aspect drills (>=10 with a pair)', () => {
+    expect(verbs.filter((v) => v.pair).length).toBeGreaterThanOrEqual(10);
+  });
+
   it('no infinitive appears at two levels', () => {
     const seen = new Map<string, string>();
     for (const v of verbs) {
