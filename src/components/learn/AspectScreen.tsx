@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
+import LessonQuiz from './LessonQuiz';
+import { LESSON_QUIZ_BANKS } from '../../lib/lessonQuizBanks';
 
 interface AspectPair {
   impf: string;
@@ -17,14 +19,29 @@ function ErrorState({ message }: { message: string }) {
 
 interface Props {
   goBack: () => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
-function AspectScreen({ goBack }: Props) {
+function AspectScreen({ goBack, award }: Props) {
   const { grammar, loading, error } = useGrammar();
+  const [quiz, setQuiz] = useState(false);
   const userLevel =
     typeof localStorage !== 'undefined' ? localStorage.getItem('nh_level') || 'A1' : 'A1';
   const isA1 = userLevel === 'A1';
   const isPreB1 = ['A1', 'A2'].includes(userLevel);
 
+  if (quiz)
+    return (
+      <LessonQuiz
+        screenId="aspect"
+        statKind="gc"
+        questions={LESSON_QUIZ_BANKS['aspect']!}
+        xp={20}
+        questKind="grammar"
+        award={award ?? (() => {})}
+        goBack={goBack}
+        title="🔄 Verb Aspect check"
+      />
+    );
   if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
   if (loading || !grammar) return <LoadingState />;
   const ASPECT = grammar.ASPECT as { pairs: AspectPair[] };
@@ -98,6 +115,13 @@ function AspectScreen({ goBack }: Props) {
           </div>
         );
       })}
+      <button
+        className="b bp"
+        style={{ width: '100%', marginTop: 16 }}
+        onClick={() => setQuiz(true)}
+      >
+        📝 Take the comprehension check
+      </button>
     </div>
   );
 }
