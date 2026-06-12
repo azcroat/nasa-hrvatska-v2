@@ -6,7 +6,7 @@ import AspectRuleCard from './AspectRuleCard';
 import AspectQuestionPanel from './AspectQuestionPanel';
 import { useStats } from '../../context/StatsContext.tsx';
 import { recordTopicResult } from '../../lib/adaptive.js';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 
 interface AspectPair {
@@ -599,16 +599,18 @@ export default function AspectDrillScreen({
               onClick={() => {
                 if (finishFired.current) return;
                 finishFired.current = true;
-                if (typeof award === 'function') award(score * 4 + 10, false, 'grammar');
-                markQuest('grammar');
-                // Grant gc credit so LearnPath ck(gc>=5) passes (replaces the 20s dwell timer)
-                if (!stats.vs?.includes('aspect')) {
-                  setStats((prev) => {
-                    if (prev.vs?.includes('aspect')) return prev;
-                    return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'aspect'] };
-                  });
-                  if (writeDelta) writeDelta({ gc: 1, vs: ['aspect'] });
-                }
+                // Gated: credit (vs 'aspect') only at >=75% — closes the back-door into the
+                // AspectScreen lesson gate (PR #37), which shares the 'aspect' key.
+                completeExercise({
+                  key: 'aspect',
+                  score,
+                  total,
+                  xp: score * 4 + 10,
+                  stats,
+                  setStats,
+                  writeDelta,
+                  award,
+                });
                 goBack();
               }}
             >

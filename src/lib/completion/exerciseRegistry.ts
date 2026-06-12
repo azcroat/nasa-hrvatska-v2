@@ -86,8 +86,8 @@ const RAW: Record<string, ExerciseEntry> = {
   reflexive: g('gc', 'grammar', 'grammar'),
   'sentence-builder': g('gc', 'grammar', 'grammar'),
   'sentence-tile': g('gc', 'grammar', 'grammar'),
-  translate: g('gc', 'grammar', 'grammar'),
-  typing: g('gc', 'grammar', 'grammar'),
+  translate: g('gc', 'vocab', 'grammar'),
+  typing: g('gc', 'vocab', 'vocabulary'),
   unjumble: g('gc', 'grammar', 'grammar'),
   'verb-drill': g('gc', 'grammar', 'grammar'),
   'city-locative': g('gc', 'grammar', 'grammar'),
@@ -97,8 +97,8 @@ const RAW: Record<string, ExerciseEntry> = {
   boje: g('gc', 'vocab', 'vocabulary'),
   znam: g('gc', 'vocab', 'vocabulary'),
   match: g('gc', 'vocab', 'vocabulary'),
-  wordsprint: g('gc', 'vocab', 'vocabulary'),
-  'word-families': g('gc', 'vocab', 'vocabulary'),
+  wordsprint: g('gc', 'grammar', 'vocabulary'),
+  'word-families': g('gc', 'grammar', 'grammar'),
 
   // ── Tier-1 true-bypass screens (Phase 3): gated; quiz wired/added there ──
   padezifull: g('gc', 'grammar', 'grammar'),
