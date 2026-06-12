@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { H, speak, sh } from '../../data';
 import { DECL } from '../../data';
-import { markQuest } from '../../lib/quests.js';
+import { completeLesson } from '../../hooks/useLessonCompletion';
+import { LESSON_PASS_THRESHOLD } from '../../lib/lessonGate';
 import { addWordToSRS } from '../../lib/srs.js';
 import { useStats } from '../../context/StatsContext.tsx';
 
@@ -70,7 +71,6 @@ export default function DeclensionScreen({ goBack, award }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
-  const awardFired = useRef(false);
 
   const n = DECL.nouns[dcNoun];
 
@@ -93,11 +93,7 @@ export default function DeclensionScreen({ goBack, award }: Props) {
       setAnswered(false);
       setSelected(null);
     } else {
-      if (!awardFired.current) {
-        awardFired.current = true;
-        markQuest('grammar');
-        if (award) award(score * 4 + 10, false, 'grammar');
-      }
+      // Completion + credit now happen on the results screen, gated to >=75% (completeLesson).
       setQuizDone(true);
     }
   }
@@ -239,7 +235,9 @@ export default function DeclensionScreen({ goBack, award }: Props) {
                 : 'Review the table and try again — the patterns will click.'}
           </div>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#d97706', marginBottom: 24 }}>
-            +{score * 4 + 10} XP
+            {pct >= LESSON_PASS_THRESHOLD
+              ? `+${score * 4 + 10} XP`
+              : `Need ${Math.round(LESSON_PASS_THRESHOLD * 100)}% to pass`}
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button
@@ -251,26 +249,33 @@ export default function DeclensionScreen({ goBack, award }: Props) {
             >
               📖 Review
             </button>
-            <button
-              className="b bp"
-              style={{ flex: 1 }}
-              onClick={() => {
-                if (!stats.vs?.includes('declension')) {
-                  setStats((prev) => {
-                    if (prev.vs?.includes('declension')) return prev;
-                    return {
-                      ...prev,
-                      gc: (prev.gc || 0) + 1,
-                      vs: [...(prev.vs || []), 'declension'],
-                    };
+            {pct >= LESSON_PASS_THRESHOLD ? (
+              <button
+                className="b bp"
+                style={{ flex: 1 }}
+                onClick={() => {
+                  completeLesson({
+                    screenId: 'declension',
+                    statKind: 'gc',
+                    score,
+                    total: questions.length,
+                    xp: score * 4 + 10,
+                    questKind: 'grammar',
+                    stats,
+                    setStats,
+                    writeDelta,
+                    award,
                   });
-                  if (writeDelta) writeDelta({ gc: 1, vs: ['declension'] });
-                }
-                goBack();
-              }}
-            >
-              ✓ Done
-            </button>
+                  goBack();
+                }}
+              >
+                ✓ Done
+              </button>
+            ) : (
+              <button className="b bp" style={{ flex: 1 }} onClick={() => setMode('reference')}>
+                ↻ Review &amp; retry
+              </button>
+            )}
           </div>
         </div>
       </div>
