@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
 
@@ -161,6 +161,7 @@ export default function FleetingADrill({ goBack, award }: Props) {
   const [chosen, setChosen] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
+  const [passed, setPassed] = useState(false);
 
   const cur = q[idx]!;
   const answered = chosen !== null;
@@ -175,15 +176,17 @@ export default function FleetingADrill({ goBack, award }: Props) {
     if (idx + 1 >= total) {
       if (!finishFired.current) {
         finishFired.current = true;
-        if (award) award(score * 5, false, 'grammar');
-        markQuest('grammar');
-        if (!stats.vs?.includes('fleetinga')) {
-          setStats((prev) => {
-            if (prev.vs?.includes('fleetinga')) return prev;
-            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'fleetinga'] };
-          });
-          if (writeDelta) writeDelta({ gc: 1, vs: ['fleetinga'] });
-        }
+        const res = completeExercise({
+          key: 'fleetinga',
+          score,
+          total,
+          xp: score * 5,
+          stats,
+          setStats,
+          writeDelta,
+          award,
+        });
+        setPassed(res.passed);
       }
       setDone(true);
     } else {
@@ -197,7 +200,7 @@ export default function FleetingADrill({ goBack, award }: Props) {
       <div className="scr-wrap">
         {H('✨ Fleeting-A & L→O', 'Mobile vowels and past tense l→o changes', goBack)}
         <div className="c" style={{ marginTop: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>{passed ? '🎉' : '📚'}</div>
           <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
             {score} / {total}
           </div>
@@ -208,6 +211,23 @@ export default function FleetingADrill({ goBack, award }: Props) {
                 ? 'Great work! 💪'
                 : 'Keep at it — these patterns become automatic!'}
           </div>
+          {!passed && (
+            <button
+              className="b bp"
+              data-testid="drill-retry"
+              style={{ width: '100%', marginBottom: 10 }}
+              onClick={() => {
+                finishFired.current = false;
+                setIdx(0);
+                setChosen(null);
+                setScore(0);
+                setPassed(false);
+                setDone(false);
+              }}
+            >
+              🔁 Try again (need 75%)
+            </button>
+          )}
           <button className="b bp" style={{ width: '100%' }} onClick={goBack}>
             ← Back
           </button>
