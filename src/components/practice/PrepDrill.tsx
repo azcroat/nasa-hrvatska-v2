@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, PREPDRILL } from '../../data';
-import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
+import { passedLesson } from '../../lib/lessonGate';
 
 export default function PrepDrill({
   goBack,
@@ -25,40 +26,60 @@ export default function PrepDrill({
   if (!ppQ.length) return null;
 
   if (ppI >= total) {
+    const passed = passedLesson(ppS, total);
     return (
       <div className="scr-wrap">
         {H('📍 Preposition Drills', 'Fill in the correct preposition', goBack)}
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 64 }}>{ppS >= total * 0.8 ? '🏆' : '📚'}</div>
+          <div style={{ fontSize: 64 }}>{passed ? '🏆' : '📚'}</div>
           <h2>
             {ppS} / {total}
           </h2>
           <div style={{ fontSize: 24, fontWeight: 900, color: '#d97706', margin: '8px 0 16px' }}>
             +{ppS * 5} XP
           </div>
-          <button
-            className="b bp"
-            onClick={() => {
-              if (finishFired.current) return;
-              finishFired.current = true;
-              if (typeof award === 'function') award(ppS * 5, false, 'grammar');
-              markQuest('grammar');
-              if (!stats.vs?.includes('preposition')) {
-                setStats((prev) => {
-                  if (prev.vs?.includes('preposition')) return prev;
-                  return {
-                    ...prev,
-                    gc: (prev.gc || 0) + 1,
-                    vs: [...(prev.vs || []), 'preposition'],
-                  };
+          {passed ? (
+            <button
+              className="b bp"
+              onClick={() => {
+                if (finishFired.current) return;
+                finishFired.current = true;
+                completeExercise({
+                  key: 'preposition',
+                  score: ppS,
+                  total,
+                  xp: ppS * 5,
+                  stats,
+                  setStats,
+                  writeDelta,
+                  award,
                 });
-                if (writeDelta) writeDelta({ gc: 1, vs: ['preposition'] });
-              }
-              goBack();
-            }}
-          >
-            🏠 Done
-          </button>
+                goBack();
+              }}
+            >
+              🏠 Done
+            </button>
+          ) : (
+            <>
+              <button
+                className="b bp"
+                data-testid="drill-retry"
+                style={{ marginBottom: 10 }}
+                onClick={() => {
+                  finishFired.current = false;
+                  sPpI(0);
+                  sPpS(0);
+                  sPpA(false);
+                  sPpSl(-1);
+                }}
+              >
+                🔁 Try again (need 75%)
+              </button>
+              <button className="b bs" onClick={goBack}>
+                ← Back
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
