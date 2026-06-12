@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh } from '../../data';
-import { markQuest } from '../../lib/quests.js';
+import { completeLesson } from '../../hooks/useLessonCompletion';
+import { LESSON_PASS_THRESHOLD } from '../../lib/lessonGate';
 import { useStats } from '../../context/StatsContext.tsx';
 import { recordTopicResult } from '../../lib/adaptive.ts';
 
@@ -780,7 +781,7 @@ export default function FutureTenseLessonScreen({
 
           if (qi >= total) {
             const pct = Math.round((score / total) * 100);
-            const pass = pct >= 60;
+            const pass = pct >= LESSON_PASS_THRESHOLD * 100;
             return (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 64, marginBottom: 8 }}>
@@ -817,19 +818,21 @@ export default function FutureTenseLessonScreen({
                   className="b bp"
                   style={{ marginTop: 8, marginRight: 8 }}
                   onClick={() => {
-                    if (finishFired.current) return;
-                    finishFired.current = true;
-                    if (typeof award === 'function') award(score * 5, false, 'grammar');
-                    if (pass) {
-                      markQuest('grammar');
-                      writeDelta && writeDelta({ gc: 1 });
-                      if (!stats.vs?.includes('future_tense_lesson')) {
-                        setStats((prev) => ({
-                          ...prev,
-                          gc: (prev.gc || 0) + 1,
-                          vs: [...(prev.vs || []), 'future_tense_lesson'],
-                        }));
-                      }
+                    if (!finishFired.current) {
+                      finishFired.current = true;
+                      // Gated: credit + completion only at >=75% (completeLesson).
+                      completeLesson({
+                        screenId: 'future_tense_lesson',
+                        statKind: 'gc',
+                        score,
+                        total,
+                        xp: score * 5,
+                        questKind: 'grammar',
+                        stats,
+                        setStats,
+                        writeDelta,
+                        award,
+                      });
                     }
                     goBack();
                   }}
