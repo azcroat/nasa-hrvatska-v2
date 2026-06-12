@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { DIMWORDS } from '../../data';
+import LessonQuiz from './LessonQuiz';
+import { LESSON_QUIZ_BANKS } from '../../lib/lessonQuizBanks';
 
 interface Props {
   goBack: () => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }
-function DiminutivesScreen({ goBack }: Props) {
+function DiminutivesScreen({ goBack, award }: Props) {
+  const [quiz, setQuiz] = useState(false);
+  if (quiz)
+    return (
+      <LessonQuiz
+        screenId="diminutives"
+        statKind="lc"
+        questions={LESSON_QUIZ_BANKS['diminutives']!}
+        xp={20}
+        questKind="grammar"
+        award={award ?? (() => {})}
+        goBack={goBack}
+        title="🐣 Umanjenice check"
+      />
+    );
   return (
     <div className="scr-wrap">
       {H('🐣 Umanjenice', 'Diminutives — making things small & cute', goBack)}
@@ -36,6 +53,13 @@ function DiminutivesScreen({ goBack }: Props) {
           </button>
         );
       })}
+      <button
+        className="b bp"
+        style={{ width: '100%', marginTop: 16 }}
+        onClick={() => setQuiz(true)}
+      >
+        📝 Take the comprehension check
+      </button>
     </div>
   );
 }
