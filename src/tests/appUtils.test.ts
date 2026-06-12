@@ -230,6 +230,19 @@ describe('updateStreak', () => {
     expect(stored.count).toBe(2);
     expect(stored.last).toBe('2026-04-19');
   });
+
+  it('maintains nh_streak_days so the derived streak matches uStreak (single source of truth)', async () => {
+    const { computeStreak } = await import('../lib/streakDays');
+    // Legacy user with no day-set yet; migration seeds it on first activity.
+    localStorage.setItem('uStreak', JSON.stringify({ count: 3, last: '2026-04-18' }));
+    updateStreak('2026-04-19'); // consecutive → 4
+    const days = JSON.parse(localStorage.getItem('nh_streak_days') || '{}');
+    const uStreak = JSON.parse(localStorage.getItem('uStreak') || '{}');
+    expect(days['2026-04-19']).toBe(true); // today recorded in the set
+    // The set-derived streak agrees with the stored count (no drift between sources).
+    expect(computeStreak(days, '2026-04-19')).toEqual({ count: uStreak.count, last: '2026-04-19' });
+    expect(uStreak.count).toBe(4);
+  });
 });
 
 // ─── getStreakFreezes + earnFreeze + spendFreeze ───────────────────────────────
