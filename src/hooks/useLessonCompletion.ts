@@ -1,6 +1,9 @@
 // src/hooks/useLessonCompletion.ts
-import { passedLesson } from '../lib/lessonGate';
-import { markQuest } from '../lib/quests';
+// Passive-lesson completion gate (PRs #36–#38). Now a thin wrapper over the single
+// completion authority `completeExercise` (src/hooks/useExerciseCompletion.ts): it passes
+// the lesson's explicit statKind/questKind and the legacy 'lesson' award activityType so
+// behavior is byte-identical to the original gated implementation.
+import { completeExercise } from './useExerciseCompletion';
 
 // Structural minimum the gate touches; the real Stats type satisfies this, so the
 // generic S below lets completeLesson accept useStats()'s full Stats updater unchanged.
@@ -26,20 +29,17 @@ interface CompleteArgs<S extends LessonStats> {
 // passed (>=75%). Idempotent: no double credit if screenId already in vs. Returns
 // { passed } so the caller can show pass/fail + Retry UI.
 export function completeLesson<S extends LessonStats>(args: CompleteArgs<S>): { passed: boolean } {
-  const { screenId, statKind, score, total, xp, questKind, stats, setStats, writeDelta, award } =
-    args;
-  const passed = passedLesson(score, total);
-  if (!passed) return { passed: false };
-  if (stats.vs?.includes(screenId)) return { passed: true }; // already credited
-  setStats((prev) => {
-    if (prev.vs?.includes(screenId)) return prev;
-    const vs = [...(prev.vs || []), screenId];
-    return statKind === 'lc'
-      ? { ...prev, vs, lc: (prev.lc || 0) + 1 }
-      : { ...prev, vs, gc: (prev.gc || 0) + 1 };
+  return completeExercise({
+    key: args.screenId,
+    score: args.score,
+    total: args.total,
+    xp: args.xp,
+    stats: args.stats,
+    setStats: args.setStats,
+    writeDelta: args.writeDelta,
+    award: args.award,
+    statKind: args.statKind,
+    questKind: args.questKind,
+    activityType: 'lesson',
   });
-  if (writeDelta) writeDelta({ [statKind]: 1, vs: [screenId] });
-  if (award) award(xp, false, 'lesson');
-  if (questKind) markQuest(questKind);
-  return { passed: true };
 }
