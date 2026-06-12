@@ -182,6 +182,14 @@ export function buildProgressSnapshot({
         return {};
       }
     })(),
+    // Active-day set — the canonical streak source; union-merged across devices.
+    nh_streak_days: (() => {
+      try {
+        return JSON.parse(localStorage.getItem('nh_streak_days') || '{}');
+      } catch {
+        return {};
+      }
+    })(),
     nh_used_free_repair: localStorage.getItem('nh_used_free_repair') === '1',
     // ── Earn-back streak data ─────────────────────────────────────────────────
     nh_earn_back: (() => {

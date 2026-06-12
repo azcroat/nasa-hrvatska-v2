@@ -8,6 +8,26 @@
  */
 import type { CSSProperties } from 'react';
 import { localDateStr } from './dateUtils';
+import { addDay, seedDaysFromStreak, type DaySet } from './streakDays';
+
+// ─── Active-day set (canonical streak source; union-merged across devices) ─────
+const STREAK_DAYS_KEY = 'nh_streak_days';
+
+function readStreakDays(): DaySet {
+  try {
+    return JSON.parse(localStorage.getItem(STREAK_DAYS_KEY) || '{}') as DaySet;
+  } catch {
+    return {};
+  }
+}
+
+function writeStreakDays(days: DaySet): void {
+  try {
+    localStorage.setItem(STREAK_DAYS_KEY, JSON.stringify(days));
+  } catch {
+    /* quota/disabled */
+  }
+}
 
 // ─── Daily XP goal ───────────────────────────────────────────────────────────
 // Default goal — used when user hasn't completed onboarding
@@ -142,6 +162,13 @@ export function updateStreak(
 ): StreakData & { milestone: number | null; freezeUsed?: boolean } {
   const s = getStreak();
   const today = todayOverride || localDateStr();
+  // Maintain the canonical active-day set in lockstep. Seed from the legacy
+  // {count,last} the first time (migration) so no existing streak history is lost,
+  // then mark today (and any freeze-bridged day) so cross-device merges reconcile
+  // from a complete set. uStreak below stays the derived cache displays read.
+  let _days = readStreakDays();
+  if (Object.keys(_days).length === 0)
+    _days = seedDaysFromStreak(_days, s.count || 0, s.last || '');
   const yd = new Date(today + 'T00:00:00');
   yd.setDate(yd.getDate() - 1);
   const yesterday =
@@ -158,6 +185,7 @@ export function updateStreak(
         localStorage.setItem('nh_earn_back', JSON.stringify(eb));
       }
     } catch {}
+    writeStreakDays(addDay(_days, today)); // already active today; keep the set in sync
     return { ...s, milestone: null };
   }
   let milestone: number | null = null;
@@ -197,6 +225,10 @@ export function updateStreak(
       s.last = today;
     }
   }
+  // Mirror today (and the freeze-bridged missed day) into the active-day set.
+  _days = addDay(_days, today);
+  if (freezeUsed) _days = addDay(_days, yesterday);
+  writeStreakDays(_days);
   localStorage.setItem('uStreak', JSON.stringify(s));
   return { ...s, milestone, freezeUsed };
 }

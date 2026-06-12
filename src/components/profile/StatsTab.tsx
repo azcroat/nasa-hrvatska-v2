@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getStreak, getSR } from '../../data';
+import { localDateStr } from '../../lib/dateUtils';
 import { getStyleLabel, getStylePreferences } from '../../lib/learnerStyle.js';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
@@ -49,7 +50,9 @@ function getSessionStreak(): number {
     let streak = 0;
     const d = new Date();
     while (true) {
-      const key = d.toISOString().slice(0, 10);
+      // Session history is keyed by LOCAL date (recordSessionComplete); read it the
+      // same way. Using toISOString (UTC) here mis-keyed days near midnight/timezones.
+      const key = localDateStr(d);
       if (!history[key]) break;
       streak++;
       d.setDate(d.getDate() - 1);
@@ -71,7 +74,7 @@ function getLast7SessionDays(): Array<{ date: string; done: boolean }> {
     for (let i = 6; i >= 0; i--) {
       const dd = new Date(d);
       dd.setDate(d.getDate() - i);
-      const key = dd.toISOString().slice(0, 10);
+      const key = localDateStr(dd); // local-date key to match recordSessionComplete
       days.push({ date: key, done: !!history[key] });
     }
     return days;

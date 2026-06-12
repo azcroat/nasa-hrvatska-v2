@@ -158,14 +158,12 @@ export default function HomeTab({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const weekXP = useMemo(() => getWeekXP(), [st]);
 
-  const streak = useMemo(() => {
-    const s = getStreak();
-    // st.str is always correctly Math.max-merged from Firestore via mergeStatsFromRemote.
-    // uStreak localStorage may lag behind (e.g. applyRemoteProgress hasn't fired yet, or
-    // the device just came online). Always display the maximum of both sources so the UI
-    // is never lower than what Firebase confirmed.
-    return { ...s, count: Math.max(s.count || 0, st.str || 0) };
-  }, [st]);
+  // uStreak is the canonical derived streak (union-merged active-day set; kept correct
+  // cross-device by applyRemoteProgress/updateStreak). Do NOT Math.max with st.str — that
+  // is independently merged and can be stale-inflated, which made the displayed streak
+  // diverge across devices. `st` dep only forces a re-render when stats change.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const streak = useMemo(() => getStreak(), [st]);
 
   // Track the current calendar day — updates when the app regains visibility so
   // word-of-day and phrase-of-day refresh automatically after midnight.
