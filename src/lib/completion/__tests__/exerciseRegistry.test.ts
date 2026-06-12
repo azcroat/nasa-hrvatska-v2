@@ -28,6 +28,25 @@ describe('EXERCISE_COMPLETION', () => {
     }
   });
 
+  it('activity/quest match the source drills (locks Phase-2 corrections)', () => {
+    // (key → [questKind, activityType]) verified against each component's award/markQuest.
+    const expected: Record<string, [string, string]> = {
+      collocations: ['vocab', 'vocabulary'],
+      typing: ['vocab', 'vocabulary'],
+      translate: ['vocab', 'grammar'],
+      wordsprint: ['grammar', 'vocabulary'],
+      'word-families': ['grammar', 'grammar'],
+      boje: ['vocab', 'vocabulary'],
+      znam: ['vocab', 'vocabulary'],
+      match: ['vocab', 'vocabulary'],
+      aspect: ['grammar', 'grammar'],
+    };
+    for (const [k, [q, a]] of Object.entries(expected)) {
+      expect(EXERCISE_COMPLETION[k]?.questKind, `${k} questKind`).toBe(q);
+      expect(EXERCISE_COMPLETION[k]?.activityType, `${k} activityType`).toBe(a);
+    }
+  });
+
   it('covers the lesson keys gated by PRs #36–#38', () => {
     for (const k of [
       'declension',

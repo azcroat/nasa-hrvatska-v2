@@ -34,6 +34,8 @@ interface CompleteExerciseArgs<S extends MinStats> {
   statKind?: StatKind;
   questKind?: string;
   activityType?: string;
+  /** Pass-through to award()'s celebrate flag (e.g. SentenceTile fires confetti). */
+  celebrate?: boolean;
 }
 
 export function completeExercise<S extends MinStats>(
@@ -61,7 +63,7 @@ export function completeExercise<S extends MinStats>(
     return next;
   });
   if (writeDelta) writeDelta({ [statKind]: 1, vs: [vsKey] });
-  if (award) award(xp, false, activityType);
+  if (award) award(xp, args.celebrate ?? false, activityType);
   if (questKind) markQuest(questKind);
   return { passed: true };
 }
