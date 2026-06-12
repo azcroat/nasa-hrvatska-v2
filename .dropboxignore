@@ -1,0 +1,21 @@
+# Dropbox should not sync generated / dependency / VCS artifacts.
+# These stay on disk so the app builds & runs; they're recreated on demand
+# (npm install / build / tests) and backed by GitHub — syncing them just
+# thrashes Dropbox and causes red-X sync errors (65k+ locked files).
+node_modules
+.git
+dist
+build
+.gradle
+.vite
+coverage
+playwright-report
+test-results
+.claude
+*.log
+# Capacitor native build output (keep the project source, drop the build dirs)
+android/app/build
+android/build
+android/.gradle
+ios/App/build
+ios/App/Pods
