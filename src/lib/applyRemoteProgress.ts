@@ -17,8 +17,9 @@
  */
 
 import { getSR, saveSR } from './srs.js';
-import { weekKey as _weekKey } from './dateUtils.js';
+import { weekKey as _weekKey, localDateStr } from './dateUtils.js';
 import { mergeRemoteCertifications } from './cefrCertification.js';
+import { mergeDaySets, computeStreak, seedDaysFromStreak, type DaySet } from './streakDays.js';
 
 export interface RemoteProgressSetters {
   setFavs: (favs: unknown[]) => void;
@@ -69,34 +70,48 @@ export function applyRemoteProgress(fp: any, setters: RemoteProgressSetters): vo
     saveSR(mSR);
   }
 
-  // ── Streak — Math.max merge: always take the higher count; most-recent last ─
-  // Rationale: mergeStatsFromRemote already does Math.max for stats.str (used by
-  // achievements and Firestore), but uStreak localStorage (used by getStreak() and
-  // buildProgressSnapshot) was only updated when the remote streak was "active" (last
-  // === today/yesterday). That gate caused divergence when two devices had different
-  // activity dates — one device's higher streak count was silently ignored on the other.
-  // Fix: always take Math.max of counts and the most-recent last date, matching the
-  // Math.max policy used for all other numeric stats.
-  if (fp.streak || (fp.stats as Record<string, unknown>)?.str) {
+  // ── Streak — reconcile via the UNION of active-day sets (cross-device-safe). ──
+  // A streak is one indivisible fact (count, last). The old merge took the higher
+  // count from one device and the most-recent `last` from another, independently —
+  // fabricating impossible states (a dead high count stamped with today's date),
+  // which inflated/diverged streaks across devices. Instead we union the per-device
+  // active-day SETS (idempotent + commutative → no contradictory state possible) and
+  // DERIVE the streak from the union. A legacy {count,last} on either side with no
+  // explicit set is reconstructed into a set first (migration), so nothing is lost.
+  if (fp.streak || fp.nh_streak_days || (fp.stats as Record<string, unknown>)?.str) {
+    const today = localDateStr();
     let lSt: { count: number; last: string } = { count: 0, last: '' };
     try {
       lSt = JSON.parse(localStorage.getItem('uStreak') || '{"count":0,"last":""}');
     } catch (_) {}
-    const remoteStreak = fp.streak as { count?: number; last?: string } | undefined;
-    // Also consult stats.str (set by mergeStatsFromRemote in _processSnapshot) as a
-    // source of truth — this ensures the streak count from the Firestore top-level
-    // stats field is also respected.
-    const fpCount = Math.max(
-      remoteStreak?.count || 0,
-      ((fp.stats as Record<string, unknown>)?.str as number) || 0,
-    );
-    const fpLast = remoteStreak?.last || '';
-    const newCount = Math.max(lSt.count || 0, fpCount);
-    // Take the most-recent "last" date so we never backdate activity
-    const newLast = fpLast > (lSt.last || '') ? fpLast : lSt.last || '';
-    if (newCount !== lSt.count || newLast !== lSt.last) {
-      localStorage.setItem('uStreak', JSON.stringify({ ...lSt, count: newCount, last: newLast }));
+
+    // Local active-day set (seed from legacy uStreak when absent).
+    let localDays: DaySet = {};
+    try {
+      localDays = JSON.parse(localStorage.getItem('nh_streak_days') || '{}') as DaySet;
+    } catch (_) {}
+    if (Object.keys(localDays).length === 0) {
+      localDays = seedDaysFromStreak(localDays, lSt.count || 0, lSt.last || '');
     }
+
+    // Remote active-day set (seed from remote streak/stats.str when absent).
+    let remoteDays: DaySet = (fp.nh_streak_days as DaySet) || {};
+    if (Object.keys(remoteDays).length === 0) {
+      const remoteStreak = fp.streak as { count?: number; last?: string } | undefined;
+      const remoteCount = Math.max(
+        remoteStreak?.count || 0,
+        ((fp.stats as Record<string, unknown>)?.str as number) || 0,
+      );
+      remoteDays = seedDaysFromStreak({}, remoteCount, remoteStreak?.last || '');
+    }
+
+    const mergedDays = mergeDaySets(localDays, remoteDays);
+    const derived = computeStreak(mergedDays, today);
+    localStorage.setItem('nh_streak_days', JSON.stringify(mergedDays));
+    localStorage.setItem(
+      'uStreak',
+      JSON.stringify({ ...lSt, count: derived.count, last: derived.last }),
+    );
   }
 
   // ── Streak freeze tokens — Math.max ───────────────────────────────────────

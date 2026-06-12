@@ -202,20 +202,16 @@ describe('applyRemoteProgress — streak restore', () => {
     expect(stored.count).toBe(10);
   });
 
-  it('takes higher count from remote even when remote streak.last is old (Math.max policy)', () => {
-    // New behaviour: streak count is always Math.max'd regardless of whether the remote
-    // "last" date is recent. This prevents cross-device sync failures where Desktop's
-    // higher count (last = a few days ago) was silently ignored on Mobile.
-    // The "last" date remains the most-recent of the two (local today wins here).
-    localStorage.setItem('uStreak', JSON.stringify({ count: 2, last: todayStr() }));
+  it('adopts a genuinely longer remote streak that is still alive (active-day union)', () => {
+    // The legit cross-device case the old Math.max policy meant to protect: another
+    // device built a real 10-day run ending today; this device only knows today.
+    // Union of active days → the real 10-day streak is preserved (no data loss).
+    localStorage.setItem('uStreak', JSON.stringify({ count: 1, last: todayStr() }));
     const setters = makeSetters();
-    const threeDaysAgo = new Date();
-    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-    const expiredDate = threeDaysAgo.toISOString().slice(0, 10);
-    applyRemoteProgress({ streak: { count: 30, last: expiredDate } }, setters);
+    applyRemoteProgress({ streak: { count: 10, last: todayStr() } }, setters);
     const stored = JSON.parse(localStorage.getItem('uStreak') || '{}');
-    expect(stored.count).toBe(30); // remote count wins (Math.max)
-    expect(stored.last).toBe(todayStr()); // local last wins (more recent)
+    expect(stored.count).toBe(10); // alive higher streak adopted
+    expect(stored.last).toBe(todayStr());
   });
 
   it('does NOT restore lower streak over higher local streak', () => {
@@ -224,6 +220,31 @@ describe('applyRemoteProgress — streak restore', () => {
     applyRemoteProgress({ streak: { count: 5, last: todayStr() } }, setters);
     const stored = JSON.parse(localStorage.getItem('uStreak') || '{}');
     expect(stored.count).toBe(15); // local wins
+  });
+
+  // ── REPRODUCTION: cross-device inflation bug ──────────────────────────────
+  // A dead remote streak (last advanced 3 days ago → gap > 1 = broken) must NOT
+  // resurrect its count onto the locally-active streak. Independent Math.max of
+  // (count) and most-recent (last) fabricates {30, today}, which never existed.
+  // Correct: the device active most recently owns the current streak as a UNIT.
+  it('does NOT resurrect a dead remote streak onto an active local one', () => {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const expired =
+      threeDaysAgo.getFullYear() +
+      '-' +
+      String(threeDaysAgo.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(threeDaysAgo.getDate()).padStart(2, '0');
+    // This device practiced TODAY; real current streak = 2.
+    localStorage.setItem('uStreak', JSON.stringify({ count: 2, last: todayStr() }));
+    const setters = makeSetters();
+    // Other device had a 30-streak that DIED 3 days ago.
+    applyRemoteProgress({ streak: { count: 30, last: expired } }, setters);
+    const stored = JSON.parse(localStorage.getItem('uStreak') || '{}');
+    // The current streak is 2 (active today). 30 is a dead historical streak.
+    expect(stored.last).toBe(todayStr());
+    expect(stored.count).toBe(2); // ← currently FAILS: code yields 30 (inflation bug)
   });
 });
 
