@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
 import { useStats } from '../../context/StatsContext.tsx';
-import { markQuest } from '../../lib/quests.js';
+import { completeLesson } from '../../hooks/useLessonCompletion';
+import { LESSON_PASS_THRESHOLD } from '../../lib/lessonGate';
 
 interface QuizQuestion {
   q: string;
@@ -64,17 +65,19 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
         ([i, v]) => v === questions[i as unknown as number]?.a,
       ).length;
       setScore(pts);
-      if (award) {
-        award(pts * 5, false, 'grammar');
-        markQuest('grammar');
-      }
-      if (!stats.vs?.includes('conditional')) {
-        setStats((prev) => {
-          if (prev.vs?.includes('conditional')) return prev;
-          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'conditional'] };
-        });
-        if (writeDelta) writeDelta({ gc: 1, vs: ['conditional'] });
-      }
+      // Gated: credit + completion only at >=75% (completeLesson). Below → no credit; retry.
+      completeLesson({
+        screenId: 'conditional',
+        statKind: 'gc',
+        score: pts,
+        total: questions.length,
+        xp: pts * 5,
+        questKind: 'grammar',
+        stats,
+        setStats,
+        writeDelta,
+        award,
+      });
     }
   }
 
@@ -152,24 +155,43 @@ function QuizBlock({ questions, award }: QuizBlockProps) {
           </div>
         );
       })}
-      {score !== null && (
-        <div
-          style={{
-            margin: '16px 0',
-            padding: '14px 18px',
-            background: score >= questions.length * 0.8 ? '#dcfce7' : '#fef3c7',
-            borderRadius: 14,
-            textAlign: 'center',
-            fontWeight: 700,
-            fontSize: 16,
-            color: score >= questions.length * 0.8 ? '#14532d' : '#92400e',
-          }}
-        >
-          {score >= questions.length * 0.8 ? '🌟 ' : '💪 '}
-          {score}/{questions.length} —{' '}
-          {score >= questions.length * 0.8 ? 'Excellent!' : 'Keep practising!'}
-        </div>
-      )}
+      {score !== null &&
+        (() => {
+          const passed = score >= questions.length * LESSON_PASS_THRESHOLD;
+          return (
+            <div style={{ margin: '16px 0' }}>
+              <div
+                style={{
+                  padding: '14px 18px',
+                  background: passed ? '#dcfce7' : '#fef3c7',
+                  borderRadius: 14,
+                  textAlign: 'center',
+                  fontWeight: 700,
+                  fontSize: 16,
+                  color: passed ? '#14532d' : '#92400e',
+                }}
+              >
+                {passed ? '🌟 ' : '💪 '}
+                {score}/{questions.length} —{' '}
+                {passed
+                  ? 'Passed — lesson complete!'
+                  : `Not passed — need ${Math.round(LESSON_PASS_THRESHOLD * 100)}%. Review and try again.`}
+              </div>
+              {!passed && (
+                <button
+                  className="b bp"
+                  style={{ width: '100%', marginTop: 10 }}
+                  onClick={() => {
+                    setAnswers({});
+                    setScore(null);
+                  }}
+                >
+                  ↻ Try again
+                </button>
+              )}
+            </div>
+          );
+        })()}
     </div>
   );
 }
