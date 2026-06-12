@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
-import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { rnd } from '../../lib/random.js';
 
 function shLocal(a: any[]) {
@@ -172,6 +172,7 @@ export default function GenitiveDrill({ goBack, award }: Props) {
   const [chosen, setChosen] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
+  const [passed, setPassed] = useState(false);
 
   const cur = q[idx]!;
   const answered = chosen !== null;
@@ -186,15 +187,17 @@ export default function GenitiveDrill({ goBack, award }: Props) {
     if (idx + 1 >= total) {
       if (!finishFired.current) {
         finishFired.current = true;
-        if (award) award(score * 5, false, 'grammar');
-        markQuest('grammar');
-        if (!stats.vs?.includes('genitive')) {
-          setStats((prev) => {
-            if (prev.vs?.includes('genitive')) return prev;
-            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'genitive'] };
-          });
-          if (writeDelta) writeDelta({ gc: 1, vs: ['genitive'] });
-        }
+        const res = completeExercise({
+          key: 'genitive',
+          score,
+          total,
+          xp: score * 5,
+          stats,
+          setStats,
+          writeDelta,
+          award,
+        });
+        setPassed(res.passed);
       }
       setDone(true);
     } else {
@@ -203,23 +206,42 @@ export default function GenitiveDrill({ goBack, award }: Props) {
     }
   }
 
+  function restart() {
+    finishFired.current = false;
+    setIdx(0);
+    setChosen(null);
+    setScore(0);
+    setPassed(false);
+    setDone(false);
+  }
+
   if (done) {
     return (
       <div className="scr-wrap">
         {H('📖 Genitive Case', 'Possession, partitive, negation, prepositions', goBack)}
         <div className="c" style={{ marginTop: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>{passed ? '🎉' : '📚'}</div>
           <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
             {score} / {total}
           </div>
           <div style={{ fontSize: 15, color: '#64748b', marginBottom: 16 }}>
-            {score === total
-              ? 'Perfect! Genitive mastered! 🏆'
-              : score >= total * 0.8
-                ? 'Great work! Genitive is essential!'
-                : 'Keep practising — genitive shapes possession, partitive, and negation!'}
+            {passed
+              ? score === total
+                ? 'Perfect! Genitive mastered! 🏆'
+                : 'Great work! Genitive is essential!'
+              : 'You need 75% to complete this. Try again — genitive shapes possession, partitive, and negation!'}
           </div>
-          <button className="b bp" style={{ width: '100%' }} onClick={goBack}>
+          {!passed && (
+            <button
+              className="b bp"
+              data-testid="drill-retry"
+              style={{ width: '100%', marginBottom: 10 }}
+              onClick={restart}
+            >
+              🔁 Try again
+            </button>
+          )}
+          <button className={passed ? 'b bp' : 'b bs'} style={{ width: '100%' }} onClick={goBack}>
             ← Back
           </button>
         </div>
