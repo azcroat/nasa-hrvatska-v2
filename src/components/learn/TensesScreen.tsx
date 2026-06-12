@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
 import { rnd } from '../../lib/random.js';
-import { markQuest } from '../../lib/quests.js';
+import { completeLesson } from '../../hooks/useLessonCompletion';
+import { LESSON_PASS_THRESHOLD } from '../../lib/lessonGate';
 import { useStats } from '../../context/StatsContext.tsx';
 
 interface TensesQ {
@@ -441,29 +442,36 @@ export default function TensesScreen({
                 <div style={{ fontSize: 32, fontWeight: 800, color: '#0e7490' }}>
                   {tnS} / {total}
                 </div>
+                <div style={{ fontSize: 13, color: '#78716c', margin: '8px 0 4px' }}>
+                  {tnS / total >= LESSON_PASS_THRESHOLD
+                    ? 'Passed — lesson complete!'
+                    : `Not passed — need ${Math.round(LESSON_PASS_THRESHOLD * 100)}%. Re-enter to try again.`}
+                </div>
                 <button
                   className="b bp"
                   style={{ marginTop: 16 }}
                   onClick={() => {
-                    if (finishFired.current) return;
-                    finishFired.current = true;
-                    markQuest('grammar');
-                    if (typeof award === 'function') award(tnS * 5, false, 'grammar');
-                    if (!stats.vs?.includes('tenses')) {
-                      setStats((prev) => {
-                        if (prev.vs?.includes('tenses')) return prev;
-                        return {
-                          ...prev,
-                          gc: (prev.gc || 0) + 1,
-                          vs: [...(prev.vs || []), 'tenses'],
-                        };
+                    // Gated: credit + completion only at >=75% (completeLesson). Below → exit
+                    // without credit; re-entering the lesson restarts the quiz to retry.
+                    if (!finishFired.current) {
+                      finishFired.current = true;
+                      completeLesson({
+                        screenId: 'tenses',
+                        statKind: 'gc',
+                        score: tnS,
+                        total,
+                        xp: tnS * 5,
+                        questKind: 'grammar',
+                        stats,
+                        setStats,
+                        writeDelta,
+                        award,
                       });
-                      if (writeDelta) writeDelta({ gc: 1, vs: ['tenses'] });
                     }
                     goBack();
                   }}
                 >
-                  🏠 Finish
+                  {tnS / total >= LESSON_PASS_THRESHOLD ? '🏠 Finish' : '↻ Exit & retry'}
                 </button>
               </div>
             );
