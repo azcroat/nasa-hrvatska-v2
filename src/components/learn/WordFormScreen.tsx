@@ -1,8 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { H, speak } from '../../data';
 import { WORDFORM } from '../../data';
+import LessonQuiz from './LessonQuiz';
+import { LESSON_QUIZ_BANKS } from '../../lib/lessonQuizBanks';
 
-function WordFormScreen({ goBack }: { goBack: () => void }) {
+interface Props {
+  goBack: () => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
+}
+function WordFormScreen({ goBack, award }: Props) {
+  const [quiz, setQuiz] = useState(false);
+  if (quiz)
+    return (
+      <LessonQuiz
+        screenId="wordform"
+        statKind="lc"
+        questions={LESSON_QUIZ_BANKS['wordform']!}
+        xp={20}
+        questKind="grammar"
+        award={award ?? (() => {})}
+        goBack={goBack}
+        title="🧩 Word Formation check"
+      />
+    );
   return (
     <div className="scr-wrap">
       {H('🧩 Word Formation', 'How prefixes build Croatian vocabulary', goBack)}
@@ -98,6 +118,13 @@ function WordFormScreen({ goBack }: { goBack: () => void }) {
           </div>
         );
       })}
+      <button
+        className="b bp"
+        style={{ width: '100%', marginTop: 16 }}
+        onClick={() => setQuiz(true)}
+      >
+        📝 Take the comprehension check
+      </button>
     </div>
   );
 }

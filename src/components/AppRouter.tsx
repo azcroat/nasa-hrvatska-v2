@@ -1136,7 +1136,7 @@ export default function AppRouter(props: Record<string, any>) {
         )}
         {currentScreen === 'aspect' && (
           <ScreenErrorBoundary key="aspect" name="aspect">
-            <AspectScreen goBack={goBack} />
+            <AspectScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'grammarvideos' && (
@@ -1199,12 +1199,12 @@ export default function AppRouter(props: Record<string, any>) {
         )}
         {currentScreen === 'diminutives' && (
           <ScreenErrorBoundary key="diminutives" name="diminutives">
-            <DiminutivesScreen goBack={goBack} />
+            <DiminutivesScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'wordform' && (
           <ScreenErrorBoundary key="wordform" name="wordform">
-            <WordFormScreen goBack={goBack} />
+            <WordFormScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'colorquirk' && (
@@ -1269,7 +1269,7 @@ export default function AppRouter(props: Record<string, any>) {
         )}
         {currentScreen === 'phonology' && (
           <ScreenErrorBoundary key="phonology" name="phonology">
-            <PhonologyScreen goBack={goBack} />
+            <PhonologyScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'typing' && (

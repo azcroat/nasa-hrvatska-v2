@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { speak } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
+import LessonQuiz from './LessonQuiz';
+import { LESSON_QUIZ_BANKS } from '../../lib/lessonQuizBanks';
 
 interface PhonExample {
   hr: string;
@@ -225,16 +227,43 @@ const QUIZ_SECTION = ({ quiz, accent }: { quiz: PhonQuizItem[]; accent: string }
   );
 };
 
-function PhonologyScreen({ goBack }: { goBack: () => void }) {
+function PhonologyScreen({
+  goBack,
+  award,
+}: {
+  goBack: () => void;
+  award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
+}) {
   const { grammar, loading, error } = useGrammar();
   const [tab, setTab] = useState('Letters');
   const [selLetter, setSelLetter] = useState<number | null>(null);
+  const [quiz, setQuiz] = useState(false);
+  if (quiz)
+    return (
+      <LessonQuiz
+        screenId="phonology"
+        statKind="lc"
+        questions={LESSON_QUIZ_BANKS['phonology']!}
+        xp={20}
+        questKind="grammar"
+        award={award ?? (() => {})}
+        goBack={goBack}
+        title="🔤 Phonology check"
+      />
+    );
   if (error) return <ErrorState message="Couldn't load grammar - please retry." />;
   if (loading || !grammar) return <LoadingState />;
   const d = grammar.PHONOLOGY as unknown as PhonologyShape;
   return (
     <WRAP>
       <BACK_BTN goBack={goBack} />
+      <button
+        className="b bp"
+        style={{ width: '100%', marginBottom: 12 }}
+        onClick={() => setQuiz(true)}
+      >
+        📝 Take the comprehension check
+      </button>
       <HERO icon="🔤" title={d.title} subtitle={d.intro} color="#b45309" />
       <TIP_BOX text={d.tip} />
       <TAB_NAV
