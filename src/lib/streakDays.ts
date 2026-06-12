@@ -38,6 +38,22 @@ export function mergeDaySets(a: DaySet, b: DaySet): DaySet {
 }
 
 /**
+ * Migration: reconstruct a day-set from a legacy {count, last} summary by marking
+ * `count` consecutive local days ending at `last`. Unions into `set` (no day lost).
+ * No-op when count<=0 or last is empty.
+ */
+export function seedDaysFromStreak(set: DaySet, count: number, last: string): DaySet {
+  if (!last || !(count > 0)) return set;
+  const out: DaySet = { ...set };
+  let d = last;
+  for (let i = 0; i < count; i++) {
+    out[d] = true;
+    d = prevDay(d);
+  }
+  return out;
+}
+
+/**
  * Derive the streak from the active-day set as of `today` (local 'YYYY-MM-DD').
  * - count = length of the consecutive run of active days ending at today, or at
  *   yesterday when today isn't active yet (the streak is still alive until tomorrow).

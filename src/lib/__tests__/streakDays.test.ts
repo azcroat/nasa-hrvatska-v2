@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { addDay, mergeDaySets, computeStreak, type DaySet } from '../streakDays';
+import {
+  addDay,
+  mergeDaySets,
+  computeStreak,
+  seedDaysFromStreak,
+  type DaySet,
+} from '../streakDays';
 
 // Helpers to build local-date strings relative to a fixed anchor day.
 function shift(day: string, delta: number): string {
@@ -64,6 +70,26 @@ describe('computeStreak', () => {
     // today present, yesterday MISSING, day-2 present → run ending today is just {today}
     const s = set(TODAY, shift(TODAY, -2), shift(TODAY, -3));
     expect(computeStreak(s, TODAY)).toEqual({ count: 1, last: TODAY });
+  });
+
+  it('round-trips a seeded streak: seed then compute returns the same count/last', () => {
+    // Migration: reconstruct the day-set from a legacy {count,last}, lose nothing.
+    const seeded = seedDaysFromStreak({}, 5, TODAY);
+    expect(Object.keys(seeded).length).toBe(5);
+    expect(computeStreak(seeded, TODAY)).toEqual({ count: 5, last: TODAY });
+  });
+
+  it('seedDaysFromStreak is a no-op for a zero/empty streak', () => {
+    expect(seedDaysFromStreak({}, 0, '')).toEqual({});
+    expect(seedDaysFromStreak({}, 3, '')).toEqual({});
+  });
+
+  it('seeding unions into an existing set without dropping days', () => {
+    const existing = set(shift(TODAY, -10));
+    const seeded = seedDaysFromStreak(existing, 2, TODAY);
+    expect(seeded[shift(TODAY, -10)]).toBe(true); // preserved
+    expect(seeded[TODAY]).toBe(true);
+    expect(seeded[shift(TODAY, -1)]).toBe(true);
   });
 
   it('cross-device union: active-today ∪ dead-30-streak → current streak, never inflated', () => {
