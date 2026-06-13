@@ -3,7 +3,7 @@ import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak, sh } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
 import { recordTopicResult } from '../../lib/adaptive.js';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 
 interface ConjVerb {
   inf: string;
@@ -155,19 +155,16 @@ export default function ConjugationDrill({ goBack, award }: Props) {
                     onClick={() => {
                       if (finishFired.current) return;
                       finishFired.current = true;
-                      if (typeof award === 'function') award(cjS * 2 + 10, false, 'grammar');
-                      markQuest('grammar');
-                      if (!stats.vs?.includes('conjugation')) {
-                        setStats((prev) => {
-                          if (prev.vs?.includes('conjugation')) return prev;
-                          return {
-                            ...prev,
-                            gc: (prev.gc || 0) + 1,
-                            vs: [...(prev.vs || []), 'conjugation'],
-                          };
-                        });
-                        if (writeDelta) writeDelta({ gc: 1, vs: ['conjugation'] });
-                      }
+                      completeExercise({
+                        key: 'conjugation',
+                        score: cjS,
+                        total,
+                        xp: cjS * 2 + 10,
+                        stats,
+                        setStats,
+                        writeDelta,
+                        award,
+                      });
                       goBack();
                     }}
                   >

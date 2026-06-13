@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar } from '../../data';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
+import { passedLesson } from '../../lib/lessonGate';
 import { useStats } from '../../context/StatsContext';
 import { rnd } from '../../lib/random.js';
 function shLocal(a: any[]) {
@@ -221,30 +222,49 @@ export default function CollocationsGame({ goBack, award }: Props) {
           <div style={{ fontSize: 24, fontWeight: 900, color: '#d97706', margin: '8px 0 16px' }}>
             +{score * 5} XP
           </div>
-          <button
-            className="b bp"
-            onClick={() => {
-              if (finishFired.current) return;
-              finishFired.current = true;
-              if (typeof award === 'function') award(score * 5, false, 'vocabulary');
-              markQuest('vocab');
-              if (!stats.vs?.includes('collocations')) {
-                setStats((prev) => {
-                  if (prev.vs?.includes('collocations')) return prev;
-                  return {
-                    ...prev,
-                    gc: (prev.gc || 0) + 1,
-                    vs: [...(prev.vs || []), 'collocations'],
-                  };
+          {passedLesson(score, total) ? (
+            <button
+              className="b bp"
+              onClick={() => {
+                if (finishFired.current) return;
+                finishFired.current = true;
+                completeExercise({
+                  key: 'collocations',
+                  score,
+                  total,
+                  xp: score * 5,
+                  stats,
+                  setStats,
+                  writeDelta,
+                  award,
                 });
-                if (writeDelta) writeDelta({ gc: 1, vs: ['collocations'] });
-              }
-              goBack();
-            }}
-            style={{ width: '100%', marginTop: 16 }}
-          >
-            🏠 Done
-          </button>
+                goBack();
+              }}
+              style={{ width: '100%', marginTop: 16 }}
+            >
+              🏠 Done
+            </button>
+          ) : (
+            <>
+              <button
+                className="b bp"
+                data-testid="drill-retry"
+                style={{ width: '100%', marginTop: 16 }}
+                onClick={() => {
+                  finishFired.current = false;
+                  setIdx(0);
+                  setScore(0);
+                  setAnswered(false);
+                  setSelected(-1);
+                }}
+              >
+                🔁 Try again (need 75%)
+              </button>
+              <button className="b bs" style={{ width: '100%', marginTop: 10 }} onClick={goBack}>
+                ← Back
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

@@ -96,7 +96,9 @@ describe('TranslateDrillsScreen contract (Pattern X)', () => {
     );
   });
 
-  it('is idempotent — skips setStats/writeDelta when vs already has translate', async () => {
+  it('is idempotent — already-completed re-run writes nothing and does not re-award', async () => {
+    // completeExercise short-circuits when vs already has the key (no XP farming):
+    // no award, no markQuest, no setStats, no writeDelta on a repeat completion.
     const { default: TranslateDrillsScreen } =
       await import('../components/practice/TranslateDrillsScreen');
     const { value, setStats, writeDelta, award } = makeCtx(['translate']);
@@ -110,8 +112,8 @@ describe('TranslateDrillsScreen contract (Pattern X)', () => {
     fireEvent.click(screen.getByText('Bok'));
     fireEvent.click(screen.getByText(/See Results/));
 
-    expect(award).toHaveBeenCalled();
-    expect(markQuestMock).toHaveBeenCalledWith('vocab');
+    expect(award).not.toHaveBeenCalled();
+    expect(markQuestMock).not.toHaveBeenCalled();
     expect(setStats).not.toHaveBeenCalled();
     expect(writeDelta).not.toHaveBeenCalled();
   });
