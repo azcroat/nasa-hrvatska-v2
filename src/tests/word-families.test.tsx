@@ -50,6 +50,11 @@ vi.mock('firebase/firestore', () => ({
 const mockMarkQuest = vi.hoisted(() => vi.fn());
 vi.mock('../lib/quests.js', () => ({ markQuest: mockMarkQuest }));
 
+// rnd()=0.9999 freezes the shuffle to identity, so opts[0] === answer for every
+// question. Clicking the first option therefore scores 100% — clearing the 75%
+// completion gate so the "Done" / award / quest path is exercised.
+vi.mock('../lib/random.js', () => ({ rnd: () => 0.9999 }));
+
 // ── StatsContext mock ─────────────────────────────────────────────────────────
 vi.mock('../context/StatsContext', () => ({
   useStats: vi.fn(() => ({

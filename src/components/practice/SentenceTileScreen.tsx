@@ -11,7 +11,7 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { H, Bar } from '../../data';
 import { SENTBUILD } from '../../data';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { useStats } from '../../context/StatsContext';
 import { useHaptic } from '../../hooks/useHaptic';
 import { playCorrect, playWrong } from '../../lib/soundSettings.js';
@@ -158,15 +158,17 @@ export default function SentenceTileScreen({
     if (nextIdx >= questions.length) {
       if (!finishFired.current) {
         finishFired.current = true;
-        if (typeof award === 'function') award(score * 4 + 5, true, 'grammar');
-        markQuest('grammar');
-        if (!stats.vs?.includes('sentence-tile')) {
-          setStats((prev) => {
-            if (prev.vs?.includes('sentence-tile')) return prev;
-            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'sentence-tile'] };
-          });
-          if (writeDelta) writeDelta({ gc: 1, vs: ['sentence-tile'] });
-        }
+        completeExercise({
+          key: 'sentence-tile',
+          score,
+          total: questions.length,
+          xp: score * 4 + 5,
+          celebrate: true,
+          stats,
+          setStats,
+          writeDelta,
+          award,
+        });
       }
       setDone(true);
     } else {
