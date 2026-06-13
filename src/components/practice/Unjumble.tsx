@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, UNJUMBLE } from '../../data';
-import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 
 export default function Unjumble({
   goBack,
@@ -44,15 +44,16 @@ export default function Unjumble({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(xp, false, 'grammar');
-              markQuest('grammar');
-              if (!stats.vs?.includes('unjumble')) {
-                setStats((prev) => {
-                  if (prev.vs?.includes('unjumble')) return prev;
-                  return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'unjumble'] };
-                });
-                if (writeDelta) writeDelta({ gc: 1, vs: ['unjumble'] });
-              }
+              completeExercise({
+                key: 'unjumble',
+                score: ujS,
+                total,
+                xp,
+                stats,
+                setStats,
+                writeDelta,
+                award,
+              });
               goBack();
             }}
           >

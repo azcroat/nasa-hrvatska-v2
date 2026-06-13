@@ -14,20 +14,26 @@ const source = readFileSync(
 );
 
 describe('SentenceTileScreen — contract clauses (Pattern Y)', () => {
-  it('fires markQuest("grammar") on completion', () => {
-    expect(source).toMatch(/markQuest\(['"]grammar['"]\)/);
+  // Completion now routes through the single authority completeExercise, which owns
+  // the 75% gate, idempotent vs write, gc increment, XP award and quest mark. The
+  // gate/idempotency logic itself is unit-tested in useExerciseCompletion.test.ts.
+  it('routes completion through completeExercise with key "sentence-tile"', () => {
+    expect(source).toMatch(/completeExercise\(\{/);
+    expect(source).toMatch(/key:\s*['"]sentence-tile['"]/);
   });
 
-  it('calls writeDelta with gc:1 and vs:["sentence-tile"]', () => {
-    expect(source).toMatch(/writeDelta\(\s*\{\s*gc:\s*1,\s*vs:\s*\[\s*['"]sentence-tile['"]\s*\]/);
+  it('passes score, total and xp to the gate', () => {
+    expect(source).toMatch(/score,/);
+    expect(source).toMatch(/total:\s*questions\.length/);
+    expect(source).toMatch(/xp:\s*score\s*\*\s*4\s*\+\s*5/);
   });
 
-  it('calls setStats and increments gc by 1, appends "sentence-tile" to vs', () => {
-    expect(source).toMatch(/gc:\s*\(prev\.gc\s*\|\|\s*0\)\s*\+\s*1/);
-    expect(source).toMatch(/vs:\s*\[\.\.\.\(prev\.vs\s*\|\|\s*\[\]\),\s*['"]sentence-tile['"]\]/);
+  it('preserves the completion celebration (celebrate: true)', () => {
+    expect(source).toMatch(/celebrate:\s*true/);
   });
 
-  it('guards against duplicate first-time award (vs.includes check)', () => {
-    expect(source).toMatch(/vs\?\.includes\(['"]sentence-tile['"]\)/);
+  it('no longer hand-rolls the vs/gc/award write (single authority)', () => {
+    expect(source).not.toMatch(/markQuest\(/);
+    expect(source).not.toMatch(/vs:\s*\[\.\.\.\(prev\.vs/);
   });
 });

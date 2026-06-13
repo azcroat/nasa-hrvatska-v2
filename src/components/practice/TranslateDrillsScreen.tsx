@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef } from 'react';
 import { sh } from '../../data';
 import { TRANSLATE_DRILLS, C1_DRILLS } from '../../data/exercises.js';
 import { recordTopicResult } from '../../lib/adaptive.js';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { useStats } from '../../context/StatsContext';
 
 const CEFR_COLORS = { A2: '#16a34a', B1: '#d97706', B2: '#7c3aed', C1: '#be123c' };
@@ -34,6 +34,7 @@ export default function TranslateDrillsScreen({
   const [chosen, setChosen] = useState<string | null>(null); // option string user tapped
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
+  const [passed, setPassed] = useState(false);
 
   const drill = drills[idx]!;
   const isCorrect = chosen === drill?.hr;
@@ -50,16 +51,17 @@ export default function TranslateDrillsScreen({
     if (idx + 1 >= drills.length) {
       if (!finishFired.current) {
         finishFired.current = true;
-        const xp = Math.round((score / drills.length) * 20);
-        if (typeof award === 'function') award(xp, false, 'grammar');
-        markQuest('vocab');
-        if (!stats.vs?.includes('translate')) {
-          setStats((prev) => {
-            if (prev.vs?.includes('translate')) return prev;
-            return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'translate'] };
-          });
-          if (writeDelta) writeDelta({ gc: 1, vs: ['translate'] });
-        }
+        const res = completeExercise({
+          key: 'translate',
+          score,
+          total: drills.length,
+          xp: Math.round((score / drills.length) * 20),
+          stats,
+          setStats,
+          writeDelta,
+          award,
+        });
+        setPassed(res.passed);
       }
       setDone(true);
     } else {
@@ -96,6 +98,32 @@ export default function TranslateDrillsScreen({
               ? 'Solid work — keep going.'
               : 'Review the sentences and try again.'}
         </p>
+        {!passed && (
+          <button
+            data-testid="drill-retry"
+            onClick={() => {
+              finishFired.current = false;
+              setChosen(null);
+              setIdx(0);
+              setScore(0);
+              setPassed(false);
+              setDone(false);
+            }}
+            style={{
+              background: '#16a34a',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 12,
+              padding: '14px 32px',
+              fontSize: 16,
+              fontWeight: 600,
+              cursor: 'pointer',
+              marginBottom: 12,
+            }}
+          >
+            🔁 Try again (need 75%)
+          </button>
+        )}
         <button
           onClick={goBack}
           style={{
