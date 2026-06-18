@@ -2,13 +2,15 @@ import React from 'react';
 import { lXP, nXP, getStreak } from '../../lib/appUtils.js';
 import CroatianGrb from './CroatianGrb';
 
+// `label` is the ACCESSIBLE NAME (kept stable for e2e/a11y selectors); `cro` is
+// the visible Croatian primary, `sub` the visible English. See TabBar.tsx for rationale.
 const TABS = [
-  { id: 'home', label: 'Today' },
-  { id: 'learn', label: 'Learn' },
-  { id: 'practice', label: 'Practice' },
-  { id: 'ai', label: 'AI Tutor' },
-  { id: 'croatia', label: 'Croatia' },
-  { id: 'profile', label: 'Me' },
+  { id: 'home', label: 'Today', cro: 'Dom', sub: 'Home' },
+  { id: 'learn', label: 'Learn', cro: 'Učenje', sub: 'Learn' },
+  { id: 'practice', label: 'Practice', cro: 'Grad', sub: 'Practice' },
+  { id: 'ai', label: 'AI Tutor', cro: 'Razgovor', sub: 'Talk' },
+  { id: 'croatia', label: 'Croatia', cro: 'Hrvatska', sub: 'Discover' },
+  { id: 'profile', label: 'Me', cro: 'Ja', sub: 'Me' },
 ];
 
 function NavIcon({ id, active }: { id: string; active: boolean }) {
@@ -483,6 +485,7 @@ export default function Sidebar({
               setTab(t.id);
             }}
             aria-current={tab === t.id ? 'page' : undefined}
+            aria-label={t.label}
           >
             <span
               style={{
@@ -495,7 +498,12 @@ export default function Sidebar({
             >
               <NavIcon id={t.id} active={tab === t.id} />
             </span>
-            <span style={{ flex: 1 }}>{t.label}</span>
+            <span style={{ flex: 1 }}>
+              {t.cro}
+              <span style={{ fontSize: 11, opacity: 0.55, fontWeight: 600, marginLeft: 6 }}>
+                {t.sub}
+              </span>
+            </span>
             {badges && (badges[t.id] ?? 0) > 0 && <span className="sb-badge">{badges[t.id]}</span>}
           </button>
         ))}

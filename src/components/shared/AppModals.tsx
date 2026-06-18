@@ -5,11 +5,6 @@
  * Every modal here is conditionally rendered; none affect the page layout.
  */
 import React, { lazy, Suspense, useState } from 'react';
-import type { Stats } from '../../types';
-import CelebrationModal from './CelebrationModal';
-import StreakMilestoneModal from './StreakMilestoneModal';
-import CeremonyModal from './CeremonyModal';
-import LevelUpModal from './LevelUpModal';
 import OnboardingTour from './OnboardingTour';
 import PremiumWelcomeBanner from './PremiumWelcomeBanner';
 // speak is lazy-loaded on first use — audio.js lives in chunk-data (loaded with first screen)
@@ -31,16 +26,6 @@ const PaywallScreen = lazy(() => import('./PaywallScreen'));
 const NO_WEAK_SKILLS: SkillKey[] = [];
 
 interface AppModalsProps {
-  // Celebration / gamification
-  showCelebration: boolean;
-  setShowCelebration: (v: boolean) => void;
-  celebXP: number;
-  streakMilestone: number | null;
-  setStreakMilestone: (v: number | null) => void;
-  ceremonyType: string | null;
-  setCeremonyType: (v: string | null) => void;
-  levelUpData: { level: number } | null;
-  setLevelUpData: (v: { level: number } | null) => void;
   // First words
   showFirstWords: boolean;
   setShowFirstWords: (v: boolean) => void;
@@ -58,28 +43,15 @@ interface AppModalsProps {
   // Premium welcome
   showPremiumWelcome: boolean;
   setShowPremiumWelcome: (v: boolean) => void;
-  // Shared data for modal content
-  stats: Stats;
-  lt: unknown;
+  // Navigation
   setScr: (v: string) => void;
   setTab: (v: string) => void;
-  name: string;
   // Checkpoint flow
   checkpointCertifiedLevel: CefrLevel;
   checkpointActiveDayCount: number;
 }
 
 export function AppModals({
-  // Celebration / gamification
-  showCelebration,
-  setShowCelebration,
-  celebXP,
-  streakMilestone,
-  setStreakMilestone,
-  ceremonyType,
-  setCeremonyType,
-  levelUpData,
-  setLevelUpData,
   // First words
   showFirstWords,
   setShowFirstWords,
@@ -97,12 +69,9 @@ export function AppModals({
   // Premium welcome
   showPremiumWelcome,
   setShowPremiumWelcome,
-  // Shared data for modal content
-  stats,
-  lt,
+  // Navigation
   setScr,
   setTab,
-  name,
   // Checkpoint flow
   checkpointCertifiedLevel,
   checkpointActiveDayCount,
@@ -144,33 +113,6 @@ export function AppModals({
 
   return (
     <Suspense fallback={null}>
-      {showCelebration && (
-        <CelebrationModal
-          xp={celebXP}
-          onClose={() => setShowCelebration(false)}
-          streak={stats.str || 0}
-          lessonTopic={typeof lt === 'string' ? lt : ''}
-          onNext={() => {
-            setShowCelebration(false);
-            setScr('dashboard');
-            setTimeout(() => setTab('learn'), 300);
-          }}
-        />
-      )}
-      {streakMilestone && (
-        <StreakMilestoneModal days={streakMilestone} onClose={() => setStreakMilestone(null)} />
-      )}
-      {ceremonyType && (
-        <CeremonyModal
-          type={ceremonyType}
-          stats={stats}
-          name={name}
-          onClose={() => setCeremonyType(null)}
-        />
-      )}
-      {levelUpData && (
-        <LevelUpModal level={levelUpData.level} onClose={() => setLevelUpData(null)} />
-      )}
       {showFirstWords && (
         <div
           style={{
