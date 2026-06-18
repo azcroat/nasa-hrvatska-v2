@@ -68,7 +68,6 @@ import { useStats } from '../../context/StatsContext';
 import { safeGetItem } from '../../hooks/useLocalStorage';
 import GoalSetterModal from '../shared/GoalSetterModal';
 import { shouldShowGoalModal } from '../../lib/onboardingGates';
-import StreakMilestoneToast, { checkAndMarkMilestone } from '../shared/StreakMilestoneToast';
 import WelcomeBackBanners from './WelcomeBackBanners';
 import { useDailySession } from '../../hooks/useDailySession';
 import { getUserCefr } from '../../lib/cefr';
@@ -220,14 +219,6 @@ export default function HomeTab({
     dismissed: goalModalDismissed,
     hasGoalSet: !!localStorage.getItem('nh_goal_set'),
   });
-
-  // Streak milestone celebration — fires once per milestone level
-  const [streakMilestone, setStreakMilestone] = useState<number | null>(null);
-  useEffect(() => {
-    if (streak.count > 0 && checkAndMarkMilestone(streak.count)) {
-      setStreakMilestone(streak.count);
-    }
-  }, [streak.count]);
 
   const questsDone = useMemo(() => {
     const d = localDateStr();
@@ -444,14 +435,6 @@ export default function HomeTab({
     <React.Fragment>
       {/* ── GOAL SETTER MODAL (genuinely new users only — see showGoalModal gating) ── */}
       {showGoalModal && <GoalSetterModal onComplete={() => setGoalModalDismissed(true)} />}
-
-      {/* ── STREAK MILESTONE CELEBRATION ── */}
-      {streakMilestone && (
-        <StreakMilestoneToast
-          streakCount={streakMilestone}
-          onDismiss={() => setStreakMilestone(null)}
-        />
-      )}
 
       {/* ── WELCOME BACK / COMEBACK BANNERS ── */}
       <WelcomeBackBanners comebackBonus={comebackBonus ?? false} longAbsence={longAbsence} />

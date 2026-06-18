@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import SearchModal from './SearchModal';
 
+// `label` is the ACCESSIBLE NAME (aria-label) and is kept stable on purpose:
+// several e2e specs and a11y checks select tabs by these names. These MUST match
+// Sidebar.tsx's labels exactly (e.g. e2e uses name:'Croatia', exact). `cro` is the
+// visible Croatian primary; `sub` is the visible English subtitle. Renaming the
+// visible text without touching the accessible name = visible rebrand, zero test churn.
 const TABS = [
-  { id: 'home', label: 'Today' },
-  { id: 'learn', label: 'Learn' },
-  { id: 'practice', label: 'Practice' },
-  { id: 'ai', label: 'AI Tutor' },
-  { id: 'croatia', label: 'Discover Croatia' },
-  { id: 'profile', label: 'Me' },
+  { id: 'home', label: 'Today', cro: 'Dom', sub: 'Home' },
+  { id: 'learn', label: 'Learn', cro: 'Učenje', sub: 'Learn' },
+  { id: 'practice', label: 'Practice', cro: 'Grad', sub: 'Practice' },
+  { id: 'ai', label: 'AI Tutor', cro: 'Razgovor', sub: 'Talk' },
+  { id: 'croatia', label: 'Croatia', cro: 'Hrvatska', sub: 'Discover' },
+  { id: 'profile', label: 'Me', cro: 'Ja', sub: 'Me' },
 ];
 
 function NavIcon({ id, active }: { id: string; active: boolean }) {
@@ -204,10 +209,6 @@ function NavIcon({ id, active }: { id: string; active: boolean }) {
 // wrap or render any tab content. To animate tab switches, apply the `.tab-enter`
 // CSS class (defined in index.css) to the content wrapper in App.jsx whenever the
 // active tab changes (e.g. via a `key={tab}` prop or a className toggle).
-const TAB_SUBTITLES: Record<string, string | undefined> = {
-  learn: 'Lessons',
-  practice: 'Drills',
-};
 
 export default function TabBar({
   tab,
@@ -333,25 +334,23 @@ export default function TabBar({
                     marginTop: 3,
                     transition: 'color .18s, font-weight .18s, letter-spacing .18s ease',
                     letterSpacing: isActive ? '.02em' : '.01em',
-                    lineHeight: TAB_SUBTITLES[t.id] ? 1.15 : undefined,
+                    lineHeight: 1.15,
                   }}
                 >
-                  {t.label}
-                  {TAB_SUBTITLES[t.id] && (
-                    <span
-                      style={{
-                        fontSize: 9,
-                        display: 'block',
-                        color: 'inherit',
-                        opacity: 0.7,
-                        lineHeight: 1,
-                        fontWeight: isActive ? 700 : 500,
-                        letterSpacing: '.01em',
-                      }}
-                    >
-                      {TAB_SUBTITLES[t.id]}
-                    </span>
-                  )}
+                  {t.cro}
+                  <span
+                    style={{
+                      fontSize: 9,
+                      display: 'block',
+                      color: 'inherit',
+                      opacity: 0.7,
+                      lineHeight: 1,
+                      fontWeight: isActive ? 700 : 500,
+                      letterSpacing: '.01em',
+                    }}
+                  >
+                    {t.sub}
+                  </span>
                 </span>
                 {t.id === 'croatia' && croatiaHasNew && tab !== 'croatia' && (
                   <div

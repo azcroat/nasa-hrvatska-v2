@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { weekKey } from '../../lib/dateUtils';
 import ProfileHeader from './ProfileHeader';
 import StatsTab from './StatsTab';
 import InsightsTab from './InsightsTab';
 import SettingsTab from './SettingsTab';
-import PrestigeModal from './PrestigeModal';
 import ClanCard from '../home/ClanCard';
 import EquivalencyTestCard from './EquivalencyTestCard';
 import { useApp } from '../../context/AppContext';
-import { useStats } from '../../context/StatsContext';
 import type { CefrLevel } from '../../lib/cefr';
 
 export default function ProfileTab({
@@ -27,10 +24,7 @@ export default function ProfileTab({
   userEligible?: CefrLevel;
 }) {
   const { au: authUser } = useApp();
-  const { setStats } = useStats();
   const [ptab, setPTab] = useState('stats');
-  const [showPrestigeModal, setShowPrestigeModal] = useState(false);
-  const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
 
   React.useEffect(() => {
     // Apply font size on mount
@@ -98,7 +92,7 @@ export default function ProfileTab({
       {/* ── STATS TAB ── */}
       {ptab === 'stats' && (
         <>
-          <StatsTab onShowPrestigeModal={() => setShowPrestigeModal(true)} onSyncNow={onSyncNow} />
+          <StatsTab onSyncNow={onSyncNow} />
           {onTakeEquivalencyTest && userEligible && (
             <EquivalencyTestCard userEligible={userEligible} onTakeTest={onTakeEquivalencyTest} />
           )}
@@ -117,28 +111,6 @@ export default function ProfileTab({
 
       {/* ── SETTINGS TAB ── */}
       {ptab === 'settings' && <SettingsTab syncReady={syncReady} onSyncNow={onSyncNow} />}
-
-      {/* ── PRESTIGE MODAL ── */}
-      {showPrestigeModal && (
-        <PrestigeModal
-          onClose={() => setShowPrestigeModal(false)}
-          onConfirm={() => {
-            const newPrestige = prestigeLevel + 1;
-            localStorage.setItem('nh_prestige', String(newPrestige));
-            localStorage.setItem('nh_xp', '0');
-            // Reset the weekly XP counter so "This Week" shows 0 after prestige,
-            // consistent with stats.xp resetting to 0.
-            try {
-              localStorage.setItem('nh_week_xp_' + weekKey(), '0');
-            } catch {}
-            setStats((prev) => ({ ...prev, xp: 0 }));
-            setShowPrestigeModal(false);
-            setTimeout(() => {
-              if (onSyncNow) onSyncNow();
-            }, 0);
-          }}
-        />
-      )}
     </React.Fragment>
   );
 }

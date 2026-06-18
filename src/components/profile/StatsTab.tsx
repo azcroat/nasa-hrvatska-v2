@@ -83,17 +83,9 @@ function getLast7SessionDays(): Array<{ date: string; done: boolean }> {
   }
 }
 
-export default function StatsTab({
-  onShowPrestigeModal,
-  onSyncNow,
-}: {
-  onShowPrestigeModal?: () => void;
-  onSyncNow?: () => void;
-}) {
+export default function StatsTab({ onSyncNow }: { onSyncNow?: () => void }) {
   const { favs, setScr } = useApp();
   const { stats: st } = useStats();
-
-  const prestigeLevel = parseInt(localStorage.getItem('nh_prestige') || '0', 10);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const streak = useMemo(() => getStreak(), [st]);
@@ -446,7 +438,6 @@ export default function StatsTab({
                     style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)', fontWeight: 600 }}
                   >
                     {cefr.label}
-                    {prestigeLevel > 0 ? ` · ${'✦'.repeat(prestigeLevel)} Prestige` : ''}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -631,70 +622,6 @@ export default function StatsTab({
           </>
         );
       })()}
-
-      {/* ── PRESTIGE ── */}
-      {(st.lc || 0) >= 30 && (
-        <div
-          style={{
-            background: 'var(--card)',
-            border: '1.5px solid var(--card-b)',
-            borderRadius: 18,
-            padding: '18px',
-            marginBottom: 16,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              marginBottom: prestigeLevel > 0 ? 12 : 0,
-            }}
-          >
-            <div style={{ fontSize: 'var(--text-3xl)' }}>{prestigeLevel > 0 ? '✦' : '🏆'}</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 'var(--text-md)', fontWeight: 900, color: 'var(--heading)' }}>
-                {prestigeLevel > 0
-                  ? `Prestige ${prestigeLevel} — ${'✦'.repeat(prestigeLevel)}`
-                  : 'Ready to Prestige?'}
-              </div>
-              <div
-                style={{
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--subtext)',
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  marginTop: 2,
-                }}
-              >
-                {prestigeLevel > 0
-                  ? 'You have prestiged. Your dedication to Croatian is legendary.'
-                  : 'Reset your XP counter and earn the ✦ Prestige badge — wear it as a mark of dedication. Stage 6 "Naš Čovjek" is in development and will be unlocked for prestige members first.'}
-              </div>
-            </div>
-          </div>
-          {prestigeLevel === 0 && (
-            <button
-              onClick={onShowPrestigeModal}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: 12,
-                border: 'none',
-                cursor: 'pointer',
-                background: 'linear-gradient(135deg,var(--lavender, #7c3aed),#4c1d95)',
-                color: 'var(--card)',
-                fontWeight: 800,
-                fontSize: 'var(--text-base)',
-                fontFamily: "'Outfit',sans-serif",
-                marginTop: 12,
-              }}
-            >
-              ✦ Prestige Now
-            </button>
-          )}
-        </div>
-      )}
 
       {/* ── MY COLLECTION ── */}
       <h3 className="sh">My Collection</h3>

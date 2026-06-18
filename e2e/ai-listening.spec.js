@@ -96,7 +96,12 @@ test.describe('AIListeningScreen', () => {
       'Grad',
     ];
     for (const topic of topicTexts) {
-      await expect(page.locator('button').filter({ hasText: topic })).toBeVisible({
+      // Scope to content buttons — exclude the nav (TabBar .nav-btn / Sidebar .sb-btn).
+      // Croatian nav labels (e.g. "Grad") now collide with topic text under a bare
+      // button hasText filter, causing strict-mode violations.
+      await expect(
+        page.locator('button:not(.nav-btn):not(.sb-btn)').filter({ hasText: topic }),
+      ).toBeVisible({
         timeout: 5_000,
       });
     }
