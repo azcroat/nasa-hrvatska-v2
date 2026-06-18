@@ -58,7 +58,6 @@ import { useAndroidBackButton } from './hooks/useAndroidBackButton.js';
 import LoginScreen from './components/auth/LoginScreen';
 import ResetPassword from './components/auth/ResetPassword';
 import XPPopup from './components/shared/XPPopup';
-import BadgeToast from './components/shared/BadgeToast';
 import TabBar from './components/shared/TabBar';
 import Sidebar from './components/shared/Sidebar';
 import OfflineBanner from './components/shared/OfflineBanner';
@@ -66,7 +65,6 @@ import CookieConsent from './components/shared/CookieConsent';
 import CroatianGrb from './components/shared/CroatianGrb';
 import { AppToasts } from './components/shared/AppToasts';
 import { AppModals } from './components/shared/AppModals';
-import KnightCompanion from './components/shared/KnightCompanion';
 import AppRouter from './components/AppRouter';
 import DesktopPanel from './components/shared/DesktopPanel';
 
@@ -534,16 +532,6 @@ function App() {
     award,
     comebackBonus,
     setComebackBonus,
-    showCelebration,
-    setShowCelebration,
-    celebXP,
-    setCelebXP: _setCelebXP,
-    streakMilestone,
-    setStreakMilestone,
-    ceremonyType,
-    setCeremonyType,
-    levelUpData,
-    setLevelUpData,
     freezeUsedToast,
     setFreezeUsedToast: _setFreezeUsedToast,
     earnBackPrompt,
@@ -554,8 +542,6 @@ function App() {
     setTtsFailedToast,
     showXP,
     xpA,
-    nB,
-    sB,
   } = useAward({ curEx, stats, setStats, writeDelta });
 
   // ── applyRemoteProgress: merge Firestore snapshot into local state ──────────
@@ -1847,17 +1833,7 @@ function App() {
               }
             >
               <XPPopup showXP={showXP} xpA={xpA} />
-              <BadgeToast show={sB} badge={nB} />
               <AppModals
-                showCelebration={showCelebration}
-                setShowCelebration={setShowCelebration}
-                celebXP={celebXP}
-                streakMilestone={streakMilestone}
-                setStreakMilestone={setStreakMilestone}
-                ceremonyType={ceremonyType}
-                setCeremonyType={setCeremonyType}
-                levelUpData={levelUpData}
-                setLevelUpData={setLevelUpData}
                 showFirstWords={showFirstWords}
                 setShowFirstWords={setShowFirstWords}
                 onboarded={onboarded}
@@ -1871,11 +1847,8 @@ function App() {
                 refreshSub={refreshSub}
                 showPremiumWelcome={showPremiumWelcome}
                 setShowPremiumWelcome={setShowPremiumWelcome}
-                stats={stats}
-                lt={lt}
                 setScr={setScr}
                 setTab={setTab}
-                name={name}
                 checkpointCertifiedLevel={certifiedLevel}
                 checkpointActiveDayCount={checkpointActiveDayCount}
               />
@@ -2003,7 +1976,6 @@ function App() {
                   <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />
                 )}
 
-              <KnightCompanion />
               <OfflineBanner />
               <CookieConsent />
             </Suspense>
