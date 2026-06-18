@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import SearchModal from './SearchModal';
 
 // `label` is the ACCESSIBLE NAME (aria-label) and is kept stable on purpose:
-// several e2e specs and a11y checks select tabs by these names. `cro` is the
+// several e2e specs and a11y checks select tabs by these names. These MUST match
+// Sidebar.tsx's labels exactly (e.g. e2e uses name:'Croatia', exact). `cro` is the
 // visible Croatian primary; `sub` is the visible English subtitle. Renaming the
 // visible text without touching the accessible name = visible rebrand, zero test churn.
 const TABS = [
@@ -10,7 +11,7 @@ const TABS = [
   { id: 'learn', label: 'Learn', cro: 'Učenje', sub: 'Learn' },
   { id: 'practice', label: 'Practice', cro: 'Grad', sub: 'Practice' },
   { id: 'ai', label: 'AI Tutor', cro: 'Razgovor', sub: 'Talk' },
-  { id: 'croatia', label: 'Discover Croatia', cro: 'Hrvatska', sub: 'Discover' },
+  { id: 'croatia', label: 'Croatia', cro: 'Hrvatska', sub: 'Discover' },
   { id: 'profile', label: 'Me', cro: 'Ja', sub: 'Me' },
 ];
 

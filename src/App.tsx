@@ -65,6 +65,7 @@ import CookieConsent from './components/shared/CookieConsent';
 import CroatianGrb from './components/shared/CroatianGrb';
 import { AppToasts } from './components/shared/AppToasts';
 import { AppModals } from './components/shared/AppModals';
+import KnightCompanion from './components/shared/KnightCompanion';
 import AppRouter from './components/AppRouter';
 import DesktopPanel from './components/shared/DesktopPanel';
 
@@ -1976,6 +1977,7 @@ function App() {
                   <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />
                 )}
 
+              <KnightCompanion />
               <OfflineBanner />
               <CookieConsent />
             </Suspense>
