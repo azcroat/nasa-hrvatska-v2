@@ -57,3 +57,58 @@ describe('Grad place registry', () => {
     for (const id of catalogIds) expect(covered.has(id)).toBe(true);
   });
 });
+
+import { itemsForPlace, placeStats, recommendedVisit } from './gradModel';
+
+function ctx(overrides = {}) {
+  return {
+    exercises,
+    extras: {
+      quiz: noop,
+      flash: noop,
+      match: noop,
+      listen: noop,
+      speaking: noop,
+      scr: () => noop,
+    },
+    userCefr: 'B2',
+    recs: { dueReviews: 0, weakCount: 0, isNewUser: false, userGoal: null },
+    queue: [],
+    ...overrides,
+  };
+}
+
+describe('gradModel', () => {
+  it("itemsForPlace returns only that place's items (catalog + extras)", () => {
+    const kavana = itemsForPlace('kavana', ctx());
+    const ids = kavana.map((i) => i.id);
+    expect(ids).toContain('restaurant'); // catalog
+    expect(ids).toContain('speaking'); // extra
+    expect(ids).not.toContain('grammarmap'); // belongs to soba
+  });
+
+  it('marks CEFR-locked items locked but still includes them', () => {
+    const soba = itemsForPlace('soba', ctx({ userCefr: 'A1' }));
+    // 'future' has a standard CEFR (B1) so it locks at A1. (Non-standard tags
+    // like 'B1+' fail-open in isUnlocked, so they would not be a valid probe.)
+    const future = soba.find((i) => i.id === 'future');
+    expect(future).toBeDefined();
+    expect(future?.locked).toBe(true);
+  });
+
+  it('placeStats counts totals and locked', () => {
+    const s = placeStats('kuhinja', ctx({ userCefr: 'A1' }));
+    expect(s.total).toBeGreaterThan(0);
+    expect(s.lockedCount).toBeGreaterThanOrEqual(0);
+  });
+
+  it('recommendedVisit prefers SRS-due, else falls back to a free-day visit', () => {
+    const due = recommendedVisit(
+      ctx({ recs: { dueReviews: 6, weakCount: 0, isNewUser: false, userGoal: null } }),
+    );
+    expect(due.exerciseId).toBe('srsreview');
+    const free = recommendedVisit(ctx()); // nothing due
+    expect(free.exerciseId).toBeTruthy();
+    expect(typeof free.launch).toBe('function');
+  });
+});
