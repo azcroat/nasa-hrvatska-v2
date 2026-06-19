@@ -1,10 +1,95 @@
 import React from 'react';
+import CharacterPortrait from '../family/CharacterPortrait';
 import { PLACES, type PlaceId } from './places';
-import { itemsForPlace, type ModelCtx } from './gradModel';
+import { itemsForPlace, placeStats, type ModelCtx, type GradItem } from './gradModel';
 
-// NOTE: minimal placeholder — Task 5 replaces this with the host-hero interior
-// (port of place-interior-v2.html) + subgroups + locked teasers. Kept
-// functional so GradTab compiles and can open a place.
+// Per-place hero scene assets (only kavana has bespoke art so far; other places
+// use a tinted gradient banner — bespoke per-place scenes are a follow-up).
+const SCENES: Partial<Record<PlaceId, string>> = {
+  kavana: `${import.meta.env.BASE_URL}images/grad-kavana.svg`,
+};
+
+const GREETINGS: Record<PlaceId, { hr: string; en: string }> = {
+  kavana: {
+    hr: 'Dobrodošao natrag! Sjedni, idemo naručiti.',
+    en: "Welcome back! Sit down, let's order.",
+  },
+  trznica: { hr: 'Svježe riječi za danas — dođi!', en: 'Fresh words today — come in!' },
+  soba: {
+    hr: 'Spreman za vježbu? Otvori bilježnicu.',
+    en: 'Ready to practise? Open your notebook.',
+  },
+  kuhinja: { hr: 'Sjedni, ispričat ću ti priču.', en: "Sit, I'll tell you a story." },
+  ulica: { hr: 'Uskači, naučit ću te ulični govor.', en: "Hop in, I'll teach you street talk." },
+  trg: { hr: 'Dođi na Trg — vrijeme je za igru!', en: 'Come to the Square — time to play!' },
+};
+
+function ExerciseRow({ item }: { item: GradItem }) {
+  return (
+    <button
+      onClick={item.locked ? undefined : () => item.launch()}
+      disabled={item.locked}
+      style={{
+        width: '100%',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        background: 'var(--card)',
+        border: '1px solid var(--card-b)',
+        borderRadius: 14,
+        padding: '12px 13px',
+        marginBottom: 9,
+        cursor: item.locked ? 'default' : 'pointer',
+        opacity: item.locked ? 0.62 : 1,
+        fontFamily: "'Outfit',sans-serif",
+        boxShadow: '0 1px 3px rgba(0,0,0,.05)',
+      }}
+    >
+      <span
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 11,
+          flex: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 21,
+          background: item.locked ? '#ece6d9' : 'rgba(14,116,144,.10)',
+        }}
+      >
+        {item.icon}
+      </span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontSize: 14, fontWeight: 800, color: 'var(--heading)' }}>
+          {item.label}
+        </span>
+        {item.desc && (
+          <span style={{ display: 'block', fontSize: 11, color: 'var(--subtext)', marginTop: 1 }}>
+            {item.desc} · {item.cefr}
+          </span>
+        )}
+      </span>
+      {item.locked && (
+        <span
+          style={{
+            flex: 'none',
+            background: '#ece6d9',
+            color: '#8a7f68',
+            borderRadius: 8,
+            padding: '3px 8px',
+            fontSize: 10,
+            fontWeight: 800,
+          }}
+        >
+          🔒 {item.cefr}
+        </span>
+      )}
+    </button>
+  );
+}
+
 export default function PlaceScreen({
   placeId,
   ctx,
@@ -16,15 +101,255 @@ export default function PlaceScreen({
 }) {
   const place = PLACES.find((p) => p.id === placeId)!;
   const items = itemsForPlace(placeId, ctx);
+  const stats = placeStats(placeId, ctx);
+  const greeting = GREETINGS[placeId];
+  const scene = SCENES[placeId];
+  const recommended = items.find((i) => !i.locked);
+
   return (
     <div data-testid="place-screen">
-      <button onClick={onBack}>← Grad</button>
-      <h2>{place.name}</h2>
-      {items.map((i) => (
-        <button key={i.id} disabled={i.locked} onClick={i.launch}>
-          {i.icon} {i.label}
+      {/* back bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <button
+          onClick={onBack}
+          style={{
+            background: 'var(--bar-bg)',
+            border: '1px solid var(--card-b)',
+            borderRadius: 10,
+            fontSize: 12,
+            fontWeight: 800,
+            color: '#0e7490',
+            padding: '6px 11px',
+            cursor: 'pointer',
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          ← Grad
         </button>
-      ))}
+        <span
+          style={{
+            fontFamily: "'Playfair Display',serif",
+            fontSize: 16,
+            fontWeight: 800,
+            color: 'var(--heading)',
+          }}
+        >
+          {place.name}
+        </span>
+      </div>
+
+      {/* hero */}
+      <div
+        style={{
+          position: 'relative',
+          height: 150,
+          borderRadius: 18,
+          overflow: 'hidden',
+          marginBottom: 14,
+          background: scene
+            ? undefined
+            : `linear-gradient(135deg,${place.tint},rgba(14,116,144,.22))`,
+        }}
+      >
+        {scene && (
+          <img
+            src={scene}
+            alt={place.nameEn}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        )}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'flex-end',
+            gap: 12,
+            padding: '12px 14px',
+            background: 'linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(20,30,40,.5))',
+          }}
+        >
+          {place.host && (
+            <span
+              style={{
+                flex: 'none',
+                borderRadius: '50%',
+                padding: 3,
+                background: 'linear-gradient(135deg,#C8980A,#e0b84a)',
+                display: 'flex',
+              }}
+            >
+              <CharacterPortrait name={place.host} size={56} />
+            </span>
+          )}
+          <span style={{ flex: 1, color: '#fff' }}>
+            <span
+              style={{
+                display: 'block',
+                fontFamily: "'Playfair Display',serif",
+                fontSize: 16,
+                fontWeight: 800,
+                textShadow: '0 1px 4px rgba(0,0,0,.4)',
+              }}
+            >
+              {greeting.hr}
+            </span>
+            <span style={{ display: 'block', fontSize: 11, opacity: 0.85, marginTop: 2 }}>
+              {greeting.en}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      {/* progress */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          fontSize: 11.5,
+          color: 'var(--subtext)',
+          fontWeight: 600,
+          margin: '2px 2px 14px',
+        }}
+      >
+        <span>
+          {stats.done} od {stats.total}
+        </span>
+        {stats.due > 0 && <span>· {stats.due} za ponavljanje</span>}
+        {stats.lockedCount > 0 && <span>· {stats.lockedCount} zaključano</span>}
+      </div>
+
+      {/* Nastavi card */}
+      {recommended && (
+        <button
+          onClick={() => recommended.launch()}
+          style={{
+            width: '100%',
+            textAlign: 'left',
+            border: 'none',
+            cursor: 'pointer',
+            background: 'linear-gradient(140deg,#0e7490,#155e75)',
+            borderRadius: 18,
+            padding: 14,
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 13,
+            boxShadow: '0 8px 22px rgba(14,116,144,.3)',
+            marginBottom: 18,
+            fontFamily: "'Outfit',sans-serif",
+          }}
+        >
+          <span
+            style={{
+              width: 46,
+              height: 46,
+              borderRadius: 13,
+              background: 'rgba(255,255,255,.18)',
+              border: '1.5px solid rgba(255,255,255,.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 23,
+              flex: 'none',
+            }}
+          >
+            {recommended.icon}
+          </span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span
+              style={{
+                display: 'block',
+                fontSize: 9,
+                fontWeight: 900,
+                letterSpacing: '.12em',
+                textTransform: 'uppercase',
+                opacity: 0.7,
+              }}
+            >
+              Nastavi · preporučeno
+            </span>
+            <span
+              style={{
+                display: 'block',
+                fontSize: 15.5,
+                fontWeight: 900,
+                lineHeight: 1.2,
+                marginTop: 1,
+              }}
+            >
+              {recommended.label}
+            </span>
+          </span>
+          <span
+            style={{
+              flex: 'none',
+              background: 'rgba(255,255,255,.22)',
+              border: '1px solid rgba(255,255,255,.3)',
+              borderRadius: 10,
+              padding: '6px 11px',
+              fontSize: 12,
+              fontWeight: 800,
+            }}
+          >
+            Idemo →
+          </span>
+        </button>
+      )}
+
+      {/* exercise list */}
+      <div
+        style={{
+          fontSize: 10,
+          fontWeight: 900,
+          letterSpacing: '.14em',
+          textTransform: 'uppercase',
+          color: 'var(--subtext)',
+          margin: '2px 2px 10px',
+        }}
+      >
+        Vježbe ovdje
+      </div>
+
+      {place.subgroups ? (
+        place.subgroups.map((sg, idx) => {
+          const sgItems = items.filter((i) => i.subgroup === sg.key);
+          if (!sgItems.length) return null;
+          return (
+            <details key={sg.key} open={idx === 0} style={{ marginBottom: 10 }}>
+              <summary
+                style={{
+                  cursor: 'pointer',
+                  listStyle: 'none',
+                  fontSize: 13,
+                  fontWeight: 800,
+                  color: 'var(--heading)',
+                  padding: '8px 2px',
+                }}
+              >
+                {sg.label}{' '}
+                <span style={{ color: 'var(--subtext)', fontWeight: 600 }}>· {sgItems.length}</span>
+              </summary>
+              {sgItems.map((i) => (
+                <ExerciseRow key={i.id} item={i} />
+              ))}
+            </details>
+          );
+        })
+      ) : (
+        <>
+          {items.map((i) => (
+            <ExerciseRow key={i.id} item={i} />
+          ))}
+        </>
+      )}
     </div>
   );
 }

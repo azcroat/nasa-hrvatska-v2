@@ -1,0 +1,39 @@
+<svg viewBox="0 0 392 158" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d9b8"/><stop offset="1" stop-color="#e7c094"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a06a"/><stop offset="1" stop-color="#b78a52"/></linearGradient>
+  </defs>
+  <rect x="0" y="0" width="392" height="120" fill="url(#wall)"/>
+  <rect x="0" y="120" width="392" height="38" fill="url(#floor)"/>
+  <rect x="22" y="34" width="92" height="66" rx="3" fill="#bfe0e6"/>
+  <rect x="22" y="34" width="92" height="66" rx="3" fill="none" stroke="#9c7b50" stroke-width="3"/>
+  <line x1="68" y1="34" x2="68" y2="100" stroke="#9c7b50" stroke-width="2"/>
+  <line x1="22" y1="67" x2="114" y2="67" stroke="#9c7b50" stroke-width="2"/>
+  <rect x="10" y="30" width="10" height="74" rx="2" fill="#5d7f88"/>
+  <rect x="116" y="30" width="10" height="74" rx="2" fill="#5d7f88"/>
+  <g>
+    <rect x="138" y="26" width="232" height="26" fill="#D40030"/>
+    <g fill="#ffffff">
+      <rect x="138" y="26" width="29" height="26"/>
+      <rect x="196" y="26" width="29" height="26"/>
+      <rect x="254" y="26" width="29" height="26"/>
+      <rect x="312" y="26" width="29" height="26"/>
+    </g>
+    <polygon points="138,52 167,52 152.5,66" fill="#ffffff"/>
+    <polygon points="167,52 196,52 181.5,66" fill="#D40030"/>
+    <polygon points="196,52 225,52 210.5,66" fill="#ffffff"/>
+    <polygon points="225,52 254,52 239.5,66" fill="#D40030"/>
+    <polygon points="254,52 283,52 268.5,66" fill="#ffffff"/>
+    <polygon points="283,52 312,52 297.5,66" fill="#D40030"/>
+    <polygon points="312,52 341,52 326.5,66" fill="#ffffff"/>
+    <polygon points="341,52 370,52 355.5,66" fill="#D40030"/>
+  </g>
+  <ellipse cx="300" cy="116" rx="46" ry="11" fill="#7a5a36"/>
+  <rect x="297" y="116" width="6" height="30" fill="#6b4e2e"/>
+  <ellipse cx="300" cy="146" rx="22" ry="6" fill="#6b4e2e"/>
+  <ellipse cx="300" cy="110" rx="13" ry="5" fill="#fff"/><rect x="287" y="103" width="26" height="9" rx="2" fill="#fff"/>
+  <path d="M313 105 q9 1 9 6 q0 5 -9 5" fill="none" stroke="#fff" stroke-width="2.5"/>
+  <path d="M296 99 q-3 -6 1 -10 M303 99 q-3 -6 1 -10" stroke="#cdbba2" stroke-width="2" fill="none" opacity="0.8"/>
+  <rect x="150" y="98" width="20" height="22" rx="3" fill="#b5642f"/>
+  <ellipse cx="160" cy="92" rx="16" ry="14" fill="#4f7c54"/><ellipse cx="152" cy="90" rx="9" ry="11" fill="#5d8c62"/>
+</svg>
