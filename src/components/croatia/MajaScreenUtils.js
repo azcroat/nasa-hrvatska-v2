@@ -88,6 +88,17 @@ export const PERSONA_CONFIG = {
     listenColor: '#d97706',
     accentColor: '#b45309',
   },
+  cabbie: {
+    name: 'Ivo',
+    title: 'Taksist, Split',
+    avatar: '/images/portraits/ivo.webp',
+    fallbackEmoji: '🚕',
+    orbColor: '#2563eb',
+    thinkingColor: '#1d4ed8',
+    speakingColor: '#2563eb',
+    listenColor: '#3b82f6',
+    accentColor: '#2563eb',
+  },
 };
 
 export function getPersona() {

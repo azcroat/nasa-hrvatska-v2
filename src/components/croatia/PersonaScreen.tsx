@@ -52,6 +52,18 @@ const PERSONAS = [
     color: '#b45309',
     level: 'A1–B2',
   },
+  {
+    key: 'cabbie',
+    name: 'Ivo',
+    age: 52,
+    location: 'Split',
+    avatar: '/images/portraits/ivo.webp',
+    fallbackEmoji: '🚕',
+    specialty: '🚕 Taksist',
+    desc: 'Brz, duhovit, govori kako se priča na ulici.',
+    color: '#2563eb',
+    level: 'A2+',
+  },
 ];
 
 // ─────────────────────────────────────────────
