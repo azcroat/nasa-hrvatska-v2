@@ -17,7 +17,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, openAlat } from './fixtures/seed-auth.js';
 
 // ---------------------------------------------------------------------------
 // SSE response body — a complete single-event stream that signals a finished
@@ -91,18 +91,9 @@ async function mockConversationAPIs(page) {
 // hero + Croatia/Culture entry points were removed.
 // ---------------------------------------------------------------------------
 async function openAIConvoFromAITab(page) {
-  await page.goto('/ai');
-  // SW may trigger a reload while caching the AITab chunk on first run — absorb it
-  // before asserting navigation visibility, which briefly disappears during a reload.
-  await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
-  await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 20_000 });
-  // AITab is lazy-loaded and React.Suspense swaps the fallback for the real
-  // component once the chunk arrives; that swap can briefly invalidate any
-  // element handle resolved during the transient render. Wait for the
-  // button to be attached AND stable before any further action.
-  const aiHeroBtn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
-  await expect(aiHeroBtn).toBeVisible({ timeout: 20_000 });
-  await aiHeroBtn.click();
+  // Phase 7a: AI tab became Razgovor — the generic voice convo (aiconvo) now
+  // lives in the "Alati" shelf as "Brzi razgovor".
+  await openAlat(page, 'Brzi razgovor');
   // First-load of the lazy AIConversation chunk can be slow in CI.
   await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 20_000 });
 }
@@ -144,19 +135,14 @@ test.describe('Navigation — AI Conversations from AI Tutor tab', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 20_000 });
   });
 
-  test('AI Voice Conversation button is visible on the AI Tutor tab', async ({ page }) => {
-    // AITab is lazy-loaded; the React.Suspense fallback→component swap can
-    // detach a previously resolved element. Skip the manual scrollIntoView
-    // (Playwright's actionability check scrolls on demand anyway) and rely
-    // on toBeVisible's auto-retry to wait for a stable, attached element.
-    const btn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
-    await expect(btn).toBeVisible({ timeout: 15_000 });
+  test('Razgovor shows the family partners + Alati shelf', async ({ page }) => {
+    await expect(page.getByText('Danas', { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('S kim ćeš pričati?')).toBeVisible();
+    await expect(page.getByText(/AI alati/i)).toBeVisible();
   });
 
-  test('clicking AI Voice Conversation opens the AIConversation screen', async ({ page }) => {
-    const btn = page.locator('button').filter({ hasText: 'AI Voice Conversation' }).first();
-    await expect(btn).toBeVisible({ timeout: 15_000 });
-    await btn.click();
+  test('Brzi razgovor (Alati) opens the AIConversation screen', async ({ page }) => {
+    await openAlat(page, 'Brzi razgovor');
     // AIConversationHeader renders "Razgovor s Majom" in the hero
     await expect(page.getByText('Razgovor s Majom').first()).toBeVisible({ timeout: 10_000 });
   });

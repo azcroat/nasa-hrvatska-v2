@@ -3,7 +3,7 @@
 // SP5 — verifies the user-context payload is attached to a real /api/correct
 // POST. Drives the actual Writing screen UI via SP6/SP10 testids.
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, enterPartner } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 import { forceCefr } from './fixtures/forceCefr.js';
 
@@ -65,14 +65,9 @@ test.describe('SP5 — user-context payload at /api/correct', () => {
     // AI Writing Feedback now lives exclusively on the AI Tutor tab, so this
     // test navigates there directly instead of going through Practice →
     // Drill → Advanced (the writing card was removed from PracticeTab).
-    await page.goto('/ai');
-    await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-      timeout: 20_000,
-    });
-    const writingCard = page.locator('button').filter({ hasText: 'AI Writing Feedback' }).first();
-    await expect(writingCard).toBeVisible({ timeout: 20_000 });
-    await writingCard.click();
+    // Phase 7a: Writing feedback lives under prof. Kovač in Razgovor.
+    await enterPartner(page, 'prof. Kovač');
+    await page.getByText('Pošalji mi tekst').click();
     // Confirm WritingScreen mounted and textarea is interactable before fill —
     // card click triggers a lazy chunk; without this wait the fill can race
     // the React mount and the controlled-input state never registers the
