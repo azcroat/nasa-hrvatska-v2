@@ -72,6 +72,7 @@ import WelcomeBackBanners from './WelcomeBackBanners';
 import { useDailySession } from '../../hooks/useDailySession';
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
+import HostFamilyWelcome from './HostFamilyWelcome';
 import { getServableReviewCount } from '../../lib/srs';
 
 const LEVEL_PALETTE = [
@@ -496,23 +497,13 @@ export default function HomeTab({
         </div>
       )}
 
-      {/* ── KNIGHT GREETING ── */}
+      {/* ── HOST-FAMILY WELCOME ── */}
       {authUser && (
-        <div
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            color: 'var(--subtext)',
-            marginBottom: 12,
-            paddingLeft: 2,
-          }}
-        >
-          {(() => {
-            const h = new Date().getHours();
-            const g = h < 12 ? 'Dobro jutro' : h < 18 ? 'Dobar dan' : 'Dobra večer';
-            return `${g}, ${authUser.d || 'Learner'}! 👋`;
-          })()}
-        </div>
+        <HostFamilyWelcome
+          name={authUser.d || 'Learner'}
+          streakCount={streak.count}
+          dayIdx={currentDayIdx}
+        />
       )}
 
       {/* ── DAILY SESSION CARD ── */}
