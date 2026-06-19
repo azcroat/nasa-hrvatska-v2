@@ -8,7 +8,7 @@
  * Run: npx playwright test e2e/map-smoke.spec.js --project="Desktop Chrome"
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, openArcade } from './fixtures/seed-auth.js';
 
 test.describe('Map of Croatia — smoke', () => {
   test.beforeEach(async ({ page }) => {
@@ -19,15 +19,8 @@ test.describe('Map of Croatia — smoke', () => {
   });
 
   test('reach the Map from the Arcade and see restored regions', async ({ page }) => {
-    await page.goto('/practice');
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-      timeout: 10_000,
-    });
-
-    // Practice → Arcade (top card)
-    const arcadeCard = page.getByRole('button').filter({ hasText: 'Play Croatian as a game' });
-    await expect(arcadeCard).toBeVisible({ timeout: 8_000 });
-    await arcadeCard.click();
+    // Grad → Trg (games square) → Arcade hub
+    await openArcade(page);
 
     // Arcade → Your Croatia card
     const yourCroatia = page.getByTestId('arcade-your-croatia');

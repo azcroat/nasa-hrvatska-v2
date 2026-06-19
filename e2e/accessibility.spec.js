@@ -151,14 +151,11 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
     // Fix: wait for 'Daily Quests' to appear, then wait for the first 'Start →' button to
     // be visible (opacity > 0), then add an explicit 900ms wait that exceeds the longest
     // possible animation (700ms) before running axe.
+    // Phase 6: Practice became Grad — wait for the Today section to settle.
     await page.waitForFunction(
-      () => document.body.textContent?.includes('Daily Quests'),
+      () => document.body.textContent?.includes('Danas u gradu'),
       { timeout: 10_000 },
     ).catch(() => {});
-    // Wait for the first quest "Start →" button to be visible (its own animation done).
-    await page.getByRole('button', { name: 'Start →' }).first().waitFor({
-      state: 'visible', timeout: 5_000,
-    }).catch(() => {});
     // Explicit 900ms wait covers the last card's full animation (700ms) with a 200ms margin.
     // This is more reliable than getAnimations() which cannot detect delay-phase animations.
     await page.waitForTimeout(900);
