@@ -84,6 +84,20 @@ export async function blockFirebase(page) {
 }
 
 /**
+ * Launch a vocabulary lesson via the Browse modal.
+ *
+ * The Quick Vocab pills were removed from the Learn surface in the Ucenje
+ * redesign (Phase 5); vocabulary now lives in BrowseContentModal's Vocabulary
+ * section (open by default), where each category is a `button.tc`. Assumes the
+ * page is already on /learn with the calm surface loaded ("Your Path" visible).
+ */
+export async function startVocabLesson(page) {
+  await page.getByRole('button', { name: /Browse all lessons/ }).click();
+  await page.getByText('Browse All Content').waitFor({ state: 'visible', timeout: 10_000 });
+  await page.locator('#learn-section-vocabulary button.tc').first().click();
+}
+
+/**
  * Mock the MyMemory translation API used by Quick Translate.
  */
 export async function mockTranslate(page, translatedText = 'Dobar dan') {
