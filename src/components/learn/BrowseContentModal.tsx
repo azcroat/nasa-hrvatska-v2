@@ -974,6 +974,220 @@ export default function BrowseContentModal({
           </Section>
         </div>
 
+        {/* Pronunciation Lab */}
+        <div id="learn-section-pronunciation">
+          <Section title="Pronunciation Lab" icon="🎙️" count="3 courses" defaultOpen={false}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {tiles5([
+                [
+                  '🗣️',
+                  'Pronunciation Course',
+                  'Master Č, Š, Ž, LJ, NJ & the Croatian sounds',
+                  'pronunciation_course',
+                  () => {
+                    onClose();
+                    setScr('pronunciation_course');
+                  },
+                ],
+                [
+                  '🎵',
+                  'Pitch Accent',
+                  '4 accents — what no other app teaches',
+                  'pitch_accent',
+                  () => {
+                    onClose();
+                    setScr('pitch_accent');
+                  },
+                ],
+                [
+                  '🔤',
+                  'Phoneme Trainer',
+                  'Č vs Ć · Š Ž LJ NJ · train your ear',
+                  'phoneme_practice',
+                  () => {
+                    onClose();
+                    setScr('phoneme_practice');
+                  },
+                ],
+              ]).map(([icon, label, sub, key, fn]) => (
+                <button
+                  key={key}
+                  className="tc"
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 14,
+                    padding: '14px 16px',
+                    textAlign: 'left',
+                  }}
+                  onClick={fn}
+                >
+                  <span style={{ fontSize: 28, flexShrink: 0 }}>{icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 800,
+                        color: 'var(--heading)',
+                      }}
+                    >
+                      {label}
+                    </div>
+                    <div
+                      style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}
+                    >
+                      {sub}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Section>
+        </div>
+
+        {/* Learning Paths & Tracks */}
+        <div id="learn-section-paths">
+          <Section title="Learning Paths & Tracks" icon="🧭" count="10 tracks" defaultOpen={false}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {tiles5([
+                [
+                  '🎯',
+                  'AI Micro-Lesson',
+                  'Personalized 5-min lesson from your weak words',
+                  'micro_lesson',
+                  () => {
+                    onClose();
+                    setScr('micro_lesson');
+                  },
+                ],
+                [
+                  '⚙️',
+                  'Grammar Track A1→B2',
+                  '40 units · cases, tenses, aspect — alternative to Learn Path',
+                  'grammar_track',
+                  () => {
+                    onClose();
+                    setScr('grammar_track');
+                  },
+                ],
+                [
+                  '📖',
+                  'Graded Stories',
+                  'A1–B2 Croatian texts with audio & quiz',
+                  'graded_input',
+                  () => {
+                    onClose();
+                    setScr('graded_input');
+                  },
+                ],
+                [
+                  '🧬',
+                  'Heritage Path',
+                  'Grew up hearing Croatian? Start here.',
+                  'heritage_path',
+                  () => {
+                    onClose();
+                    setScr('heritage_path');
+                  },
+                ],
+                [
+                  '🌍',
+                  'Heritage Mode',
+                  'Diaspora learner? Identify your gaps',
+                  'heritage_mode',
+                  () => {
+                    onClose();
+                    setScr('heritage_mode');
+                  },
+                ],
+                [
+                  '🗺️',
+                  'Practical Croatian',
+                  'Shop · Doctor · Immigration & more',
+                  'practical_croatian',
+                  () => {
+                    onClose();
+                    setScr('practical_croatian');
+                  },
+                ],
+                [
+                  '📊',
+                  'Top 500 Croatian Words',
+                  'Master the words that make up 80% of everyday speech',
+                  'frequency_track',
+                  () => {
+                    onClose();
+                    setScr('frequency_track');
+                  },
+                ],
+                [
+                  '🎓',
+                  'B2+ Vocabulary',
+                  'Advanced themes: politics, tech, environment, idioms',
+                  'advanced_vocab',
+                  () => {
+                    onClose();
+                    setScr('advanced_vocab');
+                  },
+                ],
+                [
+                  '🗺️',
+                  'Grammar Map',
+                  'Navigate how all the grammar connects',
+                  'grammarmap',
+                  () => {
+                    onClose();
+                    setScr('grammarmap');
+                  },
+                ],
+                [
+                  '✍️',
+                  'Production Drill',
+                  'Build sentences from scratch — active recall',
+                  'production_drill',
+                  () => {
+                    onClose();
+                    setScr('production_drill');
+                  },
+                ],
+              ]).map(([icon, label, sub, key, fn]) => (
+                <button
+                  key={key}
+                  className="tc"
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 14,
+                    padding: '14px 16px',
+                    textAlign: 'left',
+                  }}
+                  onClick={fn}
+                >
+                  <span style={{ fontSize: 28, flexShrink: 0 }}>{icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 800,
+                        color: 'var(--heading)',
+                      }}
+                    >
+                      {label}
+                    </div>
+                    <div
+                      style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}
+                    >
+                      {sub}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Section>
+        </div>
+
         {/* Reference */}
         <Section title="Quick Reference" icon="📌" count="13 guides" defaultOpen={false}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>

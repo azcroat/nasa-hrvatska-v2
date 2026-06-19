@@ -4,7 +4,7 @@
  * Guards against the setSt prop regression and double-award bug.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent, TEST_EMAIL } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, startVocabLesson, TEST_EMAIL } from './fixtures/seed-auth.js';
 
 const INITIAL_XP = 250;
 
@@ -24,12 +24,12 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('lesson screen opens from vocabulary category', async ({ page }) => {
-    await page.locator('button.vocab-pill').first().click();
+    await startVocabLesson(page);
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
   });
 
   test('lesson shows word cards before quiz mode', async ({ page }) => {
-    await page.locator('button.vocab-pill').first().click();
+    await startVocabLesson(page);
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
     // Lesson word cards are div[role="button"] with pronunciation aria-label
     const card = page.locator('[role="button"][aria-label*="pronunciation"]').first();
@@ -37,7 +37,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('clicking Quiz Me! transitions to quiz mode', async ({ page }) => {
-    await page.locator('button.vocab-pill').first().click();
+    await startVocabLesson(page);
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     // Quiz mode shows question counter "X / N" confirming quiz is active
@@ -45,7 +45,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('answering a quiz question shows feedback', async ({ page }) => {
-    await page.locator('button.vocab-pill').first().click();
+    await startVocabLesson(page);
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
     // Click the first answer option
@@ -57,7 +57,7 @@ test.describe('Full lesson completion flow', () => {
 
   test('completing quiz shows results screen', async ({ page }) => {
     test.slow(); // quiz completion can take up to 25s — triple the default 30s timeout
-    await page.locator('button.vocab-pill').first().click();
+    await startVocabLesson(page);
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
 
@@ -91,7 +91,7 @@ test.describe('Full lesson completion flow', () => {
 
   test('XP is saved to localStorage after completing a quiz', async ({ page }) => {
     test.slow();
-    await page.locator('button.vocab-pill').first().click();
+    await startVocabLesson(page);
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
 
@@ -146,7 +146,7 @@ test.describe('Full lesson completion flow', () => {
       } catch { return 0; }
     }, TEST_EMAIL);
 
-    await page.locator('button.vocab-pill').first().click();
+    await startVocabLesson(page);
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
 
@@ -173,7 +173,7 @@ test.describe('Full lesson completion flow', () => {
   });
 
   test('rapid clicks on See Results only award XP once (double-award guard)', async ({ page }) => {
-    await page.locator('button.vocab-pill').first().click();
+    await startVocabLesson(page);
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
 
