@@ -228,7 +228,9 @@ export function launchMode(
     } catch {
       /* quota — continue */
     }
-    nav.sCurEx?.('maja');
+    // Key curEx by the persona so each partner is a distinct activity (not all
+    // collapsed to one daily XP slot); MajaScreen still reads maja_persona.
+    nav.sCurEx?.(m.persona!);
     nav.setScr('maja');
     return;
   }

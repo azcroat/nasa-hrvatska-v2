@@ -372,6 +372,8 @@ export default function PersonaScreen({ goBack, setScr }: Props) {
             'Ana te uči formalnom hrvatskom kroz stvarnu birokratsku situaciju. Savršeno za B1+ razinu.'}
           {selectedPersona.key === 'baka' &&
             'Baka Mara te dočekuje s toplinom i hranom. Idealno za početnike (A1–B2).'}
+          {selectedPersona.key === 'cabbie' &&
+            'Ivo te uči pravom uličnom razgovoru — brzo, smiješno, kao u Splitu.'}
         </div>
       )}
 
