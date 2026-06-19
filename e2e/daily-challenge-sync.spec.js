@@ -26,55 +26,36 @@ test.describe('Home screen — authenticated', () => {
     await expect(nav.getByRole('button', { name: 'Me', exact: true })).toBeVisible();
   });
 
-  test('Practice tab shows Daily Quests section', async ({ page }) => {
-    // QuestTracker moved from Home tab to Practice tab
+  test('Grad shows the Today (Danas u gradu) section', async ({ page }) => {
+    // Phase 6: Practice became Grad — the Today card replaced the old quest strip.
     await page
       .getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true })
       .click();
-    // SW may trigger a reload while caching the PracticeTab chunk on first run — absorb it.
     await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
-    await expect(page.getByText('Daily Quests').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('Danas u gradu').first()).toBeVisible({ timeout: 20_000 });
   });
 
-  test('Practice tab shows EARN BONUS XP label', async ({ page }) => {
+  test('Grad shows the daily-quest progress row', async ({ page }) => {
     await page
       .getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true })
       .click();
     await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
-    await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 20_000 });
-    // QuestTracker now defaults to expanded on Practice tab — the EARN BONUS XP
-    // label inside the full tracker is visible immediately, no click-to-expand
-    // needed. PracticeTab is lazy-loaded; match the sibling test's 20s budget
-    // for cold-render CI variance (run 26348850121 showed >10s on first load).
-    await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/dnevnih zadataka/i).first()).toBeVisible({ timeout: 20_000 });
   });
 
-  test('Practice tab shows quest count or all-complete message', async ({ page }) => {
+  test('Trg (the Square) hosts the Speed Challenge', async ({ page }) => {
+    // SpeedChallenge moved into the Trg games hub in the Grad redesign.
     await page
       .getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice', exact: true })
       .click();
     await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => {});
-    // PracticeTab lazy chunk cold-render on CI exceeded 20s in run 26348850121.
-    // 35s gives margin.
-    await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 35_000 });
-    // QuestTracker is expanded by default — EARN BONUS XP and the count
-    // line are visible immediately.
-    await expect(page.getByText('EARN BONUS XP').first()).toBeVisible({ timeout: 10_000 });
-    // Verify the quest count/completion line is in the rendered body. Poll
-    // for it rather than a single textContent snapshot — the QuestTracker
-    // may finish hydrating after the EARN BONUS XP header appears.
-    await expect
-      .poll(
-        async () => {
-          const body = (await page.locator('body').textContent()) || '';
-          return /quests? remaining/i.test(body) || /all quests complete/i.test(body);
-        },
-        { timeout: 10_000 },
-      )
-      .toBe(true);
+    const trg = page.getByText('Trg', { exact: true }).first();
+    await trg.waitFor({ state: 'visible', timeout: 20_000 });
+    await trg.click();
+    await expect(page.getByText('Speed Challenge').first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('pre-seeded user with name shows in app state', async ({ page }) => {

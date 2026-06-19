@@ -209,7 +209,6 @@ import AppContext from '../context/AppContext';
 import { StatsProvider } from '../context/StatsContext';
 import HomeTab from '../components/home/HomeTab';
 import LearnTab from '../components/learn/LearnTab';
-import PracticeTab from '../components/practice/PracticeTab';
 import ProfileTab from '../components/profile/ProfileTab';
 
 const mockSt = {
@@ -299,27 +298,6 @@ describe('LearnTab smoke render', () => {
       <AppContext.Provider value={mockContextValue}>
         <StatsProvider value={mockStatsValue}>
           <LearnTab allCats={[]} icons={{}} sh={(arr) => arr} />
-        </StatsProvider>
-      </AppContext.Provider>,
-    );
-  });
-});
-
-describe('PracticeTab smoke render', () => {
-  it('renders without crashing', () => {
-    render(
-      <AppContext.Provider value={mockContextValue}>
-        <StatsProvider value={mockStatsValue}>
-          <PracticeTab
-            allCats={[]}
-            sh={(arr) => arr}
-            sCurEx={vi.fn()}
-            onLaunchQuiz={vi.fn()}
-            onLaunchFlash={vi.fn()}
-            onLaunchListen={vi.fn()}
-            onLaunchMatch={vi.fn()}
-            onLaunchSpeaking={vi.fn()}
-          />
         </StatsProvider>
       </AppContext.Provider>,
     );

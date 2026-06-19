@@ -11,7 +11,7 @@
  *   npx playwright test e2e/alka-smoke.spec.js --project="Desktop Chrome"
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, openArcade } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 
 test.describe('Alka game — smoke', () => {
@@ -22,21 +22,11 @@ test.describe('Alka game — smoke', () => {
     await mockContent(page);
   });
 
-  test('play a full Alka ride from the Practice tab', async ({ page }) => {
-    await page.goto('/practice');
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-      timeout: 10_000,
-    });
-
-    // 1. The Arcade card must be prominent at the top of the Practice tab.
-    const arcadeCard = page
-      .getByRole('button')
-      .filter({ hasText: 'Play Croatian as a game' });
-    await expect(arcadeCard).toBeVisible({ timeout: 8_000 });
-    await arcadeCard.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(800); // let the tab entry animation settle before capture
+  test('play a full Alka ride from the Grad Square', async ({ page }) => {
+    // 1. Grad -> Trg (the games square) -> Arcade tile.
+    await openArcade(page);
+    await page.waitForTimeout(500);
     await page.screenshot({ path: 'test-results/alka-1-practice-top.png', fullPage: false });
-    await arcadeCard.click();
 
     // 2. Arcade hub — Alka tile is live.
     const alkaTile = page.getByRole('button').filter({ hasText: 'Lance & ring' });
