@@ -1048,7 +1048,7 @@ export default function BrowseContentModal({
 
         {/* Learning Paths & Tracks */}
         <div id="learn-section-paths">
-          <Section title="Learning Paths & Tracks" icon="🧭" count="9 tracks" defaultOpen={false}>
+          <Section title="Learning Paths & Tracks" icon="🧭" count="10 tracks" defaultOpen={false}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {tiles5([
                 [
@@ -1069,6 +1069,16 @@ export default function BrowseContentModal({
                   () => {
                     onClose();
                     setScr('grammar_track');
+                  },
+                ],
+                [
+                  '📖',
+                  'Graded Stories',
+                  'A1–B2 Croatian texts with audio & quiz',
+                  'graded_input',
+                  () => {
+                    onClose();
+                    setScr('graded_input');
                   },
                 ],
                 [
