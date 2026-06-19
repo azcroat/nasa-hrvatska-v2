@@ -57,7 +57,7 @@ const MajaScreen = lazyWithReload(() => import('./croatia/MajaScreen'));
 const PersonaScreen = lazyWithReload(() => import('./croatia/PersonaScreen'));
 const ProfileTab = lazyWithReload(() => import('./profile/ProfileTab'));
 const ContactScreen = lazyWithReload(() => import('./profile/ContactScreen'));
-const PracticeTab = lazyWithReload(() => import('./practice/PracticeTab'));
+const GradTab = lazyWithReload(() => import('./grad/GradTab'));
 const LessonScreen = lazyWithReload(() => import('./learn/LessonScreen'));
 const GrammarScreen = lazyWithReload(() => import('./learn/GrammarScreen'));
 const AlphabetScreen = lazyWithReload(() => import('./learn/AlphabetScreen'));
@@ -817,8 +817,8 @@ export default function AppRouter(props: Record<string, any>) {
                 tab === 'practice' && (
                   <div key="tab-practice" className={tabSlideClass}>
                     <React.Suspense fallback={null}>
-                      <ScreenErrorBoundary name="PracticeTab">
-                        <PracticeTab
+                      <ScreenErrorBoundary name="GradTab">
+                        <GradTab
                           allCats={allCats}
                           sh={_sh}
                           sCurEx={sCurEx}
