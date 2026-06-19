@@ -49,7 +49,7 @@ function lazyWithReload(fn: () => Promise<any>) {
 // Tabs + screens — lazy-loaded on first use
 const HomeTab = lazyWithReload(() => import('./home/HomeTab'));
 const LearnTab = lazyWithReload(() => import('./learn/LearnTab'));
-const CroatiaTab = lazyWithReload(() => import('./croatia/CroatiaTab'));
+const HrvatskaTab = lazyWithReload(() => import('./hrvatska/HrvatskaTab'));
 const RazgovorTab = lazyWithReload(() => import('./razgovor/RazgovorTab'));
 const ImmersionHub = lazyWithReload(() => import('./croatia/ImmersionHub'));
 const AIConversation = lazyWithReload(() => import('./croatia/AIConversation'));
@@ -846,12 +846,12 @@ export default function AppRouter(props: Record<string, any>) {
                 )
               }
               {
-                // ═══ TAB: CROATIA ═══
+                // ═══ TAB: CROATIA (Hrvatska — Phase 7b doors redesign) ═══
                 tab === 'croatia' && (
                   <div key="tab-croatia" className={tabSlideClass}>
                     <React.Suspense fallback={null}>
-                      <ScreenErrorBoundary name="CroatiaTab">
-                        <CroatiaTab sCurEx={sCurEx} />
+                      <ScreenErrorBoundary name="HrvatskaTab">
+                        <HrvatskaTab setScr={setScr} sCurEx={sCurEx} />
                       </ScreenErrorBoundary>
                     </React.Suspense>
                   </div>
