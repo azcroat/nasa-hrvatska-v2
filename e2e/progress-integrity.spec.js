@@ -5,7 +5,7 @@
  * exercises. Also tests that dual storage-key formats don't break the app.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent, TEST_EMAIL } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, startVocabLesson, TEST_EMAIL } from './fixtures/seed-auth.js';
 
 const INITIAL_XP = 250;
 const INITIAL_LC = 10;
@@ -111,8 +111,8 @@ test.describe('Progress integrity', () => {
     });
     await expect(page.getByText('Your Path')).toBeVisible({ timeout: 25_000 });
 
-    // Open the first vocab category
-    await page.locator('button.vocab-pill').first().click();
+    // Open the first vocab category (now via Browse — pills moved off Learn)
+    await startVocabLesson(page);
     await expect(page.getByText('Quiz Me! →')).toBeVisible({ timeout: 5_000 });
     await page.getByRole('button', { name: /Quiz Me/i }).click();
     await expect(page.getByText(/Question \d+ of \d+/i)).toBeVisible({ timeout: 5_000 });
