@@ -122,6 +122,24 @@ export async function openArcade(page) {
 }
 
 /**
+ * Razgovor (Phase 7a): the AI tab became Razgovor — family conversation
+ * partners + an "Alati" utilities shelf. Tab route key is still /ai.
+ */
+export async function enterPartner(page, name) {
+  await page.goto('/ai');
+  await page.getByText('Danas', { exact: true }).waitFor({ state: 'visible', timeout: 20_000 });
+  await page.getByText(name, { exact: true }).first().click();
+}
+
+/** Open an AI utility from the collapsed "Alati" shelf by its visible label. */
+export async function openAlat(page, label) {
+  await page.goto('/ai');
+  await page.getByText('Danas', { exact: true }).waitFor({ state: 'visible', timeout: 20_000 });
+  await page.getByText('AI alati').click(); // expand the shelf
+  await page.getByText(label, { exact: false }).first().click();
+}
+
+/**
  * Mock the MyMemory translation API used by Quick Translate.
  */
 export async function mockTranslate(page, translatedText = 'Dobar dan') {

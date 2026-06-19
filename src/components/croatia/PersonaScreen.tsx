@@ -52,6 +52,18 @@ const PERSONAS = [
     color: '#b45309',
     level: 'A1–B2',
   },
+  {
+    key: 'cabbie',
+    name: 'Ivo',
+    age: 52,
+    location: 'Split',
+    avatar: '/images/portraits/ivo.webp',
+    fallbackEmoji: '🚕',
+    specialty: '🚕 Taksist',
+    desc: 'Brz, duhovit, govori kako se priča na ulici.',
+    color: '#2563eb',
+    level: 'A2+',
+  },
 ];
 
 // ─────────────────────────────────────────────
@@ -360,6 +372,8 @@ export default function PersonaScreen({ goBack, setScr }: Props) {
             'Ana te uči formalnom hrvatskom kroz stvarnu birokratsku situaciju. Savršeno za B1+ razinu.'}
           {selectedPersona.key === 'baka' &&
             'Baka Mara te dočekuje s toplinom i hranom. Idealno za početnike (A1–B2).'}
+          {selectedPersona.key === 'cabbie' &&
+            'Ivo te uči pravom uličnom razgovoru — brzo, smiješno, kao u Splitu.'}
         </div>
       )}
 
