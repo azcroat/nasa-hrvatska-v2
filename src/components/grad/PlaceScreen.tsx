@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CharacterPortrait from '../family/CharacterPortrait';
+import SpeedChallenge from '../home/SpeedChallenge';
 import { PLACES, type PlaceId } from './places';
 import { itemsForPlace, placeStats, type ModelCtx, type GradItem } from './gradModel';
 
@@ -105,6 +106,7 @@ export default function PlaceScreen({
   const greeting = GREETINGS[placeId];
   const scene = SCENES[placeId];
   const recommended = items.find((i) => !i.locked);
+  const [speedOpen, setSpeedOpen] = useState(false);
 
   return (
     <div data-testid="place-screen">
@@ -302,6 +304,49 @@ export default function PlaceScreen({
             Idemo →
           </span>
         </button>
+      )}
+
+      {/* Trg: the 60-second Speed Challenge lives in the games hub */}
+      {placeId === 'trg' && (
+        <div style={{ marginBottom: 14 }}>
+          <button
+            onClick={() => setSpeedOpen((o) => !o)}
+            aria-expanded={speedOpen}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              background: 'var(--card)',
+              border: '1px solid var(--card-b)',
+              borderRadius: 14,
+              padding: '12px 13px',
+              cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif",
+              boxShadow: '0 1px 3px rgba(0,0,0,.05)',
+            }}
+          >
+            <span style={{ fontSize: 21 }}>⚡</span>
+            <span style={{ flex: 1, textAlign: 'left' }}>
+              <span
+                style={{ display: 'block', fontSize: 14, fontWeight: 800, color: 'var(--heading)' }}
+              >
+                Speed Challenge
+              </span>
+              <span
+                style={{ display: 'block', fontSize: 11, color: 'var(--subtext)', marginTop: 1 }}
+              >
+                60 sekundi · koliko ih možeš?
+              </span>
+            </span>
+            <span style={{ color: 'var(--subtext)' }}>{speedOpen ? '▲' : '▾'}</span>
+          </button>
+          {speedOpen && (
+            <div style={{ marginTop: 10 }}>
+              <SpeedChallenge />
+            </div>
+          )}
+        </div>
       )}
 
       {/* exercise list */}
