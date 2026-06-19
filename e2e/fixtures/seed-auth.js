@@ -98,6 +98,30 @@ export async function startVocabLesson(page) {
 }
 
 /**
+ * Open a Grad place by its visible Croatian name (Grad replaced the old Practice
+ * tab in Phase 6; the tab route key is still /practice). Assumes auth/content
+ * mocks are already applied.
+ */
+export async function enterPlace(page, name) {
+  await page.goto('/practice');
+  await page.getByText('Danas u gradu').waitFor({ state: 'visible', timeout: 20_000 });
+  // exact match so a short name like "Trg" doesn't collide with "…na Trgu" in the
+  // Today card copy.
+  await page.getByText(name, { exact: true }).first().click();
+}
+
+/**
+ * Reach the Arcade hub: Grad -> Trg (the games square) -> Arcade tile.
+ */
+export async function openArcade(page) {
+  await enterPlace(page, 'Trg');
+  await page
+    .getByRole('button', { name: /Arkada/ })
+    .first()
+    .click();
+}
+
+/**
  * Mock the MyMemory translation API used by Quick Translate.
  */
 export async function mockTranslate(page, translatedText = 'Dobar dan') {

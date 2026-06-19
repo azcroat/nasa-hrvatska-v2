@@ -160,24 +160,20 @@ test.describe('SP11 — content endpoints + bundle audit', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({ timeout: 10_000 });
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Practice' }).click();
-    // Drill → Advanced tile (proven path in practice.spec.js:125). The lazy
-    // PracticeTab cold-render keeps creeping: 15.6s in run 26346293557,
-    // 25.6s in run 26348850121 (hit the 25s ceiling). 35s gives margin.
-    const drillPill = page.locator('button').filter({ hasText: /^Drill$/ });
-    await expect(drillPill).toBeVisible({ timeout: 35_000 });
-    await drillPill.click();
-    const advTile = page.locator('button.cat-tile').filter({ hasText: 'Advanced' });
-    await advTile.scrollIntoViewIfNeeded();
-    await advTile.click();
-    await expect(advTile).toHaveAttribute('aria-expanded', 'true', { timeout: 5_000 });
-    // 20s timeout: covers the React MERGE_REMOTE hydration window where stats
-    // transition from DS=A1 to forceCefr's B2 (xp:5000), which is when the
-    // aspectdrill card (cefr 'B1+') joins availableExercises and appears in DOM.
-    const aspectDrillCard = page.getByTestId('exercise-card-aspectdrill');
-    await expect(aspectDrillCard).toBeVisible({ timeout: 20_000 });
-    await aspectDrillCard.scrollIntoViewIfNeeded();
-    await aspectDrillCard.click();
-    await requestPromise; // throws if no /api/content/grammar request fires within 15s
+    // Phase 6: Grad replaced Practice. Reach Aspect Drill via Kovaceva soba ->
+    // Glagoli; mounting AspectDrillScreen lazily fetches /api/content/grammar.
+    // 35s margin for the lazy GradTab cold-render on CI.
+    await expect(page.getByText('Danas u gradu')).toBeVisible({ timeout: 35_000 });
+    await page.getByText('Kovačeva soba').click();
+    await page
+      .getByText(/Glagoli/)
+      .first()
+      .click();
+    await page
+      .getByText('Aspect Drill', { exact: false })
+      .first()
+      .click();
+    await requestPromise; // throws if no /api/content/grammar request fires within 60s
   });
 
   test('Story of the Day card renders when endpoints are mocked', async ({ page }) => {
