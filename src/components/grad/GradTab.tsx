@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import type { AwardActivityType } from '../../lib/activityXp.js';
 import { getUserCefr } from '../../lib/cefr';
 import { LISTEN, getSR, getDueReviews } from '../../data';
 import { useContent } from '../../hooks/useContent';
@@ -35,8 +34,6 @@ interface GradTabProps {
   onLaunchListen: (items: unknown[]) => void;
   onLaunchMatch: (items: unknown[]) => void;
   onLaunchSpeaking: (items?: unknown[]) => void;
-  award: (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => void;
-  launchPathItem: (item: unknown) => void;
 }
 
 export default function GradTab({

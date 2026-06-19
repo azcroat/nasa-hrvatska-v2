@@ -827,8 +827,6 @@ export default function AppRouter(props: Record<string, any>) {
                           onLaunchListen={launchListening}
                           onLaunchMatch={launchMatch}
                           onLaunchSpeaking={launchSpeaking}
-                          award={award}
-                          launchPathItem={launchPathItem}
                         />
                       </ScreenErrorBoundary>
                     </React.Suspense>
