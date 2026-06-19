@@ -1048,7 +1048,7 @@ export default function BrowseContentModal({
 
         {/* Learning Paths & Tracks */}
         <div id="learn-section-paths">
-          <Section title="Learning Paths & Tracks" icon="🧭" count="8 tracks" defaultOpen={false}>
+          <Section title="Learning Paths & Tracks" icon="🧭" count="9 tracks" defaultOpen={false}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {tiles5([
                 [
