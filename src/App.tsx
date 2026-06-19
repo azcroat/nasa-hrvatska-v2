@@ -66,6 +66,7 @@ import CroatianGrb from './components/shared/CroatianGrb';
 import { AppToasts } from './components/shared/AppToasts';
 import { AppModals } from './components/shared/AppModals';
 import KnightCompanion from './components/shared/KnightCompanion';
+import AppHeader from './components/shared/AppHeader';
 import AppRouter from './components/AppRouter';
 import DesktopPanel from './components/shared/DesktopPanel';
 
@@ -1796,6 +1797,11 @@ function App() {
               landmark; without it, <main> is not focusable, and Lighthouse
               flagged "Skip links are not focusable". */}
           <main className="app-content" id="main-content" tabIndex={-1}>
+            {authScreen === 'app' &&
+              currentScreen !== 'welcome' &&
+              currentScreen !== 'placement' && (
+                <AppHeader name={name} onProfile={() => setTab('profile')} />
+              )}
             <Suspense
               fallback={
                 <div

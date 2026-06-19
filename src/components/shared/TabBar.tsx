@@ -6,13 +6,14 @@ import SearchModal from './SearchModal';
 // Sidebar.tsx's labels exactly (e.g. e2e uses name:'Croatia', exact). `cro` is the
 // visible Croatian primary; `sub` is the visible English subtitle. Renaming the
 // visible text without touching the accessible name = visible rebrand, zero test churn.
+// Five places on the mobile bottom bar. "Me" moved off the bar to the top-corner
+// AppHeader avatar (Phase 4). Desktop Sidebar keeps a profile entry.
 const TABS = [
   { id: 'home', label: 'Today', cro: 'Dom', sub: 'Home' },
   { id: 'learn', label: 'Learn', cro: 'Učenje', sub: 'Learn' },
   { id: 'practice', label: 'Practice', cro: 'Grad', sub: 'Practice' },
   { id: 'ai', label: 'AI Tutor', cro: 'Razgovor', sub: 'Talk' },
   { id: 'croatia', label: 'Croatia', cro: 'Hrvatska', sub: 'Discover' },
-  { id: 'profile', label: 'Me', cro: 'Ja', sub: 'Me' },
 ];
 
 function NavIcon({ id, active }: { id: string; active: boolean }) {
