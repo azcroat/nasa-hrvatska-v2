@@ -18,7 +18,7 @@
 // previous Video Lesson entry point under Practice → Quick Game → AI
 // Challenges no longer exists.
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, openAlat } from './fixtures/seed-auth.js';
 
 // ---------------------------------------------------------------------------
 // Shared mock — preserved verbatim from the original test block.
@@ -42,14 +42,8 @@ const MOCK_LISTENING_RESPONSE = {
 // Helper — navigate to VideoLessonScreen via the AI Tutor tab.
 // ---------------------------------------------------------------------------
 async function openAIVideoLesson(page) {
-  await page.goto('/ai');
-  await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
-  await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-    timeout: 20_000,
-  });
-  const card = page.locator('button').filter({ hasText: 'AI Video Lesson' }).first();
-  await expect(card).toBeVisible({ timeout: 20_000 });
-  await card.click();
+  // Phase 7a: reached via Razgovor's Alati shelf ("AI video lekcija").
+  await openAlat(page, 'AI video lekcija');
   await expect(page.getByText('🎬 Video Lesson')).toBeVisible({ timeout: 15_000 });
 }
 

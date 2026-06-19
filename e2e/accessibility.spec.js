@@ -18,7 +18,7 @@
  */
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, mockContent, enterPartner } from './fixtures/seed-auth.js';
 import { TID } from './fixtures/testids.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -324,14 +324,9 @@ test.describe('SP6 — CorrectionDiff accessibility', () => {
     // AI Writing Feedback now lives exclusively on the AI Tutor tab, so the
     // helper navigates there directly instead of going through Practice →
     // Drill → Advanced (the writing card was removed from PracticeTab).
-    await page.goto('/ai');
-    await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
-    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
-      timeout: 20_000,
-    });
-    const writingCard = page.locator('button').filter({ hasText: 'AI Writing Feedback' }).first();
-    await expect(writingCard).toBeVisible({ timeout: 20_000 });
-    await writingCard.click();
+    // Phase 7a: Writing feedback lives under prof. Kovač in Razgovor.
+    await enterPartner(page, 'prof. Kovač');
+    await page.getByText('Pošalji mi tekst').click();
     // Wait for WritingScreen lazy chunk + textarea mount before filling, otherwise
     // fill() can race the React mount and the controlled-input state never
     // registers the value (checkWithAI() bails at its length guard, no POST fires).
