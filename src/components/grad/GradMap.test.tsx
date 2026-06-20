@@ -14,7 +14,8 @@ const rec: Recommendation = {
   launch: vi.fn(),
 };
 
-const statsByPlace = Object.fromEntries(
+type Stat = { done: number; total: number; due: number; lockedCount: number };
+const statsByPlace: Record<string, Stat> = Object.fromEntries(
   ['kavana', 'trznica', 'soba', 'kuhinja', 'ulica', 'trg'].map((id) => [
     id,
     { done: 0, total: 5, due: 0, lockedCount: 0 },
@@ -38,7 +39,7 @@ describe('GradMap', () => {
 });
 
 describe('GradMap — living markers', () => {
-  function statsWith(over: Record<string, object>) {
+  function statsWith(over: Record<string, Stat>) {
     return { ...statsByPlace, ...over };
   }
 
@@ -93,5 +94,12 @@ describe('GradMap — host at the recommended place', () => {
     const trgRec = { ...rec, placeId: 'trg' as const, host: null };
     render(<GradMap rec={trgRec} onOpenPlace={vi.fn()} statsByPlace={statsByPlace} />);
     expect(document.querySelector('[data-testid^="portrait-"]')).toBeNull();
+  });
+});
+
+describe('GradMap — living town', () => {
+  it('renders the inline town art (animatable, not an <img>)', () => {
+    render(<GradMap rec={rec} onOpenPlace={vi.fn()} statsByPlace={statsByPlace} />);
+    expect(screen.getByTestId('grad-town-art')).toBeInTheDocument();
   });
 });

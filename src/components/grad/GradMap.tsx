@@ -2,13 +2,14 @@ import React from 'react';
 import { PLACES, type PlaceId } from './places';
 import type { Recommendation } from './gradModel';
 import CharacterPortrait from '../family/CharacterPortrait';
-
-const SCENE = `${import.meta.env.BASE_URL}images/grad-town.svg`;
+import GradTownArt from './GradTownArt';
 
 /**
- * Karta view — the crafted flat-vector Adriatic town (public/images/grad-town.svg)
- * with place markers overlaid from each place's mapPos. The recommended place
- * glows gold with a count badge; a slim Today bar floats at the bottom.
+ * Karta view — the crafted flat-vector Adriatic town (inline <GradTownArt/>, so
+ * its sea/boats/glints can animate) with place markers overlaid from each place's
+ * mapPos. Each marker shows a completion ring + due badge + lock state; the
+ * recommended place glows gold and its own host stands beside it; a slim Today
+ * bar floats at the bottom.
  */
 export default function GradMap({
   rec,
@@ -33,18 +34,20 @@ export default function GradMap({
         boxShadow: '0 6px 22px rgba(0,0,0,.18)',
       }}
     >
-      <style>{`@keyframes gradPulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:.7}70%{transform:translate(-50%,-50%) scale(2.4);opacity:0}100%{opacity:0}}`}</style>
-      <img
-        src={SCENE}
-        alt="Naš grad na moru"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-        }}
-      />
+      <style>{`
+        @keyframes gradPulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:.7}70%{transform:translate(-50%,-50%) scale(2.4);opacity:0}100%{opacity:0}}
+        @keyframes kmWaves{0%,100%{opacity:.30}50%{opacity:.5}}
+        @keyframes kmBob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+        @keyframes kmGlint{0%,100%{opacity:.5}50%{opacity:.22}}
+        #km-waves{animation:kmWaves 5s ease-in-out infinite}
+        #km-glint{animation:kmGlint 4s ease-in-out infinite}
+        #km-boat-1{animation:kmBob 6s ease-in-out infinite}
+        #km-boat-2{animation:kmBob 7s ease-in-out infinite}
+        @media (prefers-reduced-motion: reduce){
+          #km-waves,#km-glint,#km-boat-1,#km-boat-2{animation:none}
+        }
+      `}</style>
+      <GradTownArt />
       <div
         style={{
           position: 'absolute',
