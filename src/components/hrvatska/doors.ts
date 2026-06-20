@@ -415,11 +415,61 @@ export const DOOR_ITEMS: DoorItem[] = [
   },
 ];
 
-// Every entry point that must remain reachable. Equal to the set of DOOR_ITEMS
-// ids; the unit gate asserts coverage in both directions. The StoriesTab letters
-// (price) and the MediaTab carousels (mediji) stay reachable via the door embeds,
-// asserted separately in DoorScreen.test.tsx.
-export const MUST_NOT_ORPHAN: string[] = DOOR_ITEMS.map((i) => i.id);
+// Every entry point that must remain reachable, transcribed from the old
+// CroatiaTab subtree (CultureTab + DiscoverTab `setScr(...)` cards) BEFORE the
+// doors redesign. This is deliberately a hand-maintained literal, NOT derived
+// from DOOR_ITEMS — that independence is what lets `hrvatska.test.ts` catch a
+// screen that gets dropped from DOOR_ITEMS (a derived list would make the
+// coverage check a tautology). The StoriesTab letters (price) and the MediaTab
+// carousels (mediji) stay reachable via the door embeds, asserted separately in
+// DoorScreen.test.tsx.
+export const MUST_NOT_ORPHAN: string[] = [
+  // Stories & News (old CultureTab) + Language & Culture story cards
+  'baka_summer',
+  'survival_dinner',
+  'storymode',
+  'heritage',
+  'postcard',
+  'diaspora',
+  'lifeevents',
+  'easter',
+  // History & Regions (old CultureTab) — regions + map
+  'crmap',
+  'region_vukovar',
+  'region_zagreb',
+  'region_split',
+  'region_mostar',
+  'region_tomislavgrad',
+  'region_knin',
+  'region_labin',
+  'region_bibinje',
+  'region_hercegovina',
+  'region_vinkovci',
+  // Croatian Life (old CultureTab) + kafic
+  'grocery',
+  'recipes',
+  'roleplay',
+  'school',
+  'friends',
+  'foodorder',
+  'transport',
+  'emergency',
+  'practical',
+  'basketball',
+  'gym',
+  'kafic',
+  // History & language (old CultureTab History + Language&Culture + DiscoverTab)
+  'history',
+  'kings',
+  'civic',
+  'dialect_awareness',
+  'immersion',
+  // Media (old CultureTab Stories&News) — texting moved here
+  'texting',
+  'croatia_today',
+  'croatianews',
+  'phraseofday',
+];
 
 export function itemsForDoor(id: DoorId): DoorItem[] {
   return DOOR_ITEMS.filter((i) => i.doorId === id);
