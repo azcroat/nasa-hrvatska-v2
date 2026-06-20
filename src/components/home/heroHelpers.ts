@@ -44,7 +44,7 @@ export function getKnightGreeting(
     return _pick([
       {
         mood: 'ready',
-        text: "Živjeli! I'm Vitez Hrvoje, your Croatian knight. Croatia has 1,200 years of history and one of Europe's most precise languages. Let's start writing yours.",
+        text: "Živjeli! Dobrodošli u našu hrvatsku obitelj. Croatia has 1,200 years of history and one of Europe's most precise languages — let's start writing yours.",
       },
       {
         mood: 'happy',

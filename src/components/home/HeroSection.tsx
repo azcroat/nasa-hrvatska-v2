@@ -18,6 +18,7 @@ import { useStats } from '../../context/StatsContext';
 import CroatianGrb from '../shared/CroatianGrb';
 import { LEVEL_PALETTE } from './heroData';
 import { getDailyScene, getMascotMessage, getCEFR } from './heroHelpers';
+import { hostOfDay } from './hostFamily';
 import CompactStrip from './CompactStrip';
 import KnightBubble from './KnightBubble';
 import RewardsPanel from './RewardsPanel';
@@ -198,7 +199,12 @@ export default function HeroSection({
               </div>
             </div>
 
-            <KnightBubble knight={knightSpeech} name={name} isNative={_isNative} />
+            <KnightBubble
+              knight={knightSpeech}
+              name={name}
+              host={hostOfDay(Math.floor(Date.now() / 86400000))}
+              isNative={_isNative}
+            />
 
             {/* Level badge pill */}
             <div style={{ display: 'inline-flex', alignItems: 'center', marginBottom: 16 }}>

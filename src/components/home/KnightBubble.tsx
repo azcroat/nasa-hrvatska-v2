@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
+import type { CharacterName } from '../family/portraits';
 import TypewriterText from './TypewriterText';
 import QuickReplyBanner from './QuickReplyBanner';
 import { speak } from '../../data';
@@ -16,10 +17,12 @@ import type { KnightSpeech } from './useKnightSpeech';
 export default function KnightBubble({
   knight,
   name,
+  host,
   isNative,
 }: {
   knight: KnightSpeech;
   name?: string;
+  host: CharacterName;
   isNative: boolean;
 }) {
   const {
@@ -60,7 +63,28 @@ export default function KnightBubble({
           transition={{ type: 'spring', stiffness: 340, damping: 18, delay: 0.1 }}
           style={{ flexShrink: 0 }}
         >
-          <CroatianKnight size={92} mood={greeting.mood} />
+          <span
+            style={{
+              display: 'block',
+              borderRadius: '50%',
+              padding: 3,
+              background: 'linear-gradient(135deg,#FFE070,#C8980A)',
+            }}
+          >
+            <span
+              style={{
+                display: 'block',
+                width: 92,
+                height: 92,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '2px solid rgba(255,255,255,.9)',
+                background: '#fbf6ec',
+              }}
+            >
+              <CharacterPortrait name={host} size={92} />
+            </span>
+          </span>
         </motion.div>
 
         {/* Interactive speech bubble — AnimatePresence scoped to the bubble only,
