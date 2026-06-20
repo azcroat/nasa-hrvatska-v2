@@ -58,7 +58,7 @@ test.describe('Me tab (Profile)', () => {
 
   // ── 3. User name visible ─────────────────────────────────────────────────
   test('shows the seeded user name in the profile header', async ({ page }) => {
-    await expect(page.getByText(TEST_NAME).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(TEST_NAME).filter({ visible: true }).first()).toBeVisible({ timeout: 5_000 });
   });
 
   // ── 4. Stats tab active by default ───────────────────────────────────────
@@ -67,9 +67,9 @@ test.describe('Me tab (Profile)', () => {
     await expect(page.locator('.profile-tab-pill').filter({ hasText: 'Stats' })).toBeVisible();
 
     // Stats content: at least Total XP, Day Streak, and Lessons labels
-    await expect(page.getByText('Total XP').first()).toBeVisible({ timeout: 5_000 });
-    await expect(page.getByText('Day Streak').first()).toBeVisible({ timeout: 5_000 });
-    await expect(page.getByText('Lessons').first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Total XP').filter({ visible: true }).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Day Streak').filter({ visible: true }).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Lessons').filter({ visible: true }).first()).toBeVisible({ timeout: 5_000 });
   });
 
   // ── 5. Switching to Insights tab ─────────────────────────────────────────
@@ -143,7 +143,7 @@ test.describe('Me tab (Profile)', () => {
 
     // Home screen is identified by the presence of a stats/greeting element
     // The hero shows user name and today's content
-    await expect(page.getByText(TEST_NAME).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(TEST_NAME).filter({ visible: true }).first()).toBeVisible({ timeout: 5_000 });
 
     // Today tab should now be active
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
