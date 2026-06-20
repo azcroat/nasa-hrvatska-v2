@@ -3,12 +3,16 @@
  * useAward whenever significant XP is earned, then shows a spring-animated
  * celebration toast with particle burst, glow ring, and staggered children.
  *
+ * The face is the host-of-the-day from the family cast (consistent with the
+ * rest of the app) — the retired medieval knight no longer appears here.
+ *
  * Uses Framer Motion AnimatePresence for a proper spring entrance and
  * a graceful exit — no hard-cut CSS transitions.
  */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import CroatianKnight from './CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
+import { hostOfDay } from '../home/hostFamily';
 
 // 8 confetti particles that burst outward on entrance
 const PARTICLES = [
@@ -70,13 +74,12 @@ const particleVariants: Variants = {
 export default function KnightToast() {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
-  const [mood, setMood] = useState('celebrating');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const host = hostOfDay(Math.floor(Date.now() / 86400000));
 
   const show = useCallback((detail: { text?: string; mood?: string } | null | undefined) => {
     if (timerRef.current !== null) clearTimeout(timerRef.current);
     setMessage(detail?.text || 'Sjajno!');
-    setMood(detail?.mood || 'celebrating');
     setVisible(true);
     timerRef.current = setTimeout(() => setVisible(false), 2800);
   }, []);
@@ -130,7 +133,7 @@ export default function KnightToast() {
             }}
           />
 
-          {/* Particle burst — positioned relative to knight side */}
+          {/* Particle burst — positioned relative to the portrait side */}
           <div
             aria-hidden="true"
             style={{ position: 'absolute', left: 28, top: 24, pointerEvents: 'none', zIndex: 2 }}
@@ -194,12 +197,12 @@ export default function KnightToast() {
               }}
             />
 
-            {/* Knight — enters first, before text */}
+            {/* Host portrait — enters first, before text */}
             <motion.div
               variants={childVariants}
               style={{ flexShrink: 0, position: 'relative', zIndex: 1 }}
             >
-              <CroatianKnight size={54} mood={mood} />
+              <CharacterPortrait name={host} size={54} />
             </motion.div>
 
             {/* Text */}
