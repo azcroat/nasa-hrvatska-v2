@@ -40,10 +40,20 @@ test.describe('Me tab (Profile)', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
   });
 
-  // ── 2. Me tab is active ───────────────────────────────────────────────────
-  test('Me tab in the nav bar has active state when on /profile', async ({ page }) => {
-    const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Me', exact: true })).toHaveClass(/active/);
+  // ── 2. Me entry reflects the /profile route ───────────────────────────────
+  test('Me entry reflects the profile route (active on desktop, present on mobile)', async ({
+    page,
+  }) => {
+    const sidebarMe = page
+      .getByRole('navigation', { name: 'Main navigation' })
+      .getByRole('button', { name: 'Me', exact: true });
+    if (await sidebarMe.isVisible().catch(() => false)) {
+      // Desktop: Me lives in the Sidebar and carries the active class on /profile.
+      await expect(sidebarMe).toHaveClass(/active/);
+    } else {
+      // Mobile: Me moved to the AppHeader avatar (no bottom-bar active state).
+      await expect(page.getByTestId('header-profile')).toBeVisible();
+    }
   });
 
   // ── 3. User name visible ─────────────────────────────────────────────────
