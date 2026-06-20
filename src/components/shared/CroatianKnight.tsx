@@ -647,7 +647,7 @@ const CroatianKnight = React.memo(function CroatianKnight({
   const cfg = (MOOD[mood] || MOOD.happy)!;
 
   // Stable instance ID — ensures clipPath IDs are unique across concurrent knight instances
-  // (CelebrationModal + KnightCompanion + any screen with multiple knights).
+  // (KnightCompanion + any screen that renders multiple knights).
   const _instanceId = useRef(`kn-${Math.random().toString(36).slice(2, 8)}`);
 
   // Level-gated visuals
