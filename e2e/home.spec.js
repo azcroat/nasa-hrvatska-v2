@@ -59,4 +59,16 @@ test.describe('Home tab', () => {
       await expect(page.getByText(/min\s*·\s*\d+\s*activit/i).first()).toBeVisible({ timeout: 10_000 });
     });
   });
+
+  test.describe('Razgovor card', () => {
+    test('shows the Razgovor card beneath the session and opens that partner', async ({ page }) => {
+      const card = page.getByTestId('home-razgovor-card');
+      await expect(card).toBeVisible({ timeout: 20_000 });
+      await expect(card).toContainText(/te čeka/);
+      await card.click();
+      await page.waitForURL('/ai', { timeout: 20_000 });
+      // RazgovorTab opens the handed-off partner: its back bar appears.
+      await expect(page.getByText('← Razgovor')).toBeVisible({ timeout: 10_000 });
+    });
+  });
 });
