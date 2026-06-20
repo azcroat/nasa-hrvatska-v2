@@ -171,15 +171,26 @@ vi.mock('../components/croatia/LiveTutorControls', () => ({
     onTextSubmit,
     setTextInput,
     textInput,
+    thinking,
+    playing,
   }: {
     onEndSession: () => void;
     onTextSubmit: (e: React.FormEvent) => void;
     setTextInput: (v: string) => void;
     textInput: string;
+    thinking?: boolean;
+    playing?: boolean;
   }) =>
     React.createElement(
       'div',
       { 'data-testid': 'live-tutor-controls' },
+      // Mirrors the component's `canType = !thinking && !playing` guard so tests
+      // can deterministically wait for a turn to finish before driving the next
+      // one (handleTextSubmit drops a submit while thinking/playing is true).
+      React.createElement('div', {
+        'data-testid': 'turn-ready',
+        'data-ready': !thinking && !playing ? '1' : '0',
+      }),
       React.createElement(
         'button',
         { 'data-testid': 'end-session-btn', onClick: onEndSession },
@@ -585,35 +596,44 @@ describe('LiveTutorScreen — XP anti-farm cap', () => {
     const awardSpy = vi.fn();
     renderScreen({ award: awardSpy });
 
-    // Start the session (fires the opener — turn 0, no XP)
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('start-btn'));
-    });
-
-    // Drive 12 user turns through the text-input path
-    const TURNS = 12;
-    for (let i = 0; i < TURNS; i++) {
-      // Set text input value
-      await act(async () => {
-        fireEvent.change(screen.getByTestId('turn-input'), { target: { value: 'Bok' } });
-      });
-      // Submit the turn (handleTextSubmit reads textInput state)
-      await act(async () => {
-        fireEvent.submit(screen.getByTestId('turn-form'));
-      });
-      // Wait for the async sendToTutor → playTTSStreaming cycle to complete
-      await waitFor(
+    // Wait until the controls are ready (turn-ready=1 once thinking/playing clear).
+    const waitReady = () =>
+      waitFor(
         () => {
-          // thinking and playing both become false once the turn fully resolves
-          expect(screen.getByTestId('turn-input')).toBeTruthy();
+          expect(screen.getByTestId('turn-ready').getAttribute('data-ready')).toBe('1');
         },
         { timeout: 5000 },
       );
+
+    // Start the session (fires the opener — turn 0, no XP) and let it settle.
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('start-btn'));
+    });
+    await waitReady();
+
+    // Drive 12 user turns through the text-input path. `setThinking(true)` runs
+    // synchronously inside the submit dispatch, so waiting for turn-ready=1 after
+    // each submit deterministically blocks until that turn's full
+    // sendToTutor → playTTSStreaming cycle resolves. Without this gate the next
+    // submit can land while thinking/playing is still true, and
+    // handleTextSubmit's `if (thinking || playing) return` silently drops it —
+    // the flake that intermittently made the cap count come up short under load.
+    const TURNS = 12;
+    for (let i = 0; i < TURNS; i++) {
+      await act(async () => {
+        fireEvent.change(screen.getByTestId('turn-input'), { target: { value: 'Bok' } });
+      });
+      await act(async () => {
+        fireEvent.submit(screen.getByTestId('turn-form'));
+      });
+      await waitReady();
     }
 
-    // Count only the 5-XP per-turn award calls (milestone-20 is a separate call)
+    // Count only the 5-XP per-turn award calls (milestone-20 is a separate call).
+    // The cap spans every turn including the opener: opener (turn 1) + the first
+    // 9 user turns award, turns 11–13 do not → exactly 10 per-turn awards even
+    // though we drove 12 user turns.
     const perTurnXpCalls = awardSpy.mock.calls.filter((c) => c[0] === 5).length;
-    // Cap is 10: even though we drove 12 turns, only the first 10 should award XP
     expect(perTurnXpCalls).toBe(10);
   });
 });
