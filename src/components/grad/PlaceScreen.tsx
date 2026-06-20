@@ -4,6 +4,13 @@ import SpeedChallenge from '../home/SpeedChallenge';
 import { PLACES, type PlaceId } from './places';
 import { itemsForPlace, placeStats, type ModelCtx, type GradItem } from './gradModel';
 
+// CEFR lock-pill colours. Exported so a unit test can assert WCAG AA contrast.
+// #5f5747 on #ece6d9 = 5.74:1 (passes AA for the 10px bold pill, which needs
+// 4.5:1). The previous #8a7f68 was 3.09:1 and was additionally dimmed by a
+// row-wide opacity:0.62 (~2.6:1 effective) — both are fixed here.
+export const LOCK_PILL_FG = '#5f5747';
+export const LOCK_PILL_BG = '#ece6d9';
+
 // Per-place hero scene assets (only kavana has bespoke art so far; other places
 // use a tinted gradient banner — bespoke per-place scenes are a follow-up).
 const SCENES: Partial<Record<PlaceId, string>> = {
@@ -42,7 +49,9 @@ function ExerciseRow({ item }: { item: GradItem }) {
         padding: '12px 13px',
         marginBottom: 9,
         cursor: item.locked ? 'default' : 'pointer',
-        opacity: item.locked ? 0.62 : 1,
+        // No row-wide opacity: dimming the whole row pushed the lock pill below
+        // WCAG AA. "Locked" is signalled by the disabled state, the dimmed icon,
+        // and the lock pill instead.
         fontFamily: "'Outfit',sans-serif",
         boxShadow: '0 1px 3px rgba(0,0,0,.05)',
       }}
@@ -57,7 +66,8 @@ function ExerciseRow({ item }: { item: GradItem }) {
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 21,
-          background: item.locked ? '#ece6d9' : 'rgba(14,116,144,.10)',
+          background: item.locked ? LOCK_PILL_BG : 'rgba(14,116,144,.10)',
+          opacity: item.locked ? 0.5 : 1, // decorative emoji — exempt from contrast
         }}
       >
         {item.icon}
@@ -76,8 +86,8 @@ function ExerciseRow({ item }: { item: GradItem }) {
         <span
           style={{
             flex: 'none',
-            background: '#ece6d9',
-            color: '#8a7f68',
+            background: LOCK_PILL_BG,
+            color: LOCK_PILL_FG,
             borderRadius: 8,
             padding: '3px 8px',
             fontSize: 10,
