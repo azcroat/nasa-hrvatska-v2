@@ -17,7 +17,7 @@
  * All tests use seedAuth + blockFirebase + mockTTS so they are hermetic.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, clickMe } from './fixtures/seed-auth.js';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -153,7 +153,9 @@ test.describe('ScreenErrorBoundary — smoke tests (no boundary on healthy rende
     await expect(nav).toBeVisible({ timeout: 15_000 });
 
     for (const label of ['Learn', 'Practice', 'Croatia', 'Me', 'Today']) {
-      await nav.getByRole('button', { name: label, exact: true }).click();
+      // Me is in the Sidebar (desktop) / AppHeader avatar (mobile), not the bottom bar.
+      if (label === 'Me') await clickMe(page);
+      else await nav.getByRole('button', { name: label, exact: true }).click();
       // Brief settle time for React to commit the tab transition
       await page.waitForTimeout(400);
       await assertNoBoundaryAlert(page);
@@ -176,7 +178,8 @@ test.describe('ScreenErrorBoundary — smoke tests (no boundary on healthy rende
     // This test verifies no crash occurs, not that every click registers perfectly.
     const tabs = ['Learn', 'Practice', 'Croatia', 'Me', 'Today', 'Learn', 'Today'];
     for (const label of tabs) {
-      await nav.getByRole('button', { name: label, exact: true }).click({ force: true });
+      if (label === 'Me') await clickMe(page, { force: true });
+      else await nav.getByRole('button', { name: label, exact: true }).click({ force: true });
     }
 
     // Wait for the dust to settle

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL, meButton } from './fixtures/seed-auth.js';
 
 /**
  * Home screen smoke tests — verifies the authenticated home tab renders correctly.
@@ -17,13 +17,14 @@ test.describe('Home screen — authenticated', () => {
     });
   });
 
-  test('navigation bar renders all five tabs', async ({ page }) => {
+  test('navigation exposes the core tabs and the Me entry', async ({ page }) => {
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Today', exact: true })).toBeVisible();
     await expect(nav.getByRole('button', { name: 'Learn', exact: true })).toBeVisible();
     await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toBeVisible();
     await expect(nav.getByRole('button', { name: 'Croatia', exact: true })).toBeVisible();
-    await expect(nav.getByRole('button', { name: 'Me', exact: true })).toBeVisible();
+    // Me is in the Sidebar on desktop and the AppHeader avatar on mobile.
+    await expect(await meButton(page)).toBeVisible();
   });
 
   test('Grad shows the Today (Danas u gradu) section', async ({ page }) => {

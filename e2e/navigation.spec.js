@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, clickMe, meButton } from './fixtures/seed-auth.js';
 
 // Helper: always click tabs via the nav bar to avoid ambiguous matches with Jump In buttons.
 // Waits for the button to be visible before clicking so Firefox/WebKit don't miss a racing
@@ -27,11 +27,13 @@ test.describe('Tab navigation', () => {
     await page.waitForTimeout(300);
   });
 
-  test('renders all 5 navigation tabs', async ({ page }) => {
+  test('renders the core nav tabs and the Me entry', async ({ page }) => {
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    for (const label of ['Today', 'Learn', 'Practice', 'Croatia', 'Me']) {
+    for (const label of ['Today', 'Learn', 'Practice', 'Croatia']) {
       await expect(nav.getByRole('button', { name: label, exact: true })).toBeVisible();
     }
+    // Me is in the Sidebar (desktop) / AppHeader avatar (mobile), not the bottom bar.
+    await expect(await meButton(page)).toBeVisible();
   });
 
   test('Home tab is active by default', async ({ page }) => {
@@ -74,12 +76,12 @@ test.describe('Tab navigation', () => {
   });
 
   test('navigates to Me tab and shows user name', async ({ page }) => {
-    await clickTab(page, 'Me');
+    // Me lives in the Sidebar on desktop and the AppHeader avatar on mobile —
+    // clickMe resolves the right one. (Active-state assertion lives in me-tab.spec.)
+    await clickMe(page);
     await page.waitForURL('/profile', { timeout: 20_000 });
     // 20s covers Mobile Chrome (Pixel 5) where name state resolves slowly after auth.
     await expect(page.getByText('Test Učenik').first()).toBeVisible({ timeout: 20_000 });
-    const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await expect(nav.getByRole('button', { name: 'Me', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
   });
 
   test('tab switches correctly update active state', async ({ page }) => {

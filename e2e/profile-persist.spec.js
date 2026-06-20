@@ -12,7 +12,7 @@
  * Use page.goto('/') instead — addInitScript seeds run on every navigation.
  */
 import { test, expect } from '@playwright/test';
-import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL } from './fixtures/seed-auth.js';
+import { seedAuth, blockFirebase, mockTTS, TEST_EMAIL, clickMe } from './fixtures/seed-auth.js';
 
 /** Read stats from localStorage, handling both { st: {...} } and { stats: {...} } formats.
  * Retries up to 3 times to survive React Router's internal history.pushState() calls
@@ -122,7 +122,7 @@ test.describe('Progress persistence across sessions', () => {
     await page.waitForTimeout(300);
     await nav.getByRole('button', { name: 'Croatia', exact: true }).click();
     await page.waitForTimeout(300);
-    await nav.getByRole('button', { name: 'Me', exact: true }).click();
+    await clickMe(page); // Sidebar on desktop, AppHeader avatar on mobile
     await page.waitForTimeout(300);
     await nav.getByRole('button', { name: 'Today', exact: true }).click();
     await page.waitForTimeout(300);
