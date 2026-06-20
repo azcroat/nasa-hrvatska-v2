@@ -1,0 +1,69 @@
+<svg viewBox="0 0 392 158" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c4d8ee"/><stop offset="1" stop-color="#9fbce0"/></linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f6f78"/><stop offset="1" stop-color="#565660"/></linearGradient>
+  </defs>
+  <rect x="0" y="0" width="392" height="120" fill="url(#sky)"/>
+  <rect x="0" y="120" width="392" height="38" fill="url(#road)"/>
+  <rect x="0" y="116" width="392" height="6" fill="#8a8a92"/>
+
+  <!-- storefront A: cream shop with striped awning -->
+  <rect x="110" y="40" width="78" height="76" fill="#dcc8a4"/>
+  <rect x="108" y="36" width="82" height="7" fill="#b5642f"/>
+  <rect x="120" y="52" width="20" height="26" rx="2" fill="#bcd6ee"/>
+  <rect x="150" y="52" width="20" height="26" rx="2" fill="#bcd6ee"/>
+  <rect x="114" y="86" width="70" height="9" fill="#D40030"/>
+  <g fill="#ffffff"><rect x="114" y="86" width="12" height="9"/><rect x="138" y="86" width="12" height="9"/><rect x="162" y="86" width="12" height="9"/></g>
+  <rect x="138" y="95" width="22" height="21" fill="#7a5a36"/>
+
+  <!-- storefront B: blue facade (accent) -->
+  <rect x="188" y="34" width="70" height="82" fill="#2563eb"/>
+  <rect x="186" y="30" width="74" height="7" fill="#1d4ed8"/>
+  <rect x="198" y="46" width="18" height="22" fill="#cfe3f6"/>
+  <rect x="226" y="46" width="18" height="22" fill="#cfe3f6"/>
+  <rect x="198" y="78" width="18" height="22" fill="#cfe3f6"/>
+  <rect x="222" y="92" width="24" height="24" fill="#13357f"/>
+
+  <!-- storefront C: terracotta with balcony -->
+  <rect x="258" y="44" width="92" height="72" fill="#c17a4a"/>
+  <rect x="256" y="40" width="96" height="7" fill="#8a4f2a"/>
+  <rect x="270" y="56" width="22" height="24" fill="#bcd6ee"/>
+  <rect x="312" y="56" width="22" height="24" fill="#bcd6ee"/>
+  <rect x="266" y="82" width="78" height="4" fill="#6b4e2e"/>
+  <line x1="272" y1="86" x2="272" y2="98" stroke="#6b4e2e" stroke-width="2"/>
+  <line x1="286" y1="86" x2="286" y2="98" stroke="#6b4e2e" stroke-width="2"/>
+  <line x1="300" y1="86" x2="300" y2="98" stroke="#6b4e2e" stroke-width="2"/>
+
+  <!-- overhead tram wire -->
+  <line x1="0" y1="30" x2="392" y2="30" stroke="#4a4a4a" stroke-width="1.5"/>
+
+  <!-- ornate lamppost (clear of portrait zone) -->
+  <rect x="122" y="64" width="4" height="52" fill="#2f2f36"/>
+  <rect x="116" y="62" width="16" height="4" fill="#2f2f36"/>
+  <circle cx="124" cy="57" r="6" fill="#ffe08a"/>
+  <circle cx="124" cy="57" r="6" fill="none" stroke="#2f2f36" stroke-width="1.5"/>
+
+  <!-- blue Zagreb tram (hero) -->
+  <rect x="222" y="30" width="5" height="56" fill="#6a6a72"/>
+  <rect x="152" y="84" width="150" height="34" rx="6" fill="#0e63ad"/>
+  <rect x="152" y="84" width="150" height="11" rx="6" fill="#eef2f5"/>
+  <rect x="160" y="97" width="26" height="14" rx="2" fill="#bfe0e6"/>
+  <rect x="192" y="97" width="26" height="14" rx="2" fill="#bfe0e6"/>
+  <rect x="224" y="97" width="26" height="14" rx="2" fill="#bfe0e6"/>
+  <rect x="266" y="97" width="30" height="19" rx="2" fill="#cfe3f6"/>
+  <rect x="282" y="86" width="14" height="8" rx="2" fill="#D40030"/>
+  <circle cx="294" cy="114" r="3" fill="#ffe08a"/>
+  <circle cx="176" cy="120" r="8" fill="#26262b"/><circle cx="176" cy="120" r="3.5" fill="#9a9aa2"/>
+  <circle cx="270" cy="120" r="8" fill="#26262b"/><circle cx="270" cy="120" r="3.5" fill="#9a9aa2"/>
+
+  <!-- small yellow taxi pulling in, right -->
+  <rect x="314" y="100" width="58" height="16" rx="4" fill="#f0c020"/>
+  <rect x="326" y="92" width="32" height="10" rx="3" fill="#f0c020"/>
+  <rect x="330" y="93" width="24" height="8" fill="#2b3a4a"/>
+  <rect x="338" y="87" width="12" height="6" rx="2" fill="#D40030"/>
+  <circle cx="328" cy="118" r="6" fill="#26262b"/><circle cx="328" cy="118" r="2.6" fill="#9a9aa2"/>
+  <circle cx="360" cy="118" r="6" fill="#26262b"/><circle cx="360" cy="118" r="2.6" fill="#9a9aa2"/>
+
+  <!-- lane markings -->
+  <rect x="150" y="140" width="22" height="4" fill="#cfcfd6"/><rect x="200" y="140" width="22" height="4" fill="#cfcfd6"/><rect x="250" y="140" width="22" height="4" fill="#cfcfd6"/><rect x="300" y="140" width="22" height="4" fill="#cfcfd6"/>
+</svg>
