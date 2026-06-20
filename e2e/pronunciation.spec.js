@@ -1113,24 +1113,12 @@ test.describe('Croatia tab', () => {
     expect(body).not.toContain('Something went wrong');
   });
 
-  test('Discover sub-tab accessible', async ({ page }) => {
-    const discoverBtn = page.getByRole('button', { name: /Discover/i }).first();
-    if (await discoverBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
-      await discoverBtn.click();
-      await page.waitForTimeout(200);
-      const body = await page.locator('body').textContent();
-      expect(body.trim().length).toBeGreaterThan(50);
-    }
-  });
-
-  test('Culture sub-tab accessible', async ({ page }) => {
-    const cultureBtn = page.getByRole('button', { name: /Culture/i }).first();
-    if (await cultureBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
-      await cultureBtn.click();
-      await page.waitForTimeout(200);
-      const body = await page.locator('body').textContent();
-      expect(body.trim().length).toBeGreaterThan(50);
-    }
+  test('doors surface accessible', async ({ page }) => {
+    await expect(page.getByText('Danas u Hrvatskoj')).toBeVisible({ timeout: 15_000 });
+    await page.getByText('Krajevi').first().click();
+    await expect(page.getByText('← Hrvatska')).toBeVisible({ timeout: 8_000 });
+    const body = await page.locator('body').textContent();
+    expect(body.trim().length).toBeGreaterThan(50);
   });
 
   test('no seasonal banner for past holidays (Easter fix)', async ({ page }) => {

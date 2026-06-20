@@ -63,12 +63,12 @@ test.describe('Tab navigation', () => {
     await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
   });
 
-  test('navigates to Culture tab and shows History & Regions heading', async ({ page }) => {
+  test('navigates to Croatia tab and shows the Hrvatska doors surface', async ({ page }) => {
     await clickTab(page, 'Croatia');
     // Confirm URL changed then check content first, active class last
     await page.waitForURL('/croatia', { timeout: 20_000 });
-    // Heading check with generous timeout for lazy-chunk load on Firefox/WebKit
-    await expect(page.getByRole('heading', { name: /History.*Regions/i })).toBeVisible({ timeout: 20_000 });
+    // Danas card with generous timeout for lazy-chunk load on Firefox/WebKit
+    await expect(page.getByText('Danas u Hrvatskoj')).toBeVisible({ timeout: 20_000 });
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Croatia', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
   });

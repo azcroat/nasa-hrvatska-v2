@@ -187,8 +187,8 @@ test.describe('Accessibility — WCAG 2.1 AA (authenticated routes)', () => {
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
       timeout: 15_000,
     });
-    // Wait for the Croatia tab heading to confirm content has loaded
-    await page.getByRole('heading', { name: /History.*Regions/i }).waitFor({ timeout: 10_000 }).catch(() => {});
+    // Wait for the Danas card to confirm the Hrvatska doors surface has loaded
+    await page.getByText('Danas u Hrvatskoj').waitFor({ timeout: 10_000 }).catch(() => {});
     await waitForSettle(page);
 
     const violations = await runAxe(page, 'Croatia /croatia');
