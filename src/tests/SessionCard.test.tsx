@@ -168,48 +168,19 @@ describe('SessionCard — host-of-day header (Phase 7b Dom unification)', () => 
     sceneUrl: '/images/scenes/dubrovnik-ai.webp',
   } as const;
 
-  it('renders host greeting, name and portrait; hides the legacy crest title', () => {
-    render(
-      <SessionCard
-        {...BASE_PROPS}
-        session={makeSession()}
-        {...HOST_PROPS}
-        onTalkToHost={vi.fn()}
-      />,
-    );
+  it('renders host greeting, name, portrait; no legacy crest title; no in-card Razgovor button', () => {
+    render(<SessionCard {...BASE_PROPS} session={makeSession()} {...HOST_PROPS} />);
     expect(screen.getByTestId('session-host')).toBeTruthy();
     expect(screen.getByText(/Ivana/)).toBeTruthy(); // greeting carries the user name
     expect(screen.getByText('Baka Marija')).toBeTruthy();
     expect(screen.getByTestId('portrait-baka')).toBeTruthy();
     expect(screen.queryByText('Dnevna Vježba')).toBeNull(); // legacy crest title gone in host mode
+    expect(screen.queryByTestId('host-talk')).toBeNull(); // Razgovor affordance moved to RazgovorHomeCard
   });
 
   it("still surfaces the Today's Session label in host mode (e2e contract)", () => {
-    render(
-      <SessionCard
-        {...BASE_PROPS}
-        session={makeSession()}
-        {...HOST_PROPS}
-        onTalkToHost={vi.fn()}
-      />,
-    );
+    render(<SessionCard {...BASE_PROPS} session={makeSession()} {...HOST_PROPS} />);
     expect(screen.getByText(/TODAY'S SESSION/i)).toBeTruthy();
-  });
-
-  it('portrait and Razgovor button both invoke onTalkToHost', () => {
-    const onTalkToHost = vi.fn();
-    render(
-      <SessionCard
-        {...BASE_PROPS}
-        session={makeSession()}
-        {...HOST_PROPS}
-        onTalkToHost={onTalkToHost}
-      />,
-    );
-    fireEvent.click(screen.getByTestId('host-talk'));
-    expect(onTalkToHost).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByLabelText('Razgovor s Baka Marija'));
-    expect(onTalkToHost).toHaveBeenCalledTimes(2);
   });
 
   it('renders the host header in the complete state too', () => {
@@ -219,7 +190,6 @@ describe('SessionCard — host-of-day header (Phase 7b Dom unification)', () => 
         session={makeSession(['a1', 'a2'])}
         isComplete={true}
         {...HOST_PROPS}
-        onTalkToHost={vi.fn()}
       />,
     );
     expect(screen.getByTestId('session-host')).toBeTruthy();

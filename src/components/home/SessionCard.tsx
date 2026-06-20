@@ -27,7 +27,6 @@ function HostHeader({
   userName,
   hostQuote,
   sceneUrl,
-  onTalkToHost,
   rounded = false,
 }: {
   host: CharacterName;
@@ -35,7 +34,6 @@ function HostHeader({
   userName: string;
   hostQuote: string;
   sceneUrl: string;
-  onTalkToHost?: () => void;
   /** Standalone (complete state) needs its own rounded clip; inside the navy card
    *  the parent clips, so corners stay square. */
   rounded?: boolean;
@@ -71,13 +69,9 @@ function HostHeader({
         }}
       />
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button
-          onClick={onTalkToHost}
-          aria-label={`Razgovor s ${hostName}`}
+        <span
           style={{
             flex: 'none',
-            border: 'none',
-            cursor: onTalkToHost ? 'pointer' : 'default',
             borderRadius: '50%',
             padding: 3,
             background: 'linear-gradient(135deg,#FFE070,#C8980A)',
@@ -97,7 +91,7 @@ function HostHeader({
           >
             <CharacterPortrait name={host} title={hostName} size={52} />
           </span>
-        </button>
+        </span>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div
             style={{
@@ -121,29 +115,6 @@ function HostHeader({
             {hostName}
           </div>
         </div>
-        {onTalkToHost && (
-          <button
-            onClick={onTalkToHost}
-            data-testid="host-talk"
-            style={{
-              flex: 'none',
-              alignSelf: 'center',
-              background: 'rgba(255,255,255,.16)',
-              border: '1px solid rgba(255,255,255,.35)',
-              borderRadius: 10,
-              padding: '7px 11px',
-              fontSize: 11,
-              fontWeight: 800,
-              color: '#fff',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              fontFamily: "'Outfit',sans-serif",
-              textShadow: '0 1px 2px rgba(0,0,0,.4)',
-            }}
-          >
-            💬 Razgovor →
-          </button>
-        )}
       </div>
       <div
         style={{
@@ -207,8 +178,6 @@ interface SessionCardProps {
   userName?: string;
   hostQuote?: string;
   sceneUrl?: string;
-  /** Opens Razgovor with `host` preselected (portrait + Razgovor button). */
-  onTalkToHost?: () => void;
 }
 
 // ── Šahovnica Croatian coat of arms crest ──
@@ -342,7 +311,6 @@ export default function SessionCard({
   userName,
   hostQuote,
   sceneUrl,
-  onTalkToHost,
 }: SessionCardProps) {
   const showHost = !!(host && hostName && userName && hostQuote && sceneUrl);
   const completedCount = session.completedIds.length;
@@ -362,7 +330,6 @@ export default function SessionCard({
               userName={userName!}
               hostQuote={hostQuote!}
               sceneUrl={sceneUrl!}
-              onTalkToHost={onTalkToHost}
               rounded
             />
           )}
@@ -499,7 +466,6 @@ export default function SessionCard({
               userName={userName!}
               hostQuote={hostQuote!}
               sceneUrl={sceneUrl!}
-              onTalkToHost={onTalkToHost}
             />
           )}
 
