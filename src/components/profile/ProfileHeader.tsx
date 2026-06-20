@@ -1,6 +1,5 @@
 import React from 'react';
 import { lXP, nXP, getStreak } from '../../lib/appUtils.js';
-import CroatianKnight from '../shared/CroatianKnight';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 
@@ -215,20 +214,6 @@ export default function ProfileHeader({ syncTime = 0 }: { syncTime?: number }) {
           ))}
         </div>
       </div>
-
-      {/* Decorative knight — bottom right corner */}
-      <CroatianKnight
-        size={48}
-        mood="encouraged"
-        style={{
-          position: 'absolute',
-          bottom: 10,
-          right: 12,
-          opacity: 0.3,
-          pointerEvents: 'none',
-          zIndex: 2,
-        }}
-      />
     </div>
   );
 }

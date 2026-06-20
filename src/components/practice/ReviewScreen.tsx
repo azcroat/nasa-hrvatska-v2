@@ -9,7 +9,7 @@ import { useStats } from '../../context/StatsContext';
 import { logError } from '../../lib/learnerErrors.js';
 import { _aiPost } from '../../lib/aiPost';
 import { playFanfare as _playFanfare } from '../../lib/soundSettings.js';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
 interface AiExplanation {
@@ -218,7 +218,6 @@ export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenPro
 
   if (done) {
     const pct = Math.round((score / questions.length) * 100);
-    const mood = pct >= 80 ? 'victory' : pct >= 50 ? 'encouraged' : 'thinking';
     return (
       <div
         style={{
@@ -258,11 +257,9 @@ export default function ReviewScreen({ goBack, award, allCats }: ReviewScreenPro
             gap: 0,
           }}
         >
-          <CroatianKnight
-            size={90}
-            mood={mood}
-            style={{ marginBottom: 8, animation: 'bounce-in .5s ease' }}
-          />
+          <div style={{ textAlign: 'center', marginBottom: 8, animation: 'bounce-in .5s ease' }}>
+            <CharacterPortrait name="kovac" size={90} />
+          </div>
 
           <div style={{ fontSize: 56, marginBottom: 8, animation: 'bounce-in .5s ease .1s both' }}>
             {pct >= 80 ? '🌟' : pct >= 50 ? '🎉' : '💪'}

@@ -82,7 +82,6 @@ vi.mock('../lib/appUtils.js', () => ({
   XP_BOOST_COST: 200,
 }));
 vi.mock('../components/shared/CroatianGrb', () => ({ default: () => null }));
-vi.mock('../components/shared/CroatianKnight', () => ({ default: () => null }));
 
 import HeroSection from '../components/home/HeroSection';
 

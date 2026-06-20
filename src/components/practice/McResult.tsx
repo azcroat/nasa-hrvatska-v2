@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { sh } from '../../data';
 import { useContent } from '../../hooks/useContent';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 
 interface McResultProps {
@@ -60,7 +60,7 @@ export default function McResult({
             ? 'encouraged'
             : 'thinking',
       ratio === 1
-        ? 'Savršeno! Perfect quiz — Vitez Hrvoje is impressed. ⚔️'
+        ? 'Savršeno! Perfect quiz — prof. Kovač is impressed. ⚔️'
         : ratio >= 0.8
           ? `${score}/${total} — that's strong work. Almost perfect. 💪`
           : ratio >= 0.5
@@ -141,19 +141,9 @@ export default function McResult({
     <div className="scr-wrap">
       {/* ── Knight + heading ── delay 0s */}
       <div style={{ animation: 'fade-up 0.5s ease both', animationDelay: '0s' }}>
-        <CroatianKnight
-          size={90}
-          mood={
-            score === total
-              ? 'victory'
-              : score / total >= 0.8
-                ? 'celebrating'
-                : score / total >= 0.6
-                  ? 'happy'
-                  : 'encouraged'
-          }
-          style={{ margin: '0 auto 8px', display: 'block' }}
-        />
+        <div style={{ textAlign: 'center', marginBottom: 8 }}>
+          <CharacterPortrait name="kovac" size={90} />
+        </div>
         <div style={{ fontSize: 64 }}>{score === total ? '🌟' : '🎉'}</div>
         <h2
           style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, color: 'var(--heading)' }}

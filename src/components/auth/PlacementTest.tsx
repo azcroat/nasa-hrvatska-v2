@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Bar } from '../../data';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 
 const PLACEMENT_QUESTIONS = [
   // Level 1 — A1 Survival (4 questions)
@@ -264,11 +264,9 @@ export default function PlacementTest({ onComplete, onCancel }: PlacementTestPro
     return (
       <div className="scr-wrap">
         <div style={{ textAlign: 'center', padding: '28px 20px 16px' }}>
-          <CroatianKnight
-            size={100}
-            mood="ready"
-            style={{ margin: '0 auto 12px', display: 'block' }}
-          />
+          <span style={{ display: 'block', textAlign: 'center', margin: '0 auto 12px' }}>
+            <CharacterPortrait name="kovac" size={100} />
+          </span>
           <h2
             style={{
               fontFamily: "'Playfair Display',serif",
@@ -335,11 +333,9 @@ export default function PlacementTest({ onComplete, onCancel }: PlacementTestPro
   if (done) {
     return (
       <div className="scr-wrap" style={{ paddingBottom: 80, textAlign: 'center' }}>
-        <CroatianKnight
-          size={90}
-          mood={placedLevel >= 4 ? 'victory' : placedLevel >= 3 ? 'celebrating' : 'encouraged'}
-          style={{ margin: '0 auto 12px', display: 'block' }}
-        />
+        <span style={{ display: 'block', textAlign: 'center', margin: '0 auto 12px' }}>
+          <CharacterPortrait name="kovac" size={90} />
+        </span>
         <h2
           style={{
             fontFamily: "'Playfair Display',serif",
@@ -512,11 +508,7 @@ export default function PlacementTest({ onComplete, onCancel }: PlacementTestPro
         {answered && (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <CroatianKnight
-                size={50}
-                mood={selected === q.answer ? 'encouraged' : 'thinking'}
-                style={{ flexShrink: 0 }}
-              />
+              <CharacterPortrait name="kovac" size={50} />
               <div
                 style={{
                   fontSize: 14,

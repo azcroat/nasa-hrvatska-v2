@@ -11,7 +11,7 @@ import { speakProsody } from '../../lib/audio.js';
 import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
 import { knightSpeak } from '../../lib/knightSpeak.js';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 import { PITCH_ACCENT_LESSONS } from '../../data/pitchAccentContent.js';
 
 // Map accent id → rich lesson data
@@ -554,7 +554,7 @@ export default function PitchAccentMastery({
             marginBottom: 20,
           }}
         >
-          <CroatianKnight size={52} mood="thinking" style={{ flexShrink: 0 }} />
+          <CharacterPortrait name="kovac" size={52} />
           <div style={{ flex: 1 }}>
             <div
               style={{
@@ -566,7 +566,7 @@ export default function PitchAccentMastery({
                 marginBottom: 4,
               }}
             >
-              Vitez Hrvoje says
+              prof. Kovač kaže
             </div>
             <div style={{ fontSize: 13, color: 'var(--body)', lineHeight: 1.6 }}>
               Pitch accent is why Croatian sounds like music to foreign ears. It&apos;s also why two
