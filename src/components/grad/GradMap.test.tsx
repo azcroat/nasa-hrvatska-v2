@@ -15,7 +15,10 @@ const rec: Recommendation = {
 };
 
 const statsByPlace = Object.fromEntries(
-  ['kavana', 'trznica', 'soba', 'kuhinja', 'ulica', 'trg'].map((id) => [id, { due: 0, total: 5 }]),
+  ['kavana', 'trznica', 'soba', 'kuhinja', 'ulica', 'trg'].map((id) => [
+    id,
+    { done: 0, total: 5, due: 0, lockedCount: 0 },
+  ]),
 );
 
 describe('GradMap', () => {
@@ -31,5 +34,50 @@ describe('GradMap', () => {
     render(<GradMap rec={rec} onOpenPlace={onOpen} statsByPlace={statsByPlace} />);
     fireEvent.click(screen.getByRole('button', { name: 'Markova tržnica' }));
     expect(onOpen).toHaveBeenCalledWith('trznica');
+  });
+});
+
+describe('GradMap — living markers', () => {
+  function statsWith(over: Record<string, object>) {
+    return { ...statsByPlace, ...over };
+  }
+
+  it('shows a due badge only when due > 0', () => {
+    render(
+      <GradMap
+        rec={rec}
+        onOpenPlace={vi.fn()}
+        statsByPlace={statsWith({ trznica: { done: 1, total: 5, due: 3, lockedCount: 0 } })}
+      />,
+    );
+    expect(screen.getByTestId('due-badge-trznica')).toHaveTextContent('3');
+    expect(screen.queryByTestId('due-badge-soba')).toBeNull();
+  });
+
+  it('renders a completion ring whose fill reflects done/available', () => {
+    render(
+      <GradMap
+        rec={rec}
+        onOpenPlace={vi.fn()}
+        statsByPlace={statsWith({ soba: { done: 3, total: 4, due: 0, lockedCount: 0 } })}
+      />,
+    );
+    const ring = screen.getByTestId('ring-soba');
+    expect(ring.getAttribute('data-completion')).toBe('0.75');
+  });
+
+  it('marks a fully-locked place: dimmed + lock, no due badge, still clickable', () => {
+    const onOpen = vi.fn();
+    render(
+      <GradMap
+        rec={rec}
+        onOpenPlace={onOpen}
+        statsByPlace={statsWith({ ulica: { done: 0, total: 5, due: 2, lockedCount: 5 } })}
+      />,
+    );
+    expect(screen.getByTestId('marker-locked-ulica')).toBeInTheDocument();
+    expect(screen.queryByTestId('due-badge-ulica')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Ivina ulica' }));
+    expect(onOpen).toHaveBeenCalledWith('ulica');
   });
 });

@@ -16,7 +16,7 @@ export default function GradMap({
 }: {
   rec: Recommendation;
   onOpenPlace: (id: PlaceId) => void;
-  statsByPlace: Record<string, { due: number; total: number }>;
+  statsByPlace: Record<string, { done: number; total: number; due: number; lockedCount: number }>;
 }) {
   return (
     <div
@@ -59,9 +59,15 @@ export default function GradMap({
       </div>
 
       {PLACES.map((p) => {
-        const s = statsByPlace[p.id] ?? { due: 0, total: 0 };
-        const recommended = rec.placeId === p.id;
-        const badge = recommended ? rec.count || s.due : s.due;
+        const s = statsByPlace[p.id] ?? { done: 0, total: 0, due: 0, lockedCount: 0 };
+        const available = s.total - s.lockedCount;
+        const completion = available > 0 ? Math.min(1, s.done / available) : 0;
+        const isLocked = s.total > 0 && s.lockedCount === s.total;
+        const isMastered = available > 0 && s.done >= available && s.due === 0;
+        const recommended = rec.placeId === p.id && !isLocked;
+        const showDue = s.due > 0 && !isLocked;
+        const R = 16;
+        const CIRC = 2 * Math.PI * R;
         return (
           <button
             key={p.id}
@@ -77,6 +83,7 @@ export default function GradMap({
               padding: 0,
               cursor: 'pointer',
               fontFamily: "'Outfit',sans-serif",
+              opacity: isLocked ? 0.55 : 1,
             }}
           >
             <span
@@ -117,13 +124,14 @@ export default function GradMap({
                     : '0 5px 14px rgba(0,0,0,.28)',
                 }}
               >
-                {recommended && badge > 0 && (
+                {showDue && (
                   <span
+                    data-testid={`due-badge-${p.id}`}
                     style={{
                       position: 'absolute',
                       top: -8,
                       right: -8,
-                      background: '#C8980A',
+                      background: recommended ? '#C8980A' : '#D40030',
                       color: '#fff',
                       fontSize: 10,
                       fontWeight: 900,
@@ -137,22 +145,57 @@ export default function GradMap({
                       border: '2px solid #fff',
                     }}
                   >
-                    {badge}
+                    {s.due}
                   </span>
                 )}
                 <span
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 9,
-                    background: p.tint,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 16,
-                  }}
+                  data-testid={`ring-${p.id}`}
+                  data-completion={String(completion)}
+                  style={{ position: 'relative', width: 32, height: 32, flex: 'none' }}
                 >
-                  {p.icon}
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 36 36"
+                    style={{ position: 'absolute', inset: 0 }}
+                  >
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r={R}
+                      fill="none"
+                      stroke="rgba(31,41,55,.14)"
+                      strokeWidth="3"
+                    />
+                    {!isLocked && completion > 0 && (
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r={R}
+                        fill="none"
+                        stroke={isMastered ? '#C8980A' : '#0e7490'}
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeDasharray={`${completion * CIRC} ${CIRC}`}
+                        transform="rotate(-90 18 18)"
+                      />
+                    )}
+                  </svg>
+                  <span
+                    {...(isLocked ? { 'data-testid': `marker-locked-${p.id}` } : {})}
+                    style={{
+                      position: 'absolute',
+                      inset: 4,
+                      borderRadius: 8,
+                      background: p.tint,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 14,
+                    }}
+                  >
+                    {isLocked ? '🔒' : p.icon}
+                  </span>
                 </span>
                 <span
                   style={{

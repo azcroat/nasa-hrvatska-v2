@@ -210,9 +210,9 @@ export default function GradTab({
   const statsByPlace = Object.fromEntries(
     PLACES.map((p) => {
       const s = placeStats(p.id, ctx);
-      return [p.id, { due: s.due, total: s.total }];
+      return [p.id, { done: s.done, total: s.total, due: s.due, lockedCount: s.lockedCount }];
     }),
-  ) as Record<string, { due: number; total: number }>;
+  ) as Record<string, { done: number; total: number; due: number; lockedCount: number }>;
 
   const teal = '#0e7490';
 
