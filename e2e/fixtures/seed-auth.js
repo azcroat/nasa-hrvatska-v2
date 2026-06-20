@@ -140,6 +140,19 @@ export async function openAlat(page, label) {
 }
 
 /**
+ * Hrvatska (Phase 7b): the Croatia tab became a doors surface — a "Danas u
+ * Hrvatskoj" card + five host-voiced doors (Priče/Krajevi/Život/Povijest i
+ * jezik/Mediji). Tab route key is still /croatia. Opens a door by its visible
+ * title (substring match so a door whose title carries an icon prefix still
+ * matches).
+ */
+export async function openDoor(page, name) {
+  await page.goto('/croatia');
+  await page.getByText('Danas u Hrvatskoj').waitFor({ state: 'visible', timeout: 20_000 });
+  await page.getByText(name).first().click();
+}
+
+/**
  * Mock the MyMemory translation API used by Quick Translate.
  */
 export async function mockTranslate(page, translatedText = 'Dobar dan') {
