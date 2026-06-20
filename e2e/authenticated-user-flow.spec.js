@@ -5,6 +5,7 @@
  * streak display, navigation, offline resilience, and practice games.
  */
 import { test, expect } from '@playwright/test';
+import { clickMe } from './fixtures/seed-auth.js';
 
 const EMAIL = process.env.TEST_EMAIL;
 const PASSWORD = process.env.TEST_PASSWORD;
@@ -193,9 +194,11 @@ test.describe('Authenticated user flow', () => {
     page.on('pageerror', e => errors.push(e.message));
 
     await signIn(page);
-    // Visit every main tab
+    // Visit every main tab. Me is in the Sidebar (desktop) / AppHeader avatar
+    // (mobile, aria-label only — no "Me" text), so reach it via clickMe.
     for (const tab of ['Learn', 'Practice', 'Croatia', 'Me', 'Today']) {
-      await page.getByText(new RegExp(`^${tab}$`, 'i')).first().click();
+      if (tab === 'Me') await clickMe(page);
+      else await page.getByText(new RegExp(`^${tab}$`, 'i')).first().click();
       await page.waitForTimeout(1500);
     }
 

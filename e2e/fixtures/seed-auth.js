@@ -153,6 +153,31 @@ export async function openDoor(page, name) {
 }
 
 /**
+ * Returns the viewport-correct "Me"/profile entry-point locator.
+ * Phase 4 moved profile OFF the mobile bottom bar: desktop keeps it in the
+ * Sidebar ('Main navigation' > 'Me'), mobile shows it in the AppHeader
+ * (data-testid 'header-profile', aria-label 'Me', desktop-hidden via CSS).
+ * The bottom TabBar has no 'Me', so a nav-scoped `name: 'Me'` lookup fails on
+ * mobile projects (Pixel 5 / iPhone 14). Use this everywhere instead.
+ */
+// NB: the AppHeader avatar is display:none on desktop but still PRESENT in the
+// DOM, so a Playwright `.or()` would match two elements there and trip strict
+// mode. Resolve to the element that is actually visible in the current viewport.
+export async function meButton(page) {
+  const sidebarMe = page
+    .getByRole('navigation', { name: 'Main navigation' })
+    .getByRole('button', { name: 'Me', exact: true });
+  return (await sidebarMe.isVisible().catch(() => false))
+    ? sidebarMe
+    : page.getByTestId('header-profile');
+}
+
+/** Click the Me/profile entry point regardless of viewport. */
+export async function clickMe(page, options) {
+  await (await meButton(page)).click(options);
+}
+
+/**
  * Mock the MyMemory translation API used by Quick Translate.
  */
 export async function mockTranslate(page, translatedText = 'Dobar dan') {
