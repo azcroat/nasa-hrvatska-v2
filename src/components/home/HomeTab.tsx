@@ -73,7 +73,7 @@ import { useDailySession } from '../../hooks/useDailySession';
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
 import RazgovorHomeCard from './RazgovorHomeCard';
-import { hostOfDay, HOST_NAME, HOST_WELCOME } from './hostFamily';
+import { hostOfDay } from './hostFamily';
 import { getServableReviewCount } from '../../lib/srs';
 
 const LEVEL_PALETTE = [
@@ -433,11 +433,9 @@ export default function HomeTab({
       ? st.vs.includes(nextLearnPathItem.id)
       : false;
 
-  // Host-of-the-day for the unified SessionCard hero (Phase 7b Dom unification —
-  // folds the old standalone HostFamilyWelcome banner into the session card).
+  // Host-of-the-day for the Razgovor card (the host lives ONLY in that card now —
+  // the Session card above is purely the session, no host banner).
   const host = hostOfDay(currentDayIdx);
-  const hostScene = HOST_WELCOME[host];
-  const hostSceneUrl = `${import.meta.env.BASE_URL}images/scenes/${hostScene.scene}`;
   const goTalkToHost = () => {
     // Hand off to RazgovorTab, which opens this partner on mount.
     try {
@@ -513,14 +511,9 @@ export default function HomeTab({
         </div>
       )}
 
-      {/* ── DAILY SESSION CARD (host-led unified hero — Phase 7b) ── */}
+      {/* ── DAILY SESSION CARD (session only — host lives in the Razgovor card below) ── */}
       <SessionCard
         session={session}
-        host={host}
-        hostName={HOST_NAME[host]}
-        userName={authUser?.d || 'Learner'}
-        hostQuote={hostScene.hr}
-        sceneUrl={hostSceneUrl}
         isComplete={isComplete}
         progress={progress}
         nextActivity={nextActivity}
