@@ -1,137 +1,10 @@
 // src/components/home/SessionCard.tsx
 import React from 'react';
 import type { DailySession, SessionActivity } from '../../hooks/useDailySession';
-import CharacterPortrait from '../family/CharacterPortrait';
-import type { CharacterName } from '../family/portraits';
 
 // Croatian identity palette — single source of truth for brand colors used in this card
 const CROATIAN_RED = '#CC0000';
 const CROATIAN_BLUE = '#002868';
-
-function timeGreeting(): string {
-  const h = new Date().getHours();
-  return h < 12 ? 'Dobro jutro' : h < 18 ? 'Dobar dan' : 'Dobra večer';
-}
-
-/**
- * Host-of-the-day header — the family member greets the user by name over an
- * Adriatic scene, at the top of the SAME card that holds today's session. The
- * portrait and the "Razgovor" affordance both open a conversation with that
- * exact partner (Dom host and Razgovor partner are the same person on the same
- * daily rotation). Replaces the standalone HostFamilyWelcome banner so the page
- * has ONE hero, not two. Rendered only when `host` props are supplied.
- */
-function HostHeader({
-  host,
-  hostName,
-  userName,
-  hostQuote,
-  sceneUrl,
-  rounded = false,
-}: {
-  host: CharacterName;
-  hostName: string;
-  userName: string;
-  hostQuote: string;
-  sceneUrl: string;
-  /** Standalone (complete state) needs its own rounded clip; inside the navy card
-   *  the parent clips, so corners stay square. */
-  rounded?: boolean;
-}) {
-  const greeting = `${timeGreeting()}, ${userName}!`;
-  return (
-    <div
-      data-testid="session-host"
-      style={{
-        position: 'relative',
-        padding: '15px 16px 14px',
-        color: '#fff',
-        ...(rounded ? { borderRadius: 18, overflow: 'hidden', marginBottom: 12 } : null),
-      }}
-    >
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `url('${sceneUrl}')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 35%',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            'linear-gradient(180deg,rgba(8,40,55,.34) 0%,rgba(8,40,55,.22) 50%,rgba(0,22,64,.92) 100%)',
-        }}
-      />
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span
-          style={{
-            flex: 'none',
-            borderRadius: '50%',
-            padding: 3,
-            background: 'linear-gradient(135deg,#FFE070,#C8980A)',
-            boxShadow: '0 4px 14px rgba(0,0,0,.35)',
-          }}
-        >
-          <span
-            style={{
-              display: 'block',
-              width: 56,
-              height: 56,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: '2px solid rgba(255,255,255,.9)',
-              background: '#fbf6ec',
-            }}
-          >
-            <CharacterPortrait name={host} title={hostName} size={52} />
-          </span>
-        </span>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              opacity: 0.95,
-              textShadow: '0 1px 3px rgba(0,0,0,.45)',
-            }}
-          >
-            {greeting}
-          </div>
-          <div
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: 19,
-              fontWeight: 700,
-              lineHeight: 1.05,
-              textShadow: '0 1px 4px rgba(0,0,0,.45)',
-            }}
-          >
-            {hostName}
-          </div>
-        </div>
-      </div>
-      <div
-        style={{
-          position: 'relative',
-          fontFamily: "'Playfair Display', serif",
-          fontStyle: 'italic',
-          fontSize: 13.5,
-          lineHeight: 1.4,
-          margin: '11px 2px 0',
-          textShadow: '0 1px 4px rgba(0,0,0,.45)',
-        }}
-      >
-        „{hostQuote}”
-      </div>
-    </div>
-  );
-}
 
 /** Minimal shape needed by SessionCard — avoids importing the full LearnPathItem type */
 interface LearnPathChipItem {
@@ -167,17 +40,6 @@ interface SessionCardProps {
   bonusActivities?: SessionActivity[];
   /** Click handler for a bonus activity — receives the activity, parent decides routing. */
   onBonusStart?: (activity: SessionActivity) => void;
-  /**
-   * Host-of-the-day header (Phase 7b Dom unification). When `host` is provided,
-   * SessionCard renders a family-member greeting at the top of the card — folding
-   * in the old standalone HostFamilyWelcome banner. Omitted in unit tests, which
-   * keeps the legacy crest header path.
-   */
-  host?: CharacterName;
-  hostName?: string;
-  userName?: string;
-  hostQuote?: string;
-  sceneUrl?: string;
 }
 
 // ── Šahovnica Croatian coat of arms crest ──
@@ -306,13 +168,7 @@ export default function SessionCard({
   learnPathItemDone = false,
   bonusActivities = [],
   onBonusStart,
-  host,
-  hostName,
-  userName,
-  hostQuote,
-  sceneUrl,
 }: SessionCardProps) {
-  const showHost = !!(host && hostName && userName && hostQuote && sceneUrl);
   const completedCount = session.completedIds.length;
   const totalCount = session.activities.length;
   const inProgress = completedCount > 0 && !isComplete;
@@ -322,118 +178,106 @@ export default function SessionCard({
       {/* ── SESSION CARD ── */}
       {isComplete ? (
         /* ── STATE C: COMPLETE ── */
-        <React.Fragment>
-          {showHost && (
-            <HostHeader
-              host={host!}
-              hostName={hostName!}
-              userName={userName!}
-              hostQuote={hostQuote!}
-              sceneUrl={sceneUrl!}
-              rounded
-            />
-          )}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(22,163,74,.12), rgba(22,163,74,.05))',
+            border: '1.5px solid rgba(22,163,74,.25)',
+            borderRadius: 20,
+            padding: '20px 18px',
+            marginBottom: 12,
+            boxShadow: '0 4px 16px rgba(0,0,0,.08)',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: 36, marginBottom: 6 }}>🎉</div>
           <div
             style={{
-              background: 'linear-gradient(135deg, rgba(22,163,74,.12), rgba(22,163,74,.05))',
-              border: '1.5px solid rgba(22,163,74,.25)',
-              borderRadius: 20,
-              padding: '20px 18px',
-              marginBottom: 12,
-              boxShadow: '0 4px 16px rgba(0,0,0,.08)',
-              textAlign: 'center',
+              fontSize: 18,
+              fontWeight: 900,
+              color: 'var(--heading)',
+              marginBottom: 4,
             }}
           >
-            <div style={{ fontSize: 36, marginBottom: 6 }}>🎉</div>
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 900,
-                color: 'var(--heading)',
-                marginBottom: 4,
-              }}
-            >
-              Session Complete!
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
-              {completedCount} of {totalCount} activities done
-              {wordsdue > 0 && (
-                <span
-                  style={{ display: 'block', marginTop: 4, color: CROATIAN_BLUE, fontWeight: 700 }}
-                >
-                  {wordsdue} word{wordsdue !== 1 ? 's' : ''} still due for review
-                </span>
-              )}
-            </div>
-            <button
-              onClick={onKeepPracticing}
-              style={{
-                background:
-                  wordsdue > 0 ? `linear-gradient(135deg, ${CROATIAN_BLUE}, #0052cc)` : 'none',
-                border: wordsdue > 0 ? 'none' : '1.5px solid #e2e8f0',
-                borderRadius: 10,
-                padding: '10px 20px',
-                fontSize: 13,
-                fontWeight: 700,
-                color: wordsdue > 0 ? '#fff' : 'var(--subtext)',
-                cursor: 'pointer',
-                fontFamily: "'Outfit',sans-serif",
-                display: 'block',
-                width: '100%',
-                marginBottom: bonusActivities.length > 0 ? 16 : 8,
-              }}
-            >
-              {wordsdue > 0
-                ? `📚 Review ${wordsdue} word${wordsdue !== 1 ? 's' : ''} →`
-                : 'Practice more →'}
-            </button>
-            {bonusActivities.length > 0 && onBonusStart && (
-              <div data-testid="bonus-activities" style={{ textAlign: 'left', marginBottom: 8 }}>
-                <div
+            Session Complete!
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--subtext)', marginBottom: 16 }}>
+            {completedCount} of {totalCount} activities done
+            {wordsdue > 0 && (
+              <span
+                style={{ display: 'block', marginTop: 4, color: CROATIAN_BLUE, fontWeight: 700 }}
+              >
+                {wordsdue} word{wordsdue !== 1 ? 's' : ''} still due for review
+              </span>
+            )}
+          </div>
+          <button
+            onClick={onKeepPracticing}
+            style={{
+              background:
+                wordsdue > 0 ? `linear-gradient(135deg, ${CROATIAN_BLUE}, #0052cc)` : 'none',
+              border: wordsdue > 0 ? 'none' : '1.5px solid #e2e8f0',
+              borderRadius: 10,
+              padding: '10px 20px',
+              fontSize: 13,
+              fontWeight: 700,
+              color: wordsdue > 0 ? '#fff' : 'var(--subtext)',
+              cursor: 'pointer',
+              fontFamily: "'Outfit',sans-serif",
+              display: 'block',
+              width: '100%',
+              marginBottom: bonusActivities.length > 0 ? 16 : 8,
+            }}
+          >
+            {wordsdue > 0
+              ? `📚 Review ${wordsdue} word${wordsdue !== 1 ? 's' : ''} →`
+              : 'Practice more →'}
+          </button>
+          {bonusActivities.length > 0 && onBonusStart && (
+            <div data-testid="bonus-activities" style={{ textAlign: 'left', marginBottom: 8 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: CROATIAN_RED,
+                  letterSpacing: '.18em',
+                  textTransform: 'uppercase',
+                  marginBottom: 8,
+                  textAlign: 'center',
+                  fontFamily: "'Outfit',sans-serif",
+                }}
+              >
+                Keep going →
+              </div>
+              {bonusActivities.map((act) => (
+                <button
+                  key={act.id}
+                  onClick={() => onBonusStart(act)}
+                  data-testid={'bonus-' + act.id}
                   style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: CROATIAN_RED,
-                    letterSpacing: '.18em',
-                    textTransform: 'uppercase',
-                    marginBottom: 8,
-                    textAlign: 'center',
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    background: 'var(--card)',
+                    border: '1.5px solid #e8ecf2',
+                    borderRadius: 12,
+                    padding: '10px 14px',
+                    marginBottom: 6,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: 'var(--heading)',
+                    cursor: 'pointer',
                     fontFamily: "'Outfit',sans-serif",
                   }}
                 >
-                  Keep going →
-                </div>
-                {bonusActivities.map((act) => (
-                  <button
-                    key={act.id}
-                    onClick={() => onBonusStart(act)}
-                    data-testid={'bonus-' + act.id}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      textAlign: 'left',
-                      background: 'var(--card)',
-                      border: '1.5px solid #e8ecf2',
-                      borderRadius: 12,
-                      padding: '10px 14px',
-                      marginBottom: 6,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: 'var(--heading)',
-                      cursor: 'pointer',
-                      fontFamily: "'Outfit',sans-serif",
-                    }}
-                  >
-                    ▶ {act.label}
-                  </button>
-                ))}
-              </div>
-            )}
-            <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
-              {tomorrowLabel}
+                  ▶ {act.label}
+                </button>
+              ))}
             </div>
+          )}
+          <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
+            {tomorrowLabel}
           </div>
-        </React.Fragment>
+        </div>
       ) : (
         /* ── STATE A (fresh) + STATE B (in-progress) ── */
         <div
@@ -459,83 +303,49 @@ export default function SessionCard({
             }}
           />
 
-          {showHost && (
-            <HostHeader
-              host={host!}
-              hostName={hostName!}
-              userName={userName!}
-              hostQuote={hostQuote!}
-              sceneUrl={sceneUrl!}
-            />
-          )}
+          {/* Inner content: crest header + chips */}
+          <div style={{ padding: '18px 18px 0', position: 'relative' }}>
+            {/* Card header — šahovnica crest + title */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 13, marginBottom: 15 }}>
+              <SahovnicaCrest />
 
-          {/* Inner content: header + chips */}
-          <div style={{ padding: showHost ? '14px 18px 0' : '18px 18px 0', position: 'relative' }}>
-            {showHost ? (
-              /* Unified card: host header above replaces the crest; keep the
-                 "TODAY'S SESSION" label (home.spec asserts it) as a compact line. */
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 900,
-                  letterSpacing: '.12em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,.5)',
-                  marginBottom: 14,
-                }}
-              >
-                TODAY&apos;S SESSION · ~{session.estimatedMinutes} min · {totalCount} activities
-              </div>
-            ) : (
-              /* Legacy crest header (no host props — unit tests). */
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 13,
-                  marginBottom: 15,
-                }}
-              >
-                <SahovnicaCrest />
-
-                {/* Title block */}
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 900,
-                      letterSpacing: '.12em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(255,255,255,.5)',
-                      marginBottom: 4,
-                    }}
-                  >
-                    TODAY&apos;S SESSION
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "'Playfair Display', serif",
-                      fontSize: 18,
-                      fontWeight: 900,
-                      color: '#fff',
-                      lineHeight: 1.1,
-                      marginBottom: 4,
-                    }}
-                  >
-                    Dnevna Vježba
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 500,
-                      color: 'rgba(255,255,255,.48)',
-                    }}
-                  >
-                    ~{session.estimatedMinutes} min · {totalCount} activities
-                  </div>
+              {/* Title block */}
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 900,
+                    letterSpacing: '.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,.5)',
+                    marginBottom: 4,
+                  }}
+                >
+                  TODAY&apos;S SESSION
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: 18,
+                    fontWeight: 900,
+                    color: '#fff',
+                    lineHeight: 1.1,
+                    marginBottom: 4,
+                  }}
+                >
+                  Dnevna Vježba
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 500,
+                    color: 'rgba(255,255,255,.48)',
+                  }}
+                >
+                  ~{session.estimatedMinutes} min · {totalCount} activities
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Activity chips — always shown in States A and B */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18 }}>
