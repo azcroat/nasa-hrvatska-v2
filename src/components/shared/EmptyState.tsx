@@ -26,13 +26,13 @@ export default function EmptyState({
     'streak-broken': {
       mood: 'sad',
       defaultTitle: 'Streak lost — but not forgotten',
-      defaultSubtitle: 'Today is a new day. Your Knight is ready to fight back.',
+      defaultSubtitle: 'Today is a new day. prof. Kovač is ready when you are.',
       emoji: '💔',
     },
     'level-up': {
       mood: 'celebrating',
       defaultTitle: 'Level Complete!',
-      defaultSubtitle: 'Your Knight grows stronger. Croatia awaits.',
+      defaultSubtitle: 'You grow stronger. Croatia awaits.',
       emoji: '⭐',
     },
     'all-caught-up': {

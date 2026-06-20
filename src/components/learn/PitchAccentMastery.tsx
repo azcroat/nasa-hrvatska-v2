@@ -566,7 +566,7 @@ export default function PitchAccentMastery({
                 marginBottom: 4,
               }}
             >
-              Vitez Hrvoje says
+              prof. Kovač kaže
             </div>
             <div style={{ fontSize: 13, color: 'var(--body)', lineHeight: 1.6 }}>
               Pitch accent is why Croatian sounds like music to foreign ears. It&apos;s also why two

@@ -475,7 +475,7 @@ export default function HeritagePathScreen({
                 marginBottom: 4,
               }}
             >
-              Vitez Hrvoje says
+              Baka kaže
             </div>
             <div style={{ fontSize: 13, color: 'var(--body)', lineHeight: 1.65 }}>
               Heritage speakers are not beginners. You hear Croatian and understand the melody even

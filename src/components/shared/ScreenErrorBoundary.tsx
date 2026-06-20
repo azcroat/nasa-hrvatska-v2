@@ -108,8 +108,8 @@ export default class ScreenErrorBoundary extends React.Component<
                 marginBottom: 20,
               }}
             >
-              Your progress is saved. Tap <strong>Try Again</strong> and the knight will get you
-              back on track.
+              Your progress is saved. Tap <strong>Try Again</strong> and you&apos;ll be right back
+              on track.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
               <button

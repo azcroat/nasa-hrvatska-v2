@@ -74,9 +74,6 @@ vi.mock('../context/StatsContext', () => ({
   StatsProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-// ── CroatianKnight mock — avoids complex animation setup ──────────────────────
-vi.mock('../components/shared/CroatianKnight', () => ({ default: () => null }));
-
 // ── useHaptic mock ────────────────────────────────────────────────────────────
 const mockHaptic = vi.hoisted(() => ({
   correct: vi.fn(),
