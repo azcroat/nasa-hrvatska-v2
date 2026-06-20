@@ -60,7 +60,7 @@ test.describe('Tab navigation', () => {
     // The teal hero renders emoji 🎮 and text 'Practice' in separate sibling divs,
     // so we match the overline div text with locator('text=Practice').first().
     // 20s for lazy-chunk load on Firefox/WebKit in parallel CI.
-    await expect(page.locator('text=Practice').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('text=Practice').filter({ visible: true }).first()).toBeVisible({ timeout: 20_000 });
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(nav.getByRole('button', { name: 'Practice', exact: true })).toHaveClass(/active/, { timeout: 10_000 });
   });
@@ -81,7 +81,7 @@ test.describe('Tab navigation', () => {
     await clickMe(page);
     await page.waitForURL('/profile', { timeout: 20_000 });
     // 20s covers Mobile Chrome (Pixel 5) where name state resolves slowly after auth.
-    await expect(page.getByText('Test Učenik').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('Test Učenik').filter({ visible: true }).first()).toBeVisible({ timeout: 20_000 });
   });
 
   test('tab switches correctly update active state', async ({ page }) => {
