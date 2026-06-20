@@ -10,7 +10,7 @@ import type { AwardActivityType } from '../../types/index.js';
 import { speak } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { knightSpeak } from '../../lib/knightSpeak.js';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 
 // ── Heritage module data ──────────────────────────────────────────────────────
 
@@ -463,7 +463,7 @@ export default function HeritagePathScreen({
             marginBottom: 20,
           }}
         >
-          <CroatianKnight size={52} mood="happy" style={{ flexShrink: 0 }} />
+          <CharacterPortrait name="baka" size={52} />
           <div style={{ flex: 1 }}>
             <div
               style={{
