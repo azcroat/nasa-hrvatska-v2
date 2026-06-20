@@ -81,3 +81,17 @@ describe('GradMap — living markers', () => {
     expect(onOpen).toHaveBeenCalledWith('ulica');
   });
 });
+
+describe('GradMap — host at the recommended place', () => {
+  it("renders the recommended place's own host portrait", () => {
+    // rec.placeId = 'kavana' → its own host is 'ana'
+    render(<GradMap rec={rec} onOpenPlace={vi.fn()} statsByPlace={statsByPlace} />);
+    expect(screen.getByTestId('portrait-ana')).toBeInTheDocument();
+  });
+
+  it('renders no host portrait when the recommended place has no host (trg)', () => {
+    const trgRec = { ...rec, placeId: 'trg' as const, host: null };
+    render(<GradMap rec={trgRec} onOpenPlace={vi.fn()} statsByPlace={statsByPlace} />);
+    expect(document.querySelector('[data-testid^="portrait-"]')).toBeNull();
+  });
+});

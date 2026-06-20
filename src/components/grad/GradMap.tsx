@@ -1,6 +1,7 @@
 import React from 'react';
 import { PLACES, type PlaceId } from './places';
 import type { Recommendation } from './gradModel';
+import CharacterPortrait from '../family/CharacterPortrait';
 
 const SCENE = `${import.meta.env.BASE_URL}images/grad-town.svg`;
 
@@ -18,6 +19,8 @@ export default function GradMap({
   onOpenPlace: (id: PlaceId) => void;
   statsByPlace: Record<string, { done: number; total: number; due: number; lockedCount: number }>;
 }) {
+  // The recommended place's OWN host greets you on the map (null for Trg).
+  const recHost = PLACES.find((p) => p.id === rec.placeId)?.host ?? null;
   return (
     <div
       data-testid="grad-map"
@@ -146,6 +149,22 @@ export default function GradMap({
                     }}
                   >
                     {s.due}
+                  </span>
+                )}
+                {recommended && recHost && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      left: -42,
+                      bottom: -2,
+                      borderRadius: '50%',
+                      padding: 2,
+                      background: 'linear-gradient(135deg,#C8980A,#e0b84a)',
+                      display: 'flex',
+                      boxShadow: '0 3px 10px rgba(0,0,0,.3)',
+                    }}
+                  >
+                    <CharacterPortrait name={recHost} size={30} />
                   </span>
                 )}
                 <span
