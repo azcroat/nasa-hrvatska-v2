@@ -1,0 +1,45 @@
+<svg viewBox="0 0 392 158" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfeaf0"/><stop offset="1" stop-color="#a9d4dc"/></linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bdb3a1"/><stop offset="1" stop-color="#a89e8c"/></linearGradient>
+  </defs>
+  <rect x="0" y="0" width="392" height="120" fill="url(#sky)"/>
+  <rect x="0" y="120" width="392" height="38" fill="url(#ground)"/>
+  <!-- distant shore + thin Adriatic sliver -->
+  <rect x="0" y="84" width="392" height="6" fill="#8cbf9a"/>
+  <rect x="0" y="90" width="392" height="12" fill="#6ba8b0"/>
+  <!-- red/white striped market awning -->
+  <rect x="156" y="26" width="216" height="20" fill="#D40030"/>
+  <g fill="#ffffff">
+    <rect x="156" y="26" width="27" height="20"/>
+    <rect x="210" y="26" width="27" height="20"/>
+    <rect x="264" y="26" width="27" height="20"/>
+    <rect x="318" y="26" width="27" height="20"/>
+  </g>
+  <polygon points="156,46 183,46 169.5,58" fill="#ffffff"/>
+  <polygon points="183,46 210,46 196.5,58" fill="#D40030"/>
+  <polygon points="210,46 237,46 223.5,58" fill="#ffffff"/>
+  <polygon points="237,46 264,46 250.5,58" fill="#D40030"/>
+  <polygon points="264,46 291,46 277.5,58" fill="#ffffff"/>
+  <polygon points="291,46 318,46 304.5,58" fill="#D40030"/>
+  <polygon points="318,46 345,46 331.5,58" fill="#ffffff"/>
+  <polygon points="345,46 372,46 358.5,58" fill="#D40030"/>
+  <rect x="158" y="58" width="5" height="50" fill="#7a5a36"/>
+  <rect x="366" y="58" width="5" height="50" fill="#7a5a36"/>
+  <!-- stall counter -->
+  <rect x="150" y="96" width="232" height="22" rx="2" fill="#b5642f"/>
+  <rect x="150" y="96" width="232" height="6" fill="#caa06a"/>
+  <!-- ice bed + fish -->
+  <ellipse cx="210" cy="98" rx="46" ry="10" fill="#e7f1f4"/>
+  <ellipse cx="198" cy="97" rx="17" ry="7" fill="#5d7f88"/>
+  <polygon points="181,97 168,91 168,103" fill="#5d7f88"/>
+  <circle cx="208" cy="95" r="1.6" fill="#1f2d33"/>
+  <ellipse cx="224" cy="100" rx="15" ry="6" fill="#6b8f99"/>
+  <polygon points="239,100 250,95 250,105" fill="#6b8f99"/>
+  <!-- produce crate: greens + tomatoes -->
+  <rect x="300" y="92" width="58" height="26" rx="2" fill="#8a6d3f"/>
+  <ellipse cx="314" cy="92" rx="11" ry="8" fill="#5d8c62"/>
+  <ellipse cx="332" cy="92" rx="11" ry="8" fill="#4f7c54"/>
+  <circle cx="324" cy="90" r="6" fill="#6ba36e"/>
+  <circle cx="348" cy="93" r="7" fill="#D40030"/>
+</svg>

@@ -1,0 +1,33 @@
+<svg viewBox="0 0 392 158" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5e6cf"/><stop offset="1" stop-color="#ecd2ad"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2410c"/><stop offset="1" stop-color="#9a330a"/></linearGradient>
+  </defs>
+  <rect x="0" y="0" width="392" height="120" fill="url(#wall)"/>
+  <rect x="0" y="120" width="392" height="38" fill="url(#floor)"/>
+  <!-- red gingham valance -->
+  <rect x="120" y="22" width="252" height="14" fill="#D40030"/>
+  <g fill="#ffffff" opacity="0.85">
+    <rect x="120" y="22" width="12" height="7"/><rect x="144" y="22" width="12" height="7"/><rect x="168" y="22" width="12" height="7"/><rect x="192" y="22" width="12" height="7"/><rect x="216" y="22" width="12" height="7"/><rect x="240" y="22" width="12" height="7"/><rect x="264" y="22" width="12" height="7"/><rect x="288" y="22" width="12" height="7"/><rect x="312" y="22" width="12" height="7"/><rect x="336" y="22" width="12" height="7"/><rect x="360" y="22" width="12" height="7"/>
+    <rect x="132" y="29" width="12" height="7"/><rect x="156" y="29" width="12" height="7"/><rect x="180" y="29" width="12" height="7"/><rect x="204" y="29" width="12" height="7"/><rect x="228" y="29" width="12" height="7"/><rect x="252" y="29" width="12" height="7"/><rect x="276" y="29" width="12" height="7"/><rect x="300" y="29" width="12" height="7"/><rect x="324" y="29" width="12" height="7"/><rect x="348" y="29" width="12" height="7"/>
+  </g>
+  <!-- hanging-pot rail -->
+  <rect x="130" y="44" width="172" height="4" rx="2" fill="#6b4e2e"/>
+  <line x1="160" y1="48" x2="160" y2="58" stroke="#7a7a7a" stroke-width="2"/>
+  <ellipse cx="160" cy="64" rx="14" ry="9" fill="#6b6b6b"/>
+  <line x1="210" y1="48" x2="210" y2="56" stroke="#7a7a7a" stroke-width="2"/>
+  <ellipse cx="210" cy="62" rx="12" ry="8" fill="#b5642f"/>
+  <!-- hanging herbs (high, clear of portrait) -->
+  <line x1="40" y1="30" x2="40" y2="40" stroke="#6b4e2e" stroke-width="2"/>
+  <ellipse cx="40" cy="52" rx="9" ry="16" fill="#5d8c62"/>
+  <ellipse cx="40" cy="48" rx="5" ry="12" fill="#6ba36e"/>
+  <!-- stove + steaming pot -->
+  <rect x="250" y="86" width="110" height="34" rx="3" fill="#8a8a8a"/>
+  <rect x="250" y="86" width="110" height="7" fill="#a6a6a6"/>
+  <circle cx="276" cy="104" r="7" fill="#5d5d5d"/>
+  <circle cx="334" cy="104" r="7" fill="#5d5d5d"/>
+  <ellipse cx="300" cy="84" rx="26" ry="8" fill="#444444"/>
+  <rect x="276" y="74" width="48" height="12" rx="3" fill="#5d5d5d"/>
+  <ellipse cx="300" cy="74" rx="24" ry="6" fill="#6b6b6b"/>
+  <path d="M292 70 q-4 -10 2 -16 M300 70 q-4 -10 2 -16 M308 70 q-4 -10 2 -16" stroke="#d9c8af" stroke-width="2.5" fill="none" opacity="0.8"/>
+</svg>
