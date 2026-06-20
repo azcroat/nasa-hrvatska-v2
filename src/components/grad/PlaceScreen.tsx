@@ -11,10 +11,14 @@ import { itemsForPlace, placeStats, type ModelCtx, type GradItem } from './gradM
 export const LOCK_PILL_FG = '#5f5747';
 export const LOCK_PILL_BG = '#ece6d9';
 
-// Per-place hero scene assets (only kavana has bespoke art so far; other places
-// use a tinted gradient banner — bespoke per-place scenes are a follow-up).
-const SCENES: Partial<Record<PlaceId, string>> = {
+// Per-place hero scene assets — one bespoke flat illustration per place.
+const SCENES: Record<PlaceId, string> = {
   kavana: `${import.meta.env.BASE_URL}images/grad-kavana.svg`,
+  trznica: `${import.meta.env.BASE_URL}images/grad-trznica.svg`,
+  soba: `${import.meta.env.BASE_URL}images/grad-soba.svg`,
+  kuhinja: `${import.meta.env.BASE_URL}images/grad-kuhinja.svg`,
+  ulica: `${import.meta.env.BASE_URL}images/grad-ulica.svg`,
+  trg: `${import.meta.env.BASE_URL}images/grad-trg.svg`,
 };
 
 const GREETINGS: Record<PlaceId, { hr: string; en: string }> = {
@@ -158,24 +162,19 @@ export default function PlaceScreen({
           borderRadius: 18,
           overflow: 'hidden',
           marginBottom: 14,
-          background: scene
-            ? undefined
-            : `linear-gradient(135deg,${place.tint},rgba(14,116,144,.22))`,
         }}
       >
-        {scene && (
-          <img
-            src={scene}
-            alt={place.nameEn}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-        )}
+        <img
+          src={scene}
+          alt={place.nameEn}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
         <div
           style={{
             position: 'absolute',
