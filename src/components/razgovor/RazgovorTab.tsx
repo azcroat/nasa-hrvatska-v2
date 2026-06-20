@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CharacterPortrait from '../family/CharacterPortrait';
 import { PARTNERS, ALATI, recommendedChat, launchMode, type PartnerId } from './partners';
 import PartnerScreen from './PartnerScreen';
@@ -18,6 +18,19 @@ export default function RazgovorTab({ setScr, sCurEx }: RazgovorTabProps) {
   const [openPartner, setOpenPartner] = useState<PartnerId | null>(null);
   const [alatiOpen, setAlatiOpen] = useState(false);
   const nav = { setScr, sCurEx };
+
+  // Deep-link handoff from the Dom host-of-day card: open that partner directly.
+  useEffect(() => {
+    try {
+      const p = sessionStorage.getItem('nh_open_partner');
+      if (p && PARTNERS.some((x) => x.id === p)) {
+        setOpenPartner(p as PartnerId);
+        sessionStorage.removeItem('nh_open_partner');
+      }
+    } catch {
+      /* sessionStorage unavailable — stays on the partner list */
+    }
+  }, []);
 
   if (openPartner) {
     return (

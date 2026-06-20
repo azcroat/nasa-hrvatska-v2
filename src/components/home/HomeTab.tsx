@@ -72,7 +72,7 @@ import WelcomeBackBanners from './WelcomeBackBanners';
 import { useDailySession } from '../../hooks/useDailySession';
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
-import HostFamilyWelcome from './HostFamilyWelcome';
+import { hostOfDay, HOST_NAME, HOST_WELCOME } from './hostFamily';
 import { getServableReviewCount } from '../../lib/srs';
 
 const LEVEL_PALETTE = [
@@ -432,6 +432,21 @@ export default function HomeTab({
       ? st.vs.includes(nextLearnPathItem.id)
       : false;
 
+  // Host-of-the-day for the unified SessionCard hero (Phase 7b Dom unification —
+  // folds the old standalone HostFamilyWelcome banner into the session card).
+  const host = hostOfDay(currentDayIdx);
+  const hostScene = HOST_WELCOME[host];
+  const hostSceneUrl = `${import.meta.env.BASE_URL}images/scenes/${hostScene.scene}`;
+  const goTalkToHost = () => {
+    // Hand off to RazgovorTab, which opens this partner on mount.
+    try {
+      sessionStorage.setItem('nh_open_partner', host);
+    } catch {
+      /* sessionStorage unavailable — Razgovor still opens to its list */
+    }
+    setTab('ai');
+  };
+
   return (
     <React.Fragment>
       {/* ── GOAL SETTER MODAL (genuinely new users only — see showGoalModal gating) ── */}
@@ -497,18 +512,15 @@ export default function HomeTab({
         </div>
       )}
 
-      {/* ── HOST-FAMILY WELCOME ── */}
-      {authUser && (
-        <HostFamilyWelcome
-          name={authUser.d || 'Learner'}
-          streakCount={streak.count}
-          dayIdx={currentDayIdx}
-        />
-      )}
-
-      {/* ── DAILY SESSION CARD ── */}
+      {/* ── DAILY SESSION CARD (host-led unified hero — Phase 7b) ── */}
       <SessionCard
         session={session}
+        host={host}
+        hostName={HOST_NAME[host]}
+        userName={authUser?.d || 'Learner'}
+        hostQuote={hostScene.hr}
+        sceneUrl={hostSceneUrl}
+        onTalkToHost={goTalkToHost}
         isComplete={isComplete}
         progress={progress}
         nextActivity={nextActivity}
