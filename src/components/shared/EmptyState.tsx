@@ -1,5 +1,5 @@
 import React from 'react';
-import CroatianKnight from './CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 
 interface EmptyStateProps {
   type?: string;
@@ -64,7 +64,7 @@ export default function EmptyState({
         gap: 8,
       }}
     >
-      <CroatianKnight size={100} mood={cfg.mood} />
+      <CharacterPortrait name="kovac" size={100} />
       <div
         style={{
           fontSize: 'var(--text-xl)',
