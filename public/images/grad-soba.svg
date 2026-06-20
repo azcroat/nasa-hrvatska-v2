@@ -1,0 +1,42 @@
+<svg viewBox="0 0 392 158" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ece0c8"/><stop offset="1" stop-color="#ddcaa8"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b78a52"/><stop offset="1" stop-color="#9c6f3c"/></linearGradient>
+  </defs>
+  <rect x="0" y="0" width="392" height="120" fill="url(#wall)"/>
+  <rect x="0" y="120" width="392" height="38" fill="url(#floor)"/>
+  <!-- window kept high, clear of the portrait zone -->
+  <rect x="20" y="30" width="78" height="60" rx="3" fill="#bfe0e6"/>
+  <rect x="20" y="30" width="78" height="60" rx="3" fill="none" stroke="#9c7b50" stroke-width="3"/>
+  <line x1="59" y1="30" x2="59" y2="90" stroke="#9c7b50" stroke-width="2"/>
+  <line x1="20" y1="60" x2="98" y2="60" stroke="#9c7b50" stroke-width="2"/>
+  <!-- bookshelf -->
+  <rect x="206" y="22" width="166" height="92" rx="2" fill="#7a5a36"/>
+  <rect x="212" y="28" width="154" height="80" fill="#8a6a40"/>
+  <line x1="212" y1="56" x2="366" y2="56" stroke="#6b4e2e" stroke-width="3"/>
+  <line x1="212" y1="84" x2="366" y2="84" stroke="#6b4e2e" stroke-width="3"/>
+  <!-- top shelf books (violet accent) -->
+  <rect x="218" y="34" width="9" height="22" fill="#7c3aed"/>
+  <rect x="229" y="32" width="9" height="24" fill="#D40030"/>
+  <rect x="240" y="36" width="9" height="20" fill="#0e7490"/>
+  <rect x="251" y="33" width="9" height="23" fill="#9b6ded"/>
+  <rect x="262" y="35" width="9" height="21" fill="#caa06a"/>
+  <!-- globe on top shelf -->
+  <circle cx="338" cy="44" r="12" fill="#6ba8b0"/>
+  <path d="M330 40 q8 4 16 0 M332 48 q6 3 12 0" stroke="#4f7c54" stroke-width="1.5" fill="none"/>
+  <rect x="336" y="56" width="4" height="6" fill="#6b4e2e"/>
+  <!-- middle shelf books -->
+  <rect x="218" y="62" width="9" height="22" fill="#5d8c62"/>
+  <rect x="229" y="60" width="9" height="24" fill="#7c3aed"/>
+  <rect x="240" y="63" width="9" height="21" fill="#caa06a"/>
+  <rect x="251" y="61" width="9" height="23" fill="#D40030"/>
+  <!-- desk with violet lamp glow -->
+  <ellipse cx="320" cy="80" rx="34" ry="14" fill="#7c3aed" opacity="0.16"/>
+  <rect x="300" y="100" width="72" height="18" rx="2" fill="#6b4e2e"/>
+  <rect x="300" y="100" width="72" height="5" fill="#8a6a40"/>
+  <rect x="346" y="80" width="4" height="20" fill="#5d5d5d"/>
+  <polygon points="338,80 358,80 354,68 342,68" fill="#7c3aed"/>
+  <!-- open book on desk -->
+  <polygon points="306,100 330,100 330,94 306,96" fill="#f3ead8"/>
+  <polygon points="330,100 354,100 354,96 330,94" fill="#e7dcc4"/>
+</svg>
