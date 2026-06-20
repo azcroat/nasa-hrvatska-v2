@@ -1,6 +1,9 @@
-// AUTO-GENERATED from the canonical locked build scripts (do not hand-edit the SVG art).
-// Source: build_baba_flat.py (baka), build_ana2.py (ana), build_cast_full.py (kovac),
-// build_men2.py (ivo), build_marko3.py (marko). Regenerate with gen_portraits.py.
+// Locked flat-illustration portraits for the host-family cast.
+// Originally generated out-of-repo (build_baba_flat.py / build_ana2.py /
+// build_cast_full.py / build_men2.py / build_marko3.py) via a gen_portraits.py
+// that has since been removed — so these values are now HAND-MAINTAINED. To
+// change a portrait, re-run the relevant build script out-of-repo and paste its
+// base64 here, or edit the data URI directly.
 // Values are base64 SVG data URIs, rendered via <img> (no dangerouslySetInnerHTML).
 export type CharacterName = 'baka' | 'ana' | 'kovac' | 'ivo' | 'marko';
 
