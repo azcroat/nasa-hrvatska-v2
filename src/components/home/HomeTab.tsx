@@ -72,6 +72,7 @@ import WelcomeBackBanners from './WelcomeBackBanners';
 import { useDailySession } from '../../hooks/useDailySession';
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
+import RazgovorHomeCard from './RazgovorHomeCard';
 import { hostOfDay, HOST_NAME, HOST_WELCOME } from './hostFamily';
 import { getServableReviewCount } from '../../lib/srs';
 
@@ -520,7 +521,6 @@ export default function HomeTab({
         userName={authUser?.d || 'Learner'}
         hostQuote={hostScene.hr}
         sceneUrl={hostSceneUrl}
-        onTalkToHost={goTalkToHost}
         isComplete={isComplete}
         progress={progress}
         nextActivity={nextActivity}
@@ -569,6 +569,9 @@ export default function HomeTab({
           }
         }}
       />
+
+      {/* ── RAZGOVOR — host-of-day conversation entry (Home split) ── */}
+      <RazgovorHomeCard host={host} onOpen={goTalkToHost} />
 
       {/* ── TODAY'S DISCOVERIES — tabbed widget replaces the 4 stacked cards
           (Word / Phrase / City / Story). Single fixed-height container,
