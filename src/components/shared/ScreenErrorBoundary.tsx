@@ -1,5 +1,4 @@
 import React from 'react';
-import CroatianKnight from './CroatianKnight';
 import { reportBoundaryError } from '../../lib/errorReporter';
 
 /** Props for ScreenErrorBoundary — exported so AppRouter.tsx can use typed JSX. */
@@ -75,8 +74,6 @@ export default class ScreenErrorBoundary extends React.Component<
             <div style={{ flex: 1, background: '#003DA5' }} />
           </div>
 
-          <CroatianKnight size={72} mood="droop" style={{ margin: '0 auto', display: 'block' }} />
-
           <div
             style={{
               marginTop: 20,
@@ -111,8 +108,8 @@ export default class ScreenErrorBoundary extends React.Component<
                 marginBottom: 20,
               }}
             >
-              Your progress is saved. Tap <strong>Try Again</strong> and the knight will get you
-              back on track.
+              Your progress is saved. Tap <strong>Try Again</strong> and you&apos;ll be right back
+              on track.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
               <button

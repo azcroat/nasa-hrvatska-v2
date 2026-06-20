@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Stats } from '../../types/index';
-import CroatianKnight from '../shared/CroatianKnight';
 
 // ─── LearnPathWidget ──────────────────────────────────────────────────────────
 // Renders the "Next Up" path card block: stage header, progress bar,
@@ -86,9 +85,7 @@ function JourneyStrip({ currentLevel }: { currentLevel: number }) {
                     justifyContent: 'center',
                     marginBottom: 2,
                   }}
-                >
-                  {isCurrent && <CroatianKnight size={26} mood="marching" />}
-                </div>
+                ></div>
 
                 {/* Circle */}
                 <div
@@ -349,7 +346,6 @@ export default function LearnPathWidget({
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <CroatianKnight size={36} mood="ready" style={{ flexShrink: 0 }} />
                 <div
                   style={{
                     fontWeight: 700,
@@ -408,11 +404,6 @@ export default function LearnPathWidget({
             </div>
             {(!st || st.lc === 0) && (
               <>
-                <CroatianKnight
-                  size={70}
-                  mood="happy"
-                  style={{ margin: '0 auto 8px', display: 'block' }}
-                />
                 <div
                   style={{
                     position: 'absolute',
@@ -453,11 +444,6 @@ export default function LearnPathWidget({
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '8px 0' }}>
-            <CroatianKnight
-              size={80}
-              mood="victory"
-              style={{ margin: '0 auto 8px', display: 'block' }}
-            />
             <div style={{ fontSize: 'var(--text-4xl)', marginBottom: 6 }}>🏆</div>
             <div style={{ fontSize: 'var(--text-md)', fontWeight: 900, color: 'var(--heading)' }}>
               Path Complete!

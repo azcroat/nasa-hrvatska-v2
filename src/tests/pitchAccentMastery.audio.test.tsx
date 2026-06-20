@@ -74,11 +74,6 @@ vi.mock('../context/StatsContext', () => ({
   StatsProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-// ── CroatianKnight stub (uses canvas, unnecessary here) ───────────────────────
-vi.mock('../components/shared/CroatianKnight', () => ({
-  default: () => <div data-testid="knight-stub" />,
-}));
-
 // ── soundSettings stub ────────────────────────────────────────────────────────
 vi.mock('../lib/soundSettings.js', () => ({
   getVoicePreference: vi.fn(() => 'auto'),

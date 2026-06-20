@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 import { speak } from '../../lib/audio.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
@@ -46,7 +46,7 @@ export default function AIStoryScreen({
   const [rawReply, setRawReply] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showTranslation, setShowTranslation] = useState(false);
-  const [done, setDone] = useState(false);
+  const [, setDone] = useState(false);
   const weakWords = getWeakWords();
 
   const generateStory = useCallback(async () => {
@@ -235,7 +235,7 @@ export default function AIStoryScreen({
 
       {/* Knight mascot */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-        <CroatianKnight size={60} mood={loading ? 'thinking' : done ? 'celebrating' : 'happy'} />
+        <CharacterPortrait name="baka" size={60} />
       </div>
 
       {/* Loading state */}

@@ -7,7 +7,7 @@ import React, { useMemo, useState } from 'react';
 import type { AwardActivityType } from '../../types/index.js';
 import { incrementCulture } from '../../data';
 import { useApp } from '../../context/AppContext';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 import { knightSpeak } from '../../lib/knightSpeak.js';
 import {
   BAKA_LETTERS,
@@ -597,7 +597,7 @@ export default function StoriesTab(): React.ReactElement {
             <div className="section-hdr-title">Letters from family</div>
             <div className="section-hdr-sub">Read Croatian the way family really writes it</div>
           </div>
-          <CroatianKnight size={40} mood="thinking" style={{ flexShrink: 0 }} />
+          <CharacterPortrait name="baka" size={40} />
         </div>
         <div style={{ fontSize: 12, color: 'var(--subtext)', marginBottom: 12, lineHeight: 1.5 }}>
           Personal letters written in authentic Croatian — perfect for understanding how family

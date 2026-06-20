@@ -1,5 +1,4 @@
 import React from 'react';
-import CroatianKnight from '../shared/CroatianKnight';
 import type { Stats } from '../../types';
 
 interface StatsWidgetProps {
@@ -13,11 +12,6 @@ export default function StatsWidget({ streak, st, ws, weekXP }: StatsWidgetProps
   if (st.lc === 0) {
     return (
       <div className="c" style={{ padding: 16, marginBottom: 8 }}>
-        <CroatianKnight
-          size={80}
-          mood="happy"
-          style={{ margin: '0 auto 12px', display: 'block' }}
-        />
         <div
           style={{
             fontSize: 'var(--text-sm)',

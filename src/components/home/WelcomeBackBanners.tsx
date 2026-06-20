@@ -1,5 +1,6 @@
 import React from 'react';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
+import { hostOfDay } from './hostFamily';
 
 export default function WelcomeBackBanners({
   comebackBonus,
@@ -62,7 +63,9 @@ export default function WelcomeBackBanners({
         >
           <span style={{ fontSize: 26 }}>🌟</span>
           <div style={{ flex: 1 }}>
-            <CroatianKnight size={60} mood="thinking" style={{ float: 'right', marginLeft: 12 }} />
+            <span style={{ float: 'right', marginLeft: 12 }}>
+              <CharacterPortrait name={hostOfDay(Math.floor(Date.now() / 86400000))} size={60} />
+            </span>
             <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2 }}>
               Great to have you back!
             </div>
