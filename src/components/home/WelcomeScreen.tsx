@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { sh, PLACE, speak } from '../../data';
 import CroatianGrb from '../shared/CroatianGrb';
-import CroatianKnight from '../shared/CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
 import type { Stats, AuthUser } from '../../types';
 
 interface WelcomeScreenProps {
@@ -196,11 +196,9 @@ export default function WelcomeScreen({
           >
             Naša Hrvatska
           </h1>
-          <CroatianKnight
-            size={110}
-            mood="celebrating"
-            style={{ margin: '8px auto', display: 'block' }}
-          />
+          <span style={{ display: 'block', textAlign: 'center', margin: '8px auto' }}>
+            <CharacterPortrait name="baka" size={110} />
+          </span>
           <p
             style={{ color: 'rgba(255,255,255,0.8)', fontSize: 'var(--text-lg)', marginBottom: 8 }}
           >
@@ -317,11 +315,9 @@ export default function WelcomeScreen({
       >
         <div style={{ maxWidth: 460, width: '100%', animation: 'rise .4s' }}>
           <StepDots step={1} />
-          <CroatianKnight
-            size={72}
-            mood="happy"
-            style={{ margin: '0 auto 8px', display: 'block' }}
-          />
+          <span style={{ display: 'block', textAlign: 'center', margin: '0 auto 8px' }}>
+            <CharacterPortrait name="baka" size={72} />
+          </span>
           <h2
             style={{
               fontFamily: "'Playfair Display',serif",
@@ -451,11 +447,9 @@ export default function WelcomeScreen({
       >
         <div style={{ maxWidth: 460, width: '100%', animation: 'rise .4s' }}>
           <StepDots step={2} />
-          <CroatianKnight
-            size={72}
-            mood="thinking"
-            style={{ margin: '0 auto 8px', display: 'block' }}
-          />
+          <span style={{ display: 'block', textAlign: 'center', margin: '0 auto 8px' }}>
+            <CharacterPortrait name="baka" size={72} />
+          </span>
           <h2
             style={{
               fontFamily: "'Playfair Display',serif",
