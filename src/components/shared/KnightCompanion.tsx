@@ -1,137 +1,53 @@
 /**
- * KnightCompanion — global ambient knight for all non-home screens.
+ * KnightCompanion — global in-exercise coaching companion for non-home screens.
  *
- * Rendered once in App.jsx. On home/dashboard it returns null (KnightSpeech
- * in HomeTab handles that screen). On every other screen it:
- *   • Shows a fixed-position mini knight button (bottom-left, same spot as
- *     KnightSpeech mini — HomeTab unmounts KnightSpeech when leaving home).
- *   • Listens for `knight:speak` custom events (dispatched by key screens via
- *     knightSpeak()) and pops up a floating speech bubble above the button.
- *   • Also shows a bubble on tap with a rotating pool of motivational messages.
+ * Despite the legacy filename, it renders prof. Kovač (host-family tutor), not
+ * the retired knight. Mounted once in App.tsx. On home it returns null (the home
+ * greeter owns that screen). Elsewhere it shows a fixed bottom-left mini portrait
+ * and listens for the coaching events:
+ *   - knight:speak  → speech bubble (mood drives ring colour + glyph)
+ *   - knight:flash  → silent ring colour + corner glyph for durationMs
+ *   - knight:quest-done → a proud bubble
+ *   - knight:celebrate  → particle burst
+ * The static portrait can't emote, so state is shown via ring + glyph + bubble
+ * (see coachVisual). The internal knight:* event names are intentionally kept —
+ * the ~20 dispatchers are unchanged.
  */
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CroatianKnight from './CroatianKnight';
+import CharacterPortrait from '../family/CharacterPortrait';
+import { useApp } from '../../context/AppContext';
+import { dbgInfo } from '../../lib/debugLog';
+import { knightSpeak } from '../../lib/knightSpeak';
+import { coachVisual } from './coachVisual';
+
 // On Android WebView (Capacitor), Framer Motion entry animations with opacity:0
 // can stall permanently. Skip entry animation on native.
 const _isNative =
   typeof window !== 'undefined' &&
   window.location.hostname === 'localhost' &&
   !window.location.port;
-import { useApp } from '../../context/AppContext';
-import { getStreak } from '../../data';
-import { dbgInfo } from '../../lib/debugLog';
-import { knightSpeak } from '../../lib/knightSpeak';
 
-// ── Mood → accent colour ──────────────────────────────────────────────────────
-const MOOD_COLOR = {
-  happy: '#0e7490',
-  thinking: '#7c3aed',
-  celebrating: '#d97706',
-  victory: '#b45309',
-  sad: '#dc2626',
-  encouraged: '#16a34a',
-  ready: '#1d4ed8',
-  neutral: '#64748b',
-  oops: '#dc2626',
-  struggling: '#94a3b8',
-  onfire: '#d97706',
-  tearsofjoy: '#3b82f6',
-  levelup: '#b45309',
-  winking: '#1d4ed8',
-  proud: '#16a34a',
-  worried: '#64748b',
-};
-
-// ── Screen → appropriate knight mood ─────────────────────────────────────────
-// Hrvoje picks up on context: quiz = ready/thinking, reading = happy, etc.
-const SCREEN_MOOD_MAP = {
-  // Learning
-  lesson: 'thinking',
-  grammar: 'thinking',
-  grammar_track: 'thinking',
-  padezi: 'thinking',
-  padezifull: 'thinking',
-  tenses: 'thinking',
-  aspect: 'thinking',
-  modal: 'thinking',
-  declension: 'thinking',
-  conditional: 'thinking',
-  impersonal: 'thinking',
-  clitic: 'thinking',
-  formalregister: 'thinking',
-  past_tense_lesson: 'thinking',
-  future_tense_lesson: 'thinking',
-  alphabet: 'thinking',
-  phonology: 'thinking',
-  // Practice
-  flashcards: 'thinking',
-  mcgame: 'ready',
-  mcresult: 'happy',
-  typing: 'ready',
-  listening: 'thinking',
-  speaking: 'ready',
-  review: 'encouraged',
-  wordsprint: 'marching',
-  cefrtest: 'ready',
-  dictation: 'thinking',
-  dialogue: 'ready',
-  shadowing: 'thinking',
-  adaptive_review: 'encouraged',
-  production_drill: 'ready',
-  listeningpath: 'thinking',
-  // Croatia / culture
-  storymode: 'happy',
-  readlist: 'happy',
-  reading: 'happy',
-  history: 'thinking',
-  immersion: 'happy',
-  roleplay: 'ready',
-  idioms: 'happy',
-  proverbs: 'happy',
-  advanced_vocab: 'happy',
-  // Path
-  learnpath: 'marching',
-  learnpath_widget: 'marching',
-};
-
-// ── Mood escalation based on current streak ───────────────────────────────────
-// Long streaks earn a more enthusiastic knight baseline.
-function getStreakMood(count: number) {
-  if (count >= 30) return 'celebrating';
-  if (count >= 14) return 'victory';
-  if (count >= 7) return 'marching';
-  if (count >= 3) return 'happy';
-  return null;
-}
-
-// ── Messages shown when user taps the mini button ────────────────────────────
-const TAP_POOL = [
-  { mood: 'ready', text: 'Hajdemo! Vitez Hrvoje rides with you. ⚔️' },
-  { mood: 'encouraged', text: "Polako, ali sigurno — slowly but surely. You're doing it. 💪" },
+// Messages shown when the user taps the companion — prof. Kovač's tutor voice.
+const TAP_POOL: { mood: string; text: string }[] = [
+  { mood: 'encouraged', text: 'Polako, ali sigurno — slowly but surely. Solid progress. 💪' },
+  { mood: 'happy', text: 'Svaki dan po malo — a little every day. Fluency is an accumulation. 🔥' },
   {
     mood: 'thinking',
-    text: 'Fun fact: Croatian is perfectly phonetic. Every letter, one sound, always. 📐',
+    text: 'Croatian is perfectly phonetic — every letter, one sound, always. 📐',
   },
   {
-    mood: 'happy',
-    text: '"Koliko jezika znaš, toliko vrijediš." You\'re worth as many people as languages you speak. 🇭🇷',
+    mood: 'proud',
+    text: '„Koliko jezika znaš, toliko vrijediš." The more languages you know, the more you are worth. 🇭🇷',
   },
   {
     mood: 'encouraged',
-    text: 'Svaki dan po malo — a little every day. Fluency is an accumulation, not a moment. 🔥',
-  },
-  {
-    mood: 'happy',
-    text: "Croatia: 1,200 years of history, one of Europe's most precise languages. You chose well. 🏛️",
+    text: 'Greške su dio učenja — mistakes are part of learning. Keep going. ✍️',
   },
 ];
 
 // ─── Celebration particle burst ───────────────────────────────────────────────
 const PARTY_COLORS = ['#CC0022', '#F4F0E2', '#D4A400', '#EE3042', '#FFDC3C'];
-interface CelebrationBurstProps {
-  active: boolean;
-}
 interface Particle {
   id: number;
   angle: number;
@@ -139,19 +55,19 @@ interface Particle {
   color: string;
   size: number;
 }
-function CelebrationBurst({ active }: CelebrationBurstProps) {
-  const [particles, setParticles] = React.useState<Particle[]>([]);
-  const [runKey, setRunKey] = React.useState(0);
-  React.useEffect(() => {
+function CelebrationBurst({ active }: { active: boolean }) {
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [runKey, setRunKey] = useState(0);
+  useEffect(() => {
     if (!active) return;
     setRunKey((k) => k + 1);
     setParticles(
       Array.from({ length: 10 }, (_, i) => ({
         id: i,
-        angle: (i / 10) * 360 + (Math.random() * 24 - 12),
-        dist: 32 + Math.random() * 22,
+        angle: (i / 10) * 360 + (i * 7 - 12),
+        dist: 34 + (i % 4) * 6,
         color: PARTY_COLORS[i % PARTY_COLORS.length] ?? '#CC0022',
-        size: 4 + Math.random() * 4,
+        size: 5 + (i % 3) * 2,
       })),
     );
   }, [active]);
@@ -186,39 +102,18 @@ function CelebrationBurst({ active }: CelebrationBurstProps) {
   );
 }
 
-let _tapIdx = 0; // persists across re-renders; rotates through TAP_POOL
+let _tapIdx = 0; // rotates through TAP_POOL across renders
 
 export default function KnightCompanion() {
   const { currentScreen } = useApp();
-
-  // ── Debug: log on mount ───────────────────────────────────────────────────
-  useEffect(() => {
-    dbgInfo(
-      `[Knight] mounted | _isNative=${_isNative}` +
-        ` | hostname="${window.location.hostname}"` +
-        ` | port="${window.location.port}"` +
-        ` | screen="${currentScreen}"`,
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const [flashMood, setFlashMood] = useState<string | null>(null);
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [bubble, setBubble] = useState<{ mood: string; text: string } | null>(null);
   const [showBubble, setShowBubble] = useState(false);
   const [celebBurst, setCelebBurst] = useState(false);
-  // glancing: temporarily override mood for attention-getter animation
-  const [glancing, setGlancing] = useState(false);
-  // introPlayed: first-time walk-in from left
-  const [introPlayed, setIntroPlayed] = useState(
-    () => !!localStorage.getItem('nh_companion_intro'),
-  );
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const glanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastActivityRef = useRef(Date.now());
 
-  // Hide on screens where KnightSpeech in HomeTab is active
   const isHome =
     !currentScreen ||
     currentScreen === 'dashboard' ||
@@ -226,18 +121,7 @@ export default function KnightCompanion() {
     currentScreen === 'placement' ||
     currentScreen === 'new-placement';
 
-  // ── Screen-aware mood ─────────────────────────────────────────────────────
-  const screenMood = (SCREEN_MOOD_MAP as Record<string, string | undefined>)[currentScreen] || null;
-
-  // ── Streak-based mood escalation ──────────────────────────────────────────
-  const streakCount = getStreak()?.count || 0;
-  const streakMood = getStreakMood(streakCount);
-
-  // Priority: flash (highest) > glancing > bubble mood > screen mood > streak > ready
-  const displayMood =
-    flashMood ?? (glancing ? 'glancing' : bubble?.mood || screenMood || streakMood || 'ready');
-
-  // ── Listen for knight:speak events dispatched by screens ─────────────────
+  // knight:speak → bubble (text + mood)
   useEffect(() => {
     const handler = (e: Event) => {
       const d = ((e as CustomEvent).detail || {}) as { mood?: string; text?: string };
@@ -253,10 +137,13 @@ export default function KnightCompanion() {
     };
   }, []);
 
-  // ── Silent face flash — knight:flash ─────────────────────────────────────
+  // knight:flash → silent ring + glyph for durationMs
   useEffect(() => {
     const handle = (e: Event) => {
-      const { mood, durationMs } = (e as CustomEvent).detail;
+      const { mood, durationMs } = (e as CustomEvent).detail as {
+        mood: string;
+        durationMs: number;
+      };
       if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
       setFlashMood(mood);
       flashTimerRef.current = setTimeout(() => setFlashMood(null), durationMs);
@@ -268,15 +155,14 @@ export default function KnightCompanion() {
     };
   }, []);
 
-  // ── Quest completion — proud milestone ───────────────────────────────────
+  // knight:quest-done → proud bubble
   useEffect(() => {
-    const handle = () => {
-      knightSpeak('proud', 'Ponosan sam na tebe! 🏅');
-    };
+    const handle = () => knightSpeak('proud', 'Ponosan sam na tebe! 🏅');
     window.addEventListener('knight:quest-done', handle);
     return () => window.removeEventListener('knight:quest-done', handle);
   }, []);
 
+  // knight:celebrate → particle burst
   useEffect(() => {
     const onCelebrate = () => {
       setCelebBurst(false);
@@ -286,86 +172,15 @@ export default function KnightCompanion() {
     return () => window.removeEventListener('knight:celebrate', onCelebrate);
   }, []);
 
-  // showBubbleRef mirrors showBubble state so resetIdleTimer can read it
-  // without adding showBubble to its dependency array (which would cause the
-  // 5 global event listeners to be removed and re-added every time a bubble
-  // shows or hides — up to twice per interaction).
-  const showBubbleRef = useRef(showBubble);
-  useEffect(() => {
-    showBubbleRef.current = showBubble;
-  }, [showBubble]);
-
-  // ── Attention-getter: after 30s of inactivity, do a curiosity glance ─────
-  const resetIdleTimer = useCallback(() => {
-    lastActivityRef.current = Date.now();
-    if (idleTimerRef.current !== null) clearTimeout(idleTimerRef.current);
-    idleTimerRef.current = setTimeout(() => {
-      // Don't interrupt an active bubble or celebration
-      if (!showBubbleRef.current) {
-        setGlancing(true);
-        if (glanceTimerRef.current !== null) clearTimeout(glanceTimerRef.current);
-        // Glance animation runs once (~3.6s), then reset
-        glanceTimerRef.current = setTimeout(() => setGlancing(false), 3800);
-      }
-    }, 30_000);
-  }, []); // stable — reads showBubble via ref, not closure
-
-  useEffect(() => {
-    const events = ['mousemove', 'touchstart', 'keydown', 'scroll', 'click'];
-    events.forEach((ev) => window.addEventListener(ev, resetIdleTimer, { passive: true }));
-    resetIdleTimer(); // start the timer on mount
-    return () => {
-      events.forEach((ev) => window.removeEventListener(ev, resetIdleTimer));
-      if (idleTimerRef.current !== null) clearTimeout(idleTimerRef.current);
-      if (glanceTimerRef.current !== null) clearTimeout(glanceTimerRef.current);
-    };
-  }, [resetIdleTimer]);
-
-  // ── First-time walk-in intro animation ───────────────────────────────────
-  useEffect(() => {
-    if (introPlayed || isHome) return;
-    // Short delay so the component has fully mounted before animating
-    const t = setTimeout(() => {
-      localStorage.setItem('nh_companion_intro', '1');
-      setIntroPlayed(true);
-    }, 50);
-    return () => clearTimeout(t);
-  }, [introPlayed, isHome]);
-
-  // ── Debug: log every render with current visibility decision ────────────
-  dbgInfo(
-    `[Knight] render | screen="${currentScreen}" isHome=${isHome} displayMood="${displayMood}" introPlayed=${introPlayed}`,
-  );
+  dbgInfo(`[Coach] render | screen="${currentScreen}" isHome=${isHome} flash="${flashMood}"`);
 
   if (isHome) return null;
 
-  const accentColor =
-    (MOOD_COLOR as Record<string, string | undefined>)[displayMood] || MOOD_COLOR.ready;
-
-  // On Android WebView, motion.button / motion.div with animate={{ scale, opacity }}
-  // applies CSS transforms that create a GPU compositing layer — the button and bubble
-  // become transparent/invisible. Same root cause as CroatianKnight.jsx SVG fix.
-  // Use plain HTML elements on native: no Framer Motion, no compositing layer.
-  const nativeBtnStyle: React.CSSProperties = {
-    position: 'fixed',
-    bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
-    left: 14,
-    width: 70,
-    height: 70,
-    borderRadius: '50%',
-    background: 'var(--card)',
-    border: `2.5px solid ${accentColor}55`,
-    boxShadow: `0 4px 18px ${accentColor}28, 0 2px 6px rgba(0,0,0,.10)`,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 0,
-    zIndex: 9500,
-    outline: streakMood === 'celebrating' ? `2px solid ${accentColor}` : 'none',
-    outlineOffset: 3,
-    transition: 'border-color .3s ease, box-shadow .3s ease',
-  };
+  // Priority: flash (silent feedback) > active bubble mood > idle.
+  const displayMood = flashMood ?? bubble?.mood ?? 'ready';
+  const cv = coachVisual(displayMood);
+  const glyphVisible = flashMood !== null || (showBubble && bubble !== null);
+  const glyph = glyphVisible ? cv.glyph : null;
 
   const handleTap = () => {
     const msg = TAP_POOL[_tapIdx % TAP_POOL.length] ?? TAP_POOL[0]!;
@@ -379,20 +194,88 @@ export default function KnightCompanion() {
     }, 3800);
   };
 
-  return (
+  const ringBtnStyle: React.CSSProperties = {
+    position: 'fixed',
+    bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+    left: 14,
+    width: 70,
+    height: 70,
+    borderRadius: '50%',
+    background: cv.ring,
+    padding: 4,
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 9500,
+    boxShadow: '0 4px 18px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.10)',
+    transition: 'background .3s ease',
+  };
+  const innerStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    background: '#fbf6ec',
+    border: '2px solid rgba(255,255,255,.9)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  };
+  const glyphStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 26,
+    height: 26,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 14,
+    fontWeight: 900,
+    color: '#fff',
+    border: '2.5px solid #fff',
+    boxShadow: '0 2px 6px rgba(0,0,0,.25)',
+    background:
+      cv.klass === 'negative'
+        ? '#dc2626'
+        : cv.klass === 'thinking'
+          ? '#7c3aed'
+          : glyph === '★'
+            ? '#C8980A'
+            : '#16a34a',
+  };
+
+  const buttonInner = (
     <>
-      {/* ── Floating speech bubble ── */}
+      <span style={innerStyle}>
+        <CharacterPortrait name="kovac" title="prof. Kovač" size={58} />
+      </span>
+      {glyph && (
+        <span data-testid="coach-glyph" style={glyphStyle}>
+          {glyph}
+        </span>
+      )}
+      <CelebrationBurst active={celebBurst} />
+    </>
+  );
+
+  return (
+    <div data-testid="coach-companion">
+      {/* speech bubble */}
       <AnimatePresence>
         {showBubble && bubble && !flashMood && (
           <motion.div
-            key="companion-bubble"
+            key="coach-bubble"
             initial={_isNative ? false : { opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={_isNative ? {} : { opacity: 0, y: 6, scale: 0.94 }}
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
             style={{
               position: 'fixed',
-              bottom: 'calc(152px + env(safe-area-inset-bottom, 0px))', // above mini button (72px nav + 70px button + 10px gap)
+              bottom: 'calc(152px + env(safe-area-inset-bottom, 0px))',
               left: 14,
               zIndex: 9501,
               maxWidth: 230,
@@ -404,40 +287,24 @@ export default function KnightCompanion() {
               style={{
                 position: 'relative',
                 background: 'var(--card)',
-                border: `1.5px solid ${accentColor}44`,
+                border: '1.5px solid var(--card-b)',
                 borderRadius: 14,
                 padding: '10px 13px 9px',
-                boxShadow: `0 6px 24px ${accentColor}22, 0 2px 8px rgba(0,0,0,.14)`,
+                boxShadow: '0 6px 24px rgba(0,0,0,.16)',
               }}
             >
-              {/* Down-pointing tail toward mini button */}
               <div
                 style={{
-                  position: 'absolute',
-                  bottom: -9,
-                  left: 24,
-                  width: 0,
-                  height: 0,
-                  borderLeft: '8px solid transparent',
-                  borderRight: '8px solid transparent',
-                  borderTop: `9px solid ${accentColor}44`,
-                  pointerEvents: 'none',
+                  fontSize: 9,
+                  fontWeight: 900,
+                  letterSpacing: '.12em',
+                  textTransform: 'uppercase',
+                  color: '#7c3aed',
+                  marginBottom: 4,
                 }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: -7,
-                  left: 25,
-                  width: 0,
-                  height: 0,
-                  borderLeft: '7px solid transparent',
-                  borderRight: '7px solid transparent',
-                  borderTop: '8px solid var(--card)',
-                  pointerEvents: 'none',
-                }}
-              />
-
+              >
+                prof. Kovač
+              </div>
               <p
                 style={{
                   margin: 0,
@@ -449,59 +316,36 @@ export default function KnightCompanion() {
               >
                 {bubble.text}
               </p>
-              <div
-                style={{
-                  fontSize: 9,
-                  color: `${accentColor}77`,
-                  fontWeight: 600,
-                  marginTop: 5,
-                  textAlign: 'right',
-                }}
-              >
-                tap to close
-              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Mini knight button — walk-in intro on first appearance ── */}
+      {/* mini portrait button */}
       {_isNative ? (
         <button
           onClick={handleTap}
-          aria-label="Chat with Vitez Hrvoje, your Croatian coach"
-          title="Vitez Hrvoje — tap for a message"
-          style={nativeBtnStyle}
+          aria-label="prof. Kovač, your Croatian coach"
+          title="prof. Kovač — tap for a tip"
+          style={ringBtnStyle}
         >
-          <CroatianKnight size={52} mood={displayMood} />
-          <CelebrationBurst active={celebBurst} />
+          {buttonInner}
         </button>
       ) : (
         <motion.button
           onClick={handleTap}
-          aria-label="Chat with Vitez Hrvoje, your Croatian coach"
-          title="Vitez Hrvoje — tap for a message"
-          initial={
-            _isNative
-              ? false
-              : introPlayed
-                ? { scale: 0.6, opacity: 0 }
-                : { x: -80, opacity: 0, scale: 0.8 }
-          }
+          aria-label="prof. Kovač, your Croatian coach"
+          title="prof. Kovač — tap for a tip"
+          initial={{ scale: 0.6, opacity: 0 }}
           animate={{ x: 0, scale: 1, opacity: 1 }}
-          transition={
-            introPlayed
-              ? { type: 'spring', stiffness: 420, damping: 22 }
-              : { type: 'spring', stiffness: 280, damping: 18, delay: 0.2 }
-          }
-          whileHover={{ scale: 1.13 }}
+          transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+          whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.93 }}
-          style={nativeBtnStyle}
+          style={ringBtnStyle}
         >
-          <CroatianKnight size={52} mood={displayMood} />
-          <CelebrationBurst active={celebBurst} />
+          {buttonInner}
         </motion.button>
       )}
-    </>
+    </div>
   );
 }
