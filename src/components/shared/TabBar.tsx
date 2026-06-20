@@ -369,7 +369,7 @@ export default function TabBar({
                     }}
                   />
                 )}
-                {badges && t.id !== 'practice' && (badges[t.id] ?? 0) > 0 && (
+                {badges && (badges[t.id] ?? 0) > 0 && (
                   <span
                     aria-label={`${badges[t.id]} new items`}
                     style={{

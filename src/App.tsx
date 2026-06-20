@@ -17,7 +17,7 @@ import {
   recordJourneyMilestone,
 } from './lib/appUtils.js';
 import { touchSession, isSessionExpired, fbApplyDelta } from './lib/firebase.js';
-import { getSR, getDueReviews } from './lib/srs.js';
+import { getSR } from './lib/srs.js';
 import { buildProgressSnapshot } from './lib/progressSnapshot.js';
 import { applyRemoteProgress as _applyRemoteProgressLib } from './lib/applyRemoteProgress.js';
 import { localDateStr, weekKey } from './lib/dateUtils.js';
@@ -1465,14 +1465,13 @@ function App() {
   const certifiedLevel = getEffectiveLevelForUnlock(getUserCefr(stats.xp, stats.lc, stats.gc));
   const daysSinceJoin = useMemo(() => getDaysSinceJoin(authUser), [authUser]);
   const isNewUserWindow = daysSinceJoin !== null && daysSinceJoin >= 1 && daysSinceJoin <= 10;
-  // getDueReviews() reads localStorage — keep it out of useMemo to avoid stale badge count
-  const [dueCount, setDueCount] = useState(() => getDueReviews().length);
-  useEffect(() => {
-    setDueCount(getDueReviews().length);
-  }, [stats]);
+  // Per-tab nav badge counts. The Practice/Grad tab no longer routes to SRS
+  // reviews (that count lives on the Today's Session card), so it carries no
+  // badge; the remaining slots are reserved for future counts. Static today —
+  // memoized only to keep a stable reference for the nav components.
   const badges = useMemo(
-    () => ({ home: 0, learn: 0, practice: dueCount, ai: 0, croatia: 0, profile: 0 }),
-    [dueCount],
+    () => ({ home: 0, learn: 0, practice: 0, ai: 0, croatia: 0, profile: 0 }),
+    [],
   );
   const doSidebarSearch = useCallback(() => {
     if (srchQ.trim()) {
