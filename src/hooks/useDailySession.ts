@@ -192,6 +192,41 @@ export function resolveAdaptiveActivity(
   return null;
 }
 
+// Structural difficulty tier per session exercise type (1 = recognition …
+// 5 = open production), mirroring exerciseMeta's scale. Used to bias the daily
+// Priority-3 fill toward the user's ability so content scales as they advance
+// (defect #1: difficulty was inert — nothing consumed difficulty tiers). Any id
+// not listed defaults to tier 3.
+const EXERCISE_DIFFICULTY: Record<string, number> = {
+  flashcards: 1,
+  mcgame: 1,
+  match: 1,
+  review: 2,
+  qwords: 2,
+  genderdrill: 2,
+  nomdrill: 2,
+  unjumble: 2,
+  negation: 2,
+  znam: 3,
+  cloze: 3,
+  prepdrill: 3,
+  genitivedrill: 3,
+  locdrill: 3,
+  sentencetiles: 3,
+  typing: 3,
+  accusativedrill: 3,
+  future: 3,
+  comparatives: 3,
+  dictation: 3,
+  sentbuild: 4,
+  aspectdrill: 4,
+  clitic: 4,
+};
+
+// Maps the user's CEFR level to a target difficulty tier (1–5). A stronger user
+// is biased toward harder exercise types.
+const CEFR_TIER: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 5 };
+
 export function buildSessionActivities(
   userCefr: string,
   poolWords?: Set<string>,
@@ -259,16 +294,21 @@ export function buildSessionActivities(
     );
   }
 
-  // Shuffle and fill to 4 total activities before Croatia slot
-  const shuffled = [...pool];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(rnd() * (i + 1));
-    const tmp = shuffled[i] as (typeof shuffled)[0];
-    shuffled[i] = shuffled[j] as (typeof shuffled)[0];
-    shuffled[j] = tmp;
-  }
+  // Bias the fill toward the user's ability tier: nearest difficulty first, with
+  // a random tiebreak so same-tier types still rotate for variety (recency
+  // already rotates day to day). Replaces the prior pure shuffle so difficulty
+  // actually scales with the user (defect #1: difficulty was inert).
+  const targetTier = CEFR_TIER[userCefr] ?? 3;
+  const ordered = [...pool]
+    .map((ex) => ({
+      ex,
+      dist: Math.abs((EXERCISE_DIFFICULTY[ex.id] ?? 3) - targetTier),
+      r: rnd(),
+    }))
+    .sort((a, b) => a.dist - b.dist || a.r - b.r)
+    .map((o) => o.ex);
   const fillTarget = 4; // target 4 activities from P1+P2+P3 before Croatia slot
-  for (const ex of shuffled) {
+  for (const ex of ordered) {
     if (activities.length >= fillTarget) break;
     if (!usedScreens.has(ex.screen)) {
       activities.push({ id: ex.id, label: ex.label, screen: ex.screen, category: ex.category });
