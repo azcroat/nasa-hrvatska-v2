@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
 import { useStats } from '../../context/StatsContext.tsx';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 
 interface PfQuizQuestion {
   base: string;
@@ -288,18 +289,18 @@ export default function PadezifullScreen({
                   onClick={() => {
                     if (finishFired.current) return;
                     finishFired.current = true;
-                    if (typeof award === 'function') award(pfS * 5, false, 'grammar');
-                    if (!stats.vs?.includes('padezifull')) {
-                      setStats((prev) => {
-                        if (prev.vs?.includes('padezifull')) return prev;
-                        return {
-                          ...prev,
-                          gc: (prev.gc || 0) + 1,
-                          vs: [...(prev.vs || []), 'padezifull'],
-                        };
-                      });
-                      if (writeDelta) writeDelta({ gc: 1, vs: ['padezifull'] });
-                    }
+                    // Gate completion on the comprehension pass (>=75%) via the
+                    // single completion authority — idempotent, no credit on fail.
+                    completeExercise({
+                      key: 'padezifull',
+                      score: pfS,
+                      total,
+                      xp: pfS * 5,
+                      stats,
+                      setStats,
+                      writeDelta,
+                      award,
+                    });
                     goBack();
                   }}
                 >
