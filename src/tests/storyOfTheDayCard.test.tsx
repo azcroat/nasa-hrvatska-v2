@@ -1,7 +1,7 @@
 // src/tests/storyOfTheDayCard.test.tsx
 // SP11: card now fetches catalog via contentClient instead of importing
 // GRADED_STORIES directly. Tests updated to mock the async data source.
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { StoryOfTheDayCard } from '../components/home/StoryOfTheDayCard';
@@ -54,6 +54,14 @@ vi.mock('../lib/contentClient', () => ({
 describe('StoryOfTheDayCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // The card rotates the daily story by Math.floor(Date.now()/86400000).
+    // Pin the clock so selection is deterministic: 2026-01-01 → day index 20454
+    // (even) → index 0 of the relevance-ranked pool → the top-ranked story.
+    vi.spyOn(Date, 'now').mockReturnValue(1767225600000);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('renders the recommended story title, level badge, and rationale', async () => {

@@ -100,7 +100,10 @@ export function StoryOfTheDayCard({
         const catalog = await getStoryCatalog();
         if (cancelled) return;
         const ctx = buildUserContext();
-        const rec = recommendStory(ctx, catalog, getRecentReads());
+        // Calendar-day index → daily rotation so the story changes each day
+        // rather than pinning the single top-scored story indefinitely.
+        const dayIndex = Math.floor(Date.now() / 86400000);
+        const rec = recommendStory(ctx, catalog, getRecentReads(), dayIndex);
         setRecommendation(rec);
       } catch {
         // Decorative widget — silently hide on error (auth, offline, rate limit)
