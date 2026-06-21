@@ -568,7 +568,6 @@ export default function HomeTab({
         streak={streak.count}
         xpThisWeek={xpThisWeek}
         wordsdue={dueCount}
-        host={host}
         nextLearnPathItem={nextLearnPathItem}
         learnPathItemDone={learnPathItemDone}
         onLearnPathStart={(item) => {
