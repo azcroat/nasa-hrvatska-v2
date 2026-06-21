@@ -10,6 +10,8 @@ import ConversationBubble from './ConversationBubble';
 import DebriefScreen from './MajaDebrief';
 import MajaIdleCard from './MajaIdleCard';
 import MicPermissionDeniedExplainer from '../shared/MicPermissionDeniedExplainer';
+import useWhisperSTT from '../../hooks/useWhisperSTT.js';
+import { isVoiceAvailable } from './majaVoice';
 import {
   MAJA_STYLES,
   PERSONA_CONFIG,
@@ -426,6 +428,53 @@ export default function MajaScreen() {
     [conversation, session, level, name, playTTS],
   );
 
+  // Voice availability: Web Speech (desktop) OR MediaRecorder→Whisper (iOS Safari,
+  // which has no SpeechRecognition). Drives the banner + the iOS capture path.
+  const VOICE_AVAILABLE = isVoiceAvailable(
+    SR_SUPPORTED,
+    typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia,
+    typeof MediaRecorder !== 'undefined',
+  );
+
+  // iOS / no-Web-Speech voice path: record → Whisper STT → feed the transcript to
+  // Maja, exactly like AIConversation. VAD auto-stops on silence and fires onResult.
+  // Inert on desktop (never toggled there — Web Speech handles it).
+  const iosVoice = useWhisperSTT({
+    onResult: (text: string) => {
+      const t = (text || '').trim();
+      if (t.length > 1 && phaseRef.current === 'listening') {
+        stopMic();
+        sendMessage(t);
+      }
+    },
+    onInterrupt: () => {},
+    onError: () => {},
+    isSpeaking: phase === 'maja-speaking',
+  });
+  // Read iosVoice through a ref so startListening's useCallback identity stays
+  // stable (it feeds the auto-listen effect) instead of churning every render.
+  const iosVoiceRef = useRef(iosVoice);
+  iosVoiceRef.current = iosVoice;
+
+  // Surface a Whisper-path mic denial through the same banner as Web Speech.
+  useEffect(() => {
+    if (iosVoice.permissionDenied) setMicDenied(true);
+  }, [iosVoice.permissionDenied]);
+
+  // Release the iOS Whisper mic once the conversation is no longer listening or
+  // speaking (debrief / idle / error), so it never lingers open in the background.
+  // Mid-conversation it stays on across turns; isSpeaking suppresses self-capture.
+  useEffect(() => {
+    if (
+      !SR_SUPPORTED &&
+      phase !== 'listening' &&
+      phase !== 'maja-speaking' &&
+      iosVoiceRef.current.isListening
+    ) {
+      iosVoiceRef.current.stop();
+    }
+  }, [phase]);
+
   // ── start listening ────────────────────────
   const startListening = useCallback(() => {
     if (phaseRef.current === 'debrief') return;
@@ -436,7 +485,13 @@ export default function MajaScreen() {
 
     startWaveform();
 
-    if (!SR_SUPPORTED) return; // fallback text input handles it
+    if (!SR_SUPPORTED) {
+      // iOS Safari has no Web Speech API: capture via MediaRecorder → Whisper.
+      // VAD auto-stops on silence and fires iosVoice.onResult → sendMessage.
+      // A text input remains as a manual backup (showFallbackInput).
+      if (VOICE_AVAILABLE && !iosVoiceRef.current.isListening) iosVoiceRef.current.toggle();
+      return;
+    }
 
     const SpeechRec = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
     const rec = new SpeechRec();
@@ -488,7 +543,7 @@ export default function MajaScreen() {
     } catch {
       // rec already started — ignore
     }
-  }, [startWaveform, stopMic, sendMessage]);
+  }, [startWaveform, stopMic, sendMessage, VOICE_AVAILABLE]);
 
   // ── start session ──────────────────────────
   const startSession = useCallback(async () => {
@@ -776,8 +831,8 @@ export default function MajaScreen() {
               showWelcome={!sessionActive}
             />
 
-            {/* ── SR not supported banner ── */}
-            {!SR_SUPPORTED && (
+            {/* ── No-voice banner (only when neither Web Speech nor Whisper works) ── */}
+            {!VOICE_AVAILABLE && (
               <div
                 style={{
                   background: 'rgba(245,158,11,0.1)',
@@ -797,8 +852,8 @@ export default function MajaScreen() {
               </div>
             )}
 
-            {/* ── Mic denied explainer ── */}
-            {micDenied && SR_SUPPORTED && (
+            {/* ── Mic denied explainer (Web Speech or Whisper path) ── */}
+            {micDenied && (
               <div style={{ marginBottom: 14 }}>
                 <MicPermissionDeniedExplainer onRetry={() => setMicDenied(false)} />
               </div>
