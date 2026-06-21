@@ -6,6 +6,8 @@ import {
   markDoneInSession,
   recordSessionComplete,
   useDailySession,
+  shouldAutoCompleteOnReturn,
+  SESSION_AUTOCOMPLETE_SCREENS,
 } from '../hooks/useDailySession';
 import type { DailySession } from '../hooks/useDailySession';
 import { localDateStr } from '../lib/dateUtils';
@@ -279,6 +281,63 @@ describe('buildSessionActivities — difficulty bias (defect #1)', () => {
     // No advanced-tier type should appear at A1 (they are CEFR-locked).
     for (const hard of ['sentbuild', 'aspectdrill', 'clitic', 'accusativedrill', 'future']) {
       expect(screens).not.toContain(hard);
+    }
+  });
+});
+
+describe('shouldAutoCompleteOnReturn — Croatia/reference slot completion', () => {
+  it('REGRESSION: every always-present Croatia slot auto-completes on return (no stranding)', () => {
+    // The Priority-4 Croatia slot is one of these; none self-grade on normal
+    // view, so without this the session could never complete (blocking regen).
+    const croatia = [
+      'cityofday',
+      'top100',
+      'grocery',
+      'transport',
+      'recipes',
+      'history',
+      'proverbs',
+      'popculture',
+    ];
+    for (const screen of croatia) {
+      expect(SESSION_AUTOCOMPLETE_SCREENS.has(screen)).toBe(true);
+      expect(shouldAutoCompleteOnReturn(screen, null)).toBe(true); // completes even w/o a signal
+    }
+  });
+
+  it('a graded screen still requires its real completion signal', () => {
+    expect(shouldAutoCompleteOnReturn('genitivedrill', null)).toBe(false);
+    expect(shouldAutoCompleteOnReturn('genitivedrill', 'genitivedrill')).toBe(true);
+  });
+
+  it('returns false when there is no pending activity', () => {
+    expect(shouldAutoCompleteOnReturn(null, null)).toBe(false);
+    expect(shouldAutoCompleteOnReturn(null, 'cityofday')).toBe(false);
+  });
+
+  it('INVARIANT: never auto-completes a graded/production screen (no pool overlap)', () => {
+    // Locks the safety property: only reference (Croatia) slots auto-complete on
+    // view. A graded or production screen must still fire its real signal — so a
+    // future pool edit that collided ids would fail here, not silently credit.
+    const nonReference = [
+      'flashcards',
+      'mcgame',
+      'match',
+      'review',
+      'znam',
+      'cloze',
+      'genitivedrill',
+      'accusativedrill',
+      'future',
+      'aspectdrill',
+      'clitic',
+      'shadowing',
+      'production_drill',
+      'dictation',
+    ];
+    for (const s of nonReference) {
+      expect(SESSION_AUTOCOMPLETE_SCREENS.has(s)).toBe(false);
+      expect(shouldAutoCompleteOnReturn(s, null)).toBe(false);
     }
   });
 });

@@ -69,7 +69,7 @@ import { safeGetItem } from '../../hooks/useLocalStorage';
 import GoalSetterModal from '../shared/GoalSetterModal';
 import { shouldShowGoalModal } from '../../lib/onboardingGates';
 import WelcomeBackBanners from './WelcomeBackBanners';
-import { useDailySession } from '../../hooks/useDailySession';
+import { useDailySession, shouldAutoCompleteOnReturn } from '../../hooks/useDailySession';
 import {
   setSessionCategory,
   clearSessionCategory,
@@ -387,7 +387,10 @@ export default function HomeTab({
       const completed = sessionStorage.getItem('nh_session_completed');
       sessionStorage.removeItem('nh_session_started');
       sessionStorage.removeItem('nh_session_completed');
-      if (pending && completed === pending) {
+      // Mark done when the screen fired the completion signal OR it is a
+      // reference slot that auto-completes on view (Croatia/immersion) — the
+      // latter previously stranded the session and blocked auto-regenerate.
+      if (pending && shouldAutoCompleteOnReturn(pending, completed)) {
         // Advance the adaptive category at the UNIVERSAL completion point. Real-
         // accuracy drills already consumed it in completeExercise (no-op here);
         // award-only screens (cloze/future/znam) are rescheduled here so no
@@ -413,7 +416,7 @@ export default function HomeTab({
         const completed = sessionStorage.getItem('nh_session_completed');
         sessionStorage.removeItem('nh_session_started');
         sessionStorage.removeItem('nh_session_completed');
-        if (pending && completed === pending) {
+        if (pending && shouldAutoCompleteOnReturn(pending, completed)) {
           consumeSessionCategoryOutcome();
           markDone(pending);
         }
