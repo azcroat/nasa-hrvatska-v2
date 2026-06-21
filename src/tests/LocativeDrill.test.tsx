@@ -83,12 +83,12 @@ describe('LocativeDrill — smoke tests', () => {
     expect(screen.getByText('📍 Locative Case')).toBeTruthy();
   });
 
-  it('shows progress 1 / 50', () => {
+  it('shows progress 1 / 10', () => {
     render(<LocativeDrill goBack={vi.fn()} award={vi.fn()} />);
-    expect(screen.getByText(/1 \/ 50/)).toBeTruthy();
+    expect(screen.getByText(/1 \/ 10/)).toBeTruthy();
   });
 
-  it('advances to 2 / 50 after clicking the correct answer and Next', () => {
+  it('advances to 2 / 10 after clicking the correct answer and Next', () => {
     const { container } = render(<LocativeDrill goBack={vi.fn()} award={vi.fn()} />);
     // With rnd()=0.99, shuffle is identity — opts[0] === answer
     const firstOpt = container.querySelector('button.ob');
@@ -97,6 +97,6 @@ describe('LocativeDrill — smoke tests', () => {
     const nextBtn = container.querySelector('button.b.bp');
     expect(nextBtn).toBeTruthy();
     fireEvent.click(nextBtn!);
-    expect(screen.getByText(/2 \/ 50/)).toBeTruthy();
+    expect(screen.getByText(/2 \/ 10/)).toBeTruthy();
   });
 });

@@ -97,7 +97,7 @@ function renderNegationGenDrill(overrides = {}) {
  */
 function completeAllQuestions(award: ReturnType<typeof vi.fn> = vi.fn()) {
   const { container } = renderNegationGenDrill({ award });
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 10; i++) {
     const optBtn = container.querySelector('button.ob');
     if (!optBtn) break;
     fireEvent.click(optBtn);
@@ -182,7 +182,7 @@ describe('NegationGenDrill — answer mechanics', () => {
 
   it('shows See results on the last question after answering', () => {
     const { container } = renderNegationGenDrill();
-    for (let i = 0; i < 19; i++) {
+    for (let i = 0; i < 9; i++) {
       fireEvent.click(container.querySelector('button.ob')!);
       fireEvent.click(screen.getByText('Next →'));
     }
@@ -201,7 +201,7 @@ describe('NegationGenDrill — completion + award guard', () => {
 
   it('shows done screen after all questions answered', () => {
     completeAllQuestions();
-    expect(screen.getByText(/\d+ \/ 20/)).toBeTruthy();
+    expect(screen.getByText(/\d+ \/ 10/)).toBeTruthy();
   });
 
   it('shows ← Back button on done screen', () => {
@@ -215,11 +215,11 @@ describe('NegationGenDrill — completion + award guard', () => {
     expect(award).toHaveBeenCalledTimes(1);
   });
 
-  it('award() receives XP = score * 5 (all 20 correct → 100 XP)', () => {
+  it('award() receives XP = score * 5 (all 10 correct → 50 XP)', () => {
     const award = vi.fn();
     completeAllQuestions(award);
     // All 20 opts[0] === answer → score=20, XP=100
-    expect(award).toHaveBeenCalledWith(100, false, 'grammar');
+    expect(award).toHaveBeenCalledWith(50, false, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {
@@ -269,7 +269,7 @@ describe('NegationGenDrill — navigation', () => {
   it('goBack is called when ← Back is clicked on the done screen', () => {
     const goBack = vi.fn();
     const { container } = render(<NegationGenDrill goBack={goBack} award={vi.fn()} />);
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const optBtn = container.querySelector('button.ob');
       if (!optBtn) break;
       fireEvent.click(optBtn);

@@ -457,7 +457,7 @@ export default function ClozeEngine({ goBack, award }: Props) {
     },
     [],
   );
-  const questions = useMemo(() => shuffle(SENTENCE_BANK).slice(0, 12), []);
+  const questions = useMemo(() => shuffle(SENTENCE_BANK).slice(0, 10), []);
   const [qi, setQi] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
