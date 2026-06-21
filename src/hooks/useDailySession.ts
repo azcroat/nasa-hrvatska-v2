@@ -168,6 +168,31 @@ const CROATIA_POOL: SessionActivity[] = [
   { id: 'popculture', label: 'Pop Culture', screen: 'popculture', category: 'culture' },
 ];
 
+// Reference/immersion screens with no self-grading completion (read/scenario
+// screens). The Priority-4 Croatia slot ALWAYS adds one of these, and they only
+// fire the completion handshake on their error/empty path — never on normal
+// viewing (the dwell-credit that used to cover that was removed 2026-06-12). So
+// the always-present Croatia slot stranded the session at N-1/N: it could never
+// complete, which also blocked the on-completion auto-regenerate. Treat
+// "launched from the session and returned" as completion for these. Derived from
+// CROATIA_POOL so it can never drift out of sync.
+export const SESSION_AUTOCOMPLETE_SCREENS: ReadonlySet<string> = new Set(
+  CROATIA_POOL.map((c) => c.screen),
+);
+
+/**
+ * Whether a launched session activity should be marked done on return to Home:
+ * either the screen fired the real completion signal (`completed === pending`),
+ * or it is a reference screen with no self-grading (auto-complete on view).
+ */
+export function shouldAutoCompleteOnReturn(
+  pending: string | null,
+  completed: string | null,
+): boolean {
+  if (!pending) return false;
+  return completed === pending || SESSION_AUTOCOMPLETE_SCREENS.has(pending);
+}
+
 // ── Pure helpers (exported for unit tests) ───────────────────────────────────
 
 // Choose the adaptive grammar activity for this session. CEFR-gates and re-points
