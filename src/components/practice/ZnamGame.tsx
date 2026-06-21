@@ -134,17 +134,16 @@ export default function ZnamGame({
                       if (!finishFired.current) {
                         finishFired.current = true;
                         // Gate completion on the comprehension pass (>=75%) via the
-                        // single authority; this also awards the XP shown on the
-                        // result screen (previously displayed but never granted).
+                        // single authority. XP is already awarded per correct answer
+                        // (award(5) above), so xp: 0 here and no award — gc/vs only.
                         completeExercise({
                           key: 'znam',
                           score: znSc,
                           total: sec.sentences.length,
-                          xp: znSc * 5,
+                          xp: 0,
                           stats,
                           setStats,
                           writeDelta,
-                          award,
                         });
                       }
                       sZnMode('done');

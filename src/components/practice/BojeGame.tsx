@@ -260,13 +260,13 @@ export default function BojeGame({ goBack, award }: Props) {
                       if (!finishFired.current) {
                         finishFired.current = true;
                         // Gate completion on the comprehension pass (>=75%) via the
-                        // single authority. XP matches the result screen (bjSc*7),
-                        // which previously displayed more than was awarded (bjSc*2).
+                        // single authority. Completion bonus stays bjSc*2 (per-answer
+                        // award(5) covers the rest; the result screen's bjSc*7 = sum).
                         completeExercise({
                           key: 'boje',
                           score: bjSc,
                           total,
-                          xp: bjSc * 7,
+                          xp: bjSc * 2,
                           stats,
                           setStats,
                           writeDelta,

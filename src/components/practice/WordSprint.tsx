@@ -275,6 +275,7 @@ export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
         setStats,
         writeDelta,
         award,
+        activityType: 'grammar', // preserve original XP attribution
       });
     }
   }, [phase, score, award, stats, setStats, writeDelta]);
