@@ -1,9 +1,11 @@
 // src/tests/useDailySession.test.ts
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
 import {
   buildSessionActivities,
   markDoneInSession,
   recordSessionComplete,
+  useDailySession,
 } from '../hooks/useDailySession';
 import type { DailySession } from '../hooks/useDailySession';
 import { localDateStr } from '../lib/dateUtils';
@@ -228,5 +230,31 @@ describe('recordSessionComplete', () => {
     recordSessionComplete(today);
     // localStorage should still contain the bad data (nothing changed)
     expect(localStorage.getItem('nh_session_history')).toBe('{bad json}');
+  });
+});
+
+describe('useDailySession — rotation memory + auto-regenerate (hook)', () => {
+  it('records a completed activity screen in nh_recent_exercises (the missing write)', () => {
+    const { result } = renderHook(() => useDailySession('A2'));
+    const first = result.current.session.activities[0]!;
+    act(() => {
+      result.current.markDone(first.screen);
+    });
+    const recent = JSON.parse(localStorage.getItem('nh_recent_exercises') || '[]') as string[];
+    expect(recent).toContain(first.screen);
+  });
+
+  it('auto-regenerates a fresh set when every activity is completed (no dead-end)', () => {
+    const { result } = renderHook(() => useDailySession('A2'));
+    const firstIds = result.current.session.activities.map((a) => a.id);
+    expect(firstIds.length).toBeGreaterThan(0);
+    act(() => {
+      firstIds.forEach((id) => result.current.markDone(id));
+    });
+    // Completing all triggers regeneration: not complete, progress reset to a
+    // fresh non-empty set rather than a "come back tomorrow" dead-end.
+    expect(result.current.isComplete).toBe(false);
+    expect(result.current.session.completedIds).toEqual([]);
+    expect(result.current.session.activities.length).toBeGreaterThan(0);
   });
 });

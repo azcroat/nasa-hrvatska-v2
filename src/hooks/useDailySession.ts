@@ -321,6 +321,19 @@ function persistSession(session: DailySession): void {
   } catch {}
 }
 
+// Record a completed activity's screen in the recent-exercises list so the
+// Priority-3 "skip recent" filter actually rotates day to day. Previously this
+// list was only written by the Practice tab, so a Today's-Session-only user kept
+// getting the same fill exercises. Mirrors GradTab's writer (cap 6, de-duped).
+function recordRecentExercise(screen: string): void {
+  try {
+    const prev = (JSON.parse(localStorage.getItem(RECENT_KEY) || '[]') as string[]).filter(
+      (s) => s !== screen,
+    );
+    localStorage.setItem(RECENT_KEY, JSON.stringify([screen, ...prev].slice(0, 6)));
+  } catch {}
+}
+
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useDailySession(userCefr: string, poolWords?: Set<string>): UseDailySessionReturn {
@@ -401,6 +414,9 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
       if (prev.completedIds.includes(match.id)) return prev;
       const updated = markDoneInSession(prev, match.id);
       persistSession(updated);
+      // Record the screen so the daily session's skip-recent filter rotates it
+      // out next time (the write path that was missing for non-Practice users).
+      recordRecentExercise(match.screen);
       // SP4b: track production exercises for recent-exclusion rotation
       if (PRODUCTION_SCREEN_IDS.has(match.screen)) {
         recordProductionExercise(match.screen);
@@ -455,6 +471,28 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
     session.activities.length === 0 ? 0 : session.completedIds.length / session.activities.length;
   const nextActivity = session.activities.find((a) => !session.completedIds.includes(a.id)) ?? null;
   const tomorrowLabel = '4–6 activities tomorrow';
+
+  // Auto-regenerate on completion (same day). The moment every activity is done,
+  // build a brand-new set so Today's Session always offers fresh content instead
+  // of a dead-end. By now the just-completed screens are recorded (skip-recent)
+  // and the just-rated adaptive category has rescheduled, so the new set rotates
+  // to different exercises and a different grammar focus. buildSessionActivities
+  // always returns >= 1 activity (Croatia slot is unconditional), so the fresh
+  // set is never immediately complete — no render loop.
+  useEffect(() => {
+    if (!isComplete || session.activities.length === 0) return;
+    const activities = buildSessionActivities(userCefr, poolWords);
+    const fresh: DailySession = {
+      date: localDateStr(),
+      cefrLevel: userCefr,
+      activities,
+      completedIds: [],
+      estimatedMinutes: activities.length * MINUTES_PER_ACTIVITY,
+    };
+    persistSession(fresh);
+    setSession(fresh);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isComplete]);
 
   // Bonus activities — show only when the curated daily session is complete,
   // so users who want to keep learning have specific next steps instead of a

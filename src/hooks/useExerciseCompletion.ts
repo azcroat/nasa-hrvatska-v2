@@ -10,6 +10,7 @@
 import { passedLesson } from '../lib/lessonGate';
 import { markQuest } from '../lib/quests';
 import { EXERCISE_COMPLETION, type StatKind } from '../lib/completion/exerciseRegistry';
+import { consumeSessionCategoryOutcome } from '../lib/sessionCategory';
 
 interface MinStats {
   vs?: string[];
@@ -44,6 +45,12 @@ export function completeExercise<S extends MinStats>(
   passed: boolean;
 } {
   const { key, score, total, xp, stats, setStats, writeDelta, award } = args;
+  // Advance the adaptive category schedule with REAL accuracy when this finish
+  // corresponds to a Today's Session adaptive activity. Runs on every attempt
+  // (pass or fail) so a struggled category reschedules instead of repeating
+  // forever; no-op outside the daily session. This is the write that was missing
+  // and caused the session to serve the same grammar category every day.
+  consumeSessionCategoryOutcome(score, total);
   const entry = EXERCISE_COMPLETION[key];
   const policyKind = entry?.policy.kind ?? 'gated';
   const statKind: StatKind = args.statKind ?? entry?.policy.statKind ?? 'gc';
