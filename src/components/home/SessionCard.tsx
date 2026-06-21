@@ -1,9 +1,6 @@
 // src/components/home/SessionCard.tsx
 import React from 'react';
 import type { DailySession, SessionActivity } from '../../hooks/useDailySession';
-import CharacterPortrait from '../family/CharacterPortrait';
-import type { CharacterName } from '../family/portraits';
-import { progressVoice } from './progressVoice';
 
 // Croatian identity palette — single source of truth for brand colors used in this card
 const CROATIAN_RED = '#CC0000';
@@ -31,8 +28,6 @@ interface SessionCardProps {
   streak: number;
   xpThisWeek: number;
   wordsdue: number;
-  /** Host-of-day — used only as the fallback voice for the relational progress line. */
-  host: CharacterName;
   /** Next incomplete LearnPath item. When null/undefined the chip is not rendered. */
   nextLearnPathItem?: LearnPathChipItem | null;
   /** Called when user clicks the LearnPath chip. Receives the item. */
@@ -204,7 +199,6 @@ export default function SessionCard({
   streak,
   xpThisWeek,
   wordsdue,
-  host,
   nextLearnPathItem = null,
   onLearnPathStart,
   learnPathItemDone = false,
@@ -562,48 +556,6 @@ export default function SessionCard({
           testId="reviews-due-pill"
         />
       </div>
-
-      {/* ── HOST-VOICED PROGRESS (relational progress) — one slim, secondary line ── */}
-      {(() => {
-        const voice = progressVoice({ streak, wordsdue, xpThisWeek }, host);
-        return (
-          <div
-            data-testid="progress-voice"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}
-          >
-            <span
-              style={{
-                flex: 'none',
-                borderRadius: '50%',
-                padding: 2,
-                background: 'linear-gradient(135deg,#C8980A,#e0b84a)',
-                display: 'flex',
-              }}
-            >
-              <CharacterPortrait name={voice.host} size={28} />
-            </span>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span
-                style={{
-                  display: 'block',
-                  fontFamily: "'Playfair Display',serif",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: 'var(--heading)',
-                  lineHeight: 1.2,
-                }}
-              >
-                {voice.icon} {voice.hr}
-              </span>
-              <span
-                style={{ display: 'block', fontSize: 11, color: 'var(--subtext)', marginTop: 1 }}
-              >
-                {voice.en}
-              </span>
-            </span>
-          </div>
-        );
-      })()}
     </div>
   );
 }

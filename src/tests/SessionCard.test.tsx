@@ -5,7 +5,7 @@
  * No context providers, firebase mocks, or data layer needed.
  */
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import SessionCard from '../components/home/SessionCard';
 import type { DailySession, SessionActivity } from '../hooks/useDailySession';
@@ -44,7 +44,6 @@ const BASE_PROPS = {
   streak: 3,
   xpThisWeek: 120,
   wordsdue: 5,
-  host: 'ana' as const,
 };
 
 const LP_ITEM = { id: 'lp1', name: 'Basic Greetings', go: 'lesson', topic: 'greetings' };
@@ -160,44 +159,5 @@ describe('SessionCard — LearnPath chip', () => {
   });
 });
 
-describe('SessionCard — relational progress voice', () => {
-  it('does NOT surface reviews due in the progress line (now shown by the Reviews Due pill)', () => {
-    // Removed 2026-06-21: the "N phrases waiting for review" voice line duplicated
-    // the Reviews Due stat pill. With reviews due but no streak/week, the line
-    // falls through to the host-of-day rather than nagging via prof. Kovač.
-    render(
-      <SessionCard
-        {...BASE_PROPS}
-        session={makeSession()}
-        wordsdue={3}
-        streak={0}
-        xpThisWeek={0}
-        host="ivo"
-      />,
-    );
-    const line = screen.getByTestId('progress-voice');
-    expect(within(line).queryByTestId('portrait-kovac')).toBeNull();
-    expect(line.textContent).not.toContain('waiting for review');
-    expect(within(line).getByTestId('portrait-ivo')).toBeTruthy();
-  });
-
-  it('shows Baka on a streak when no reviews are due', () => {
-    render(<SessionCard {...BASE_PROPS} session={makeSession()} wordsdue={0} streak={5} />);
-    const line = screen.getByTestId('progress-voice');
-    expect(within(line).getByTestId('portrait-baka')).toBeTruthy();
-  });
-
-  it('falls back to the host-of-day when nothing is salient', () => {
-    render(
-      <SessionCard
-        {...BASE_PROPS}
-        session={makeSession()}
-        wordsdue={0}
-        streak={1}
-        xpThisWeek={10}
-        host="ivo"
-      />,
-    );
-    expect(within(screen.getByTestId('progress-voice')).getByTestId('portrait-ivo')).toBeTruthy();
-  });
-});
+// (Removed "relational progress voice" tests — the host-voiced progress line was
+// deleted from SessionCard entirely on 2026-06-21 per user request.)

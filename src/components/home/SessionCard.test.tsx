@@ -24,7 +24,6 @@ function renderCard(overrides: Partial<React.ComponentProps<typeof SessionCard>>
     streak: 0,
     xpThisWeek: 0,
     wordsdue: 0,
-    host: 'ana',
     ...overrides,
   };
   return render(<SessionCard {...props} />);
