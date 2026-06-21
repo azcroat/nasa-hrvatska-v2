@@ -9,14 +9,18 @@ import { similarityPct } from '../../lib/text/similarity';
 import { useRecorder } from '../../hooks/useRecorder';
 
 // Azure-preferred MIME negotiation order — format-sensitive for pronunciation assessment.
-// Azure explicitly supports audio/ogg;codecs=opus and audio/wav; WebM is handled in practice.
-// This order MUST be preserved via mimePriority — do NOT fall back to useRecorder's webm-first default.
-const AZURE_MIME_PRIORITY = [
+// Backend STT is Cloudflare Workers AI Whisper (functions/api/assess-speaking.js),
+// which decodes all of these plus audio/mp4. Desktop-preferred formats come first;
+// audio/mp4 is LAST as the iOS Safari fallback — iOS MediaRecorder supports ONLY
+// audio/mp4, so without it negotiation returns null and the mic hard-fails on iPhone.
+// (The AZURE_ name is historical — the endpoint is Whisper now.) Exported for tests.
+export const AZURE_MIME_PRIORITY = [
   'audio/ogg;codecs=opus',
   'audio/wav',
   'audio/webm;codecs=opus',
   'audio/webm',
   'audio/ogg',
+  'audio/mp4',
 ] as const;
 
 interface PronunciationScorerProps {
