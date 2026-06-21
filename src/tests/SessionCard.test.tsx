@@ -161,12 +161,24 @@ describe('SessionCard — LearnPath chip', () => {
 });
 
 describe('SessionCard — relational progress voice', () => {
-  it('shows prof. Kovač in the progress line when reviews are due', () => {
-    render(<SessionCard {...BASE_PROPS} session={makeSession()} wordsdue={3} />);
+  it('does NOT surface reviews due in the progress line (now shown by the Reviews Due pill)', () => {
+    // Removed 2026-06-21: the "N phrases waiting for review" voice line duplicated
+    // the Reviews Due stat pill. With reviews due but no streak/week, the line
+    // falls through to the host-of-day rather than nagging via prof. Kovač.
+    render(
+      <SessionCard
+        {...BASE_PROPS}
+        session={makeSession()}
+        wordsdue={3}
+        streak={0}
+        xpThisWeek={0}
+        host="ivo"
+      />,
+    );
     const line = screen.getByTestId('progress-voice');
-    expect(line).toBeTruthy();
-    expect(within(line).getByTestId('portrait-kovac')).toBeTruthy();
-    expect(line.textContent).toContain('3');
+    expect(within(line).queryByTestId('portrait-kovac')).toBeNull();
+    expect(line.textContent).not.toContain('waiting for review');
+    expect(within(line).getByTestId('portrait-ivo')).toBeTruthy();
   });
 
   it('shows Baka on a streak when no reviews are due', () => {
