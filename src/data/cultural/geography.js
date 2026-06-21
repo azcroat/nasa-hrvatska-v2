@@ -2548,18 +2548,6 @@ export const CROATIAN_CITIES = [
     didYouKnow: "The Biokovo massif creates a dramatic climate boundary — the coastal side gets warm Mediterranean air while Zagvozd on the northern side gets severe bura wind and snowy winters, though just 20km from the beach.",
   },
   {
-    name: "Prozor",
-    region: "Herzegovina",
-    icon: "🏔️",
-    color: "#1e40af",
-    tagline: "Rama Lake and the Franciscan Heritage",
-    intro: "Prozor-Rama is a central Herzegovinian town with an artificial lake (Ramsko jezero) and the historically important Franciscan monastery of Rama — preserved when the original village was flooded.",
-    history: "The village of Rama was submerged in 1968 when the Rama dam created the lake. The Franciscan monastery — the spiritual centre of Croatian Catholic life in this part of Herzegovina for centuries — was relocated to higher ground. The lake is now a recreation destination and the monastery attracts pilgrims.",
-    facts: ["The village of Rama was flooded in 1968 to create Ramsko jezero — church and monastery were saved","The Franciscan monastery of Rama was relocated before flooding — it continues as a pilgrimage site","Ramsko jezero is a turquoise artificial lake surrounded by dramatic mountains","Prozor's position in the Rama valley made it a key route between the coast and Bosnia","The Rama valley position of Prozor made it a key route between the Adriatic coast and the interior of Bosnia."],
-    vocab: [{"hr":"jezero","en":"lake","note":"Ramsko jezero (Rama Lake) was created by a dam in 1968 — the flooded village below gives it a melancholy history"},{"hr":"franjevci","en":"Franciscans","note":"The franjevci (Franciscans) of Rama maintained Croatian Catholic identity through Ottoman rule and two World Wars"},{"hr":"zvono","en":"bell","note":"The original bell from the flooded village of Rama was saved and still rings on holy days."}],
-    didYouKnow: "The original church bell from the flooded village of Rama was saved and installed in the new monastery — it still rings on holy days, calling to a parish that now lives above the water line rather than below.",
-  },
-  {
     name: "Vinkovci",
     region: "Slavonia",
     icon: "🏺",
