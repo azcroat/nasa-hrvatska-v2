@@ -84,6 +84,11 @@ export function recommendStory(
   userContext: UserContext,
   catalog: GradedStoryLike[],
   recentReads: string[],
+  // Calendar day index (e.g. Math.floor(Date.now()/86400000)). Drives the
+  // daily rotation so "Story of the Day" actually changes each day instead of
+  // pinning the single highest-scoring story forever. Defaults to 0 (the top
+  // story) so non-dated callers/tests get stable behaviour.
+  dayIndex = 0,
 ): RankedStory | null {
   if (!catalog || catalog.length === 0) return null;
 
@@ -112,13 +117,17 @@ export function recommendStory(
     return { story: s, score, matchedTopic: firstMatchedTopic };
   });
 
-  // Sort by score desc, then title asc (deterministic tiebreak)
+  // Sort by score desc, then title asc (deterministic, relevance-ranked order)
   scored.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
     return a.story.title.localeCompare(b.story.title);
   });
 
-  const winner = scored[0]!;
+  // Daily rotation: walk through the relevance-ranked pool one story per day so
+  // the card changes every day (most-relevant first, then cycles) instead of
+  // returning scored[0] forever. Safe modulo handles negative/large dayIndex.
+  const idx = ((Math.trunc(dayIndex) % scored.length) + scored.length) % scored.length;
+  const winner = scored[idx]!;
   return {
     story: winner.story,
     score: winner.score,

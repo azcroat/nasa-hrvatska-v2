@@ -150,6 +150,46 @@ describe('recommendStory — scoring rules', () => {
   });
 });
 
+describe('recommendStory — daily rotation (Story of the Day must change each day)', () => {
+  const b1 = ctx({ level: { cefr: 'B1', xp: 1500, streak: 0 } });
+  // Relevance-ranked B1 pool order: [b1_a, b1_b, a2_a, a1_a, a1_b] (5 stories)
+
+  it('default dayIndex (0) returns the top-ranked story', () => {
+    expect(recommendStory(b1, CATALOG, []).story.id).toBe('b1_a');
+  });
+
+  it('advancing the day advances the story', () => {
+    expect(recommendStory(b1, CATALOG, [], 0).story.id).toBe('b1_a');
+    expect(recommendStory(b1, CATALOG, [], 1).story.id).toBe('b1_b');
+    expect(recommendStory(b1, CATALOG, [], 2).story.id).toBe('a2_a');
+  });
+
+  it('two consecutive days never return the same story (the original bug)', () => {
+    const today = recommendStory(b1, CATALOG, [], 20000)!.story.id;
+    const tomorrow = recommendStory(b1, CATALOG, [], 20001)!.story.id;
+    expect(today).not.toBe(tomorrow);
+  });
+
+  it('rotation cycles through the whole unlocked pool over consecutive days', () => {
+    const ids = new Set<string>();
+    for (let d = 0; d < 5; d++) ids.add(recommendStory(b1, CATALOG, [], d)!.story.id);
+    expect(ids.size).toBe(5); // all 5 unlocked B1 stories surface across 5 days
+  });
+
+  it('wraps around (dayIndex === poolLength behaves like day 0)', () => {
+    expect(recommendStory(b1, CATALOG, [], 5).story.id).toBe(
+      recommendStory(b1, CATALOG, [], 0).story.id,
+    );
+  });
+
+  it('large real-world day index (Date.now()/86400000) stays in range', () => {
+    const big = Math.floor(1_750_000_000_000 / 86400000); // ~20254
+    const r = recommendStory(b1, CATALOG, [], big);
+    expect(r).not.toBeNull();
+    expect(CATALOG.map((s) => s.id)).toContain(r!.story.id);
+  });
+});
+
 describe('recommendStory — rationale', () => {
   it('weak-topic match → "Practice X — your current weak spot."', () => {
     const result = recommendStory(
