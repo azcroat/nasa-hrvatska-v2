@@ -154,6 +154,216 @@ const DATA = [
     en: 'I have few friends.',
     tip: "'malo' + genitive plural — masc 'prijatelji' (nom pl) -> 'prijatelja' (gen pl).",
   },
+  {
+    q: 'Idem do ___.',
+    opts: ['trgovine', 'trgovina', 'trgovini', 'trgovinom'],
+    answer: 'trgovine',
+    en: "I'm going to the shop.",
+    tip: "'do' (to/until) takes genitive — fem 'trgovina' -> 'trgovine'.",
+  },
+  {
+    q: 'Stanujem blizu ___.',
+    opts: ['škole', 'škola', 'školi', 'školom'],
+    answer: 'škole',
+    en: 'I live near the school.',
+    tip: "'blizu' (near) takes genitive — 'škola' -> 'škole'.",
+  },
+  {
+    q: 'Poslije ___ idemo van.',
+    opts: ['ručka', 'ručak', 'ručku', 'ručkom'],
+    answer: 'ručka',
+    en: 'After lunch we go out.',
+    tip: "'poslije' (after) + genitive — 'ručak' has fleeting -a-: 'ručka'.",
+  },
+  {
+    q: 'Operi ruke prije ___.',
+    opts: ['jela', 'jelo', 'jelu', 'jelom'],
+    answer: 'jela',
+    en: 'Wash your hands before the meal.',
+    tip: "'prije' (before) + genitive — neut 'jelo' -> 'jela'.",
+  },
+  {
+    q: 'Kasnim zbog ___.',
+    opts: ['prometa', 'promet', 'prometu', 'prometom'],
+    answer: 'prometa',
+    en: "I'm late because of traffic.",
+    tip: "'zbog' (because of) + genitive — 'promet' -> 'prometa'.",
+  },
+  {
+    q: 'Šetamo oko ___.',
+    opts: ['jezera', 'jezero', 'jezeru', 'jezerom'],
+    answer: 'jezera',
+    en: 'We walk around the lake.',
+    tip: "'oko' (around) + genitive — neut 'jezero' -> 'jezera'.",
+  },
+  {
+    q: 'Mnogi su protiv ___.',
+    opts: ['zakona', 'zakon', 'zakonu', 'zakonom'],
+    answer: 'zakona',
+    en: 'Many are against the law.',
+    tip: "'protiv' (against) + genitive — 'zakon' -> 'zakona'.",
+  },
+  {
+    q: 'Pijem čaj umjesto ___.',
+    opts: ['kave', 'kava', 'kavu', 'kavom'],
+    answer: 'kave',
+    en: 'I drink tea instead of coffee.',
+    tip: "'umjesto' (instead of) + genitive — 'kava' -> 'kave'.",
+  },
+  {
+    q: 'Auto stoji ispred ___.',
+    opts: ['kuće', 'kuća', 'kući', 'kućom'],
+    answer: 'kuće',
+    en: 'The car is in front of the house.',
+    tip: "'ispred' (in front of) + genitive — 'kuća' -> 'kuće'.",
+  },
+  {
+    q: 'Parkiralište je iza ___.',
+    opts: ['zgrade', 'zgrada', 'zgradi', 'zgradom'],
+    answer: 'zgrade',
+    en: 'The parking lot is behind the building.',
+    tip: "'iza' (behind) + genitive — 'zgrada' -> 'zgrade'.",
+  },
+  {
+    q: 'Sjedim pored ___.',
+    opts: ['prozora', 'prozor', 'prozoru', 'prozorom'],
+    answer: 'prozora',
+    en: 'I sit by the window.',
+    tip: "'pored' (beside) + genitive — 'prozor' -> 'prozora'.",
+  },
+  {
+    q: 'Most ide preko ___.',
+    opts: ['rijeke', 'rijeka', 'rijeci', 'rijekom'],
+    answer: 'rijeke',
+    en: 'The bridge goes over the river.',
+    tip: "'preko' (over/across) + genitive — 'rijeka' -> 'rijeke'.",
+  },
+  {
+    q: 'Pas spava ispod ___.',
+    opts: ['stola', 'stol', 'stolu', 'stolom'],
+    answer: 'stola',
+    en: 'The dog sleeps under the table.',
+    tip: "'ispod' (under) + genitive — 'stol' -> 'stola'.",
+  },
+  {
+    q: 'Slika visi iznad ___.',
+    opts: ['kreveta', 'krevet', 'krevetu', 'krevetom'],
+    answer: 'kreveta',
+    en: 'The picture hangs above the bed.',
+    tip: "'iznad' (above) + genitive — 'krevet' -> 'kreveta'.",
+  },
+  {
+    q: 'Nakon ___ idem spavati.',
+    opts: ['filma', 'film', 'filmu', 'filmom'],
+    answer: 'filma',
+    en: 'After the film I go to sleep.',
+    tip: "'nakon' (after) + genitive — 'film' -> 'filma'.",
+  },
+  {
+    q: 'Tijekom ___ puno radim.',
+    opts: ['tjedna', 'tjedan', 'tjednu', 'tjednom'],
+    answer: 'tjedna',
+    en: 'During the week I work a lot.',
+    tip: "'tijekom' (during) + genitive — 'tjedan' has fleeting -a-: 'tjedna'.",
+  },
+  {
+    q: 'Danas imam mnogo ___.',
+    opts: ['posla', 'posao', 'poslu', 'poslom'],
+    answer: 'posla',
+    en: 'Today I have a lot of work.',
+    tip: "'mnogo' + genitive — 'posao' -> 'posla' (fleeting vowel).",
+  },
+  {
+    q: 'Pročitao sam nekoliko ___.',
+    opts: ['knjiga', 'knjige', 'knjigama', 'knjigu'],
+    answer: 'knjiga',
+    en: 'I read several books.',
+    tip: "'nekoliko' + genitive plural — 'knjige' -> 'knjiga' (gen pl, zero ending).",
+  },
+  {
+    q: 'Imamo dosta ___.',
+    opts: ['vremena', 'vrijeme', 'vremenu', 'vremenom'],
+    answer: 'vremena',
+    en: 'We have enough time.',
+    tip: "'dosta' + genitive — neut 'vrijeme' -> 'vremena' (irregular).",
+  },
+  {
+    q: 'Popila sam šalicu ___.',
+    opts: ['čaja', 'čaj', 'čaju', 'čajem'],
+    answer: 'čaja',
+    en: 'I drank a cup of tea.',
+    tip: "Measure 'šalica' + genitive — 'čaj' -> 'čaja'.",
+  },
+  {
+    q: 'Kupili smo bocu ___.',
+    opts: ['vina', 'vino', 'vinu', 'vinom'],
+    answer: 'vina',
+    en: 'We bought a bottle of wine.',
+    tip: "Measure 'boca' + genitive — neut 'vino' -> 'vina'.",
+  },
+  {
+    q: 'Treba mi litra ___.',
+    opts: ['ulja', 'ulje', 'ulju', 'uljem'],
+    answer: 'ulja',
+    en: 'I need a litre of oil.',
+    tip: "Measure 'litra' + genitive — neut 'ulje' -> 'ulja'.",
+  },
+  {
+    q: 'Ne vidim ___.',
+    opts: ['problema', 'problem', 'problemu', 'problemom'],
+    answer: 'problema',
+    en: "I don't see a problem.",
+    tip: "Negation takes genitive — 'problem' -> 'problema'.",
+  },
+  {
+    q: 'Nemamo ___.',
+    opts: ['struje', 'struja', 'struji', 'strujom'],
+    answer: 'struje',
+    en: 'We have no electricity.',
+    tip: "Negation takes genitive — fem 'struja' -> 'struje'.",
+  },
+  {
+    q: 'Ne razumijem ___.',
+    opts: ['pitanja', 'pitanje', 'pitanju', 'pitanjem'],
+    answer: 'pitanja',
+    en: "I don't understand the question.",
+    tip: "Negation takes genitive — neut 'pitanje' -> 'pitanja'.",
+  },
+  {
+    q: 'To je torba moje ___.',
+    opts: ['majke', 'majka', 'majci', 'majkom'],
+    answer: 'majke',
+    en: "That's my mother's bag.",
+    tip: "Possession takes genitive — 'majka' -> 'majke'.",
+  },
+  {
+    q: 'Vrh ___ je snježan.',
+    opts: ['planine', 'planina', 'planini', 'planinom'],
+    answer: 'planine',
+    en: 'The mountain top is snowy.',
+    tip: "Possession ('vrh' of) takes genitive — 'planina' -> 'planine'.",
+  },
+  {
+    q: 'Ovo je ured mog ___.',
+    opts: ['šefa', 'šef', 'šefu', 'šefom'],
+    answer: 'šefa',
+    en: "This is my boss's office.",
+    tip: "Possession takes genitive — 'šef' -> 'šefa'.",
+  },
+  {
+    q: 'Sin ima pet ___.',
+    opts: ['godina', 'godine', 'godinama', 'godinu'],
+    answer: 'godina',
+    en: 'My son is five years old.',
+    tip: "Numbers 5+ take genitive plural — 'godine' -> 'godina'.",
+  },
+  {
+    q: 'U razredu je dvadeset ___.',
+    opts: ['učenika', 'učenici', 'učenicima', 'učenike'],
+    answer: 'učenika',
+    en: 'There are twenty pupils in the class.',
+    tip: "Numbers 5+ take genitive plural — 'učenici' -> 'učenika'.",
+  },
 ];
 
 interface Props {
@@ -164,8 +374,13 @@ interface Props {
 export default function GenitiveDrill({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
+  // Draw a fresh 20-question subset from the larger pool each run, so session
+  // length stays constant while the items vary across runs (the point of the
+  // deepened pool — see content-depth spec).
   const [q] = useState(() =>
-    shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
+    shLocal(DATA)
+      .slice(0, 20)
+      .map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
   );
   const total = q.length;
   const [idx, setIdx] = useState(0);
