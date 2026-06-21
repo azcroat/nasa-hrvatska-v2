@@ -258,3 +258,27 @@ describe('useDailySession — rotation memory + auto-regenerate (hook)', () => {
     expect(result.current.session.activities.length).toBeGreaterThan(0);
   });
 });
+
+describe('buildSessionActivities — difficulty bias (defect #1)', () => {
+  it('biases the fill toward harder exercise TYPES for an advanced user (B2)', () => {
+    // B2 target tier is 4. Across runs, the fill should prefer tier-4 types
+    // (sentbuild/aspectdrill/clitic) and not pull in tier-1 recognition games
+    // while harder unlocked types are available. dist is the primary sort key,
+    // so this holds regardless of the random tiebreak.
+    let sawHard = false;
+    for (let i = 0; i < 5; i++) {
+      const screens = buildSessionActivities('B2').map((a) => a.screen);
+      expect(screens).not.toContain('flashcards'); // tier 1, farthest from target 4
+      if (screens.some((s) => ['sentbuild', 'aspectdrill', 'clitic'].includes(s))) sawHard = true;
+    }
+    expect(sawHard).toBe(true);
+  });
+
+  it('keeps an A1 user on easy types (only tier 1–2 unlocked anyway)', () => {
+    const screens = buildSessionActivities('A1').map((a) => a.screen);
+    // No advanced-tier type should appear at A1 (they are CEFR-locked).
+    for (const hard of ['sentbuild', 'aspectdrill', 'clitic', 'accusativedrill', 'future']) {
+      expect(screens).not.toContain(hard);
+    }
+  });
+});
