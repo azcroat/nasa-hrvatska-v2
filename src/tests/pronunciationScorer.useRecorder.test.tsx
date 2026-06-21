@@ -47,15 +47,6 @@ vi.mock('../hooks/useRecorder', () => ({
   useRecorder: () => recorderMock(),
 }));
 
-// ── The Azure MIME priority order (must match module const exactly) ───────────
-const AZURE_MIME_PRIORITY = [
-  'audio/ogg;codecs=opus',
-  'audio/wav',
-  'audio/webm;codecs=opus',
-  'audio/webm',
-  'audio/ogg',
-] as const;
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function recorderState(overrides: Record<string, unknown> = {}) {
@@ -76,7 +67,7 @@ function recorderState(overrides: Record<string, unknown> = {}) {
 }
 
 // ── Import component after mocks ──────────────────────────────────────────────
-import PronunciationScorer from '../components/shared/PronunciationScorer';
+import PronunciationScorer, { AZURE_MIME_PRIORITY } from '../components/shared/PronunciationScorer';
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
