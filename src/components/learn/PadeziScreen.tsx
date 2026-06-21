@@ -3,7 +3,7 @@ import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, speak, sh, PREPS } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
 import { recordTopicResult } from '../../lib/adaptive.js';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 
 interface PadeziQuizQ {
   q: string;
@@ -35,13 +35,11 @@ function ErrorState({ message }: { message: string }) {
 export default function PadeziScreen({
   goBack,
   award,
-  setSt,
 }: {
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
-  setSt?: (fn: (s: Record<string, number>) => Record<string, number>) => void;
 }) {
-  const { writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [czMode, sCzMode] = useState('learn');
@@ -203,10 +201,18 @@ export default function PadeziScreen({
                     onClick={() => {
                       if (finishFired.current) return;
                       finishFired.current = true;
-                      markQuest('grammar');
-                      if (typeof award === 'function') award(czS * 3 + 15, false, 'grammar');
-                      if (setSt) setSt((s) => ({ ...s, gc: (s.gc || 0) + 1 }));
-                      writeDelta({ gc: 1 });
+                      // Gate completion on the comprehension pass (>=75%) — no
+                      // credit, XP or quest mark on a failed cases quiz.
+                      completeExercise({
+                        key: 'padezi',
+                        score: czS,
+                        total,
+                        xp: czS * 3 + 15,
+                        stats,
+                        setStats,
+                        writeDelta,
+                        award,
+                      });
                       goBack();
                     }}
                   >
