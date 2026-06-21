@@ -12,7 +12,7 @@
  *
  * Shuffle is deterministic: rnd() → 0.99 makes shLocal() identity.
  * DATA[0] = { sentence:"Dao ___ ga je.", opts:["mu ga je","ga mu je","je ga mu","mu je ga"], answer:"mu ga je" }.
- * 22 questions; with identity shuffle, 3 have opts[0] ≠ answer (DATA[6/7/9]) → score=19, award(95).
+ * 50 questions; with identity shuffle, 3 have opts[0] ≠ answer (DATA[6/7/9]) → score=47, award(235).
  *
  * StatsContext is mocked so useStats() returns { stats: { vs: [] }, setStats, writeDelta }.
  */
@@ -98,16 +98,16 @@ function renderCliticDrill(overrides = {}) {
 }
 
 /**
- * Complete all 22 questions by clicking the first .ob option each time.
+ * Complete all 50 questions by clicking the first .ob option each time.
  * With rnd=0.99 (identity shuffle), DATA order is preserved.
  * DATA[6] opts[0]="mi se" ≠ answer="mi je"  → wrong
  * DATA[7] opts[0]="mu"    ≠ answer="joj"     → wrong
  * DATA[9] opts[0]="se ti" ≠ answer="ti se"   → wrong
- * All others: opts[0] === answer → score = 22 - 3 = 19, award(95).
+ * All others (incl. all 28 appended items): opts[0] === answer → score = 50 - 3 = 47, award(235).
  */
 function completeAllQuestions(award: ReturnType<typeof vi.fn> = vi.fn()) {
   const { container } = renderCliticDrill({ award });
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < 50; i++) {
     const optBtn = container.querySelector('button.ob');
     if (!optBtn) break;
     fireEvent.click(optBtn);
@@ -192,12 +192,12 @@ describe('CliticDrill — answer mechanics', () => {
 
   it('shows See results on the last question after answering', () => {
     const { container } = renderCliticDrill();
-    for (let i = 0; i < 21; i++) {
+    for (let i = 0; i < 49; i++) {
       fireEvent.click(container.querySelector('button.ob')!);
       const nextBtn = container.querySelector('button.b.bp');
       if (nextBtn) fireEvent.click(nextBtn);
     }
-    // Now on question 22 (last)
+    // Now on question 50 (last)
     fireEvent.click(container.querySelector('button.ob')!);
     expect(screen.getByText('See results')).toBeTruthy();
   });
@@ -214,7 +214,7 @@ describe('CliticDrill — completion + award guard', () => {
 
   it('shows done screen after all questions answered', () => {
     completeAllQuestions();
-    expect(screen.getByText(/\d+ \/ 22/)).toBeTruthy();
+    expect(screen.getByText(/\d+ \/ 50/)).toBeTruthy();
   });
 
   it('shows ← Back button on done screen', () => {
@@ -228,11 +228,12 @@ describe('CliticDrill — completion + award guard', () => {
     expect(award).toHaveBeenCalledTimes(1);
   });
 
-  it('award() receives XP = score * 5 (19 correct → 95 XP)', () => {
+  it('award() receives XP = score * 5 (47 correct → 235 XP)', () => {
     const award = vi.fn();
     completeAllQuestions(award);
-    // DATA[6/7/9] opts[0] ≠ answer → 3 wrong; 22 - 3 = 19 correct → XP = 95
-    expect(award).toHaveBeenCalledWith(95, false, 'grammar');
+    // DATA[6/7/9] opts[0] ≠ answer → 3 wrong; all 28 appended items have opts[0] === answer.
+    // 50 - 3 = 47 correct → XP = 235
+    expect(award).toHaveBeenCalledWith(235, false, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {
@@ -293,7 +294,7 @@ describe('CliticDrill — navigation', () => {
   it('goBack is called when ← Back is clicked on the done screen', () => {
     const goBack = vi.fn();
     const { container } = render(<CliticDrill goBack={goBack} award={vi.fn()} />);
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 50; i++) {
       const optBtn = container.querySelector('button.ob');
       if (!optBtn) break;
       fireEvent.click(optBtn);
