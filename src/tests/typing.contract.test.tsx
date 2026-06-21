@@ -101,12 +101,22 @@ function makeCtx(vsOverride?: string[]) {
   return { value, setStats, writeDelta, award };
 }
 
-describe('TypingScreen contract (Pattern X)', () => {
+describe('TypingScreen contract (Pattern X) — gated completion', () => {
   beforeEach(() => {
     markQuestMock.mockClear();
   });
 
-  it('fires award(vocabulary), markQuest(vocab), gc+1/vs:typing, writeDelta on Done', async () => {
+  // Mocked pool has one word: ['bok', 'hi']. Typing 'bok' = a perfect 1/1 = 100% pass.
+  function finishCorrectly() {
+    fireEvent.change(screen.getByPlaceholderText('Type Croatian…'), {
+      target: { value: 'bok' },
+    });
+    fireEvent.click(screen.getByText('Check Answer'));
+    fireEvent.click(screen.getByText(/See Results/));
+    fireEvent.click(screen.getByText(/Done/));
+  }
+
+  it('on a PASS, credits via completeExercise: award(vocabulary), markQuest(vocab), gc+1/vs:typing, writeDelta', async () => {
     const { default: TypingScreen } = await import('../components/practice/TypingScreen');
     const { value, setStats, writeDelta, award } = makeCtx();
 
@@ -116,13 +126,11 @@ describe('TypingScreen contract (Pattern X)', () => {
       </StatsProvider>,
     );
 
-    fireEvent.click(screen.getByText('Skip'));
-    fireEvent.click(screen.getByText(/See Results/));
-    fireEvent.click(screen.getByText(/Done/));
+    finishCorrectly();
 
     expect(award).toHaveBeenCalledOnce();
     const [xp, , activityType] = award.mock.calls[0] as [number, boolean, string];
-    expect(xp).toBeGreaterThanOrEqual(0);
+    expect(xp).toBe(5); // 1 correct * 5
     expect(activityType).toBe('vocabulary');
 
     expect(markQuestMock).toHaveBeenCalledWith('vocab');
@@ -138,9 +146,9 @@ describe('TypingScreen contract (Pattern X)', () => {
     );
   });
 
-  it('is idempotent — skips setStats/writeDelta when vs already has typing', async () => {
+  it('on a FAIL (skipped → 0%), the gate withholds ALL credit', async () => {
     const { default: TypingScreen } = await import('../components/practice/TypingScreen');
-    const { value, setStats, writeDelta, award } = makeCtx(['typing']);
+    const { value, setStats, writeDelta, award } = makeCtx();
 
     render(
       <StatsProvider value={value}>
@@ -152,9 +160,27 @@ describe('TypingScreen contract (Pattern X)', () => {
     fireEvent.click(screen.getByText(/See Results/));
     fireEvent.click(screen.getByText(/Done/));
 
-    expect(award).toHaveBeenCalled();
-    expect(markQuestMock).toHaveBeenCalledWith('vocab');
+    expect(award).not.toHaveBeenCalled();
+    expect(markQuestMock).not.toHaveBeenCalled();
     expect(setStats).not.toHaveBeenCalled();
     expect(writeDelta).not.toHaveBeenCalled();
+  });
+
+  it('is idempotent — no re-credit when vs already has typing', async () => {
+    const { default: TypingScreen } = await import('../components/practice/TypingScreen');
+    const { value, setStats, writeDelta, award } = makeCtx(['typing']);
+
+    render(
+      <StatsProvider value={value}>
+        <TypingScreen goBack={vi.fn()} award={award} />
+      </StatsProvider>,
+    );
+
+    finishCorrectly();
+
+    // Already credited → completeExercise short-circuits before any write/award.
+    expect(setStats).not.toHaveBeenCalled();
+    expect(writeDelta).not.toHaveBeenCalled();
+    expect(award).not.toHaveBeenCalled();
   });
 });

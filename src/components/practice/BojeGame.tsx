@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, speak, sh, BOJE } from '../../data';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { useStats } from '../../context/StatsContext';
 
 interface Props {
@@ -259,19 +259,19 @@ export default function BojeGame({ goBack, award }: Props) {
                     } else {
                       if (!finishFired.current) {
                         finishFired.current = true;
-                        if (typeof award === 'function') award(bjSc * 2, false, 'vocabulary');
-                        markQuest('vocab');
-                        if (!stats.vs?.includes('boje')) {
-                          setStats((prev) => {
-                            if (prev.vs?.includes('boje')) return prev;
-                            return {
-                              ...prev,
-                              gc: (prev.gc || 0) + 1,
-                              vs: [...(prev.vs || []), 'boje'],
-                            };
-                          });
-                          if (writeDelta) writeDelta({ gc: 1, vs: ['boje'] });
-                        }
+                        // Gate completion on the comprehension pass (>=75%) via the
+                        // single authority. Completion bonus stays bjSc*2 (per-answer
+                        // award(5) covers the rest; the result screen's bjSc*7 = sum).
+                        completeExercise({
+                          key: 'boje',
+                          score: bjSc,
+                          total,
+                          xp: bjSc * 2,
+                          stats,
+                          setStats,
+                          writeDelta,
+                          award,
+                        });
                       }
                       sBjIdx(total);
                     }
