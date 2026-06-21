@@ -105,8 +105,9 @@ function CityOfDayScreen({ goBack }: CityOfDayScreenProps) {
   }, [city]);
   if (!city) return null;
 
-  // Defensive guards — 36 of 365 cities are stubs missing vocab/facts/intro.
-  // Render safe fallbacks rather than crashing.
+  // Defensive guards — all 365 cities now carry full content (5 facts +
+  // 3 vocab + intro/history/didYouKnow), but keep safe fallbacks so a
+  // malformed entry renders gracefully rather than crashing.
   const safeVocab: unknown[] = Array.isArray(city.vocab) ? city.vocab : [];
   const safeFacts: unknown[] = Array.isArray(city.facts) ? city.facts : [];
   const safeIntro = city.intro || `${city.name} is a city in ${city.region || 'Croatia'}.`;
