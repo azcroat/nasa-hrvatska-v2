@@ -5,7 +5,7 @@
  * No context providers, firebase mocks, or data layer needed.
  */
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import React from 'react';
 import SessionCard from '../components/home/SessionCard';
 import type { DailySession, SessionActivity } from '../hooks/useDailySession';
@@ -44,6 +44,7 @@ const BASE_PROPS = {
   streak: 3,
   xpThisWeek: 120,
   wordsdue: 5,
+  host: 'ana' as const,
 };
 
 const LP_ITEM = { id: 'lp1', name: 'Basic Greetings', go: 'lesson', topic: 'greetings' };
@@ -156,5 +157,35 @@ describe('SessionCard — LearnPath chip', () => {
       />,
     );
     expect(screen.queryByTestId('learnpath-chip')).toBeNull();
+  });
+});
+
+describe('SessionCard — relational progress voice', () => {
+  it('shows prof. Kovač in the progress line when reviews are due', () => {
+    render(<SessionCard {...BASE_PROPS} session={makeSession()} wordsdue={3} />);
+    const line = screen.getByTestId('progress-voice');
+    expect(line).toBeTruthy();
+    expect(within(line).getByTestId('portrait-kovac')).toBeTruthy();
+    expect(line.textContent).toContain('3');
+  });
+
+  it('shows Baka on a streak when no reviews are due', () => {
+    render(<SessionCard {...BASE_PROPS} session={makeSession()} wordsdue={0} streak={5} />);
+    const line = screen.getByTestId('progress-voice');
+    expect(within(line).getByTestId('portrait-baka')).toBeTruthy();
+  });
+
+  it('falls back to the host-of-day when nothing is salient', () => {
+    render(
+      <SessionCard
+        {...BASE_PROPS}
+        session={makeSession()}
+        wordsdue={0}
+        streak={1}
+        xpThisWeek={10}
+        host="ivo"
+      />,
+    );
+    expect(within(screen.getByTestId('progress-voice')).getByTestId('portrait-ivo')).toBeTruthy();
   });
 });
