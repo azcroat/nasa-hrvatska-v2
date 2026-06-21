@@ -3,7 +3,7 @@ import { H, Bar, sh, srMark, speak, getDueReviews } from '../../data';
 import { useContent } from '../../hooks/useContent';
 import CroatianKeyboard from '../shared/CroatianKeyboard';
 import { recordTopicResult } from '../../lib/adaptive.js';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 import { useStats } from '../../context/StatsContext';
 import { levenshtein } from '../../lib/text/similarity';
@@ -143,15 +143,18 @@ export default function TypingScreen({
               if (tyS / tyPool.length >= 0.9) {
                 knightSpeak('tearsofjoy', 'Savršeno! Sve napisano točno! ✍️');
               }
-              if (typeof award === 'function') award(xp, false, 'vocabulary');
-              markQuest('vocab');
-              if (!stats.vs?.includes('typing')) {
-                setStats((prev) => {
-                  if (prev.vs?.includes('typing')) return prev;
-                  return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'typing'] };
-                });
-                if (writeDelta) writeDelta({ gc: 1, vs: ['typing'] });
-              }
+              // Gate completion on the comprehension pass (>=75%) via the single
+              // authority — no gc/XP credit when the typing score is below the gate.
+              completeExercise({
+                key: 'typing',
+                score: tyS,
+                total: tyPool.length,
+                xp,
+                stats,
+                setStats,
+                writeDelta,
+                award,
+              });
               goBack();
             }}
           >
