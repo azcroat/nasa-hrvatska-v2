@@ -83,7 +83,7 @@
     "eslint-plugin-security": "^4.0.0",
     "fake-indexeddb": "^6.2.5",
     "firebase-admin": "^13.7.0",
-    "globals": "^15.15.0",
+    "globals": "^17.6.0",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "lint-staged": "^16.4.0",
