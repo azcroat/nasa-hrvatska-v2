@@ -12,7 +12,11 @@ import { render, fireEvent } from '@testing-library/react';
 import { StatsProvider } from '../context/StatsContext';
 import type { Stats, StatsContextValue } from '../types';
 
-vi.mock('../lib/random.js', () => ({ rnd: () => 0.9999 }));
+// Controllable rnd so the freshness regression test can vary the shuffle.
+// Defaults to 0.9999 (identity shuffle) so the existing contract tests are
+// unaffected — they don't depend on order.
+const rndCtl = vi.hoisted(() => ({ v: 0.9999 }));
+vi.mock('../lib/random.js', () => ({ rnd: () => rndCtl.v }));
 
 const markQuestMock = vi.fn();
 vi.mock('../lib/quests.js', () => ({
@@ -68,6 +72,7 @@ function clickAllGrayOptionButtons(): void {
 describe('FutureTenseScreen contract (Pattern X)', () => {
   beforeEach(() => {
     markQuestMock.mockClear();
+    rndCtl.v = 0.9999; // identity shuffle by default
   });
 
   it('fires award, markQuest(grammar), setStats gc+1/vs:future-tense, writeDelta', async () => {
@@ -118,5 +123,37 @@ describe('FutureTenseScreen contract (Pattern X)', () => {
     expect(markQuestMock).toHaveBeenCalledWith('grammar');
     expect(setStats).not.toHaveBeenCalled();
     expect(writeDelta).not.toHaveBeenCalled();
+  });
+
+  it('REGRESSION: shuffles question order fresh per mount (was frozen by shMemo cache)', async () => {
+    const { default: FutureTenseScreen } =
+      await import('../components/practice/exercises/FutureTenseScreen');
+    const { value } = makeCtx();
+    const orderNow = () =>
+      Array.from(document.querySelectorAll('[data-testid="ftq-prompt"]')).map((e) => e.textContent);
+
+    rndCtl.v = 0.12;
+    const first = render(
+      <StatsProvider value={value}>
+        <FutureTenseScreen goBack={vi.fn()} award={vi.fn()} />
+      </StatsProvider>,
+    );
+    const order1 = orderNow();
+    first.unmount();
+
+    rndCtl.v = 0.87;
+    render(
+      <StatsProvider value={value}>
+        <FutureTenseScreen goBack={vi.fn()} award={vi.fn()} />
+      </StatsProvider>,
+    );
+    const order2 = orderNow();
+
+    expect(order1.length).toBeGreaterThan(2);
+    expect(order2.length).toBe(order1.length);
+    // Different rnd regimes must yield different orders. The old shMemo('fq')
+    // module cache froze the order identically regardless of rnd — that bug
+    // would make these arrays equal.
+    expect(order2).not.toEqual(order1);
   });
 });
