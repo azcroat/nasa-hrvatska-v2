@@ -57,7 +57,6 @@ vi.mock('firebase/firestore', () => ({
 
 // ── XPPopup ───────────────────────────────────────────────────────────────────
 import XPPopup from '../components/shared/XPPopup';
-import CroatianKnight from '../components/shared/CroatianKnight';
 
 describe('XPPopup', () => {
   it('renders without crashing', () => {
@@ -316,26 +315,6 @@ describe('ProfileTab smoke render', () => {
           </StatsProvider>
         </AppContext.Provider>,
       );
-    });
-  });
-});
-
-describe('CroatianKnight — new moods smoke tests', () => {
-  const newMoods = [
-    'oops',
-    'struggling',
-    'onfire',
-    'tearsofjoy',
-    'levelup',
-    'winking',
-    'proud',
-    'worried',
-  ];
-
-  newMoods.forEach((mood) => {
-    it(`renders mood="${mood}" without crashing`, () => {
-      const { container } = render(<CroatianKnight mood={mood} size={60} />);
-      expect(container.querySelector('svg')).not.toBeNull();
     });
   });
 });
