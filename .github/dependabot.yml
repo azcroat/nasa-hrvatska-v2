@@ -44,7 +44,16 @@ updates:
           - "minor"
           - "patch"
     # Always flag security updates individually — never group them
-    ignore: []
+    ignore:
+      # vite 8 switches to the Rolldown bundler, which breaks our build
+      # (transformWithEsbuild / missing esbuild) and the manualChunks firebase
+      # isolation + size-limit checks. We deliberately upgraded to vite 7 (#89)
+      # instead; vite 8 / Rolldown is a separately-scoped migration. Remove these
+      # ignores to revisit vite 8. (@vitejs/plugin-react v6 is vite-8-only.)
+      - dependency-name: "vite"
+        versions: [">=8.0.0"]
+      - dependency-name: "@vitejs/plugin-react"
+        versions: [">=6.0.0"]
 
   # GitHub Actions — monthly sweep is enough
   - package-ecosystem: "github-actions"
