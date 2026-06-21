@@ -70,6 +70,11 @@ import GoalSetterModal from '../shared/GoalSetterModal';
 import { shouldShowGoalModal } from '../../lib/onboardingGates';
 import WelcomeBackBanners from './WelcomeBackBanners';
 import { useDailySession } from '../../hooks/useDailySession';
+import {
+  setSessionCategory,
+  clearSessionCategory,
+  consumeSessionCategoryOutcome,
+} from '../../lib/sessionCategory';
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
 import RazgovorHomeCard from './RazgovorHomeCard';
@@ -383,8 +388,15 @@ export default function HomeTab({
       sessionStorage.removeItem('nh_session_started');
       sessionStorage.removeItem('nh_session_completed');
       if (pending && completed === pending) {
+        // Advance the adaptive category at the UNIVERSAL completion point. Real-
+        // accuracy drills already consumed it in completeExercise (no-op here);
+        // award-only screens (cloze/future/znam) are rescheduled here so no
+        // category can ever get stuck and repeat.
+        consumeSessionCategoryOutcome();
         markDone(pending);
       }
+      // Clean up any category left by an abandoned launch (user backed out).
+      clearSessionCategory();
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentionally empty — runs once on mount only
@@ -402,8 +414,10 @@ export default function HomeTab({
         sessionStorage.removeItem('nh_session_started');
         sessionStorage.removeItem('nh_session_completed');
         if (pending && completed === pending) {
+          consumeSessionCategoryOutcome();
           markDone(pending);
         }
+        clearSessionCategory();
       } catch {}
     }
   }, [currentScreen, markDone]);
@@ -527,6 +541,9 @@ export default function HomeTab({
             try {
               sessionStorage.setItem('nh_session_started', nextActivity.screen);
             } catch {}
+            // Tag the adaptive category (cat_<category>) so completion advances
+            // its schedule; clears for non-adaptive activities.
+            setSessionCategory(nextActivity.id);
             if (launchActivity) {
               // launchActivity initialises pool data for exercises that need it
               // (flashcards, mcgame, match) before navigating — fixes the ScreenGuard
@@ -554,6 +571,7 @@ export default function HomeTab({
           try {
             sessionStorage.setItem('nh_session_started', act.screen);
           } catch {}
+          setSessionCategory(act.id);
           if (launchActivity) {
             void launchActivity(act.screen, act.category);
           } else {
