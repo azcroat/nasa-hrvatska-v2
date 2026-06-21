@@ -1,13 +1,15 @@
 import React from 'react';
 import { PLACES, type PlaceId } from './places';
 import type { Recommendation } from './gradModel';
-
-const SCENE = `${import.meta.env.BASE_URL}images/grad-town.svg`;
+import CharacterPortrait from '../family/CharacterPortrait';
+import GradTownArt from './GradTownArt';
 
 /**
- * Karta view — the crafted flat-vector Adriatic town (public/images/grad-town.svg)
- * with place markers overlaid from each place's mapPos. The recommended place
- * glows gold with a count badge; a slim Today bar floats at the bottom.
+ * Karta view — the crafted flat-vector Adriatic town (inline <GradTownArt/>, so
+ * its sea/boats/glints can animate) with place markers overlaid from each place's
+ * mapPos. Each marker shows a completion ring + due badge + lock state; the
+ * recommended place glows gold and its own host stands beside it; a slim Today
+ * bar floats at the bottom.
  */
 export default function GradMap({
   rec,
@@ -16,8 +18,10 @@ export default function GradMap({
 }: {
   rec: Recommendation;
   onOpenPlace: (id: PlaceId) => void;
-  statsByPlace: Record<string, { due: number; total: number }>;
+  statsByPlace: Record<string, { done: number; total: number; due: number; lockedCount: number }>;
 }) {
+  // The recommended place's OWN host greets you on the map (null for Trg).
+  const recHost = PLACES.find((p) => p.id === rec.placeId)?.host ?? null;
   return (
     <div
       data-testid="grad-map"
@@ -30,18 +34,20 @@ export default function GradMap({
         boxShadow: '0 6px 22px rgba(0,0,0,.18)',
       }}
     >
-      <style>{`@keyframes gradPulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:.7}70%{transform:translate(-50%,-50%) scale(2.4);opacity:0}100%{opacity:0}}`}</style>
-      <img
-        src={SCENE}
-        alt="Naš grad na moru"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-        }}
-      />
+      <style>{`
+        @keyframes gradPulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:.7}70%{transform:translate(-50%,-50%) scale(2.4);opacity:0}100%{opacity:0}}
+        @keyframes kmWaves{0%,100%{opacity:.30}50%{opacity:.5}}
+        @keyframes kmBob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+        @keyframes kmGlint{0%,100%{opacity:.5}50%{opacity:.22}}
+        #km-waves{animation:kmWaves 5s ease-in-out infinite}
+        #km-glint{animation:kmGlint 4s ease-in-out infinite}
+        #km-boat-1{animation:kmBob 6s ease-in-out infinite}
+        #km-boat-2{animation:kmBob 7s ease-in-out infinite}
+        @media (prefers-reduced-motion: reduce){
+          #km-waves,#km-glint,#km-boat-1,#km-boat-2{animation:none}
+        }
+      `}</style>
+      <GradTownArt />
       <div
         style={{
           position: 'absolute',
@@ -59,9 +65,15 @@ export default function GradMap({
       </div>
 
       {PLACES.map((p) => {
-        const s = statsByPlace[p.id] ?? { due: 0, total: 0 };
-        const recommended = rec.placeId === p.id;
-        const badge = recommended ? rec.count || s.due : s.due;
+        const s = statsByPlace[p.id] ?? { done: 0, total: 0, due: 0, lockedCount: 0 };
+        const available = s.total - s.lockedCount;
+        const completion = available > 0 ? Math.min(1, s.done / available) : 0;
+        const isLocked = s.total > 0 && s.lockedCount === s.total;
+        const isMastered = available > 0 && s.done >= available && s.due === 0;
+        const recommended = rec.placeId === p.id && !isLocked;
+        const showDue = s.due > 0 && !isLocked;
+        const R = 16;
+        const CIRC = 2 * Math.PI * R;
         return (
           <button
             key={p.id}
@@ -77,6 +89,7 @@ export default function GradMap({
               padding: 0,
               cursor: 'pointer',
               fontFamily: "'Outfit',sans-serif",
+              opacity: isLocked ? 0.55 : 1,
             }}
           >
             <span
@@ -117,13 +130,14 @@ export default function GradMap({
                     : '0 5px 14px rgba(0,0,0,.28)',
                 }}
               >
-                {recommended && badge > 0 && (
+                {showDue && (
                   <span
+                    data-testid={`due-badge-${p.id}`}
                     style={{
                       position: 'absolute',
                       top: -8,
                       right: -8,
-                      background: '#C8980A',
+                      background: recommended ? '#C8980A' : '#D40030',
                       color: '#fff',
                       fontSize: 10,
                       fontWeight: 900,
@@ -137,22 +151,73 @@ export default function GradMap({
                       border: '2px solid #fff',
                     }}
                   >
-                    {badge}
+                    {s.due}
+                  </span>
+                )}
+                {recommended && recHost && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      left: -42,
+                      bottom: -2,
+                      borderRadius: '50%',
+                      padding: 2,
+                      background: 'linear-gradient(135deg,#C8980A,#e0b84a)',
+                      display: 'flex',
+                      boxShadow: '0 3px 10px rgba(0,0,0,.3)',
+                    }}
+                  >
+                    <CharacterPortrait name={recHost} size={30} />
                   </span>
                 )}
                 <span
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 9,
-                    background: p.tint,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 16,
-                  }}
+                  data-testid={`ring-${p.id}`}
+                  data-completion={String(completion)}
+                  style={{ position: 'relative', width: 32, height: 32, flex: 'none' }}
                 >
-                  {p.icon}
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 36 36"
+                    style={{ position: 'absolute', inset: 0 }}
+                  >
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r={R}
+                      fill="none"
+                      stroke="rgba(31,41,55,.14)"
+                      strokeWidth="3"
+                    />
+                    {!isLocked && completion > 0 && (
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r={R}
+                        fill="none"
+                        stroke={isMastered ? '#C8980A' : '#0e7490'}
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeDasharray={`${completion * CIRC} ${CIRC}`}
+                        transform="rotate(-90 18 18)"
+                      />
+                    )}
+                  </svg>
+                  <span
+                    {...(isLocked ? { 'data-testid': `marker-locked-${p.id}` } : {})}
+                    style={{
+                      position: 'absolute',
+                      inset: 4,
+                      borderRadius: 8,
+                      background: p.tint,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 14,
+                    }}
+                  >
+                    {isLocked ? '🔒' : p.icon}
+                  </span>
                 </span>
                 <span
                   style={{
