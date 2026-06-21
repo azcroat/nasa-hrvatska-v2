@@ -14,33 +14,16 @@ export interface ProgressVoice {
   en: string;
 }
 
-// Croatian count agreement for "fraza" (phrase): 1 → fraza čeka,
-// 2–4 → fraze čekaju, else (0,5+, and the teens 11–14) → fraza čeka (gen. pl.).
-function frazaHr(n: number): string {
-  const d = n % 10;
-  const t = n % 100;
-  if (d === 1 && t !== 11) return `${n} fraza čeka ponavljanje.`;
-  if (d >= 2 && d <= 4 && !(t >= 12 && t <= 14)) return `${n} fraze čekaju ponavljanje.`;
-  return `${n} fraza čeka ponavljanje.`;
-}
-
 export function progressVoice(
   s: { streak: number; wordsdue: number; xpThisWeek: number },
   fallbackHost: CharacterName,
 ): ProgressVoice {
-  const { streak, wordsdue, xpThisWeek } = s;
+  // wordsdue is intentionally NOT surfaced here — the "Reviews Due" stat pill
+  // already shows the count, so a second "N phrases waiting for review" line was
+  // redundant clutter on the home page (removed 2026-06-21).
+  const { streak, xpThisWeek } = s;
 
-  // 1. Reviews due → Kovač (the tutor's domain).
-  if (wordsdue > 0) {
-    return {
-      host: 'kovac',
-      icon: '📚',
-      hr: frazaHr(wordsdue),
-      en: `${wordsdue} ${wordsdue === 1 ? 'phrase' : 'phrases'} waiting for review.`,
-    };
-  }
-
-  // 2. Streak → Baka (warmth / pride).
+  // 1. Streak → Baka (warmth / pride).
   if (streak >= 3) {
     return {
       host: 'baka',
@@ -50,7 +33,7 @@ export function progressVoice(
     };
   }
 
-  // 3. Strong week → Marko (encouragement).
+  // 2. Strong week → Marko (encouragement).
   if (xpThisWeek >= 150) {
     return {
       host: 'marko',
@@ -60,7 +43,7 @@ export function progressVoice(
     };
   }
 
-  // 4. Fallback → host-of-day, generic warm nudge.
+  // 3. Fallback → host-of-day, generic warm nudge.
   return {
     host: fallbackHost,
     icon: '👋',

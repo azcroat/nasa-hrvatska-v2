@@ -559,6 +559,12 @@ export default function HomeTab({
           }
         }}
         onKeepPracticing={() => setTab('practice')}
+        onReviewClick={() => {
+          // Tap the "Reviews Due" pill → open the SRS review screen directly.
+          // Matches how GradTab / WeakWordsPanel / ReviewTabContent open it.
+          setScr('review');
+          if (sCurEx) sCurEx('review');
+        }}
         streak={streak.count}
         xpThisWeek={xpThisWeek}
         wordsdue={dueCount}
