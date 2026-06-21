@@ -2021,6 +2021,356 @@ export const ZNAM = {
         },
       ],
     },
+    {
+      name: 'Travel & Directions',
+      sentences: [
+        {
+          en: 'Where is the station?',
+          hr: 'Gdje je kolodvor?',
+          alts: ['Gdje je trg?', 'Što je kolodvor?', 'Kada je kolodvor?'],
+        },
+        {
+          en: 'I am going to the airport.',
+          hr: 'Idem u zračnu luku.',
+          alts: ['Idem na kolodvor.', 'Idem u grad.', 'Dolazim iz zračne luke.'],
+        },
+        {
+          en: 'Turn left here.',
+          hr: 'Skrenite lijevo ovdje.',
+          alts: ['Skrenite desno ovdje.', 'Idite ravno ovdje.', 'Stanite lijevo ovdje.'],
+        },
+        {
+          en: 'How much is the ticket?',
+          hr: 'Koliko košta karta?',
+          alts: ['Gdje je karta?', 'Kada je karta?', 'Koliko košta vlak?'],
+        },
+        {
+          en: 'The bus is late.',
+          hr: 'Autobus kasni.',
+          alts: ['Autobus dolazi.', 'Vlak kasni.', 'Autobus je brz.'],
+        },
+        {
+          en: 'I am lost.',
+          hr: 'Izgubio sam se.',
+          alts: ['Našao sam se.', 'Umoran sam.', 'Žurim se.'],
+        },
+        {
+          en: 'The hotel is near the sea.',
+          hr: 'Hotel je blizu mora.',
+          alts: ['Hotel je daleko od mora.', 'Hotel je blizu planine.', 'Restoran je blizu mora.'],
+        },
+        {
+          en: 'Can you help me?',
+          hr: 'Možete li mi pomoći?',
+          alts: ['Možete li mi reći?', 'Želite li mi pomoći?', 'Morate li mi pomoći?'],
+        },
+        {
+          en: 'We are traveling by train.',
+          hr: 'Putujemo vlakom.',
+          alts: ['Putujemo autom.', 'Putujemo avionom.', 'Putujemo brodom.'],
+        },
+        {
+          en: 'The road is very long.',
+          hr: 'Cesta je vrlo duga.',
+          alts: ['Cesta je vrlo kratka.', 'Cesta je vrlo uska.', 'Rijeka je vrlo duga.'],
+        },
+      ],
+    },
+    {
+      name: 'Shopping & Money',
+      sentences: [
+        {
+          en: 'How much does this cost?',
+          hr: 'Koliko ovo košta?',
+          alts: ['Gdje je ovo?', 'Što je ovo?', 'Koliko ima ovo?'],
+        },
+        {
+          en: 'I want to buy bread.',
+          hr: 'Želim kupiti kruh.',
+          alts: ['Želim prodati kruh.', 'Želim kupiti mlijeko.', 'Moram kupiti kruh.'],
+        },
+        {
+          en: 'It is too expensive.',
+          hr: 'Preskupo je.',
+          alts: ['Prejeftino je.', 'Prebrzo je.', 'Predaleko je.'],
+        },
+        {
+          en: 'Do you accept cards?',
+          hr: 'Primate li kartice?',
+          alts: ['Imate li kartice?', 'Tražite li kartice?', 'Primate li novac?'],
+        },
+        {
+          en: 'I have no money.',
+          hr: 'Nemam novca.',
+          alts: ['Imam novca.', 'Nemam vremena.', 'Trebam novac.'],
+        },
+        {
+          en: 'The shop is closed.',
+          hr: 'Trgovina je zatvorena.',
+          alts: ['Trgovina je otvorena.', 'Banka je zatvorena.', 'Trgovina je velika.'],
+        },
+        {
+          en: 'Where is the market?',
+          hr: 'Gdje je tržnica?',
+          alts: ['Gdje je banka?', 'Kada je tržnica?', 'Što je tržnica?'],
+        },
+        {
+          en: 'Can I pay in cash?',
+          hr: 'Mogu li platiti gotovinom?',
+          alts: [
+            'Mogu li platiti karticom?',
+            'Moram li platiti gotovinom?',
+            'Želim li platiti gotovinom?',
+          ],
+        },
+        {
+          en: 'This is a good price.',
+          hr: 'Ovo je dobra cijena.',
+          alts: ['Ovo je loša cijena.', 'Ovo je visoka cijena.', 'To je dobra trgovina.'],
+        },
+        {
+          en: 'I need a bigger bag.',
+          hr: 'Trebam veću torbu.',
+          alts: ['Trebam manju torbu.', 'Trebam novu torbu.', 'Imam veću torbu.'],
+        },
+      ],
+    },
+    {
+      name: 'Time & Routine',
+      sentences: [
+        {
+          en: 'What time is it?',
+          hr: 'Koliko je sati?',
+          alts: ['Koji je dan?', 'Gdje je sat?', 'Kada je sat?'],
+        },
+        {
+          en: 'I wake up early.',
+          hr: 'Budim se rano.',
+          alts: ['Budim se kasno.', 'Spavam rano.', 'Ustajem kasno.'],
+        },
+        {
+          en: 'We eat lunch at noon.',
+          hr: 'Ručamo u podne.',
+          alts: ['Ručamo u ponoć.', 'Doručkujemo u podne.', 'Večeramo u podne.'],
+        },
+        {
+          en: 'Today is Monday.',
+          hr: 'Danas je ponedjeljak.',
+          alts: ['Danas je nedjelja.', 'Sutra je ponedjeljak.', 'Jučer je bio ponedjeljak.'],
+        },
+        {
+          en: 'I go to bed late.',
+          hr: 'Idem spavati kasno.',
+          alts: ['Idem spavati rano.', 'Budim se kasno.', 'Idem raditi kasno.'],
+        },
+        {
+          en: 'The meeting is tomorrow.',
+          hr: 'Sastanak je sutra.',
+          alts: ['Sastanak je danas.', 'Sastanak je jučer.', 'Ručak je sutra.'],
+        },
+        {
+          en: 'I am always busy in the morning.',
+          hr: 'Uvijek sam zauzet ujutro.',
+          alts: [
+            'Uvijek sam slobodan ujutro.',
+            'Nikad nisam zauzet ujutro.',
+            'Uvijek sam zauzet navečer.',
+          ],
+        },
+        {
+          en: 'We rest on Sunday.',
+          hr: 'Odmaramo se u nedjelju.',
+          alts: ['Radimo u nedjelju.', 'Odmaramo se u subotu.', 'Spavamo u nedjelju.'],
+        },
+        {
+          en: 'The week is almost over.',
+          hr: 'Tjedan je skoro gotov.',
+          alts: ['Tjedan tek počinje.', 'Mjesec je skoro gotov.', 'Dan je skoro gotov.'],
+        },
+        {
+          en: 'I never drink coffee at night.',
+          hr: 'Nikad ne pijem kavu navečer.',
+          alts: [
+            'Uvijek pijem kavu navečer.',
+            'Nikad ne pijem čaj navečer.',
+            'Nikad ne pijem kavu ujutro.',
+          ],
+        },
+      ],
+    },
+    {
+      name: 'Weather & Seasons',
+      sentences: [
+        {
+          en: 'It is raining today.',
+          hr: 'Danas pada kiša.',
+          alts: ['Danas pada snijeg.', 'Sutra pada kiša.', 'Danas sija sunce.'],
+        },
+        {
+          en: 'The sun is shining.',
+          hr: 'Sunce sija.',
+          alts: ['Mjesec sija.', 'Sunce pada.', 'Kiša pada.'],
+        },
+        {
+          en: 'It is very cold.',
+          hr: 'Vrlo je hladno.',
+          alts: ['Vrlo je toplo.', 'Vrlo je vruće.', 'Vrlo je vlažno.'],
+        },
+        {
+          en: 'Summer is my favorite season.',
+          hr: 'Ljeto je moje najdraže godišnje doba.',
+          alts: [
+            'Zima je moje najdraže godišnje doba.',
+            'Jesen je moje najdraže godišnje doba.',
+            'Proljeće je moje najdraže godišnje doba.',
+          ],
+        },
+        {
+          en: 'Snow falls in winter.',
+          hr: 'Snijeg pada zimi.',
+          alts: ['Snijeg pada ljeti.', 'Kiša pada zimi.', 'Snijeg pada u proljeće.'],
+        },
+        {
+          en: 'The wind is strong.',
+          hr: 'Vjetar je jak.',
+          alts: ['Vjetar je slab.', 'Sunce je jako.', 'More je jako.'],
+        },
+        {
+          en: 'It is warm in spring.',
+          hr: 'U proljeće je toplo.',
+          alts: ['U proljeće je hladno.', 'Zimi je toplo.', 'U jesen je toplo.'],
+        },
+        {
+          en: 'The sky is cloudy.',
+          hr: 'Nebo je oblačno.',
+          alts: ['Nebo je vedro.', 'More je oblačno.', 'Nebo je plavo.'],
+        },
+        {
+          en: 'Leaves fall in autumn.',
+          hr: 'Lišće pada u jesen.',
+          alts: ['Lišće pada u proljeće.', 'Snijeg pada u jesen.', 'Lišće raste u jesen.'],
+        },
+        {
+          en: 'Tomorrow will be sunny.',
+          hr: 'Sutra će biti sunčano.',
+          alts: ['Sutra će biti kišovito.', 'Danas će biti sunčano.', 'Sutra će biti hladno.'],
+        },
+      ],
+    },
+    {
+      name: 'Health & Body',
+      sentences: [
+        {
+          en: 'My head hurts.',
+          hr: 'Boli me glava.',
+          alts: ['Boli me trbuh.', 'Boli me noga.', 'Boli te glava.'],
+        },
+        {
+          en: 'I feel sick.',
+          hr: 'Osjećam se loše.',
+          alts: ['Osjećam se dobro.', 'Osjećam se sretno.', 'Izgledam loše.'],
+        },
+        {
+          en: 'I need to see a doctor.',
+          hr: 'Moram otići liječniku.',
+          alts: ['Moram otići u trgovinu.', 'Želim otići liječniku.', 'Moram otići učitelju.'],
+        },
+        {
+          en: 'Take this medicine.',
+          hr: 'Uzmite ovaj lijek.',
+          alts: ['Dajte ovaj lijek.', 'Uzmite ovu vodu.', 'Kupite ovaj lijek.'],
+        },
+        {
+          en: 'My throat is sore.',
+          hr: 'Boli me grlo.',
+          alts: ['Boli me uho.', 'Boli me grlo malo.', 'Suho mi je grlo.'],
+        },
+        {
+          en: 'I have a fever.',
+          hr: 'Imam temperaturu.',
+          alts: ['Imam kašalj.', 'Nemam temperaturu.', 'Imam glavobolju.'],
+        },
+        {
+          en: 'Rest and drink water.',
+          hr: 'Odmarajte se i pijte vodu.',
+          alts: ['Radite i pijte vodu.', 'Odmarajte se i jedite kruh.', 'Trčite i pijte vodu.'],
+        },
+        {
+          en: 'My arm is broken.',
+          hr: 'Slomljena mi je ruka.',
+          alts: ['Slomljena mi je noga.', 'Boli me ruka.', 'Umorna mi je ruka.'],
+        },
+        {
+          en: 'I am feeling better now.',
+          hr: 'Sada se osjećam bolje.',
+          alts: ['Sada se osjećam gore.', 'Sada se osjećam loše.', 'Jučer sam se osjećao bolje.'],
+        },
+        {
+          en: 'The hospital is far away.',
+          hr: 'Bolnica je daleko.',
+          alts: ['Bolnica je blizu.', 'Ljekarna je daleko.', 'Bolnica je velika.'],
+        },
+      ],
+    },
+    {
+      name: 'Work & School',
+      sentences: [
+        {
+          en: 'I am a teacher.',
+          hr: 'Ja sam učitelj.',
+          alts: ['Ja sam liječnik.', 'Ja sam učenik.', 'Ti si učitelj.'],
+        },
+        {
+          en: 'She works in an office.',
+          hr: 'Ona radi u uredu.',
+          alts: ['Ona radi u školi.', 'On radi u uredu.', 'Ona spava u uredu.'],
+        },
+        {
+          en: 'The lesson starts at eight.',
+          hr: 'Sat počinje u osam.',
+          alts: ['Sat završava u osam.', 'Sat počinje u devet.', 'Posao počinje u osam.'],
+        },
+        {
+          en: 'I have a lot of homework.',
+          hr: 'Imam puno zadaće.',
+          alts: ['Imam malo zadaće.', 'Imam puno posla.', 'Nemam zadaće.'],
+        },
+        {
+          en: 'My boss is very kind.',
+          hr: 'Moj šef je vrlo ljubazan.',
+          alts: [
+            'Moj šef je vrlo strog.',
+            'Moj učitelj je vrlo ljubazan.',
+            'Moja šefica je vrlo ljubazna.',
+          ],
+        },
+        {
+          en: 'We study Croatian.',
+          hr: 'Učimo hrvatski.',
+          alts: ['Učimo engleski.', 'Govorimo hrvatski.', 'Oni uče hrvatski.'],
+        },
+        {
+          en: 'The exam is difficult.',
+          hr: 'Ispit je težak.',
+          alts: ['Ispit je lak.', 'Zadaća je teška.', 'Ispit je dug.'],
+        },
+        {
+          en: 'I go to work by bike.',
+          hr: 'Idem na posao biciklom.',
+          alts: ['Idem na posao autom.', 'Idem u školu biciklom.', 'Vraćam se s posla biciklom.'],
+        },
+        {
+          en: 'The students are listening.',
+          hr: 'Učenici slušaju.',
+          alts: ['Učenici govore.', 'Učitelji slušaju.', 'Učenici pišu.'],
+        },
+        {
+          en: 'I finish work at five.',
+          hr: 'Završavam posao u pet.',
+          alts: ['Počinjem posao u pet.', 'Završavam posao u šest.', 'Završavam školu u pet.'],
+        },
+      ],
+    },
   ],
 };
 export const COUNTRIES = {
