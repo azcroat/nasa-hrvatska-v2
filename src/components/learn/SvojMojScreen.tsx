@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { H, speak } from '../../data';
 import { SVOJMOJ } from '../../data';
+import { useStats } from '../../context/StatsContext';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 
 interface QuizAnswer {
   chosen: string;
@@ -14,12 +16,35 @@ function SvojMojScreen({
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
 }) {
+  const { stats, setStats, writeDelta } = useStats();
   const [quizAnswers, setQuizAnswers] = useState<Record<number, QuizAnswer>>({});
+  const finishFired = useRef(false);
 
   function handleQuiz(qi: number, o: string, correct: string, note: string): void {
     if (quizAnswers[qi] !== undefined) return;
-    setQuizAnswers((prev) => ({ ...prev, [qi]: { chosen: o, note } }));
+    const next = { ...quizAnswers, [qi]: { chosen: o, note } };
+    setQuizAnswers(next);
     if (o === correct && award) award(5, false, 'grammar');
+    // When every quiz question has been answered, gate-complete the lesson via
+    // the single completion authority — credited (gc/vs/quest) only on a >=75%
+    // pass, idempotently. Per-answer XP is already awarded above, so xp: 0 here.
+    if (
+      !finishFired.current &&
+      SVOJMOJ.quiz.length > 0 &&
+      Object.keys(next).length === SVOJMOJ.quiz.length
+    ) {
+      finishFired.current = true;
+      const score = SVOJMOJ.quiz.filter((q, i) => next[i]?.chosen === q.a).length;
+      completeExercise({
+        key: 'svojmoj',
+        score,
+        total: SVOJMOJ.quiz.length,
+        xp: 0,
+        stats,
+        setStats,
+        writeDelta,
+      });
+    }
   }
 
   return (
