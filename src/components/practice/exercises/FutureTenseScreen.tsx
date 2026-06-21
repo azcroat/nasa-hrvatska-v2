@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { H, speak, shMemo } from '../../../data';
+import { H, speak } from '../../../data';
 import { FUTURE } from '../../../data';
 import { markQuest } from '../../../lib/quests.js';
 import { recordTopicResult } from '../../../lib/adaptive.js';
+import { rnd } from '../../../lib/random.js';
 import { useStats } from '../../../context/StatsContext';
 
 interface Props {
@@ -10,9 +11,25 @@ interface Props {
   award: (n: number, celebrate?: boolean, activityType?: string) => void;
 }
 
+// Fresh Fisher-Yates shuffle (crypto-seeded rnd) — a NEW order on every mount.
+// Replaces the former shMemo('fq', …), whose module-level cache froze the
+// question + option order for the whole app session (the future-tense replay bug).
+function shLocal<T>(a: T[]): T[] {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [b[i], b[j]] = [b[j]!, b[i]!];
+  }
+  return b;
+}
+
 function FutureTenseScreen({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
-  const questions = shMemo('fq', FUTURE.quiz, undefined);
+  // Shuffled fresh per mount; options shuffled once per mount, aligned to questions.
+  const [questions] = useState<Array<{ q: string; opts: string[]; a: string }>>(() =>
+    shLocal(FUTURE.quiz as Array<{ q: string; opts: string[]; a: string }>),
+  );
+  const [optsByQ] = useState<string[][]>(() => questions.map((q) => shLocal(q.opts)));
   const handledRef = useRef(new Set<number>());
   const finishFired = useRef(false);
   const correctCountRef = useRef(0);
@@ -83,7 +100,12 @@ function FutureTenseScreen({ goBack, award }: Props) {
       {questions.map(function (q: { q: string; opts: string[]; a: string }, qi: number) {
         return (
           <div key={qi} className="c" style={{ marginBottom: 8, padding: '10px 14px' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{q.q}</div>
+            <div
+              data-testid="ftq-prompt"
+              style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}
+            >
+              {q.q}
+            </div>
             <div
               style={{
                 display: 'flex',
@@ -91,7 +113,7 @@ function FutureTenseScreen({ goBack, award }: Props) {
                 pointerEvents: choices[qi] !== undefined ? 'none' : 'auto',
               }}
             >
-              {shMemo('fq_o' + qi, q.opts, undefined).map(function (o: string, oi: number) {
+              {(optsByQ[qi] ?? q.opts).map(function (o: string, oi: number) {
                 const spoken = q.q.replace('_____', q.a).split('(')[0] ?? q.q;
                 return (
                   <button
