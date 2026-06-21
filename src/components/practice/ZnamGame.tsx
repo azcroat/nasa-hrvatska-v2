@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, sh, ZNAM, srMark } from '../../data';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { useStats } from '../../context/StatsContext';
 
 export default function ZnamGame({
@@ -133,18 +133,19 @@ export default function ZnamGame({
                     } else {
                       if (!finishFired.current) {
                         finishFired.current = true;
-                        markQuest('vocab');
-                        if (!stats.vs?.includes('znam')) {
-                          setStats((prev) => {
-                            if (prev.vs?.includes('znam')) return prev;
-                            return {
-                              ...prev,
-                              gc: (prev.gc || 0) + 1,
-                              vs: [...(prev.vs || []), 'znam'],
-                            };
-                          });
-                          if (writeDelta) writeDelta({ gc: 1, vs: ['znam'] });
-                        }
+                        // Gate completion on the comprehension pass (>=75%) via the
+                        // single authority; this also awards the XP shown on the
+                        // result screen (previously displayed but never granted).
+                        completeExercise({
+                          key: 'znam',
+                          score: znSc,
+                          total: sec.sentences.length,
+                          xp: znSc * 5,
+                          stats,
+                          setStats,
+                          writeDelta,
+                          award,
+                        });
                       }
                       sZnMode('done');
                     }

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { H, Bar, srMark, speak } from '../../data';
 import { useContent } from '../../hooks/useContent';
 import { rnd } from '../../lib/random.js';
-import { markQuest } from '../../lib/quests.js';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 import { useStats } from '../../context/StatsContext';
 import { knightFlash, knightSpeak } from '../../lib/knightSpeak.js';
 
@@ -266,15 +266,16 @@ export default function WordSprint({ sh, award, goBack }: WordSprintProps) {
     if (phase === 'result' && score > 0) {
       if (finishFired.current) return;
       finishFired.current = true;
-      if (typeof award === 'function') award(Math.min(score * 2, 50), false, 'grammar');
-      markQuest('grammar');
-      if (!stats.vs?.includes('wordsprint')) {
-        setStats((prev) => {
-          if (prev.vs?.includes('wordsprint')) return prev;
-          return { ...prev, gc: (prev.gc || 0) + 1, vs: [...(prev.vs || []), 'wordsprint'] };
-        });
-        if (writeDelta) writeDelta({ gc: 1, vs: ['wordsprint'] });
-      }
+      // Timed sprint has no pass threshold — registered as 'effort', credited on a
+      // genuine finish (score > 0) via the single completion authority.
+      completeExercise({
+        key: 'wordsprint',
+        xp: Math.min(score * 2, 50),
+        stats,
+        setStats,
+        writeDelta,
+        award,
+      });
     }
   }, [phase, score, award, stats, setStats, writeDelta]);
 

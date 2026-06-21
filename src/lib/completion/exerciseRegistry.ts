@@ -97,7 +97,7 @@ const RAW: Record<string, ExerciseEntry> = {
   boje: g('gc', 'vocab', 'vocabulary'),
   znam: g('gc', 'vocab', 'vocabulary'),
   match: g('gc', 'vocab', 'vocabulary'),
-  wordsprint: g('gc', 'grammar', 'vocabulary'),
+  wordsprint: e('gc', 'grammar', 'vocabulary'), // timed sprint: no pass threshold → effort
   'word-families': g('gc', 'grammar', 'grammar'),
 
   // ── Tier-1 true-bypass screens (Phase 3): gated; quiz wired/added there ──
