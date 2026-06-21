@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { H, Bar, VOCATIVE } from '../../data';
 import { speak } from '../../lib/audio.js';
-import { markQuest } from '../../lib/quests.js';
 import { useStats } from '../../context/StatsContext';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
+import { passedLesson } from '../../lib/lessonGate';
 
 // Shuffle helper
 function sh<T>(a: T[]): T[] {
@@ -23,7 +24,7 @@ export default function VocativeScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  const { setStats, writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const [phase, setPhase] = useState('rules'); // rules | dialogues | quiz | done
   const [quizQ] = useState(() => sh(VOCATIVE.quiz));
   const [qi, setQi] = useState(0);
@@ -353,7 +354,9 @@ export default function VocativeScreen({
 
   // ── Phase: Done ───────────────────────────────────────────────────────────
   const xpEarned = score * 8;
-  const passed = pct >= 70;
+  // Align the UI pass label with the actual comprehension gate (>=75%), so a
+  // "✓ Done" never appears for a score that earns no completion credit.
+  const passed = passedLesson(score, total);
   return (
     <div className="scr-wrap">
       {H('📣 Vocative Case', 'Complete!', goBack)}
@@ -413,10 +416,20 @@ export default function VocativeScreen({
             onClick={() => {
               if (finishFired.current) return;
               finishFired.current = true;
-              if (typeof award === 'function') award(xpEarned, false, 'vocabulary');
-              markQuest('grammar');
-              setStats((s) => ({ ...s, gc: s.gc + 1 }));
-              writeDelta({ gc: 1 });
+              // Gate completion on the comprehension pass (>=75%) — "Continue
+              // anyway" navigates away but earns no credit on a failed quiz.
+              completeExercise({
+                key: 'vocative',
+                score,
+                total,
+                xp: xpEarned,
+                stats,
+                setStats,
+                writeDelta,
+                award,
+                // Preserve the original XP attribution (vocative drilled as vocab).
+                activityType: 'vocabulary',
+              });
               goBack();
             }}
           >

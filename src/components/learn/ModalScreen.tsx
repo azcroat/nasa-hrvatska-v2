@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useStats } from '../../context/StatsContext.tsx';
 import { H, Bar, Spk, speak, sh } from '../../data';
 import { useGrammar } from '../../hooks/useGrammar';
+import { completeExercise } from '../../hooks/useExerciseCompletion';
 
 interface ModalQuizQ {
   q: string;
@@ -37,13 +38,11 @@ function ErrorState({ message }: { message: string }) {
 export default function ModalScreen({
   goBack,
   award,
-  setSt,
 }: {
   goBack: () => void;
   award?: (pts: number, celebrate?: boolean, activityType?: string) => void;
-  setSt?: (fn: (s: Record<string, number>) => Record<string, number>) => void;
 }) {
-  const { writeDelta } = useStats();
+  const { stats, setStats, writeDelta } = useStats();
   const { grammar, loading, error } = useGrammar();
   const finishFired = useRef(false);
   const [m7, sM7] = useState('menu');
@@ -439,9 +438,24 @@ export default function ModalScreen({
                     onClick={() => {
                       if (finishFired.current) return;
                       finishFired.current = true;
-                      if (setSt) setSt((s) => ({ ...s, mv: (s.mv || 0) + 1, gc: (s.gc || 0) + 1 }));
-                      writeDelta({ mv: 1, gc: 1 });
-                      if (typeof award === 'function') award(m7s * 3 + 20, false, 'grammar');
+                      // Gate completion on the comprehension pass (>=75%) via the
+                      // single completion authority — no credit on a failed quiz.
+                      const already = stats.vs?.includes('modal') ?? false;
+                      const { passed } = completeExercise({
+                        key: 'modal',
+                        score: m7s,
+                        total,
+                        xp: m7s * 3 + 20,
+                        stats,
+                        setStats,
+                        writeDelta,
+                        award,
+                      });
+                      // Modal-verbs badge counter — credited once, on the same pass.
+                      if (passed && !already) {
+                        setStats((s) => ({ ...s, mv: (s.mv || 0) + 1 }));
+                        writeDelta({ mv: 1 });
+                      }
                       goBack();
                     }}
                   >

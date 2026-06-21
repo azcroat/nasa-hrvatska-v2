@@ -880,7 +880,7 @@ export default function AppRouter(props: Record<string, any>) {
         }
         {currentScreen === 'modal' && (
           <ScreenErrorBoundary key="modal" name="modal">
-            <ModalScreen goBack={goBack} award={award} setSt={setStats} />
+            <ModalScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'history' && (
@@ -932,7 +932,7 @@ export default function AppRouter(props: Record<string, any>) {
           ))}
         {currentScreen === 'padezi' && (
           <ScreenErrorBoundary key="padezi" name="padezi">
-            <PadeziScreen goBack={goBack} award={award} setSt={setStats} />
+            <PadeziScreen goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'unjumble' && (
