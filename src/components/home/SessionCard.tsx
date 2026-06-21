@@ -26,6 +26,8 @@ interface SessionCardProps {
   tomorrowLabel: string;
   onStart: () => void; // launches nextActivity.screen
   onKeepPracticing: () => void; // routes to Practice tab
+  /** Opens the SRS review screen. Wired to the "Reviews Due" stat pill (when wordsdue > 0). */
+  onReviewClick?: () => void;
   streak: number;
   xpThisWeek: number;
   wordsdue: number;
@@ -83,26 +85,41 @@ interface StatPillProps {
   label: string;
   accentColor: string;
   badgeGradient: string;
+  /** When provided, the pill becomes a tappable button (e.g. Reviews Due → /review). */
+  onClick?: () => void;
+  testId?: string;
 }
 
-function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillProps) {
-  return (
-    <div
-      style={{
-        flex: 1,
-        background: 'var(--card)',
-        borderRadius: 14,
-        padding: '11px 8px 10px',
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 4,
-        border: '1.5px solid var(--card-b)',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
+function StatPill({
+  icon,
+  value,
+  label,
+  accentColor,
+  badgeGradient,
+  onClick,
+  testId,
+}: StatPillProps) {
+  const interactive = typeof onClick === 'function';
+  const containerStyle: React.CSSProperties = {
+    flex: 1,
+    width: '100%',
+    background: 'var(--card)',
+    borderRadius: 14,
+    padding: '11px 8px 10px',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 4,
+    border: interactive ? `1.5px solid ${accentColor}` : '1.5px solid var(--card-b)',
+    position: 'relative',
+    overflow: 'hidden',
+    cursor: interactive ? 'pointer' : 'default',
+    fontFamily: "'Outfit',sans-serif",
+    ...(interactive ? { boxShadow: `0 2px 10px ${accentColor}22` } : null),
+  };
+  const inner = (
+    <>
       {/* Top accent bar */}
       <div
         style={{
@@ -153,6 +170,24 @@ function StatPill({ icon, value, label, accentColor, badgeGradient }: StatPillPr
       >
         {label}
       </div>
+    </>
+  );
+  if (interactive) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        data-testid={testId}
+        aria-label={`${value} ${label} — open review`}
+        style={containerStyle}
+      >
+        {inner}
+      </button>
+    );
+  }
+  return (
+    <div data-testid={testId} style={containerStyle}>
+      {inner}
     </div>
   );
 }
@@ -165,6 +200,7 @@ export default function SessionCard({
   tomorrowLabel,
   onStart,
   onKeepPracticing,
+  onReviewClick,
   streak,
   xpThisWeek,
   wordsdue,
@@ -519,9 +555,11 @@ export default function SessionCard({
         <StatPill
           icon="📚"
           value={wordsdue}
-          label="Reviews Due"
+          label={wordsdue > 0 ? 'Reviews Due →' : 'Reviews Due'}
           accentColor={CROATIAN_BLUE}
           badgeGradient={`linear-gradient(135deg,${CROATIAN_BLUE},#0052cc)`}
+          onClick={wordsdue > 0 && onReviewClick ? onReviewClick : undefined}
+          testId="reviews-due-pill"
         />
       </div>
 
