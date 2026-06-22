@@ -6,7 +6,7 @@
  * progression across the full arc, catches state corruption, broken navigation,
  * empty screens, and UX dead-ends that only appear after extended engagement.
  *
- * Credentials: claude.test.nasahrvatska@gmail.com / ClaudeTest2026!
+ * Credentials: set via TEST_EMAIL / TEST_PASSWORD env vars
  * Target:      https://nasahrvatska.com
  *
  * Highly engaged user profile:
@@ -69,8 +69,8 @@
 import { test } from '@playwright/test';
 import fs from 'fs';
 
-const EMAIL    = 'claude.test.nasahrvatska@gmail.com';
-const PASSWORD = 'ClaudeTest2026!';
+const EMAIL    = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
 const SS_DIR   = '180day-audit-screenshots';
 const REPORT   = '180day-audit-report.json';
 

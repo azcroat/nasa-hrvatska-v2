@@ -3,7 +3,7 @@
  * Simulates a real user visiting nasahrvatska.com sporadically over a month.
  * Goal: find real crashes, broken flows, missing state, and UX dead-ends.
  *
- * Credentials: claude.test.nasahrvatska@gmail.com / ClaudeTest2026!
+ * Credentials: set via TEST_EMAIL / TEST_PASSWORD env vars
  *
  * Structure (10 test blocks, ~3 days each):
  *   Block 1  — Days 01-03: Onboarding revisit, hero lesson, XP check
@@ -22,8 +22,8 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
-const EMAIL    = 'claude.test.nasahrvatska@gmail.com';
-const PASSWORD = 'ClaudeTest2026!';
+const EMAIL    = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
 const SS_DIR   = 'month-audit-screenshots';
 const REPORT   = 'month-audit-report.json';
 

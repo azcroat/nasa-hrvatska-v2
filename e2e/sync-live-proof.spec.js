@@ -17,8 +17,8 @@ import { test, expect, chromium, firefox, webkit } from '@playwright/test';
 import https from 'https';
 
 const PROD_URL    = 'https://nasahrvatska.com/';
-const EMAIL       = 'claude.test.nasahrvatska@gmail.com';
-const PASSWORD    = 'ClaudeTest2026!';
+const EMAIL       = process.env.TEST_EMAIL;
+const PASSWORD    = process.env.TEST_PASSWORD;
 const PROJECT_ID  = 'ucimohrvatski-488f9';
 const API_KEY     = 'AIzaSyCD4ul4KCILkufNMk5qCr-C5JiN9D7ogn0';
 const DOC_ID      = EMAIL.replace(/[.#$\/\[\]\s]/g, '_'); // 'claude_test_nasahrvatska@gmail_com'

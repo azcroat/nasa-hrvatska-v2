@@ -86,8 +86,8 @@ async function run() {
   }
 
   // CHECK 3 — Firebase Auth sign-in
-  const TEST_EMAIL    = 'claude.test.nasahrvatska@gmail.com';
-  const TEST_PASSWORD = 'ClaudeTest2026!';
+  const TEST_EMAIL    = process.env.TEST_EMAIL;
+  const TEST_PASSWORD = process.env.TEST_PASSWORD;
   let idToken = null;
 
   try {
