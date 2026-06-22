@@ -103,11 +103,11 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
   });
 
-  test('renders a sentence card with a blank (_____) and progress 1 / 12', async ({ page }) => {
+  test('renders a sentence card with a blank (_____) and progress 1 / 10', async ({ page }) => {
     await openSobaExercise(page, 'Rečenice', 'Sentence Cloze');
     await expect(page.getByText('🧩 Sentence Cloze')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('_____')).toBeVisible({ timeout: 5_000 });
-    await expect(page.getByText('1 / 12')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('1 / 10')).toBeVisible({ timeout: 5_000 });
   });
 
   test('selecting an answer shows correctness feedback', async ({ page }) => {
@@ -123,15 +123,15 @@ test.describe('ClozeEngine — Sentence Cloze', () => {
     ).toBeVisible({ timeout: 5_000 });
   });
 
-  test('Next → advances to question 2 / 12', async ({ page }) => {
+  test('Next → advances to question 2 / 10', async ({ page }) => {
     await openSobaExercise(page, 'Rečenice', 'Sentence Cloze');
-    await expect(page.getByText('1 / 12')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('1 / 10')).toBeVisible({ timeout: 8_000 });
     await page.locator('div[style*="grid-template-columns: 1fr 1fr"] button').first().click();
     await page
       .locator('button.b.bp')
       .filter({ hasText: /Next →/ })
       .click();
-    await expect(page.getByText('2 / 12')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('2 / 10')).toBeVisible({ timeout: 5_000 });
   });
 });
 
@@ -148,10 +148,10 @@ test.describe('DictationScreen', () => {
     await gotoGrad(page);
   });
 
-  test('opens the DictationScreen from Izgovor with progress 1 / 20', async ({ page }) => {
+  test('opens the DictationScreen from Izgovor with progress 1 / 10', async ({ page }) => {
     await openSobaExercise(page, 'Izgovor', 'Dictation');
     await expect(page.getByText('🎧 Dictation')).toBeVisible({ timeout: 8_000 });
-    await expect(page.getByText('1 / 20')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('1 / 10')).toBeVisible({ timeout: 5_000 });
   });
 
   test('shows the Play audio button and the answer input', async ({ page }) => {

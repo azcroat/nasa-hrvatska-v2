@@ -13,7 +13,9 @@ export default function PrepDrill({
 }) {
   const { stats, setStats, writeDelta } = useStats();
   const [ppQ] = useState(() =>
-    sh(PREPDRILL).map((q) => ({ ...q, opts: sh([...(q as { opts: string[] }).opts]) })),
+    sh(PREPDRILL)
+      .slice(0, 10)
+      .map((q) => ({ ...q, opts: sh([...(q as { opts: string[] }).opts]) })),
   );
   const [ppI, sPpI] = useState(0);
   const [ppS, sPpS] = useState(0);

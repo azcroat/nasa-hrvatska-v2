@@ -188,7 +188,9 @@ export default function NegationGenDrill({
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [q] = useState(() =>
-    shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
+    shLocal(DATA)
+      .slice(0, 10)
+      .map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
   );
   const total = q.length;
   const [idx, setIdx] = useState(0);

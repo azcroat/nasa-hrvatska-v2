@@ -379,7 +379,7 @@ export default function GenitiveDrill({ goBack, award }: Props) {
   // deepened pool — see content-depth spec).
   const [q] = useState(() =>
     shLocal(DATA)
-      .slice(0, 20)
+      .slice(0, 10)
       .map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
   );
   const total = q.length;

@@ -93,7 +93,7 @@ function renderPrepDrill(overrides = {}) {
 }
 
 /**
- * Complete all 15 questions by clicking the first .ob option each time.
+ * Complete all 10 questions by clicking the first .ob option each time.
  * With rnd=0.99 (identity shuffle), PREPDRILL order is preserved.
  * All 15 entries have opts[0] === answer → score=15, award(75) when Done clicked.
  * award() is only called when "🏠 Done" is clicked on the results screen.
@@ -103,7 +103,7 @@ function completeAndClickDone(
   goBack: ReturnType<typeof vi.fn> = vi.fn(),
 ) {
   const { container } = render(<PrepDrill award={award} goBack={goBack} />);
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 10; i++) {
     const optBtn = container.querySelector('button.ob');
     if (!optBtn) break;
     fireEvent.click(optBtn);
@@ -143,9 +143,9 @@ describe('PrepDrill — rendering', () => {
     expect(container.querySelectorAll('button.ob').length).toBe(4);
   });
 
-  it('shows progress indicator 1 / 15', () => {
+  it('shows progress indicator 1 / 10', () => {
     renderPrepDrill();
-    expect(screen.getByText(/1 \/ 15/)).toBeTruthy();
+    expect(screen.getByText(/1 \/ 10/)).toBeTruthy();
   });
 
   it('shows progress bar', () => {
@@ -215,16 +215,16 @@ describe('PrepDrill — answer mechanics', () => {
     renderPrepDrill();
     fireEvent.click(screen.getByText('u'));
     fireEvent.click(screen.getByText('Next →'));
-    expect(screen.getByText(/2 \/ 15/)).toBeTruthy();
+    expect(screen.getByText(/2 \/ 10/)).toBeTruthy();
   });
 });
 
 // ── Completion / XP award guard ───────────────────────────────────────────────
 
 describe('PrepDrill — completion + award guard', () => {
-  it('shows done screen after all 15 questions answered + Next clicked on last', () => {
+  it('shows done screen after all 10 questions answered + Next clicked on last', () => {
     const { container } = render(<PrepDrill goBack={vi.fn()} award={vi.fn()} />);
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 10; i++) {
       const optBtn = container.querySelector('button.ob');
       if (!optBtn) break;
       fireEvent.click(optBtn);
@@ -232,7 +232,7 @@ describe('PrepDrill — completion + award guard', () => {
       if (nextBtn) fireEvent.click(nextBtn);
     }
     // Done screen: shows score / total and Done button
-    expect(screen.getByText(/15 \/ 15/)).toBeTruthy();
+    expect(screen.getByText(/10 \/ 10/)).toBeTruthy();
     expect(screen.getByText('🏠 Done')).toBeTruthy();
   });
 
@@ -242,23 +242,23 @@ describe('PrepDrill — completion + award guard', () => {
     expect(award).toHaveBeenCalledTimes(1);
   });
 
-  it('award() receives XP = score * 5 (all 15 correct → 75 XP)', () => {
+  it('award() receives XP = score * 5 (all 10 correct → 50 XP)', () => {
     const award = vi.fn();
     completeAndClickDone(award);
     // All 15 opts[0] === answer with identity shuffle → score=15, XP=75
-    expect(award).toHaveBeenCalledWith(75, false, 'grammar');
+    expect(award).toHaveBeenCalledWith(50, false, 'grammar');
   });
 
   it('shows XP amount on done screen', () => {
     const { container } = render(<PrepDrill goBack={vi.fn()} award={vi.fn()} />);
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 10; i++) {
       const optBtn = container.querySelector('button.ob');
       if (!optBtn) break;
       fireEvent.click(optBtn);
       const nextBtn = container.querySelector('button.b.bp');
       if (nextBtn) fireEvent.click(nextBtn);
     }
-    expect(screen.getByText(/\+75 XP/)).toBeTruthy();
+    expect(screen.getByText(/\+50 XP/)).toBeTruthy();
   });
 });
 
