@@ -163,20 +163,16 @@ If unsure, use "other". This field is required.`;
 
   const rawText = data.content?.[0]?.text || '{}';
 
-  // Parse Claude's JSON payload — graceful fallback if malformed
+  // Parse Claude's JSON payload. If it is malformed we must NOT invent a score —
+  // a fabricated number (e.g. a hardcoded 60) shown as the user's real result is
+  // worse than an honest failure. Return a non-200 so the client surfaces a
+  // "couldn't connect" error instead of a fake evaluation.
   let result;
   try {
     result = JSON.parse(rawText);
   } catch {
-    result = {
-      corrected_text: text,
-      score: 60,
-      level_demonstrated: 'Analysis complete',
-      changes: [],
-      strengths: [],
-      improvements: [],
-      encouragement: 'Great effort writing in Croatian! Keep practicing every day.',
-    };
+    console.error('[correct] JSON parse failed on Claude payload:', rawText.slice(0, 200));
+    return new Response(JSON.stringify({ error: 'eval_unparseable' }), { status: 502, headers });
   }
 
   return new Response(JSON.stringify(result), {
