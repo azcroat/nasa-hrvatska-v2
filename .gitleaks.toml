@@ -1,0 +1,23 @@
+# Gitleaks configuration for nasa-hrvatska-v2.
+# Inherits ALL default gitleaks rules; only ADDS allowlists for proven false
+# positives so the scheduled full-history scan (.github/workflows/security.yml)
+# stays meaningful instead of red-on-noise.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Shell / GitHub-Actions variable references are not leaked secrets. The
+`curl-auth-user` default rule flags `curl -u "<arg>:"` regardless of whether
+<arg> is a literal token or a variable. Our CI workflows only ever pass a
+runtime variable (e.g. SonarCloud `$SONAR_TOKEN` / `$TOKEN`, or
+`${{ secrets.X }}`), so those matches are false positives. This allowlist
+suppresses ONLY values that are variable references — a real hardcoded token
+(high-entropy literal) does not match and is still caught.
+"""
+regexTarget = "secret"
+regexes = [
+  # $TOKEN  ${TOKEN}  ${TOKEN:-x}  ${{ secrets.SONAR_TOKEN }}  (optionally trailed by ':')
+  '''\$\{{0,2}\s*[A-Za-z_][A-Za-z0-9_.]*\s*\}{0,2}:?''',
+]

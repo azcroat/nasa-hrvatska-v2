@@ -5,6 +5,7 @@ on:
     branches: [main, master]
   schedule:
     - cron: '0 7 * * 1'  # Weekly Monday 7am UTC
+  workflow_dispatch: # allow manual full-history runs (e.g. to verify .gitleaks.toml)
 
 jobs:
   # Trivy removed 2026-06-06 per owner request. Replacement coverage:
