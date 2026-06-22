@@ -162,10 +162,12 @@
         <li><strong>Learning progress</strong> — XP earned, lessons completed, CEFR level, streak data, and quiz scores.</li>
         <li><strong>Favourite words and SRS data</strong> — words you save and their spaced-repetition scheduling metadata.</li>
         <li><strong>Journal entries</strong> — text you write in the in-app Croatian journal feature.</li>
+        <li><strong>Voice recordings</strong> — short microphone clips you record in the speaking, pronunciation, and checkpoint features. These are sent off your device to be transcribed and scored (see &#8220;AI &amp; Voice Processing&#8221; below) and are not retained after processing.</li>
+        <li><strong>Photos you submit</strong> — if you use the photo-vocabulary feature, the photo you choose is sent to our AI provider to generate vocabulary; it is not retained afterwards.</li>
         <li><strong>Device/browser type</strong> — collected automatically by Firebase for crash reporting and performance monitoring.</li>
       </ul>
       <div class="info-box">
-        We do <strong>not</strong> collect your full name, phone number, postal address, payment details, or any other personal data beyond your email address.
+        We do <strong>not</strong> collect your full name, phone number, postal address, or payment details. Beyond your email address, the personal data we process is limited to the learning, journal, voice, and photo data described above — all used solely to operate the app.
       </div>
     </div>
 
@@ -186,6 +188,22 @@
       <p>Google Firebase complies with GDPR and participates in the EU-US Data Privacy Framework. For details, see <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">firebase.google.com/support/privacy</a>.</p>
       <div class="amber-box">
         Firebase may store data on servers outside the European Economic Area. By using the app you acknowledge this transfer. Standard Contractual Clauses apply as required by GDPR Art.&#160;46.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>&#129302; AI &amp; Voice Processing</h2>
+      <p>To power speaking practice, pronunciation scoring, AI feedback, and audio, we send certain data to third-party processors. They act only on our instructions, under data-processing agreements, and we do not retain your voice recordings or submitted photos after processing.</p>
+      <ul>
+        <li><strong>Voice / speech-to-text</strong> — microphone recordings are transcribed by <strong>OpenAI</strong> (Whisper), <strong>Deepgram</strong>, and/or <strong>Cloudflare Workers AI</strong> (Whisper); pronunciation is assessed by <strong>Microsoft Azure Speech Services</strong>.</li>
+        <li><strong>AI feedback &amp; scoring</strong> — text (and, for the photo-vocabulary feature, a photo you submit) is sent to <strong>Anthropic</strong> (Claude) to generate corrections, tutoring, and scores.</li>
+        <li><strong>Text-to-speech</strong> — text you choose to hear is sent to <strong>ElevenLabs</strong>, <strong>Microsoft Azure</strong>, or <strong>Google Cloud Text-to-Speech</strong> to generate audio.</li>
+        <li><strong>Talking-avatar video</strong> — the <strong>D-ID</strong> service generates avatar video from text.</li>
+        <li><strong>Support email</strong> — <strong>Resend</strong> delivers your support messages to us.</li>
+        <li><strong>Analytics &amp; error monitoring</strong> — <strong>Plausible</strong>, <strong>PostHog</strong>, and <strong>Sentry</strong>, configured to minimize personal data.</li>
+      </ul>
+      <div class="amber-box">
+        Your voice recordings and submitted photos are used solely to give you transcripts, feedback, and scores. They are not used to identify you, are not used to train AI models, and are not sold or shared for any commercial purpose.
       </div>
     </div>
 
@@ -223,7 +241,7 @@
     </div>
 
     <div class="footer">
-      Last updated: April 2026. We will notify users of material changes via an in-app notice.<br />
+      Last updated: June 2026. We will notify users of material changes via an in-app notice.<br />
       &copy; 2026 Naša Hrvatska
     </div>
 
