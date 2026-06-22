@@ -1,15 +1,24 @@
 import React from 'react';
 import { PLACES, type PlaceId } from './places';
-import type { Recommendation } from './gradModel';
+import {
+  placeCompletion,
+  placeDisplay,
+  placeLife,
+  aliveCount,
+  type Recommendation,
+  type PlaceLife,
+} from './gradModel';
 import CharacterPortrait from '../family/CharacterPortrait';
 import GradTownArt from './GradTownArt';
 
+const TEAL = '#0e7490';
+const GOLD = '#C8980A';
+
 /**
- * Karta view — the crafted flat-vector Adriatic town (inline <GradTownArt/>, so
- * its sea/boats/glints can animate) with place markers overlaid from each place's
- * mapPos. Each marker shows a completion ring + due badge + lock state; the
- * recommended place glows gold and its own host stands beside it; a slim Today
- * bar floats at the bottom.
+ * Karta view — a calm animated living-town HERO (the harbour comes to life as
+ * you master places) above a roomy, scannable place LIST led by one recommended
+ * "Danas" card. No crammed map markers. All motion is CSS-keyframe driven and
+ * disabled under prefers-reduced-motion.
  */
 export default function GradMap({
   rec,
@@ -20,294 +29,305 @@ export default function GradMap({
   onOpenPlace: (id: PlaceId) => void;
   statsByPlace: Record<string, { done: number; total: number; due: number; lockedCount: number }>;
 }) {
-  // The recommended place's OWN host greets you on the map (null for Trg).
-  const recHost = PLACES.find((p) => p.id === rec.placeId)?.host ?? null;
+  const stat = (id: PlaceId) => statsByPlace[id] ?? { total: 0, done: 0, due: 0, lockedCount: 0 };
+  const lifeByPlace = Object.fromEntries(
+    PLACES.map((p) => [p.id, placeLife(stat(p.id))]),
+  ) as Record<PlaceId, PlaceLife>;
+  const aliveN = aliveCount(statsByPlace);
+
   return (
-    <div
-      data-testid="grad-map"
-      style={{
-        position: 'relative',
-        width: '100%',
-        aspectRatio: '392 / 690',
-        borderRadius: 18,
-        overflow: 'hidden',
-        boxShadow: '0 6px 22px rgba(0,0,0,.18)',
-      }}
-    >
+    <div data-testid="grad-map" style={{ fontFamily: "'Outfit',sans-serif" }}>
       <style>{`
-        @keyframes gradPulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:.7}70%{transform:translate(-50%,-50%) scale(2.4);opacity:0}100%{opacity:0}}
-        @keyframes kmWaves{0%,100%{opacity:.30}50%{opacity:.5}}
-        @keyframes kmBob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
-        @keyframes kmGlint{0%,100%{opacity:.5}50%{opacity:.22}}
-        #km-waves{animation:kmWaves 5s ease-in-out infinite}
-        #km-glint{animation:kmGlint 4s ease-in-out infinite}
-        #km-boat-1{animation:kmBob 6s ease-in-out infinite}
-        #km-boat-2{animation:kmBob 7s ease-in-out infinite}
+        @keyframes kmDrift{from{transform:translateX(-50px)}to{transform:translateX(440px)}}
+        @keyframes kmWaves{0%,100%{opacity:.45}50%{opacity:.8}}
+        @keyframes kmGlint{0%,100%{opacity:.25}50%{opacity:.7}}
+        @keyframes kmBob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(3px) rotate(1.2deg)}}
+        @keyframes kmFerry{from{transform:translateX(0)}to{transform:translateX(360px)}}
+        @keyframes kmGull{0%{transform:translate(-30px,6px)}100%{transform:translate(420px,-14px)}}
+        @keyframes kmSmoke{0%{opacity:0;transform:translateY(0) scale(.6)}25%{opacity:.5}100%{opacity:0;transform:translateY(-26px) scale(1.7)}}
+        @keyframes kmFlag{0%,100%{transform:skewX(0)}50%{transform:skewX(-15deg)}}
+        @keyframes kmTwk{0%,100%{opacity:.5}50%{opacity:1}}
+        @keyframes kmSway{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+        @keyframes recoGlow{0%,100%{box-shadow:0 6px 18px rgba(200,152,10,.18)}50%{box-shadow:0 6px 24px rgba(200,152,10,.42)}}
+        #km-clouds{animation:kmDrift 60s linear infinite}
+        #km-waves{animation:kmWaves 6s ease-in-out infinite}
+        #km-glint{animation:kmGlint 5s ease-in-out infinite}
+        #km-boat-1{animation:kmBob 4.8s ease-in-out infinite;transform-origin:center bottom}
+        #km-ferry{animation:kmFerry 36s linear infinite}
+        #km-gulls path{animation:kmGull 13s linear infinite}
+        #km-gulls path:last-child{animation-delay:5s}
+        #km-flag{animation:kmFlag 2.4s ease-in-out infinite;transform-origin:left center}
+        .km-cyp{transform-box:fill-box;transform-origin:bottom center;animation:kmSway 7s ease-in-out infinite}
+        .km-twk{animation:kmTwk 5s ease-in-out infinite}
+        /* per-district life: hidden when dormant, shown when partial/full */
+        [data-life="dormant"]{opacity:0}
+        [data-life="partial"]{opacity:.9}
+        [data-life="full"]{opacity:1}
+        [data-place="kuhinja"][data-life="partial"] .km-smoke,
+        [data-place="kuhinja"][data-life="full"] .km-smoke{animation:kmSmoke 4.4s ease-in-out infinite}
+        .km-reco{animation:recoGlow 3.4s ease-in-out infinite}
         @media (prefers-reduced-motion: reduce){
-          #km-waves,#km-glint,#km-boat-1,#km-boat-2{animation:none}
+          #km-clouds,#km-waves,#km-glint,#km-boat-1,#km-ferry,#km-gulls path,#km-flag,
+          .km-cyp,.km-twk,.km-smoke,.km-reco{animation:none}
         }
       `}</style>
-      <GradTownArt />
+
+      {/* HERO */}
       <div
         style={{
-          position: 'absolute',
-          top: 8,
-          left: 12,
-          fontSize: 10,
-          fontWeight: 800,
-          letterSpacing: '.12em',
-          textTransform: 'uppercase',
-          color: '#fff',
-          textShadow: '0 1px 4px rgba(0,0,0,.4)',
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '16 / 11',
+          borderRadius: 18,
+          overflow: 'hidden',
+          boxShadow: '0 6px 22px rgba(0,40,80,.18)',
         }}
       >
-        Naš grad na moru
-      </div>
-
-      {PLACES.map((p) => {
-        const s = statsByPlace[p.id] ?? { done: 0, total: 0, due: 0, lockedCount: 0 };
-        const available = s.total - s.lockedCount;
-        const completion = available > 0 ? Math.min(1, s.done / available) : 0;
-        const isLocked = s.total > 0 && s.lockedCount === s.total;
-        const isMastered = available > 0 && s.done >= available && s.due === 0;
-        const recommended = rec.placeId === p.id && !isLocked;
-        const showDue = s.due > 0 && !isLocked;
-        const R = 16;
-        const CIRC = 2 * Math.PI * R;
-        return (
-          <button
-            key={p.id}
-            onClick={() => onOpenPlace(p.id)}
-            aria-label={p.name}
+        <GradTownArt lifeByPlace={lifeByPlace} />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(to bottom,rgba(0,0,0,.18),transparent 34%,transparent 60%,rgba(0,40,60,.30))',
+            pointerEvents: 'none',
+          }}
+        />
+        <div style={{ position: 'absolute', top: 12, left: 14, right: 14 }}>
+          <div
             style={{
-              position: 'absolute',
-              left: `${p.mapPos.x}%`,
-              top: `${p.mapPos.y}%`,
-              transform: 'translate(-50%,-100%)',
-              border: 'none',
-              background: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              fontFamily: "'Outfit',sans-serif",
-              opacity: isLocked ? 0.55 : 1,
+              fontFamily: "'Playfair Display',serif",
+              fontSize: 17,
+              fontWeight: 800,
+              color: '#fff',
+              textShadow: '0 1px 6px rgba(0,0,0,.5)',
+              lineHeight: 1.1,
             }}
           >
-            <span
-              style={{
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-            >
-              {recommended && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: 1,
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    background: 'rgba(200,152,10,.5)',
-                    zIndex: -1,
-                    animation: 'gradPulse 1.9s infinite',
-                  }}
-                />
-              )}
-              <span
-                style={{
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 7,
-                  background: 'rgba(255,255,255,.97)',
-                  border: recommended ? '1.5px solid #C8980A' : '1px solid var(--card-b)',
-                  borderRadius: 13,
-                  padding: '5px 10px 5px 6px',
-                  boxShadow: recommended
-                    ? '0 5px 18px rgba(200,152,10,.45)'
-                    : '0 5px 14px rgba(0,0,0,.28)',
-                }}
-              >
-                {showDue && (
-                  <span
-                    data-testid={`due-badge-${p.id}`}
-                    style={{
-                      position: 'absolute',
-                      top: -8,
-                      right: -8,
-                      background: recommended ? '#C8980A' : '#D40030',
-                      color: '#fff',
-                      fontSize: 10,
-                      fontWeight: 900,
-                      minWidth: 18,
-                      height: 18,
-                      borderRadius: 9,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '0 4px',
-                      border: '2px solid #fff',
-                    }}
-                  >
-                    {s.due}
-                  </span>
-                )}
-                {recommended && recHost && (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      left: -42,
-                      bottom: -2,
-                      borderRadius: '50%',
-                      padding: 2,
-                      background: 'linear-gradient(135deg,#C8980A,#e0b84a)',
-                      display: 'flex',
-                      boxShadow: '0 3px 10px rgba(0,0,0,.3)',
-                    }}
-                  >
-                    <CharacterPortrait name={recHost} size={30} />
-                  </span>
-                )}
-                <span
-                  data-testid={`ring-${p.id}`}
-                  data-completion={String(completion)}
-                  style={{ position: 'relative', width: 32, height: 32, flex: 'none' }}
-                >
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 36 36"
-                    style={{ position: 'absolute', inset: 0 }}
-                  >
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r={R}
-                      fill="none"
-                      stroke="rgba(31,41,55,.14)"
-                      strokeWidth="3"
-                    />
-                    {!isLocked && completion > 0 && (
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r={R}
-                        fill="none"
-                        stroke={isMastered ? '#C8980A' : '#0e7490'}
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeDasharray={`${completion * CIRC} ${CIRC}`}
-                        transform="rotate(-90 18 18)"
-                      />
-                    )}
-                  </svg>
-                  <span
-                    {...(isLocked ? { 'data-testid': `marker-locked-${p.id}` } : {})}
-                    style={{
-                      position: 'absolute',
-                      inset: 4,
-                      borderRadius: 8,
-                      background: p.tint,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 14,
-                    }}
-                  >
-                    {isLocked ? '🔒' : p.icon}
-                  </span>
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'Playfair Display',serif",
-                    fontSize: 12,
-                    fontWeight: 800,
-                    color: 'var(--heading)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {p.name}
-                </span>
-              </span>
-              <span style={{ width: 2, height: 13, background: 'rgba(31,41,55,.4)' }} />
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  background: 'rgba(31,41,55,.45)',
-                  marginTop: -1,
-                  boxShadow: '0 0 0 3px rgba(255,255,255,.5)',
-                }}
-              />
-            </span>
-          </button>
-        );
-      })}
+            Naš grad na moru
+          </div>
+          <div
+            data-testid="karta-progress"
+            style={{
+              fontSize: 10.5,
+              fontWeight: 700,
+              letterSpacing: '.06em',
+              color: 'rgba(255,255,255,.92)',
+              textShadow: '0 1px 4px rgba(0,0,0,.5)',
+              marginTop: 3,
+            }}
+          >
+            TVOJ GRAD OŽIVLJAVA · {aliveN} / {PLACES.length} MJESTA
+          </div>
+        </div>
+      </div>
 
-      {/* floating Today bar */}
+      {/* DANAS recommended card */}
       <button
-        onClick={() => rec.launch()}
         data-testid="grad-map-today"
+        onClick={() => rec.launch()}
+        className="km-reco"
         style={{
-          position: 'absolute',
-          left: 12,
-          right: 12,
-          bottom: 12,
           display: 'flex',
           alignItems: 'center',
           gap: 11,
-          background: 'rgba(255,255,255,.95)',
-          border: '1px solid var(--card-b)',
-          borderRadius: 16,
-          padding: '10px 12px',
-          boxShadow: '0 8px 24px rgba(0,0,0,.3)',
-          cursor: 'pointer',
+          width: '100%',
           textAlign: 'left',
+          background: 'var(--card)',
+          border: '1.5px solid #e6cf94',
+          borderRadius: 18,
+          padding: '11px 12px',
+          margin: '14px 0 18px',
+          cursor: 'pointer',
           fontFamily: "'Outfit',sans-serif",
         }}
       >
         <span
           style={{
-            width: 38,
-            height: 38,
-            borderRadius: 11,
-            background: 'rgba(14,116,144,.12)',
+            width: 46,
+            height: 46,
+            borderRadius: '50%',
+            flex: 'none',
+            background: `linear-gradient(135deg,${GOLD},#e6c463)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 20,
-            flex: 'none',
+            boxShadow: '0 3px 9px rgba(0,0,0,.18)',
+            overflow: 'hidden',
           }}
         >
-          ☀️
+          {rec.host ? (
+            <CharacterPortrait name={rec.host} size={42} />
+          ) : (
+            <span style={{ fontSize: 22 }}>☀️</span>
+          )}
         </span>
         <span style={{ flex: 1, minWidth: 0 }}>
           <span
-            style={{ display: 'block', fontSize: 13, color: 'var(--heading)', fontWeight: 800 }}
+            style={{
+              display: 'block',
+              fontSize: 10,
+              fontWeight: 800,
+              letterSpacing: '.13em',
+              textTransform: 'uppercase',
+              color: GOLD,
+            }}
+          >
+            Danas
+          </span>
+          <span
+            style={{
+              display: 'block',
+              fontFamily: "'Playfair Display',serif",
+              fontSize: 15,
+              fontWeight: 800,
+              color: 'var(--heading)',
+            }}
           >
             {rec.hr}
           </span>
-          <span style={{ display: 'block', fontSize: 11, color: 'var(--subtext)', marginTop: 1 }}>
+          <span style={{ display: 'block', fontSize: 12, color: 'var(--subtext)' }}>
             {rec.en} · ~{rec.durationMin} min
           </span>
         </span>
         <span
           style={{
             flex: 'none',
-            background: '#0e7490',
+            background: TEAL,
             color: '#fff',
             fontWeight: 800,
-            fontSize: 12,
-            padding: '8px 13px',
-            borderRadius: 10,
+            fontSize: 13,
+            padding: '10px 15px',
+            borderRadius: 12,
           }}
         >
           Idemo →
         </span>
       </button>
+
+      {/* PLACE LIST */}
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: '.14em',
+          textTransform: 'uppercase',
+          color: 'var(--subtext)',
+          margin: '0 4px 9px',
+        }}
+      >
+        Sva mjesta · all places
+      </div>
+      {PLACES.map((p) => {
+        const s = stat(p.id);
+        const disp = placeDisplay(s);
+        const completion = placeCompletion(s);
+        const locked = disp === 'locked';
+        const mastered = disp === 'mastered';
+        return (
+          <button
+            key={p.id}
+            data-testid={`place-row-${p.id}`}
+            onClick={() => onOpenPlace(p.id)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              width: '100%',
+              textAlign: 'left',
+              background: 'var(--card)',
+              border: '1px solid var(--card-b)',
+              borderRadius: 16,
+              padding: '11px 12px',
+              marginBottom: 10,
+              cursor: 'pointer',
+              opacity: locked ? 0.62 : 1,
+              fontFamily: "'Outfit',sans-serif",
+            }}
+          >
+            <span
+              {...(locked ? { 'data-testid': `marker-locked-${p.id}` } : {})}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 13,
+                flex: 'none',
+                background: p.tint,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 21,
+              }}
+            >
+              {locked ? '🔒' : p.icon}
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span
+                style={{
+                  display: 'block',
+                  fontFamily: "'Playfair Display',serif",
+                  fontSize: 15,
+                  fontWeight: 800,
+                  color: 'var(--heading)',
+                }}
+              >
+                {p.name} {mastered ? <span style={{ color: GOLD }}>★</span> : null}
+              </span>
+              <span style={{ display: 'block', fontSize: 11, color: 'var(--subtext)' }}>
+                {p.nameEn}
+              </span>
+              {!locked && (
+                <span
+                  data-testid={`ring-${p.id}`}
+                  data-completion={String(completion)}
+                  style={{
+                    display: 'block',
+                    height: 6,
+                    borderRadius: 3,
+                    background: '#eee6d6',
+                    marginTop: 7,
+                    maxWidth: 150,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <span
+                    style={{
+                      display: 'block',
+                      height: '100%',
+                      width: `${completion * 100}%`,
+                      background: mastered ? GOLD : TEAL,
+                    }}
+                  />
+                </span>
+              )}
+            </span>
+            <span style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {s.due > 0 && !locked && (
+                <span
+                  data-testid={`due-badge-${p.id}`}
+                  style={{
+                    background: '#D40030',
+                    color: '#fff',
+                    fontSize: 11,
+                    fontWeight: 900,
+                    minWidth: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 5px',
+                  }}
+                >
+                  {s.due}
+                </span>
+              )}
+              {p.host && !locked && <CharacterPortrait name={p.host} size={22} />}
+              <span style={{ color: '#cbd5e1', fontSize: 20 }}>›</span>
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }

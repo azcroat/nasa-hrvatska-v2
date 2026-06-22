@@ -182,3 +182,46 @@ export function recommendedVisit(ctx: ModelCtx): Recommendation {
     launch: ctx.extras.scr('arcade'),
   };
 }
+
+// ── Living Karta: per-place "life" + display state ──────────────────────────
+// Derived purely from placeStats() output. `done`/`due` are cosmetic SR signals
+// (see placeStats note), so these drive only presentation — never the no-orphan
+// guarantee.
+export type PlaceLife = 'dormant' | 'partial' | 'full';
+export type PlaceDisplay = 'locked' | 'quiet' | 'inprogress' | 'mastered';
+export interface PlaceStat {
+  total: number;
+  done: number;
+  due: number;
+  lockedCount: number;
+}
+
+const avail = (s: PlaceStat) => s.total - s.lockedCount;
+
+/** Fraction of available (unlocked) items completed, 0..1. */
+export function placeCompletion(s: PlaceStat): number {
+  const a = avail(s);
+  return a > 0 ? Math.min(1, s.done / a) : 0;
+}
+
+/** Row state: locked (nothing at level) → quiet (new) → inprogress → mastered. */
+export function placeDisplay(s: PlaceStat): PlaceDisplay {
+  if (s.total > 0 && s.lockedCount === s.total) return 'locked';
+  const a = avail(s);
+  if (a > 0 && s.done >= a && s.due === 0) return 'mastered';
+  if (a > 0 && s.done === 0) return 'quiet';
+  return 'inprogress';
+}
+
+/** Hero district life level: dormant (locked/quiet) → partial → full (mastered). */
+export function placeLife(s: PlaceStat): PlaceLife {
+  const d = placeDisplay(s);
+  if (d === 'mastered') return 'full';
+  if (d === 'inprogress') return 'partial';
+  return 'dormant';
+}
+
+/** How many places are fully alive (mastered) — drives the "N / 6" progress line. */
+export function aliveCount(byId: Record<string, PlaceStat>): number {
+  return Object.values(byId).filter((s) => placeLife(s) === 'full').length;
+}
