@@ -193,10 +193,15 @@ export default function GradTownArt({ lifeByPlace }: { lifeByPlace: Record<Place
       {/* Sailboat — hull in the water, sail rising above the surface. Static wake
           (the boat only bobs in place, so it stays over the wake). */}
       <ellipse cx="170" cy="213" rx="26" ry="2.5" fill="#bfeaf0" opacity=".5" />
-      <g id="km-boat-1" transform="translate(150,188)">
-        <path d="M-4 16 q24 14 48 0 l-6 10 q-18 6 -36 0 z" fill="#8a5a2b" />
-        <polygon points="20,16 20,-10 42,14" fill="#fff" />
-        <line x1="20" y1="16" x2="20" y2="-14" stroke="#5b4a2e" strokeWidth="2" />
+      {/* Position lives on the INNER group; the kmBob animation runs on the outer
+          #km-boat-1 — a CSS transform on the same element would override (replace)
+          the position attribute and fling the boat to the origin. */}
+      <g id="km-boat-1">
+        <g transform="translate(150,188)">
+          <path d="M-4 16 q24 14 48 0 l-6 10 q-18 6 -36 0 z" fill="#8a5a2b" />
+          <polygon points="20,16 20,-10 42,14" fill="#fff" />
+          <line x1="20" y1="16" x2="20" y2="-14" stroke="#5b4a2e" strokeWidth="2" />
+        </g>
       </g>
       <g id="km-gulls">
         <path d="M8 50 q7 -7 14 0 q7 -7 14 0" fill="none" stroke="#5b6b73" strokeWidth="2.2" />
