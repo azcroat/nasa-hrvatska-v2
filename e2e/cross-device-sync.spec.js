@@ -11,8 +11,8 @@
  */
 import { test, expect, chromium, firefox } from '@playwright/test';
 
-const EMAIL = 'claude.test.nasahrvatska@gmail.com';
-const PASSWORD = '***REMOVED***';
+const EMAIL = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 

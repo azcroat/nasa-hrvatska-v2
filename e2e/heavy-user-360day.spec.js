@@ -4,7 +4,7 @@
  * fluency over 12 months of intensive daily use, with deep focus on immersion
  * tools — Croatia Media, Stories, AI Tutor, Shadowing, and Speaking Sprint.
  *
- * Credentials: claude.test.nasahrvatska@gmail.com / ***REMOVED***
+ * Credentials: set via TEST_EMAIL / TEST_PASSWORD env vars
  * Target:      https://nasahrvatska.com
  *
  * User profile:
@@ -71,8 +71,8 @@
 import { test } from '@playwright/test';
 import fs from 'fs';
 
-const EMAIL    = 'claude.test.nasahrvatska@gmail.com';
-const PASSWORD = '***REMOVED***';
+const EMAIL    = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
 const SS_DIR   = '360day-audit-screenshots';
 const REPORT   = '360day-audit-report.json';
 

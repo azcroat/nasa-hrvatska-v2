@@ -22,6 +22,15 @@ describe('dwell-credit removal for gated screens', () => {
     'conjdrill',
     'negation',
     'clitic',
+    // P1 audit remediation: these route to screens that gate completion via
+    // completeExercise(...) on a comprehension pass, so dwell-credit was a gate bypass.
+    'padezi',
+    'padezifull',
+    'svojmoj',
+    'modal',
+    'vocative',
+    'aspectdrill',
+    'past_tense_lesson',
   ];
   it('none of the gated/self-reporting screens are dwell-credited anymore', () => {
     for (const id of removed) {
@@ -36,9 +45,10 @@ describe('dwell-credit removal for gated screens', () => {
   });
 
   it('vs-less drills are intentionally KEPT (removal would break their completion)', () => {
-    // These write no vs flag, so dwell-credit is their only LEARN_PATH completion path
-    // until a self-report is added (documented follow-up). Must remain for now.
-    for (const id of ['vocative', 'conjpractice', 'conjlab']) {
+    // These do NOT gate completion behind a quiz pass (conjpractice/conjlab self-report
+    // without a pass threshold), so dwell-credit is their legitimate LEARN_PATH completion
+    // path. (vocative was moved to `removed` once it gained a real comprehension gate.)
+    for (const id of ['conjpractice', 'conjlab']) {
       expect(block.includes(`${id}:`), id).toBe(true);
     }
   });
