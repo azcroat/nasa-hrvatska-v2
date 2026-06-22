@@ -4,8 +4,8 @@
  */
 import { test, expect } from '@playwright/test';
 
-const EMAIL = 'claude.test.nasahrvatska@gmail.com';
-const PASSWORD = 'ClaudeTest2026!';
+const EMAIL = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
 
 async function login(page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });

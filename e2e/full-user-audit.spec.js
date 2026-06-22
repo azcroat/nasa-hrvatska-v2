@@ -9,8 +9,8 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
 
-const EMAIL = 'claude.test.nasahrvatska@gmail.com';
-const PASSWORD = 'ClaudeTest2026!';
+const EMAIL = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
 
 const bugs = [];
 let shotCount = 0;

@@ -5,7 +5,7 @@
  * progression, catches stale state, broken navigation, empty screens, and UX
  * dead-ends that only appear after extended use.
  *
- * Credentials: claude.test.nasahrvatska@gmail.com / ClaudeTest2026!
+ * Credentials: set via TEST_EMAIL / TEST_PASSWORD env vars
  * Target:      https://nasahrvatska.com
  *
  * Heavy user profile:
@@ -36,8 +36,8 @@
 import { test } from '@playwright/test';
 import fs from 'fs';
 
-const EMAIL    = 'claude.test.nasahrvatska@gmail.com';
-const PASSWORD = 'ClaudeTest2026!';
+const EMAIL    = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
 const SS_DIR   = '60day-audit-screenshots';
 const REPORT   = '60day-audit-report.json';
 
