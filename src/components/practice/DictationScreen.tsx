@@ -126,7 +126,7 @@ export default function DictationScreen({ goBack, award }: Props) {
     },
     [],
   );
-  const [qs] = useState(() => shLocal(DATA));
+  const [qs] = useState(() => shLocal(DATA).slice(0, 10));
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [input, setInput] = useState('');

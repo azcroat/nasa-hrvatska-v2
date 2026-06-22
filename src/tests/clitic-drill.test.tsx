@@ -12,7 +12,8 @@
  *
  * Shuffle is deterministic: rnd() → 0.99 makes shLocal() identity.
  * DATA[0] = { sentence:"Dao ___ ga je.", opts:["mu ga je","ga mu je","je ga mu","mu je ga"], answer:"mu ga je" }.
- * 50 questions; with identity shuffle, 3 have opts[0] ≠ answer (DATA[6/7/9]) → score=47, award(235).
+ * The 10-question sprint (slice(0,10)) is GATED at 75%; opts[0] === answer for every item
+ * (identity shuffle), so answering opts[0] gives score=10, award(50).
  *
  * StatsContext is mocked so useStats() returns { stats: { vs: [] }, setStats, writeDelta }.
  */
@@ -98,22 +99,42 @@ function renderCliticDrill(overrides = {}) {
 }
 
 /**
- * Complete all 50 questions by clicking the first .ob option each time.
- * With rnd=0.99 (identity shuffle), DATA order is preserved.
- * DATA[6] opts[0]="mi se" ≠ answer="mi je"  → wrong
- * DATA[7] opts[0]="mu"    ≠ answer="joj"     → wrong
- * DATA[9] opts[0]="se ti" ≠ answer="ti se"   → wrong
- * All others (incl. all 28 appended items): opts[0] === answer → score = 50 - 3 = 47, award(235).
+ * Complete the 10-question sprint (slice(0,10)) answering CORRECTLY.
+ * With rnd=0.99 (identity shuffle), DATA order is preserved, so FIRST10_ANSWERS
+ * lists the answer for each of the first 10 DATA items in order.
+ * Answering correctly clears the 75% completion gate → score=10, award(50).
  */
-function completeAllQuestions(award: ReturnType<typeof vi.fn> = vi.fn()) {
-  const { container } = renderCliticDrill({ award });
-  for (let i = 0; i < 50; i++) {
-    const optBtn = container.querySelector('button.ob');
-    if (!optBtn) break;
-    fireEvent.click(optBtn);
+// Correct answers for the first 10 DATA items (the slice(0,10) sprint, identity
+// shuffle). Answering correctly clears the 75% completion gate so the pass-path
+// (award/markQuest/writeDelta/setStats) fires.
+const FIRST10_ANSWERS = [
+  'mu ga je',
+  'mu',
+  'mu',
+  'mi se',
+  'mu',
+  'sam ga',
+  'mi je',
+  'joj',
+  'im',
+  'ti se',
+];
+
+function answerAllCorrectly(container: HTMLElement) {
+  for (let i = 0; i < 30; i++) {
+    const opts = Array.from(container.querySelectorAll('button.ob'));
+    if (!opts.length) break;
+    const ans = FIRST10_ANSWERS[i];
+    const target = (ans && opts.find((b) => b.textContent?.trim() === ans)) || opts[0];
+    fireEvent.click(target as Element);
     const nextBtn = container.querySelector('button.b.bp');
     if (nextBtn) fireEvent.click(nextBtn);
   }
+}
+
+function completeAllQuestions(award: ReturnType<typeof vi.fn> = vi.fn()) {
+  const { container } = renderCliticDrill({ award });
+  answerAllCorrectly(container);
   return { award };
 }
 
@@ -192,12 +213,12 @@ describe('CliticDrill — answer mechanics', () => {
 
   it('shows See results on the last question after answering', () => {
     const { container } = renderCliticDrill();
-    for (let i = 0; i < 49; i++) {
+    for (let i = 0; i < 9; i++) {
       fireEvent.click(container.querySelector('button.ob')!);
       const nextBtn = container.querySelector('button.b.bp');
       if (nextBtn) fireEvent.click(nextBtn);
     }
-    // Now on question 50 (last)
+    // Now on question 10 (last)
     fireEvent.click(container.querySelector('button.ob')!);
     expect(screen.getByText('See results')).toBeTruthy();
   });
@@ -214,7 +235,7 @@ describe('CliticDrill — completion + award guard', () => {
 
   it('shows done screen after all questions answered', () => {
     completeAllQuestions();
-    expect(screen.getByText(/\d+ \/ 50/)).toBeTruthy();
+    expect(screen.getByText(/\d+ \/ 10/)).toBeTruthy();
   });
 
   it('shows ← Back button on done screen', () => {
@@ -228,12 +249,11 @@ describe('CliticDrill — completion + award guard', () => {
     expect(award).toHaveBeenCalledTimes(1);
   });
 
-  it('award() receives XP = score * 5 (47 correct → 235 XP)', () => {
+  it('award() receives XP = score * 5 (10 correct → 50 XP)', () => {
     const award = vi.fn();
     completeAllQuestions(award);
-    // DATA[6/7/9] opts[0] ≠ answer → 3 wrong; all 28 appended items have opts[0] === answer.
-    // 50 - 3 = 47 correct → XP = 235
-    expect(award).toHaveBeenCalledWith(235, false, 'grammar');
+    // answerAllCorrectly answers the 10-item sprint correctly → score 10 → XP 50
+    expect(award).toHaveBeenCalledWith(50, false, 'grammar');
   });
 
   it('markQuest("grammar") is called on completion', () => {
@@ -294,13 +314,7 @@ describe('CliticDrill — navigation', () => {
   it('goBack is called when ← Back is clicked on the done screen', () => {
     const goBack = vi.fn();
     const { container } = render(<CliticDrill goBack={goBack} award={vi.fn()} />);
-    for (let i = 0; i < 50; i++) {
-      const optBtn = container.querySelector('button.ob');
-      if (!optBtn) break;
-      fireEvent.click(optBtn);
-      const nextBtn = container.querySelector('button.b.bp');
-      if (nextBtn) fireEvent.click(nextBtn);
-    }
+    answerAllCorrectly(container);
     // Done screen: click "← Back" button
     const backBtn = container.querySelector('button.b.bp');
     if (backBtn) fireEvent.click(backBtn);

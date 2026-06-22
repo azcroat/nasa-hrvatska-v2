@@ -58,14 +58,14 @@ const DATA = [
   },
   {
     sentence: 'Pričala ___ o tome.',
-    opts: ['mi se', 'se mi', 'mi je', 'je mi'],
+    opts: ['mi je', 'mi se', 'se mi', 'je mi'],
     answer: 'mi je',
     en: 'She told me about it.',
     tip: "Dative 'mi' comes before auxiliary 'je'",
   },
   {
     sentence: 'On ___ se smiješi.',
-    opts: ['mu', 'joj', 'im', 'ga'],
+    opts: ['joj', 'mu', 'im', 'ga'],
     answer: 'joj',
     en: 'He smiles at her.',
     tip: "Dative 'joj' (to her) + reflexive 'se' — smiling at someone uses dative",
@@ -79,7 +79,7 @@ const DATA = [
   },
   {
     sentence: 'Zašto ___ ne javlja?',
-    opts: ['se ti', 'ti se', 'se', 'te'],
+    opts: ['ti se', 'se ti', 'se', 'te'],
     answer: 'ti se',
     en: "Why doesn't she call you?",
     tip: "Dative 'ti' (to you) + reflexive 'se' — javiti se uses reflexive",
@@ -374,7 +374,9 @@ export default function CliticDrill({ goBack, award }: Props) {
   const { stats, setStats, writeDelta } = useStats();
   const finishFired = useRef(false);
   const [q] = useState(() =>
-    shLocal(DATA).map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
+    shLocal(DATA)
+      .slice(0, 10)
+      .map((item) => ({ ...item, opts: shLocal([...item.opts]) })),
   );
   const total = q.length;
   const [idx, setIdx] = useState(0);

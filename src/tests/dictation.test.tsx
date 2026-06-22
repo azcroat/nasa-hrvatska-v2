@@ -151,7 +151,7 @@ describe('DictationScreen — rendering', () => {
 
   it('shows progress counter "1 / 20" for first question', () => {
     renderScreen();
-    expect(screen.getByText('1 / 20')).toBeTruthy();
+    expect(screen.getByText('1 / 10')).toBeTruthy();
   });
 
   it('shows level badge "A1" for first question', () => {
@@ -397,7 +397,7 @@ describe('DictationScreen — question navigation', () => {
     typeInInput('Dobar dan, kako ste?');
     clickCheck();
     clickNext();
-    expect(screen.getByText('2 / 20')).toBeTruthy();
+    expect(screen.getByText('2 / 10')).toBeTruthy();
   });
 
   it('"Next →" clears the input field', () => {
