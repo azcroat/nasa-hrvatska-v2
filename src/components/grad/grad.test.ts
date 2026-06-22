@@ -112,3 +112,47 @@ describe('gradModel', () => {
     expect(typeof free.launch).toBe('function');
   });
 });
+
+import { placeCompletion, placeLife, placeDisplay, aliveCount } from './gradModel';
+
+describe('grad place state helpers', () => {
+  const S = (o: Partial<{ total: number; done: number; due: number; lockedCount: number }>) => ({
+    total: 0,
+    done: 0,
+    due: 0,
+    lockedCount: 0,
+    ...o,
+  });
+
+  it('locked when every item is locked', () => {
+    expect(placeLife(S({ total: 4, lockedCount: 4 }))).toBe('dormant');
+    expect(placeDisplay(S({ total: 4, lockedCount: 4 }))).toBe('locked');
+  });
+  it('quiet/dormant when nothing done', () => {
+    expect(placeLife(S({ total: 5, done: 0 }))).toBe('dormant');
+    expect(placeDisplay(S({ total: 5, done: 0 }))).toBe('quiet');
+  });
+  it('partial/inprogress when some done', () => {
+    expect(placeLife(S({ total: 5, done: 2, due: 1 }))).toBe('partial');
+    expect(placeDisplay(S({ total: 5, done: 2, due: 1 }))).toBe('inprogress');
+  });
+  it('full/mastered when all available done and none due', () => {
+    expect(placeLife(S({ total: 5, done: 5, due: 0 }))).toBe('full');
+    expect(placeDisplay(S({ total: 5, done: 5, due: 0 }))).toBe('mastered');
+  });
+  it('not mastered while reviews are due', () => {
+    expect(placeDisplay(S({ total: 5, done: 5, due: 2 }))).toBe('inprogress');
+  });
+  it('completion ignores locked items', () => {
+    expect(placeCompletion(S({ total: 6, done: 2, lockedCount: 2 }))).toBeCloseTo(0.5);
+  });
+  it('aliveCount counts fully-alive places', () => {
+    expect(
+      aliveCount({
+        a: S({ total: 4, done: 4 }),
+        b: S({ total: 4, done: 1 }),
+        c: S({ total: 4, lockedCount: 4 }),
+      }),
+    ).toBe(1);
+  });
+});

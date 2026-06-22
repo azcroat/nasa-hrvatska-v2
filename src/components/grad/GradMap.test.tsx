@@ -1,105 +1,69 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
+import React from 'react';
 import GradMap from './GradMap';
 import type { Recommendation } from './gradModel';
 
+vi.mock('../family/CharacterPortrait', () => ({
+  default: ({ name }: { name: string }) =>
+    React.createElement('span', { 'data-portrait': name, 'data-testid': `portrait-${name}` }),
+}));
+
 const rec: Recommendation = {
-  exerciseId: 'arcade',
+  exerciseId: 'srsreview',
   placeId: 'kavana',
   host: 'ana',
-  hr: 'Ana te čeka u kavani',
-  en: '6 phrases waiting',
+  hr: 'Ana ti je spremila 6 fraza',
+  en: '6 reviews waiting',
   count: 6,
   durationMin: 6,
   launch: vi.fn(),
 };
 
-type Stat = { done: number; total: number; due: number; lockedCount: number };
-const statsByPlace: Record<string, Stat> = Object.fromEntries(
-  ['kavana', 'trznica', 'soba', 'kuhinja', 'ulica', 'trg'].map((id) => [
-    id,
-    { done: 0, total: 5, due: 0, lockedCount: 0 },
-  ]),
-);
+const stats = {
+  kavana: { total: 5, done: 5, due: 0, lockedCount: 0 }, // mastered
+  kuhinja: { total: 5, done: 2, due: 2, lockedCount: 0 }, // in progress
+  trznica: { total: 5, done: 1, due: 3, lockedCount: 0 }, // in progress
+  trg: { total: 5, done: 1, due: 0, lockedCount: 0 }, // in progress
+  ulica: { total: 5, done: 0, due: 0, lockedCount: 0 }, // quiet
+  soba: { total: 4, done: 0, due: 0, lockedCount: 4 }, // locked
+};
 
-describe('GradMap', () => {
-  it('renders a marker for each place and the Today bar', () => {
-    render(<GradMap rec={rec} onOpenPlace={vi.fn()} statsByPlace={statsByPlace} />);
-    expect(screen.getByText('Anina kavana')).toBeInTheDocument();
-    expect(screen.getByText('Trg')).toBeInTheDocument();
-    expect(screen.getByText('Ana te čeka u kavani')).toBeInTheDocument();
+function setup(extra = {}) {
+  const onOpenPlace = vi.fn();
+  const utils = render(
+    <GradMap rec={rec} statsByPlace={stats as never} onOpenPlace={onOpenPlace} {...extra} />,
+  );
+  return { ...utils, onOpenPlace };
+}
+
+describe('GradMap — hero + list', () => {
+  it('renders the hero town art', () => {
+    expect(setup().getByTestId('grad-town-art')).toBeTruthy();
   });
-
-  it('opens a place when its marker is clicked', () => {
-    const onOpen = vi.fn();
-    render(<GradMap rec={rec} onOpenPlace={onOpen} statsByPlace={statsByPlace} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Markova tržnica' }));
-    expect(onOpen).toHaveBeenCalledWith('trznica');
+  it('progress line shows alive count out of 6', () => {
+    expect(setup().getByTestId('karta-progress').textContent).toMatch(/1 \/ 6/);
   });
-});
-
-describe('GradMap — living markers', () => {
-  function statsWith(over: Record<string, Stat>) {
-    return { ...statsByPlace, ...over };
-  }
-
-  it('shows a due badge only when due > 0', () => {
-    render(
-      <GradMap
-        rec={rec}
-        onOpenPlace={vi.fn()}
-        statsByPlace={statsWith({ trznica: { done: 1, total: 5, due: 3, lockedCount: 0 } })}
-      />,
-    );
-    expect(screen.getByTestId('due-badge-trznica')).toHaveTextContent('3');
-    expect(screen.queryByTestId('due-badge-soba')).toBeNull();
+  it('Danas card launches the recommendation', () => {
+    const { getByTestId } = setup();
+    fireEvent.click(getByTestId('grad-map-today'));
+    expect(rec.launch).toHaveBeenCalledTimes(1);
   });
-
-  it('renders a completion ring whose fill reflects done/available', () => {
-    render(
-      <GradMap
-        rec={rec}
-        onOpenPlace={vi.fn()}
-        statsByPlace={statsWith({ soba: { done: 3, total: 4, due: 0, lockedCount: 0 } })}
-      />,
-    );
-    const ring = screen.getByTestId('ring-soba');
-    expect(ring.getAttribute('data-completion')).toBe('0.75');
+  it('mastered place shows full ring', () => {
+    expect(setup().getByTestId('ring-kavana').getAttribute('data-completion')).toBe('1');
   });
-
-  it('marks a fully-locked place: dimmed + lock, no due badge, still clickable', () => {
-    const onOpen = vi.fn();
-    render(
-      <GradMap
-        rec={rec}
-        onOpenPlace={onOpen}
-        statsByPlace={statsWith({ ulica: { done: 0, total: 5, due: 2, lockedCount: 5 } })}
-      />,
-    );
-    expect(screen.getByTestId('marker-locked-ulica')).toBeInTheDocument();
-    expect(screen.queryByTestId('due-badge-ulica')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Ivina ulica' }));
-    expect(onOpen).toHaveBeenCalledWith('ulica');
+  it('in-progress place shows a due badge', () => {
+    expect(setup().getByTestId('due-badge-trznica').textContent).toBe('3');
   });
-});
-
-describe('GradMap — host at the recommended place', () => {
-  it("renders the recommended place's own host portrait", () => {
-    // rec.placeId = 'kavana' → its own host is 'ana'
-    render(<GradMap rec={rec} onOpenPlace={vi.fn()} statsByPlace={statsByPlace} />);
-    expect(screen.getByTestId('portrait-ana')).toBeInTheDocument();
+  it('locked place is marked locked', () => {
+    expect(setup().getByTestId('marker-locked-soba')).toBeTruthy();
   });
-
-  it('renders no host portrait when the recommended place has no host (trg)', () => {
-    const trgRec = { ...rec, placeId: 'trg' as const, host: null };
-    render(<GradMap rec={trgRec} onOpenPlace={vi.fn()} statsByPlace={statsByPlace} />);
-    expect(document.querySelector('[data-testid^="portrait-"]')).toBeNull();
+  it('tapping a place row opens it', () => {
+    const { getByTestId, onOpenPlace } = setup();
+    fireEvent.click(getByTestId('place-row-kuhinja'));
+    expect(onOpenPlace).toHaveBeenCalledWith('kuhinja');
   });
-});
-
-describe('GradMap — living town', () => {
-  it('renders the inline town art (animatable, not an <img>)', () => {
-    render(<GradMap rec={rec} onOpenPlace={vi.fn()} statsByPlace={statsByPlace} />);
-    expect(screen.getByTestId('grad-town-art')).toBeInTheDocument();
+  it('disables animation under reduced motion (style guard present)', () => {
+    expect(setup().container.innerHTML).toContain('prefers-reduced-motion');
   });
 });
