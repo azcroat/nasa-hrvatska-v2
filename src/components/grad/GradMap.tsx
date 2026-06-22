@@ -56,7 +56,7 @@ export default function GradMap({
         #km-ferry{animation:kmFerry 36s linear infinite}
         #km-gulls path{animation:kmGull 13s linear infinite}
         #km-gulls path:last-child{animation-delay:5s}
-        #km-flag{animation:kmFlag 2.4s ease-in-out infinite;transform-origin:left center}
+        #km-flag{animation:kmFlag 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:left center}
         .km-cyp{transform-box:fill-box;transform-origin:bottom center;animation:kmSway 7s ease-in-out infinite}
         .km-twk{animation:kmTwk 5s ease-in-out infinite}
         /* per-district life: hidden when dormant, shown when partial/full */
