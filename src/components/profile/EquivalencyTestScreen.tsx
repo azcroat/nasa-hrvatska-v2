@@ -333,7 +333,11 @@ export default function EquivalencyTestScreen({
   if (phase === 'question') {
     return (
       <div className="scr-wrap">
-        <ExamRunner questions={runnerQuestions} onComplete={onExamComplete} />
+        <ExamRunner
+          questions={runnerQuestions}
+          onComplete={onExamComplete}
+          title="Equivalency Test"
+        />
       </div>
     );
   }

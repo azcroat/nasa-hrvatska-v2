@@ -26,20 +26,20 @@ export default function CheckpointResultScreen({
 }: CheckpointResultScreenProps) {
   if (outcome.kind === 'pass' || outcome.kind === 'pass_focus') {
     return (
-      <div className="checkpoint-result center-col" data-testid="result-pass">
-        <div className="badge-ring">
+      <div className="cp-result" data-testid="result-pass">
+        <div className="cp-badge">
           <div className="core">✓</div>
         </div>
-        <h2>{level} confirmed! 🎉</h2>
-        <p className="subtitle">Your {level} is the real deal. Badge kept, streak intact.</p>
+        <h2 className="cp-result-title">{level} confirmed! 🎉</h2>
+        <p className="cp-result-sub">Your {level} is the real deal. Badge kept, streak intact.</p>
         {outcome.kind === 'pass_focus' && outcome.focusSkills.length > 0 && (
-          <p className="focus-note" data-testid="result-focus">
-            Strong overall — we'll weave extra{' '}
+          <p className="cp-result-focus" data-testid="result-focus">
+            Strong overall — we&apos;ll weave extra{' '}
             {outcome.focusSkills.map((s) => skillLabel[s] ?? s).join(', ')} practice into your{' '}
             {level} lessons.
           </p>
         )}
-        <button className="btn btn-primary" onClick={onContinue}>
+        <button className="b bp" onClick={onContinue}>
           Keep going →
         </button>
       </div>
@@ -48,19 +48,19 @@ export default function CheckpointResultScreen({
 
   if (outcome.kind === 'grace') {
     return (
-      <div className="checkpoint-result center-col" data-testid="result-grace">
-        <div className="badge-ring warn">
+      <div className="cp-result" data-testid="result-grace">
+        <div className="cp-badge warn">
           <div className="core">↻</div>
         </div>
-        <h2>Almost — let's shore this up</h2>
-        <p className="subtitle">
+        <h2 className="cp-result-title">Almost — let&apos;s shore this up</h2>
+        <p className="cp-result-sub">
           A couple of {outcome.failedSkills.map((s) => skillLabel[s] ?? s).join(', ')} answers
           slipped. Try a quick focused round now — your {level} stays put.
         </p>
-        <button className="btn btn-primary" data-testid="result-retry" onClick={onRetry}>
+        <button className="b bp" data-testid="result-retry" onClick={onRetry}>
           Focused retry →
         </button>
-        <button className="btn btn-ghost" onClick={onContinue}>
+        <button className="cp-result-ghost" onClick={onContinue}>
           Later
         </button>
       </div>
@@ -70,25 +70,26 @@ export default function CheckpointResultScreen({
   // demote
   const to = outcome.demotion?.to ?? level;
   return (
-    <div className="checkpoint-result center-col" data-testid="result-demote">
-      <div className="badge-ring warn">
+    <div className="cp-result" data-testid="result-demote">
+      <div className="cp-badge warn">
         <div className="core">↻</div>
       </div>
-      <h2>Let's lock in {level}</h2>
-      <div className="lvl-move">
-        <span className="lvl-chip from">{level}</span> → <span className="lvl-chip to">{to}</span>
+      <h2 className="cp-result-title">Let&apos;s lock in {level}</h2>
+      <div className="cp-lvl-move">
+        <span className="cp-lvl-chip from">{level}</span> →{' '}
+        <span className="cp-lvl-chip to">{to}</span>
       </div>
-      <p className="reassure">
-        A few {level} ideas aren't solid yet — totally normal. We'll strengthen them, then you
-        re-earn {level}.<b> Your XP &amp; streak stay untouched.</b>
+      <p className="cp-result-sub">
+        A few {level} ideas aren&apos;t solid yet — totally normal. We&apos;ll strengthen them, then
+        you re-earn {level}. <b>Your XP &amp; streak stay untouched.</b>
       </p>
-      <div className="focus-lab">Your focus</div>
-      <ul>
+      <div className="cp-result-lab">Your focus</div>
+      <ul className="cp-result-list">
         {outcome.failedSkills.map((s) => (
           <li key={s}>{skillLabel[s] ?? s}</li>
         ))}
       </ul>
-      <button className="btn btn-primary" onClick={onContinue}>
+      <button className="b bp" onClick={onContinue}>
         Start focused practice →
       </button>
     </div>

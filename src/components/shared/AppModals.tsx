@@ -235,33 +235,34 @@ export function AppModals({
         />
       )}
       {cp.phase === 'running' && cp.exam && (
-        <div className="modal-overlay" role="dialog" aria-modal="true">
-          <div className="modal-card">
-            <ExamRunner
-              questions={cp.exam.questions}
-              speaking={{
-                level: cp.exam.speaking.level,
-                tasks: cp.exam.speaking.tasks,
-                scorer: cp.scorer,
-              }}
-              onComplete={cp.complete}
-            />
-          </div>
+        <div className="exam-shell" role="dialog" aria-modal="true">
+          <ExamRunner
+            questions={cp.exam.questions}
+            speaking={{
+              level: cp.exam.speaking.level,
+              tasks: cp.exam.speaking.tasks,
+              scorer: cp.scorer,
+            }}
+            onComplete={cp.complete}
+            title="Comprehension Check"
+            onExit={() => {
+              setCpDismissed(true);
+              cp.snooze(endOfLocalDayMs());
+            }}
+          />
         </div>
       )}
       {cp.phase === 'result' && cp.outcome && (
-        <div className="modal-overlay" role="dialog" aria-modal="true">
-          <div className="modal-card">
-            <CheckpointResultScreen
-              level={checkpointCertifiedLevel}
-              outcome={cp.outcome}
-              onContinue={() => {
-                cp.reset();
-                setTab('learn');
-              }}
-              onRetry={cp.start}
-            />
-          </div>
+        <div className="exam-shell center" role="dialog" aria-modal="true">
+          <CheckpointResultScreen
+            level={checkpointCertifiedLevel}
+            outcome={cp.outcome}
+            onContinue={() => {
+              cp.reset();
+              setTab('learn');
+            }}
+            onRetry={cp.start}
+          />
         </div>
       )}
     </Suspense>

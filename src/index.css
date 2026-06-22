@@ -3665,3 +3665,110 @@ body {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   COMPREHENSION CHECKPOINT — invite popup, full-screen exam, result
+   Built on the app's own primitives (.b/.bp, .ob, tokens) so the
+   checkpoint reads as part of the product. Clean & calm.
+═══════════════════════════════════════════════════════════ */
+@keyframes cp-fade { from { opacity: 0 } to { opacity: 1 } }
+
+/* ── Invite popup ── */
+.cp-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(8, 15, 30, .55);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 22px; padding-bottom: max(22px, env(safe-area-inset-bottom));
+  z-index: var(--z-modal);
+  animation: cp-fade .25s ease;
+}
+.cp-invite-card {
+  background: var(--card); border-radius: 24px;
+  padding: 30px 26px 22px; width: 100%; max-width: 400px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+  animation: rise .4s var(--motion-spring);
+  max-height: calc(100vh - 44px); overflow-y: auto;
+}
+.cp-crest {
+  width: 58px; height: 58px; margin: 0 auto 14px;
+  border-radius: 14px; overflow: hidden;
+  display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr);
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .6), 0 0 0 3px rgba(185, 148, 62, .45), 0 6px 20px rgba(0, 0, 0, .18);
+}
+.cp-crest > i { display: block }
+.cp-eyebrow { font-size: 10px; font-weight: 900; letter-spacing: .16em; color: var(--accent); margin-bottom: 8px }
+.cp-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 800; color: var(--heading); line-height: 1.15; margin-bottom: 4px }
+.cp-subtitle { font-size: 13px; color: var(--subtext); margin-bottom: 14px }
+.cp-lede { font-size: 14px; line-height: 1.6; color: var(--subtext); margin-bottom: 16px }
+.cp-bullets { list-style: none; text-align: left; margin: 0 0 22px; padding: 0; display: flex; flex-direction: column; gap: 10px }
+.cp-bullets li { position: relative; padding-left: 28px; font-size: 13.5px; color: var(--heading); line-height: 1.45 }
+.cp-bullets li::before {
+  content: '✓'; position: absolute; left: 0; top: 0;
+  width: 19px; height: 19px; border-radius: 50%;
+  background: var(--info-bg); color: var(--accent);
+  font-size: 11px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+}
+.cp-cta { width: 100%; margin-bottom: 6px }
+.cp-ghost { width: 100%; background: none; border: none; padding: 12px; font-size: 13px; font-weight: 700; color: var(--subtext); cursor: pointer; font-family: 'Outfit', sans-serif }
+.cp-ghost:hover { color: var(--heading) }
+
+/* ── Full-screen exam shell ── */
+.exam-shell {
+  position: fixed; inset: 0; background: var(--app-bg);
+  display: flex; flex-direction: column;
+  z-index: var(--z-modal);
+  animation: cp-fade .25s ease;
+}
+.exam-shell.center { align-items: center; justify-content: center; text-align: center; padding: 32px 28px; padding-bottom: max(32px, env(safe-area-inset-bottom)) }
+.exam-top { display: flex; align-items: center; gap: 14px; padding: 16px 20px 12px; padding-top: max(16px, env(safe-area-inset-top)) }
+.exam-close { width: 34px; height: 34px; flex: 0 0 auto; border-radius: 10px; border: 1px solid var(--card-b); background: var(--card); color: var(--subtext); font-size: 17px; cursor: pointer; line-height: 1 }
+.exam-close:hover { color: var(--heading) }
+.exam-progress-wrap { flex: 1 }
+.exam-progress-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px }
+.exam-progress-meta .eyebrow { font-size: 10px; font-weight: 900; letter-spacing: .16em; color: var(--subtext); text-transform: uppercase }
+.exam-progress-meta .count { font-size: 13px; font-weight: 800; color: var(--heading); font-variant-numeric: tabular-nums }
+.exam-bar { height: 6px; border-radius: 99px; background: var(--bar-bg); overflow: hidden }
+.exam-bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #0e7490, #164e63); transition: width .4s ease }
+.exam-body { flex: 1; overflow-y: auto; padding: 8px 20px 0 }
+.exam-col { max-width: 600px; margin: 0 auto }
+.exam-cta { padding: 14px 20px 22px; padding-bottom: max(22px, env(safe-area-inset-bottom)) }
+.exam-cta .b { width: 100% }
+
+.q-skill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; background: var(--info-bg); color: #002868; border: 1px solid var(--info-b); margin: 14px 0 0 }
+.q-skill.violet { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe }
+.q-passage { background: var(--card); border: 1px solid var(--card-b); border-left: 4px solid #002868; border-radius: 16px; padding: 16px 18px; font-size: 15px; line-height: 1.65; color: var(--heading); margin: 14px 0 18px }
+.q-stem { font-size: 19px; font-weight: 800; color: var(--heading); line-height: 1.35; margin: 14px 0 18px }
+
+/* exam option = app .ob + key chip + selected state */
+.ob-exam { display: flex; align-items: center; gap: 12px }
+.ob-exam .k { flex: 0 0 26px; height: 26px; border-radius: 8px; background: var(--bar-bg); color: var(--subtext); font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center }
+.ob.sel { border-color: var(--accent); background: var(--info-bg); box-shadow: 0 4px 16px rgba(14, 116, 144, .12) }
+.ob.sel .k { background: var(--accent); color: #fff }
+
+/* ── Result ── */
+.cp-result { display: flex; flex-direction: column; align-items: center; text-align: center }
+.cp-badge { width: 104px; height: 104px; border-radius: 50%; background: conic-gradient(from 220deg, #0e7490, #0a5c73, #164e63, #0e7490); display: flex; align-items: center; justify-content: center; margin-bottom: 22px; box-shadow: 0 12px 36px rgba(14, 116, 144, .35); animation: rise .4s var(--motion-spring) }
+.cp-badge.warn { background: conic-gradient(from 220deg, #f59e0b, #d97706, #b45309, #f59e0b); box-shadow: 0 12px 36px rgba(217, 119, 6, .32) }
+.cp-badge .core { width: 84px; height: 84px; border-radius: 50%; background: var(--card); color: var(--accent); font-size: 40px; font-weight: 900; display: flex; align-items: center; justify-content: center }
+.cp-badge.warn .core { color: #d97706 }
+.cp-result-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; color: var(--heading); margin-bottom: 8px }
+.cp-result-sub { font-size: 14px; line-height: 1.6; color: var(--subtext); max-width: 320px; margin-bottom: 24px }
+.cp-result .b { width: 100%; max-width: 320px }
+.cp-result-ghost { background: none; border: none; padding: 12px; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--subtext); cursor: pointer; font-family: 'Outfit', sans-serif }
+.cp-result-focus { font-size: 13px; color: var(--subtext); background: var(--info-bg); border: 1px solid var(--info-b); border-radius: 12px; padding: 12px 14px; max-width: 320px; margin-bottom: 18px; line-height: 1.5 }
+.cp-lvl-move { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; font-size: 18px; color: var(--subtext) }
+.cp-lvl-chip { padding: 6px 16px; border-radius: 9999px; font-weight: 900; font-size: 15px }
+.cp-lvl-chip.from { background: var(--bar-bg); color: var(--subtext) }
+.cp-lvl-chip.to { background: #002868; color: #fff }
+.cp-result-lab { font-size: 10px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; color: var(--subtext); margin-bottom: 10px }
+.cp-result-list { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center }
+.cp-result-list li { background: var(--card); border: 1px solid var(--card-b); border-radius: 9999px; padding: 6px 14px; font-size: 13px; font-weight: 700; color: var(--heading) }
+
+/* ── Speaking task (exam phase) ── */
+.speaking-task { display: flex; flex-direction: column; align-items: stretch; gap: 14px; max-width: 600px; margin: 0 auto; padding-top: 14px }
+.speaking-task .task-hr { font-size: 19px; font-weight: 800; color: var(--heading); line-height: 1.4 }
+.speaking-task .task-en { font-size: 14px; color: var(--subtext); margin-top: -8px }
+.speak-status { font-size: 14px; color: var(--subtext); font-weight: 600; text-align: center }
