@@ -86,7 +86,8 @@ export default function GradTownArt({ lifeByPlace }: { lifeByPlace: Record<Place
         <rect x="246" y="120" width="6" height="12" rx="3" fill="#6f9aa3" />
         <polygon points="238,96 253,78 268,96" fill="#b8390b" />
         <line x1="253" y1="78" x2="253" y2="69" stroke="#9c7b45" strokeWidth="2.4" />
-        <polygon id="km-flag" points="253,70 271,75 253,80" fill="#D40030" />
+        {/* Pennant attached along the top of the pole (staff edge on x=253, pole top y=69). */}
+        <polygon id="km-flag" points="253,69 270,73 253,77" fill="#D40030" />
       </g>
       <use href="#hh" x="284" y="120" width="36" height="42" />
       <use href="#hh2" x="150" y="124" width="32" height="38" />
@@ -179,17 +180,28 @@ export default function GradTownArt({ lifeByPlace }: { lifeByPlace: Record<Place
           <path d="M280 252 q18 -6 36 0 t36 0" fill="none" />
         </g>
       </g>
+      {/* Ferry — hull sits in the water (below the y=201 surface), deck above it.
+          The wake rides inside the group so it tracks the horizontal drift. */}
       <g id="km-ferry">
-        <g transform="translate(20,224)">
+        <g transform="translate(26,186)">
+          <ellipse cx="23" cy="17" rx="30" ry="2.5" fill="#bfeaf0" opacity=".5" />
           <rect x="0" y="5" width="46" height="11" rx="3" fill="#eef2f4" />
           <rect x="6" y="-2" width="32" height="8" rx="2" fill="#cfdadf" />
           <path d="M0 16 l46 0 l-6 6 l-34 0 z" fill="#3a6b78" />
         </g>
       </g>
-      <g id="km-boat-1" transform="translate(150,232)">
-        <path d="M-4 16 q24 14 48 0 l-6 10 q-18 6 -36 0 z" fill="#8a5a2b" />
-        <polygon points="20,16 20,-10 42,14" fill="#fff" />
-        <line x1="20" y1="16" x2="20" y2="-14" stroke="#5b4a2e" strokeWidth="2" />
+      {/* Sailboat — hull in the water, sail rising above the surface. Static wake
+          (the boat only bobs in place, so it stays over the wake). */}
+      <ellipse cx="170" cy="213" rx="26" ry="2.5" fill="#bfeaf0" opacity=".5" />
+      {/* Position lives on the INNER group; the kmBob animation runs on the outer
+          #km-boat-1 — a CSS transform on the same element would override (replace)
+          the position attribute and fling the boat to the origin. */}
+      <g id="km-boat-1">
+        <g transform="translate(150,188)">
+          <path d="M-4 16 q24 14 48 0 l-6 10 q-18 6 -36 0 z" fill="#8a5a2b" />
+          <polygon points="20,16 20,-10 42,14" fill="#fff" />
+          <line x1="20" y1="16" x2="20" y2="-14" stroke="#5b4a2e" strokeWidth="2" />
+        </g>
       </g>
       <g id="km-gulls">
         <path d="M8 50 q7 -7 14 0 q7 -7 14 0" fill="none" stroke="#5b6b73" strokeWidth="2.2" />

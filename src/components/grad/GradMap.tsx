@@ -45,7 +45,7 @@ export default function GradMap({
         @keyframes kmFerry{from{transform:translateX(0)}to{transform:translateX(360px)}}
         @keyframes kmGull{0%{transform:translate(-30px,6px)}100%{transform:translate(420px,-14px)}}
         @keyframes kmSmoke{0%{opacity:0;transform:translateY(0) scale(.6)}25%{opacity:.5}100%{opacity:0;transform:translateY(-26px) scale(1.7)}}
-        @keyframes kmFlag{0%,100%{transform:skewX(0)}50%{transform:skewX(-15deg)}}
+        @keyframes kmFlag{0%,100%{transform:skewY(0)}50%{transform:skewY(-12deg)}}
         @keyframes kmTwk{0%,100%{opacity:.5}50%{opacity:1}}
         @keyframes kmSway{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
         @keyframes recoGlow{0%,100%{box-shadow:0 6px 18px rgba(200,152,10,.18)}50%{box-shadow:0 6px 24px rgba(200,152,10,.42)}}
