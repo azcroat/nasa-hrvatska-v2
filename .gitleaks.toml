@@ -20,4 +20,8 @@ regexTarget = "secret"
 regexes = [
   # $TOKEN  ${TOKEN}  ${TOKEN:-x}  ${{ secrets.SONAR_TOKEN }}  (optionally trailed by ':')
   '''\$\{{0,2}\s*[A-Za-z_][A-Za-z0-9_.]*\s*\}{0,2}:?''',
+  # The Firebase WEB API key is public client config by design (see Firebase docs:
+  # it identifies the project, is not a secret, and ships in the client bundle).
+  # Allowlist this exact key only — any other Google/GCP key is still flagged.
+  '''AIzaSyCD4ul4KCILkufNMk5qCr-C5JiN9D7ogn0''',
 ]

@@ -1,5 +1,8 @@
-userName: jeffreyschreiner_czsTS4
-accessKey: 2FYsk4RAEufxaeyopEyd
+# Credentials are read from env vars (BrowserStack SDK interpolation, like
+# ${BUILD_NUMBER} below). Set BROWSERSTACK_USERNAME / BROWSERSTACK_ACCESS_KEY
+# locally or as CI secrets. ROTATE the previously-committed access key.
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
 
 projectName: Nasa Hrvatska
 buildName: "Full Device Matrix"
