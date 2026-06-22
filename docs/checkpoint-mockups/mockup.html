@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Comprehension Check — mockups</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── App tokens (copied verbatim from src/index.css) ── */
+      :root {
+        --app-bg: #f4f6f9;
+        --card: #ffffff;
+        --card-b: rgba(0, 0, 0, 0.07);
+        --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 32px rgba(0, 0, 0, 0.04);
+        --heading: #0f172a;
+        --subtext: #555e6e;
+        --accent: #0e7490;
+        --info-bg: #f0f9ff;
+        --info-b: #bae6fd;
+        --bar-bg: rgba(0, 0, 0, 0.08);
+        --croatian-blue: #002868;
+        --croatian-red: #cc0000;
+        --ob-b: rgba(0, 0, 0, 0.1);
+        --ob-bg: #fff;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: 'Outfit', sans-serif;
+        background: #2a3140;
+        color: var(--heading);
+        -webkit-font-smoothing: antialiased;
+        padding: 40px 28px 64px;
+      }
+      h1.page {
+        color: #fff;
+        font-weight: 800;
+        font-size: 20px;
+        text-align: center;
+        margin-bottom: 6px;
+      }
+      p.page {
+        color: #9aa6b8;
+        text-align: center;
+        font-size: 13px;
+        margin-bottom: 36px;
+      }
+      .row {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .frame {
+        width: 390px;
+        flex: 0 0 390px;
+      }
+      .frame > .label {
+        color: #cbd5e1;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        text-align: center;
+        margin-bottom: 12px;
+      }
+      .phone {
+        width: 390px;
+        height: 760px;
+        border-radius: 36px;
+        overflow: hidden;
+        background: var(--app-bg);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+        position: relative;
+        border: 8px solid #11151d;
+      }
+
+      /* ── Shared app primitives ── */
+      .b {
+        padding: 15px 24px;
+        border: none;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+        font-family: 'Outfit', sans-serif;
+        letter-spacing: 0.01em;
+        line-height: 1;
+        width: 100%;
+      }
+      .bp {
+        background: linear-gradient(135deg, #0e7490 0%, #0a5c73 60%, #164e63 100%);
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(14, 116, 144, 0.35), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+      }
+      .ob {
+        width: 100%;
+        padding: 15px 18px;
+        border: 2px solid var(--ob-b);
+        border-radius: 14px;
+        background: var(--ob-bg);
+        color: var(--heading);
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Outfit', sans-serif;
+        text-align: left;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .ob .k {
+        flex: 0 0 26px;
+        height: 26px;
+        border-radius: 8px;
+        background: var(--bar-bg);
+        color: var(--subtext);
+        font-weight: 800;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ob.sel {
+        border-color: var(--accent);
+        background: var(--info-bg);
+        box-shadow: 0 4px 16px rgba(14, 116, 144, 0.12);
+      }
+      .ob.sel .k {
+        background: var(--accent);
+        color: #fff;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .pill-blue {
+        background: var(--info-bg);
+        color: var(--croatian-blue);
+        border: 1px solid var(--info-b);
+      }
+
+      /* ═══════ 1. INVITE POPUP ═══════ */
+      .cp-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(8, 15, 30, 0.55);
+        backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 22px;
+      }
+      .cp-invite-card {
+        background: var(--card);
+        border-radius: 24px;
+        padding: 30px 26px 24px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      }
+      .cp-crest {
+        width: 66px;
+        height: 66px;
+        margin: 0 auto 14px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        border: 1px solid var(--info-b);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+      }
+      .cp-eyebrow {
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+      .cp-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--heading);
+        line-height: 1.15;
+        margin-bottom: 4px;
+      }
+      .cp-subtitle {
+        font-size: 13px;
+        color: var(--subtext);
+        margin-bottom: 14px;
+      }
+      .cp-lede {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--subtext);
+        margin-bottom: 16px;
+      }
+      .cp-bullets {
+        list-style: none;
+        text-align: left;
+        margin: 0 0 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .cp-bullets li {
+        position: relative;
+        padding-left: 28px;
+        font-size: 13.5px;
+        color: var(--heading);
+        line-height: 1.45;
+      }
+      .cp-bullets li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 19px;
+        height: 19px;
+        border-radius: 50%;
+        background: var(--info-bg);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cp-cta {
+        margin-bottom: 6px;
+      }
+      .cp-ghost {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 12px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--subtext);
+        cursor: pointer;
+        font-family: 'Outfit', sans-serif;
+      }
+
+      /* ═══════ 2. EXAM (full-screen) ═══════ */
+      .exam {
+        position: absolute;
+        inset: 0;
+        background: var(--app-bg);
+        display: flex;
+        flex-direction: column;
+      }
+      .exam-top {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px 20px 12px;
+      }
+      .exam-close {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid var(--card-b);
+        background: var(--card);
+        color: var(--subtext);
+        font-size: 17px;
+        cursor: pointer;
+        flex: 0 0 auto;
+      }
+      .exam-progress-wrap {
+        flex: 1;
+      }
+      .exam-progress-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+      }
+      .exam-progress-meta .eyebrow {
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        color: var(--subtext);
+        text-transform: uppercase;
+      }
+      .exam-progress-meta .count {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--heading);
+        font-variant-numeric: tabular-nums;
+      }
+      .exam-bar {
+        height: 6px;
+        border-radius: 99px;
+        background: var(--bar-bg);
+        overflow: hidden;
+      }
+      .exam-bar > i {
+        display: block;
+        height: 100%;
+        width: 25%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #0e7490, #164e63);
+      }
+      .exam-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 20px 0;
+      }
+      .exam-col {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .q-passage {
+        background: var(--card);
+        border: 1px solid var(--card-b);
+        border-left: 4px solid var(--croatian-blue);
+        border-radius: 16px;
+        padding: 16px 18px;
+        font-size: 15px;
+        line-height: 1.65;
+        color: var(--heading);
+        margin: 14px 0 18px;
+      }
+      .q-stem {
+        font-size: 19px;
+        font-weight: 800;
+        color: var(--heading);
+        line-height: 1.35;
+        margin: 14px 0 18px;
+      }
+      .exam-cta {
+        padding: 14px 20px 22px;
+      }
+      .exam-cta .col {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      /* ═══════ 3. RESULT (full-screen) ═══════ */
+      .result {
+        position: absolute;
+        inset: 0;
+        background: var(--app-bg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 32px 28px;
+      }
+      .badge-ring {
+        width: 104px;
+        height: 104px;
+        border-radius: 50%;
+        background: conic-gradient(from 220deg, #0e7490, #0a5c73, #164e63, #0e7490);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 22px;
+        box-shadow: 0 12px 36px rgba(14, 116, 144, 0.35);
+      }
+      .badge-ring .core {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        background: var(--card);
+        color: var(--accent);
+        font-size: 40px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .result h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--heading);
+        margin-bottom: 8px;
+      }
+      .result .subtitle {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--subtext);
+        max-width: 300px;
+        margin-bottom: 28px;
+      }
+      .result .b {
+        max-width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="page">Comprehension Check — proposed design</h1>
+    <p class="page">
+      Same fonts, colors, cards & buttons as the app. Clean &amp; calm. Phone-width (390px).
+    </p>
+
+    <div class="row">
+      <!-- 1. INVITE -->
+      <div class="frame">
+        <div class="label">1 · Invite popup</div>
+        <div class="phone">
+          <div class="cp-backdrop">
+            <div class="cp-invite-card">
+              <div class="cp-crest">🛡️</div>
+              <div class="cp-eyebrow">PROVJERA ZNANJA · B1</div>
+              <h2 class="cp-title" lang="hr">Spreman za provjeru?</h2>
+              <p class="cp-subtitle">Ready for a quick check?</p>
+              <p class="cp-lede">
+                You've been learning at <b>B1</b>. Let's make sure it's truly yours — a few questions
+                plus a short speaking task, about 3 minutes.
+              </p>
+              <ul class="cp-bullets">
+                <li>Covers reading, grammar &amp; vocabulary</li>
+                <li>Plus speaking and 2 retention items from earlier levels</li>
+                <li>Pass 80%+ to keep your <b>B1</b> badge</li>
+              </ul>
+              <button class="b bp cp-cta">Start the check →</button>
+              <button class="cp-ghost">Remind me tonight</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. EXAM -->
+      <div class="frame">
+        <div class="label">2 · Exam (full screen)</div>
+        <div class="phone">
+          <div class="exam">
+            <div class="exam-top">
+              <button class="exam-close">✕</button>
+              <div class="exam-progress-wrap">
+                <div class="exam-progress-meta">
+                  <span class="eyebrow">Comprehension Check</span>
+                  <span class="count">3 / 12</span>
+                </div>
+                <div class="exam-bar"><i></i></div>
+              </div>
+            </div>
+            <div class="exam-body">
+              <div class="exam-col">
+                <span class="pill pill-blue">📖 Reading</span>
+                <div class="q-passage" lang="hr">
+                  Ana svako jutro pije kavu na terasi. Voli gledati more dok sunce izlazi iznad
+                  otoka.
+                </div>
+                <div class="q-stem" lang="hr">Gdje Ana pije kavu?</div>
+                <button class="ob"><span class="k">A</span> U kuhinji</button>
+                <button class="ob sel"><span class="k">B</span> Na terasi</button>
+                <button class="ob"><span class="k">C</span> U uredu</button>
+                <button class="ob"><span class="k">D</span> Na plaži</button>
+              </div>
+            </div>
+            <div class="exam-cta">
+              <div class="col"><button class="b bp">Continue →</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. RESULT -->
+      <div class="frame">
+        <div class="label">3 · Result (full screen)</div>
+        <div class="phone">
+          <div class="result">
+            <div class="badge-ring"><div class="core">✓</div></div>
+            <h2>B1 confirmed! 🎉</h2>
+            <p class="subtitle">Your B1 is the real deal. Badge kept, streak intact.</p>
+            <button class="b bp">Keep going →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
