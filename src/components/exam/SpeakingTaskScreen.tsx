@@ -89,7 +89,7 @@ export default function SpeakingTaskScreen({
 
   return (
     <div className="speaking-task" data-testid="speaking-task">
-      <span className="pill pill-violet">Speaking</span>
+      <span className="q-skill violet">🎙️ Speaking</span>
       <p className="task-hr" lang="hr">
         {task.prompt}
       </p>
@@ -107,30 +107,36 @@ export default function SpeakingTaskScreen({
       )}
 
       {!denied && showRecordButton && (
-        <button className="btn btn-primary" data-testid="speak-record" onClick={startRecording}>
+        <button className="b bp" data-testid="speak-record" onClick={startRecording}>
           &#127897;&#65039; Tap to record
         </button>
       )}
 
       {!denied && rec.state === 'countdown' && (
-        <p data-testid="speak-countdown">Get ready&hellip; {rec.countdown}</p>
+        <p className="speak-status" data-testid="speak-countdown">
+          Get ready&hellip; {rec.countdown}
+        </p>
       )}
 
       {!denied && rec.state === 'recording' && (
-        <p data-testid="speak-recording">&#9679; Recording&hellip; (~{task.seconds}s)</p>
+        <p className="speak-status" data-testid="speak-recording">
+          &#9679; Recording&hellip; (~{task.seconds}s)
+        </p>
       )}
 
       {!denied && phase === 'assessing' && (
-        <p data-testid="speak-assessing">Assessing your Croatian&hellip;</p>
+        <p className="speak-status" data-testid="speak-assessing">
+          Assessing your Croatian&hellip;
+        </p>
       )}
 
       {!denied && phase === 'retry' && (
-        <div>
-          <p data-testid="speak-retry">
+        <>
+          <p className="speak-status" data-testid="speak-retry">
             We couldn&apos;t score that clearly. Let&apos;s try once more.
           </p>
           <button
-            className="btn btn-primary"
+            className="b bp"
             onClick={() => {
               rec.reset();
               startRecording();
@@ -138,7 +144,7 @@ export default function SpeakingTaskScreen({
           >
             Try again
           </button>
-        </div>
+        </>
       )}
     </div>
   );
