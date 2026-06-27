@@ -1,0 +1,130 @@
+# cf-incident-remediate — clear the edge block for real users (reversible)
+#
+# WHY
+# 2026-06-27 incident: macOS/Safari users on iCloud Private Relay / VPN IPs were
+# served Cloudflare's hard block page. cf-incident-diagnose confirmed:
+#   - the block is client-IP / threat-score scoped (a clean IP gets HTTP 200),
+#   - browser_check = on, security_level = medium (the two gates this token CAN change),
+#   - the deeper surfaces (IP Access Rules, Managed Rules, SBFM, Security Events)
+#     are NOT readable/writable with the current CLOUDFLARE_API_TOKEN scope.
+#
+# This workflow pulls the two highest-probability levers available to the token:
+#   • browser_check  → off   (removes Browser Integrity Check 403 "you have been blocked")
+#   • security_level → essentially_off (lifts the IP-threat-score challenge gate that
+#                                       catches shared Private-Relay / VPN IPs)
+# It does NOT re-introduce the broad /api/* WAF skip rule (a documented security
+# regression) and does NOT touch bot_fight_mode or any ruleset. App-layer
+# defense-in-depth (Firebase auth + per-user quota + rate-limit middleware) remains.
+#
+# mode=loosen  (default) → apply the incident settings above.
+# mode=restore           → revert to the documented posture (browser_check=on,
+#                          security_level=medium) once the false positive is confirmed gone.
+#
+# Both modes re-probe / (expect 200, no cf-mitigated) and /api/tts (expect 401 auth gate).
+
+name: cf-incident-remediate
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'loosen (clear the block) or restore (documented posture)'
+        required: true
+        default: 'loosen'
+        type: choice
+        options: [loosen, restore]
+permissions:
+  contents: read
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ZONE_NAME: nasahrvatska.com
+      MODE: ${{ inputs.mode }}
+    steps:
+      - name: Resolve zone ID
+        id: zone
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          Z=$(curl -sS "https://api.cloudflare.com/client/v4/zones?name=$ZONE_NAME" \
+            -H "Authorization: Bearer $T" | jq -r '.result[0].id')
+          echo "zone-id=$Z" >> "$GITHUB_OUTPUT"
+          echo "Zone: $Z  | mode: $MODE"
+
+      - name: Set target values for the chosen mode
+        id: target
+        run: |
+          if [ "$MODE" = "restore" ]; then
+            echo "browser_check=on"      >> "$GITHUB_OUTPUT"
+            echo "security_level=medium" >> "$GITHUB_OUTPUT"
+            echo "Restoring documented posture: browser_check=on, security_level=medium"
+          else
+            echo "browser_check=off"            >> "$GITHUB_OUTPUT"
+            echo "security_level=essentially_off" >> "$GITHUB_OUTPUT"
+            echo "Loosening to clear the block: browser_check=off, security_level=essentially_off"
+          fi
+
+      - name: PATCH browser_check
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+          V: ${{ steps.target.outputs.browser_check }}
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          RESP=$(curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$Z/settings/browser_check" \
+            -H "Authorization: Bearer $T" -H "Content-Type: application/json" \
+            -d "{\"value\":\"$V\"}")
+          OK=$(echo "$RESP" | jq -r '.success')
+          echo "browser_check → $V : success=$OK"
+          if [ "$OK" != "true" ]; then echo "::error::browser_check PATCH failed"; echo "$RESP" | jq -r '.errors'; exit 1; fi
+
+      - name: PATCH security_level
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+          V: ${{ steps.target.outputs.security_level }}
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          RESP=$(curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$Z/settings/security_level" \
+            -H "Authorization: Bearer $T" -H "Content-Type: application/json" \
+            -d "{\"value\":\"$V\"}")
+          OK=$(echo "$RESP" | jq -r '.success')
+          echo "security_level → $V : success=$OK"
+          if [ "$OK" != "true" ]; then echo "::error::security_level PATCH failed"; echo "$RESP" | jq -r '.errors'; exit 1; fi
+
+      - name: Read back the applied settings
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          for S in browser_check security_level challenge_ttl; do
+            V=$(curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/settings/$S" \
+              -H "Authorization: Bearer $T" | jq -r '.result.value')
+            echo "$S = $V"
+          done
+
+      - name: Verify — homepage + API still healthy
+        run: |
+          set +e
+          UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15'
+          CODE=$(curl -sS -A "$UA" -D /tmp/h "https://$ZONE_NAME/" -o /tmp/b -w '%{http_code}')
+          echo "GET / → HTTP $CODE | cf-mitigated: $(grep -i '^cf-mitigated' /tmp/h || echo '(none)')"
+          if grep -qiE 'Attention Required|you have been blocked' /tmp/b; then
+            echo "::error::Homepage STILL serving a Cloudflare block page from a clean IP — the block is NOT browser_check/security_level. It is on a surface this token cannot reach (SBFM / Managed rule / IP Access Rule). Account-owner action required."
+          else
+            echo "::notice::Homepage clean from this runner."
+          fi
+          TTS=$(curl -sS -X POST "https://$ZONE_NAME/api/tts" \
+            -H "Content-Type: application/json" -d '{"text":"ok","slow":false}' \
+            -w '\nHTTP %{http_code}\n' | tail -1)
+          echo "POST /api/tts → $TTS (401 = app auth gate reached = healthy)"
+
+      - name: Summary
+        run: |
+          echo "Mode: $MODE applied. To revert later: run this workflow again with mode=restore."
+          echo "If the verify step flagged a STILL-blocked homepage, the cause is on a token-inaccessible"
+          echo "surface — see docs/nh-cf-security-posture.md and widen CLOUDFLARE_API_TOKEN scope."
