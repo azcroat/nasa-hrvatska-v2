@@ -1,0 +1,194 @@
+# cf-incident-diagnose — read-only Cloudflare edge-block triage
+#
+# WHY THIS EXISTS
+# cf-security-audit.yml only inspects the http_request_firewall_custom ruleset.
+# On 2026-06-27 existing macOS/Safari users (iCloud Private Relay / VPN IPs) were
+# served Cloudflare's hard block page ("Attention Required! | Cloudflare" →
+# "Sorry, you have been blocked") on the main site, while:
+#   - the custom ruleset read "clean state",
+#   - production-smoke (clean Azure datacenter IPs, incl. WebKit/Safari) stayed green.
+# The block was therefore IP/threat-score driven and lived in a surface the audit
+# never looked at. This workflow enumerates EVERY edge-block surface and pulls the
+# Security Events that name the exact rule + the exact client (ASN / country / IP)
+# being blocked. It changes NOTHING — remediation is a separate, deliberate step.
+#
+# RUN:  Actions → cf-incident-diagnose → Run workflow
+# Token scopes used (best-effort; missing scopes are surfaced, not fatal):
+#   Zone:Read, Zone Settings:Read, Zone WAF:Read, Firewall Services:Read,
+#   Account Analytics:Read (for firewallEventsAdaptive), Bot Management:Read (optional)
+
+name: cf-incident-diagnose
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ZONE_NAME: nasahrvatska.com
+    steps:
+      - name: Resolve zone ID
+        id: zone
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          Z=$(curl -sS "https://api.cloudflare.com/client/v4/zones?name=$ZONE_NAME" \
+            -H "Authorization: Bearer $T" | jq -r '.result[0].id')
+          echo "zone-id=$Z" >> "$GITHUB_OUTPUT"
+          echo "Zone: $Z"
+
+      # ── 1. IP Access Rules — the #1 suspect for an IP/ASN/country hard block ──
+      # These are SEPARATE from the rulesets API and are NOT checked by the audit.
+      - name: IP Access Rules — list every block/challenge by IP / ASN / country
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          RESP=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/firewall/access_rules/rules?per_page=200" \
+            -H "Authorization: Bearer $T")
+          OK=$(echo "$RESP" | jq -r '.success' 2>/dev/null)
+          if [ "$OK" != "true" ]; then
+            echo "::warning::Could not read IP Access Rules (token scope Firewall Services:Read?)"
+            echo "$RESP" | jq -r '.errors' 2>/dev/null || echo "$RESP"
+            exit 0
+          fi
+          echo "All IP Access Rules:"
+          echo "$RESP" | jq -r '.result[] | "\(.mode)\t\(.configuration.target)=\(.configuration.value)\t\(.notes // "")"'
+          BLOCKS=$(echo "$RESP" | jq '[.result[] | select(.mode=="block" or .mode=="challenge" or .mode=="js_challenge" or .mode=="managed_challenge")] | length')
+          echo ""
+          echo "Blocking/challenging IP Access Rules: $BLOCKS"
+          if [ "$BLOCKS" -gt 0 ]; then
+            echo "::warning::$BLOCKS IP Access Rule(s) block or challenge traffic — a country/ASN entry here will catch iCloud Private Relay & VPN users on macOS. Review targets below:"
+            echo "$RESP" | jq '[.result[] | select(.mode=="block" or .mode=="challenge" or .mode=="js_challenge" or .mode=="managed_challenge") | {id, mode, target: .configuration.target, value: .configuration.value, notes}]'
+          else
+            echo "::notice::No blocking/challenging IP Access Rules."
+          fi
+
+      # ── 2. WAF Managed Rules (OWASP + CF Managed) — also NOT checked by the audit ──
+      # The 2026-05-15 tighten deleted the /api/* skip rule and left these "active on
+      # all paths". A managed rule in block mode will return the "you have been blocked" page.
+      - name: WAF Managed Rules — list deployed managed rulesets + override actions
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          EP=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/rulesets/phases/http_request_firewall_managed/entrypoint" \
+            -H "Authorization: Bearer $T")
+          OK=$(echo "$EP" | jq -r '.success' 2>/dev/null)
+          if [ "$OK" != "true" ]; then
+            echo "::notice::No managed entrypoint readable (no managed rules deployed, or Zone WAF:Read missing)."
+            echo "$EP" | jq -r '.errors' 2>/dev/null || echo "$EP"
+            exit 0
+          fi
+          echo "Deployed managed rulesets (execute rules) + their action / overrides:"
+          echo "$EP" | jq '.result.rules[]? | {description, action, enabled, ruleset: .action_parameters.id, overrides: .action_parameters.overrides}'
+          BLOCKING=$(echo "$EP" | jq '[.result.rules[]? | select(.enabled==true) | select((.action_parameters.overrides.action // "block")=="block")] | length')
+          echo ""
+          echo "::notice::$BLOCKING managed ruleset execution(s) default to BLOCK. If users hit a false positive, set the offending ruleset/rule override action to 'log' (see runbook)."
+
+      # ── 3. Custom rules + rate-limit rules (completeness) ──
+      - name: Custom + rate-limit rules
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          for PHASE in http_request_firewall_custom http_ratelimit; do
+            echo "── phase: $PHASE ──"
+            RS=$(curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/rulesets" \
+              -H "Authorization: Bearer $T" \
+              | jq -r ".result[] | select(.phase == \"$PHASE\") | .id" | head -n1)
+            if [ -z "$RS" ] || [ "$RS" = "null" ]; then echo "  (none)"; continue; fi
+            curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/rulesets/$RS" \
+              -H "Authorization: Bearer $T" \
+              | jq '.result.rules[]? | {description, action, enabled, expression}'
+          done
+
+      # ── 4. Zone settings (challenge / threat-score gate drivers) ──
+      - name: Zone settings — browser_check, security_level, challenge_ttl
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          for S in browser_check security_level challenge_ttl; do
+            V=$(curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/settings/$S" \
+              -H "Authorization: Bearer $T" | jq -r '.result.value')
+            echo "$S = $V"
+          done
+          echo "::notice::security_level=high/under_attack or browser_check=on are the usual drivers of edge challenges for Private-Relay / VPN IPs."
+
+      # ── 5. Bot management / SBFM (best-effort; needs Bot Management:Read) ──
+      - name: SBFM / Bot Fight Mode state
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          RESP=$(curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/bot_management" \
+            -H "Authorization: Bearer $T")
+          if [ "$(echo "$RESP" | jq -r '.success' 2>/dev/null)" = "true" ]; then
+            echo "$RESP" | jq '{fight_mode: .result.fight_mode, sbfm_definitely_automated: .result.sbfm_definitely_automated, sbfm_likely_automated: .result.sbfm_likely_automated, optimize_wordpress: .result.optimize_wordpress}'
+            echo "::warning::If sbfm_likely_automated or sbfm_definitely_automated = 'block', iCloud Private Relay traffic (often classed likely-automated) is hard-blocked."
+          else
+            echo "::notice::Bot management not readable with current token scope — verify SBFM in the dashboard (Security → Bots)."
+          fi
+
+      # ── 6. Security Events — name the exact rule + client being blocked (24h) ──
+      # GraphQL firewallEventsAdaptive needs the zone tag + Account Analytics:Read.
+      - name: Security Events — top block sources in the last 24h
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          SINCE=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          QUERY=$(jq -n --arg z "$Z" --arg s "$SINCE" --arg n "$NOW" '{
+            query: "query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){firewallEventsAdaptive(limit:100,filter:{datetime_geq:$since,datetime_leq:$until,action:\"block\"},orderBy:[datetime_DESC]){action source ruleId clientCountryName clientAsn clientRequestPath clientRequestHTTPHost userAgent datetime}}}}",
+            variables: {zone:$z, since:$s, until:$n}
+          }')
+          RESP=$(curl -sS "https://api.cloudflare.com/client/v4/graphql" \
+            -H "Authorization: Bearer $T" -H "Content-Type: application/json" \
+            --data "$QUERY")
+          if echo "$RESP" | jq -e '.data.viewer.zones[0].firewallEventsAdaptive' >/dev/null 2>&1; then
+            EVENTS=$(echo "$RESP" | jq '.data.viewer.zones[0].firewallEventsAdaptive')
+            COUNT=$(echo "$EVENTS" | jq 'length')
+            echo "Block events (24h): $COUNT"
+            echo "By rule source:"; echo "$EVENTS" | jq -r 'group_by(.source)[] | "\(length)\t\(.[0].source)\t\(.[0].ruleId)"' | sort -rn
+            echo ""; echo "By client ASN / country:"; echo "$EVENTS" | jq -r 'group_by(.clientAsn)[] | "\(length)\tASN \(.[0].clientAsn)\t\(.[0].clientCountryName)"' | sort -rn
+            echo ""; echo "Sample blocked requests:"; echo "$EVENTS" | jq -r '.[0:10][] | "\(.datetime)\t\(.source)/\(.ruleId)\tASN\(.clientAsn) \(.clientCountryName)\t\(.clientRequestPath)"'
+            if [ "$COUNT" -gt 0 ]; then
+              echo "::warning::$COUNT requests blocked in 24h. The 'source/ruleId' above IS the rule to remediate. ASN 'AS-APPLE'(Private Relay) or a single country dominating = false-positive blocking real users."
+            fi
+          else
+            echo "::notice::firewallEventsAdaptive not readable (needs Account Analytics:Read). Fallback: dashboard → Security → Events, filter Action=Block; or look up a blocked user's Ray ID."
+            echo "$RESP" | jq -r '.errors' 2>/dev/null || echo "$RESP"
+          fi
+
+      # ── 7. Live edge probe with a realistic Safari UA ──
+      - name: Edge probe — fetch / as Safari and detect the CF block page
+        run: |
+          set +e
+          UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15'
+          BODY=$(curl -sS -A "$UA" -D /tmp/h "https://$ZONE_NAME/" -o /tmp/b -w '%{http_code}')
+          echo "HTTP $BODY  (note: GitHub's Azure IP is 'clean', so a pass here does NOT clear real Private-Relay users)"
+          echo "cf-mitigated: $(grep -i '^cf-mitigated' /tmp/h || echo '(none)')"
+          echo "cf-ray: $(grep -i '^cf-ray' /tmp/h | tr -d '\r')"
+          if grep -qiE 'Attention Required|you have been blocked|Sorry, you have been blocked' /tmp/b; then
+            echo "::error::Even GitHub's clean IP is being served the Cloudflare block page — the block is broad, not just Private Relay. Remediate immediately."
+          else
+            echo "::notice::Clean IP reaches the app. Confirms the block is client-IP/threat-score scoped (Private Relay / VPN / ASN), consistent with the user report."
+          fi
+
+      - name: Runbook pointer
+        run: |
+          echo "## Next step: remediate the rule named in steps 1, 2, or 6"
+          echo "See docs/nh-cf-security-posture.md → 'Edge-block incident runbook' for the"
+          echo "exact remediation per source (IP Access Rule / Managed Rule / SBFM / zone setting)."

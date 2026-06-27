@@ -71,6 +71,49 @@ jobs:
             echo "::notice::No active skip rules — clean state"
           fi
 
+      # Added 2026-06-27: the custom-ruleset check above reported "clean state"
+      # during an incident where macOS/Private-Relay users were hard-blocked by an
+      # edge rule the audit never looked at. These two steps enumerate the surfaces
+      # that actually serve "Sorry, you have been blocked": IP Access Rules and
+      # WAF Managed Rules. See .github/workflows/cf-incident-diagnose.yml for full triage.
+      - name: IP Access Rules — flag any block/challenge by IP / ASN / country
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          RESP=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/firewall/access_rules/rules?per_page=200" \
+            -H "Authorization: Bearer $T")
+          if [ "$(echo "$RESP" | jq -r '.success' 2>/dev/null)" != "true" ]; then
+            echo "::warning::IP Access Rules not readable (token scope Firewall Services:Read missing) — verify manually in the dashboard"
+            exit 0
+          fi
+          echo "$RESP" | jq -r '.result[] | "\(.mode)\t\(.configuration.target)=\(.configuration.value)\t\(.notes // "")"'
+          BLOCKS=$(echo "$RESP" | jq '[.result[] | select(.mode=="block" or .mode=="challenge" or .mode=="js_challenge" or .mode=="managed_challenge")] | length')
+          if [ "$BLOCKS" -gt 0 ]; then
+            echo "::warning::$BLOCKS IP Access Rule(s) block/challenge traffic — a country/ASN entry catches iCloud Private Relay & VPN users. Confirm each is intentional:"
+            echo "$RESP" | jq '[.result[] | select(.mode=="block" or .mode=="challenge" or .mode=="js_challenge" or .mode=="managed_challenge") | {id, mode, target: .configuration.target, value: .configuration.value, notes}]'
+          else
+            echo "::notice::No blocking/challenging IP Access Rules — clean state"
+          fi
+
+      - name: WAF Managed Rules — confirm managed/OWASP rulesets are deployed and surface block actions
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          EP=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$Z/rulesets/phases/http_request_firewall_managed/entrypoint" \
+            -H "Authorization: Bearer $T")
+          if [ "$(echo "$EP" | jq -r '.success' 2>/dev/null)" != "true" ]; then
+            echo "::notice::Managed entrypoint not readable (none deployed or Zone WAF:Read missing)"
+            exit 0
+          fi
+          echo "$EP" | jq '.result.rules[]? | {description, action, enabled, ruleset: .action_parameters.id, override: .action_parameters.overrides.action}'
+          echo "::notice::Per nh-cf-security-posture.md OWASP Core + CF Managed are expected active on all paths since the 2026-05-15 skip-rule removal. If a managed rule false-positives on real users, override the specific rule to 'log' rather than disabling the ruleset."
+
       - name: SBFM state — read-only check (informational; advisory expected stale)
         env:
           Z: ${{ steps.zone.outputs.zone-id }}
