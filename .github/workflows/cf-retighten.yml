@@ -1,0 +1,108 @@
+# cf-retighten — restore the pre-incident security posture, safely.
+#
+# After the 2026-06-27 incident we loosened several Cloudflare settings to clear a
+# Super Bot Fight Mode false-positive that was blocking real macOS/Private-Relay
+# users. The ROOT CAUSE (SBFM "definitely automated") was fixed in the dashboard
+# and must STAY on "Allow" — this workflow never touches it.
+#
+# This restores the three settings that were NOT the cause, back to their exact
+# pre-incident values (confirmed by the first diagnostic at 17:06 UTC):
+#   browser_check = on, security_level = medium, challenge_ttl = 1800
+#
+# SAFETY: after applying, it probes the homepage with realistic browser-like
+# headers. If a clean request is challenged/blocked, it AUTO-ROLLS-BACK
+# (security_level=essentially_off, browser_check=off) and fails — so a bad
+# re-tighten can never be left live. SBFM stays Allow throughout either way.
+name: cf-retighten
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retighten:
+    runs-on: ubuntu-latest
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ZONE_NAME: nasahrvatska.com
+    steps:
+      - name: Resolve zone ID
+        id: zone
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          Z=$(curl -sS "https://api.cloudflare.com/client/v4/zones?name=$ZONE_NAME" \
+            -H "Authorization: Bearer $T" | jq -r '.result[0].id')
+          echo "zone-id=$Z" >> "$GITHUB_OUTPUT"
+          echo "Zone: $Z"
+
+      - name: Confirm SBFM is still Allow before we touch anything
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          RESP=$(curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/bot_management" \
+            -H "Authorization: Bearer $T")
+          DEF=$(echo "$RESP" | jq -r '.result.sbfm_definitely_automated')
+          echo "SBFM definitely_automated = $DEF (must be 'allow' — this workflow will NOT change it)"
+          if [ "$DEF" != "allow" ]; then
+            echo "::warning::SBFM definitely_automated is '$DEF', not 'allow'. The user-facing fix may have changed — re-check the dashboard."
+          fi
+
+      - name: Apply pre-incident values (browser_check, security_level, challenge_ttl)
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          patch() {
+            RESP=$(curl -sS -X PATCH "https://api.cloudflare.com/client/v4/zones/$Z/settings/$1" \
+              -H "Authorization: Bearer $T" -H "Content-Type: application/json" -d "$2")
+            OK=$(echo "$RESP" | jq -r '.success')
+            echo "$1 → $2 : success=$OK"
+            if [ "$OK" != "true" ]; then echo "::error::$1 PATCH failed"; echo "$RESP" | jq -r '.errors'; exit 1; fi
+          }
+          patch browser_check  '{"value":"on"}'
+          patch security_level '{"value":"medium"}'
+          patch challenge_ttl  '{"value":1800}'
+
+      - name: Read back applied settings
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          for S in browser_check security_level challenge_ttl; do
+            echo "$S = $(curl -sS "https://api.cloudflare.com/client/v4/zones/$Z/settings/$S" -H "Authorization: Bearer $T" | jq -r '.result.value')"
+          done
+
+      - name: Verify with a browser-like request — auto-rollback if challenged
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+        run: |
+          set +e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          # Realistic browser headers so Browser Integrity Check doesn't flag the
+          # probe as a bot the way it would a bare curl. This is NOT a Private-Relay
+          # IP, so it proves the settings aren't broadly blocking — final proof is a
+          # real user reload.
+          CODE=$(curl -sS "https://$ZONE_NAME/" -o /tmp/b -D /tmp/h -w '%{http_code}' \
+            -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15' \
+            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+            -H 'Accept-Language: en-US,en;q=0.9' \
+            -H 'Accept-Encoding: gzip, deflate, br' \
+            -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Site: none' \
+            -H 'Upgrade-Insecure-Requests: 1')
+          MIT=$(grep -i '^cf-mitigated' /tmp/h | tr -d '\r')
+          echo "GET / → HTTP $CODE | ${MIT:-cf-mitigated: (none)}"
+          BLOCKED=0
+          if [ -n "$MIT" ] || grep -qiE 'Attention Required|you have been blocked' /tmp/b; then BLOCKED=1; fi
+          if [ "$CODE" = "200" ] && [ "$BLOCKED" = "0" ]; then
+            echo "::notice::Verified — pre-incident posture restored and a clean browser-like request reaches the app (200, no challenge). SBFM stays Allow. Confirm with a real Private-Relay reload."
+          else
+            echo "::error::Re-tighten caused a challenge/block on a clean request (HTTP $CODE, $MIT). Rolling back security_level + browser_check to keep users unblocked."
+            curl -sS -X PATCH "https://api.cloudflare.com/client/v4/zones/$Z/settings/security_level" -H "Authorization: Bearer $T" -H "Content-Type: application/json" -d '{"value":"essentially_off"}' >/dev/null
+            curl -sS -X PATCH "https://api.cloudflare.com/client/v4/zones/$Z/settings/browser_check"  -H "Authorization: Bearer $T" -H "Content-Type: application/json" -d '{"value":"off"}' >/dev/null
+            echo "Rolled back: security_level=essentially_off, browser_check=off. SBFM untouched (still Allow). Investigate before retrying."
+            exit 1
+          fi
