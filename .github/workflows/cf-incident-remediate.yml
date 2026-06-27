@@ -58,11 +58,13 @@ jobs:
           if [ "$MODE" = "restore" ]; then
             echo "browser_check=on"      >> "$GITHUB_OUTPUT"
             echo "security_level=medium" >> "$GITHUB_OUTPUT"
-            echo "Restoring documented posture: browser_check=on, security_level=medium"
+            echo "sbfm=managed_challenge" >> "$GITHUB_OUTPUT"
+            echo "Restoring documented posture: browser_check=on, security_level=medium, SBFM=managed_challenge"
           else
             echo "browser_check=off"            >> "$GITHUB_OUTPUT"
             echo "security_level=essentially_off" >> "$GITHUB_OUTPUT"
-            echo "Loosening to clear the block: browser_check=off, security_level=essentially_off"
+            echo "sbfm=allow" >> "$GITHUB_OUTPUT"
+            echo "Loosening to clear the block: browser_check=off, security_level=essentially_off, SBFM=allow"
           fi
 
       - name: PATCH browser_check
@@ -94,6 +96,26 @@ jobs:
           OK=$(echo "$RESP" | jq -r '.success')
           echo "security_level → $V : success=$OK"
           if [ "$OK" != "true" ]; then echo "::error::security_level PATCH failed"; echo "$RESP" | jq -r '.errors'; exit 1; fi
+
+      # Super Bot Fight Mode — the confirmed cause. The diagnostic showed
+      # sbfm_definitely_automated=managed_challenge, which challenges/blocks
+      # automated-classified traffic (iCloud Private Relay / VPN / datacenter).
+      # loosen → both categories "allow"; restore → "managed_challenge".
+      - name: PATCH bot_management (Super Bot Fight Mode)
+        env:
+          Z: ${{ steps.zone.outputs.zone-id }}
+          V: ${{ steps.target.outputs.sbfm }}
+        run: |
+          set -e
+          T=$(echo -n "$CF_TOKEN" | tr -d '[:space:]')
+          RESP=$(curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$Z/bot_management" \
+            -H "Authorization: Bearer $T" -H "Content-Type: application/json" \
+            -d "{\"sbfm_definitely_automated\":\"$V\",\"sbfm_likely_automated\":\"$V\"}")
+          OK=$(echo "$RESP" | jq -r '.success')
+          echo "SBFM definitely_automated + likely_automated → $V : success=$OK"
+          echo "$RESP" | jq '{sbfm_definitely_automated: .result.sbfm_definitely_automated, sbfm_likely_automated: .result.sbfm_likely_automated}' 2>/dev/null || true
+          if [ "$OK" != "true" ]; then echo "::error::bot_management PATCH failed"; echo "$RESP" | jq -r '.errors'; exit 1; fi
 
       - name: Read back the applied settings
         env:
