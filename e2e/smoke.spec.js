@@ -16,6 +16,27 @@ test.describe('Production smoke — site availability', () => {
     await expect(page).toHaveTitle(/Naša Hrvatska/i, { timeout: 30_000 });
   });
 
+  // Guards against a Cloudflare edge block/challenge being served to real users.
+  // On 2026-06-27 macOS/Private-Relay users were shown "Attention Required! |
+  // Cloudflare" → "Sorry, you have been blocked" while every other monitor was
+  // green. CI runs from clean datacenter IPs so it won't reproduce an IP-scoped
+  // block — but if a block is ever broad enough to hit a clean IP, this fails
+  // loudly and the workflow auto-files a critical issue.
+  test('homepage is not a Cloudflare block / challenge page', async ({ page }) => {
+    const response = await page.goto('/');
+    expect(
+      response?.headers()?.['cf-mitigated'],
+      'cf-mitigated header present → Cloudflare is challenging/blocking this request',
+    ).toBeFalsy();
+    const title = await page.title();
+    expect(title, `Got Cloudflare interstitial title: "${title}"`).not.toMatch(/Attention Required/i);
+    const body = await page.evaluate(() => document.body?.innerText ?? '');
+    expect(
+      body,
+      'Homepage body contains a Cloudflare block-page phrase',
+    ).not.toMatch(/you have been blocked|Sorry, you have been blocked/i);
+  });
+
   test('app root renders — not a blank white screen', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#root')).not.toBeEmpty({ timeout: 20_000 });
