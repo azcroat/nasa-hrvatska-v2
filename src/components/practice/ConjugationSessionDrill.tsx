@@ -7,6 +7,8 @@ import { useGrammar } from '../../hooks/useGrammar';
 import { getSR } from '../../lib/srs';
 import { rateCategorySession } from '../../lib/adaptive';
 import type { SkillCategory } from '../../lib/adaptive';
+import { clearSessionCategory } from '../../lib/sessionCategory';
+import { signalSessionCompleteIfActive } from '../../lib/sessionSignal';
 import ConjugationDrillEngine from './ConjugationDrillEngine';
 import { cellsForCategory, type Cefr } from '../../lib/conjugation/category';
 import { dueConjKeys } from '../../lib/conjugation/cells';
@@ -79,7 +81,16 @@ export default function ConjugationSessionDrill({ category, cefr, goBack, award 
       award={award}
       goBack={goBack}
       onComplete={(score, total) => {
+        // Rate the conjugation category with real accuracy, then clear the session
+        // bridge so HomeTab's fallback consume can't double-rate it on return.
         rateCategorySession(category, total ? score / total : 0);
+        clearSessionCategory();
+        // Advance Today's Session. The conjugation drill runs under curEx
+        // 'conjpractice:<category>', which never matched the launched screen
+        // 'conjpractice' in the award handshake — so without this, conjugation
+        // activities never completed and the session stuck here. We know our
+        // screen id, so pass it for a screen-accurate signal.
+        signalSessionCompleteIfActive('conjpractice');
         goBack();
       }}
     />

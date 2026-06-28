@@ -432,6 +432,50 @@ const SENTENCE_BANK = [
     translation: 'The children are playing in the yard.',
     hint: 'Present tense — 3rd person plural',
   },
+  // Instrumental (extra — so the topic-filtered drill has a full set)
+  {
+    sentence: 'Putujem avionom u Ameriku.',
+    blank: 'avionom',
+    options: ['avionom', 'avion', 'aviona', 'avionu'],
+    translation: 'I travel by plane to America.',
+    hint: 'Instrumental — means of transport',
+  },
+  {
+    sentence: 'Jedem juhu žlicom.',
+    blank: 'žlicom',
+    options: ['žlicom', 'žlica', 'žlicu', 'žlice'],
+    translation: 'I eat soup with a spoon.',
+    hint: 'Instrumental — instrument used',
+  },
+  {
+    sentence: 'Ona piše kredom po ploči.',
+    blank: 'kredom',
+    options: ['kredom', 'kreda', 'kredu', 'krede'],
+    translation: 'She writes with chalk on the board.',
+    hint: 'Instrumental — instrument used',
+  },
+  // Vocative (extra — so the topic-filtered drill has a full set)
+  {
+    sentence: 'Sine, slušaj me!',
+    blank: 'Sine',
+    options: ['Sine', 'Sin', 'Sina', 'Sinu'],
+    translation: 'Son, listen to me!',
+    hint: 'Vocative — direct address (sin → sine)',
+  },
+  {
+    sentence: 'Profesore, imam pitanje.',
+    blank: 'Profesore',
+    options: ['Profesore', 'Profesor', 'Profesora', 'Profesoru'],
+    translation: 'Professor, I have a question.',
+    hint: 'Vocative — direct address',
+  },
+  {
+    sentence: 'Ivane, gdje ideš?',
+    blank: 'Ivane',
+    options: ['Ivane', 'Ivan', 'Ivana', 'Ivanu'],
+    translation: 'Ivan, where are you going?',
+    hint: 'Vocative — direct address',
+  },
 ];
 
 function shuffle(arr: any[]) {
@@ -441,6 +485,45 @@ function shuffle(arr: any[]) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+// ── Topic-aware cloze ────────────────────────────────────────────────────────
+// "Today's Session" routes the adaptive grammar categories `dative-locative`,
+// `instrumental`, and `vocative` to this screen (no dedicated drill exists for
+// them). The session chip advertises that exact topic — so the drill MUST serve
+// sentences for that topic, not a random mix of every case. Without this, the
+// chip said e.g. "Instrumental" but the user got a generic all-cases cloze:
+// "not going to the lessons stated." The launcher writes the requested category
+// to sessionStorage; we read it once on mount and narrow the bank to it.
+const CLOZE_TOPIC_KEY = 'nh_cloze_topic';
+// Minimum topic-matched sentences required before we commit to a topic-only
+// drill; below this we fall back to the full bank so a thin topic never yields a
+// 1–2 question "drill".
+const TOPIC_MIN = 6;
+
+export type ClozeTopic = 'dative-locative' | 'instrumental' | 'vocative';
+
+// Derive a sentence's grammar topic from its hint (hints consistently lead with
+// the case name, e.g. "Instrumental — …", "Locative after …", "Dative — …").
+// Only the three session-routed topics are distinguished; everything else is
+// 'other' and only appears in the generic (untargeted) drill.
+export function clozeHintTopic(hint: string): ClozeTopic | 'other' {
+  const h = (hint || '').trim().toLowerCase();
+  if (h.startsWith('instrumental')) return 'instrumental';
+  if (h.startsWith('vocative')) return 'vocative';
+  if (h.startsWith('dative') || h.startsWith('locative')) return 'dative-locative';
+  return 'other';
+}
+
+// Pick the question bank for a requested session category. Returns the
+// topic-filtered subset when the category is one of the three session-routed
+// grammar topics AND enough sentences exist; otherwise the full mixed bank.
+export function selectClozeBank(topic: string | null) {
+  if (topic === 'dative-locative' || topic === 'instrumental' || topic === 'vocative') {
+    const filtered = SENTENCE_BANK.filter((s) => clozeHintTopic(s.hint) === topic);
+    if (filtered.length >= TOPIC_MIN) return filtered;
+  }
+  return SENTENCE_BANK;
 }
 
 interface Props {
@@ -457,7 +540,25 @@ export default function ClozeEngine({ goBack, award }: Props) {
     },
     [],
   );
-  const questions = useMemo(() => shuffle(SENTENCE_BANK).slice(0, 10), []);
+  // Read the session-requested grammar topic once (set by the daily-session
+  // launcher for dative-locative / instrumental / vocative). Consumed on mount
+  // so a later generic launch (e.g. from the Practice tab) isn't narrowed by a
+  // stale value.
+  const [clozeTopic] = useState<string | null>(() => {
+    try {
+      return sessionStorage.getItem(CLOZE_TOPIC_KEY);
+    } catch {
+      return null;
+    }
+  });
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(CLOZE_TOPIC_KEY);
+    } catch {
+      /* sessionStorage unavailable — non-fatal */
+    }
+  }, []);
+  const questions = useMemo(() => shuffle(selectClozeBank(clozeTopic)).slice(0, 10), [clozeTopic]);
   const [qi, setQi] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);

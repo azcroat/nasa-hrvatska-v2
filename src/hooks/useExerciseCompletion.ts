@@ -11,6 +11,7 @@ import { passedLesson } from '../lib/lessonGate';
 import { markQuest } from '../lib/quests';
 import { EXERCISE_COMPLETION, type StatKind } from '../lib/completion/exerciseRegistry';
 import { consumeSessionCategoryOutcome } from '../lib/sessionCategory';
+import { signalSessionCompleteIfActive } from '../lib/sessionSignal';
 
 interface MinStats {
   vs?: string[];
@@ -51,6 +52,13 @@ export function completeExercise<S extends MinStats>(
   // forever; no-op outside the daily session. This is the write that was missing
   // and caused the session to serve the same grammar category every day.
   consumeSessionCategoryOutcome(score, total);
+  // Advance Today's Session on genuine FINISH — pass or fail. Forcing a 75% pass
+  // to advance stranded learners on hard drills (e.g. genitive) and blocked the
+  // rest of their daily session. Credit/XP below is still gated on a pass; only
+  // the session's progress is unblocked. No-op outside the daily session, and —
+  // because setTab clears nh_session_started on tab-away — it cannot complete an
+  // activity the user abandoned by switching tabs and then finishing another drill.
+  signalSessionCompleteIfActive();
   const entry = EXERCISE_COMPLETION[key];
   const policyKind = entry?.policy.kind ?? 'gated';
   const statKind: StatKind = args.statKind ?? entry?.policy.statKind ?? 'gc';
