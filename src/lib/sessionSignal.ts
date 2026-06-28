@@ -44,3 +44,36 @@ export function signalSessionCompleteIfActive(screen: string): void {
     // render, since the user can always advance the session manually.
   }
 }
+
+/**
+ * Mark whatever Today's Session activity is currently active as FINISHED.
+ *
+ * Why this exists (and is distinct from signalSessionCompleteIfActive):
+ * The previous completion handshake only fired on a *passing* award() call, and
+ * only when curEx exactly matched the launched screen. That stranded the daily
+ * session in two real ways:
+ *   1. GATED drills (genitive, accusative, …) the learner finished but scored
+ *      < 75% on never called award() — so the session never advanced. A learner
+ *      who struggles with genitive was blocked from the rest of their session
+ *      forever ("genitive continues to gate progress").
+ *   2. The conjugation drill runs under curEx 'conjpractice:<category>' while the
+ *      session launched screen is 'conjpractice', so the exact-match check failed
+ *      and conjugation activities never completed even when passed.
+ *
+ * The session is a daily-practice flow, not a mastery gate: FINISHING an activity
+ * must advance it. (XP/credit is still gated on a pass via completeExercise; the
+ * adaptive scheduler still reschedules with real accuracy.) Because the session
+ * launches and navigates to exactly one activity at a time and clears
+ * nh_session_started on return Home, a finishing exercise IS the active activity.
+ */
+export function markSessionActivityFinished(): void {
+  if (typeof sessionStorage === 'undefined') return;
+  try {
+    const started = sessionStorage.getItem(STARTED_KEY);
+    if (started) {
+      sessionStorage.setItem(COMPLETED_KEY, started);
+    }
+  } catch {
+    // non-fatal — session can still be advanced manually.
+  }
+}
