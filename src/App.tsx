@@ -498,6 +498,22 @@ function App() {
   // 'home' via the location useEffect before the real tab path is committed).
   const setTab = useCallback(
     (t: string) => {
+      // Switching to a tab OTHER than Today abandons any in-progress Today's
+      // Session activity. Clear its launch markers so a later, unrelated drill
+      // finishing in another tab can't falsely complete (or mis-rate the category
+      // of) the abandoned activity. We deliberately keep nh_session_completed: a
+      // genuine completion writes it BEFORE the user navigates away, and HomeTab
+      // falls back to it so a real finish is still credited even via tab-switch.
+      // Switching back to 'home' is the legitimate return path and must NOT clear
+      // nh_session_started (HomeTab reads it to mark the activity done).
+      if (t !== 'home') {
+        try {
+          sessionStorage.removeItem('nh_session_started');
+          sessionStorage.removeItem('nh_session_category');
+        } catch {
+          /* sessionStorage unavailable — non-fatal */
+        }
+      }
       _setTab(t);
       _setCurrentScreen('dashboard');
       navigate(TAB_PATHS[t] || '/', { replace: false });

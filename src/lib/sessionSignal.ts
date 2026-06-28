@@ -31,49 +31,42 @@
 const STARTED_KEY = 'nh_session_started';
 const COMPLETED_KEY = 'nh_session_completed';
 
-export function signalSessionCompleteIfActive(screen: string): void {
-  if (typeof sessionStorage === 'undefined') return;
-  try {
-    const started = sessionStorage.getItem(STARTED_KEY);
-    if (started && started === screen) {
-      sessionStorage.setItem(COMPLETED_KEY, screen);
-    }
-  } catch {
-    // sessionStorage can throw in cross-origin iframes or private mode —
-    // missing the signal is strictly better than crashing the empty-state
-    // render, since the user can always advance the session manually.
-  }
-}
-
 /**
- * Mark whatever Today's Session activity is currently active as FINISHED.
+ * Mark the active Today's Session activity complete.
  *
- * Why this exists (and is distinct from signalSessionCompleteIfActive):
- * The previous completion handshake only fired on a *passing* award() call, and
- * only when curEx exactly matched the launched screen. That stranded the daily
- * session in two real ways:
- *   1. GATED drills (genitive, accusative, …) the learner finished but scored
- *      < 75% on never called award() — so the session never advanced. A learner
- *      who struggles with genitive was blocked from the rest of their session
- *      forever ("genitive continues to gate progress").
- *   2. The conjugation drill runs under curEx 'conjpractice:<category>' while the
- *      session launched screen is 'conjpractice', so the exact-match check failed
- *      and conjugation activities never completed even when passed.
+ * Why this matters: the daily session is a practice FLOW, not a mastery gate, so
+ * an activity must advance when the learner FINISHES it — not only on a passing
+ * award(). The old handshake (useAward: nh_session_completed written only when
+ * curEx === nh_session_started) stranded the session in two ways: gated drills
+ * finished below 75% never called award() (so genitive "kept gating progress"),
+ * and the conjugation drill runs under curEx 'conjpractice:<category>' which never
+ * matched the launched screen 'conjpractice'. (XP/vs/gc credit is still gated on a
+ * pass via completeExercise; the adaptive scheduler still reschedules with real
+ * accuracy — only session progression is unblocked.)
  *
- * The session is a daily-practice flow, not a mastery gate: FINISHING an activity
- * must advance it. (XP/credit is still gated on a pass via completeExercise; the
- * adaptive scheduler still reschedules with real accuracy.) Because the session
- * launches and navigates to exactly one activity at a time and clears
- * nh_session_started on return Home, a finishing exercise IS the active activity.
+ * Forms:
+ *  - With `screen`: write only when it matches the launched activity. Screen-
+ *    accurate; used by empty-state branches and by callers that know their screen
+ *    id (e.g. the conjugation drill passes 'conjpractice').
+ *  - Without `screen`: complete whatever activity is currently launched. Used by
+ *    the single completion authority (completeExercise), which knows the registry
+ *    key but not the launched screen. This is safe ONLY because nh_session_started
+ *    is cleared the moment the user abandons the activity (App.tsx setTab clears it
+ *    on tab-away), so it is never stale when an unrelated drill finishes — without
+ *    that, a finished Practice-tab drill would falsely complete an abandoned
+ *    session activity.
  */
-export function markSessionActivityFinished(): void {
+export function signalSessionCompleteIfActive(screen?: string): void {
   if (typeof sessionStorage === 'undefined') return;
   try {
     const started = sessionStorage.getItem(STARTED_KEY);
-    if (started) {
+    if (!started) return;
+    if (screen === undefined || started === screen) {
       sessionStorage.setItem(COMPLETED_KEY, started);
     }
   } catch {
-    // non-fatal — session can still be advanced manually.
+    // sessionStorage can throw in cross-origin iframes or private mode —
+    // missing the signal is strictly better than crashing the render, since the
+    // user can always advance the session manually.
   }
 }
