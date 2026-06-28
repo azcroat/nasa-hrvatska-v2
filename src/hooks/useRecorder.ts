@@ -119,6 +119,22 @@ export function useRecorder(): UseRecorderResult {
       return;
     }
 
+    // Feature-detect MediaRecorder BEFORE going async. Some iOS Safari
+    // configurations (older iOS, Lockdown Mode, certain in-app webviews) expose
+    // getUserMedia but NOT MediaRecorder. Without this guard, beginRecording()
+    // would call MediaRecorder.isTypeSupported(...) inside the getUserMedia
+    // .then() — throwing an uncaught ReferenceError that leaves busyRef stuck
+    // and the screen frozen in 'requesting'/'countdown' with no error UI.
+    if (
+      typeof MediaRecorder === 'undefined' ||
+      typeof MediaRecorder.isTypeSupported !== 'function'
+    ) {
+      setState('unsupported');
+      setMicAvailable(false);
+      busyRef.current = false;
+      return;
+    }
+
     const maxDurationMs = opts?.maxDurationMs;
     const countdownDuration = opts?.countdown ?? 3;
 

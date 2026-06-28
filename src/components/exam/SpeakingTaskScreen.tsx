@@ -119,9 +119,19 @@ export default function SpeakingTaskScreen({
       )}
 
       {!denied && rec.state === 'recording' && (
-        <p className="speak-status" data-testid="speak-recording">
-          &#9679; Recording&hellip; (~{task.seconds}s)
-        </p>
+        <>
+          <p className="speak-status" data-testid="speak-recording">
+            &#9679; Recording&hellip; (up to {task.seconds}s)
+          </p>
+          {/* User-controlled stop. The recorder's maxDurationMs is only a BACKSTOP:
+              on iOS Safari, background timers are throttled/suspended (screen lock,
+              notification, tab blur), so relying on the 60s setTimeout alone can leave
+              the recording stuck forever — never finalized, never scored. This button
+              lets the learner end and submit their answer whenever they're done. */}
+          <button className="b bp" data-testid="speak-stop" onClick={() => rec.stopRecording()}>
+            &#9209;&#65039; Stop &amp; submit
+          </button>
+        </>
       )}
 
       {!denied && phase === 'assessing' && (
