@@ -56,6 +56,7 @@ describe('RoleplayScreen — interactive scripted role-play', () => {
     startRecording.mockReset();
     stopRecording.mockReset();
     reset.mockReset();
+    recorderState.current.state = 'idle';
   });
 
   it("shows the partner's opening line and advances to the learner's turn", () => {
@@ -86,5 +87,19 @@ describe('RoleplayScreen — interactive scripted role-play', () => {
     expect(startRecording).toHaveBeenCalledWith(
       expect.objectContaining({ countdown: 0, maxDurationMs: 15_000 }),
     );
+  });
+
+  it('does NOT start a second recording while one is being acquired (re-entrancy guard)', () => {
+    // Regression: a tap while getUserMedia is still resolving (state 'requesting')
+    // called reset()+startRecording() again, opening a second mic stream because
+    // reset() flips the recorder's busyRef off. The Speak control must be inert
+    // while acquiring/recording.
+    recorderState.current.state = 'requesting';
+    render(<RoleplayScreen goBack={vi.fn()} />);
+    fireEvent.click(screen.getByText('Next Line →'));
+    const speakBtn = screen.getByTestId('roleplay-speak') as HTMLButtonElement;
+    expect(speakBtn.disabled).toBe(true);
+    fireEvent.click(speakBtn);
+    expect(startRecording).not.toHaveBeenCalled();
   });
 });

@@ -36,6 +36,19 @@ function RoleplayScreen({ goBack }: { goBack: () => void }) {
   const isYour = !!current.you;
   const atEnd = step >= lines.length - 1;
   const micBlocked = rec.state === 'denied' || rec.state === 'unsupported';
+  // The recorder is mid-acquisition/active. Used to guard the Speak control so a
+  // rapid double-tap (or a tap while getUserMedia is still resolving in
+  // 'requesting'/'countdown') can't call reset()+startRecording() again and open
+  // a second mic stream — reset() flips the recorder's busyRef off, defeating its
+  // own re-entrancy guard.
+  const recBusy =
+    rec.state === 'requesting' || rec.state === 'countdown' || rec.state === 'recording';
+
+  function startSpeak() {
+    if (recBusy) return; // re-entrancy guard — ignore taps while acquiring/recording
+    rec.reset();
+    rec.startRecording({ countdown: 0, maxDurationMs: 15_000 });
+  }
 
   function selectScenario(i: number) {
     setRpIdx(i);
@@ -199,12 +212,10 @@ function RoleplayScreen({ goBack }: { goBack: () => void }) {
                 <button
                   className="b bg"
                   data-testid="roleplay-speak"
-                  onClick={() => {
-                    rec.reset();
-                    rec.startRecording({ countdown: 0, maxDurationMs: 15_000 });
-                  }}
+                  onClick={startSpeak}
+                  disabled={recBusy}
                 >
-                  🎙️ Speak
+                  {recBusy ? '🎙️ Starting…' : '🎙️ Speak'}
                 </button>
               ))}
             {rec.state === 'done' && rec.audioUrl && (
