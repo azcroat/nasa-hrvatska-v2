@@ -55,7 +55,9 @@ type Tier = keyof typeof TARGET;
 
 // Tiers below target today (green-but-tracked debt; ratchet forces removal once
 // filled). PRIORITY: B2 → C1. The audit recommends roughly tripling each tier.
-const KNOWN_GAPS = new Set<Tier>(['B2', 'C1']);
+// B2 was promoted out once its bank crossed the 900-word floor (now enforced as
+// a regression guard); C1 remains the next tracked gap.
+const KNOWN_GAPS = new Set<Tier>(['C1']);
 
 const meetsTarget = (t: Tier) => counts[t] >= TARGET[t];
 
