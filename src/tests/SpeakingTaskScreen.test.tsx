@@ -201,4 +201,28 @@ describe('SpeakingTaskScreen', () => {
     expect(reset).toHaveBeenCalledTimes(1);
     expect(startRecording).toHaveBeenCalledTimes(1);
   });
+
+  it('mic-denied: typed-production fallback scores via assessText and reports the score', async () => {
+    // Equity: a learner who can't use a mic types their answer and is scored by
+    // the same rubric (assessText), so they can still certify once enforced.
+    const assessText = vi.fn(async () => ({
+      transcript: 'Idem na posao autobusom.',
+      scores: { range: 0.8, accuracy: 0.8, fluency: 0.8, task: 0.8 },
+      overall: 0.8,
+      transcriptSufficiency: 0.9,
+    }));
+    const assess = vi.fn();
+    const scorer = { assess, assessText } as unknown as SpeakingScorer;
+    const onScore = vi.fn();
+    setRecorder('denied');
+    render(<SpeakingTaskScreen task={task} level="B1" scorer={scorer} onScore={onScore} />);
+    fireEvent.change(screen.getByTestId('speak-typed-input'), {
+      target: { value: 'Idem na posao autobusom.' },
+    });
+    fireEvent.click(screen.getByTestId('speak-typed-submit'));
+    await waitFor(() => expect(onScore).toHaveBeenCalledWith(0.8));
+    expect(assessText).toHaveBeenCalledTimes(1);
+    // The audio scorer must NOT be used on the typed path.
+    expect(assess).not.toHaveBeenCalled();
+  });
 });

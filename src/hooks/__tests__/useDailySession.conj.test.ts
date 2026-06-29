@@ -44,4 +44,14 @@ describe('adaptive conjugation pick (flag on)', () => {
     expect(act!.category).toBe('present-tense');
     expect(act!.screen).toBe('conjpractice');
   });
+
+  it('a C1 user is NOT locked out of conjugation (cefrRank handles C1/C2)', () => {
+    // Regression: the conj gate used an A1–B2-only ranker, so cefrRank('C1') was
+    // -1 and `-1 < cefrRank(min)` skipped EVERY conj category for C1/C2 users.
+    vi.mocked(getDueCategoryQueue).mockReturnValue(ASPECT_THEN_PAST);
+    const act = resolveAdaptiveActivity('C1', new Set<string>());
+    expect(act).not.toBeNull();
+    expect(act!.category).toBe('aspect-perfective'); // B2 — unlocked for C1
+    expect(act!.screen).toBe('conjpractice');
+  });
 });

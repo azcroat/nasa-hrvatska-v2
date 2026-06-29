@@ -5,6 +5,7 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { rnd } from '../../lib/random.js';
 import { useStats } from '../../context/StatsContext';
 import { logError } from '../../lib/learnerErrors.js';
+import { applyWritingErrorsToAdaptive } from '../../lib/adaptiveFeedback.js';
 import { _aiPost } from '../../lib/aiPost';
 import { ttsFetch } from '../../lib/audio.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
@@ -211,7 +212,7 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
       if (!mountedRef.current) return;
       setResult(data);
       // Log mistakes and add single-word corrections to SRS queue
-      type ApiCorrection = CorrectionChange & { type?: string };
+      type ApiCorrection = CorrectionChange & { type?: string; errorType?: string };
       const corrections: ApiCorrection[] = data.changes || data.mistakes || [];
       corrections.forEach((ch: ApiCorrection) => {
         const orig = ch.original || '';
@@ -226,6 +227,9 @@ export default function WritingScreen({ goBack, award }: WritingScreenProps) {
           addWordToSRS(corr);
         }
       });
+      // Feedback loop 3b: map this submission's grammar error-types to adaptive
+      // categories so the daily session targets them next.
+      applyWritingErrorsToAdaptive(corrections.map((ch) => ch.errorType));
     } catch (e) {
       if (!mountedRef.current) return;
       setError(

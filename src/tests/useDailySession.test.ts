@@ -7,9 +7,12 @@ import {
   recordSessionComplete,
   useDailySession,
   shouldAutoCompleteOnReturn,
+  selectGuaranteedGrammar,
+  GRAMMAR_STRUCTURE_CATEGORIES,
+  CEFR_EXERCISE_POOL,
   SESSION_AUTOCOMPLETE_SCREENS,
 } from '../hooks/useDailySession';
-import type { DailySession } from '../hooks/useDailySession';
+import type { DailySession, SessionActivity } from '../hooks/useDailySession';
 import { localDateStr } from '../lib/dateUtils';
 
 // Mock external dependencies to test different branches
@@ -171,9 +174,21 @@ describe('buildSessionActivities', () => {
     const adaptive = await import('../lib/adaptive');
     const getDueCategoryQueue = vi.mocked(adaptive.getDueCategoryQueue);
     getDueCategoryQueue.mockReturnValue([{ category: 'genitive', difficulty: 3 }]);
-    const acts = buildSessionActivities('A1');
-    // genitive maps to 'genitivedrill' screen
+    // genitive maps to 'genitivedrill' (A2) — use an A2 user so it's unlocked.
+    const acts = buildSessionActivities('A2');
     expect(acts.find((a) => a.screen === 'genitivedrill')).toBeTruthy();
+  });
+
+  it('CEFR-gates the adaptive pick: an A1 user does NOT get a locked A2 case drill', async () => {
+    const adaptive = await import('../lib/adaptive');
+    vi.mocked(adaptive.getDueCategoryQueue).mockReturnValue([
+      { category: 'genitive', difficulty: 3 },
+    ]);
+    const acts = buildSessionActivities('A1');
+    // genitivedrill is A2 — locked for A1. The adaptive slot is skipped and the
+    // guaranteed-grammar slot (G2) backfills the only A1 grammar drill (nomdrill).
+    expect(acts.some((a) => a.screen === 'genitivedrill')).toBe(false);
+    expect(acts.some((a) => a.screen === 'nomdrill')).toBe(true);
   });
 });
 
@@ -262,18 +277,19 @@ describe('useDailySession — rotation memory + auto-regenerate (hook)', () => {
 });
 
 describe('buildSessionActivities — difficulty bias (defect #1)', () => {
-  it('biases the fill toward harder exercise TYPES for an advanced user (B2)', () => {
-    // B2 target tier is 4. Across runs, the fill should prefer tier-4 types
-    // (sentbuild/aspectdrill/clitic) and not pull in tier-1 recognition games
-    // while harder unlocked types are available. dist is the primary sort key,
-    // so this holds regardless of the random tiebreak.
-    let sawHard = false;
+  it('biases the fill toward harder content for an advanced user (B2)', () => {
+    // The difficulty bias is asserted by TIER/CATEGORY, not hard-coded screen
+    // names: a B2 session must never pull in tier-1 recognition games as fill,
+    // and must surface grammar/structure (the guaranteed slot). Name-listing the
+    // "hard" screens was brittle — it flaked once the tier-4 set grew and the
+    // unseeded rnd tiebreak picked a tier-4 drill not on the list.
+    const EASY_TIER1 = ['flashcards', 'mcgame', 'match'];
     for (let i = 0; i < 5; i++) {
-      const screens = buildSessionActivities('B2').map((a) => a.screen);
-      expect(screens).not.toContain('flashcards'); // tier 1, farthest from target 4
-      if (screens.some((s) => ['sentbuild', 'aspectdrill', 'clitic'].includes(s))) sawHard = true;
+      const acts = buildSessionActivities('B2');
+      const screens = acts.map((a) => a.screen);
+      for (const easy of EASY_TIER1) expect(screens).not.toContain(easy);
+      expect(acts.some((a) => GRAMMAR_STRUCTURE_CATEGORIES.has(a.category))).toBe(true);
     }
-    expect(sawHard).toBe(true);
   });
 
   it('keeps an A1 user on easy types (only tier 1–2 unlocked anyway)', () => {
@@ -282,6 +298,95 @@ describe('buildSessionActivities — difficulty bias (defect #1)', () => {
     for (const hard of ['sentbuild', 'aspectdrill', 'clitic', 'accusativedrill', 'future']) {
       expect(screens).not.toContain(hard);
     }
+  });
+});
+
+describe('buildSessionActivities — guaranteed grammar/structure slot (G2/G4)', () => {
+  // The contract this slot guarantees: at least one case/verb/structure activity
+  // per session. Uses the source-of-truth set (no duplicated mirror to drift).
+  const hasGrammar = (acts: SessionActivity[]) =>
+    acts.some((a) => GRAMMAR_STRUCTURE_CATEGORIES.has(a.category));
+
+  it('forces in a grammar/structure drill when the adaptive pick is null (empty queue)', () => {
+    // Default mock: getDueCategoryQueue → [] → P2 adds nothing. Without G2 a B1
+    // session could be all vocab + Croatia.
+    const acts = buildSessionActivities('B1');
+    expect(hasGrammar(acts)).toBe(true);
+  });
+
+  it('forces in a grammar/structure drill even when the adaptive pick is VOCAB', async () => {
+    const adaptive = await import('../lib/adaptive');
+    vi.mocked(adaptive.getDueCategoryQueue).mockReturnValue([
+      { category: 'vocab-a2', difficulty: 1 },
+    ]);
+    const acts = buildSessionActivities('B1');
+    // P2 adds the vocab drill (znam); G2 must still guarantee grammar.
+    expect(acts.some((a) => a.screen === 'znam')).toBe(true);
+    expect(hasGrammar(acts)).toBe(true);
+  });
+
+  it('the guaranteed slot is level-appropriate: an A1 user gets A1 grammar (nomdrill), not a buried higher tier', () => {
+    // A1's only unlocked grammar drill is nomdrill (tier 2). The P3 tier sort
+    // (target tier 1) would push it below the recognition games; G4 exempts the
+    // guaranteed slot so it appears anyway.
+    const acts = buildSessionActivities('A1');
+    expect(acts.some((a) => a.screen === 'nomdrill')).toBe(true);
+  });
+
+  it('DISPLACES a vocab fill — does not lengthen the session beyond fillTarget', () => {
+    // Non-Croatia activities must stay ≤ fillTarget (4) whether or not G2 fires.
+    const croatiaIds = new Set([
+      'cityofday',
+      'top100',
+      'grocery',
+      'transport',
+      'recipes',
+      'history',
+      'proverbs',
+      'popculture',
+    ]);
+    const nonCroatia = buildSessionActivities('A2').filter((a) => !croatiaIds.has(a.id));
+    expect(nonCroatia.length).toBeLessThanOrEqual(4);
+    expect(hasGrammar(nonCroatia)).toBe(true);
+  });
+
+  it('selectGuaranteedGrammar picks the nearest-CEFR drill at every level — incl. C1/C2', () => {
+    // Regression: cefrRank must rank on the full A1–C2 scale. With the wrong
+    // (A1–B2-only) ranker, cefrRank('C1') was -1, so |0-(-1)|=1 made A1 nomdrill
+    // the "nearest" pick for advanced users — the inverse of intent.
+    // Assert by the picked drill's CEFR LEVEL (robust as more drills are added).
+    const screenCefr = new Map(CEFR_EXERCISE_POOL.map((e) => [e.screen, e.cefr]));
+    const pickCefr = (lvl: string) => {
+      const screen = selectGuaranteedGrammar(lvl, new Set(), [])?.screen;
+      return screen ? screenCefr.get(screen) : undefined;
+    };
+    expect(pickCefr('A1')).toBe('A1'); // only A1 grammar is nomdrill
+    // C1: nearest grammar is a C1 drill (discourse/nominalization), never A1.
+    expect(pickCefr('C1')).toBe('C1');
+    // C2: no C2 grammar drills exist, so the nearest is C1 (the grammar ceiling).
+    expect(pickCefr('C2')).toBe('C1');
+  });
+
+  it('does not double up grammar when the adaptive pick already provides it', async () => {
+    const adaptive = await import('../lib/adaptive');
+    vi.mocked(adaptive.getDueCategoryQueue).mockReturnValue([
+      { category: 'genitive', difficulty: 3 },
+    ]);
+    const acts = buildSessionActivities('A2');
+    // P2 adds genitivedrill (grammar); G2 must not exceed the displace invariant.
+    expect(acts.some((a) => a.screen === 'genitivedrill')).toBe(true);
+    const croatiaIds = new Set([
+      'cityofday',
+      'top100',
+      'grocery',
+      'transport',
+      'recipes',
+      'history',
+      'proverbs',
+      'popculture',
+    ]);
+    const nonCroatia = acts.filter((a) => !croatiaIds.has(a.id));
+    expect(nonCroatia.length).toBeLessThanOrEqual(4);
   });
 });
 

@@ -4,8 +4,7 @@ import { getDueReviews, getServableReviewCount } from '../lib/srs';
 import { getDueCategoryQueue, CONJ_CATEGORIES, CATEGORY_MIN_CEFR } from '../lib/adaptive';
 import type { SkillCategory } from '../lib/adaptive';
 import { CONJ_LAB_ENABLED } from '../lib/conjugation/conjugationConfig';
-import { cefrRank, type Cefr } from '../lib/conjugation/category';
-import { isUnlocked } from '../lib/cefr';
+import { isUnlocked, cefrRank } from '../lib/cefr';
 import { localDateStr } from '../lib/dateUtils';
 import { rnd } from '../lib/random.js';
 
@@ -76,13 +75,16 @@ const CATEGORY_SCREEN_MAP: Partial<Record<SkillCategory, string>> = {
 };
 
 /** CEFR-annotated exercise pool for Priority 3 fill */
-const CEFR_EXERCISE_POOL: Array<{
+export interface CefrPoolEntry {
   id: string;
   label: string;
   screen: string;
   cefr: string;
   category: SkillCategory;
-}> = [
+}
+// Exported for the content-coverage CI gate (src/tests/content-coverage.test.ts),
+// which tabulates this pool into a (CEFR level × skill group) matrix.
+export const CEFR_EXERCISE_POOL: CefrPoolEntry[] = [
   { id: 'flashcards', label: 'Flashcards', screen: 'flashcards', cefr: 'A1', category: 'vocab-a2' },
   { id: 'mcgame', label: 'Quiz', screen: 'mcgame', cefr: 'A1', category: 'vocab-a2' },
   { id: 'match', label: 'Match Pairs', screen: 'match', cefr: 'A1', category: 'vocab-a2' },
@@ -91,7 +93,7 @@ const CEFR_EXERCISE_POOL: Array<{
   { id: 'qwords', label: 'Questions', screen: 'qwords', cefr: 'A2', category: 'vocab-a2' },
   { id: 'genderdrill', label: 'Gender', screen: 'genderdrill', cefr: 'A2', category: 'vocab-a2' },
   { id: 'cloze', label: 'Sentence Cloze', screen: 'cloze', cefr: 'A2', category: 'vocab-a2' },
-  { id: 'unjumble', label: 'Word Order', screen: 'unjumble', cefr: 'A2', category: 'vocab-a2' },
+  { id: 'unjumble', label: 'Word Order', screen: 'unjumble', cefr: 'A2', category: 'word-order' },
   { id: 'prepdrill', label: 'Prepositions', screen: 'prepdrill', cefr: 'A2', category: 'genitive' },
   { id: 'negation', label: 'Negation', screen: 'negation', cefr: 'A2', category: 'genitive' },
   {
@@ -106,7 +108,7 @@ const CEFR_EXERCISE_POOL: Array<{
     label: 'Nominative Case',
     screen: 'nomdrill',
     cefr: 'A1',
-    category: 'vocab-a2',
+    category: 'nominative',
   },
   {
     id: 'locdrill',
@@ -120,14 +122,14 @@ const CEFR_EXERCISE_POOL: Array<{
     label: 'Build Sentences',
     screen: 'sentbuild',
     cefr: 'A2',
-    category: 'vocab-a2',
+    category: 'word-order',
   },
   {
     id: 'sentencetiles',
     label: 'Tile Assembly',
     screen: 'sentencetiles',
     cefr: 'A2',
-    category: 'vocab-a2',
+    category: 'word-order',
   },
   { id: 'typing', label: 'Typing', screen: 'typing', cefr: 'A2', category: 'vocab-a2' },
   {
@@ -154,7 +156,100 @@ const CEFR_EXERCISE_POOL: Array<{
   },
   { id: 'clitic', label: 'Clitic Drill', screen: 'clitic', cefr: 'B2', category: 'clitics' },
   { id: 'dictation', label: 'Dictation', screen: 'dictation', cefr: 'B1', category: 'speaking' },
+  // B2 — advanced grammar (existing drills surfaced into the session pool).
+  { id: 'passive', label: 'Passive Voice', screen: 'passive', cefr: 'B2', category: 'passive' },
+  {
+    id: 'numcases',
+    label: 'Numbers & Cases',
+    screen: 'numcases',
+    cefr: 'B2',
+    category: 'numerals',
+  },
+  // B2 — net-new drills authored to clear the coverage floor.
+  {
+    id: 'participles',
+    label: 'Participles',
+    screen: 'participles',
+    cefr: 'B2',
+    category: 'participle',
+  },
+  {
+    id: 'subordination',
+    label: 'Subordinate Clauses',
+    screen: 'subordination',
+    cefr: 'B2',
+    category: 'subordination',
+  },
+  {
+    id: 'conditionaldrill',
+    label: 'Conditional',
+    screen: 'conditionaldrill',
+    cefr: 'B2',
+    category: 'conditional',
+  },
+  // B1 — case drills surfaced into the pool (previously routable but never in the
+  // daily session). Instrumental/dative also gave the adaptive picker only the
+  // generic cloze screen; these add dedicated at-level practice.
+  {
+    id: 'instrumental',
+    label: 'Instrumental Case',
+    screen: 'instrumental',
+    cefr: 'B1',
+    category: 'instrumental',
+  },
+  { id: 'dative', label: 'Dative Case', screen: 'dative', cefr: 'B1', category: 'dative-locative' },
+  {
+    id: 'animateacc',
+    label: 'Animate Accusative',
+    screen: 'animateacc',
+    cefr: 'B1',
+    category: 'accusative',
+  },
+  // C1 — idiomatic, discourse-level and register/style competence.
+  { id: 'idiomdrill', label: 'Idioms', screen: 'idiomdrill', cefr: 'C1', category: 'idioms' },
+  {
+    id: 'discourse',
+    label: 'Discourse Connectors',
+    screen: 'discourse',
+    cefr: 'C1',
+    category: 'discourse',
+  },
+  { id: 'register', label: 'Register', screen: 'register', cefr: 'C1', category: 'register' },
+  {
+    id: 'nominalization',
+    label: 'Nominalization',
+    screen: 'nominalization',
+    cefr: 'C1',
+    category: 'nominalization',
+  },
+  // Long-form listening — the audit's listening gap. Surfaced as CEFR-gated fill
+  // candidates so the daily session serves comprehension of connected speech, not
+  // just single sentences. 'listeningComprehension' uses the authored graded-story
+  // bank (audio + transcript + quiz, from A1); 'aiListening' generates a fresh
+  // dialogue/monologue at the user's level (B1+). Both feed recordTopicResult
+  // ('listening') so weak listening resurfaces.
+  {
+    id: 'listeningComprehension',
+    label: 'Listening',
+    screen: 'listening_comprehension',
+    cefr: 'A1',
+    category: 'listening',
+  },
+  {
+    id: 'aiListening',
+    label: 'AI Listening',
+    screen: 'ai_listening',
+    cefr: 'B1',
+    category: 'listening',
+  },
 ];
+
+// Screen → CEFR lookup derived from the pool. Used to CEFR-gate the adaptive
+// pick (resolveAdaptiveActivity) so the coverage floor can't surface a locked
+// drill (e.g. B1 accusative, B2 clitics) to an A1/A2 user.
+const SCREEN_CEFR: Record<string, string> = Object.fromEntries(
+  CEFR_EXERCISE_POOL.map((e) => [e.screen, e.cefr]),
+);
 
 /** Croatia rotation pool — Priority 4 always adds one of these */
 const CROATIA_POOL: SessionActivity[] = [
@@ -207,10 +302,19 @@ export function resolveAdaptiveActivity(
     const isConj = CONJ_LAB_ENABLED && CONJ_CATEGORIES.has(category);
     if (isConj) {
       const min = CATEGORY_MIN_CEFR[category];
-      if (min && cefrRank(userCefr as Cefr) < cefrRank(min)) continue; // not yet unlocked
+      if (min && cefrRank(userCefr) < cefrRank(min)) continue; // not yet unlocked
     }
     const screen = isConj ? 'conjpractice' : CATEGORY_SCREEN_MAP[category];
     if (!screen || usedScreens.has(screen)) continue;
+    // CEFR-gate non-conjugation picks by the mapped drill's level (conjugation is
+    // gated above via CATEGORY_MIN_CEFR). Without this the coverage floor would
+    // surface a locked drill — e.g. B1 accusative or B2 clitics — to an A1/A2
+    // user. When every eligible category is locked this returns null and the
+    // guaranteed-grammar slot (G2) backfills a level-appropriate drill.
+    if (!isConj) {
+      const screenCefr = SCREEN_CEFR[screen];
+      if (screenCefr && !isUnlocked(screenCefr, userCefr)) continue;
+    }
     const label = category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
     return { id: `cat_${category}`, label, screen, category };
   }
@@ -246,11 +350,86 @@ const EXERCISE_DIFFICULTY: Record<string, number> = {
   sentbuild: 4,
   aspectdrill: 4,
   clitic: 4,
+  instrumental: 3,
+  dative: 3,
+  animateacc: 3,
+  numcases: 4,
+  passive: 4,
+  participles: 4,
+  subordination: 4,
+  conditionaldrill: 4,
+  idiomdrill: 4,
+  discourse: 4,
+  register: 4,
+  nominalization: 4,
+  listeningComprehension: 3,
+  aiListening: 4,
 };
 
 // Maps the user's CEFR level to a target difficulty tier (1–5). A stronger user
 // is biased toward harder exercise types.
 const CEFR_TIER: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 5 };
+
+// Grammar/structure categories: the seven cases, verb tense/aspect, clitics, and
+// word order. Excludes vocab-*, speaking, and culture/practical. Used to (a) tell
+// whether a session already contains grammar and (b) pick the guaranteed grammar
+// slot (G2). Tags are the honest ones set on CEFR_EXERCISE_POOL (see G1).
+export const GRAMMAR_STRUCTURE_CATEGORIES: ReadonlySet<SessionCategory> = new Set<SessionCategory>([
+  'nominative',
+  'genitive',
+  'accusative',
+  'dative-locative',
+  'instrumental',
+  'vocative',
+  'present-tense',
+  'past-tense',
+  'future-tense',
+  'aspect-imperfective',
+  'aspect-perfective',
+  'aspect-negation',
+  'conditional',
+  'clitics',
+  'word-order',
+  'passive',
+  'numerals',
+  'participle',
+  'subordination',
+  'discourse',
+  'nominalization',
+]);
+
+function isGrammarStructure(category: SessionCategory): boolean {
+  return GRAMMAR_STRUCTURE_CATEGORIES.has(category);
+}
+
+// G2: pick one guaranteed grammar/structure drill from the unlocked pool. It is
+// level-appropriate (nearest CEFR to the user) and EXEMPT from the Priority-3
+// difficulty-tier sort (G4) — that sort otherwise buries case/structure drills
+// (tier 3–4) for A1/A2 users, starving exactly the learners who most need
+// foundational grammar. Skips recent + already-used screens, falling back to
+// ignoring recency rather than returning nothing.
+export function selectGuaranteedGrammar(
+  userCefr: string,
+  usedScreens: Set<string>,
+  recentScreens: string[],
+): SessionActivity | null {
+  const grammar = CEFR_EXERCISE_POOL.filter(
+    (ex) =>
+      isGrammarStructure(ex.category) &&
+      isUnlocked(ex.cefr, userCefr) &&
+      !usedScreens.has(ex.screen),
+  );
+  let candidates = grammar.filter((ex) => !recentScreens.includes(ex.screen));
+  if (candidates.length === 0) candidates = grammar; // recency fallback
+  if (candidates.length === 0) return null;
+  // Nearest CEFR to the user first (level-appropriate); random tiebreak rotates
+  // same-level drills day to day.
+  const userRank = cefrRank(userCefr);
+  const pick = candidates
+    .map((ex) => ({ ex, dist: Math.abs(cefrRank(ex.cefr) - userRank), r: rnd() }))
+    .sort((a, b) => a.dist - b.dist || a.r - b.r)[0]!.ex;
+  return { id: pick.id, label: pick.label, screen: pick.screen, category: pick.category };
+}
 
 export function buildSessionActivities(
   userCefr: string,
@@ -296,7 +475,7 @@ export function buildSessionActivities(
     usedScreens.add(productionActivity.screen);
   }
 
-  // Priority 3: CEFR-appropriate fill (skip recent, exclude already queued screens)
+  // Recency list — shared by the guaranteed-grammar slot (P2.7) and the P3 fill.
   const recentScreens: string[] = (() => {
     try {
       return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]') as string[];
@@ -305,6 +484,21 @@ export function buildSessionActivities(
     }
   })();
 
+  // Priority 2.7: Guaranteed grammar/structure (G2). P2's adaptive pick can be a
+  // vocab category or null, and the P3 tier sort buries grammar for A1/A2 — so a
+  // session could contain zero grammar. If nothing queued so far is
+  // grammar/structure, force in one level-appropriate drill (tier-sort-exempt,
+  // G4). It counts toward fillTarget, so it DISPLACES a vocab fill rather than
+  // lengthening the session.
+  if (!activities.some((a) => isGrammarStructure(a.category))) {
+    const grammar = selectGuaranteedGrammar(userCefr, usedScreens, recentScreens);
+    if (grammar) {
+      activities.push(grammar);
+      usedScreens.add(grammar.screen);
+    }
+  }
+
+  // Priority 3: CEFR-appropriate fill (skip recent, exclude already queued screens)
   let pool = CEFR_EXERCISE_POOL.filter(
     (ex) =>
       isUnlocked(ex.cefr, userCefr) &&

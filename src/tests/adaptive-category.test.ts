@@ -71,23 +71,57 @@ describe('getDueCategoryQueue', () => {
     }
   });
 
-  it('prioritises categories with due date in the past', () => {
-    // Make 'genitive' overdue by back-dating it
+  it('among recently-seen categories, prioritises due-in-past (FSRS ordering)', () => {
+    const now = Date.now();
+    // Seed EVERY category as seen today so none are "starved" — isolates the
+    // FSRS due-ordering from the coverage floor.
     const catData: Record<string, object> = {};
-    catData['genitive'] = {
-      stability: 7,
-      recentAccuracy: 0.8,
-      due: Date.now() - 1000,
-      lastSeen: Date.now() - 86400000 * 8,
-    };
+    for (const c of ALL_CATEGORIES) {
+      catData[c] = { stability: 7, recentAccuracy: 0.85, due: now + 86400000, lastSeen: now };
+    }
+    // genitive is overdue (due in the past) → first among non-starved.
+    catData['genitive'] = { stability: 7, recentAccuracy: 0.8, due: now - 1000, lastSeen: now };
+    localStorage.setItem('nh_cat_sr', JSON.stringify(catData));
+
+    const queue = getDueCategoryQueue(6);
+    expect(queue[0]?.category).toBe('genitive');
+  });
+
+  it('coverage floor: a never-seen category outranks a recently-practised due one', () => {
+    const now = Date.now();
+    // Seed all categories as just-practised AND overdue (would be due-front),
+    // except 'vocative' which is never seen → starved → must come first.
+    const catData: Record<string, object> = {};
+    for (const c of ALL_CATEGORIES) {
+      catData[c] = { stability: 7, recentAccuracy: 0.9, due: now - 1000, lastSeen: now };
+    }
+    delete catData['vocative'];
+    localStorage.setItem('nh_cat_sr', JSON.stringify(catData));
+
+    const queue = getDueCategoryQueue(6);
+    expect(queue[0]?.category).toBe('vocative');
+  });
+
+  it('coverage floor: a long-neglected (stale) category outranks a recently-practised one', () => {
+    const now = Date.now();
+    const catData: Record<string, object> = {};
+    for (const c of ALL_CATEGORIES) {
+      catData[c] = { stability: 7, recentAccuracy: 0.9, due: now - 1000, lastSeen: now };
+    }
+    // accusative last practised 20 days ago (> 14-day floor) → starved.
     catData['accusative'] = {
       stability: 7,
       recentAccuracy: 0.9,
-      due: Date.now() + 86400000,
-      lastSeen: Date.now(),
+      due: now - 1000,
+      lastSeen: now - 86400000 * 20,
     };
     localStorage.setItem('nh_cat_sr', JSON.stringify(catData));
 
+    const queue = getDueCategoryQueue(6);
+    expect(queue[0]?.category).toBe('accusative');
+  });
+
+  it('a brand-new user (no history) still starts at genitive', () => {
     const queue = getDueCategoryQueue(6);
     expect(queue[0]?.category).toBe('genitive');
   });

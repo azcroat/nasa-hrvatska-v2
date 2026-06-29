@@ -2,21 +2,21 @@
  * src/components/profile/EquivalencyTestCard.tsx
  *
  * CTA card shown on the Profile → Stats tab. Surfaces the user's
- * eligible vs certified level and provides the entry point to the
- * equivalency-test screen.
+ * eligible vs confirmed level and provides the entry point to the
+ * Level Check screen.
  *
  * UX states:
- *   - Certified matches eligible (or eligible is A1, no test possible):
- *     Show a small "Verified at X" badge with a "Take next test"
+ *   - Confirmed matches eligible (or eligible is A1, no check possible):
+ *     Show a small "Confirmed at X" badge with a "Take next check"
  *     button when there's a next tier available.
- *   - Certified is below eligible (user has activity but hasn't passed
- *     the test):
- *     Prominent CTA: "Your activity says X, but only Y is verified.
- *     Take the test to certify."
- *   - Certified is at C1 (top of our test bank):
- *     Show celebratory state, no further test.
+ *   - Confirmed is below eligible (user has activity but hasn't passed
+ *     the check):
+ *     Prominent CTA: "Your activity says X, but only Y is confirmed.
+ *     Take the check to confirm."
+ *   - Confirmed is at C1 (top of our check bank):
+ *     Show celebratory state, no further check.
  *
- * Self-contained: reads certification state from the source-of-truth
+ * Self-contained: reads confirmed-level state from the source-of-truth
  * module, doesn't subscribe to changes (Profile tab re-mounts on tab
  * change, so state is refreshed naturally on each visit).
  */
@@ -39,8 +39,12 @@ export default function EquivalencyTestCard({
   const certified = getCertifiedLevel();
   const nextTest = getNextTestFor(certified);
   const eligibleAhead = cefrRank(userEligible) > cefrRank(certified);
+  // The B1+ Level Check now includes a speaking section — nudge so it's not
+  // a surprise. (Existing confirmed levels are never revoked; speaking is only
+  // required when attempting the next level.)
+  const speakingInNext = !!nextTest && cefrRank(nextTest.levelFrom) >= cefrRank('B1');
 
-  // No further test (user has passed C1 → certified C1, no C1→C2 test exists).
+  // No further check (user has passed C1 → confirmed C1, no C1→C2 check exists).
   if (!nextTest) {
     return (
       <div
@@ -56,12 +60,12 @@ export default function EquivalencyTestCard({
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <span style={{ fontSize: 22 }}>🎓</span>
           <span style={{ fontSize: 11, fontWeight: 900, color: '#15803d', letterSpacing: '.2em' }}>
-            CERTIFIED {certified}
+            CONFIRMED {certified}
           </span>
         </div>
         <p style={{ fontSize: 13, color: 'var(--subtext)', margin: 0, lineHeight: 1.5 }}>
-          You've passed every equivalency tier in this app. {certified} is the highest in-app
-          certification; C2 native-equivalent fluency is measured by formal external providers.
+          You've passed every Level Check in this app. {certified} is the highest in-app level; C2
+          native-equivalent fluency is measured by formal external providers.
         </p>
       </div>
     );
@@ -90,7 +94,7 @@ export default function EquivalencyTestCard({
         }}
       >
         <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.22em', marginBottom: 6 }}>
-          UNVERIFIED LEVEL
+          UNCONFIRMED LEVEL
         </div>
         <div
           style={{
@@ -101,11 +105,12 @@ export default function EquivalencyTestCard({
             lineHeight: 1.25,
           }}
         >
-          You're {userEligible} by activity. {certified} is your certified.
+          You're {userEligible} by activity. {certified} is confirmed.
         </div>
         <div style={{ fontSize: 13, opacity: 0.95, lineHeight: 1.5, marginBottom: 10 }}>
-          Take the {nextTest.levelFrom} equivalency test to certify and unlock {nextTest.levelTo}{' '}
+          Take the {nextTest.levelFrom} Level Check to confirm and unlock {nextTest.levelTo}{' '}
           content.
+          {speakingInNext && ' 🎙️ Now includes a short speaking task.'}
         </div>
         <div
           style={{
@@ -122,7 +127,7 @@ export default function EquivalencyTestCard({
             fontWeight: 800,
           }}
         >
-          Take the {nextTest.levelFrom} test →
+          Take the {nextTest.levelFrom} check →
         </div>
       </button>
     );
@@ -150,12 +155,13 @@ export default function EquivalencyTestCard({
       >
         <span style={{ fontSize: 20 }}>🏅</span>
         <span style={{ fontSize: 11, fontWeight: 900, color: '#15803d', letterSpacing: '.2em' }}>
-          CERTIFIED {certified}
+          CONFIRMED {certified}
         </span>
       </div>
       <p style={{ fontSize: 13, color: 'var(--heading)', margin: '0 0 10px', lineHeight: 1.5 }}>
-        Ready to advance? Take the {nextTest.levelFrom} → {nextTest.levelTo} equivalency test to
-        unlock {nextTest.levelTo} content.
+        Ready to advance? Take the {nextTest.levelFrom} → {nextTest.levelTo} Level Check to unlock{' '}
+        {nextTest.levelTo} content.
+        {speakingInNext && ' 🎙️ Now includes a short speaking task.'}
       </p>
       <button
         onClick={onTakeTest}

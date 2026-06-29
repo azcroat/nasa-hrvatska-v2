@@ -2310,4 +2310,182 @@ export const GRADED_STORIES = [
       },
     ],
   },
+
+  // ═══════════════════════════════════════════════════════
+  // Seed expansion — additional long-form listening at the fluency frontier
+  // (B2/C1), the tier where extended connected-speech input matters most.
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 'gs_b2_7',
+    level: 'B2',
+    levelColor: '#6b21a8',
+    levelBg: '#f3e8ff',
+    icon: '💻',
+    title: 'Digitalni nomadi na Jadranu',
+    titleEn: 'Digital Nomads on the Adriatic',
+    duration: 5,
+    focus: 'Conditional • Passive constructions • Work & economy vocabulary',
+    intro:
+      'A feature on the rise of remote workers settling along the Croatian coast. Practise conditional sentences, passive voice, and professional vocabulary.',
+    paragraphs: [
+      {
+        hr: 'Posljednjih nekoliko godina hrvatska obala privlači sve veći broj takozvanih digitalnih nomada — ljudi koji rade na daljinu i pritom slobodno biraju gdje će živjeti. Kad bi se pitalo prosječnog stanovnika Splita ili Zadra, vjerojatno bi rekao da su gradske kavane danas pune stranaca s prijenosnim računalima koji ujutro održavaju sastanke, a poslijepodne plivaju u moru.',
+        en: 'Over the past few years the Croatian coast has been attracting an ever-growing number of so-called digital nomads — people who work remotely and freely choose where to live. If you asked an average resident of Split or Zadar, they would probably say that the town cafés are nowadays full of foreigners with laptops who hold meetings in the morning and swim in the sea in the afternoon.',
+      },
+      {
+        hr: 'Hrvatska je 2021. godine uvela poseban boravišni status za digitalne nomade, čime je postala jedna od prvih europskih zemalja koja je takav model formalno uredila. Viza se izdaje na razdoblje do godinu dana, a uvjet je da podnositelj dokaže stalan prihod ostvaren izvan Hrvatske. Mnogi smatraju da bi se, kada bi se administrativni postupci dodatno pojednostavili, broj prijava udvostručio.',
+        en: 'In 2021 Croatia introduced a special residence status for digital nomads, becoming one of the first European countries to formally regulate such a model. The visa is issued for a period of up to one year, and the condition is that the applicant prove a steady income earned outside Croatia. Many believe that, if the administrative procedures were further simplified, the number of applications would double.',
+      },
+      {
+        hr: 'Ekonomski učinci nisu zanemarivi. Nomadi troše na smještaj, ugostiteljstvo i lokalne usluge tijekom cijele godine, a ne samo u vrhuncu turističke sezone. Time se ublažava ovisnost priobalja o tromjesečnoj ljetnoj gužvi. S druge strane, kritičari upozoravaju da bi nekontroliran priljev mogao dodatno podići cijene najma i istisnuti domaće stanovništvo iz središta gradova.',
+        en: "The economic effects are not negligible. Nomads spend on accommodation, hospitality and local services throughout the whole year, not only at the peak of the tourist season. This eases the coast's dependence on the three-month summer crush. On the other hand, critics warn that an uncontrolled influx could further raise rental prices and push the local population out of city centres.",
+      },
+      {
+        hr: 'Ipak, većina se stručnjaka slaže da je riječ o prilici koju bi trebalo pažljivo iskoristiti. Ako se ulaganja usmjere u brzu internetsku infrastrukturu i cjelogodišnji sadržaj, manji bi obalni gradovi mogli postati privlačna mjesta za život, a ne samo odredišta za kratak odmor. Pitanje je hoće li lokalne zajednice uspjeti tu ravnotežu pronaći na vrijeme.',
+        en: 'Nevertheless, most experts agree that this is an opportunity that should be carefully used. If investment is directed into fast internet infrastructure and year-round amenities, smaller coastal towns could become attractive places to live, and not merely destinations for a short holiday. The question is whether local communities will manage to find that balance in time.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'na daljinu', en: 'remotely', ex: 'Sve više ljudi radi na daljinu.' },
+      {
+        hr: 'boravišni status',
+        en: 'residence status',
+        ex: 'Dobila je boravišni status na godinu dana.',
+      },
+      { hr: 'prihod', en: 'income', ex: 'Mora dokazati stalan prihod.' },
+      { hr: 'udvostručiti', en: 'to double', ex: 'Broj prijava bi se mogao udvostručiti.' },
+      { hr: 'učinak', en: 'effect / impact', ex: 'Ekonomski učinci nisu zanemarivi.' },
+      { hr: 'ublažiti', en: 'to ease / mitigate', ex: 'Time se ublažava ovisnost o sezoni.' },
+      { hr: 'priljev', en: 'influx', ex: 'Nekontroliran priljev podiže cijene najma.' },
+      {
+        hr: 'istisnuti',
+        en: 'to push out / displace',
+        ex: 'Visoke cijene istiskuju domaće stanovništvo.',
+      },
+      { hr: 'ulaganje', en: 'investment', ex: 'Ulaganje u infrastrukturu je ključno.' },
+      { hr: 'ravnoteža', en: 'balance', ex: 'Treba pronaći ravnotežu na vrijeme.' },
+    ],
+    quiz: [
+      {
+        q: 'Što je Hrvatska uvela 2021. godine?',
+        qEn: 'What did Croatia introduce in 2021?',
+        opts: [
+          'Zabranu rada na daljinu',
+          'Poseban boravišni status za digitalne nomade',
+          'Porez na strane radnike',
+          'Besplatan internet na obali',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Koji je glavni uvjet za vizu digitalnog nomada?',
+        qEn: 'What is the main condition for the digital nomad visa?',
+        opts: [
+          'Poznavanje hrvatskog jezika',
+          'Kupnja nekretnine',
+          'Dokaz o stalnom prihodu izvan Hrvatske',
+          'Boravak duži od pet godina',
+        ],
+        correct: 2,
+      },
+      {
+        q: 'Na što upozoravaju kritičari?',
+        qEn: 'What do critics warn about?',
+        opts: [
+          'Na pad kvalitete interneta',
+          'Na rast cijena najma i istiskivanje domaćih',
+          'Na manjak turista ljeti',
+          'Na zatvaranje kavana',
+        ],
+        correct: 1,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_c1_7',
+    level: 'C1',
+    levelColor: '#4c1d95',
+    levelBg: '#ede9fe',
+    icon: '📉',
+    title: 'Iseljavanje i demografska budućnost',
+    titleEn: 'Emigration and the Demographic Future',
+    duration: 7,
+    focus: 'Verbal nouns • Abstract discourse • Demography & policy vocabulary',
+    intro:
+      'An analytical essay on emigration and demographic decline in Croatia. Practise verbal nouns, formal discourse connectives, and abstract socio-economic vocabulary.',
+    paragraphs: [
+      {
+        hr: 'Malo je pitanja koja toliko zaokupljaju hrvatsku javnost kao iseljavanje i s njime povezano starenje stanovništva. Ulaskom u Europsku uniju 2013. godine otvorilo se tržište rada cijeloga kontinenta, a posljedica je bila odljev mladih i obrazovanih ljudi razmjera kakav suvremena Hrvatska dotad nije zabilježila. Riječ je o procesu koji se ne može svesti na pojedinačne odluke, nego ga treba promatrati kao splet gospodarskih, institucionalnih i psiholoških čimbenika.',
+        en: 'Few questions preoccupy the Croatian public as much as emigration and the population ageing connected with it. With entry into the European Union in 2013, the labour market of the entire continent opened up, and the consequence was an outflow of young and educated people of a scale that contemporary Croatia had not previously recorded. This is a process that cannot be reduced to individual decisions, but should be observed as a web of economic, institutional and psychological factors.',
+      },
+      {
+        hr: 'Ono što zabrinjava demografe nije samo brojčani gubitak, koliko njegova struktura. Odlaze prvenstveno ljudi u najproduktivnijoj dobi, često s visokim stupnjem obrazovanja, a upravo bi oni trebali biti nositelji budućega gospodarskog rasta i punitelji mirovinskoga sustava. Njihovim odlaskom slabi porezna osnovica, a istodobno raste udio umirovljenika — kombinacija koja dugoročno dovodi u pitanje održivost javnih financija.',
+        en: 'What worries demographers is not so much the numerical loss as its structure. Those who leave are primarily people of the most productive age, often with a high level of education, and they are precisely the ones who ought to be the bearers of future economic growth and the contributors to the pension system. With their departure the tax base weakens, while at the same time the share of pensioners grows — a combination that in the long run calls into question the sustainability of public finances.',
+      },
+      {
+        hr: 'Pojednostavljeno tumačenje, prema kojemu je iseljavanje isključivo posljedica niskih plaća, ne izdržava ozbiljniju kritiku. Istraživanja pokazuju da iseljenike jednako, ako ne i više, motivira percepcija nepravednosti, nepovjerenje u institucije i osjećaj da napredovanje ne ovisi o sposobnosti, nego o vezama. Drugim riječima, riječ je koliko o ekonomskom, toliko i o vrijednosnom problemu.',
+        en: 'A simplified interpretation, according to which emigration is exclusively a consequence of low wages, does not withstand more serious scrutiny. Studies show that emigrants are motivated equally, if not more, by a perception of unfairness, distrust in institutions, and a feeling that advancement does not depend on ability but on connections. In other words, it is as much a question of values as it is an economic one.',
+      },
+      {
+        hr: 'Rješenja koja se nude kreću se od poticaja za povratak i ulaganja u obrazovanje do dubinske reforme javne uprave. Nijedna mjera, međutim, neće uroditi plodom bez obnove povjerenja između građana i države. Demografska se slika, naime, ne mijenja proglasima, nego strpljivim, dosljednim radom na uvjetima koji ljudima daju razlog da ostanu — ili da se vrate.',
+        en: 'The solutions on offer range from incentives for return and investment in education to a deep reform of public administration. No measure, however, will bear fruit without a restoration of trust between citizens and the state. The demographic picture, namely, does not change through proclamations, but through patient, consistent work on the conditions that give people a reason to stay — or to return.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'iseljavanje', en: 'emigration', ex: 'Iseljavanje mladih zabrinjava demografe.' },
+      { hr: 'odljev', en: 'outflow / drain', ex: 'Odljev obrazovanih ljudi slabi gospodarstvo.' },
+      {
+        hr: 'starenje stanovništva',
+        en: 'population ageing',
+        ex: 'Starenje stanovništva opterećuje mirovinski sustav.',
+      },
+      { hr: 'čimbenik', en: 'factor', ex: 'Riječ je o spletu više čimbenika.' },
+      { hr: 'porezna osnovica', en: 'tax base', ex: 'Odlaskom radnika slabi porezna osnovica.' },
+      {
+        hr: 'održivost',
+        en: 'sustainability',
+        ex: 'Dovodi se u pitanje održivost javnih financija.',
+      },
+      { hr: 'percepcija', en: 'perception', ex: 'Motivira ih percepcija nepravednosti.' },
+      { hr: 'nepovjerenje', en: 'distrust', ex: 'Nepovjerenje u institucije potiče odlazak.' },
+      { hr: 'poticaj', en: 'incentive', ex: 'Nude se poticaji za povratak.' },
+      {
+        hr: 'uroditi plodom',
+        en: 'to bear fruit',
+        ex: 'Nijedna mjera neće uroditi plodom bez povjerenja.',
+      },
+    ],
+    quiz: [
+      {
+        q: 'Koji je događaj 2013. ubrzao iseljavanje?',
+        qEn: 'Which 2013 event accelerated emigration?',
+        opts: ['Ulazak u Europsku uniju', 'Uvođenje eura', 'Gospodarska kriza', 'Promjena ustava'],
+        correct: 0,
+      },
+      {
+        q: 'Zašto struktura iseljavanja posebno zabrinjava demografe?',
+        qEn: 'Why does the structure of emigration particularly worry demographers?',
+        opts: [
+          'Jer odlaze samo umirovljenici',
+          'Jer odlaze mladi i obrazovani u najproduktivnijoj dobi',
+          'Jer se iseljavaju cijela sela',
+          'Jer se nitko ne vraća',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što tekst navodi kao uvjet uspjeha bilo koje mjere?',
+        qEn: 'What does the text cite as the condition for any measure to succeed?',
+        opts: [
+          'Povećanje plaća u javnom sektoru',
+          'Zatvaranje granica',
+          'Obnovu povjerenja između građana i države',
+          'Veće subvencije poslodavcima',
+        ],
+        correct: 2,
+      },
+    ],
+  },
 ];

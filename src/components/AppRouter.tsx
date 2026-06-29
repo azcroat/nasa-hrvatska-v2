@@ -196,6 +196,13 @@ const FleetingADrill = lazyWithReload(() => import('./practice/FleetingADrill'))
 const SlangScreen = lazyWithReload(() => import('./practice/SlangScreen'));
 const NumbersCasesDrill = lazyWithReload(() => import('./practice/NumbersCasesDrill'));
 const ImperativeDrill = lazyWithReload(() => import('./practice/ImperativeDrill'));
+const ParticipleDrill = lazyWithReload(() => import('./practice/ParticipleDrill'));
+const SubordinationDrill = lazyWithReload(() => import('./practice/SubordinationDrill'));
+const ConditionalDrill = lazyWithReload(() => import('./practice/ConditionalDrill'));
+const IdiomDrill = lazyWithReload(() => import('./practice/IdiomDrill'));
+const DiscourseDrill = lazyWithReload(() => import('./practice/DiscourseDrill'));
+const RegisterDrill = lazyWithReload(() => import('./practice/RegisterDrill'));
+const NominalizationDrill = lazyWithReload(() => import('./practice/NominalizationDrill'));
 const NegationGenDrill = lazyWithReload(() => import('./practice/NegationGenDrill'));
 const VocativeScreen = lazyWithReload(() => import('./practice/VocativeScreen'));
 const CollocationsGame = lazyWithReload(() => import('./practice/CollocationsGame'));
@@ -1662,6 +1669,41 @@ export default function AppRouter(props: Record<string, any>) {
         {currentScreen === 'fleetinga' && (
           <ScreenErrorBoundary key="fleetinga" name="fleetinga">
             <FleetingADrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'participles' && (
+          <ScreenErrorBoundary key="participles" name="participles">
+            <ParticipleDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'subordination' && (
+          <ScreenErrorBoundary key="subordination" name="subordination">
+            <SubordinationDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'conditionaldrill' && (
+          <ScreenErrorBoundary key="conditionaldrill" name="conditionaldrill">
+            <ConditionalDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'idiomdrill' && (
+          <ScreenErrorBoundary key="idiomdrill" name="idiomdrill">
+            <IdiomDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'discourse' && (
+          <ScreenErrorBoundary key="discourse" name="discourse">
+            <DiscourseDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'register' && (
+          <ScreenErrorBoundary key="register" name="register">
+            <RegisterDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'nominalization' && (
+          <ScreenErrorBoundary key="nominalization" name="nominalization">
+            <NominalizationDrill goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'collocations' && (

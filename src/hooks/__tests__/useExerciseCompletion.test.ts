@@ -106,6 +106,66 @@ describe('completeExercise', () => {
     expect(h.awards).toHaveLength(0);
   });
 
+  // ── Today's Session must advance on FINISH, not only on a pass ──────────────
+  // Regression: a learner who finished a gated drill (e.g. genitive) below 75%
+  // got no award() — so the session-completion signal never fired and the daily
+  // session stranded on that activity ("genitive continues to gate progress").
+  describe("Today's Session advance signal", () => {
+    beforeEach(() => sessionStorage.clear());
+
+    it('writes nh_session_completed when a gated drill is FAILED but a session is active', () => {
+      sessionStorage.setItem('nh_session_started', 'genitivedrill');
+      const h = harness({ vs: [], gc: 0 });
+      const r = completeExercise({
+        key: 'genitive',
+        score: 4,
+        total: 10, // < 75% → not credited
+        xp: 20,
+        stats: h.get(),
+        setStats: h.setStats,
+        writeDelta: h.writeDelta,
+        award: h.award,
+      });
+      // Credit is still gated (no pass) ...
+      expect(r.passed).toBe(false);
+      expect(h.get().gc).toBe(0);
+      expect(h.awards).toHaveLength(0);
+      // ... but the session advances: the active activity is marked finished.
+      expect(sessionStorage.getItem('nh_session_completed')).toBe('genitivedrill');
+    });
+
+    it('also advances the session when the drill is passed', () => {
+      sessionStorage.setItem('nh_session_started', 'genitivedrill');
+      const h = harness({ vs: [], gc: 0 });
+      completeExercise({
+        key: 'genitive',
+        score: 9,
+        total: 10,
+        xp: 45,
+        stats: h.get(),
+        setStats: h.setStats,
+        writeDelta: h.writeDelta,
+        award: h.award,
+      });
+      expect(sessionStorage.getItem('nh_session_completed')).toBe('genitivedrill');
+    });
+
+    it('is a no-op outside the daily session (no nh_session_started)', () => {
+      const h = harness({ vs: [], gc: 0 });
+      completeExercise({
+        key: 'genitive',
+        score: 4,
+        total: 10,
+        xp: 20,
+        stats: h.get(),
+        setStats: h.setStats,
+        writeDelta: h.writeDelta,
+        award: h.award,
+      });
+      expect(sessionStorage.getItem('nh_session_completed')).toBeNull();
+    });
+  });
+
   it('unknown key defaults to gated (safe default)', () => {
     const h = harness({ vs: [], gc: 0 });
     const r = completeExercise({

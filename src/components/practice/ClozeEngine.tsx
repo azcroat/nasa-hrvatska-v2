@@ -4,10 +4,24 @@ import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
 import { logError } from '../../lib/learnerErrors.js';
 import { _aiPost } from '../../lib/aiPost';
+import { rnd } from '../../lib/random.js';
 
-// Sentence bank — fill-in-the-blank Croatian sentences covering cases, prepositions, and grammar
-// Format: { sentence: 'full sentence', blank: 'word to hide', options: [correct, wrong1, wrong2, wrong3], translation: 'English', hint: 'grammar note' }
-const SENTENCE_BANK = [
+// One fill-in-the-blank Croatian sentence.
+// `cat` is the EXPLICIT grammar topic, set only on sentences that "Today's
+// Session" can route to as a topic-specific drill (dative-locative / instrumental
+// / vocative). It is the single source of truth for topic filtering — never
+// inferred from the human-readable `hint`, which is display copy and may be
+// reworded or localized. Untagged sentences appear only in the generic mixed bank.
+type ClozeSentence = {
+  sentence: string;
+  blank: string;
+  options: string[];
+  translation: string;
+  hint: string;
+  cat?: ClozeTopic;
+};
+
+const SENTENCE_BANK: ClozeSentence[] = [
   // Nominative
   {
     sentence: 'Moj brat je visok.',
@@ -74,6 +88,7 @@ const SENTENCE_BANK = [
     options: ['majci', 'majku', 'majka', 'majke'],
     translation: 'I give flowers to my mother.',
     hint: 'Dative — indirect object (to whom)',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Kažem prijatelju istinu.',
@@ -81,6 +96,7 @@ const SENTENCE_BANK = [
     options: ['prijatelju', 'prijatelja', 'prijateljem', 'prijatelji'],
     translation: 'I tell my friend the truth.',
     hint: 'Dative — recipient of telling',
+    cat: 'dative-locative',
   },
   // Locative
   {
@@ -89,6 +105,7 @@ const SENTENCE_BANK = [
     options: ['u', 'na', 'od', 'do'],
     translation: 'I live in Zagreb.',
     hint: 'Locative — u + city name (location)',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Knjiga je na stolu.',
@@ -96,6 +113,7 @@ const SENTENCE_BANK = [
     options: ['na', 'u', 'od', 'pri'],
     translation: 'The book is on the table.',
     hint: 'Locative — na + surface (on)',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Razgovaramo o obitelji.',
@@ -103,6 +121,7 @@ const SENTENCE_BANK = [
     options: ['o', 'od', 'do', 'na'],
     translation: 'We are talking about family.',
     hint: 'Locative — o + topic',
+    cat: 'dative-locative',
   },
   // Instrumental
   {
@@ -111,6 +130,7 @@ const SENTENCE_BANK = [
     options: ['autobusom', 'autobus', 'autobusa', 'autobusu'],
     translation: 'I go to work by bus.',
     hint: 'Instrumental — means of transport',
+    cat: 'instrumental',
   },
   {
     sentence: 'Pišem olovkom.',
@@ -118,6 +138,7 @@ const SENTENCE_BANK = [
     options: ['olovkom', 'olovku', 'olovke', 'olovka'],
     translation: 'I write with a pencil.',
     hint: 'Instrumental — instrument used',
+    cat: 'instrumental',
   },
   // Vocative
   {
@@ -126,6 +147,7 @@ const SENTENCE_BANK = [
     options: ['Bako', 'Baka', 'Bake', 'Baku'],
     translation: 'Grandma, are you here?',
     hint: 'Vocative — direct address (baka → bako)',
+    cat: 'vocative',
   },
   {
     sentence: 'Tata, dođi ovamo!',
@@ -133,6 +155,7 @@ const SENTENCE_BANK = [
     options: ['Tata', 'Tatu', 'Tate', 'Tati'],
     translation: 'Dad, come here!',
     hint: 'Vocative — tata stays tata in vocative',
+    cat: 'vocative',
   },
   // Prepositions
   {
@@ -284,6 +307,7 @@ const SENTENCE_BANK = [
     options: ['sestri', 'sestra', 'sestru', 'sestre'],
     translation: 'I am giving a gift to my sister.',
     hint: 'Dative — indirect object',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Pomažem starcu prijeći cestu.',
@@ -291,6 +315,7 @@ const SENTENCE_BANK = [
     options: ['starcu', 'starac', 'starca', 'starcem'],
     translation: 'I am helping the old man cross the street.',
     hint: 'Dative — indirect object',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Pišem pismo svom učitelju.',
@@ -298,6 +323,7 @@ const SENTENCE_BANK = [
     options: ['učitelju', 'učitelj', 'učitelja', 'učiteljem'],
     translation: 'I am writing a letter to my teacher.',
     hint: 'Dative — indirect object',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Mačka spava na kauču.',
@@ -305,6 +331,7 @@ const SENTENCE_BANK = [
     options: ['kauču', 'kauč', 'kauča', 'kaučem'],
     translation: 'The cat is sleeping on the couch.',
     hint: 'Locative after "na"',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Radim u velikoj bolnici.',
@@ -312,6 +339,7 @@ const SENTENCE_BANK = [
     options: ['bolnici', 'bolnica', 'bolnicu', 'bolnice'],
     translation: 'I work in a big hospital.',
     hint: 'Locative after "u"',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Mislim o tebi cijeli dan.',
@@ -319,6 +347,7 @@ const SENTENCE_BANK = [
     options: ['tebi', 'ti', 'tebe', 'tobom'],
     translation: 'I think about you all day.',
     hint: 'Locative after "o" (personal pronoun)',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Govorimo o ljetu na moru.',
@@ -326,6 +355,7 @@ const SENTENCE_BANK = [
     options: ['ljetu', 'ljeto', 'ljeta', 'ljetom'],
     translation: 'We are talking about summer at the seaside.',
     hint: 'Locative after "o"',
+    cat: 'dative-locative',
   },
   {
     sentence: 'Putujem vlakom do Rijeke.',
@@ -333,6 +363,7 @@ const SENTENCE_BANK = [
     options: ['vlakom', 'vlak', 'vlaka', 'vlaku'],
     translation: 'I am travelling by train to Rijeka.',
     hint: 'Instrumental — means of transport',
+    cat: 'instrumental',
   },
   {
     sentence: 'Režem kruh nožem.',
@@ -340,6 +371,7 @@ const SENTENCE_BANK = [
     options: ['nožem', 'nož', 'noža', 'nožu'],
     translation: 'I am cutting bread with a knife.',
     hint: 'Instrumental — means / tool',
+    cat: 'instrumental',
   },
   {
     sentence: 'Šetam s prijateljicom po gradu.',
@@ -347,6 +379,7 @@ const SENTENCE_BANK = [
     options: ['prijateljicom', 'prijateljica', 'prijateljicu', 'prijateljici'],
     translation: 'I am walking with a friend around the city.',
     hint: 'Instrumental after "s" (accompaniment)',
+    cat: 'instrumental',
   },
   {
     sentence: 'Marko, gdje si bio jučer?',
@@ -354,6 +387,7 @@ const SENTENCE_BANK = [
     options: ['Marko', 'Marka', 'Marku', 'Markom'],
     translation: 'Marko, where were you yesterday?',
     hint: 'Vocative — direct address',
+    cat: 'vocative',
   },
   {
     sentence: 'Gospodine, mogu li vam pomoći?',
@@ -361,6 +395,7 @@ const SENTENCE_BANK = [
     options: ['Gospodine', 'Gospodin', 'Gospodina', 'Gospodinu'],
     translation: 'Sir, may I help you?',
     hint: 'Vocative — direct address',
+    cat: 'vocative',
   },
   {
     sentence: 'Prijatelju, dobro došao!',
@@ -368,6 +403,7 @@ const SENTENCE_BANK = [
     options: ['Prijatelju', 'Prijatelj', 'Prijatelja', 'Prijateljem'],
     translation: 'Friend, welcome!',
     hint: 'Vocative — direct address',
+    cat: 'vocative',
   },
   {
     sentence: 'Sjedimo ispred kuće na suncu.',
@@ -432,15 +468,101 @@ const SENTENCE_BANK = [
     translation: 'The children are playing in the yard.',
     hint: 'Present tense — 3rd person plural',
   },
+  // Instrumental (extra — so the topic-filtered drill has a full set)
+  {
+    sentence: 'Putujem avionom u Ameriku.',
+    blank: 'avionom',
+    options: ['avionom', 'avion', 'aviona', 'avionu'],
+    translation: 'I travel by plane to America.',
+    hint: 'Instrumental — means of transport',
+    cat: 'instrumental',
+  },
+  {
+    sentence: 'Jedem juhu žlicom.',
+    blank: 'žlicom',
+    options: ['žlicom', 'žlica', 'žlicu', 'žlice'],
+    translation: 'I eat soup with a spoon.',
+    hint: 'Instrumental — instrument used',
+    cat: 'instrumental',
+  },
+  {
+    sentence: 'Ona piše kredom po ploči.',
+    blank: 'kredom',
+    options: ['kredom', 'kreda', 'kredu', 'krede'],
+    translation: 'She writes with chalk on the board.',
+    hint: 'Instrumental — instrument used',
+    cat: 'instrumental',
+  },
+  // Vocative (extra — so the topic-filtered drill has a full set)
+  {
+    sentence: 'Sine, slušaj me!',
+    blank: 'Sine',
+    options: ['Sine', 'Sin', 'Sina', 'Sinu'],
+    translation: 'Son, listen to me!',
+    hint: 'Vocative — direct address (sin → sine)',
+    cat: 'vocative',
+  },
+  {
+    sentence: 'Profesore, imam pitanje.',
+    blank: 'Profesore',
+    options: ['Profesore', 'Profesor', 'Profesora', 'Profesoru'],
+    translation: 'Professor, I have a question.',
+    hint: 'Vocative — direct address',
+    cat: 'vocative',
+  },
+  {
+    sentence: 'Ivane, gdje ideš?',
+    blank: 'Ivane',
+    options: ['Ivane', 'Ivan', 'Ivana', 'Ivanu'],
+    translation: 'Ivan, where are you going?',
+    hint: 'Vocative — direct address',
+    cat: 'vocative',
+  },
 ];
 
 function shuffle(arr: any[]) {
+  // Use the shared seedable rnd() (not Math.random) so ordering is consistent
+  // with the rest of the app and deterministic under test (random.js is mocked).
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rnd() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+// ── Topic-aware cloze ────────────────────────────────────────────────────────
+// "Today's Session" routes the adaptive grammar categories `dative-locative`,
+// `instrumental`, and `vocative` to this screen (no dedicated drill exists for
+// them). The session chip advertises that exact topic — so the drill MUST serve
+// sentences for that topic, not a random mix of every case. Without this, the
+// chip said e.g. "Instrumental" but the user got a generic all-cases cloze:
+// "not going to the lessons stated." The launcher writes the requested category
+// to sessionStorage; we consume it once on mount and narrow the bank to the
+// sentences EXPLICITLY tagged with that `cat` (never inferred from copy).
+const CLOZE_TOPIC_KEY = 'nh_cloze_topic';
+// Minimum topic-matched sentences required before we commit to a topic-only
+// drill; below this we fall back to the full bank so a thin topic never yields a
+// 1–2 question "drill".
+const TOPIC_MIN = 6;
+
+export type ClozeTopic = 'dative-locative' | 'instrumental' | 'vocative';
+
+const ROUTED_TOPICS: readonly ClozeTopic[] = ['dative-locative', 'instrumental', 'vocative'];
+
+export function isRoutedTopic(topic: string | null | undefined): topic is ClozeTopic {
+  return topic != null && (ROUTED_TOPICS as readonly string[]).includes(topic);
+}
+
+// Pick the question bank for a requested session category. Returns the subset
+// whose explicit `cat` matches when the category is one of the session-routed
+// grammar topics AND enough sentences exist; otherwise the full mixed bank.
+export function selectClozeBank(topic: string | null): ClozeSentence[] {
+  if (isRoutedTopic(topic)) {
+    const filtered = SENTENCE_BANK.filter((s) => s.cat === topic);
+    if (filtered.length >= TOPIC_MIN) return filtered;
+  }
+  return SENTENCE_BANK;
 }
 
 interface Props {
@@ -457,7 +579,26 @@ export default function ClozeEngine({ goBack, award }: Props) {
     },
     [],
   );
-  const questions = useMemo(() => shuffle(SENTENCE_BANK).slice(0, 10), []);
+  // Consume the session-requested grammar topic exactly once per mount,
+  // ATOMICALLY: read AND clear in the same step (ref-guarded) rather than
+  // reading in a state initializer and clearing in a later effect. The split
+  // version left a window where a StrictMode double-render could read the value
+  // twice or a remount could clear it before the read — dropping the topic or
+  // leaking a stale value into a later generic (Practice-tab) launch. The ref
+  // guard makes this idempotent across React's double-render of one instance.
+  const topicConsumedRef = useRef(false);
+  const clozeTopicRef = useRef<string | null>(null);
+  if (!topicConsumedRef.current) {
+    topicConsumedRef.current = true;
+    try {
+      clozeTopicRef.current = sessionStorage.getItem(CLOZE_TOPIC_KEY);
+      sessionStorage.removeItem(CLOZE_TOPIC_KEY);
+    } catch {
+      clozeTopicRef.current = null; // sessionStorage unavailable — generic bank
+    }
+  }
+  const clozeTopic = clozeTopicRef.current;
+  const questions = useMemo(() => shuffle(selectClozeBank(clozeTopic)).slice(0, 10), [clozeTopic]);
   const [qi, setQi] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);

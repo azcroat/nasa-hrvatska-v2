@@ -78,6 +78,7 @@ import {
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
 import RazgovorHomeCard from './RazgovorHomeCard';
+import WeakWordsPanel from './WeakWordsPanel';
 import { hostOfDay } from './hostFamily';
 import { getServableReviewCount } from '../../lib/srs';
 
@@ -387,16 +388,24 @@ export default function HomeTab({
       const completed = sessionStorage.getItem('nh_session_completed');
       sessionStorage.removeItem('nh_session_started');
       sessionStorage.removeItem('nh_session_completed');
+      // `pending` is the launched activity; `completed` is the activity that
+      // fired the completion signal. They normally match, but if the user
+      // finished an activity and then left via the TabBar (which clears
+      // nh_session_started — see App.tsx setTab), `pending` is gone while
+      // `completed` still names the finished activity. Fall back to it so a real
+      // completion is never dropped. `completed` is only ever written for a
+      // genuinely launched activity, so this can't introduce a false completion.
+      const activity = pending || completed;
       // Mark done when the screen fired the completion signal OR it is a
       // reference slot that auto-completes on view (Croatia/immersion) — the
       // latter previously stranded the session and blocked auto-regenerate.
-      if (pending && shouldAutoCompleteOnReturn(pending, completed)) {
+      if (activity && shouldAutoCompleteOnReturn(activity, completed)) {
         // Advance the adaptive category at the UNIVERSAL completion point. Real-
         // accuracy drills already consumed it in completeExercise (no-op here);
         // award-only screens (cloze/future/znam) are rescheduled here so no
         // category can ever get stuck and repeat.
         consumeSessionCategoryOutcome();
-        markDone(pending);
+        markDone(activity);
       }
       // Clean up any category left by an abandoned launch (user backed out).
       clearSessionCategory();
@@ -416,9 +425,12 @@ export default function HomeTab({
         const completed = sessionStorage.getItem('nh_session_completed');
         sessionStorage.removeItem('nh_session_started');
         sessionStorage.removeItem('nh_session_completed');
-        if (pending && shouldAutoCompleteOnReturn(pending, completed)) {
+        // Fall back to `completed` when the launch marker was cleared by a
+        // tab-switch after a genuine finish (see PATH A / App.tsx setTab).
+        const activity = pending || completed;
+        if (activity && shouldAutoCompleteOnReturn(activity, completed)) {
           consumeSessionCategoryOutcome();
-          markDone(pending);
+          markDone(activity);
         }
         clearSessionCategory();
       } catch {}
@@ -589,6 +601,11 @@ export default function HomeTab({
           }
         }}
       />
+
+      {/* ── WHAT TO FIX NEXT — surface the weak-areas insight on Today, where the
+          "what should I do now" decision is made (it previously lived only in
+          Practice/Review). Self-handles its empty state; CTA opens /review. ── */}
+      <WeakWordsPanel setScr={setScr} />
 
       {/* ── RAZGOVOR — host-of-day conversation entry (Home split) ── */}
       <RazgovorHomeCard host={host} onOpen={goTalkToHost} />

@@ -31,16 +31,42 @@
 const STARTED_KEY = 'nh_session_started';
 const COMPLETED_KEY = 'nh_session_completed';
 
-export function signalSessionCompleteIfActive(screen: string): void {
+/**
+ * Mark the active Today's Session activity complete.
+ *
+ * Why this matters: the daily session is a practice FLOW, not a mastery gate, so
+ * an activity must advance when the learner FINISHES it — not only on a passing
+ * award(). The old handshake (useAward: nh_session_completed written only when
+ * curEx === nh_session_started) stranded the session in two ways: gated drills
+ * finished below 75% never called award() (so genitive "kept gating progress"),
+ * and the conjugation drill runs under curEx 'conjpractice:<category>' which never
+ * matched the launched screen 'conjpractice'. (XP/vs/gc credit is still gated on a
+ * pass via completeExercise; the adaptive scheduler still reschedules with real
+ * accuracy — only session progression is unblocked.)
+ *
+ * Forms:
+ *  - With `screen`: write only when it matches the launched activity. Screen-
+ *    accurate; used by empty-state branches and by callers that know their screen
+ *    id (e.g. the conjugation drill passes 'conjpractice').
+ *  - Without `screen`: complete whatever activity is currently launched. Used by
+ *    the single completion authority (completeExercise), which knows the registry
+ *    key but not the launched screen. This is safe ONLY because nh_session_started
+ *    is cleared the moment the user abandons the activity (App.tsx setTab clears it
+ *    on tab-away), so it is never stale when an unrelated drill finishes — without
+ *    that, a finished Practice-tab drill would falsely complete an abandoned
+ *    session activity.
+ */
+export function signalSessionCompleteIfActive(screen?: string): void {
   if (typeof sessionStorage === 'undefined') return;
   try {
     const started = sessionStorage.getItem(STARTED_KEY);
-    if (started && started === screen) {
-      sessionStorage.setItem(COMPLETED_KEY, screen);
+    if (!started) return;
+    if (screen === undefined || started === screen) {
+      sessionStorage.setItem(COMPLETED_KEY, started);
     }
   } catch {
     // sessionStorage can throw in cross-origin iframes or private mode —
-    // missing the signal is strictly better than crashing the empty-state
-    // render, since the user can always advance the session manually.
+    // missing the signal is strictly better than crashing the render, since the
+    // user can always advance the session manually.
   }
 }

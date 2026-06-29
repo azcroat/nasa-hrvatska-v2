@@ -32,16 +32,23 @@ describe('subscription — status and lifecycle', () => {
 
   // ── getSubscriptionStatus defaults ───────────────────────────────────────
 
-  it('returns free plan with isPremium=false when nothing stored', () => {
+  it('returns free plan (no real entitlement) when nothing stored', () => {
     const s = getSubscriptionStatus();
     expect(s.plan).toBe('free');
-    expect(s.isPremium).toBe(false);
+    expect(s.isPaid).toBe(false);
+    expect(s.isFreeAnnual).toBe(false);
     expect(s.daysLeft).toBeNull();
+    // While the app is free, isPremium is true for everyone (free-mode); it falls
+    // back to real gating when FREE_ANNUAL_ENABLED is flipped off.
+    expect(s.isPremium).toBe(FREE_ANNUAL_ENABLED);
   });
 
-  it('returns isPremium=false for expired subscription', () => {
+  it('has no active paid entitlement for an expired subscription', () => {
     setRawSub({ plan: 'yearly', expiresAt: pastISO(1), trialUntil: null, source: 'free_annual' });
-    expect(getSubscriptionStatus().isPremium).toBe(false);
+    const s = getSubscriptionStatus();
+    expect(s.isFreeAnnual).toBe(false); // expired → not active
+    expect(s.isPaid).toBe(false);
+    expect(s.isPremium).toBe(FREE_ANNUAL_ENABLED); // free-mode only
   });
 
   it('returns isPremium=true for active free_annual', () => {
@@ -255,7 +262,9 @@ describe('subscription — status and lifecycle', () => {
     cancelFreeAnnual('user123');
     const s = getSubscriptionStatus();
     expect(s.plan).toBe('free');
-    expect(s.isPremium).toBe(false);
+    expect(s.isFreeAnnual).toBe(false); // real entitlement removed
+    // isPremium stays true only because the app is in free-mode (FREE_ANNUAL_ENABLED).
+    expect(s.isPremium).toBe(FREE_ANNUAL_ENABLED);
   });
 
   it('does not affect paid (stripe) subscription', () => {
@@ -276,5 +285,15 @@ describe('subscription — status and lifecycle', () => {
 
   it('FREE_ANNUAL_ENABLED is exported as a boolean', () => {
     expect(typeof FREE_ANNUAL_ENABLED).toBe('boolean');
+  });
+
+  it('free-mode: while FREE_ANNUAL_ENABLED, even a guest (no sub) is premium for gating', () => {
+    // Regression guard for the Razgovor breakage: premium-gated features (maja /
+    // live_tutor) must be reachable for every user while the app is free, without
+    // depending on the per-login free-annual grant having run.
+    clearLS();
+    if (FREE_ANNUAL_ENABLED) {
+      expect(getSubscriptionStatus().isPremium).toBe(true);
+    }
   });
 });

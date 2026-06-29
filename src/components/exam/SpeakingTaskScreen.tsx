@@ -24,6 +24,9 @@ export default function SpeakingTaskScreen({
 }: SpeakingTaskScreenProps) {
   const rec = useRecorder();
   const [phase, setPhase] = useState<Phase>('idle');
+  // Typed-production fallback (mic denied/unsupported): the learner types their
+  // answer and we score it with the same rubric, so they can still certify.
+  const [typedAnswer, setTypedAnswer] = useState('');
   // Single-assessment-per-recording guard: remember the exact Blob we already
   // scored. The recorder yields a fresh Blob per recording, so blob identity
   // is a reliable "have I handled this one yet?" key across re-renders.
@@ -83,7 +86,24 @@ export default function SpeakingTaskScreen({
     // are read via refs so a parent re-render can't cancel an in-flight assessment.
   }, [rec.state, rec.audioBlob]);
 
+  async function submitTyped() {
+    const answer = typedAnswer.trim();
+    const assessText = scorerRef.current.assessText;
+    if (!answer || !assessText) return;
+    setPhase('assessing');
+    const result = await assessText.call(scorerRef.current, answer, {
+      level: levelRef.current,
+      prompt: promptRef.current,
+    });
+    if (result === null) {
+      setPhase('retry'); // not scored → let them edit and resubmit, never a failing score
+      return;
+    }
+    onScoreRef.current(result.overall);
+  }
+
   const denied = rec.state === 'denied' || rec.state === 'unsupported';
+  const canType = typeof scorer.assessText === 'function';
   const recording = rec.state === 'recording' || rec.state === 'countdown';
   const showRecordButton = !denied && !recording && phase === 'idle' && rec.state !== 'requesting';
 
@@ -97,12 +117,56 @@ export default function SpeakingTaskScreen({
 
       {denied && (
         <div data-testid="mic-denied">
-          <MicPermissionDeniedExplainer
-            onRetry={() => {
-              rec.reset();
-              startRecording();
-            }}
-          />
+          {phase === 'assessing' ? (
+            <p className="speak-status" data-testid="speak-assessing">
+              Assessing your Croatian&hellip;
+            </p>
+          ) : phase === 'retry' ? (
+            <>
+              <p className="speak-status" data-testid="speak-retry">
+                We couldn&apos;t score that clearly. Edit your answer and try again.
+              </p>
+              <button className="b bp" onClick={() => setPhase('idle')}>
+                Try again
+              </button>
+            </>
+          ) : canType ? (
+            <>
+              <p className="task-en">
+                🎤 Microphone unavailable — type your answer in Croatian instead.
+              </p>
+              <textarea
+                data-testid="speak-typed-input"
+                className="inp"
+                rows={3}
+                value={typedAnswer}
+                onChange={(e) => setTypedAnswer(e.target.value)}
+                placeholder="Upišite svoj odgovor na hrvatskom…"
+                style={{ width: '100%', resize: 'vertical' }}
+              />
+              <button
+                className="b bp"
+                data-testid="speak-typed-submit"
+                disabled={!typedAnswer.trim()}
+                onClick={submitTyped}
+              >
+                Submit answer
+              </button>
+              <MicPermissionDeniedExplainer
+                onRetry={() => {
+                  rec.reset();
+                  startRecording();
+                }}
+              />
+            </>
+          ) : (
+            <MicPermissionDeniedExplainer
+              onRetry={() => {
+                rec.reset();
+                startRecording();
+              }}
+            />
+          )}
         </div>
       )}
 

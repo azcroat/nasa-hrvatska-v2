@@ -1,9 +1,14 @@
 /**
  * src/components/profile/EquivalencyTestScreen.tsx
  *
- * CEFR equivalency-test runner. Renders a multi-item test for the level the
- * user is attempting to certify, tracks per-skill scores, then records the
+ * CEFR Level Check runner. Renders a multi-item check for the level the
+ * user is attempting to confirm, tracks per-skill scores, then records the
  * attempt + shows pass/fail with targeted feedback.
+ *
+ * (Internal identifiers — the 'equivalency' screen key, recordEquivalencyAttempt,
+ * the nh_cefr_certifications store — keep their historical names so existing
+ * users' saved progress is preserved; only the user-facing copy says "Level
+ * Check".)
  *
  * Entry path:
  *   - User has eligible level higher than their certified level → home/profile
@@ -29,17 +34,26 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import type { CefrLevel } from '../../lib/cefr.js';
+import { cefrRank, type CefrLevel } from '../../lib/cefr.js';
 import {
   canTakeEquivalencyTest,
   recordEquivalencyAttempt,
   computePassed,
   getCertifiedLevel,
+  isSpeakingGateEnforced,
   type SkillScores,
 } from '../../lib/cefrCertification.js';
 import { getNextTestFor, type EquivalencyTestSet } from '../../data/cefrEquivalencyItems.js';
+import { getSpeakingTasks } from '../../data/speakingTasks.js';
+import { whisperClaudeScorer } from '../../lib/speaking/whisperClaudeScorer.js';
+import { applyExamScoresToAdaptive } from '../../lib/adaptiveFeedback.js';
 import ExamRunner from '../exam/ExamRunner.js';
 import type { RunnerQuestion } from '../../lib/checkpointExam.js';
+
+// Speaking becomes a measured skill in the equivalency test from B1 up (A1/A2
+// speech samples are too short to score fairly). In shadow mode the score is
+// shown but does not gate — see isSpeakingGateEnforced.
+const SPEAKING_FLOOR: CefrLevel = 'B1';
 
 interface EquivalencyTestScreenProps {
   /** User's eligible (activity-derived) level. Used to show context only. */
@@ -141,15 +155,34 @@ export default function EquivalencyTestScreen({
     [testSet],
   );
 
+  // Speaking section for B1+ certification. In shadow mode the result is shown
+  // and recorded but does not affect pass/fail (see isSpeakingGateEnforced).
+  const speaking = useMemo(() => {
+    if (!testSet) return undefined;
+    if (cefrRank(testSet.levelFrom) < cefrRank(SPEAKING_FLOOR)) return undefined;
+    const tasks = getSpeakingTasks(testSet.levelFrom);
+    if (tasks.length === 0) return undefined;
+    return { level: testSet.levelFrom, tasks, scorer: whisperClaudeScorer };
+  }, [testSet]);
+
   // Called by ExamRunner when all questions have been answered.
   const onExamComplete = useCallback(
     (scores: SkillScores) => {
-      const { passed } = computePassed(scores);
+      // Speaking gates only once enforced (date gate); shadow mode records it
+      // without effect. When enforced, a B1+ attempt also REQUIRES a speaking
+      // score so skipping can't bypass the gate.
+      const enforced = isSpeakingGateEnforced();
+      const requireSpeaking =
+        enforced && !!testSet && cefrRank(testSet.levelFrom) >= cefrRank(SPEAKING_FLOOR);
+      const { passed } = computePassed(scores, { includeSpeaking: enforced, requireSpeaking });
       recordEquivalencyAttempt({
         level: testSet!.levelFrom,
         scores,
         currentLessonCount: userLessonCount,
       });
+      // Feedback loop: a tested weakness reschedules its adaptive categories so
+      // the daily session targets it next (3a — close the loop the audit flagged).
+      applyExamScoresToAdaptive(scores);
       setResultPassed(passed);
       setResultScores(scores);
       setPhase('result');
@@ -167,8 +200,8 @@ export default function EquivalencyTestScreen({
             You're at the top
           </h2>
           <p style={{ color: 'var(--subtext)', fontSize: 14, marginBottom: 18 }}>
-            You've certified at C1 — Croatia's most advanced equivalency tier in this app. There is
-            no C2 test (C2 is native-equivalent fluency, measured by formal external providers).
+            You've confirmed C1 — the most advanced Level Check in this app. There is no C2 check
+            (C2 is native-equivalent fluency, measured by formal external providers).
           </p>
           <button
             onClick={() => setScr('me')}
@@ -196,7 +229,7 @@ export default function EquivalencyTestScreen({
       <div className="scr-wrap">
         <div style={{ padding: '18px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 900, color: '#cc0000', letterSpacing: '.22em' }}>
-            CEFR EQUIVALENCY TEST
+            CEFR LEVEL CHECK
           </div>
           <h2
             style={{
@@ -227,6 +260,7 @@ export default function EquivalencyTestScreen({
               <li>{testSet.items.length} multiple-choice items</li>
               <li>~{testSet.minutes} minutes</li>
               <li>Mix of vocabulary, grammar, and reading comprehension</li>
+              {speaking && <li>A short speaking task (🎙️ shown for now, not yet required)</li>}
               <li>
                 Pass = <b>80%+</b> overall AND on every skill
               </li>
@@ -246,7 +280,8 @@ export default function EquivalencyTestScreen({
             }}
           >
             <b>Real fluency only.</b> Your eligible level (<b>{userEligible}</b>) reflects activity.
-            Passing this test reflects demonstrated competency at <b>{testSet.levelFrom}</b>.
+            Passing this Level Check reflects demonstrated competency at <b>{testSet.levelFrom}</b>.
+            It's an in-app proficiency check, not an accredited external certificate.
           </div>
           <button
             data-testid="equivalency-begin"
@@ -265,7 +300,7 @@ export default function EquivalencyTestScreen({
               marginBottom: 10,
             }}
           >
-            Begin Test →
+            Begin Check →
           </button>
           <button
             onClick={() => setScr('me')}
@@ -301,9 +336,9 @@ export default function EquivalencyTestScreen({
           </h2>
           <p style={{ color: 'var(--subtext)', fontSize: 14, lineHeight: 1.6, marginBottom: 18 }}>
             {retake.reason === 'already_passed'
-              ? `You've already passed the ${testSet.levelFrom} test. No need to retake.`
+              ? `You've already passed the ${testSet.levelFrom} Level Check. No need to retake.`
               : retake.cooldownUntil
-                ? `You can retake the ${testSet.levelFrom} test ${formatCooldownEnd(retake.cooldownUntil)} — or sooner if you complete ${retake.lessonsRemaining} more lesson${retake.lessonsRemaining === 1 ? '' : 's'}.`
+                ? `You can retake the ${testSet.levelFrom} Level Check ${formatCooldownEnd(retake.cooldownUntil)} — or sooner if you complete ${retake.lessonsRemaining} more lesson${retake.lessonsRemaining === 1 ? '' : 's'}.`
                 : 'Retake unavailable for now.'}
           </p>
           <button
@@ -327,16 +362,17 @@ export default function EquivalencyTestScreen({
   }
 
   // ── Question ────────────────────────────────────────────────────────────
-  // Delegated to ExamRunner, which renders data-testid="answer-N", "exam-next",
-  // and "exam-progress". No speaking prop — equivalency keeps its existing skill
-  // set (vocab, grammar, reading only).
+  // Delegated to ExamRunner (data-testid="answer-N", "exam-next", "exam-progress").
+  // From B1 up it also runs a speaking section; in shadow mode that score is
+  // measured and shown but does not gate certification (isSpeakingGateEnforced).
   if (phase === 'question') {
     return (
       <div className="scr-wrap">
         <ExamRunner
           questions={runnerQuestions}
+          speaking={speaking}
           onComplete={onExamComplete}
-          title="Equivalency Test"
+          title="Level Check"
         />
       </div>
     );
@@ -357,12 +393,12 @@ export default function EquivalencyTestScreen({
               color: passed ? '#16a34a' : '#dc2626',
             }}
           >
-            {passed ? `Certified ${testSet.levelFrom}` : 'Not yet'}
+            {passed ? `Confirmed ${testSet.levelFrom}` : 'Not yet'}
           </h2>
           <p style={{ color: 'var(--subtext)', fontSize: 14, marginBottom: 18 }}>
             {passed
-              ? `You're now certified at ${testSet.levelFrom}. ${testSet.levelTo} content is unlocked.`
-              : `You need 80% on every skill to certify. Keep practicing — retest after 5 more lessons or 7 days.`}
+              ? `You're now confirmed at ${testSet.levelFrom}. ${testSet.levelTo} content is unlocked.`
+              : `You need 80% on every skill to confirm your level. Keep practicing — retest after 5 more lessons or 7 days.`}
           </p>
           <div
             style={{
@@ -382,7 +418,16 @@ export default function EquivalencyTestScreen({
             {resultScores.reading !== undefined && (
               <SkillBar icon="📖" label="Reading" score={resultScores.reading} />
             )}
+            {resultScores.speaking !== undefined && (
+              <SkillBar icon="🎙️" label="Speaking" score={resultScores.speaking} />
+            )}
           </div>
+          {resultScores.speaking !== undefined && !isSpeakingGateEnforced() && (
+            <p style={{ fontSize: 12, color: 'var(--subtext)', marginTop: -8, marginBottom: 16 }}>
+              🎙️ Speaking is shown for now and isn&apos;t required to confirm your level yet — but
+              fluency means speaking, so it will become part of the Level Check soon.
+            </p>
+          )}
           <button
             onClick={() => setScr('me')}
             style={{

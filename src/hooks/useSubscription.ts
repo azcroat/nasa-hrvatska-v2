@@ -7,7 +7,10 @@
  * at their next anniversary, so users who haven't paid hit the paywall organically.
  *
  * ── Monetisation toggle ───────────────────────────────────────────────────────
- *   FREE_ANNUAL_ENABLED = true   → every signed-in user gets/renews a free annual
+ *   FREE_ANNUAL_ENABLED = true   → every signed-in user gets/renews a free annual,
+ *                                  AND isPremium is true for ALL users (incl.
+ *                                  guests / pre-grant) so nothing is paywalled
+ *                                  while the app is free
  *   FREE_ANNUAL_ENABLED = false  → free_annual grants stop; existing ones remain
  *                                  active until expiresAt, then paywall activates
  *
@@ -187,7 +190,13 @@ export function getSubscriptionStatus(): SubscriptionStatus {
   const inTrial = _isInTrial(sub);
   const isPaid = _isActivePaid(sub) && _isPaidSource(sub.source);
   const isFreeAnnual = sub.source === 'free_annual' && _isActivePaid(sub);
-  const isPremium = inTrial || isPaid || isFreeAnnual || _isActivePaid(sub);
+  // While the app is free (FREE_ANNUAL_ENABLED), EVERY user is premium for
+  // feature-gating — including guests and users whose per-login free-annual grant
+  // hasn't run yet. This guarantees free access to gated features (Razgovor's
+  // persona chats, live tutor) without depending on grant timing. Flip
+  // FREE_ANNUAL_ENABLED to false to restore real gating when monetising; the
+  // paid-state fields below (isPaid/isFreeAnnual/source/plan) stay accurate.
+  const isPremium = FREE_ANNUAL_ENABLED || inTrial || isPaid || isFreeAnnual || _isActivePaid(sub);
 
   let daysLeft: number | null = null;
   if (sub.expiresAt && _isActivePaid(sub)) {

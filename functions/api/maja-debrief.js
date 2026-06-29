@@ -154,6 +154,8 @@ DEBRIEF INSTRUCTIONS:
 
 9. LEVEL-UP SUGGESTION ("suggestLevelUp"): Based on the conversation, does the student consistently perform ABOVE their stated level (${level})? Return true ONLY if they clearly and repeatedly used grammar or vocabulary beyond their level — for example, an A1 student constructing correct complex sentences, or an A2 student using B1 aspect distinctions correctly. Return false if they are at or below their current level. When true, also populate "suggestLevelUpTo" with the next level (A1→A2, A2→B1, B1→B2, B2→C1). When true, also write "levelUpMessage" — one short warm sentence from Maja encouraging the level change.
 
+10. PRACTICE CATEGORIES ("practiceCategories"): Based on the grammar errors the student actually made, list 0-3 tokens naming what to drill next. Use ONLY these exact tokens (omit any with no relevant error): "genitive", "accusative", "dative-locative", "instrumental", "vocative", "nominative", "present-tense", "past-tense", "future-tense", "aspect-imperfective", "aspect-perfective", "conditional", "clitics", "word-order". Empty array if no clear grammar errors.
+
 OUTPUT FORMAT — CRITICAL:
 Return ONLY a valid JSON object. No markdown. No code blocks. No explanation before or after. Exactly this structure:
 
@@ -161,6 +163,7 @@ Return ONLY a valid JSON object. No markdown. No code blocks. No explanation bef
   "majaNotes": "Two warm, specific English sentences from Maja to the student.",
   "didWell": "One specific English sentence about what they did well.",
   "focusNext": "One precise English sentence about what to practise next.",
+  "practiceCategories": ["genitive", "aspect-imperfective"],
   "newVocab": [
     {"hr": "šetnica", "en": "promenade / boardwalk", "used_in": "Šetnica u Zadru je prekrasna navečer."}
   ],
@@ -409,6 +412,16 @@ export async function onRequestPost(context) {
       }, [])
     : [];
 
+  // Practice categories for the adaptive feedback loop (3b). Generic sanitize
+  // (≤3 short lowercase tokens); the client validates against the real category
+  // taxonomy before scheduling, so a stray token can't pollute the scheduler.
+  const practiceCategories = Array.isArray(parsed.practiceCategories)
+    ? parsed.practiceCategories
+        .filter((c) => typeof c === 'string' && c.trim())
+        .slice(0, 3)
+        .map((c) => c.trim().toLowerCase().slice(0, 40))
+    : [];
+
   return ok(
     {
       majaNotes,
@@ -418,6 +431,7 @@ export async function onRequestPost(context) {
       nextTopicSuggestion,
       updatedFacts,
       mistakePatternsUpdate,
+      practiceCategories,
       xpEarned: 30,
     },
     origin,

@@ -767,6 +767,16 @@ export function useScreenLauncher({
         // Conjugation drill carries its target category in curEx so the screen
         // can pick the right form-type; screen id stays 'conjpractice' for routing.
         const ex = screen === 'conjpractice' && category ? `conjpractice:${category}` : screen;
+        // Topic-aware cloze: the adaptive categories dative-locative / instrumental
+        // / vocative route to the generic cloze screen (no dedicated drill). Hand
+        // the requested category to ClozeEngine via sessionStorage so it serves
+        // sentences for THAT topic — the session chip promises it. We deliberately
+        // do NOT fold the category into curEx (as conjpractice does): curEx is the
+        // session-completion key compared against nh_session_started, and changing
+        // it would strand the session at N-1/N (completion never fires).
+        if (screen === 'cloze') {
+          sessionStorage.setItem('nh_cloze_topic', category ?? '');
+        }
         sCurEx(ex);
         sessionStorage.setItem('nh_ex_start', Date.now().toString());
         setScr(screen);

@@ -21,23 +21,35 @@ test.describe('Conjugation in Today\'s Session', () => {
     await blockFirebase(page);
     await mockTTS(page);
     await mockContent(page); // serve /api/content/grammar (incl. VERBS) so the drill hydrates
-    // Make present-tense the adaptive pick. getDueCategoryQueue treats any category
-    // with no stored card as due (due ?? 0 <= now) and orders the "due" bucket by
-    // ALL_CATEGORIES order — where the noun-case categories precede present-tense.
-    // So push those cases to a future due date; present-tense (due in the past) then
-    // becomes the first eligible adaptive topic.
+    // Make present-tense the adaptive pick. getDueCategoryQueue uses a coverage
+    // floor: a category not practised within ~14 days (or never seen) is "starved"
+    // and promoted to the front, most-neglected first. So seed EVERY category as
+    // recently practised and not due, and leave only present-tense starved (last
+    // seen 30 days ago) — it becomes the sole front-of-queue adaptive topic and
+    // routes to conjpractice.
     await page.addInitScript(() => {
-      const future = Date.now() + 7 * 86400000;
-      const seen = (due) => ({ stability: 5, recentAccuracy: 0.9, due, lastSeen: 1 });
+      const now = Date.now();
+      const recent = { stability: 5, recentAccuracy: 0.9, due: now + 7 * 86400000, lastSeen: now };
       localStorage.setItem(
         'nh_cat_sr',
         JSON.stringify({
-          genitive: seen(future),
-          accusative: seen(future),
-          'dative-locative': seen(future),
-          instrumental: seen(future),
-          vocative: seen(future),
-          'present-tense': { stability: 1, recentAccuracy: 0.2, due: 1, lastSeen: 1 },
+          genitive: recent,
+          accusative: recent,
+          'dative-locative': recent,
+          instrumental: recent,
+          vocative: recent,
+          'past-tense': recent,
+          'future-tense': recent,
+          'aspect-imperfective': recent,
+          'aspect-perfective': recent,
+          'aspect-negation': recent,
+          conditional: recent,
+          clitics: recent,
+          'vocab-a2': recent,
+          'vocab-b1': recent,
+          'vocab-b2': recent,
+          speaking: recent,
+          'present-tense': { stability: 1, recentAccuracy: 0.2, due: 1, lastSeen: now - 30 * 86400000 },
         }),
       );
     });

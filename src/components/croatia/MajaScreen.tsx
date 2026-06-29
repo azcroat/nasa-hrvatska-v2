@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import { markQuest } from '../../lib/quests.js';
+import { applyConversationCategoriesToAdaptive } from '../../lib/adaptiveFeedback.js';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { unlockAudio, ttsFetch } from '../../lib/audio.js';
@@ -655,6 +656,11 @@ export default function MajaScreen() {
 
       if (!res.ok) throw new Error(`Debrief API ${res.status}`);
       const data = await res.json();
+
+      // Feedback loop 3b: feed the conversation's grammar errors into the
+      // adaptive scheduler so the daily session targets them next (validated
+      // against the real category taxonomy inside the helper).
+      applyConversationCategoriesToAdaptive(data.practiceCategories);
 
       // update localStorage memory
       const mem = loadMemory();
