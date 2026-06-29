@@ -82,6 +82,19 @@ describe('SpeakingTaskScreen', () => {
     );
   });
 
+  it('shows a Stop button while recording and stops via the recorder when tapped', () => {
+    // Regression: on iOS Safari the only stop path used to be the 60s maxDurationMs
+    // timer, which the OS throttles/suspends — leaving the recording stuck forever
+    // and the question ungradable. A user-controlled Stop must always be available.
+    const scorer = scorerReturning(0.82);
+    setRecorder('recording');
+    render(<SpeakingTaskScreen task={task} level="B1" scorer={scorer} onScore={vi.fn()} />);
+    const stop = screen.getByTestId('speak-stop');
+    expect(stop).toBeTruthy();
+    fireEvent.click(stop);
+    expect(stopRecording).toHaveBeenCalledTimes(1);
+  });
+
   it('on a completed recording assesses the blob and reports the overall score', async () => {
     const scorer = scorerReturning(0.82);
     const onScore = vi.fn();

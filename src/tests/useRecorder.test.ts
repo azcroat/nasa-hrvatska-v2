@@ -185,6 +185,25 @@ describe('useRecorder', () => {
     expect(result.current.micAvailable).toBe(false);
   });
 
+  it('sets state=unsupported when MediaRecorder is unavailable (iOS Safari w/o MediaRecorder)', () => {
+    const saved = (globalThis as unknown as { MediaRecorder: unknown }).MediaRecorder;
+    // getUserMedia exists, but MediaRecorder does not — must fail cleanly, not hang.
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: () => Promise.resolve({ getTracks: () => [] } as unknown as MediaStream),
+      },
+    });
+    (globalThis as unknown as { MediaRecorder: unknown }).MediaRecorder = undefined;
+    const { result } = renderHook(() => useRecorder());
+    act(() => {
+      result.current.startRecording({ countdown: 0 });
+    });
+    expect(result.current.state).toBe('unsupported');
+    expect(result.current.micAvailable).toBe(false);
+    (globalThis as unknown as { MediaRecorder: unknown }).MediaRecorder = saved;
+  });
+
   it('sets state=unsupported on NotFoundError', async () => {
     Object.defineProperty(navigator, 'mediaDevices', {
       configurable: true,
