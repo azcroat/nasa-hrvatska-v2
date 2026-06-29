@@ -2488,4 +2488,181 @@ export const GRADED_STORIES = [
       },
     ],
   },
+
+  // ═══════════════════════════════════════════════════════
+  // C2 — Mastery level: literary/analytical prose, abstract register
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 'gs_c2_1',
+    level: 'C2',
+    levelColor: '#9d174d',
+    levelBg: '#fce7f3',
+    icon: '🗝️',
+    title: 'Jezik kao zavičaj',
+    titleEn: 'Language as Homeland',
+    duration: 8,
+    focus: 'Abstract/literary register • Identity & belonging • Verbal nouns & nuance',
+    intro:
+      'A reflective essay on language, memory, and diaspora identity. Practise abstract literary register, figurative usage, and the kind of nuanced phrasing that separates C1 from C2.',
+    paragraphs: [
+      {
+        hr: 'Postoji osjećaj, blizak svakome tko je odrastao daleko od domovine, da jezik nije tek sredstvo sporazumijevanja, nego svojevrstan zavičaj koji nosimo u sebi. Riječi koje smo čuli u djetinjstvu — uspavanke, imena jela, prve psovke — urezane su dublje od bilo koje naučene gramatike. One ne prenose samo značenje, nego i miris kuhinje, ton bakina glasa i težinu nedjeljnih popodneva.',
+        en: 'There is a feeling, familiar to anyone who grew up far from their homeland, that language is not merely a means of communication but a kind of homeland we carry within us. The words we heard in childhood — lullabies, the names of dishes, our first curses — are etched more deeply than any learned grammar. They convey not only meaning but the smell of a kitchen, the tone of a grandmother’s voice, and the weight of Sunday afternoons.',
+      },
+      {
+        hr: 'Ipak, taj se zavičaj lako osipa. U drugoj se generaciji jezik povlači u kuću, u trećoj u tek pokoji izraz, a u četvrtoj nerijetko nestaje posve. Mnogi tek kao odrasli ljudi osjete tu prazninu i odluče vratiti ono što su, naizgled, nepovratno izgubili — ne zbog koristi, nego zbog pripadnosti.',
+        en: 'Yet that homeland easily erodes. In the second generation the language retreats into the home, in the third into just the occasional expression, and in the fourth it not infrequently disappears entirely. Many feel that emptiness only as adults and decide to recover what they had, seemingly, irretrievably lost — not out of usefulness, but out of belonging.',
+      },
+      {
+        hr: 'Učenje jezika predaka razlikuje se od učenja bilo kojega stranog jezika. Tu nije riječ o osvajanju nepoznatoga, nego o prisjećanju; svaka svladana riječ kao da otključava vrata koja su oduvijek bila ondje. Put je, doduše, trnovit — odrasli se srame pogrešaka, a savršenstvo koje priželjkuju redovito im izmiče.',
+        en: 'Learning the language of one’s ancestors differs from learning any foreign language. It is not a matter of conquering the unknown but of remembering; every mastered word seems to unlock a door that was always there. The path, admittedly, is thorny — adults are ashamed of mistakes, and the perfection they long for regularly eludes them.',
+      },
+      {
+        hr: 'No upravo se u toj nesavršenosti krije sloboda. Jezik se ne posjeduje kao predmet, nego se nastanjuje kao kuća: uvijek pomalo propušta, uvijek traži obnovu. Tko to prihvati, otkriva da zavičaj nije mjesto na karti, nego nešto što iznova gradimo svakom izgovorenom rečenicom.',
+        en: 'But it is precisely in that imperfection that freedom lies. A language is not possessed like an object but inhabited like a house: it always leaks a little, always demands renewal. Whoever accepts this discovers that a homeland is not a place on a map, but something we rebuild with every sentence we speak.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'zavičaj', en: 'homeland / native region', ex: 'Jezik je zavičaj koji nosimo u sebi.' },
+      {
+        hr: 'sredstvo sporazumijevanja',
+        en: 'means of communication',
+        ex: 'Jezik je više od sredstva sporazumijevanja.',
+      },
+      { hr: 'urezati', en: 'to etch / engrave', ex: 'Te su riječi duboko urezane u pamćenje.' },
+      { hr: 'osipati se', en: 'to erode / crumble away', ex: 'Materinski se jezik polako osipa.' },
+      { hr: 'povlačiti se', en: 'to retreat / withdraw', ex: 'Jezik se povlači u kuću.' },
+      {
+        hr: 'praznina',
+        en: 'emptiness / void',
+        ex: 'Osjetio je prazninu i odlučio nešto poduzeti.',
+      },
+      { hr: 'pripadnost', en: 'belonging', ex: 'Uči jezik zbog pripadnosti, ne koristi.' },
+      {
+        hr: 'prisjećanje',
+        en: 'remembering / recollection',
+        ex: 'Učenje je više prisjećanje nego osvajanje.',
+      },
+      { hr: 'trnovit', en: 'thorny', ex: 'Put do tečnosti je trnovit.' },
+      {
+        hr: 'nastaniti se',
+        en: 'to settle / take up residence',
+        ex: 'U jezik se nastanjujemo kao u kuću.',
+      },
+    ],
+    quiz: [
+      {
+        q: 'Kako tekst opisuje odnos jezika i zavičaja?',
+        qEn: 'How does the text describe the relationship between language and homeland?',
+        opts: [
+          'Jezik je samo sredstvo sporazumijevanja',
+          'Jezik je zavičaj koji nosimo u sebi',
+          'Jezik nema veze s identitetom',
+          'Zavičaj je isključivo mjesto na karti',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što se, prema tekstu, događa s jezikom kroz generacije iseljenika?',
+        qEn: 'What happens to the language across emigrant generations?',
+        opts: [
+          'Jača iz generacije u generaciju',
+          'Postupno se osipa i može posve nestati',
+          'Ostaje potpuno nepromijenjen',
+          'Odmah ga zamjenjuje drugi jezik',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Po čemu se učenje jezika predaka razlikuje od učenja stranog jezika?',
+        qEn: 'How does learning an ancestral language differ from learning a foreign one?',
+        opts: [
+          'Lakše je jer nema gramatike',
+          'Riječ je o prisjećanju, a ne o osvajanju nepoznatoga',
+          'Ne zahtijeva nikakav trud',
+          'Moguće je samo u djetinjstvu',
+        ],
+        correct: 1,
+      },
+    ],
+  },
+
+  {
+    id: 'gs_c2_2',
+    level: 'C2',
+    levelColor: '#9d174d',
+    levelBg: '#fce7f3',
+    icon: '🐌',
+    title: 'Pohvala sporosti',
+    titleEn: 'In Praise of Slowness',
+    duration: 8,
+    focus: 'Argumentative essay • Abstract vocabulary • Rhetorical contrast',
+    intro:
+      'A short argumentative essay on speed, attention, and depth in the digital age. Practise abstract nouns, rhetorical antithesis, and concessive constructions ("one should not, of course…").',
+    paragraphs: [
+      {
+        hr: 'Živimo u dobu koje slavi brzinu kao da je ona sama po sebi vrlina. Vijesti nas zapljuskuju u stvarnome vremenu, poruke traže trenutačan odgovor, a strpljenje je počelo zvučati gotovo kao mana. U toj se vrevi lako zaboravlja da mnoge stvari od vrijednosti — povjerenje, znanje, prijateljstvo — sazrijevaju isključivo polako.',
+        en: 'We live in an age that celebrates speed as if it were a virtue in itself. News washes over us in real time, messages demand an instant reply, and patience has begun to sound almost like a flaw. In that bustle it is easy to forget that many things of value — trust, knowledge, friendship — ripen exclusively slowly.',
+      },
+      {
+        hr: 'Sporost o kojoj je riječ nije lijenost, nego svjesno usporavanje. Tko knjigu čita danima, umjesto da preleti tuđi sažetak, ne gubi vrijeme — on ulazi u tekst i dopušta mu da ga promijeni. Površnost je cijena žurbe; dubina je nagrada strpljenju.',
+        en: 'The slowness in question is not laziness but a conscious slowing down. Whoever reads a book over days, instead of skimming someone else’s summary, does not waste time — he enters the text and allows it to change him. Superficiality is the price of haste; depth is the reward of patience.',
+      },
+      {
+        hr: 'Zanimljivo je da i jezik najbolje otkriva svoje tajne onima koji ne hrle prema cilju. Nijanse značenja, ritam rečenice, suzdržana ironija — sve se to opaža tek kad zastanemo. Brzina hvata informaciju, ali sporost hvata smisao.',
+        en: 'It is interesting that language too reveals its secrets best to those who do not rush toward a goal. Nuances of meaning, the rhythm of a sentence, restrained irony — all of this is noticed only when we pause. Speed captures information, but slowness captures meaning.',
+      },
+      {
+        hr: 'Ne treba, dakako, odbaciti svaku žurbu; ima trenutaka kad je brzina nužna. Riječ je o ravnoteži koju smo, čini se, izgubili. Možda je najveći luksuz našega doba upravo onaj koji ništa ne košta: dopustiti si da nešto traje onoliko dugo koliko uistinu zaslužuje.',
+        en: 'One should not, of course, reject all haste; there are moments when speed is necessary. It is about a balance that we seem to have lost. Perhaps the greatest luxury of our age is precisely the one that costs nothing: to allow oneself to let something last as long as it truly deserves.',
+      },
+    ],
+    vocabulary: [
+      { hr: 'vrlina', en: 'virtue', ex: 'Brzina nije vrlina sama po sebi.' },
+      {
+        hr: 'zapljuskivati',
+        en: 'to wash over / splash',
+        ex: 'Vijesti nas zapljuskuju u stvarnom vremenu.',
+      },
+      { hr: 'trenutačan', en: 'instantaneous', ex: 'Poruke traže trenutačan odgovor.' },
+      { hr: 'strpljenje', en: 'patience', ex: 'Dubina je nagrada strpljenju.' },
+      { hr: 'mana', en: 'flaw / defect', ex: 'Strpljenje danas zvuči kao mana.' },
+      { hr: 'sazrijevati', en: 'to ripen / mature', ex: 'Povjerenje sazrijeva polako.' },
+      { hr: 'površnost', en: 'superficiality', ex: 'Površnost je cijena žurbe.' },
+      { hr: 'žurba', en: 'haste / hurry', ex: 'Ne treba odbaciti svaku žurbu.' },
+      { hr: 'suzdržan', en: 'restrained', ex: 'Cijenio je njegovu suzdržanu ironiju.' },
+      { hr: 'hrliti', en: 'to rush / hasten toward', ex: 'Ne hrli prema cilju pod svaku cijenu.' },
+    ],
+    quiz: [
+      {
+        q: 'Što tekst kritizira u suvremenom dobu?',
+        qEn: 'What does the text criticize about the modern age?',
+        opts: [
+          'Pretjeranu sporost',
+          'Slavljenje brzine kao vrline same po sebi',
+          'Manjak tehnologije',
+          'Previše čitanja knjiga',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Kako autor definira sporost?',
+        qEn: 'How does the author define slowness?',
+        opts: [
+          'Kao lijenost',
+          'Kao svjesno usporavanje',
+          'Kao čisti gubitak vremena',
+          'Kao manu karaktera',
+        ],
+        correct: 1,
+      },
+      {
+        q: 'Što, prema autoru, "hvata smisao"?',
+        qEn: 'According to the author, what "captures meaning"?',
+        opts: ['Brzina', 'Sporost', 'Žurba', 'Površnost'],
+        correct: 1,
+      },
+    ],
+  },
 ];
