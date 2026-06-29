@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { speak } from '../../data';
 import { useContent } from '../../hooks/useContent';
 
-type LevelKey = 'B2' | 'C1';
+type LevelKey = 'B2' | 'C1' | 'C2';
 const LS_KEY = 'nh_adv_vocab_learned';
 
 function loadLearned() {
@@ -26,15 +26,16 @@ interface Props {
 
 export default function AdvancedVocabScreen({ goBack, award }: Props) {
   const { content } = useContent();
-  // SP11f: V_B2 / V_C1 ship from /api/content/core. While content hydrates,
+  // SP11f: V_B2 / V_C1 / V_C2 ship from /api/content/core. While content hydrates,
   // fall back to empty objects so the screen renders the empty state rather
   // than crashing.
   const LEVEL_DATA = useMemo(
     () => ({
       B2: (content?.V_B2 ?? {}) as Record<string, unknown>,
       C1: (content?.V_C1 ?? {}) as Record<string, unknown>,
+      C2: (content?.V_C2 ?? {}) as Record<string, unknown>,
     }),
-    [content?.V_B2, content?.V_C1],
+    [content?.V_B2, content?.V_C1, content?.V_C2],
   );
 
   const [level, setLevel] = useState<LevelKey>('B2');
@@ -118,7 +119,7 @@ export default function AdvancedVocabScreen({ goBack, award }: Props) {
 
         {/* ── LEVEL TOGGLE ── */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, marginTop: 12 }}>
-          {(['B2', 'C1'] as LevelKey[]).map((l) => (
+          {(['B2', 'C1', 'C2'] as LevelKey[]).map((l) => (
             <button
               key={l}
               onClick={() => toggleLevel(l)}

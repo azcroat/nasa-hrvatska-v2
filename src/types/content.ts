@@ -147,4 +147,5 @@ export interface Content {
   // SP11f: advanced-vocab tiers consumed by AdvancedVocabScreen.
   V_B2: Record<string, unknown>;
   V_C1: Record<string, unknown>;
+  V_C2: Record<string, unknown>;
 }

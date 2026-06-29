@@ -18,6 +18,7 @@ import {
   TOP100,
   V_B2,
   V_C1,
+  V_C2,
   ALPHA,
 } from './vocabulary.js';
 import { PROVERBS } from './cultural/proverbs.js';
@@ -102,6 +103,7 @@ export {
   SEASONAL_CAMPAIGNS,
   V_B2,
   V_C1,
+  V_C2,
 };
 
 export const LEVEL_NARRATIVE = {
