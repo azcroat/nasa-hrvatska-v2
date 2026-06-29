@@ -108,7 +108,20 @@ export default function LearnTab({
   const { content } = useContent();
   const V = (content?.V ?? {}) as Record<string, unknown[]>;
   const LEARN_PATH = content?.LEARN_PATH ?? [];
-  const [showBrowse, setShowBrowse] = useState(false);
+  // Open the full-library browse modal immediately when arriving from the Today
+  // tab's "Browse the full library" off-ramp. One-shot sessionStorage flag,
+  // consumed atomically on mount (LearnTab remounts on each tab switch).
+  const [showBrowse, setShowBrowse] = useState(() => {
+    try {
+      if (sessionStorage.getItem('nh_open_browse')) {
+        sessionStorage.removeItem('nh_open_browse');
+        return true;
+      }
+    } catch {
+      /* sessionStorage unavailable — fall through */
+    }
+    return false;
+  });
   const [pendingLesson, setPendingLesson] = useState<PendingLesson | null>(null);
 
   // ── PATH PROGRESS ──────────────────────────────────────────────────────
