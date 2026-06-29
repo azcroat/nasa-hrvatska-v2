@@ -976,7 +976,7 @@ export default function BrowseContentModal({
 
         {/* Pronunciation Lab */}
         <div id="learn-section-pronunciation">
-          <Section title="Pronunciation Lab" icon="🎙️" count="3 courses" defaultOpen={false}>
+          <Section title="Pronunciation Lab" icon="🎙️" count="3 courses" defaultOpen={true}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {tiles5([
                 [
@@ -1048,7 +1048,7 @@ export default function BrowseContentModal({
 
         {/* Learning Paths & Tracks */}
         <div id="learn-section-paths">
-          <Section title="Learning Paths & Tracks" icon="🧭" count="10 tracks" defaultOpen={false}>
+          <Section title="Learning Paths & Tracks" icon="🧭" count="10 tracks" defaultOpen={true}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {tiles5([
                 [
