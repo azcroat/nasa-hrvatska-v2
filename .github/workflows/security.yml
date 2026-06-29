@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # full history so previously-committed secrets are caught
       # SHA-pinned (gitleaks-action v2). Free for public/personal repos (no license).
@@ -35,7 +35,7 @@ jobs:
       security-events: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Semgrep — OWASP Top 10 + React + JS patterns
         run: |
