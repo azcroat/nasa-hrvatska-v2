@@ -35,7 +35,7 @@ import {
   recordEquivalencyAttempt,
   computePassed,
   getCertifiedLevel,
-  SPEAKING_GATE_ENFORCED,
+  isSpeakingGateEnforced,
   type SkillScores,
 } from '../../lib/cefrCertification.js';
 import { getNextTestFor, type EquivalencyTestSet } from '../../data/cefrEquivalencyItems.js';
@@ -46,7 +46,7 @@ import type { RunnerQuestion } from '../../lib/checkpointExam.js';
 
 // Speaking becomes a measured skill in the equivalency test from B1 up (A1/A2
 // speech samples are too short to score fairly). In shadow mode the score is
-// shown but does not gate — see SPEAKING_GATE_ENFORCED.
+// shown but does not gate — see isSpeakingGateEnforced.
 const SPEAKING_FLOOR: CefrLevel = 'B1';
 
 interface EquivalencyTestScreenProps {
@@ -150,7 +150,7 @@ export default function EquivalencyTestScreen({
   );
 
   // Speaking section for B1+ certification. In shadow mode the result is shown
-  // and recorded but does not affect pass/fail (see SPEAKING_GATE_ENFORCED).
+  // and recorded but does not affect pass/fail (see isSpeakingGateEnforced).
   const speaking = useMemo(() => {
     if (!testSet) return undefined;
     if (cefrRank(testSet.levelFrom) < cefrRank(SPEAKING_FLOOR)) return undefined;
@@ -162,8 +162,13 @@ export default function EquivalencyTestScreen({
   // Called by ExamRunner when all questions have been answered.
   const onExamComplete = useCallback(
     (scores: SkillScores) => {
-      // Speaking gates only when enforced; shadow mode records it without effect.
-      const { passed } = computePassed(scores, { includeSpeaking: SPEAKING_GATE_ENFORCED });
+      // Speaking gates only once enforced (date gate); shadow mode records it
+      // without effect. When enforced, a B1+ attempt also REQUIRES a speaking
+      // score so skipping can't bypass the gate.
+      const enforced = isSpeakingGateEnforced();
+      const requireSpeaking =
+        enforced && !!testSet && cefrRank(testSet.levelFrom) >= cefrRank(SPEAKING_FLOOR);
+      const { passed } = computePassed(scores, { includeSpeaking: enforced, requireSpeaking });
       recordEquivalencyAttempt({
         level: testSet!.levelFrom,
         scores,
@@ -349,7 +354,7 @@ export default function EquivalencyTestScreen({
   // ── Question ────────────────────────────────────────────────────────────
   // Delegated to ExamRunner (data-testid="answer-N", "exam-next", "exam-progress").
   // From B1 up it also runs a speaking section; in shadow mode that score is
-  // measured and shown but does not gate certification (SPEAKING_GATE_ENFORCED).
+  // measured and shown but does not gate certification (isSpeakingGateEnforced).
   if (phase === 'question') {
     return (
       <div className="scr-wrap">
@@ -407,7 +412,7 @@ export default function EquivalencyTestScreen({
               <SkillBar icon="🎙️" label="Speaking" score={resultScores.speaking} />
             )}
           </div>
-          {resultScores.speaking !== undefined && !SPEAKING_GATE_ENFORCED && (
+          {resultScores.speaking !== undefined && !isSpeakingGateEnforced() && (
             <p style={{ fontSize: 12, color: 'var(--subtext)', marginTop: -8, marginBottom: 16 }}>
               🎙️ Speaking is shown for now and isn&apos;t required to certify yet — but fluency
               means speaking, so it will become part of certification soon.
