@@ -54,6 +54,15 @@ updates:
         versions: [">=8.0.0"]
       - dependency-name: "@vitejs/plugin-react"
         versions: [">=6.0.0"]
+      # React 19 is a deliberate, separately-scoped migration — not a drive-by
+      # bump. Dependabot also proposed it inconsistently (react 19 while
+      # react-dom stayed 18), which would break the app. We stay on React 18
+      # (~18.3.1) until React 19 is migrated as its own task. Remove these to
+      # revisit. (@types/react may lead at 19; the runtime packages are gated.)
+      - dependency-name: "react"
+        versions: [">=19.0.0"]
+      - dependency-name: "react-dom"
+        versions: [">=19.0.0"]
 
   # GitHub Actions — monthly sweep is enough
   - package-ecosystem: "github-actions"
