@@ -43,6 +43,12 @@ export interface UseDailySessionReturn {
    * and any done in the last 24h). Empty array when session is incomplete.
    */
   bonusActivities: SessionActivity[];
+  /**
+   * Build a fresh curated session on demand. Called when the user explicitly
+   * chooses to keep going from the complete state (the session no longer
+   * auto-regenerates, which used to hide the completion moment).
+   */
+  startFreshSession: () => void;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -731,15 +737,15 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
   const nextActivity = session.activities.find((a) => !session.completedIds.includes(a.id)) ?? null;
   const tomorrowLabel = '4–6 activities tomorrow';
 
-  // Auto-regenerate on completion (same day). The moment every activity is done,
-  // build a brand-new set so Today's Session always offers fresh content instead
-  // of a dead-end. By now the just-completed screens are recorded (skip-recent)
-  // and the just-rated adaptive category has rescheduled, so the new set rotates
-  // to different exercises and a different grammar focus. buildSessionActivities
-  // always returns >= 1 activity (Croatia slot is unconditional), so the fresh
-  // set is never immediately complete — no render loop.
-  useEffect(() => {
-    if (!isComplete || session.activities.length === 0) return;
+  // Build a brand-new session ON DEMAND — the user taps "Start a fresh session"
+  // from the complete state. This used to run automatically in a useEffect the
+  // instant isComplete flipped true, which silently erased the "Session
+  // Complete!" moment and made the bonus-activities next-steps unreachable (the
+  // session felt endless — it just refilled). Completion is now a real, visible
+  // state; regenerating is the user's explicit choice. buildSessionActivities
+  // always returns >= 1 activity, and the just-completed screens are recorded
+  // (skip-recent) so the fresh set rotates to different exercises.
+  const startFreshSession = useCallback(() => {
     const activities = buildSessionActivities(userCefr, poolWords);
     const fresh: DailySession = {
       date: localDateStr(),
@@ -750,8 +756,7 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
     };
     persistSession(fresh);
     setSession(fresh);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isComplete]);
+  }, [userCefr, poolWords]);
 
   // Bonus activities — show only when the curated daily session is complete,
   // so users who want to keep learning have specific next steps instead of a
@@ -796,7 +801,16 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
       })()
     : [];
 
-  return { session, isComplete, progress, markDone, nextActivity, tomorrowLabel, bonusActivities };
+  return {
+    session,
+    isComplete,
+    progress,
+    markDone,
+    nextActivity,
+    tomorrowLabel,
+    bonusActivities,
+    startFreshSession,
+  };
 }
 
 // ── Mic-state persistence (SP4b) ─────────────────────────────────────────────

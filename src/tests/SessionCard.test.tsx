@@ -159,5 +159,45 @@ describe('SessionCard — LearnPath chip', () => {
   });
 });
 
+describe('SessionCard — fresh-session off-ramp (bug #1)', () => {
+  it('renders the "Start a fresh session" button in the complete state when onStartFresh is provided', () => {
+    render(
+      <SessionCard
+        {...BASE_PROPS}
+        session={makeSession(['a1', 'a2'])}
+        isComplete={true}
+        onStartFresh={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('start-fresh-session')).toBeTruthy();
+  });
+
+  it('does NOT render the fresh-session button when not complete', () => {
+    render(
+      <SessionCard
+        {...BASE_PROPS}
+        session={makeSession()}
+        isComplete={false}
+        onStartFresh={vi.fn()}
+      />,
+    );
+    expect(screen.queryByTestId('start-fresh-session')).toBeNull();
+  });
+
+  it('invokes onStartFresh when the button is clicked', () => {
+    const onStartFresh = vi.fn();
+    render(
+      <SessionCard
+        {...BASE_PROPS}
+        session={makeSession(['a1', 'a2'])}
+        isComplete={true}
+        onStartFresh={onStartFresh}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('start-fresh-session'));
+    expect(onStartFresh).toHaveBeenCalledTimes(1);
+  });
+});
+
 // (Removed "relational progress voice" tests — the host-voiced progress line was
 // deleted from SessionCard entirely on 2026-06-21 per user request.)
