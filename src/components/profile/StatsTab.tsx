@@ -6,26 +6,30 @@ import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import XPActivityCalendar from './XPActivityCalendar';
 import SkillRadar from './SkillRadar';
+import { getGatedUserCefr } from '../../lib/cefrLevel';
+import { getUserCefr } from '../../lib/cefr';
 
+const CEFR_META: Record<
+  string,
+  { label: string; color: string; next: string | null; needed: number | null }
+> = {
+  A1: { label: 'Beginner', color: 'var(--success)', next: 'A2', needed: 300 },
+  A2: { label: 'Elementary', color: 'var(--success)', next: 'B1', needed: 1200 },
+  B1: { label: 'Intermediate', color: 'var(--warning)', next: 'B2', needed: 3500 },
+  B2: { label: 'Upper-Int.', color: 'var(--warning)', next: 'C1', needed: 8000 },
+  C1: { label: 'Advanced', color: 'var(--info)', next: 'C2', needed: 18000 },
+  C2: { label: 'Mastery', color: 'var(--lavender)', next: null, needed: null },
+};
+
+// Rec #4 — the displayed level is the grammar-mastery-gated level (never below the
+// user's monotonic floor, so existing users are never demoted). next/needed stay
+// the XP-progress targets so the progress bar still reflects XP earned; the
+// masteryGated flag lets the UI explain when grammar — not XP — is the next step.
 function getCEFR(xp: number, lc: number, gc: number) {
-  const total = xp + lc * 15 + gc * 25;
-  if (total < 300)
-    return { level: 'A1', label: 'Beginner', color: 'var(--success)', next: 'A2', needed: 300 };
-  if (total < 1200)
-    return { level: 'A2', label: 'Elementary', color: 'var(--success)', next: 'B1', needed: 1200 };
-  if (total < 3500)
-    return {
-      level: 'B1',
-      label: 'Intermediate',
-      color: 'var(--warning)',
-      next: 'B2',
-      needed: 3500,
-    };
-  if (total < 8000)
-    return { level: 'B2', label: 'Upper-Int.', color: 'var(--warning)', next: 'C1', needed: 8000 };
-  if (total < 18000)
-    return { level: 'C1', label: 'Advanced', color: 'var(--info)', next: 'C2', needed: 18000 };
-  return { level: 'C2', label: 'Mastery', color: 'var(--lavender)', next: null, needed: null };
+  const level = getGatedUserCefr(xp, lc, gc);
+  const eligible = getUserCefr(xp, lc, gc);
+  const meta = CEFR_META[level] ?? CEFR_META.A1!;
+  return { level, ...meta, masteryGated: level !== eligible };
 }
 
 function getWordsLearned() {

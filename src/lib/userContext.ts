@@ -3,7 +3,7 @@
 
 import { getWeakTopics } from './adaptive';
 import { getRecentErrors, type RecentErrorView } from './recentErrors';
-import { getUserCefr } from './cefr';
+import { getGatedUserCefr } from './cefrLevel';
 
 export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
@@ -93,7 +93,7 @@ function readLevel(): UserContext['level'] {
   const xp = typeof st.xp === 'number' ? st.xp : 0;
   const lc = typeof st.lc === 'number' ? st.lc : 0;
   const gc = typeof st.gc === 'number' ? st.gc : 0;
-  const cefr = getUserCefr(xp, lc, gc) as CefrLevel;
+  const cefr = getGatedUserCefr(xp, lc, gc) as CefrLevel;
   return { cefr, xp, streak: _readStreak() };
 }
 

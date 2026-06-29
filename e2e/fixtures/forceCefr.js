@@ -18,7 +18,7 @@ export async function forceCefr(page, cefr, opts = {}) {
     throw new Error(`forceCefr: unknown CEFR ${cefr}`);
   }
   await page.addInitScript(
-    ({ xp, clearSession }) => {
+    ({ xp, cefr, clearSession }) => {
       try {
         const uS = localStorage.getItem('uS');
         if (!uS) return;
@@ -31,11 +31,15 @@ export async function forceCefr(page, cefr, opts = {}) {
         const profile = JSON.parse(raw);
         profile.st = { ...(profile.st || {}), xp, lc: 0, gc: 0 };
         localStorage.setItem(profileKey, JSON.stringify(profile));
+        // Rec #4: the grammar-mastery gate would otherwise cap a forced B2+ level
+        // back to B1 (these fixtures set gc:0). Seed the never-demote floor to the
+        // forced level so the gate is transparent for tests that force a CEFR band.
+        localStorage.setItem('nh_cefr_floor', cefr);
         if (clearSession) localStorage.removeItem('nh_daily_session');
       } catch {
         // localStorage absent — silent no-op
       }
     },
-    { xp, clearSession: opts.clearSession !== false },
+    { xp, cefr, clearSession: opts.clearSession !== false },
   );
 }

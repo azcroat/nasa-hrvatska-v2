@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { getStreak } from '../../data';
 import { getWeakTopics } from '../../lib/adaptive.js';
-import { getUserCefr, cefrRank } from '../../lib/cefr';
+import { cefrRank } from '../../lib/cefr';
+import { getGatedUserCefr } from '../../lib/cefrLevel';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import ProgressCharts from './ProgressCharts';
@@ -65,7 +66,7 @@ export default function InsightsTab() {
   const { stats: st } = useStats();
   // CEFR level is the single source of truth for any proficiency claim — never
   // the numeric gamification `level`. The B1+ roadmap gates on the real CEFR.
-  const cefr = getUserCefr(st.xp || 0, st.lc || 0, st.gc || 0);
+  const cefr = getGatedUserCefr(st.xp || 0, st.lc || 0, st.gc || 0);
   const [imdOpen, setImdOpen] = useState(false);
   const [letterText, setLetterText] = useState(
     () => localStorage.getItem('nh_letter_to_self') || '',

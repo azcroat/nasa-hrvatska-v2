@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getUserCefr } from '../../lib/cefr';
+import { getGatedUserCefr } from '../../lib/cefrLevel';
 import { LISTEN, getSR, getDueReviews } from '../../data';
 import { useContent } from '../../hooks/useContent';
 import { localDateStr } from '../../lib/dateUtils.js';
@@ -51,7 +51,7 @@ export default function GradTab({
   const { content } = useContent();
   const V = (content?.V ?? {}) as Record<string, string[][]>;
   const lc = st?.lc ?? 0;
-  const userCefr = getUserCefr(st?.xp ?? 0, st?.lc ?? 0, st?.gc ?? 0);
+  const userCefr = getGatedUserCefr(st?.xp ?? 0, st?.lc ?? 0, st?.gc ?? 0);
 
   const [view, setView] = useState<'list' | 'map'>(
     () => (localStorage.getItem('nh_grad_view') as 'list' | 'map') || 'list',

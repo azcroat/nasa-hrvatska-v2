@@ -75,7 +75,7 @@ import {
   clearSessionCategory,
   consumeSessionCategoryOutcome,
 } from '../../lib/sessionCategory';
-import { getUserCefr } from '../../lib/cefr';
+import { getGatedUserCefr } from '../../lib/cefrLevel';
 import SessionCard from './SessionCard';
 import RazgovorHomeCard from './RazgovorHomeCard';
 import WeakWordsPanel from './WeakWordsPanel';
@@ -347,7 +347,7 @@ export default function HomeTab({
     LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length]!;
 
   // ── Daily Session Hub ──────────────────────────────────────────────────────
-  const userCefr = getUserCefr(st.xp, st.lc, st.gc);
+  const userCefr = getGatedUserCefr(st.xp, st.lc, st.gc);
   // Build the set of words currently in the active vocabulary pool — used to
   // count SRS reviews that /review can actually serve (orphan cards whose word
   // was later removed from a category get dropped, matching ReviewScreen's

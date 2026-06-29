@@ -112,3 +112,37 @@ export function getUserCefr(xp: number, lc: number, gc: number): CefrLevel {
   if (total < 18000) return 'C1';
   return 'C2';
 }
+
+/**
+ * Grammar-completion (gc) thresholds required to ADVANCE into each level.
+ * Rationale (Rec #4): XP alone — much of it from dwell timers — can inflate the
+ * CEFR level beyond real ability. We require demonstrated grammar mastery to
+ * cross the *fluency* transitions (B2+). A1–B1 stay pure-XP so early learners
+ * are never slowed down.
+ */
+export const CEFR_MASTERY_GC = { B2: 6, C1: 14, C2: 24 } as const;
+
+/**
+ * Highest CEFR rank the user's grammar mastery (gc) permits, independent of XP.
+ * A1–B1 are always permitted; only B2/C1/C2 require gc thresholds.
+ * @example cefrMasteryCapRank(0) → 2 (B1) — XP can't push past B1 without grammar
+ * @example cefrMasteryCapRank(20) → 4 (C1)
+ */
+export function cefrMasteryCapRank(gc: number): number {
+  if (gc < CEFR_MASTERY_GC.B2) return cefrRank('B1');
+  if (gc < CEFR_MASTERY_GC.C1) return cefrRank('B2');
+  if (gc < CEFR_MASTERY_GC.C2) return cefrRank('C1');
+  return cefrRank('C2');
+}
+
+/**
+ * Caps an XP-eligible level by the grammar-mastery ceiling. Pure: it only ever
+ * lowers (or leaves) the level, never raises it. The never-demote guarantee for
+ * existing users is provided separately by the monotonic floor in cefrLevel.ts.
+ * @example applyCefrMasteryGate('C1', 2) → 'B1'
+ * @example applyCefrMasteryGate('A2', 0) → 'A2' (below the gated band)
+ */
+export function applyCefrMasteryGate(eligible: CefrLevel, gc: number): CefrLevel {
+  const capped = Math.min(cefrRank(eligible), cefrMasteryCapRank(gc));
+  return CEFR_ORDER[capped]!;
+}

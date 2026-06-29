@@ -24,6 +24,7 @@ import { localDateStr, weekKey } from './lib/dateUtils.js';
 import { repairStreak } from './lib/streak.js';
 import { cleanupStaleQuestKeys } from './lib/quests.js';
 import { getUserCefr } from './lib/cefr.js';
+import { resetCefrFloor } from './lib/cefrLevel.js';
 import { recordActiveDayNow, getActiveDayCount } from './lib/activeDayTracker.js';
 import { getEffectiveLevelForUnlock } from './lib/cefrCertification.js';
 import { trackAppOpen } from './lib/analytics.js';
@@ -662,6 +663,10 @@ function App() {
       setFavs([]);
       setJWords([]);
       resetComebackGuard();
+      // Rec #4: clear the CEFR mastery floor so a different user on this device
+      // is not grandfathered into the previous user's level (it re-seeds from
+      // their own synced stats on next computation).
+      resetCefrFloor();
       // Clear exercise session state so the next user doesn't see a stale "resume" prompt
       try {
         sessionStorage.clear();

@@ -1,4 +1,5 @@
-import { getUserCefr, cefrRank } from '../cefr';
+import { cefrRank } from '../cefr';
+import { getGatedUserCefr } from '../cefrLevel';
 import { PLACE } from '../../data/exercises.js';
 
 // PLACE is the MC vocab pool ({q,o,c,d,skill}, ~85 valid entries; ~21 at
@@ -59,7 +60,7 @@ interface SelectOpts {
 }
 
 export function selectQuestions(opts: SelectOpts): GameQuestion[] {
-  const userCefr = getUserCefr(opts.xp, opts.lc, opts.gc);
+  const userCefr = getGatedUserCefr(opts.xp, opts.lc, opts.gc);
   const allowDifficulty2 = cefrRank(userCefr) >= cefrRank('B1');
   const pool = (PLACE as RawExercise[])
     .filter(isValid)
