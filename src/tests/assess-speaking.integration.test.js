@@ -154,6 +154,39 @@ describe('POST /api/assess-speaking', () => {
     expect(dgCall[1].headers['Content-Type']).toBe('audio/mp4');
   });
 
+  it('scores a TYPED answer (no audio) without calling STT — mic-denied fallback', async () => {
+    const e = env();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              content: [
+                { type: 'text', text: '{"range":0.8,"accuracy":0.8,"fluency":0.8,"task":0.8}' },
+              ],
+            }),
+            { status: 200 },
+          ),
+      ),
+    );
+    const res = await onRequestPost({
+      request: req(
+        { level: 'B1', prompt: 'Opišite putovanje.', text: 'Putovao sam u Zagreb prošli tjedan.' },
+        'Bearer good',
+      ),
+      env: e,
+    });
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    // The typed answer is used directly as the transcript (no transcription).
+    expect(json.transcript).toContain('Zagreb');
+    expect(json.scores.range).toBe(0.8);
+    expect(json.transcriptSufficiency).toBeGreaterThan(0);
+    // No STT provider should be invoked for a typed answer.
+    expect(e.AI.run).not.toHaveBeenCalled();
+  });
+
   it('429 when daily quota is exceeded', async () => {
     // Seed the KV store with turns already at the per-day limit (300) so the
     // real checkAIQuota helper returns not-allowed for uid-1.

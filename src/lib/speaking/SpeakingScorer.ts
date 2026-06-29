@@ -34,6 +34,13 @@ export interface SpeakingContext {
  */
 export interface SpeakingScorer {
   assess(audio: Blob, ctx: SpeakingContext): Promise<SpeakingAssessment | null>;
+  /**
+   * Typed-production fallback for learners who can't use a microphone: score a
+   * written answer to the speaking prompt with the same rubric (no STT). Returns
+   * `null` on the same "not scored — retry" conditions as `assess`. Optional so
+   * legacy scorers without it still satisfy the interface.
+   */
+  assessText?(text: string, ctx: SpeakingContext): Promise<SpeakingAssessment | null>;
 }
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n));

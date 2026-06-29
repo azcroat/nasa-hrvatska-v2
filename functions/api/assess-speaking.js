@@ -60,8 +60,13 @@ export async function onRequestPost(context) {
   } catch {
     return err(400, 'bad_json', origin);
   }
-  const { level, prompt, audioBase64, mime } = body || {};
-  if (!level || !prompt || typeof audioBase64 !== 'string')
+  const { level, prompt, audioBase64, mime, text } = body || {};
+  // Typed-production fallback: learners who can't use a microphone (denied /
+  // unsupported) type their answer instead. We score the typed text with the
+  // same rubric (no STT step) so mic-denied users can still certify once the
+  // speaking gate is enforced. Audio path is preferred when both are present.
+  const typed = typeof text === 'string' && text.trim().length > 0;
+  if (!level || !prompt || (!typed && typeof audioBase64 !== 'string'))
     return err(400, 'missing_fields', origin);
 
   // Validate level against known CEFR values.
@@ -71,27 +76,33 @@ export async function onRequestPost(context) {
   // Sanitize prompt before interpolation into rubric template.
   const safePrompt = sanitizeParam(prompt, 500);
 
-  if (audioBase64.length > MAX_AUDIO_B64) return err(413, 'audio_too_large', origin);
-
-  // 5. Transcribe via the shared FORMAT-AWARE chain (Deepgram → Whisper-1 →
-  //    Workers AI fallback). The client sends `mime` (audio/mp4 on iOS Safari,
-  //    audio/webm on Chrome); routing by it is what makes iOS recordings
-  //    transcribe correctly. Previously this used Workers AI Whisper alone, which
-  //    is format-blind and returned empty text for iOS mp4 — so an iOS learner's
-  //    spoken answer was silently ungradable (transcriptSufficiency 0 → null).
-  let audioBuffer;
-  try {
-    audioBuffer = b64ToArrayBuffer(audioBase64);
-  } catch {
-    return err(400, 'bad_audio', origin);
-  }
   let transcript = '';
-  try {
-    const { text } = await transcribeCroatian(audioBuffer, mime, env, { allowWorkersAI: true });
-    transcript = (text || '').trim();
-  } catch (e) {
-    console.error('[assess-speaking] STT failed:', e && e.message);
-    return err(e && e.timedOut ? 504 : 502, 'stt_failed', origin);
+  if (typeof audioBase64 === 'string' && audioBase64.length > 0) {
+    if (audioBase64.length > MAX_AUDIO_B64) return err(413, 'audio_too_large', origin);
+
+    // 5. Transcribe via the shared FORMAT-AWARE chain (Deepgram → Whisper-1 →
+    //    Workers AI fallback). The client sends `mime` (audio/mp4 on iOS Safari,
+    //    audio/webm on Chrome); routing by it is what makes iOS recordings
+    //    transcribe correctly. Workers AI Whisper alone is format-blind and
+    //    returned empty text for iOS mp4 — silently ungradable.
+    let audioBuffer;
+    try {
+      audioBuffer = b64ToArrayBuffer(audioBase64);
+    } catch {
+      return err(400, 'bad_audio', origin);
+    }
+    try {
+      const { text: t } = await transcribeCroatian(audioBuffer, mime, env, {
+        allowWorkersAI: true,
+      });
+      transcript = (t || '').trim();
+    } catch (e) {
+      console.error('[assess-speaking] STT failed:', e && e.message);
+      return err(e && e.timedOut ? 504 : 502, 'stt_failed', origin);
+    }
+  } else {
+    // Typed-production fallback — score the written answer directly.
+    transcript = sanitizeParam(text, 1200);
   }
   const wordCount = transcript ? transcript.split(/\s+/).length : 0;
   // transcriptSufficiency is a transcript-LENGTH heuristic (word-count bucket), NOT an
