@@ -196,6 +196,9 @@ const FleetingADrill = lazyWithReload(() => import('./practice/FleetingADrill'))
 const SlangScreen = lazyWithReload(() => import('./practice/SlangScreen'));
 const NumbersCasesDrill = lazyWithReload(() => import('./practice/NumbersCasesDrill'));
 const ImperativeDrill = lazyWithReload(() => import('./practice/ImperativeDrill'));
+const ParticipleDrill = lazyWithReload(() => import('./practice/ParticipleDrill'));
+const SubordinationDrill = lazyWithReload(() => import('./practice/SubordinationDrill'));
+const ConditionalDrill = lazyWithReload(() => import('./practice/ConditionalDrill'));
 const NegationGenDrill = lazyWithReload(() => import('./practice/NegationGenDrill'));
 const VocativeScreen = lazyWithReload(() => import('./practice/VocativeScreen'));
 const CollocationsGame = lazyWithReload(() => import('./practice/CollocationsGame'));
@@ -1662,6 +1665,21 @@ export default function AppRouter(props: Record<string, any>) {
         {currentScreen === 'fleetinga' && (
           <ScreenErrorBoundary key="fleetinga" name="fleetinga">
             <FleetingADrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'participles' && (
+          <ScreenErrorBoundary key="participles" name="participles">
+            <ParticipleDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'subordination' && (
+          <ScreenErrorBoundary key="subordination" name="subordination">
+            <SubordinationDrill goBack={goBack} award={award} />
+          </ScreenErrorBoundary>
+        )}
+        {currentScreen === 'conditionaldrill' && (
+          <ScreenErrorBoundary key="conditionaldrill" name="conditionaldrill">
+            <ConditionalDrill goBack={goBack} award={award} />
           </ScreenErrorBoundary>
         )}
         {currentScreen === 'collocations' && (

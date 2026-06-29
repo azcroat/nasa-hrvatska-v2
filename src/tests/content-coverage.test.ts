@@ -62,7 +62,9 @@ const SKILL_GROUP: Record<SkillCategory, SkillGroup> = {
   conditional: 'verb',
   'word-order': 'syntax',
   clitics: 'syntax',
+  subordination: 'syntax',
   passive: 'verb',
+  participle: 'verb',
   numerals: 'case',
   speaking: 'speaking',
 };
@@ -80,8 +82,10 @@ const TARGET_FLOOR: Partial<Record<Level, number>> = {
 const MIN_SKILL_GROUPS = 2;
 
 // Levels currently below target. Green-but-tracked debt; the ratchet test below
-// forces removal once filled. PRIORITY ORDER for content authoring: B2 → C1.
-const KNOWN_GAPS = new Set<Level>(['B2', 'C1']);
+// forces removal once filled. B2 was cleared to the floor (passive, numcases,
+// participles, subordination, conditional + clitic across verb/case/syntax).
+// PRIORITY ORDER for the remaining gap: C1.
+const KNOWN_GAPS = new Set<Level>(['C1']);
 
 // ── Build the matrix ─────────────────────────────────────────────────────────
 function buildMatrix() {

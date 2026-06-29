@@ -9,6 +9,7 @@ import {
   shouldAutoCompleteOnReturn,
   selectGuaranteedGrammar,
   GRAMMAR_STRUCTURE_CATEGORIES,
+  CEFR_EXERCISE_POOL,
   SESSION_AUTOCOMPLETE_SCREENS,
 } from '../hooks/useDailySession';
 import type { DailySession, SessionActivity } from '../hooks/useDailySession';
@@ -353,18 +354,16 @@ describe('buildSessionActivities — guaranteed grammar/structure slot (G2/G4)',
     // Regression: cefrRank must rank on the full A1–C2 scale. With the wrong
     // (A1–B2-only) ranker, cefrRank('C1') was -1, so |0-(-1)|=1 made A1 nomdrill
     // the "nearest" pick for advanced users — the inverse of intent.
-    expect(selectGuaranteedGrammar('A1', new Set(), [])?.screen).toBe('nomdrill'); // only A1 grammar
-    // C1/C2: nearest unlocked grammar is a B2 drill (dist 1), never the A1 nomdrill
-    // (dist 4+). Several B2 grammar drills tie at the nearest distance, so assert
-    // membership rather than a single screen.
-    const B2_GRAMMAR = ['clitic', 'passive', 'numcases'];
-    for (const lvl of ['C1', 'C2'] as const) {
-      const pick = selectGuaranteedGrammar(lvl, new Set(), [])?.screen;
-      expect(pick, `${lvl} should get a B2 grammar drill, not the A1 nomdrill`).not.toBe(
-        'nomdrill',
-      );
-      expect(B2_GRAMMAR, `${lvl} picked ${pick}`).toContain(pick);
-    }
+    // Assert by the picked drill's CEFR LEVEL (robust as more drills are added).
+    const screenCefr = new Map(CEFR_EXERCISE_POOL.map((e) => [e.screen, e.cefr]));
+    const pickCefr = (lvl: string) => {
+      const screen = selectGuaranteedGrammar(lvl, new Set(), [])?.screen;
+      return screen ? screenCefr.get(screen) : undefined;
+    };
+    expect(pickCefr('A1')).toBe('A1'); // only A1 grammar is nomdrill
+    // C1/C2: nearest unlocked grammar is a B2 drill (the grammar ceiling), never A1.
+    expect(pickCefr('C1')).toBe('B2');
+    expect(pickCefr('C2')).toBe('B2');
   });
 
   it('does not double up grammar when the adaptive pick already provides it', async () => {

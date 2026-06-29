@@ -165,6 +165,28 @@ export const CEFR_EXERCISE_POOL: CefrPoolEntry[] = [
     cefr: 'B2',
     category: 'numerals',
   },
+  // B2 — net-new drills authored to clear the coverage floor.
+  {
+    id: 'participles',
+    label: 'Participles',
+    screen: 'participles',
+    cefr: 'B2',
+    category: 'participle',
+  },
+  {
+    id: 'subordination',
+    label: 'Subordinate Clauses',
+    screen: 'subordination',
+    cefr: 'B2',
+    category: 'subordination',
+  },
+  {
+    id: 'conditionaldrill',
+    label: 'Conditional',
+    screen: 'conditionaldrill',
+    cefr: 'B2',
+    category: 'conditional',
+  },
   // B1 — case drills surfaced into the pool (previously routable but never in the
   // daily session). Instrumental/dative also gave the adaptive picker only the
   // generic cloze screen; these add dedicated at-level practice.
@@ -296,6 +318,9 @@ const EXERCISE_DIFFICULTY: Record<string, number> = {
   animateacc: 3,
   numcases: 4,
   passive: 4,
+  participles: 4,
+  subordination: 4,
+  conditionaldrill: 4,
 };
 
 // Maps the user's CEFR level to a target difficulty tier (1–5). A stronger user
@@ -324,6 +349,8 @@ export const GRAMMAR_STRUCTURE_CATEGORIES: ReadonlySet<SessionCategory> = new Se
   'word-order',
   'passive',
   'numerals',
+  'participle',
+  'subordination',
 ]);
 
 function isGrammarStructure(category: SessionCategory): boolean {
