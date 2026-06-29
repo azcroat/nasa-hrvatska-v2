@@ -75,13 +75,16 @@ const CATEGORY_SCREEN_MAP: Partial<Record<SkillCategory, string>> = {
 };
 
 /** CEFR-annotated exercise pool for Priority 3 fill */
-const CEFR_EXERCISE_POOL: Array<{
+export interface CefrPoolEntry {
   id: string;
   label: string;
   screen: string;
   cefr: string;
   category: SkillCategory;
-}> = [
+}
+// Exported for the content-coverage CI gate (src/tests/content-coverage.test.ts),
+// which tabulates this pool into a (CEFR level × skill group) matrix.
+export const CEFR_EXERCISE_POOL: CefrPoolEntry[] = [
   { id: 'flashcards', label: 'Flashcards', screen: 'flashcards', cefr: 'A1', category: 'vocab-a2' },
   { id: 'mcgame', label: 'Quiz', screen: 'mcgame', cefr: 'A1', category: 'vocab-a2' },
   { id: 'match', label: 'Match Pairs', screen: 'match', cefr: 'A1', category: 'vocab-a2' },
