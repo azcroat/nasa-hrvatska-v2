@@ -252,6 +252,61 @@ const EXERCISE_DIFFICULTY: Record<string, number> = {
 // is biased toward harder exercise types.
 const CEFR_TIER: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 5 };
 
+// Grammar/structure categories: the seven cases, verb tense/aspect, clitics, and
+// word order. Excludes vocab-*, speaking, and culture/practical. Used to (a) tell
+// whether a session already contains grammar and (b) pick the guaranteed grammar
+// slot (G2). Tags are the honest ones set on CEFR_EXERCISE_POOL (see G1).
+const GRAMMAR_STRUCTURE_CATEGORIES: ReadonlySet<SessionCategory> = new Set<SessionCategory>([
+  'nominative',
+  'genitive',
+  'accusative',
+  'dative-locative',
+  'instrumental',
+  'vocative',
+  'present-tense',
+  'past-tense',
+  'future-tense',
+  'aspect-imperfective',
+  'aspect-perfective',
+  'aspect-negation',
+  'conditional',
+  'clitics',
+  'word-order',
+]);
+
+function isGrammarStructure(category: SessionCategory): boolean {
+  return GRAMMAR_STRUCTURE_CATEGORIES.has(category);
+}
+
+// G2: pick one guaranteed grammar/structure drill from the unlocked pool. It is
+// level-appropriate (nearest CEFR to the user) and EXEMPT from the Priority-3
+// difficulty-tier sort (G4) — that sort otherwise buries case/structure drills
+// (tier 3–4) for A1/A2 users, starving exactly the learners who most need
+// foundational grammar. Skips recent + already-used screens, falling back to
+// ignoring recency rather than returning nothing.
+function selectGuaranteedGrammar(
+  userCefr: string,
+  usedScreens: Set<string>,
+  recentScreens: string[],
+): SessionActivity | null {
+  const grammar = CEFR_EXERCISE_POOL.filter(
+    (ex) =>
+      isGrammarStructure(ex.category) &&
+      isUnlocked(ex.cefr, userCefr) &&
+      !usedScreens.has(ex.screen),
+  );
+  let candidates = grammar.filter((ex) => !recentScreens.includes(ex.screen));
+  if (candidates.length === 0) candidates = grammar; // recency fallback
+  if (candidates.length === 0) return null;
+  // Nearest CEFR to the user first (level-appropriate); random tiebreak rotates
+  // same-level drills day to day.
+  const userRank = cefrRank(userCefr as Cefr);
+  const pick = candidates
+    .map((ex) => ({ ex, dist: Math.abs(cefrRank(ex.cefr as Cefr) - userRank), r: rnd() }))
+    .sort((a, b) => a.dist - b.dist || a.r - b.r)[0]!.ex;
+  return { id: pick.id, label: pick.label, screen: pick.screen, category: pick.category };
+}
+
 export function buildSessionActivities(
   userCefr: string,
   poolWords?: Set<string>,
@@ -296,7 +351,7 @@ export function buildSessionActivities(
     usedScreens.add(productionActivity.screen);
   }
 
-  // Priority 3: CEFR-appropriate fill (skip recent, exclude already queued screens)
+  // Recency list — shared by the guaranteed-grammar slot (P2.7) and the P3 fill.
   const recentScreens: string[] = (() => {
     try {
       return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]') as string[];
@@ -305,6 +360,21 @@ export function buildSessionActivities(
     }
   })();
 
+  // Priority 2.7: Guaranteed grammar/structure (G2). P2's adaptive pick can be a
+  // vocab category or null, and the P3 tier sort buries grammar for A1/A2 — so a
+  // session could contain zero grammar. If nothing queued so far is
+  // grammar/structure, force in one level-appropriate drill (tier-sort-exempt,
+  // G4). It counts toward fillTarget, so it DISPLACES a vocab fill rather than
+  // lengthening the session.
+  if (!activities.some((a) => isGrammarStructure(a.category))) {
+    const grammar = selectGuaranteedGrammar(userCefr, usedScreens, recentScreens);
+    if (grammar) {
+      activities.push(grammar);
+      usedScreens.add(grammar.screen);
+    }
+  }
+
+  // Priority 3: CEFR-appropriate fill (skip recent, exclude already queued screens)
   let pool = CEFR_EXERCISE_POOL.filter(
     (ex) =>
       isUnlocked(ex.cefr, userCefr) &&

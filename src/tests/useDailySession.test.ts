@@ -285,6 +285,95 @@ describe('buildSessionActivities — difficulty bias (defect #1)', () => {
   });
 });
 
+describe('buildSessionActivities — guaranteed grammar/structure slot (G2/G4)', () => {
+  // Mirror of GRAMMAR_STRUCTURE_CATEGORIES in useDailySession — the contract this
+  // slot guarantees: at least one case/verb/structure activity per session.
+  const GRAMMAR_CATS = new Set([
+    'nominative',
+    'genitive',
+    'accusative',
+    'dative-locative',
+    'instrumental',
+    'vocative',
+    'present-tense',
+    'past-tense',
+    'future-tense',
+    'aspect-imperfective',
+    'aspect-perfective',
+    'aspect-negation',
+    'conditional',
+    'clitics',
+    'word-order',
+  ]);
+  const hasGrammar = (acts: { category: string }[]) =>
+    acts.some((a) => GRAMMAR_CATS.has(a.category));
+
+  it('forces in a grammar/structure drill when the adaptive pick is null (empty queue)', () => {
+    // Default mock: getDueCategoryQueue → [] → P2 adds nothing. Without G2 a B1
+    // session could be all vocab + Croatia.
+    const acts = buildSessionActivities('B1');
+    expect(hasGrammar(acts)).toBe(true);
+  });
+
+  it('forces in a grammar/structure drill even when the adaptive pick is VOCAB', async () => {
+    const adaptive = await import('../lib/adaptive');
+    vi.mocked(adaptive.getDueCategoryQueue).mockReturnValue([
+      { category: 'vocab-a2', difficulty: 1 },
+    ]);
+    const acts = buildSessionActivities('B1');
+    // P2 adds the vocab drill (znam); G2 must still guarantee grammar.
+    expect(acts.some((a) => a.screen === 'znam')).toBe(true);
+    expect(hasGrammar(acts)).toBe(true);
+  });
+
+  it('the guaranteed slot is level-appropriate: an A1 user gets A1 grammar (nomdrill), not a buried higher tier', () => {
+    // A1's only unlocked grammar drill is nomdrill (tier 2). The P3 tier sort
+    // (target tier 1) would push it below the recognition games; G4 exempts the
+    // guaranteed slot so it appears anyway.
+    const acts = buildSessionActivities('A1');
+    expect(acts.some((a) => a.screen === 'nomdrill')).toBe(true);
+  });
+
+  it('DISPLACES a vocab fill — does not lengthen the session beyond fillTarget', () => {
+    // Non-Croatia activities must stay ≤ fillTarget (4) whether or not G2 fires.
+    const croatiaIds = new Set([
+      'cityofday',
+      'top100',
+      'grocery',
+      'transport',
+      'recipes',
+      'history',
+      'proverbs',
+      'popculture',
+    ]);
+    const nonCroatia = buildSessionActivities('A2').filter((a) => !croatiaIds.has(a.id));
+    expect(nonCroatia.length).toBeLessThanOrEqual(4);
+    expect(hasGrammar(nonCroatia)).toBe(true);
+  });
+
+  it('does not double up grammar when the adaptive pick already provides it', async () => {
+    const adaptive = await import('../lib/adaptive');
+    vi.mocked(adaptive.getDueCategoryQueue).mockReturnValue([
+      { category: 'genitive', difficulty: 3 },
+    ]);
+    const acts = buildSessionActivities('A2');
+    // P2 adds genitivedrill (grammar); G2 must not exceed the displace invariant.
+    expect(acts.some((a) => a.screen === 'genitivedrill')).toBe(true);
+    const croatiaIds = new Set([
+      'cityofday',
+      'top100',
+      'grocery',
+      'transport',
+      'recipes',
+      'history',
+      'proverbs',
+      'popculture',
+    ]);
+    const nonCroatia = acts.filter((a) => !croatiaIds.has(a.id));
+    expect(nonCroatia.length).toBeLessThanOrEqual(4);
+  });
+});
+
 describe('shouldAutoCompleteOnReturn — Croatia/reference slot completion', () => {
   it('REGRESSION: every always-present Croatia slot auto-completes on return (no stranding)', () => {
     // The Priority-4 Croatia slot is one of these; none self-grade on normal
