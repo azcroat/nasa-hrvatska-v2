@@ -115,7 +115,7 @@ jobs:
 
       # The Firestore emulator is a JVM process; pin the JDK for reproducibility
       # rather than relying on whatever the runner image ships.
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
