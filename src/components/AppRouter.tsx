@@ -283,6 +283,22 @@ const TAB_ORDER = ['home', 'learn', 'practice', 'croatia', 'profile'];
  * than rendering an empty or broken exercise screen.
  */
 function ScreenGuard({ goBack, label = 'exercise' }: { goBack: () => void; label?: string }) {
+  // A hard refresh on an exercise screen loses its launch-time data but NOT the
+  // sessionStorage launch markers (those survive reload). The launched activity
+  // can no longer be finished here, so the markers are stale. Clear them on mount:
+  // otherwise a later, unrelated drill finishing via completeExercise (which calls
+  // signalSessionCompleteIfActive() with no screen arg) would falsely complete this
+  // stranded Today's Session activity. The activity correctly stays incomplete — the
+  // user re-launches it fresh from Today. (Mirrors setTab's tab-away cleanup, which
+  // the back path can bypass via navigate(-1) after a refresh.)
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem('nh_session_started');
+      sessionStorage.removeItem('nh_session_category');
+    } catch {
+      /* sessionStorage unavailable — non-fatal */
+    }
+  }, []);
   return (
     <div
       style={{
