@@ -215,11 +215,13 @@ export default function TabBar({
   tab,
   setTab,
   setScr,
+  launchPathItem,
   badges,
 }: {
   tab: string;
   setTab: (tab: string) => void;
   setScr?: (scr: string) => void;
+  launchPathItem?: (item: { go: string; topic?: string }) => void;
   badges?: Record<string, number>;
 }) {
   const [showSearch, setShowSearch] = useState(false);
@@ -259,7 +261,13 @@ export default function TabBar({
 
   return (
     <>
-      {showSearch && <SearchModal setTab={setTab} onClose={() => setShowSearch(false)} />}
+      {showSearch && (
+        <SearchModal
+          setScr={setScr}
+          launchPathItem={launchPathItem}
+          onClose={() => setShowSearch(false)}
+        />
+      )}
       <nav className="nav-bar" role="navigation" aria-label="Main navigation">
         {/* Sliding indicator — color follows active tab */}
         <div

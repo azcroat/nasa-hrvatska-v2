@@ -1,61 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const SEARCH_INDEX = [
-  // Home tab items
-  { tab: 'home', label: 'Continue Learning', icon: '▶️', desc: 'Pick up your next lesson' },
-  { tab: 'home', label: 'Daily Quests', icon: '⚡', desc: '5 daily challenges for XP' },
-  { tab: 'home', label: 'Streak & XP', icon: '🔥', desc: 'Your streak counter and level progress' },
-  { tab: 'home', label: 'Achievements', icon: '🏆', desc: 'Next badge and milestone progress' },
-  { tab: 'home', label: 'SRS Review', icon: '📅', desc: 'Spaced repetition words due for review' },
-  { tab: 'home', label: 'Mistake Review', icon: '🎯', desc: 'Practice your most-missed words' },
-  {
-    tab: 'home',
-    label: 'Reviews Due',
-    icon: '📚',
-    desc: 'Spaced repetition words awaiting review',
-  },
-  // Learn tab items
-  { tab: 'learn', label: 'Greetings & Introductions', icon: '👋', desc: 'Core vocabulary lesson' },
-  { tab: 'learn', label: 'Family & Relationships', icon: '👨‍👩‍👧', desc: 'Core vocabulary lesson' },
-  { tab: 'learn', label: 'Numbers & Counting', icon: '🔢', desc: 'Core vocabulary lesson' },
-  { tab: 'learn', label: 'Food & Eating', icon: '🍽️', desc: 'Core vocabulary lesson' },
-  { tab: 'learn', label: 'Grammar Lessons', icon: '📝', desc: 'Foundation to Advanced' },
-  { tab: 'learn', label: 'Reading Passages', icon: '📖', desc: '30 stories A1 to C1' },
-  { tab: 'learn', label: 'Quick Reference Guides', icon: '📋', desc: '13 reference guides' },
-  { tab: 'learn', label: 'Vocabulary Categories', icon: '📚', desc: '41+ topic categories' },
-  // Practice tab items
-  { tab: 'practice', label: 'Flashcards', icon: '🃏', desc: 'Spaced repetition review' },
-  { tab: 'practice', label: 'Quiz (Znam)', icon: '🎯', desc: 'Multiple choice vocabulary' },
-  { tab: 'practice', label: 'Grammar Drills', icon: '🧠', desc: '20 grammar exercises' },
-  { tab: 'practice', label: 'Listening Practice', icon: '🎧', desc: 'Hear and identify Croatian' },
-  { tab: 'practice', label: 'Case Constellation', icon: '⭐', desc: 'Visual case explorer' },
-  { tab: 'practice', label: 'Tongue Twisters', icon: '🌀', desc: 'Pronunciation practice' },
-  { tab: 'practice', label: 'Weak Words Review', icon: '💪', desc: 'Focus on problem words' },
-  { tab: 'practice', label: 'Sentence Building', icon: '🏗️', desc: 'Arrange word blocks' },
-  { tab: 'practice', label: 'Dialogue Simulation', icon: '💬', desc: 'Branching conversations' },
-  { tab: 'practice', label: 'Shadowing', icon: '🗣️', desc: 'Listen and repeat' },
-  // Croatia tab items
-  { tab: 'croatia', label: 'City of the Day', icon: '🏙️', desc: 'Daily Croatian city spotlight' },
-  { tab: 'croatia', label: 'History & Regions', icon: '🏰', desc: 'Croatian history and regions' },
-  {
-    tab: 'croatia',
-    label: 'Cuisine & Traditions',
-    icon: '🍷',
-    desc: 'Food and cultural traditions',
-  },
-  { tab: 'croatia', label: 'Croatian Music', icon: '🎵', desc: 'Spotify playlists by genre' },
-  { tab: 'croatia', label: "Baka's Letters", icon: '💌', desc: 'Authentic family letters' },
-  { tab: 'croatia', label: 'Media Library', icon: '📺', desc: 'TV, Radio, Film, Podcast' },
-  { tab: 'croatia', label: 'Nature & Heritage', icon: '🌲', desc: 'National parks and coast' },
-  { tab: 'croatia', label: 'Sports', icon: '⚽', desc: 'Croatian sports culture' },
-  // Profile tab items
-  { tab: 'profile', label: 'My Stats', icon: '📊', desc: 'XP, streak, lessons, mastery' },
-  { tab: 'profile', label: 'CEFR Progress', icon: '🎓', desc: 'Language level tracker' },
-  { tab: 'profile', label: 'Learning Insights', icon: '💡', desc: 'Vocab analytics dashboard' },
-  { tab: 'profile', label: 'My Journey', icon: '🗺️', desc: 'Learning milestones timeline' },
-  { tab: 'profile', label: 'Settings', icon: '⚙️', desc: 'Goals, theme, account' },
-  { tab: 'profile', label: 'Badges & Achievements', icon: '🏆', desc: 'Your earned badges' },
-];
+// Global search modal (opened by the TabBar 🔍). Previously this used a stale,
+// hardcoded 37-item list and could only setTab() to one of five tabs — so it
+// never actually took the user to the thing they searched for. It now uses the
+// REAL search index (buildSearchIndex: every vocab word, phrase, and screen)
+// and navigates to the exact screen via setScr / launchPathItem — the same
+// behaviour as the dashboard search, but reachable from any tab.
+
+interface SearchItem {
+  hr: string;
+  en: string;
+  type: 'vocab' | 'phrase' | 'screen';
+  go: string;
+  cat?: string;
+}
 
 function normDiacritics(s: string) {
   return s
@@ -66,50 +24,84 @@ function normDiacritics(s: string) {
     .replace(/đ/g, 'd');
 }
 
+const TYPE_LABELS: Record<SearchItem['type'], string> = {
+  screen: 'Screens & tools',
+  vocab: 'Words',
+  phrase: 'Phrases',
+};
+// Screens first (the most likely "take me there" intent), then words, then phrases.
+const TYPE_ORDER: SearchItem['type'][] = ['screen', 'vocab', 'phrase'];
+
 export default function SearchModal({
-  setTab,
+  setScr,
+  launchPathItem,
   onClose,
 }: {
-  setTab: (tab: string) => void;
+  setScr?: (scr: string) => void;
+  launchPathItem?: (item: { go: string; topic?: string }) => void;
   onClose: () => void;
 }) {
   const [q, setQ] = useState('');
+  const [index, setIndex] = useState<SearchItem[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  // Lazy-load the real search index (keeps chunk-data out of the startup bundle,
+  // mirroring useSearch). The modal is only mounted once the user opens search.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const mod = (await import('../../data')) as { buildSearchIndex?: () => SearchItem[] };
+        const idx = mod.buildSearchIndex ? mod.buildSearchIndex() : [];
+        if (!cancelled) setIndex(idx);
+      } catch {
+        // index unavailable → empty results, modal still closable
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Escape') onClose();
   }
 
-  const results =
-    q.length < 1
-      ? []
-      : SEARCH_INDEX.filter((item) => {
-          const nq = normDiacritics(q);
-          return (
-            normDiacritics(item.label).includes(nq) ||
-            normDiacritics(item.desc).includes(nq) ||
-            item.label.toLowerCase().includes(q.toLowerCase()) ||
-            item.desc.toLowerCase().includes(q.toLowerCase())
-          );
-        });
+  function navigate(r: SearchItem) {
+    onClose();
+    if (r.type === 'vocab' && r.cat) {
+      launchPathItem?.({ go: 'lesson', topic: r.cat });
+    } else {
+      setScr?.(r.go);
+    }
+  }
 
-  // Group results by tab
-  const grouped = results.reduce<Record<string, typeof results>>((acc, item) => {
-    if (!acc[item.tab]) acc[item.tab] = [];
-    acc[item.tab]!.push(item);
+  const results =
+    q.trim().length < 1
+      ? []
+      : (() => {
+          const nq = normDiacritics(q);
+          const lq = q.toLowerCase();
+          return index
+            .filter(
+              (item) =>
+                normDiacritics(item.hr).includes(nq) ||
+                normDiacritics(item.en).includes(nq) ||
+                item.hr.toLowerCase().includes(lq) ||
+                item.en.toLowerCase().includes(lq),
+            )
+            .slice(0, 40);
+        })();
+
+  // Group by type so "screens & tools" lead (the jump-to-a-feature intent).
+  const grouped = results.reduce<Record<string, SearchItem[]>>((acc, item) => {
+    (acc[item.type] ||= []).push(item);
     return acc;
   }, {});
-
-  const TAB_LABELS = {
-    home: 'Home',
-    learn: 'Learn',
-    practice: 'Practice',
-    croatia: 'Croatia',
-    profile: 'Profile',
-  };
 
   return (
     <div
@@ -139,10 +131,10 @@ export default function SearchModal({
         <span style={{ fontSize: 20 }}>🔍</span>
         <input
           ref={inputRef}
-          aria-label="Search lessons, practice, and Croatia content"
+          aria-label="Search words, phrases, and screens"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search lessons, practice, Croatia..."
+          placeholder="Search words, phrases, screens…"
           style={{
             flex: 1,
             background: 'none',
@@ -170,7 +162,7 @@ export default function SearchModal({
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px' }}>
         {q.length === 0 && (
           <p style={{ color: 'var(--subtext)', fontSize: 14, marginTop: 24, textAlign: 'center' }}>
-            Search across all lessons, practice modes, and Croatia content
+            Search every word, phrase, and screen — jump straight to it
           </p>
         )}
         {q.length > 0 && results.length === 0 && (
@@ -178,8 +170,8 @@ export default function SearchModal({
             No results for "{q}"
           </p>
         )}
-        {Object.entries(grouped).map(([tab, items]) => (
-          <div key={tab} style={{ marginBottom: 16 }}>
+        {TYPE_ORDER.filter((t) => grouped[t]?.length).map((type) => (
+          <div key={type} style={{ marginBottom: 16 }}>
             <div
               style={{
                 fontSize: 11,
@@ -190,16 +182,13 @@ export default function SearchModal({
                 marginBottom: 8,
               }}
             >
-              {(TAB_LABELS as Record<string, string>)[tab]}
+              {TYPE_LABELS[type]}
             </div>
-            {(items as typeof results).map((item, i) => (
+            {grouped[type]!.map((item, i) => (
               <button
-                key={i}
-                onClick={() => {
-                  setTab(tab);
-                  onClose();
-                }}
-                aria-label={`${item.label} — ${item.desc}`}
+                key={item.go + ':' + item.hr + ':' + i}
+                onClick={() => navigate(item)}
+                aria-label={`${item.hr} — ${item.en}`}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -214,12 +203,11 @@ export default function SearchModal({
                   textAlign: 'left',
                 }}
               >
-                <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--rt-c)' }}>
-                    {item.label}
+                    {item.hr}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--subtext)' }}>{item.desc}</div>
+                  <div style={{ fontSize: 12, color: 'var(--subtext)' }}>{item.en}</div>
                 </div>
               </button>
             ))}

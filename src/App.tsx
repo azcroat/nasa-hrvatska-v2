@@ -2006,7 +2006,13 @@ function App() {
               {authScreen === 'app' &&
                 currentScreen !== 'welcome' &&
                 currentScreen !== 'placement' && (
-                  <TabBar tab={tab} setTab={setTab} setScr={setScr} badges={badges} />
+                  <TabBar
+                    tab={tab}
+                    setTab={setTab}
+                    setScr={setScr}
+                    launchPathItem={launchPathItem}
+                    badges={badges}
+                  />
                 )}
 
               <KnightCompanion />
