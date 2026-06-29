@@ -6,6 +6,7 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { unlockAudio, ttsFetch } from '../../lib/audio.js';
+import { recordTopicResult } from '../../lib/adaptive';
 
 /**
  * Interleave dialogue lines turn-by-turn across speakers, so the rendered
@@ -229,6 +230,9 @@ export default function AIListeningScreen({
       return a;
     });
     if (isRight) setScore((s: number) => s + 1);
+    // Feed the adaptive engine so weak listening resurfaces (closes the loop the
+    // audit flagged: listening performance previously only awarded XP).
+    recordTopicResult('listening', isRight);
   }
 
   function nextQuestion() {

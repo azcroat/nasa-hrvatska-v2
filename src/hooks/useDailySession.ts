@@ -222,6 +222,26 @@ export const CEFR_EXERCISE_POOL: CefrPoolEntry[] = [
     cefr: 'C1',
     category: 'nominalization',
   },
+  // Long-form listening — the audit's listening gap. Surfaced as CEFR-gated fill
+  // candidates so the daily session serves comprehension of connected speech, not
+  // just single sentences. 'listeningComprehension' uses the authored graded-story
+  // bank (audio + transcript + quiz, from A1); 'aiListening' generates a fresh
+  // dialogue/monologue at the user's level (B1+). Both feed recordTopicResult
+  // ('listening') so weak listening resurfaces.
+  {
+    id: 'listeningComprehension',
+    label: 'Listening',
+    screen: 'listening_comprehension',
+    cefr: 'A1',
+    category: 'listening',
+  },
+  {
+    id: 'aiListening',
+    label: 'AI Listening',
+    screen: 'ai_listening',
+    cefr: 'B1',
+    category: 'listening',
+  },
 ];
 
 // Screen → CEFR lookup derived from the pool. Used to CEFR-gate the adaptive
@@ -342,6 +362,8 @@ const EXERCISE_DIFFICULTY: Record<string, number> = {
   discourse: 4,
   register: 4,
   nominalization: 4,
+  listeningComprehension: 3,
+  aiListening: 4,
 };
 
 // Maps the user's CEFR level to a target difficulty tier (1–5). A stronger user

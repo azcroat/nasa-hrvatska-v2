@@ -71,6 +71,7 @@ const SKILL_GROUP: Record<SkillCategory, SkillGroup> = {
   idioms: 'vocab',
   register: 'vocab',
   speaking: 'speaking',
+  listening: 'listening',
 };
 
 // Minimum acceptable exercises per level. C2 omitted = exempt by design.
