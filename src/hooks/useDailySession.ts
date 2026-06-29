@@ -306,7 +306,7 @@ const CEFR_TIER: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C
 // word order. Excludes vocab-*, speaking, and culture/practical. Used to (a) tell
 // whether a session already contains grammar and (b) pick the guaranteed grammar
 // slot (G2). Tags are the honest ones set on CEFR_EXERCISE_POOL (see G1).
-const GRAMMAR_STRUCTURE_CATEGORIES: ReadonlySet<SessionCategory> = new Set<SessionCategory>([
+export const GRAMMAR_STRUCTURE_CATEGORIES: ReadonlySet<SessionCategory> = new Set<SessionCategory>([
   'nominative',
   'genitive',
   'accusative',

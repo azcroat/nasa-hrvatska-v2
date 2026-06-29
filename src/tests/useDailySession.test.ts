@@ -8,9 +8,10 @@ import {
   useDailySession,
   shouldAutoCompleteOnReturn,
   selectGuaranteedGrammar,
+  GRAMMAR_STRUCTURE_CATEGORIES,
   SESSION_AUTOCOMPLETE_SCREENS,
 } from '../hooks/useDailySession';
-import type { DailySession } from '../hooks/useDailySession';
+import type { DailySession, SessionActivity } from '../hooks/useDailySession';
 import { localDateStr } from '../lib/dateUtils';
 
 // Mock external dependencies to test different branches
@@ -275,18 +276,19 @@ describe('useDailySession — rotation memory + auto-regenerate (hook)', () => {
 });
 
 describe('buildSessionActivities — difficulty bias (defect #1)', () => {
-  it('biases the fill toward harder exercise TYPES for an advanced user (B2)', () => {
-    // B2 target tier is 4. Across runs, the fill should prefer tier-4 types
-    // (sentbuild/aspectdrill/clitic) and not pull in tier-1 recognition games
-    // while harder unlocked types are available. dist is the primary sort key,
-    // so this holds regardless of the random tiebreak.
-    let sawHard = false;
+  it('biases the fill toward harder content for an advanced user (B2)', () => {
+    // The difficulty bias is asserted by TIER/CATEGORY, not hard-coded screen
+    // names: a B2 session must never pull in tier-1 recognition games as fill,
+    // and must surface grammar/structure (the guaranteed slot). Name-listing the
+    // "hard" screens was brittle — it flaked once the tier-4 set grew and the
+    // unseeded rnd tiebreak picked a tier-4 drill not on the list.
+    const EASY_TIER1 = ['flashcards', 'mcgame', 'match'];
     for (let i = 0; i < 5; i++) {
-      const screens = buildSessionActivities('B2').map((a) => a.screen);
-      expect(screens).not.toContain('flashcards'); // tier 1, farthest from target 4
-      if (screens.some((s) => ['sentbuild', 'aspectdrill', 'clitic'].includes(s))) sawHard = true;
+      const acts = buildSessionActivities('B2');
+      const screens = acts.map((a) => a.screen);
+      for (const easy of EASY_TIER1) expect(screens).not.toContain(easy);
+      expect(acts.some((a) => GRAMMAR_STRUCTURE_CATEGORIES.has(a.category))).toBe(true);
     }
-    expect(sawHard).toBe(true);
   });
 
   it('keeps an A1 user on easy types (only tier 1–2 unlocked anyway)', () => {
@@ -299,29 +301,10 @@ describe('buildSessionActivities — difficulty bias (defect #1)', () => {
 });
 
 describe('buildSessionActivities — guaranteed grammar/structure slot (G2/G4)', () => {
-  // Mirror of GRAMMAR_STRUCTURE_CATEGORIES in useDailySession — the contract this
-  // slot guarantees: at least one case/verb/structure activity per session.
-  const GRAMMAR_CATS = new Set([
-    'nominative',
-    'genitive',
-    'accusative',
-    'dative-locative',
-    'instrumental',
-    'vocative',
-    'present-tense',
-    'past-tense',
-    'future-tense',
-    'aspect-imperfective',
-    'aspect-perfective',
-    'aspect-negation',
-    'conditional',
-    'clitics',
-    'word-order',
-    'passive',
-    'numerals',
-  ]);
-  const hasGrammar = (acts: { category: string }[]) =>
-    acts.some((a) => GRAMMAR_CATS.has(a.category));
+  // The contract this slot guarantees: at least one case/verb/structure activity
+  // per session. Uses the source-of-truth set (no duplicated mirror to drift).
+  const hasGrammar = (acts: SessionActivity[]) =>
+    acts.some((a) => GRAMMAR_STRUCTURE_CATEGORIES.has(a.category));
 
   it('forces in a grammar/structure drill when the adaptive pick is null (empty queue)', () => {
     // Default mock: getDueCategoryQueue → [] → P2 adds nothing. Without G2 a B1
