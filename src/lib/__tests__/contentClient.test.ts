@@ -409,6 +409,7 @@ describe('contentClient.getContent', () => {
     SEASONAL_CAMPAIGNS: [],
     V_B2: {},
     V_C1: {},
+    V_C2: {},
   };
 
   it('200 path writes cache and returns content', async () => {

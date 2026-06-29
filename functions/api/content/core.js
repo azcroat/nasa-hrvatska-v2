@@ -34,6 +34,8 @@ const KEYS = [
   // SP11f: advanced-vocab tiers migrated (consumed by AdvancedVocabScreen).
   'V_B2',
   'V_C1',
+  // C2 mastery tier — near-native register (rhetoric, figurative usage, nuance).
+  'V_C2',
 ];
 
 function buildBody() {

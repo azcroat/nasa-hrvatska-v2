@@ -53,6 +53,8 @@ const ALL_KEYS = [
   // SP11f: advanced-vocab tiers (V_B2, V_C1) — last orphans from SP11d.
   'V_B2',
   'V_C1',
+  // C2 mastery tier — near-native register.
+  'V_C2',
 ];
 
 describe('GET /api/content/core', () => {

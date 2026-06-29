@@ -26,7 +26,7 @@
 // Fluency reference (cumulative): ~1k ≈ A2, ~3–4k ≈ B1/B2, ~8–10k ≈ C1/C2.
 
 import { describe, it, expect } from 'vitest';
-import { V, V_B2, V_C1 } from '../../functions/api/content/_data/vocabulary.js';
+import { V, V_B2, V_C1, V_C2 } from '../../functions/api/content/_data/vocabulary.js';
 
 /** Count unique, normalised Croatian headwords in a {category: [hr, en, ...][]} bank. */
 function countUnique(bank: Record<string, unknown> | undefined): number {
@@ -47,10 +47,13 @@ const counts = {
   core: countUnique(V as Record<string, unknown>),
   B2: countUnique(V_B2 as Record<string, unknown>),
   C1: countUnique(V_C1 as Record<string, unknown>),
+  C2: countUnique(V_C2 as Record<string, unknown>),
 };
 
 // Minimum unique headwords per tier.
-const TARGET = { core: 1200, B2: 900, C1: 600 } as const;
+// C2 is the newly-seeded mastery tier (near-native register); its floor reflects
+// the initial seed bank and is a hard regression guard like the others.
+const TARGET = { core: 1200, B2: 900, C1: 600, C2: 90 } as const;
 type Tier = keyof typeof TARGET;
 
 // Tiers below target today (green-but-tracked debt; ratchet forces removal once
