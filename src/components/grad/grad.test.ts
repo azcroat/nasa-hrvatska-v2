@@ -56,6 +56,30 @@ describe('Grad place registry', () => {
     const covered = new Set([...Object.keys(PLACE_ASSIGNMENTS), ...GRAD_EXTRAS.map((x) => x.id)]);
     for (const id of catalogIds) expect(covered.has(id)).toBe(true);
   });
+
+  // Regression guard: these case/advanced/listening drills were previously
+  // reachable ONLY via the daily-session algorithm (CEFR_EXERCISE_POOL) with no
+  // browse tile — a motivated user could not find them on purpose. They are now
+  // first-class catalog entries bucketed into the Grad town. Keep them browsable.
+  it('previously-orphaned advanced drills stay browsable', () => {
+    const DE_ORPHANED = [
+      'nomdrill',
+      'genitivedrill',
+      'locdrill',
+      'participles',
+      'conditionaldrill',
+      'subordination',
+      'discourse',
+      'nominalization',
+      'register',
+      'idiomdrill',
+      'listening_comprehension',
+    ];
+    for (const id of DE_ORPHANED) {
+      expect(catalogIds).toContain(id); // has a browsable tile
+      expect(PLACE_ASSIGNMENTS[id]).toBeDefined(); // bucketed into a town place
+    }
+  });
 });
 
 import { itemsForPlace, placeStats, recommendedVisit } from './gradModel';

@@ -156,6 +156,9 @@ export const PLACE_ASSIGNMENTS: Record<string, { place: BucketId; subgroup?: str
   wordfamilies: { place: 'trznica' },
   numtime: { place: 'trznica' },
   // soba / padezi
+  nomdrill: { place: 'soba', subgroup: 'padezi' },
+  genitivedrill: { place: 'soba', subgroup: 'padezi' },
+  locdrill: { place: 'soba', subgroup: 'padezi' },
   grammarmap: { place: 'soba', subgroup: 'padezi' },
   prepdrill: { place: 'soba', subgroup: 'padezi' },
   genderdrill: { place: 'soba', subgroup: 'padezi' },
@@ -176,6 +179,8 @@ export const PLACE_ASSIGNMENTS: Record<string, { place: BucketId; subgroup?: str
   conjlab: { place: 'soba', subgroup: 'glagoli' },
   aspectdrill: { place: 'soba', subgroup: 'glagoli' },
   tenseflip: { place: 'soba', subgroup: 'glagoli' },
+  participles: { place: 'soba', subgroup: 'glagoli' },
+  conditionaldrill: { place: 'soba', subgroup: 'glagoli' },
   // soba / recenice
   cloze: { place: 'soba', subgroup: 'recenice' },
   unjumble: { place: 'soba', subgroup: 'recenice' },
@@ -189,6 +194,10 @@ export const PLACE_ASSIGNMENTS: Record<string, { place: BucketId; subgroup?: str
   clitic: { place: 'soba', subgroup: 'recenice' },
   translate_drills: { place: 'soba', subgroup: 'recenice' },
   production_drill: { place: 'soba', subgroup: 'recenice' },
+  subordination: { place: 'soba', subgroup: 'recenice' },
+  discourse: { place: 'soba', subgroup: 'recenice' },
+  nominalization: { place: 'soba', subgroup: 'recenice' },
+  register: { place: 'soba', subgroup: 'recenice' },
   // soba / izgovor
   pitchaccent: { place: 'soba', subgroup: 'izgovor' },
   shadowing: { place: 'soba', subgroup: 'izgovor' },
@@ -201,6 +210,8 @@ export const PLACE_ASSIGNMENTS: Record<string, { place: BucketId; subgroup?: str
   riddles: { place: 'kuhinja' },
   logicquiz: { place: 'kuhinja' },
   brzalice: { place: 'kuhinja' },
+  idiomdrill: { place: 'kuhinja' },
+  listening_comprehension: { place: 'kuhinja' },
   // ulica
   cityloc: { place: 'ulica', subgroup: 'snalazenje' },
   slang_everyday: { place: 'ulica', subgroup: 'svakodnevni' },
