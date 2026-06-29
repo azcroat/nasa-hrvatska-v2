@@ -44,7 +44,7 @@ test.describe('Learn tab', () => {
       await openBrowse(page);
       // 'Learning Paths & Tracks' is open by default — content shows without toggling.
       await expect(page.getByText('AI Micro-Lesson')).toBeVisible({ timeout: 8_000 });
-      await expect(page.getByText('Grammar Track A1→B2')).toBeVisible();
+      await expect(page.getByText('Grammar Track A1→C2')).toBeVisible();
     });
 
     test('Pronunciation Lab holds the relocated pronunciation tools', async ({ page }) => {

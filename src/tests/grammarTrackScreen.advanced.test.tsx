@@ -49,6 +49,28 @@ describe('GrammarTrackScreen — SP9 advanced units', () => {
     expect(screen.getByText(/Red riječi/i)).toBeInTheDocument();
   });
 
+  it('B2 level also shows the verbs-of-motion unit', () => {
+    render(<GrammarTrackScreen goBack={() => {}} launchGrammarUnit={() => {}} />);
+    clickLevelTab(/^B2/);
+    expect(screen.getByText(/Glagoli kretanja/i)).toBeInTheDocument();
+  });
+
+  it('C2 level shows the verbal-adverbs mastery unit', () => {
+    render(<GrammarTrackScreen goBack={() => {}} launchGrammarUnit={() => {}} />);
+    clickLevelTab(/^C2/);
+    expect(screen.getByText(/Glagolski prilozi/i)).toBeInTheDocument();
+  });
+
+  it('tapping the C2 verbal-adverbs unit routes via launchGrammarUnit', () => {
+    const launch = vi.fn();
+    render(<GrammarTrackScreen goBack={() => {}} launchGrammarUnit={launch} />);
+    clickLevelTab(/^C2/);
+    const card = screen.getByText(/Glagolski prilozi/i).closest('button');
+    expect(card).toBeTruthy();
+    fireEvent.click(card!);
+    expect(launch).toHaveBeenCalledWith('verbal-adverbs');
+  });
+
   it('tapping an SP9 unit calls launchGrammarUnit with its unitId', () => {
     const launch = vi.fn();
     render(<GrammarTrackScreen goBack={() => {}} launchGrammarUnit={launch} />);

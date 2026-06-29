@@ -1063,7 +1063,7 @@ export default function BrowseContentModal({
                 ],
                 [
                   '⚙️',
-                  'Grammar Track A1→B2',
+                  'Grammar Track A1→C2',
                   '40 units · cases, tenses, aspect — alternative to Learn Path',
                   'grammar_track',
                   () => {
