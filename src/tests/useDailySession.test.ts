@@ -317,6 +317,8 @@ describe('buildSessionActivities — guaranteed grammar/structure slot (G2/G4)',
     'conditional',
     'clitics',
     'word-order',
+    'passive',
+    'numerals',
   ]);
   const hasGrammar = (acts: { category: string }[]) =>
     acts.some((a) => GRAMMAR_CATS.has(a.category));
@@ -369,9 +371,17 @@ describe('buildSessionActivities — guaranteed grammar/structure slot (G2/G4)',
     // (A1–B2-only) ranker, cefrRank('C1') was -1, so |0-(-1)|=1 made A1 nomdrill
     // the "nearest" pick for advanced users — the inverse of intent.
     expect(selectGuaranteedGrammar('A1', new Set(), [])?.screen).toBe('nomdrill'); // only A1 grammar
-    // C1/C2: nearest unlocked grammar is B2 clitic (dist 1), not A1 nomdrill (dist 4+).
-    expect(selectGuaranteedGrammar('C1', new Set(), [])?.screen).toBe('clitic');
-    expect(selectGuaranteedGrammar('C2', new Set(), [])?.screen).toBe('clitic');
+    // C1/C2: nearest unlocked grammar is a B2 drill (dist 1), never the A1 nomdrill
+    // (dist 4+). Several B2 grammar drills tie at the nearest distance, so assert
+    // membership rather than a single screen.
+    const B2_GRAMMAR = ['clitic', 'passive', 'numcases'];
+    for (const lvl of ['C1', 'C2'] as const) {
+      const pick = selectGuaranteedGrammar(lvl, new Set(), [])?.screen;
+      expect(pick, `${lvl} should get a B2 grammar drill, not the A1 nomdrill`).not.toBe(
+        'nomdrill',
+      );
+      expect(B2_GRAMMAR, `${lvl} picked ${pick}`).toContain(pick);
+    }
   });
 
   it('does not double up grammar when the adaptive pick already provides it', async () => {

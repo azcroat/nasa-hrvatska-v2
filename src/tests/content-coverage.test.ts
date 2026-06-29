@@ -62,6 +62,8 @@ const SKILL_GROUP: Record<SkillCategory, SkillGroup> = {
   conditional: 'verb',
   'word-order': 'syntax',
   clitics: 'syntax',
+  passive: 'verb',
+  numerals: 'case',
   speaking: 'speaking',
 };
 

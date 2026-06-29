@@ -156,6 +156,33 @@ export const CEFR_EXERCISE_POOL: CefrPoolEntry[] = [
   },
   { id: 'clitic', label: 'Clitic Drill', screen: 'clitic', cefr: 'B2', category: 'clitics' },
   { id: 'dictation', label: 'Dictation', screen: 'dictation', cefr: 'B1', category: 'speaking' },
+  // B2 — advanced grammar (existing drills surfaced into the session pool).
+  { id: 'passive', label: 'Passive Voice', screen: 'passive', cefr: 'B2', category: 'passive' },
+  {
+    id: 'numcases',
+    label: 'Numbers & Cases',
+    screen: 'numcases',
+    cefr: 'B2',
+    category: 'numerals',
+  },
+  // B1 — case drills surfaced into the pool (previously routable but never in the
+  // daily session). Instrumental/dative also gave the adaptive picker only the
+  // generic cloze screen; these add dedicated at-level practice.
+  {
+    id: 'instrumental',
+    label: 'Instrumental Case',
+    screen: 'instrumental',
+    cefr: 'B1',
+    category: 'instrumental',
+  },
+  { id: 'dative', label: 'Dative Case', screen: 'dative', cefr: 'B1', category: 'dative-locative' },
+  {
+    id: 'animateacc',
+    label: 'Animate Accusative',
+    screen: 'animateacc',
+    cefr: 'B1',
+    category: 'accusative',
+  },
 ];
 
 // Screen → CEFR lookup derived from the pool. Used to CEFR-gate the adaptive
@@ -264,6 +291,11 @@ const EXERCISE_DIFFICULTY: Record<string, number> = {
   sentbuild: 4,
   aspectdrill: 4,
   clitic: 4,
+  instrumental: 3,
+  dative: 3,
+  animateacc: 3,
+  numcases: 4,
+  passive: 4,
 };
 
 // Maps the user's CEFR level to a target difficulty tier (1–5). A stronger user
@@ -290,6 +322,8 @@ const GRAMMAR_STRUCTURE_CATEGORIES: ReadonlySet<SessionCategory> = new Set<Sessi
   'conditional',
   'clitics',
   'word-order',
+  'passive',
+  'numerals',
 ]);
 
 function isGrammarStructure(category: SessionCategory): boolean {
