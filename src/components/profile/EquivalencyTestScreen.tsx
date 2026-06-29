@@ -41,6 +41,7 @@ import {
 import { getNextTestFor, type EquivalencyTestSet } from '../../data/cefrEquivalencyItems.js';
 import { getSpeakingTasks } from '../../data/speakingTasks.js';
 import { whisperClaudeScorer } from '../../lib/speaking/whisperClaudeScorer.js';
+import { applyExamScoresToAdaptive } from '../../lib/adaptiveFeedback.js';
 import ExamRunner from '../exam/ExamRunner.js';
 import type { RunnerQuestion } from '../../lib/checkpointExam.js';
 
@@ -174,6 +175,9 @@ export default function EquivalencyTestScreen({
         scores,
         currentLessonCount: userLessonCount,
       });
+      // Feedback loop: a tested weakness reschedules its adaptive categories so
+      // the daily session targets it next (3a — close the loop the audit flagged).
+      applyExamScoresToAdaptive(scores);
       setResultPassed(passed);
       setResultScores(scores);
       setPhase('result');
