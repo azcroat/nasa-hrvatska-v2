@@ -86,7 +86,7 @@
     "globals": "^15.15.0",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.8",
     "madge": "^8.0.0",
     "playwright-extra": "^4.3.6",
     "prettier": "^3.8.3",
