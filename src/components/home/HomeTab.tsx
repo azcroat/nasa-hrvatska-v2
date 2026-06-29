@@ -615,6 +615,36 @@ export default function HomeTab({
           all four labels visible in the tab strip, user picks what to see.
           Eliminates the scroll that previously buried Story of the Day. */}
       <TodaysDiscoveries wod={wod} pod={pod} setScr={setScr} launchStory={launchStory} />
+
+      {/* ── BROWSE THE FULL LIBRARY — off-ramp so Today isn't a one-item conveyor
+          with no path to the wider content. Opens the Learn tab's full content
+          browser via a one-shot flag consumed by LearnTab on mount. ── */}
+      <button
+        onClick={() => {
+          try {
+            sessionStorage.setItem('nh_open_browse', '1');
+          } catch {
+            /* sessionStorage unavailable — Learn tab still shows the Browse button */
+          }
+          setTab('learn');
+        }}
+        aria-label="Browse the full library of lessons, practice, and reference"
+        style={{
+          width: '100%',
+          marginTop: 16,
+          padding: '14px 16px',
+          borderRadius: 14,
+          border: '1.5px solid var(--card-b)',
+          background: 'var(--card)',
+          color: 'var(--heading)',
+          fontWeight: 800,
+          fontSize: 14,
+          cursor: 'pointer',
+          fontFamily: "'Outfit', sans-serif",
+        }}
+      >
+        📚 Browse the full library →
+      </button>
     </React.Fragment>
   );
 }
