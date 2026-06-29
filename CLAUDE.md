@@ -6,7 +6,7 @@ This file gives Claude Code full context to work effectively on this codebase wi
 
 ## Project Overview
 
-**Naša Hrvatska** is a Croatian language-learning PWA (Progressive Web App) for the diaspora and heritage learners. It combines gamification (XP, streaks, hearts, leagues, knight mascot), spaced-repetition flashcards (FSRS), grammar tracks, cultural content, and AI tutoring.
+**Naša Hrvatska** is a Croatian language-learning PWA (Progressive Web App) for the diaspora and heritage learners. It combines gamification (XP, streaks, hearts, leagues, host-family characters), spaced-repetition flashcards (FSRS), grammar tracks, cultural content, and AI tutoring.
 
 - **Live URL**: https://nasahrvatska.com
 - **Repo**: AzCroat/nasa-hrvatska-v2
@@ -69,7 +69,7 @@ src/
 │   ├── practice/              # Flashcards, McGame, Dialogue, Speaking, Writing, etc.
 │   ├── profile/               # StatsTab, Leaderboard, FriendsScreen, WeeklyLeague, etc.
 │   ├── croatia/               # CultureTab, CityOfDay, EasterScreen, etc.
-│   └── shared/                # CroatianKnight, CelebrationModal, AppToasts, AppModals, etc.
+│   └── shared/                # KnightCompanion (renders prof. Kovač coach), CelebrationModal, AppToasts, AppModals, etc.
 ├── data/                      # Lesson content, word lists, grammar data (split from data.jsx)
 └── types/
     └── index.ts               # Shared TypeScript types (Stats, etc.)
