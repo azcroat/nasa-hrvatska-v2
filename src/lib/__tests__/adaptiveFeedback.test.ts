@@ -1,6 +1,10 @@
 // src/lib/__tests__/adaptiveFeedback.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
-import { applyExamScoresToAdaptive, applyWritingErrorsToAdaptive } from '../adaptiveFeedback.js';
+import {
+  applyExamScoresToAdaptive,
+  applyWritingErrorsToAdaptive,
+  applyConversationCategoriesToAdaptive,
+} from '../adaptiveFeedback.js';
 import type { SkillScores } from '../cefrCertification.js';
 
 // Read the adaptive category SR store the same way adaptive.ts persists it.
@@ -75,6 +79,31 @@ describe('applyWritingErrorsToAdaptive — writing corrections (3b)', () => {
 
   it('ignores unmapped / unknown error-types (agreement, spelling, other, null)', () => {
     applyWritingErrorsToAdaptive(['agreement', 'spelling', 'other', null, undefined, 'bogus']);
+    expect(Object.keys(catStore())).toHaveLength(0);
+  });
+});
+
+describe('applyConversationCategoriesToAdaptive — maja-debrief (3b)', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('reschedules valid taxonomy categories from the debrief', () => {
+    applyConversationCategoriesToAdaptive(['genitive', 'aspect-imperfective']);
+    const store = catStore();
+    expect(store['genitive']).toBeTruthy();
+    expect(store['aspect-imperfective']).toBeTruthy();
+  });
+
+  it('drops stray/hallucinated tokens not in the real taxonomy', () => {
+    applyConversationCategoriesToAdaptive(['genitive', 'totally-made-up', 'GENITIVE', 42, null]);
+    const store = catStore();
+    expect(store['genitive']).toBeTruthy(); // valid
+    expect(Object.keys(store)).toHaveLength(1); // the junk tokens are ignored
+  });
+
+  it('is a no-op for non-array / empty input', () => {
+    applyConversationCategoriesToAdaptive(undefined);
+    applyConversationCategoriesToAdaptive([]);
+    applyConversationCategoriesToAdaptive('genitive');
     expect(Object.keys(catStore())).toHaveLength(0);
   });
 });

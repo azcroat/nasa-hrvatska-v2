@@ -12,7 +12,7 @@
 // intentionally omitted (no-op) rather than silently mapped to the wrong thing.
 // (Phase 3b will add per-error categories from Writing/Razgovor corrections.)
 
-import { rateCategorySession } from './adaptive';
+import { rateCategorySession, ALL_CATEGORIES } from './adaptive';
 import type { SkillCategory } from './adaptive';
 import type { SkillScores, SkillKey } from './cefrCertification';
 
@@ -73,4 +73,20 @@ export function applyWritingErrorsToAdaptive(errorTypes: Array<string | undefine
     if (mapped) cats.add(mapped);
   }
   for (const cat of cats) rateCategorySession(cat, ERROR_SCORE);
+}
+
+// Phase 3b (conversation): the maja-debrief endpoint returns practiceCategories
+// the model derived from the student's actual errors. The server sanitizes
+// shape; here we validate each token against the REAL category taxonomy
+// (ALL_CATEGORIES) so a stray/hallucinated token can never reach the scheduler,
+// then reschedule the valid ones to resurface in the daily session.
+const VALID_CATEGORIES = new Set<string>(ALL_CATEGORIES);
+
+export function applyConversationCategoriesToAdaptive(categories: unknown): void {
+  if (!Array.isArray(categories)) return;
+  const seen = new Set<SkillCategory>();
+  for (const c of categories) {
+    if (typeof c === 'string' && VALID_CATEGORIES.has(c)) seen.add(c as SkillCategory);
+  }
+  for (const cat of seen) rateCategorySession(cat, ERROR_SCORE);
 }
