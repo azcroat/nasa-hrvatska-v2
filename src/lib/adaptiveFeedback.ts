@@ -42,3 +42,35 @@ export function applyExamScoresToAdaptive(scores: SkillScores): void {
     }
   }
 }
+
+// Phase 3b (writing): /api/correct already tags each correction with a coarse
+// `errorType`. Map those to a representative adaptive category so a written
+// mistake resurfaces that practice. The errorType is coarse (e.g. "case" doesn't
+// say which case), so each maps to a single high-frequency proxy category;
+// agreement/spelling/other have no clean category and are intentionally skipped.
+const ERRORTYPE_TO_CATEGORY: Record<string, SkillCategory> = {
+  case: 'genitive',
+  aspect: 'aspect-imperfective',
+  tense: 'past-tense',
+  word_order: 'word-order',
+  vocab: 'vocab-a2',
+};
+
+// Score fed for a category that produced an error → grade 1 → due ~1 day, so it
+// resurfaces in the next daily session.
+const ERROR_SCORE = 0.45;
+
+/**
+ * Feed a writing submission's correction error-types into the adaptive scheduler.
+ * De-duped per submission (each affected category reschedules once), so a writing
+ * full of case errors nudges case practice without flooding the queue. Unknown /
+ * unmapped error-types are ignored.
+ */
+export function applyWritingErrorsToAdaptive(errorTypes: Array<string | undefined | null>): void {
+  const cats = new Set<SkillCategory>();
+  for (const t of errorTypes) {
+    const mapped = t ? ERRORTYPE_TO_CATEGORY[t] : undefined;
+    if (mapped) cats.add(mapped);
+  }
+  for (const cat of cats) rateCategorySession(cat, ERROR_SCORE);
+}

@@ -1,6 +1,6 @@
 // src/lib/__tests__/adaptiveFeedback.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
-import { applyExamScoresToAdaptive } from '../adaptiveFeedback.js';
+import { applyExamScoresToAdaptive, applyWritingErrorsToAdaptive } from '../adaptiveFeedback.js';
 import type { SkillScores } from '../cefrCertification.js';
 
 // Read the adaptive category SR store the same way adaptive.ts persists it.
@@ -49,5 +49,32 @@ describe('applyExamScoresToAdaptive — feedback loop (3a)', () => {
   it('a weak speaking score reschedules the speaking category', () => {
     applyExamScoresToAdaptive({ vocab: 0.95, grammar: 0.95, speaking: 0.4 });
     expect(catStore()['speaking']).toBeTruthy();
+  });
+});
+
+describe('applyWritingErrorsToAdaptive — writing corrections (3b)', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('maps each error-type to its representative adaptive category', () => {
+    applyWritingErrorsToAdaptive(['case', 'aspect', 'tense', 'word_order', 'vocab']);
+    const store = catStore();
+    expect(store['genitive']).toBeTruthy(); // case
+    expect(store['aspect-imperfective']).toBeTruthy(); // aspect
+    expect(store['past-tense']).toBeTruthy(); // tense
+    expect(store['word-order']).toBeTruthy(); // word_order
+    expect(store['vocab-a2']).toBeTruthy(); // vocab
+  });
+
+  it('de-dupes per submission: repeated error-types reschedule a category once', () => {
+    applyWritingErrorsToAdaptive(['case', 'case', 'case']);
+    const card = catStore()['genitive'] as { recentAccuracy: number };
+    // One application of ERROR_SCORE (0.45): EWMA = 0.3*0.45 + 0.7*0.5 = 0.485.
+    // Three applications would compound below that — proving the de-dupe.
+    expect(card.recentAccuracy).toBeCloseTo(0.485, 3);
+  });
+
+  it('ignores unmapped / unknown error-types (agreement, spelling, other, null)', () => {
+    applyWritingErrorsToAdaptive(['agreement', 'spelling', 'other', null, undefined, 'bogus']);
+    expect(Object.keys(catStore())).toHaveLength(0);
   });
 });
