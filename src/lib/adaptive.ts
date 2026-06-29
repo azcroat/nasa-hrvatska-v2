@@ -248,6 +248,10 @@ export type SkillCategory =
   | 'numerals'
   | 'participle'
   | 'subordination'
+  | 'idioms'
+  | 'discourse'
+  | 'register'
+  | 'nominalization'
   | 'present-tense'
   | 'past-tense'
   | 'future-tense'
@@ -261,12 +265,12 @@ export type SkillCategory =
   | 'vocab-b2'
   | 'speaking';
 
-// NOTE: 'nominative', 'word-order', 'passive', 'numerals', 'participle', and
-// 'subordination' are valid SkillCategory tags (used to label the session pool
-// honestly — see CEFR_EXERCISE_POOL) but are deliberately NOT listed here.
-// ALL_CATEGORIES drives the adaptive scheduler/queue; omitting them keeps the
-// adaptive picker's behaviour unchanged. They are wired into scheduling/coverage
-// in later phases.
+// NOTE: the pool-only tags ('nominative', 'word-order', 'passive', 'numerals',
+// 'participle', 'subordination', 'idioms', 'discourse', 'register',
+// 'nominalization') are valid SkillCategory tags used to label CEFR_EXERCISE_POOL
+// honestly, but are deliberately NOT listed here. ALL_CATEGORIES drives the
+// adaptive scheduler/queue; omitting them keeps the adaptive picker's behaviour
+// unchanged. They are wired into scheduling/coverage in later phases.
 export const ALL_CATEGORIES: SkillCategory[] = [
   'genitive',
   'accusative',

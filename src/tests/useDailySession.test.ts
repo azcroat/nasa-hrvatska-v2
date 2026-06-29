@@ -361,9 +361,10 @@ describe('buildSessionActivities — guaranteed grammar/structure slot (G2/G4)',
       return screen ? screenCefr.get(screen) : undefined;
     };
     expect(pickCefr('A1')).toBe('A1'); // only A1 grammar is nomdrill
-    // C1/C2: nearest unlocked grammar is a B2 drill (the grammar ceiling), never A1.
-    expect(pickCefr('C1')).toBe('B2');
-    expect(pickCefr('C2')).toBe('B2');
+    // C1: nearest grammar is a C1 drill (discourse/nominalization), never A1.
+    expect(pickCefr('C1')).toBe('C1');
+    // C2: no C2 grammar drills exist, so the nearest is C1 (the grammar ceiling).
+    expect(pickCefr('C2')).toBe('C1');
   });
 
   it('does not double up grammar when the adaptive pick already provides it', async () => {

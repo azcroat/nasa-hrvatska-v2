@@ -63,9 +63,13 @@ const SKILL_GROUP: Record<SkillCategory, SkillGroup> = {
   'word-order': 'syntax',
   clitics: 'syntax',
   subordination: 'syntax',
+  discourse: 'syntax',
   passive: 'verb',
   participle: 'verb',
+  nominalization: 'verb',
   numerals: 'case',
+  idioms: 'vocab',
+  register: 'vocab',
   speaking: 'speaking',
 };
 
@@ -81,11 +85,12 @@ const TARGET_FLOOR: Partial<Record<Level, number>> = {
 // A healthy level must teach more than one kind of thing.
 const MIN_SKILL_GROUPS = 2;
 
-// Levels currently below target. Green-but-tracked debt; the ratchet test below
-// forces removal once filled. B2 was cleared to the floor (passive, numcases,
-// participles, subordination, conditional + clitic across verb/case/syntax).
-// PRIORITY ORDER for the remaining gap: C1.
-const KNOWN_GAPS = new Set<Level>(['C1']);
+// Levels currently below target (green-but-tracked debt; the ratchet test forces
+// removal once filled). All A1–C1 levels now meet the floor — B2 cleared with
+// participles/subordination/conditional (+passive/numcases/clitic), C1 with
+// idioms/discourse/register/nominalization. C2 is exempt by design, so no gaps
+// remain.
+const KNOWN_GAPS = new Set<Level>([]);
 
 // ── Build the matrix ─────────────────────────────────────────────────────────
 function buildMatrix() {

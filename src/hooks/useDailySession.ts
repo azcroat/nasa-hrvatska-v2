@@ -205,6 +205,23 @@ export const CEFR_EXERCISE_POOL: CefrPoolEntry[] = [
     cefr: 'B1',
     category: 'accusative',
   },
+  // C1 — idiomatic, discourse-level and register/style competence.
+  { id: 'idiomdrill', label: 'Idioms', screen: 'idiomdrill', cefr: 'C1', category: 'idioms' },
+  {
+    id: 'discourse',
+    label: 'Discourse Connectors',
+    screen: 'discourse',
+    cefr: 'C1',
+    category: 'discourse',
+  },
+  { id: 'register', label: 'Register', screen: 'register', cefr: 'C1', category: 'register' },
+  {
+    id: 'nominalization',
+    label: 'Nominalization',
+    screen: 'nominalization',
+    cefr: 'C1',
+    category: 'nominalization',
+  },
 ];
 
 // Screen → CEFR lookup derived from the pool. Used to CEFR-gate the adaptive
@@ -321,6 +338,10 @@ const EXERCISE_DIFFICULTY: Record<string, number> = {
   participles: 4,
   subordination: 4,
   conditionaldrill: 4,
+  idiomdrill: 4,
+  discourse: 4,
+  register: 4,
+  nominalization: 4,
 };
 
 // Maps the user's CEFR level to a target difficulty tier (1–5). A stronger user
@@ -351,6 +372,8 @@ export const GRAMMAR_STRUCTURE_CATEGORIES: ReadonlySet<SessionCategory> = new Se
   'numerals',
   'participle',
   'subordination',
+  'discourse',
+  'nominalization',
 ]);
 
 function isGrammarStructure(category: SessionCategory): boolean {
