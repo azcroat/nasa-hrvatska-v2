@@ -42,14 +42,14 @@ test.describe('Learn tab', () => {
 
     test('Learning Paths & Tracks holds the relocated tracks', async ({ page }) => {
       await openBrowse(page);
-      await page.getByRole('button', { name: /Learning Paths & Tracks/ }).click();
+      // 'Learning Paths & Tracks' is open by default — content shows without toggling.
       await expect(page.getByText('AI Micro-Lesson')).toBeVisible({ timeout: 8_000 });
       await expect(page.getByText('Grammar Track A1→B2')).toBeVisible();
     });
 
     test('Pronunciation Lab holds the relocated pronunciation tools', async ({ page }) => {
       await openBrowse(page);
-      await page.getByRole('button', { name: /Pronunciation Lab/ }).click();
+      // 'Pronunciation Lab' is open by default — content shows without toggling.
       await expect(page.getByText('Pronunciation Course')).toBeVisible({ timeout: 8_000 });
       await expect(page.getByText('Pitch Accent')).toBeVisible();
     });
@@ -58,7 +58,7 @@ test.describe('Learn tab', () => {
       const errors = [];
       page.on('pageerror', e => errors.push(e.message));
       await openBrowse(page);
-      await page.getByRole('button', { name: /Learning Paths & Tracks/ }).click();
+      // Section open by default — the track tile is present without toggling.
       await page.getByText('AI Micro-Lesson').waitFor({ state: 'visible', timeout: 8_000 });
       await page.getByText('AI Micro-Lesson').click();
       await page.waitForTimeout(500);
