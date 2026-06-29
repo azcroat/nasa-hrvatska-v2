@@ -7,6 +7,7 @@ import {
   recordSessionComplete,
   useDailySession,
   shouldAutoCompleteOnReturn,
+  selectGuaranteedGrammar,
   SESSION_AUTOCOMPLETE_SCREENS,
 } from '../hooks/useDailySession';
 import type { DailySession } from '../hooks/useDailySession';
@@ -361,6 +362,16 @@ describe('buildSessionActivities — guaranteed grammar/structure slot (G2/G4)',
     const nonCroatia = buildSessionActivities('A2').filter((a) => !croatiaIds.has(a.id));
     expect(nonCroatia.length).toBeLessThanOrEqual(4);
     expect(hasGrammar(nonCroatia)).toBe(true);
+  });
+
+  it('selectGuaranteedGrammar picks the nearest-CEFR drill at every level — incl. C1/C2', () => {
+    // Regression: cefrRank must rank on the full A1–C2 scale. With the wrong
+    // (A1–B2-only) ranker, cefrRank('C1') was -1, so |0-(-1)|=1 made A1 nomdrill
+    // the "nearest" pick for advanced users — the inverse of intent.
+    expect(selectGuaranteedGrammar('A1', new Set(), [])?.screen).toBe('nomdrill'); // only A1 grammar
+    // C1/C2: nearest unlocked grammar is B2 clitic (dist 1), not A1 nomdrill (dist 4+).
+    expect(selectGuaranteedGrammar('C1', new Set(), [])?.screen).toBe('clitic');
+    expect(selectGuaranteedGrammar('C2', new Set(), [])?.screen).toBe('clitic');
   });
 
   it('does not double up grammar when the adaptive pick already provides it', async () => {

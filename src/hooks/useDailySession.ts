@@ -4,8 +4,7 @@ import { getDueReviews, getServableReviewCount } from '../lib/srs';
 import { getDueCategoryQueue, CONJ_CATEGORIES, CATEGORY_MIN_CEFR } from '../lib/adaptive';
 import type { SkillCategory } from '../lib/adaptive';
 import { CONJ_LAB_ENABLED } from '../lib/conjugation/conjugationConfig';
-import { cefrRank, type Cefr } from '../lib/conjugation/category';
-import { isUnlocked } from '../lib/cefr';
+import { isUnlocked, cefrRank } from '../lib/cefr';
 import { localDateStr } from '../lib/dateUtils';
 import { rnd } from '../lib/random.js';
 
@@ -214,7 +213,7 @@ export function resolveAdaptiveActivity(
     const isConj = CONJ_LAB_ENABLED && CONJ_CATEGORIES.has(category);
     if (isConj) {
       const min = CATEGORY_MIN_CEFR[category];
-      if (min && cefrRank(userCefr as Cefr) < cefrRank(min)) continue; // not yet unlocked
+      if (min && cefrRank(userCefr) < cefrRank(min)) continue; // not yet unlocked
     }
     const screen = isConj ? 'conjpractice' : CATEGORY_SCREEN_MAP[category];
     if (!screen || usedScreens.has(screen)) continue;
@@ -300,7 +299,7 @@ function isGrammarStructure(category: SessionCategory): boolean {
 // (tier 3–4) for A1/A2 users, starving exactly the learners who most need
 // foundational grammar. Skips recent + already-used screens, falling back to
 // ignoring recency rather than returning nothing.
-function selectGuaranteedGrammar(
+export function selectGuaranteedGrammar(
   userCefr: string,
   usedScreens: Set<string>,
   recentScreens: string[],
@@ -316,9 +315,9 @@ function selectGuaranteedGrammar(
   if (candidates.length === 0) return null;
   // Nearest CEFR to the user first (level-appropriate); random tiebreak rotates
   // same-level drills day to day.
-  const userRank = cefrRank(userCefr as Cefr);
+  const userRank = cefrRank(userCefr);
   const pick = candidates
-    .map((ex) => ({ ex, dist: Math.abs(cefrRank(ex.cefr as Cefr) - userRank), r: rnd() }))
+    .map((ex) => ({ ex, dist: Math.abs(cefrRank(ex.cefr) - userRank), r: rnd() }))
     .sort((a, b) => a.dist - b.dist || a.r - b.r)[0]!.ex;
   return { id: pick.id, label: pick.label, screen: pick.screen, category: pick.category };
 }
