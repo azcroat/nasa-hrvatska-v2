@@ -22,9 +22,23 @@ function _levelToTopic(level: string): string {
   return 'vocab-a2';
 }
 
-const LEVELS = ['All', 'A1', 'A2', 'B1'];
-const LEVEL_COLOR: Record<string, string> = { A1: '#166534', A2: '#1e40af', B1: '#92400e' };
-const LEVEL_BG: Record<string, string> = { A1: '#dcfce7', A2: '#dbeafe', B1: '#fef3c7' };
+const LEVELS = ['All', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+const LEVEL_COLOR: Record<string, string> = {
+  A1: '#166534',
+  A2: '#1e40af',
+  B1: '#92400e',
+  B2: '#5b21b6',
+  C1: '#4c1d95',
+  C2: '#9d174d',
+};
+const LEVEL_BG: Record<string, string> = {
+  A1: '#dcfce7',
+  A2: '#dbeafe',
+  B1: '#fef3c7',
+  B2: '#ede9fe',
+  C1: '#f3e8ff',
+  C2: '#fce7f3',
+};
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface VocabItem {
