@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { getStreak } from '../../data';
 import { getWeakTopics } from '../../lib/adaptive.js';
+import { getUserCefr, cefrRank } from '../../lib/cefr';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import ProgressCharts from './ProgressCharts';
@@ -61,7 +62,10 @@ const B1_RESOURCES = [
 
 export default function InsightsTab() {
   const { setScr } = useApp();
-  const { stats: st, level } = useStats();
+  const { stats: st } = useStats();
+  // CEFR level is the single source of truth for any proficiency claim — never
+  // the numeric gamification `level`. The B1+ roadmap gates on the real CEFR.
+  const cefr = getUserCefr(st.xp || 0, st.lc || 0, st.gc || 0);
   const [imdOpen, setImdOpen] = useState(false);
   const [letterText, setLetterText] = useState(
     () => localStorage.getItem('nh_letter_to_self') || '',
@@ -103,8 +107,8 @@ export default function InsightsTab() {
         <JourneyTimeline />
       </div>
 
-      {/* ── B1+ FLUENCY ROADMAP ── */}
-      {level >= 5 && (
+      {/* ── B1+ FLUENCY ROADMAP — gated on the real CEFR level, not game level ── */}
+      {cefrRank(cefr) >= cefrRank('B1') && (
         <React.Fragment>
           <h3 className="sh" style={{ marginTop: 24 }}>
             🗺️ Your Fluency Roadmap
@@ -123,7 +127,9 @@ export default function InsightsTab() {
             }}
           >
             <span style={{ fontWeight: 800, color: 'var(--info,#0284c7)' }}>
-              You have reached B1 — the conversational threshold.
+              {cefr === 'B1'
+                ? 'You have reached B1 — the conversational threshold.'
+                : `You have reached ${cefr} — well past the B1 conversational threshold.`}
             </span>{' '}
             This is when authentic input becomes your primary driver. No app can take you to fluency
             alone — but these resources, combined with consistent practice, will.{' '}

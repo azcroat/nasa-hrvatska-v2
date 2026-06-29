@@ -265,7 +265,10 @@ export default function StatsTab({ onSyncNow }: { onSyncNow?: () => void }) {
               <div className="stat-label">{s.label}</div>
               {s.label === 'Total XP' && (
                 <div className="stat-sub">
-                  {st.xp >= 5000 ? '🚀 Near B1!' : st.xp >= 2000 ? '📈 Momentum!' : '⭐ Keep going'}
+                  {/* Effort milestone only — never a CEFR-band claim. The user's
+                      level is shown solely by the CEFR badge/estimate (getCEFR),
+                      so XP thresholds must not assert a proficiency level. */}
+                  {st.xp >= 5000 ? '🚀 On fire!' : st.xp >= 2000 ? '📈 Momentum!' : '⭐ Keep going'}
                 </div>
               )}
               {s.label === 'Day Streak' && (
