@@ -363,8 +363,16 @@ export default function HomeTab({
     }
     return s;
   }, [content?.V]);
-  const { session, isComplete, progress, markDone, nextActivity, tomorrowLabel, bonusActivities } =
-    useDailySession(userCefr, poolWords);
+  const {
+    session,
+    isComplete,
+    progress,
+    markDone,
+    nextActivity,
+    tomorrowLabel,
+    bonusActivities,
+    startFreshSession,
+  } = useDailySession(userCefr, poolWords);
   const dueCount = getServableReviewCount(poolWords);
   const xpThisWeek = (() => {
     try {
@@ -600,6 +608,7 @@ export default function HomeTab({
             if (sCurEx) sCurEx(act.screen);
           }
         }}
+        onStartFresh={startFreshSession}
       />
 
       {/* ── WHAT TO FIX NEXT — surface the weak-areas insight on Today, where the

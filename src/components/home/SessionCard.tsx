@@ -42,6 +42,11 @@ interface SessionCardProps {
   bonusActivities?: SessionActivity[];
   /** Click handler for a bonus activity — receives the activity, parent decides routing. */
   onBonusStart?: (activity: SessionActivity) => void;
+  /**
+   * Discards the completed session and builds a fresh one for today. Lets a
+   * motivated learner keep going instead of waiting for tomorrow's rebuild.
+   */
+  onStartFresh?: () => void;
 }
 
 // ── Šahovnica Croatian coat of arms crest ──
@@ -204,6 +209,7 @@ export default function SessionCard({
   learnPathItemDone = false,
   bonusActivities = [],
   onBonusStart,
+  onStartFresh,
 }: SessionCardProps) {
   const completedCount = session.completedIds.length;
   const totalCount = session.activities.length;
@@ -307,6 +313,28 @@ export default function SessionCard({
                 </button>
               ))}
             </div>
+          )}
+          {onStartFresh && (
+            <button
+              onClick={onStartFresh}
+              data-testid="start-fresh-session"
+              style={{
+                display: 'block',
+                width: '100%',
+                background: 'none',
+                border: '1.5px solid rgba(22,163,74,.4)',
+                borderRadius: 10,
+                padding: '10px 20px',
+                marginBottom: 10,
+                fontSize: 13,
+                fontWeight: 800,
+                color: '#15803d',
+                cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+              }}
+            >
+              🔄 Start a fresh session →
+            </button>
           )}
           <div style={{ fontSize: 11, color: 'var(--subtext)', fontWeight: 500 }}>
             {tomorrowLabel}

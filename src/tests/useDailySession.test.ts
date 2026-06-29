@@ -250,7 +250,7 @@ describe('recordSessionComplete', () => {
   });
 });
 
-describe('useDailySession — rotation memory + auto-regenerate (hook)', () => {
+describe('useDailySession — rotation memory + completion (hook)', () => {
   it('records a completed activity screen in nh_recent_exercises (the missing write)', () => {
     const { result } = renderHook(() => useDailySession('A2'));
     const first = result.current.session.activities[0]!;
@@ -261,15 +261,33 @@ describe('useDailySession — rotation memory + auto-regenerate (hook)', () => {
     expect(recent).toContain(first.screen);
   });
 
-  it('auto-regenerates a fresh set when every activity is completed (no dead-end)', () => {
+  it('REGRESSION (bug #1): completing every activity reaches a real, visible complete state — it does NOT silently auto-regenerate', () => {
+    // The session used to rebuild itself the instant the last activity was done,
+    // erasing the "Session Complete!" moment and making it feel endless. The
+    // complete state must now persist so the celebration + next-steps render.
     const { result } = renderHook(() => useDailySession('A2'));
     const firstIds = result.current.session.activities.map((a) => a.id);
     expect(firstIds.length).toBeGreaterThan(0);
     act(() => {
       firstIds.forEach((id) => result.current.markDone(id));
     });
-    // Completing all triggers regeneration: not complete, progress reset to a
-    // fresh non-empty set rather than a "come back tomorrow" dead-end.
+    expect(result.current.isComplete).toBe(true);
+    expect(result.current.progress).toBe(1);
+    // Bonus next-steps surface only once complete.
+    expect(result.current.bonusActivities.length).toBeGreaterThan(0);
+  });
+
+  it('startFreshSession builds a new non-empty set on demand (the explicit "keep going" path)', () => {
+    const { result } = renderHook(() => useDailySession('A2'));
+    const firstIds = result.current.session.activities.map((a) => a.id);
+    act(() => {
+      firstIds.forEach((id) => result.current.markDone(id));
+    });
+    expect(result.current.isComplete).toBe(true);
+    act(() => {
+      result.current.startFreshSession();
+    });
+    // A fresh session: progress reset, not complete, non-empty activities.
     expect(result.current.isComplete).toBe(false);
     expect(result.current.session.completedIds).toEqual([]);
     expect(result.current.session.activities.length).toBeGreaterThan(0);
