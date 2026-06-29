@@ -1,6 +1,7 @@
 // functions/api/assess-speaking.js
 import { requireAuthedAI } from './_requireAuth.js';
 import { corsHeaders } from './_helpers.js';
+import { transcribeCroatian } from './_transcribe.js';
 
 const MAX_AUDIO_B64 = 2_000_000; // ~90s compressed
 // Minimum word count before we consider the transcript "long enough" to score fairly.
@@ -28,12 +29,12 @@ function err(status, error, origin) {
   return new Response(JSON.stringify({ error }), { status, headers: CORS(origin) });
 }
 
-/** Decode base64 → array of byte values (the shape Workers AI Whisper expects). */
-function b64ToBytes(b64) {
+/** Decode base64 → ArrayBuffer for the transcription providers. */
+function b64ToArrayBuffer(b64) {
   const bin = atob(b64);
-  const out = new Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return u8.buffer;
 }
 
 const RUBRIC = (level, prompt, transcript) =>
@@ -59,7 +60,7 @@ export async function onRequestPost(context) {
   } catch {
     return err(400, 'bad_json', origin);
   }
-  const { level, prompt, audioBase64 } = body || {};
+  const { level, prompt, audioBase64, mime } = body || {};
   if (!level || !prompt || typeof audioBase64 !== 'string')
     return err(400, 'missing_fields', origin);
 
@@ -72,20 +73,25 @@ export async function onRequestPost(context) {
 
   if (audioBase64.length > MAX_AUDIO_B64) return err(413, 'audio_too_large', origin);
 
-  // 5. Transcribe with Workers AI Whisper.
+  // 5. Transcribe via the shared FORMAT-AWARE chain (Deepgram → Whisper-1 →
+  //    Workers AI fallback). The client sends `mime` (audio/mp4 on iOS Safari,
+  //    audio/webm on Chrome); routing by it is what makes iOS recordings
+  //    transcribe correctly. Previously this used Workers AI Whisper alone, which
+  //    is format-blind and returned empty text for iOS mp4 — so an iOS learner's
+  //    spoken answer was silently ungradable (transcriptSufficiency 0 → null).
+  let audioBuffer;
+  try {
+    audioBuffer = b64ToArrayBuffer(audioBase64);
+  } catch {
+    return err(400, 'bad_audio', origin);
+  }
   let transcript = '';
   try {
-    // Pin language to Croatian (ISO-639-1 'hr'); mirrors the `language: 'hr'` shape used
-    // by functions/api/stt.js for both Deepgram and OpenAI Whisper. Without this pin, short
-    // Croatian utterances get auto-detected as Italian/Romanian and transcribed wrong.
-    const stt = await env.AI.run('@cf/openai/whisper', {
-      audio: b64ToBytes(audioBase64),
-      language: 'hr',
-    });
-    transcript = (stt && stt.text ? String(stt.text) : '').trim();
+    const { text } = await transcribeCroatian(audioBuffer, mime, env, { allowWorkersAI: true });
+    transcript = (text || '').trim();
   } catch (e) {
     console.error('[assess-speaking] STT failed:', e && e.message);
-    return err(502, 'stt_failed', origin);
+    return err(e && e.timedOut ? 504 : 502, 'stt_failed', origin);
   }
   const wordCount = transcript ? transcript.split(/\s+/).length : 0;
   // transcriptSufficiency is a transcript-LENGTH heuristic (word-count bucket), NOT an

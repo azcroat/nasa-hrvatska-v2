@@ -12,84 +12,13 @@
 
 import { requireAuthedAI } from './_requireAuth.js';
 import { corsHeaders } from './_helpers.js';
+// Format-aware Croatian transcription, shared with /api/assess-speaking so both
+// endpoints handle iOS mp4 identically. See functions/api/_transcribe.js.
+import { transcribeDeepgram, transcribeWhisper } from './_transcribe.js';
 
 export async function onRequestOptions({ request }) {
   const origin = request.headers.get('origin') || '';
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
-}
-
-// ── Provider 1: Deepgram nova-3 ───────────────────────────────────────────────
-// Deepgram excels at short conversational clips (<30 s) — lower latency than Whisper
-// because it processes the audio as a continuous stream rather than a batch job.
-// Croatian (hr) is fully supported with punctuation and smart formatting.
-async function transcribeDeepgram(audioBuffer, mimeType, apiKey) {
-  const params = new URLSearchParams({
-    model: 'nova-3',
-    language: 'hr',
-    smart_format: 'true',
-    punctuate: 'true',
-    filler_words: 'false',
-  });
-
-  const res = await fetch(`https://api.deepgram.com/v1/listen?${params}`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Token ${apiKey}`,
-      'Content-Type': mimeType,
-    },
-    body: audioBuffer,
-    signal: AbortSignal.timeout(15000), // Deepgram is typically <1 s for short clips
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`Deepgram ${res.status}: ${body.slice(0, 200)}`);
-  }
-
-  const data = await res.json();
-  // Deepgram response: { results: { channels: [{ alternatives: [{ transcript: "..." }] }] } }
-  const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
-  return transcript.trim();
-}
-
-// ── Provider 2: OpenAI Whisper-1 ──────────────────────────────────────────────
-// Whisper has the edge on uncommon vocabulary and correct diacritic spelling,
-// particularly for words with đ, which Deepgram can occasionally normalise away.
-// The prompt hint seeds the decoder with common Croatian forms.
-async function transcribeWhisper(audioBuffer, mimeType, apiKey) {
-  const ext = mimeType.includes('ogg')
-    ? 'ogg'
-    : mimeType.includes('mp4') || mimeType.includes('m4a')
-      ? 'mp4'
-      : mimeType.includes('wav')
-        ? 'wav'
-        : 'webm'; // Chrome/Edge default
-
-  const form = new FormData();
-  form.append('file', new Blob([audioBuffer], { type: mimeType }), `speech.${ext}`);
-  form.append('model', 'whisper-1');
-  form.append('language', 'hr');
-  form.append(
-    'prompt',
-    'Razgovor na standardnom hrvatskom jeziku. ' +
-      'Fraze: hvala lijepa, molim, dobar dan, kako ste, gdje je, ' +
-      'koliko košta, ne razumijem, možete li ponoviti, govorim malo hrvatski.',
-  );
-
-  const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}` },
-    body: form,
-    signal: AbortSignal.timeout(20000),
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`Whisper ${res.status}: ${body.slice(0, 200)}`);
-  }
-
-  const data = await res.json();
-  return (data.text || '').trim();
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────

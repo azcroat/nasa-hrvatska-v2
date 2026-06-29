@@ -103,6 +103,54 @@ describe('POST /api/assess-speaking', () => {
     );
   });
 
+  it('iOS mp4 transcribes via the format-aware provider (Deepgram), not format-blind Workers AI', async () => {
+    // Regression: Workers AI Whisper is handed a bare byte array and returns
+    // empty text for iOS Safari's audio/mp4, leaving the answer ungradable. With
+    // a format-aware key configured, mp4 must route there and NOT fall back to
+    // Workers AI.
+    const e = env();
+    e.DEEPGRAM_API_KEY = 'dg-key';
+    const fetchMock = vi.fn(async (url) => {
+      const u = String(url);
+      if (u.includes('deepgram.com')) {
+        return new Response(
+          JSON.stringify({
+            results: { channels: [{ alternatives: [{ transcript: 'Idem autobusom na posao.' }] }] },
+          }),
+          { status: 200 },
+        );
+      }
+      // Anthropic rubric call
+      return new Response(
+        JSON.stringify({
+          content: [
+            { type: 'text', text: '{"range":0.8,"accuracy":0.8,"fluency":0.8,"task":0.8}' },
+          ],
+        }),
+        { status: 200 },
+      );
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await onRequestPost({
+      request: req(
+        { level: 'B1', prompt: 'Opišite putovanje.', audioBase64: 'AAAA', mime: 'audio/mp4' },
+        'Bearer good',
+      ),
+      env: e,
+    });
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.transcript).toContain('autobusom');
+    // The format-blind Workers AI fallback must NOT have been used.
+    expect(e.AI.run).not.toHaveBeenCalled();
+    // Deepgram was called with the iOS mime as Content-Type (format-aware routing).
+    const dgCall = fetchMock.mock.calls.find(([u]) => String(u).includes('deepgram.com'));
+    expect(dgCall).toBeTruthy();
+    expect(dgCall[1].headers['Content-Type']).toBe('audio/mp4');
+  });
+
   it('429 when daily quota is exceeded', async () => {
     // Seed the KV store with turns already at the per-day limit (300) so the
     // real checkAIQuota helper returns not-allowed for uid-1.
