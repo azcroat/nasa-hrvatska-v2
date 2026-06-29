@@ -1,1 +1,15 @@
+# Missing hashed build assets must 404 — NOT fall through to the SPA catch-all.
+# Without this, a request for a stale chunk (e.g. /assets/chunk-OLDHASH.js after a
+# deploy) matches "/* /index.html 200" and returns index.html as 200 text/html.
+# The browser then tries to evaluate that HTML as a JS module and throws
+# "'text/html' is not a valid JavaScript MIME type", crashing the screen's
+# ErrorBoundary (Sentry: stale-chunk MIME error on deep links like /discourse).
+# A real 404 instead lets the SW fail over and lazyWithReload self-heal cleanly.
+#
+# SAFE: Cloudflare Pages serves EXISTING static assets before evaluating
+# _redirects rewrites (proven by the catch-all below not already clobbering every
+# asset), so this rule only ever matches MISSING /assets/* paths.
+/assets/* /assets/:splat 404
+
+# SPA fallback — every other path renders the client-routed app shell.
 /* /index.html 200

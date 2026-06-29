@@ -108,6 +108,15 @@ registerRoute(
       new ExpirationPlugin({ maxEntries: 3, maxAgeSeconds: 60 * 60 * 24 * 7 }),
       new CacheableResponsePlugin({ statuses: [200] }),
       {
+        // On a cache MISS, StaleWhileRevalidate awaits the network and returns it
+        // directly — so without this throw, a Cloudflare SPA-fallback HTML response
+        // for a stale chunk would be handed to the page as a JS module (MIME crash).
+        // Mirror route 2's guard so the data-chunk route fails over instead.
+        fetchDidSucceed: async ({ response }) => {
+          const ct = response?.headers?.get('content-type');
+          if (ct?.startsWith('text/html')) throw new Error('Failed to fetch');
+          return response;
+        },
         cacheWillUpdate: async ({ response }) => {
           const ct = response?.headers?.get('content-type');
           return ct?.startsWith('text/html') ? null : response;
