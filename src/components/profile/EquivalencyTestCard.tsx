@@ -39,6 +39,10 @@ export default function EquivalencyTestCard({
   const certified = getCertifiedLevel();
   const nextTest = getNextTestFor(certified);
   const eligibleAhead = cefrRank(userEligible) > cefrRank(certified);
+  // The B1+ equivalency test now includes a speaking section — nudge so it's not
+  // a surprise. (Existing certified levels are never revoked; speaking is only
+  // required when attempting the next level.)
+  const speakingInNext = !!nextTest && cefrRank(nextTest.levelFrom) >= cefrRank('B1');
 
   // No further test (user has passed C1 → certified C1, no C1→C2 test exists).
   if (!nextTest) {
@@ -106,6 +110,7 @@ export default function EquivalencyTestCard({
         <div style={{ fontSize: 13, opacity: 0.95, lineHeight: 1.5, marginBottom: 10 }}>
           Take the {nextTest.levelFrom} equivalency test to certify and unlock {nextTest.levelTo}{' '}
           content.
+          {speakingInNext && ' 🎙️ Now includes a short speaking task.'}
         </div>
         <div
           style={{
@@ -156,6 +161,7 @@ export default function EquivalencyTestCard({
       <p style={{ fontSize: 13, color: 'var(--heading)', margin: '0 0 10px', lineHeight: 1.5 }}>
         Ready to advance? Take the {nextTest.levelFrom} → {nextTest.levelTo} equivalency test to
         unlock {nextTest.levelTo} content.
+        {speakingInNext && ' 🎙️ Now includes a short speaking task.'}
       </p>
       <button
         onClick={onTakeTest}

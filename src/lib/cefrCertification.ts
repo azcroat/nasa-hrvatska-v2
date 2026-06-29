@@ -325,20 +325,57 @@ export function canTakeEquivalencyTest(level: CefrLevel, currentLessonCount: num
  * tested skill AND ≥80% overall. The reading skill is optional (not every
  * test set has reading items); if absent, only present skills are checked.
  */
-export function computePassed(scores: SkillScores): {
+/**
+ * SHADOW MODE for the speaking dimension.
+ *
+ * Real fluency requires production, but `getUserCefr` and the equivalency test
+ * historically measured only vocab/grammar/reading — so a learner could certify
+ * B1/B2/C1 without ever speaking. We now MEASURE speaking in the B1+ equivalency
+ * test, but during shadow mode (`false`) it is recorded and displayed only — it
+ * does NOT affect pass/fail — so we can validate the speaking scorer in the wild
+ * and gather pass-rate telemetry before it gates anyone. Flip to `true` to
+ * enforce speaking as a required skill at B1+. Exported so callers and tests can
+ * read/override it.
+ */
+// Speaking becomes a REQUIRED certification skill (B1+) automatically on this
+// date. Until then the B1+ equivalency test measures speaking in SHADOW mode
+// (recorded + displayed, not gating). We use a DATE GATE rather than a scheduled
+// job because sessions/jobs in this environment are ephemeral — this flips with
+// no further action and no live process. To change the rollout, edit this one
+// constant. (Existing certified levels are never re-evaluated, so no one is
+// downgraded when it flips; speaking is only required on a NEW B1+ attempt.)
+export const SPEAKING_ENFORCEMENT_DATE = '2026-07-13T00:00:00Z';
+
+/** True once speaking gates certification (on/after SPEAKING_ENFORCEMENT_DATE). */
+export function isSpeakingGateEnforced(now: number = Date.now()): boolean {
+  return now >= Date.parse(SPEAKING_ENFORCEMENT_DATE);
+}
+
+export function computePassed(
+  scores: SkillScores,
+  opts: { includeSpeaking?: boolean; requireSpeaking?: boolean } = {},
+): {
   passed: boolean;
   overall: number;
 } {
+  // includeSpeaking defaults TRUE to preserve existing callers (checkpoints).
+  // The equivalency path passes the date-gated values: shadow mode records/
+  // displays speaking but excludes it from pass/fail; once enforced it counts AND
+  // (requireSpeaking) a B1+ attempt with NO speaking score cannot pass — otherwise
+  // skipping speaking would be a loophole around the gate.
+  const { includeSpeaking = true, requireSpeaking = false } = opts;
   const skillValues: number[] = [];
   skillValues.push(scores.vocab);
   skillValues.push(scores.grammar);
   if (scores.reading !== undefined) skillValues.push(scores.reading);
   if (scores.listening !== undefined) skillValues.push(scores.listening);
-  if (scores.speaking !== undefined) skillValues.push(scores.speaking);
+  const hasSpeaking = scores.speaking !== undefined;
+  if (hasSpeaking && includeSpeaking) skillValues.push(scores.speaking as number);
   if (skillValues.length === 0) return { passed: false, overall: 0 };
   const overall = skillValues.reduce((a, b) => a + b, 0) / skillValues.length;
   const minSkill = Math.min(...skillValues);
-  const passed = overall >= PASS_THRESHOLD && minSkill >= PASS_THRESHOLD;
+  const speakingMissing = requireSpeaking && !hasSpeaking;
+  const passed = !speakingMissing && overall >= PASS_THRESHOLD && minSkill >= PASS_THRESHOLD;
   return { passed, overall: overall * 100 };
 }
 
@@ -354,7 +391,15 @@ export function recordEquivalencyAttempt(opts: {
   currentLessonCount: number;
 }): { passed: boolean; newCertified: CefrLevel; attempt: CertificationAttempt } {
   const { level, scores, currentLessonCount } = opts;
-  const { passed, overall } = computePassed(scores);
+  // Speaking gates certification only once enforced (date gate). Shadow mode
+  // records the score for telemetry without affecting the result. When enforced,
+  // a B1+ attempt also REQUIRES a speaking score (no skipping past the gate).
+  const enforced = isSpeakingGateEnforced();
+  const requireSpeaking = enforced && cefrRank(level) >= cefrRank('B1');
+  const { passed, overall } = computePassed(scores, {
+    includeSpeaking: enforced,
+    requireSpeaking,
+  });
   const state = getCertificationState();
   const attempt: CertificationAttempt = {
     level,
