@@ -1,0 +1,122 @@
+// De-orphaned drills — split out of exerciseCatalog.ts to keep that file within
+// the 800-line max-lines budget. These were previously reachable ONLY via the
+// daily-session algorithm (CEFR_EXERCISE_POOL), with no browse tile; they are now
+// first-class catalog entries bucketed into the Grad town by PLACE_ASSIGNMENTS.
+// Spread into buildExercises()'s return so they share the catalog entry shape.
+
+type Go = (screen: string, id?: string) => () => void;
+
+export function buildDeorphanedDrills(go: Go) {
+  return [
+    {
+      id: 'nomdrill',
+      label: 'Nominative',
+      icon: '🏷️',
+      desc: 'The base/subject case',
+      category: 'grammar',
+      cefr: 'A1',
+      duration: '~8 min',
+      action: go('nomdrill'),
+    },
+    {
+      id: 'genitivedrill',
+      label: 'Genitive',
+      icon: '📦',
+      desc: 'Possession, "of", after numbers',
+      category: 'grammar',
+      cefr: 'A2',
+      duration: '~10 min',
+      action: go('genitivedrill'),
+    },
+    {
+      id: 'locdrill',
+      label: 'Locative',
+      icon: '📍',
+      desc: 'Location and "about", after prepositions',
+      category: 'grammar',
+      cefr: 'B1',
+      duration: '~10 min',
+      action: go('locdrill'),
+    },
+    {
+      id: 'participles',
+      label: 'Participles',
+      icon: '🧩',
+      desc: 'Verbal adjectives and adverbs',
+      category: 'grammar',
+      cefr: 'B2',
+      duration: '~8 min',
+      action: go('participles'),
+    },
+    {
+      id: 'conditionaldrill',
+      label: 'Conditional',
+      icon: '🔀',
+      desc: 'Would: bih/bi + past participle',
+      category: 'grammar',
+      cefr: 'B2',
+      duration: '~8 min',
+      action: go('conditionaldrill'),
+    },
+    {
+      id: 'subordination',
+      label: 'Subordinate Clauses',
+      icon: '🔗',
+      desc: 'da / koji / jer — complex sentences',
+      category: 'grammar',
+      cefr: 'B2',
+      duration: '~8 min',
+      action: go('subordination'),
+    },
+    {
+      id: 'discourse',
+      label: 'Discourse Connectors',
+      icon: '🪡',
+      desc: 'Link ideas: stoga, naime, usprkos tomu',
+      category: 'grammar',
+      cefr: 'C1',
+      duration: '~8 min',
+      action: go('discourse'),
+    },
+    {
+      id: 'nominalization',
+      label: 'Nominalization',
+      icon: '🏛️',
+      desc: 'Verbal nouns and formal written style',
+      category: 'grammar',
+      cefr: 'C1',
+      duration: '~8 min',
+      action: go('nominalization'),
+    },
+    {
+      id: 'register',
+      label: 'Register',
+      icon: '🎩',
+      desc: 'Formal vs informal style',
+      category: 'grammar',
+      cefr: 'C1',
+      duration: '~8 min',
+      action: go('register'),
+    },
+    {
+      id: 'idiomdrill',
+      label: 'Idioms',
+      icon: '💬',
+      desc: 'Everyday Croatian expressions',
+      category: 'vocab',
+      cefr: 'C1',
+      duration: '~8 min',
+      action: go('idiomdrill'),
+    },
+    {
+      id: 'listening_comprehension',
+      label: 'Listening Comprehension',
+      icon: '🎧',
+      desc: 'Understand connected speech',
+      category: 'listening',
+      cefr: 'B2',
+      duration: '~10 min',
+      action: go('listening_comprehension'),
+    },
+  ];
+}

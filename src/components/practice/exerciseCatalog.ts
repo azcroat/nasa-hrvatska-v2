@@ -4,6 +4,8 @@
 // inline setScr/sCurEx), so the list is built by a factory that takes those
 // handlers as deps rather than being pure data.
 
+import { buildDeorphanedDrills } from './exerciseCatalogDrills';
+
 type ExerciseDeps = {
   go: (screen: string, id?: string) => () => void;
   setScr: (id: string) => void;
@@ -285,6 +287,10 @@ export function buildExercises({
       duration: '~8 min',
       action: go('fleetinga'),
     },
+    // De-orphaned drills (case/advanced/listening) — split into
+    // exerciseCatalogDrills.ts to stay within the max-lines budget.
+    // Previously session-algorithm-only; now browsable, bucketed by PLACE_ASSIGNMENTS.
+    ...buildDeorphanedDrills(go),
     // Vocab
     {
       id: 'znam',
