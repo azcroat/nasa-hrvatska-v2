@@ -325,16 +325,37 @@ export function canTakeEquivalencyTest(level: CefrLevel, currentLessonCount: num
  * tested skill AND ≥80% overall. The reading skill is optional (not every
  * test set has reading items); if absent, only present skills are checked.
  */
-export function computePassed(scores: SkillScores): {
+/**
+ * SHADOW MODE for the speaking dimension.
+ *
+ * Real fluency requires production, but `getUserCefr` and the equivalency test
+ * historically measured only vocab/grammar/reading — so a learner could certify
+ * B1/B2/C1 without ever speaking. We now MEASURE speaking in the B1+ equivalency
+ * test, but during shadow mode (`false`) it is recorded and displayed only — it
+ * does NOT affect pass/fail — so we can validate the speaking scorer in the wild
+ * and gather pass-rate telemetry before it gates anyone. Flip to `true` to
+ * enforce speaking as a required skill at B1+. Exported so callers and tests can
+ * read/override it.
+ */
+export const SPEAKING_GATE_ENFORCED = false;
+
+export function computePassed(
+  scores: SkillScores,
+  opts: { includeSpeaking?: boolean } = {},
+): {
   passed: boolean;
   overall: number;
 } {
+  // includeSpeaking defaults TRUE to preserve existing callers (checkpoints).
+  // The equivalency certification path passes SPEAKING_GATE_ENFORCED, so in
+  // shadow mode speaking is recorded/displayed but excluded from pass/fail.
+  const { includeSpeaking = true } = opts;
   const skillValues: number[] = [];
   skillValues.push(scores.vocab);
   skillValues.push(scores.grammar);
   if (scores.reading !== undefined) skillValues.push(scores.reading);
   if (scores.listening !== undefined) skillValues.push(scores.listening);
-  if (scores.speaking !== undefined) skillValues.push(scores.speaking);
+  if (scores.speaking !== undefined && includeSpeaking) skillValues.push(scores.speaking);
   if (skillValues.length === 0) return { passed: false, overall: 0 };
   const overall = skillValues.reduce((a, b) => a + b, 0) / skillValues.length;
   const minSkill = Math.min(...skillValues);
@@ -354,7 +375,9 @@ export function recordEquivalencyAttempt(opts: {
   currentLessonCount: number;
 }): { passed: boolean; newCertified: CefrLevel; attempt: CertificationAttempt } {
   const { level, scores, currentLessonCount } = opts;
-  const { passed, overall } = computePassed(scores);
+  // Speaking gates certification only when enforced; shadow mode records the
+  // score (below, in `scores`) for telemetry without affecting the pass result.
+  const { passed, overall } = computePassed(scores, { includeSpeaking: SPEAKING_GATE_ENFORCED });
   const state = getCertificationState();
   const attempt: CertificationAttempt = {
     level,

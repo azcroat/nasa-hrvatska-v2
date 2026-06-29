@@ -80,14 +80,26 @@ export default function ExamRunner({
     }
   }
 
-  function onSpeakingScore(score: number) {
-    speakScores.current.push(score);
+  function advanceSpeaking() {
     if (speakIdx + 1 < (speaking?.tasks.length ?? 0)) {
       setSpeakIdx(speakIdx + 1);
       setIdx(idx + 1);
     } else {
       onComplete(finalize(acc, speakScores.current));
     }
+  }
+
+  function onSpeakingScore(score: number) {
+    speakScores.current.push(score);
+    advanceSpeaking();
+  }
+
+  // Advance WITHOUT recording a score — for learners who can't use a mic, so the
+  // speaking phase can never trap them. Skipped tasks contribute no speaking
+  // score (scores.speaking stays absent if all are skipped), which during shadow
+  // mode never affects the result.
+  function skipSpeaking() {
+    advanceSpeaking();
   }
 
   return (
@@ -152,6 +164,23 @@ export default function ExamRunner({
               scorer={speaking.scorer}
               onScore={onSpeakingScore}
             />
+            <button
+              className="exam-skip-speaking"
+              data-testid="speak-skip"
+              onClick={skipSpeaking}
+              style={{
+                marginTop: 14,
+                background: 'none',
+                border: 'none',
+                color: 'var(--subtext)',
+                fontSize: 12,
+                fontWeight: 600,
+                textDecoration: 'underline',
+                cursor: 'pointer',
+              }}
+            >
+              Can&apos;t use your microphone? Skip this
+            </button>
           </div>
         )}
       </div>
