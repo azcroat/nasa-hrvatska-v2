@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { stopAudio } from '../../../lib/audio.ts';
+import { recordTopicResult } from '../../../lib/adaptive';
 import { getStoryCatalog } from '../../../lib/contentClient';
 import type { StoryCatalogEntry } from '../../../types/content';
 import { EXERCISES } from './exercises';
@@ -155,6 +156,8 @@ export function useListeningQuiz(
     } else {
       setMissedQuestions((prev) => [...prev, { hr: q.hr, en: q.en }]);
     }
+    // Feed the adaptive engine so weak listening resurfaces in the daily session.
+    recordTopicResult('listening', correct);
     // Mark this question as done in progress
     markQuestionDone(selectedLevel!, selectedSetIdx!, q._origIdx);
   }

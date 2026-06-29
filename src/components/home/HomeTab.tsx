@@ -78,6 +78,7 @@ import {
 import { getUserCefr } from '../../lib/cefr';
 import SessionCard from './SessionCard';
 import RazgovorHomeCard from './RazgovorHomeCard';
+import WeakWordsPanel from './WeakWordsPanel';
 import { hostOfDay } from './hostFamily';
 import { getServableReviewCount } from '../../lib/srs';
 
@@ -600,6 +601,11 @@ export default function HomeTab({
           }
         }}
       />
+
+      {/* ── WHAT TO FIX NEXT — surface the weak-areas insight on Today, where the
+          "what should I do now" decision is made (it previously lived only in
+          Practice/Review). Self-handles its empty state; CTA opens /review. ── */}
+      <WeakWordsPanel setScr={setScr} />
 
       {/* ── RAZGOVOR — host-of-day conversation entry (Home split) ── */}
       <RazgovorHomeCard host={host} onOpen={goTalkToHost} />

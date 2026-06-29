@@ -1,9 +1,14 @@
 /**
  * src/components/profile/EquivalencyTestScreen.tsx
  *
- * CEFR equivalency-test runner. Renders a multi-item test for the level the
- * user is attempting to certify, tracks per-skill scores, then records the
+ * CEFR Level Check runner. Renders a multi-item check for the level the
+ * user is attempting to confirm, tracks per-skill scores, then records the
  * attempt + shows pass/fail with targeted feedback.
+ *
+ * (Internal identifiers — the 'equivalency' screen key, recordEquivalencyAttempt,
+ * the nh_cefr_certifications store — keep their historical names so existing
+ * users' saved progress is preserved; only the user-facing copy says "Level
+ * Check".)
  *
  * Entry path:
  *   - User has eligible level higher than their certified level → home/profile
@@ -41,6 +46,7 @@ import {
 import { getNextTestFor, type EquivalencyTestSet } from '../../data/cefrEquivalencyItems.js';
 import { getSpeakingTasks } from '../../data/speakingTasks.js';
 import { whisperClaudeScorer } from '../../lib/speaking/whisperClaudeScorer.js';
+import { applyExamScoresToAdaptive } from '../../lib/adaptiveFeedback.js';
 import ExamRunner from '../exam/ExamRunner.js';
 import type { RunnerQuestion } from '../../lib/checkpointExam.js';
 
@@ -174,6 +180,9 @@ export default function EquivalencyTestScreen({
         scores,
         currentLessonCount: userLessonCount,
       });
+      // Feedback loop: a tested weakness reschedules its adaptive categories so
+      // the daily session targets it next (3a — close the loop the audit flagged).
+      applyExamScoresToAdaptive(scores);
       setResultPassed(passed);
       setResultScores(scores);
       setPhase('result');
@@ -191,8 +200,8 @@ export default function EquivalencyTestScreen({
             You're at the top
           </h2>
           <p style={{ color: 'var(--subtext)', fontSize: 14, marginBottom: 18 }}>
-            You've certified at C1 — Croatia's most advanced equivalency tier in this app. There is
-            no C2 test (C2 is native-equivalent fluency, measured by formal external providers).
+            You've confirmed C1 — the most advanced Level Check in this app. There is no C2 check
+            (C2 is native-equivalent fluency, measured by formal external providers).
           </p>
           <button
             onClick={() => setScr('me')}
@@ -220,7 +229,7 @@ export default function EquivalencyTestScreen({
       <div className="scr-wrap">
         <div style={{ padding: '18px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 900, color: '#cc0000', letterSpacing: '.22em' }}>
-            CEFR EQUIVALENCY TEST
+            CEFR LEVEL CHECK
           </div>
           <h2
             style={{
@@ -271,7 +280,8 @@ export default function EquivalencyTestScreen({
             }}
           >
             <b>Real fluency only.</b> Your eligible level (<b>{userEligible}</b>) reflects activity.
-            Passing this test reflects demonstrated competency at <b>{testSet.levelFrom}</b>.
+            Passing this Level Check reflects demonstrated competency at <b>{testSet.levelFrom}</b>.
+            It's an in-app proficiency check, not an accredited external certificate.
           </div>
           <button
             data-testid="equivalency-begin"
@@ -290,7 +300,7 @@ export default function EquivalencyTestScreen({
               marginBottom: 10,
             }}
           >
-            Begin Test →
+            Begin Check →
           </button>
           <button
             onClick={() => setScr('me')}
@@ -326,9 +336,9 @@ export default function EquivalencyTestScreen({
           </h2>
           <p style={{ color: 'var(--subtext)', fontSize: 14, lineHeight: 1.6, marginBottom: 18 }}>
             {retake.reason === 'already_passed'
-              ? `You've already passed the ${testSet.levelFrom} test. No need to retake.`
+              ? `You've already passed the ${testSet.levelFrom} Level Check. No need to retake.`
               : retake.cooldownUntil
-                ? `You can retake the ${testSet.levelFrom} test ${formatCooldownEnd(retake.cooldownUntil)} — or sooner if you complete ${retake.lessonsRemaining} more lesson${retake.lessonsRemaining === 1 ? '' : 's'}.`
+                ? `You can retake the ${testSet.levelFrom} Level Check ${formatCooldownEnd(retake.cooldownUntil)} — or sooner if you complete ${retake.lessonsRemaining} more lesson${retake.lessonsRemaining === 1 ? '' : 's'}.`
                 : 'Retake unavailable for now.'}
           </p>
           <button
@@ -362,7 +372,7 @@ export default function EquivalencyTestScreen({
           questions={runnerQuestions}
           speaking={speaking}
           onComplete={onExamComplete}
-          title="Equivalency Test"
+          title="Level Check"
         />
       </div>
     );
@@ -383,12 +393,12 @@ export default function EquivalencyTestScreen({
               color: passed ? '#16a34a' : '#dc2626',
             }}
           >
-            {passed ? `Certified ${testSet.levelFrom}` : 'Not yet'}
+            {passed ? `Confirmed ${testSet.levelFrom}` : 'Not yet'}
           </h2>
           <p style={{ color: 'var(--subtext)', fontSize: 14, marginBottom: 18 }}>
             {passed
-              ? `You're now certified at ${testSet.levelFrom}. ${testSet.levelTo} content is unlocked.`
-              : `You need 80% on every skill to certify. Keep practicing — retest after 5 more lessons or 7 days.`}
+              ? `You're now confirmed at ${testSet.levelFrom}. ${testSet.levelTo} content is unlocked.`
+              : `You need 80% on every skill to confirm your level. Keep practicing — retest after 5 more lessons or 7 days.`}
           </p>
           <div
             style={{
@@ -414,8 +424,8 @@ export default function EquivalencyTestScreen({
           </div>
           {resultScores.speaking !== undefined && !isSpeakingGateEnforced() && (
             <p style={{ fontSize: 12, color: 'var(--subtext)', marginTop: -8, marginBottom: 16 }}>
-              🎙️ Speaking is shown for now and isn&apos;t required to certify yet — but fluency
-              means speaking, so it will become part of certification soon.
+              🎙️ Speaking is shown for now and isn&apos;t required to confirm your level yet — but
+              fluency means speaking, so it will become part of the Level Check soon.
             </p>
           )}
           <button
