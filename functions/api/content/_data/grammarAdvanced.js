@@ -1232,18 +1232,204 @@ export const WORD_ORDER = {
   ],
 };
 
-// Aggregated array — all 10 SP9 units (5 B2 + 5 C1).
+export const VERBS_OF_MOTION = {
+  id: 'verbs-of-motion',
+  cefr: 'B2',
+  title: 'Glagoli kretanja — Prefixed Verbs of Motion',
+  subtitle: 'doći / dolaziti, otići / odlaziti — prefix = direction, -laziti = imperfective',
+  focus: 'verbs of motion, prefixes, doći dolaziti, aspect pairs, ići, direction prefixes',
+  intro:
+    'Croatian builds a whole family of motion verbs from `ići` (to go) plus a directional prefix. Each one comes as an ASPECT PAIR: a perfective verb for a single completed movement (doći — to arrive) and an imperfective partner, usually ending in -laziti, for repeated, habitual, or ongoing movement (dolaziti — to come/arrive regularly). The prefix tells you the direction; the aspect tells you whether the motion is one finished event or an ongoing/repeated one. Mastering the pair + prefix system is the key B2 step toward natural movement vocabulary.',
+  forms: [
+    { label: 'do- (arrival)', hr: 'doći / dolaziti', en: 'to arrive, come (pf / impf)' },
+    { label: 'ot- / od- (departure)', hr: 'otići / odlaziti', en: 'to leave, go away' },
+    { label: 'u- (into)', hr: 'ući / ulaziti', en: 'to enter, go in' },
+    { label: 'iz- (out of)', hr: 'izaći / izlaziti', en: 'to exit, go out' },
+    { label: 'pro- (through / past)', hr: 'proći / prolaziti', en: 'to pass, go past' },
+    { label: 'pre- (across)', hr: 'prijeći / prelaziti', en: 'to cross, go across' },
+    { label: 'obi- (around)', hr: 'obići / obilaziti', en: 'to go around, drop in on' },
+  ],
+  examples: [
+    {
+      hr: 'Vlak dolazi svaki dan u tri sata.',
+      en: 'The train arrives every day at three o’clock.',
+      note: 'Scheduled, repeated → imperfective `dolaziti`.',
+    },
+    {
+      hr: 'Došli smo kući prekasno.',
+      en: 'We arrived home too late.',
+      note: 'One completed event → perfective `doći`.',
+    },
+    {
+      hr: 'Svako jutro odlazim na posao u osam.',
+      en: 'Every morning I leave for work at eight.',
+      note: 'Habitual → imperfective `odlaziti`.',
+    },
+    { hr: 'Molim vas, uđite i sjednite!', en: 'Please, come in and sit down!' },
+    { hr: 'Prošli smo pokraj stare katedrale.', en: 'We passed by the old cathedral.' },
+    {
+      hr: 'Prelazimo cestu na pješačkom prijelazu.',
+      en: 'We cross the road at the pedestrian crossing.',
+      note: 'General habit → imperfective `prelaziti`.',
+    },
+  ],
+  tips: [
+    'The prefix carries the direction: do- = arrival, od-/ot- = departure, u- = into, iz- = out of, pro- = through/past, pre- = across, obi- = around.',
+    'Each prefixed motion verb has a perfective form (doći — one completed motion) and an imperfective partner, usually in -laziti (dolaziti — repeated/habitual/ongoing).',
+    'A perfective motion verb has no true present meaning: `dođem` points to the future or a subordinate clause, not "I am arriving now". For the ongoing present use the imperfective `dolazim`.',
+    'Direction still governs case: `u grad / na posao` (accusative = motion toward) vs `u gradu / na poslu` (locative = static location).',
+  ],
+  drills: [
+    {
+      q: 'Vlak ____ svaki dan u podne.',
+      qEn: 'The train arrives every day at noon.',
+      opts: ['dođe', 'dolazi', 'došao', 'doći'],
+      correct: 1,
+      explain: 'Habitual, repeated → imperfective `dolazi`.',
+    },
+    {
+      q: 'Jučer smo ____ kući vrlo kasno.',
+      qEn: 'Yesterday we came home very late.',
+      opts: ['dolazimo', 'dolazili', 'došli', 'dođemo'],
+      correct: 2,
+      explain: 'One completed past event → perfective `došli`.',
+    },
+    {
+      q: 'Koji glagol znači "izaći iz sobe"?',
+      qEn: 'Which verb means "to exit the room"?',
+      opts: ['ući', 'izaći', 'proći', 'obići'],
+      correct: 1,
+      explain: 'Prefix `iz-` = out of → izaći.',
+    },
+    {
+      q: 'Kad ____ ulicu, uvijek pazi na aute.',
+      qEn: 'When you cross the street, always watch for cars.',
+      opts: ['prelaziš', 'prijeđeš', 'prolaziš', 'odlaziš'],
+      correct: 0,
+      explain:
+        'General, habitual advice → imperfective `prelaziš`. Perfective `prijeđeš` marks one specific crossing.',
+    },
+    {
+      q: 'Ovog vikenda idemo ____ baku i djeda.',
+      qEn: 'This weekend we are going to visit grandma and grandpa.',
+      opts: ['proći', 'obići', 'izaći', 'ući'],
+      correct: 1,
+      explain: '`obići` (lit. "go around") also means to drop in on / visit someone.',
+    },
+  ],
+};
+
+export const VERBAL_ADVERBS = {
+  id: 'verbal-adverbs',
+  cefr: 'C2',
+  title: 'Glagolski prilozi — Verbal Adverbs (Gerunds)',
+  subtitle: 'present (-ći) for simultaneous action, past (-vši) for prior action',
+  focus:
+    'verbal adverbs, gerunds, glagolski prilog sadašnji, glagolski prilog prošli, radeći, napisavši',
+  intro:
+    'Croatian has two indeclinable verbal adverbs. The PRESENT verbal adverb (glagolski prilog sadašnji) comes from IMPERFECTIVE verbs — take the 3rd-person plural present and add -ći (rade → radeći) — and expresses an action happening at the same time as the main verb ("while doing"). The PAST verbal adverb (glagolski prilog prošli) comes from PERFECTIVE verbs, with -vši/-avši (napisati → napisavši), and expresses an action completed before the main verb ("having done"). Both belong to written/literary register, and the doer of the verbal adverb must be the SAME as the subject of the main clause.',
+  forms: [
+    { label: 'raditi → present', hr: 'radeći', en: 'working / while working' },
+    { label: 'čitati → present', hr: 'čitajući', en: 'reading / while reading' },
+    { label: 'pisati → present', hr: 'pišući', en: 'writing / while writing' },
+    { label: 'biti → present', hr: 'budući', en: 'being (also lexicalized "since/because")' },
+    { label: 'napisati → past', hr: 'napisavši', en: 'having written' },
+    { label: 'doći → past', hr: 'došavši', en: 'having arrived' },
+    { label: 'reći → past', hr: 'rekavši', en: 'having said' },
+  ],
+  examples: [
+    {
+      hr: 'Radeći cijeli dan, jako se umorio.',
+      en: 'Working all day, he got very tired.',
+      note: 'Present verbal adverb — simultaneous with the main verb.',
+    },
+    {
+      hr: 'Šetajući parkom, sreli smo staru prijateljicu.',
+      en: 'While walking through the park, we met an old friend.',
+    },
+    {
+      hr: 'Napisavši pismo, izašao je iz sobe.',
+      en: 'Having written the letter, he left the room.',
+      note: 'Past verbal adverb — completed before the main action.',
+    },
+    { hr: 'Došavši kući, odmah je legao.', en: 'Having come home, he lay down at once.' },
+    {
+      hr: 'Ne znajući odgovor, radije je šutio.',
+      en: 'Not knowing the answer, he preferred to stay silent.',
+      note: 'Negated present verbal adverb.',
+    },
+    {
+      hr: 'Budući da nije bilo karata, ostali smo doma.',
+      en: 'Since there were no tickets, we stayed home.',
+      note: '`budući da` has lexicalized into a causal conjunction ("since / because").',
+    },
+  ],
+  tips: [
+    'Present verbal adverb: 3rd-person plural present minus -u, plus -ći (rade → radeći; pišu → pišući; čitaju → čitajući). Only IMPERFECTIVE verbs form it.',
+    'Past verbal adverb: from PERFECTIVE verbs, -vši on a vowel stem (napisa-vši) or -avši via the past-participle stem (rek-avši, doš-avši). It marks an action completed BEFORE the main verb.',
+    'Same-subject rule: the doer of the verbal adverb must be the subject of the main clause. If they differ, recast with a kad / dok / nakon što clause.',
+    'Both are indeclinable and belong to written/literary/formal register; in everyday speech speakers prefer a temporal clause.',
+  ],
+  drills: [
+    {
+      q: 'Glagolski prilog sadašnji od "pjevati" je ____.',
+      qEn: 'The present verbal adverb of "to sing" is ___.',
+      opts: ['pjevavši', 'pjevajući', 'pjevati', 'pjevao'],
+      correct: 1,
+      explain: 'pjevaju → drop -u → pjevajući.',
+    },
+    {
+      q: '____ knjigu, ugasio je svjetlo i zaspao.',
+      qEn: 'Having finished the book, he turned off the light and fell asleep.',
+      opts: ['Čitajući', 'Pročitavši', 'Čitati', 'Pročitati'],
+      correct: 1,
+      explain:
+        'Action completed before the main verb → past verbal adverb `pročitavši` (perfective).',
+    },
+    {
+      q: '____ kroz grad, divili smo se arhitekturi.',
+      qEn: 'Driving through the city, we admired the architecture.',
+      opts: ['Vozeći se', 'Odvezavši se', 'Voziti se', 'Vozili smo'],
+      correct: 0,
+      explain: 'Simultaneous action → present verbal adverb `vozeći se`.',
+    },
+    {
+      q: 'Glagolski prilog prošli od "reći" je ____.',
+      qEn: 'The past verbal adverb of "to say" is ___.',
+      opts: ['govoreći', 'rekavši', 'rekao', 'reći'],
+      correct: 1,
+      explain: 'Perfective `reći` → `rekavši` ("having said").',
+    },
+    {
+      q: 'Zašto je sporna rečenica "Ušavši u dvoranu, počeo je pljesak"?',
+      qEn: 'Why is the sentence problematic?',
+      opts: [
+        'Prilog je krivo tvoren',
+        'Subjekt priloga i glavne rečenice nije isti',
+        'Glagol nije svršen',
+        'Treba upotrijebiti prezent',
+      ],
+      correct: 1,
+      explain:
+        'Same-subject rule: the applause did not enter the hall. Recast: "Kad je ušao u dvoranu, počeo je pljesak."',
+    },
+  ],
+};
+
+// Aggregated array — 12 units (6 B2 + 5 C1 + 1 C2).
 export const ADVANCED_UNITS = [
   FUTUR_II,
   RELATIVE_CLAUSES,
   PASSIVE_VOICE,
   PARTICIPLES,
   REPORTED_SPEECH,
+  VERBS_OF_MOTION,
   KONDICIONAL_II,
   BUSINESS_REGISTER,
   VERBAL_NOUNS,
   REFLEXIVE_CONSTRUCTIONS,
   WORD_ORDER,
+  VERBAL_ADVERBS,
 ];
 
 // O(1) lookup by id for GrammarUnitDetail.

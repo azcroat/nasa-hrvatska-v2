@@ -344,6 +344,15 @@ const LEVELS = [
         unitId: 'reported-speech',
         qs: 5,
       },
+      {
+        id: 'verbs-of-motion',
+        icon: '🚶',
+        title: 'Glagoli kretanja — Verbs of Motion',
+        desc: 'doći/dolaziti, otići/odlaziti — prefix = direction, aspect pairs',
+        screen: 'grammar_unit_detail',
+        unitId: 'verbs-of-motion',
+        qs: 5,
+      },
     ],
   },
   {
@@ -397,6 +406,25 @@ const LEVELS = [
         desc: 'Clitic placement, topicalization, fronting',
         screen: 'grammar_unit_detail',
         unitId: 'word-order',
+        qs: 5,
+      },
+    ],
+  },
+  {
+    id: 'C2',
+    label: 'C2 — Mastery',
+    color: '#9d174d',
+    bg: 'linear-gradient(135deg,#fff1f2,#ffe4e6)',
+    border: '#fbcfe8',
+    headerBg: 'linear-gradient(135deg,#9d174d,#831843)',
+    units: [
+      {
+        id: 'verbal-adverbs',
+        icon: '🎯',
+        title: 'Glagolski prilozi — Verbal Adverbs',
+        desc: 'radeći (present) / napisavši (past) — literary participial style',
+        screen: 'grammar_unit_detail',
+        unitId: 'verbal-adverbs',
         qs: 5,
       },
     ],
@@ -558,7 +586,7 @@ export default function GrammarTrackScreen({
           Grammar Track
         </div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,.65)', marginBottom: 14 }}>
-          A1 → C1 · {LEVELS.reduce((s, l) => s + l.units.length, 0)} units · Structured grammar
+          A1 → C2 · {LEVELS.reduce((s, l) => s + l.units.length, 0)} units · Structured grammar
           progression
         </div>
 
@@ -863,7 +891,7 @@ export default function GrammarTrackScreen({
             {level.id} Complete!
           </div>
           <div style={{ fontSize: 13, color: '#059669' }}>
-            {activeLevel !== 'C1'
+            {activeLevel !== 'C2'
               ? `Move on to ${LEVELS[LEVELS.findIndex((l) => l.id === activeLevel) + 1]?.id} when ready`
               : "You've mastered Croatian grammar — Odlično!"}
           </div>
@@ -883,7 +911,7 @@ export default function GrammarTrackScreen({
         >
           <div style={{ fontSize: 32, marginBottom: 8 }}>🏆</div>
           <div style={{ fontSize: 16, fontWeight: 900, color: 'white', marginBottom: 4 }}>
-            A1 → C1 Complete!
+            A1 → C2 Complete!
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,.7)' }}>
             All {LEVELS.reduce((s, l) => s + l.units.length, 0)} grammar units visited. Bravo —

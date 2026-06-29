@@ -6,7 +6,7 @@ describe('grammar-advanced.js schema', () => {
   it('all units have required top-level fields', () => {
     for (const u of ADVANCED_UNITS) {
       expect(u.id, `unit missing id`).toBeTruthy();
-      expect(u.cefr, `${u.id} missing cefr`).toMatch(/^(B2|C1)$/);
+      expect(u.cefr, `${u.id} missing cefr`).toMatch(/^(B2|C1|C2)$/);
       expect(u.title, `${u.id} missing title`).toBeTruthy();
       expect(u.subtitle, `${u.id} missing subtitle`).toBeTruthy();
       expect(u.focus, `${u.id} missing focus`).toBeTruthy();
@@ -29,9 +29,9 @@ describe('grammar-advanced.js schema', () => {
     }
   });
 
-  it('every cefr value is exactly B2 or C1', () => {
+  it('every cefr value is exactly B2, C1, or C2', () => {
     for (const u of ADVANCED_UNITS) {
-      expect(['B2', 'C1']).toContain(u.cefr);
+      expect(['B2', 'C1', 'C2']).toContain(u.cefr);
     }
   });
 
@@ -93,15 +93,17 @@ describe('grammar-advanced.js schema', () => {
     }
   });
 
-  it('ADVANCED_UNITS has exactly 10 entries', () => {
-    expect(ADVANCED_UNITS).toHaveLength(10);
+  it('ADVANCED_UNITS has exactly 12 entries', () => {
+    expect(ADVANCED_UNITS).toHaveLength(12);
   });
 
-  it('exactly 5 B2 + 5 C1', () => {
+  it('exactly 6 B2 + 5 C1 + 1 C2', () => {
     const b2 = ADVANCED_UNITS.filter((u) => u.cefr === 'B2');
     const c1 = ADVANCED_UNITS.filter((u) => u.cefr === 'C1');
-    expect(b2).toHaveLength(5);
+    const c2 = ADVANCED_UNITS.filter((u) => u.cefr === 'C2');
+    expect(b2).toHaveLength(6);
     expect(c1).toHaveLength(5);
+    expect(c2).toHaveLength(1);
   });
 
   it('no drill option string is empty', () => {
