@@ -110,9 +110,12 @@ describe('POST /api/assess-speaking', () => {
     // Workers AI.
     const e = env();
     e.DEEPGRAM_API_KEY = 'dg-key';
+    // Match the FULL origin, not a substring — `.includes('deepgram.com')` would
+    // also match evil-deepgram.com.attacker.test (CodeQL js/incomplete-url-substring-sanitization).
+    const isDeepgram = (u) => String(u).startsWith('https://api.deepgram.com/');
     const fetchMock = vi.fn(async (url) => {
       const u = String(url);
-      if (u.includes('deepgram.com')) {
+      if (isDeepgram(u)) {
         return new Response(
           JSON.stringify({
             results: { channels: [{ alternatives: [{ transcript: 'Idem autobusom na posao.' }] }] },
@@ -146,7 +149,7 @@ describe('POST /api/assess-speaking', () => {
     // The format-blind Workers AI fallback must NOT have been used.
     expect(e.AI.run).not.toHaveBeenCalled();
     // Deepgram was called with the iOS mime as Content-Type (format-aware routing).
-    const dgCall = fetchMock.mock.calls.find(([u]) => String(u).includes('deepgram.com'));
+    const dgCall = fetchMock.mock.calls.find(([u]) => isDeepgram(u));
     expect(dgCall).toBeTruthy();
     expect(dgCall[1].headers['Content-Type']).toBe('audio/mp4');
   });
