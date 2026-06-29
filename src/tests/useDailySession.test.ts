@@ -171,9 +171,21 @@ describe('buildSessionActivities', () => {
     const adaptive = await import('../lib/adaptive');
     const getDueCategoryQueue = vi.mocked(adaptive.getDueCategoryQueue);
     getDueCategoryQueue.mockReturnValue([{ category: 'genitive', difficulty: 3 }]);
-    const acts = buildSessionActivities('A1');
-    // genitive maps to 'genitivedrill' screen
+    // genitive maps to 'genitivedrill' (A2) — use an A2 user so it's unlocked.
+    const acts = buildSessionActivities('A2');
     expect(acts.find((a) => a.screen === 'genitivedrill')).toBeTruthy();
+  });
+
+  it('CEFR-gates the adaptive pick: an A1 user does NOT get a locked A2 case drill', async () => {
+    const adaptive = await import('../lib/adaptive');
+    vi.mocked(adaptive.getDueCategoryQueue).mockReturnValue([
+      { category: 'genitive', difficulty: 3 },
+    ]);
+    const acts = buildSessionActivities('A1');
+    // genitivedrill is A2 — locked for A1. The adaptive slot is skipped and the
+    // guaranteed-grammar slot (G2) backfills the only A1 grammar drill (nomdrill).
+    expect(acts.some((a) => a.screen === 'genitivedrill')).toBe(false);
+    expect(acts.some((a) => a.screen === 'nomdrill')).toBe(true);
   });
 });
 

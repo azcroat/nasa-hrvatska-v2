@@ -390,9 +390,20 @@ export function rateCategorySession(category: SkillCategory, accuracy: number): 
   _saveCats(data);
 }
 
+// Coverage floor (floored-FSRS): a category not practised within this many days
+// — including never-seen ones — is treated as "starved" and force-promoted to
+// the front of the queue. Guarantees every category resurfaces on a bounded
+// cadence so the case/verb system gets systematic coverage instead of tail
+// categories starving behind perpetually-due front ones.
+const COVERAGE_FLOOR_DAYS = 14;
+
 /**
  * Build a prioritised practice queue.
- * Priority: FSRS-due categories first → lowest recentAccuracy next → balanced fill.
+ *
+ * Priority: starved categories first (coverage floor — most-neglected, i.e.
+ * oldest lastSeen, first), then ordinary FSRS ordering for the rest: due-in-past
+ * → lowest recentAccuracy → balanced fill. The starved-first rule also removes
+ * the previous ALL_CATEGORIES tie-order bias that over-served genitive.
  * Returns up to maxSlots items, each with the user's current difficulty tier.
  */
 export function getDueCategoryQueue(
@@ -400,14 +411,24 @@ export function getDueCategoryQueue(
 ): Array<{ category: SkillCategory; difficulty: 1 | 2 | 3 | 4 | 5 }> {
   const data = _loadCats();
   const now = Date.now();
+  const floorMs = COVERAGE_FLOOR_DAYS * 86400000;
 
-  const due = ALL_CATEGORIES.filter((c) => (data[c]?.due ?? 0) <= now);
-  const weak = ALL_CATEGORIES.filter((c) => !due.includes(c)).sort(
-    (a, b) => (data[a]?.recentAccuracy ?? 0.5) - (data[b]?.recentAccuracy ?? 0.5),
+  // Starved: never seen (lastSeen 0) or last seen longer ago than the floor.
+  // Most-neglected first; a stable sort keeps ALL_CATEGORIES order among equally
+  // never-seen categories, so a brand-new user still starts at genitive.
+  const starved = ALL_CATEGORIES.filter((c) => now - (data[c]?.lastSeen ?? 0) >= floorMs).sort(
+    (a, b) => (data[a]?.lastSeen ?? 0) - (data[b]?.lastSeen ?? 0),
   );
-  const balanced = ALL_CATEGORIES.filter((c) => !due.includes(c) && !weak.slice(0, 3).includes(c));
+  const starvedSet = new Set(starved);
 
-  const queue = [...due, ...weak.slice(0, 3), ...balanced].slice(0, maxSlots);
+  const rest = ALL_CATEGORIES.filter((c) => !starvedSet.has(c));
+  const due = rest.filter((c) => (data[c]?.due ?? 0) <= now);
+  const weak = rest
+    .filter((c) => !due.includes(c))
+    .sort((a, b) => (data[a]?.recentAccuracy ?? 0.5) - (data[b]?.recentAccuracy ?? 0.5));
+  const balanced = rest.filter((c) => !due.includes(c) && !weak.slice(0, 3).includes(c));
+
+  const queue = [...starved, ...due, ...weak.slice(0, 3), ...balanced].slice(0, maxSlots);
 
   return queue.map((category) => ({
     category,

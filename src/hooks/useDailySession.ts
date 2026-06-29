@@ -156,6 +156,13 @@ const CEFR_EXERCISE_POOL: Array<{
   { id: 'dictation', label: 'Dictation', screen: 'dictation', cefr: 'B1', category: 'speaking' },
 ];
 
+// Screen → CEFR lookup derived from the pool. Used to CEFR-gate the adaptive
+// pick (resolveAdaptiveActivity) so the coverage floor can't surface a locked
+// drill (e.g. B1 accusative, B2 clitics) to an A1/A2 user.
+const SCREEN_CEFR: Record<string, string> = Object.fromEntries(
+  CEFR_EXERCISE_POOL.map((e) => [e.screen, e.cefr]),
+);
+
 /** Croatia rotation pool — Priority 4 always adds one of these */
 const CROATIA_POOL: SessionActivity[] = [
   { id: 'cityofday', label: 'City of the Day', screen: 'cityofday', category: 'culture' },
@@ -211,6 +218,15 @@ export function resolveAdaptiveActivity(
     }
     const screen = isConj ? 'conjpractice' : CATEGORY_SCREEN_MAP[category];
     if (!screen || usedScreens.has(screen)) continue;
+    // CEFR-gate non-conjugation picks by the mapped drill's level (conjugation is
+    // gated above via CATEGORY_MIN_CEFR). Without this the coverage floor would
+    // surface a locked drill — e.g. B1 accusative or B2 clitics — to an A1/A2
+    // user. When every eligible category is locked this returns null and the
+    // guaranteed-grammar slot (G2) backfills a level-appropriate drill.
+    if (!isConj) {
+      const screenCefr = SCREEN_CEFR[screen];
+      if (screenCefr && !isUnlocked(screenCefr, userCefr)) continue;
+    }
     const label = category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
     return { id: `cat_${category}`, label, screen, category };
   }
