@@ -527,6 +527,65 @@ describe('useAward — award() behaviour', () => {
   });
 });
 
+describe('useAward — daily-session completion signal (bug #2/#3)', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('writes nh_session_completed when finishing the launched activity (normal award)', async () => {
+    sessionStorage.setItem('nh_session_started', 'mcgame');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const setStats = vi.fn((fn: any) => fn({ ...DS }));
+    const { result } = renderHook(() => useAward({ curEx: 'mcgame', stats: { ...DS }, setStats }));
+    await act(async () => {
+      await result.current.award(50);
+    });
+    expect(sessionStorage.getItem('nh_session_completed')).toBe('mcgame');
+  });
+
+  it('REGRESSION: signals completion even when XP is on cooldown (2nd+ run of the day)', async () => {
+    // The award()-only screens (mcgame, comparatives, qwords, genderdrill,
+    // sentbuild, listening) used to strand the session at N-1/N on a repeat run:
+    // canEarnXP returned false, award() early-returned, and nh_session_completed
+    // was never written. Finishing the activity must advance the session even
+    // when no XP pays out.
+    sessionStorage.setItem('nh_session_started', 'mcgame');
+    localStorage.setItem('xpCooldown', JSON.stringify({ mcgame: '2026-04-19' }));
+    const setStats = vi.fn();
+    const { result } = renderHook(() => useAward({ curEx: 'mcgame', stats: { ...DS }, setStats }));
+    await act(async () => {
+      await result.current.award(50);
+    });
+    // XP is gated (no stat mutation) but the session still advances.
+    expect(setStats).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem('nh_session_completed')).toBe('mcgame');
+  });
+
+  it('does NOT complete an activity the user did not launch (started !== curEx)', async () => {
+    sessionStorage.setItem('nh_session_started', 'flashcards');
+    localStorage.setItem('xpCooldown', JSON.stringify({ mcgame: '2026-04-19' }));
+    const setStats = vi.fn();
+    const { result } = renderHook(() => useAward({ curEx: 'mcgame', stats: { ...DS }, setStats }));
+    await act(async () => {
+      await result.current.award(50);
+    });
+    expect(sessionStorage.getItem('nh_session_completed')).toBeNull();
+  });
+
+  it('does not write the signal when no session activity is active', async () => {
+    localStorage.setItem('xpCooldown', JSON.stringify({ mcgame: '2026-04-19' }));
+    const setStats = vi.fn();
+    const { result } = renderHook(() => useAward({ curEx: 'mcgame', stats: { ...DS }, setStats }));
+    await act(async () => {
+      await result.current.award(50);
+    });
+    expect(sessionStorage.getItem('nh_session_completed')).toBeNull();
+  });
+});
+
 describe('award — activityType / online validation', () => {
   const mockStats = {
     xp: 0,

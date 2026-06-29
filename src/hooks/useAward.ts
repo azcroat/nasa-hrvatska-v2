@@ -182,6 +182,24 @@ export function useAward({
     async (amt: number, celebrate?: boolean, activityType?: AwardActivityType) => {
       if (!Number.isFinite(amt) || amt === 0) return;
       const _effectiveEx = curEx;
+      // Signal daily-session completion FIRST — before the XP-cooldown gate below.
+      // The daily session is a practice FLOW decoupled from the XP economy: finishing
+      // an activity must advance the session even when XP is on cooldown (the learner
+      // already earned XP for this exercise earlier today). Previously this write sat
+      // AFTER the canEarnXP early-return, so award()-only screens (mcgame, comparatives,
+      // qwords, genderdrill, sentbuild, and the listening quizzes) stranded the session
+      // at N-1/N on the 2nd+ run of the day — no path to complete it. completeExercise
+      // already signals unconditionally; this brings the award() path in line.
+      // HomeTab reads nh_session_completed on remount to distinguish a real finish from
+      // a back-press, and the started===_effectiveEx guard keeps it activity-accurate.
+      if (_effectiveEx) {
+        try {
+          const started = sessionStorage.getItem('nh_session_started');
+          if (started && started === _effectiveEx) {
+            sessionStorage.setItem('nh_session_completed', _effectiveEx);
+          }
+        } catch {}
+      }
       if (_effectiveEx && !canEarnXP(_effectiveEx)) {
         setXpA(0);
         setShowXP(false);
@@ -189,14 +207,6 @@ export function useAward({
       }
       if (_effectiveEx) {
         markExerciseDone(_effectiveEx);
-        // Signal daily-session completion: only if this exercise was the active session activity.
-        // HomeTab reads this on remount to distinguish real completion from back-press.
-        try {
-          const started = sessionStorage.getItem('nh_session_started');
-          if (started && started === _effectiveEx) {
-            sessionStorage.setItem('nh_session_completed', _effectiveEx);
-          }
-        } catch {}
       }
       let totalAmt = lXPgain(amt, activeMultiplier);
       const _today = _localDateStr();
