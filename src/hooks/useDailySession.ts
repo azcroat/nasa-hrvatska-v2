@@ -469,12 +469,16 @@ export function buildSessionActivities(
   // Build usedScreens once, here, so P2.5 and P3 both dedup against it.
   const usedScreens = new Set(activities.map((a) => a.screen));
 
-  // Priority 2.5: Production — guarantee one speaking/writing slot per session
-  // SP4b. Uses pure helper that filters by CEFR + mic state + recent exclusion.
+  // Priority 2.5: Production — a guaranteed active-output slot every session
+  // (Session-Rec #2). The expanded pool (Rec #1) includes keyboard modes down to
+  // A1 (`dialogue`) / A2 (`writing`), so the helper returns a slot for every A1+
+  // user in every mic state — production is no longer a sometimes-thing. Excludes
+  // screens already queued so it never double-books an earlier slot.
   const productionActivity = selectProductionExercise({
     cefr: userCefr,
     micState: readMicState(),
     recentScreens: getRecentProduction(),
+    excludeScreens: [...usedScreens],
   });
   if (productionActivity && !usedScreens.has(productionActivity.screen)) {
     activities.push(productionActivity);
@@ -877,9 +881,26 @@ export function getRecentProduction(): string[] {
   }
 }
 
-// ── Production pool (SP4b) ───────────────────────────────────────────────────
-// Five-member pool of exercises that require active learner output.
-// micRequired === false members are eligible as fallback for mic-blocked users.
+// ── Production pool (SP4b; expanded — Session-Rec #1/#2) ──────────────────────
+// Exercises that require ACTIVE learner output, the fluency driver the daily
+// loop was missing. `micRequired === false` members are eligible as the
+// keyboard fallback for mic-blocked users — and, post Session-Rec #2, they
+// guarantee the slot is never empty at any level (see selectProductionExercise).
+//
+// `kind` classifies the output mode so Session-Rec #4 can anchor an interactive
+// CONVERSATION at B1+:
+//   • 'speak'    — spoken output, scored acoustically (mic).
+//   • 'write'    — typed free/guided output (keyboard).
+//   • 'converse' — interactive turn-taking dialogue (keyboard).
+//
+// Session-Rec #1 routes the two unbounded AI modes into the loop (reversing the
+// earlier "AI-consolidation" that confined them to the AI Tutor tab): `writing`
+// (→ /api/correct, AI-graded free production) and `dialogue` (guided scenarios
+// by default with an unbounded AI-conversation mode one tap away → /api/dialogue).
+// Both are keyboard-only and BOTH endpoints are quota-gated (requireAuthedAI +
+// _aiQuota: ≤1 unit/use, 300/user/day ceiling), so the daily-loop cost is bounded
+// — the "Balanced" posture. `dialogue` at A1 + keyboard finally gives A1 and every
+// mic-blocked user a real production slot (the old pool floored at A2/mic).
 const PRODUCTION_POOL: Array<{
   id: string;
   label: string;
@@ -887,7 +908,32 @@ const PRODUCTION_POOL: Array<{
   cefr: string;
   category: SkillCategory;
   micRequired: boolean;
+  kind: 'speak' | 'write' | 'converse';
 }> = [
+  {
+    id: 'dialogue',
+    label: 'Conversation',
+    // Guided scenarios (A1+) by default — zero AI cost — with an unbounded
+    // AI-conversation mode available in-screen. Keyboard-capable (free-text or
+    // multiple-choice turns), so it is eligible for mic-blocked users and is the
+    // lowest-CEFR production option, which is what guarantees the slot at A1.
+    screen: 'dialogue',
+    cefr: 'A1',
+    category: 'speaking',
+    micRequired: false,
+    kind: 'converse',
+  },
+  {
+    id: 'writing',
+    label: 'Writing',
+    // Free typed production, AI-corrected via /api/correct (one quota unit on
+    // submit). Keyboard-only → the universal fallback for mic-blocked users.
+    screen: 'writing',
+    cefr: 'A2',
+    category: 'speaking',
+    micRequired: false,
+    kind: 'write',
+  },
   {
     id: 'shadowing',
     label: 'Shadowing',
@@ -895,6 +941,7 @@ const PRODUCTION_POOL: Array<{
     cefr: 'A2',
     category: 'speaking',
     micRequired: true,
+    kind: 'speak',
   },
   {
     id: 'production_drill',
@@ -906,6 +953,7 @@ const PRODUCTION_POOL: Array<{
     cefr: 'B1',
     category: 'speaking',
     micRequired: true,
+    kind: 'speak',
   },
   {
     id: 'dictation',
@@ -914,6 +962,7 @@ const PRODUCTION_POOL: Array<{
     cefr: 'B1',
     category: 'speaking',
     micRequired: false,
+    kind: 'write',
   },
 ];
 
@@ -937,26 +986,49 @@ export const SESSION_SCREEN_IDS: ReadonlySet<string> = new Set<string>([
   ...PRODUCTION_POOL.map((p) => p.screen),
 ]);
 
-// ── Production exercise selector (SP4b) ──────────────────────────────────────
+// ── Production exercise selector (SP4b; expanded — Session-Rec #2) ────────────
 // Pure function — returns one SessionActivity from PRODUCTION_POOL, applying
-// CEFR / mic / recent filters. Returns null when the unlocked pool is empty
-// (e.g., A1 user with all 5 exercises locked).
+// CEFR / mic / explicit-exclude / recent filters.
+//
+// GUARANTEE (Session-Rec #2): with `dialogue` (A1, keyboard) and `writing` (A2,
+// keyboard) now in the pool, at least one member is unlocked and keyboard-safe
+// for every level A1–C2 in every mic state — so this returns non-null for any
+// A1+ user. It can still return null only when `excludeScreens` removes every
+// remaining candidate (e.g. the Rec-#4 conversation anchor already took the sole
+// option); callers treat null as "nothing left to add", never as a hard failure.
+//
+// `kindBias` (Session-Rec #4): when set, candidates whose `kind` matches are
+// preferred — the conversation anchor passes 'converse' so B1+ reliably gets an
+// interactive turn without forbidding the other modes when none is available.
 export function selectProductionExercise(opts: {
   cefr: string;
   micState: MicState;
   recentScreens: string[];
+  excludeScreens?: string[];
+  kindBias?: 'speak' | 'write' | 'converse';
 }): SessionActivity | null {
-  const { cefr, micState, recentScreens } = opts;
+  const { cefr, micState, recentScreens, excludeScreens = [], kindBias } = opts;
   // Step 1 — CEFR gate
   let pool = PRODUCTION_POOL.filter((p) => isUnlocked(p.cefr, cefr));
   // Step 2 — mic-required filter (keyboard-only when denied/unsupported)
   if (micState === 'denied' || micState === 'unsupported') {
     pool = pool.filter((p) => !p.micRequired);
   }
+  // Step 2b — hard exclude screens already queued this session (no fallback: a
+  // dup would double-book the same screen). Unlike recency this is never relaxed.
+  if (excludeScreens.length > 0) {
+    pool = pool.filter((p) => !excludeScreens.includes(p.screen));
+  }
   if (pool.length === 0) return null;
   // Step 3 — recent-exclusion (fall back to pre-filter if it empties)
   let candidates = pool.filter((p) => !recentScreens.includes(p.screen));
   if (candidates.length === 0) candidates = pool;
+  // Step 3b — kind bias (Rec #4): prefer the requested output mode when present,
+  // but never strand the slot if no member of that kind survived the filters.
+  if (kindBias) {
+    const biased = candidates.filter((p) => p.kind === kindBias);
+    if (biased.length > 0) candidates = biased;
+  }
   // Step 4 — random uniform pick
   const idx = Math.min(Math.floor(rnd() * candidates.length), candidates.length - 1);
   const picked = candidates[idx]!;
