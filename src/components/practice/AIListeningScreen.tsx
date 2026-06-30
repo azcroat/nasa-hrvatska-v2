@@ -7,6 +7,13 @@ import { _aiPost } from '../../lib/aiPost';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { unlockAudio, ttsFetch } from '../../lib/audio.js';
 import { recordTopicResult } from '../../lib/adaptive';
+import {
+  getNextListeningUnit,
+  getListeningProgress,
+  findListeningUnit,
+  markListeningUnitDone,
+} from '../../lib/listeningCurriculum';
+import ListeningPathBanner from './listening/ListeningPathBanner';
 
 /**
  * Interleave dialogue lines turn-by-turn across speakers, so the rendered
@@ -56,7 +63,11 @@ export default function AIListeningScreen({
   goBack: () => void;
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
-  const isOnline = useOnlineStatus();
+  // Destructure the boolean — useOnlineStatus returns { isOnline, backOnline }.
+  // (Previously bound to the whole object, so every `!isOnline` check was dead
+  // and the offline UI never engaged; the typed ListeningPathBanner prop
+  // surfaced it.)
+  const { isOnline } = useOnlineStatus();
   const [phase, setPhase] = useState('setup');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [style, setStyle] = useState('dialogue');
@@ -100,8 +111,13 @@ export default function AIListeningScreen({
   );
 
   // ── Generate content + TTS ────────────────────────────────────────────────
-  async function generate() {
-    if (!selectedTopic) return;
+  // Accepts an optional (topic, style) override so the curriculum's "Start
+  // recommended" CTA can generate the recommended unit in one tap without
+  // waiting for the async setState of selectedTopic/style to flush.
+  async function generate(override?: { topic?: string; style?: string }) {
+    const useTopic = override?.topic ?? selectedTopic;
+    const useStyle = override?.style ?? style;
+    if (!useTopic) return;
     setErrorMsg('');
     setPhase('loading');
 
@@ -110,7 +126,7 @@ export default function AIListeningScreen({
       // the generated listening exercise recycles the learner's words (Rec #3 p2).
       const res = await _aiPost(
         '/api/listening',
-        { topic: selectedTopic, level, style },
+        { topic: useTopic, level, style: useStyle },
         { signal: AbortSignal.timeout(30000) },
       );
       if (!mountedRef.current) return;
@@ -120,7 +136,7 @@ export default function AIListeningScreen({
 
       // Build TTS text
       let fullText = '';
-      if (style === 'dialogue' && data.speakers) {
+      if (useStyle === 'dialogue' && data.speakers) {
         // Interleave by line index — turn-by-turn — so the audio sounds like
         // a real back-and-forth conversation (Ana: …, Marko: …, Ana: …)
         // instead of all of Ana's lines followed by all of Marko's lines.
@@ -242,6 +258,13 @@ export default function AIListeningScreen({
   }
 
   function goToResults() {
+    // Content-Rec #1: completing an exercise whose (level, topic, style) matches
+    // a curriculum unit marks that unit done, advancing the listening path.
+    // Free-pick combos that aren't part of the path simply don't match.
+    if (selectedTopic) {
+      const unit = findListeningUnit(level, selectedTopic, style);
+      if (unit) markListeningUnitDone(unit.id);
+    }
     setPhase('results');
   }
 
@@ -287,10 +310,29 @@ export default function AIListeningScreen({
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE: SETUP
   // ══════════════════════════════════════════════════════════════════════════
-  if (phase === 'setup')
+  if (phase === 'setup') {
+    // Content-Rec #1: the structured listening path. Computed inline (cheap
+    // localStorage read) so it refreshes after "Try Another" returns here.
+    const nextUnit = getNextListeningUnit(level);
+    const prog = getListeningProgress(level);
+    function startRecommended() {
+      if (!nextUnit || !isOnline) return;
+      setSelectedTopic(nextUnit.topic);
+      setStyle(nextUnit.style);
+      generate({ topic: nextUnit.topic, style: nextUnit.style });
+    }
     return (
       <div className="scr-wrap">
         {H('🎧 AI Listening', 'Dynamically generated Croatian audio', goBack)}
+
+        {/* ── LISTENING PATH (structured curriculum, Content-Rec #1) ── */}
+        <ListeningPathBanner
+          nextUnit={nextUnit}
+          progress={prog}
+          level={level}
+          isOnline={isOnline}
+          onStart={startRecommended}
+        />
 
         {!isOnline && (
           <div
@@ -441,12 +483,13 @@ export default function AIListeningScreen({
             cursor: selectedTopic && isOnline ? 'pointer' : 'not-allowed',
           }}
           disabled={!selectedTopic || !isOnline}
-          onClick={generate}
+          onClick={() => generate()}
         >
           {!isOnline ? '📶 Offline — connect to generate' : 'Generate →'}
         </button>
       </div>
     );
+  }
 
   // ══════════════════════════════════════════════════════════════════════════
   // PHASE: LOADING

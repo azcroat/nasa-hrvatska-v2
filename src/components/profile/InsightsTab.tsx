@@ -4,6 +4,7 @@ import { getWeakTopics } from '../../lib/adaptive.js';
 import { getUserCefr, cefrRank } from '../../lib/cefr';
 import { getEffectiveLevelForUnlock } from '../../lib/cefrCertification';
 import { getProductionReps } from '../../hooks/useDailySession';
+import { getListeningReps } from '../../lib/listeningMetric';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import ProgressCharts from './ProgressCharts';
@@ -84,6 +85,9 @@ export default function InsightsTab() {
   // total against a device whose synced stat hasn't hydrated yet.
   const reps = getProductionReps();
   const totalReps = Math.max(st.pr || 0, reps.total);
+  // Content-Rec #1: listening reps are the input-volume signal — comprehension
+  // is built by hours of listening, not XP. Device-local (weekly + lifetime).
+  const listenReps = getListeningReps();
 
   return (
     <React.Fragment>
@@ -134,6 +138,41 @@ export default function InsightsTab() {
           </div>
           <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
             this week · {totalReps} total
+          </div>
+        </div>
+      </div>
+
+      {/* ── LISTENING PRACTICE (Content-Rec #1) — comprehension is built by input ── */}
+      <div
+        style={{
+          background: 'var(--card)',
+          borderRadius: 16,
+          padding: '16px',
+          marginTop: 0,
+          marginBottom: 16,
+          border: '1px solid var(--card-b)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+        }}
+      >
+        <div style={{ fontSize: 30, lineHeight: 1 }} aria-hidden="true">
+          🎧
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
+            Listening Practice
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, lineHeight: 1.4 }}>
+            Listening exercises completed — the input hours that build comprehension.
+          </div>
+        </div>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--info,#0284c7)' }}>
+            {listenReps.thisWeek}
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
+            this week · {listenReps.total} total
           </div>
         </div>
       </div>
