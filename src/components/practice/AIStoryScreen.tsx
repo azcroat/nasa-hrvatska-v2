@@ -1,28 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import CharacterPortrait from '../family/CharacterPortrait';
 import { speak } from '../../lib/audio.js';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { apiFetch } from '../../lib/apiFetch.js';
-
-function getWeakWords() {
-  try {
-    const raw = localStorage.getItem('nh_sr');
-    if (!raw) return [];
-    const sr = JSON.parse(raw) as Record<string, { w: number; r: number }>;
-    return Object.entries(sr)
-      .filter(([, v]) => v.w > v.r && v.r + v.w >= 2)
-      .sort(
-        (a, b) =>
-          (b[1] as { w: number; r: number }).w -
-          (b[1] as { w: number; r: number }).r -
-          ((a[1] as { w: number; r: number }).w - (a[1] as { w: number; r: number }).r),
-      )
-      .slice(0, 8)
-      .map(([word]) => word);
-  } catch {
-    return [];
-  }
-}
+import { getActiveVocabulary } from '../../lib/activeVocabulary';
 
 export default function AIStoryScreen({
   goBack,
@@ -47,7 +28,13 @@ export default function AIStoryScreen({
   const [error, setError] = useState<string | null>(null);
   const [showTranslation, setShowTranslation] = useState(false);
   const [, setDone] = useState(false);
-  const weakWords = getWeakWords();
+  // Content-Rec #3: feed the learner's ACTIVE vocabulary (weak → due → learning →
+  // high-frequency core) into the story so it recycles the words they're actually
+  // working on, in context — instead of this screen's old, narrower "wrong>right"
+  // heuristic. `weak` still drives the "practice more" nudge below. Snapshot on
+  // mount so the story word-set is stable for the session.
+  const active = useMemo(() => getActiveVocabulary({ limit: 8 }), []);
+  const weakWords = active.weak;
 
   const generateStory = useCallback(async () => {
     if (loading) return;
@@ -59,7 +46,8 @@ export default function AIStoryScreen({
     setError(null);
     setShowTranslation(false);
 
-    const wordList = weakWords.length > 0 ? weakWords : ['hvala', 'dobar', 'kuća', 'more', 'jesti'];
+    const wordList =
+      active.targets.length > 0 ? active.targets : ['hvala', 'dobar', 'kuća', 'more', 'jesti'];
     const message = `Write a short Croatian story (4-6 sentences) using these words naturally: ${wordList.join(', ')}. Make it about life in Croatia — could be family, food, travel, daily life. Keep it at A2-B1 level. After the story, provide an English translation. Format your response as JSON: {"story": "Croatian text", "translation": "English text", "words_used": ["word1", "word2"]}`;
 
     try {
@@ -136,7 +124,7 @@ export default function AIStoryScreen({
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, [weakWords, loading]);
+  }, [active, loading]);
 
   useEffect(() => {
     generateStory();
