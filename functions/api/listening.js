@@ -3,6 +3,7 @@
 
 import { requireAuthedAI } from './_requireAuth.js';
 import { corsHeaders } from './_helpers.js';
+import { parseUserContext, targetVocabList } from './_userContext.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -129,6 +130,9 @@ export async function onRequestPost(context) {
   const safeLevel = sanitizeLevel(typeof level === 'string' ? level.trim() : '');
   const safeStyle = sanitizeStyle(typeof style === 'string' ? style.trim() : '');
 
+  // Content-Rec #3 Part 2: recycle the learner's active vocabulary in context.
+  const targetVocab = targetVocabList(parseUserContext(body));
+
   // ── Build prompts ──
   const systemPrompt =
     'You are creating Croatian language listening exercises. Return ONLY valid JSON, no markdown, no code blocks.';
@@ -142,6 +146,9 @@ export async function onRequestPost(context) {
     `Create a Croatian language listening exercise about '${safeTopic}' at CEFR level ${safeLevel} as a ${safeStyle}. ` +
     `The exercise should be ${styleInstructions} ` +
     `Use vocabulary appropriate for CEFR ${safeLevel}. ` +
+    (targetVocab
+      ? `When it fits naturally, feature these Croatian words the learner is practising: ${targetVocab}. `
+      : '') +
     `Include 3 comprehension questions with 4 multiple-choice options each (exactly one correct). ` +
     `Return JSON with this exact structure: { ` +
     `"title": "short Croatian title", ` +

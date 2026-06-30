@@ -5,6 +5,7 @@
 import { requireAuthedAI } from './_requireAuth.js';
 import { corsHeaders } from './_helpers.js';
 import { sanitizeParam } from './_helpers.js';
+import { parseUserContext, targetVocabList } from './_userContext.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
@@ -130,9 +131,15 @@ export async function onRequestPost(context) {
 
   const levelGuidance = LEVEL_GUIDANCE[safeLevel] || '';
 
+  // Content-Rec #3 Part 2: recycle the learner's active vocabulary in context.
+  const targetVocab = targetVocabList(parseUserContext(body));
+  const targetLine = targetVocab
+    ? `\n\nWhen it fits naturally, weave these Croatian words the learner is practising into your replies: ${targetVocab}.`
+    : '';
+
   const systemPrompt = `You are ${ctx.character} in ${ctx.setting}. ${ctx.role}
 
-The learner is studying Croatian at CEFR level ${safeLevel}. ${levelGuidance}
+The learner is studying Croatian at CEFR level ${safeLevel}. ${levelGuidance}${targetLine}
 
 RULES:
 1. ALWAYS reply ONLY in Croatian — never switch to English in your main reply
