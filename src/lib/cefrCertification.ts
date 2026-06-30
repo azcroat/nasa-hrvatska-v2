@@ -20,10 +20,11 @@
  *   - getCertifiedLevel() — the source of truth for "what can this user do?"
  *   - Retake-cooldown logic so a failed test cannot be brute-forced.
  *   - A feature flag (CERTIFICATION_REQUIRED) controlling whether content
- *     unlocks use certified or eligible level. Defaults to FALSE so the
- *     existing UX is unchanged until equivalency test items are authored
- *     and validated. Flipping the flag to TRUE activates strict gating
- *     for every user.
+ *     unlocks use certified or eligible level. Currently TRUE (active since
+ *     2026-06-19) — strict gating is live for every user, softened only by
+ *     the one-time grandfather migration. Setting it FALSE would TURN THE
+ *     FEATURE OFF: both certified-aware helpers fall back to the eligible
+ *     (activity-derived) level, restoring the legacy XP-inflates-level UX.
  *
  * Per-test storage shape (localStorage key `nh_cefr_certifications`):
  *   {

@@ -74,10 +74,10 @@ export function isUnlocked(exerciseCefr: string, userCefr: string): boolean {
  * content unlocking. Encapsulates the eligible-vs-certified decision so
  * callers don't have to know which mode is active.
  *
- * When `CERTIFICATION_REQUIRED` is false (current default):
+ * When `CERTIFICATION_REQUIRED` is false:
  *   returns `eligible` (activity-derived, getUserCefr output).
  *
- * When `CERTIFICATION_REQUIRED` is true (hard-gated mode):
+ * When `CERTIFICATION_REQUIRED` is true (the current state — hard-gated mode):
  *   returns the user's certified level (highest test-passed CEFR).
  *
  * The caller injects the certification module's exports to avoid a
