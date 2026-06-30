@@ -44,7 +44,7 @@
  */
 
 import type { CefrLevel } from './cefr.js';
-import { CEFR_ORDER, cefrRank, getEffectiveLevel, levelBelow } from './cefr.js';
+import { CEFR_ORDER, cefrRank, getEffectiveLevel, getUserCefr, levelBelow } from './cefr.js';
 
 // ── Feature flag ──────────────────────────────────────────────────────────────
 //
@@ -598,6 +598,33 @@ export function mergeRemoteCertifications(remote: CertificationState | null | un
  */
 export function getEffectiveLevelForUnlock(eligible: CefrLevel): CefrLevel {
   return getEffectiveLevel(eligible, { CERTIFICATION_REQUIRED, getCertifiedLevel });
+}
+
+/**
+ * The CEFR level AI content generators should produce at (Content-Rec #5 —
+ * deepen C1/C2).
+ *
+ * `nh_level` is set only at placement and by remote sync — it never advances as
+ * a learner earns their way up — so generators that read it (AI Listening,
+ * McGame, etc.) serve placement-level content to learners who have since reached
+ * C1/C2. This returns the HIGHER of the stored placement level and the learner's
+ * content-unlock level (earned + certification-aware, race-safe), so advanced
+ * learners get level-appropriate generated content while never dropping below
+ * their placement (no regression). The AI endpoints already accept C1/C2 at
+ * runtime, so this deepens C1/C2 with no authored content.
+ */
+export function getGenerationCefr(stats?: { xp?: number; lc?: number; gc?: number }): CefrLevel {
+  const earned = getContentUnlockLevel(getUserCefr(stats?.xp || 0, stats?.lc || 0, stats?.gc || 0));
+  let placement: CefrLevel | '' = '';
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('nh_level') : '';
+    const up = (raw || '').toUpperCase();
+    if ((CEFR_ORDER as readonly string[]).includes(up)) placement = up as CefrLevel;
+  } catch {
+    /* localStorage unavailable — fall back to the earned level */
+  }
+  if (!placement) return earned;
+  return cefrRank(placement) >= cefrRank(earned) ? placement : earned;
 }
 
 // ── One-time migration ───────────────────────────────────────────────────────
