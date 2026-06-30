@@ -3,7 +3,7 @@ import { H } from '../../data';
 import { markQuest } from '../../lib/quests.js';
 import { AIContentSkeleton, AIProgressBar } from '../shared/SkeletonLoader';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
-import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { unlockAudio, ttsFetch } from '../../lib/audio.js';
 import { recordTopicResult } from '../../lib/adaptive';
@@ -106,12 +106,13 @@ export default function AIListeningScreen({
     setPhase('loading');
 
     try {
-      const res = await apiFetch('/api/listening', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: selectedTopic, level, style }),
-        signal: AbortSignal.timeout(30000),
-      });
+      // _aiPost attaches the userContext payload (incl. active-vocab targets) so
+      // the generated listening exercise recycles the learner's words (Rec #3 p2).
+      const res = await _aiPost(
+        '/api/listening',
+        { topic: selectedTopic, level, style },
+        { signal: AbortSignal.timeout(30000) },
+      );
       if (!mountedRef.current) return;
       if (!res.ok) throw new Error(`listening API error: ${res.status}`);
       const data = await res.json();

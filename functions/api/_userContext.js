@@ -78,19 +78,26 @@ function _parseRecentErrors(arr) {
   return out;
 }
 
+function _parseStringList(arr, max) {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .filter((w) => typeof w === 'string')
+    .slice(0, max)
+    .map((w) => sanitizeParam(w, 40))
+    .filter((w) => w.length > 0);
+}
+
 function _parseVocab(vocab) {
   if (!vocab || typeof vocab !== 'object') {
-    return { learned: 0, dueToday: 0, hardest: [] };
+    return { learned: 0, dueToday: 0, hardest: [], targets: [] };
   }
   const learned = _isFiniteNonNegativeInt(vocab.learned) ? vocab.learned : 0;
   const dueToday = _isFiniteNonNegativeInt(vocab.dueToday) ? vocab.dueToday : 0;
-  const hardestRaw = Array.isArray(vocab.hardest) ? vocab.hardest : [];
-  const hardest = hardestRaw
-    .filter((w) => typeof w === 'string')
-    .slice(0, 5)
-    .map((w) => sanitizeParam(w, 40))
-    .filter((w) => w.length > 0);
-  return { learned, dueToday, hardest };
+  const hardest = _parseStringList(vocab.hardest, 5);
+  // Content-Rec #3 Part 2: target vocabulary the learner is actively working on,
+  // for the generators to weave into produced Croatian (in-context recycling).
+  const targets = _parseStringList(vocab.targets, 10);
+  return { learned, dueToday, hardest, targets };
 }
 
 export function parseUserContext(body) {
@@ -110,6 +117,16 @@ export function parseUserContext(body) {
     recentErrors: _parseRecentErrors(ctx.recentErrors),
     vocab: _parseVocab(ctx.vocab),
   };
+}
+
+/**
+ * Content-Rec #3 Part 2: the learner's target vocabulary as a comma-separated
+ * list (empty string when none). Exported so content endpoints that build their
+ * own prompts in-place (listening, dialogue) can weave the words in directly.
+ */
+export function targetVocabList(ctx) {
+  if (!ctx || !ctx.vocab || !Array.isArray(ctx.vocab.targets)) return '';
+  return ctx.vocab.targets.join(', ');
 }
 
 function _renderDiagnostic(ctx) {
@@ -134,6 +151,8 @@ function _renderDiagnostic(ctx) {
       ctx.vocab.hardest.length > 0 ? `; struggles with: ${ctx.vocab.hardest.join(', ')}` : '';
     lines.push(`- Known vocab: ${ctx.vocab.learned} words${hardest}`);
   }
+  const targets = targetVocabList(ctx);
+  if (targets) lines.push(`- Target vocabulary to reinforce in feedback: ${targets}`);
   lines.push("Use this to ground your feedback in the learner's actual pattern.");
   return lines.join('\n');
 }
@@ -147,9 +166,13 @@ function _renderMaja(ctx) {
     ctx.vocab.hardest.length > 0
       ? `Recent struggles include ${ctx.vocab.hardest.slice(0, 3).join(', ')}.`
       : '';
+  const targets = targetVocabList(ctx);
+  const targetLine = targets
+    ? `Naturally use these words the learner is practising when it fits: ${targets}.`
+    : '';
   return [
     'LEARNER NOTES (in addition to conversation memory):',
-    `This learner is ${ctx.level.cefr}${weak ? ', ' + weak : ''}. ${struggles}`.trim(),
+    `This learner is ${ctx.level.cefr}${weak ? ', ' + weak : ''}. ${struggles} ${targetLine}`.trim(),
     'When you can naturally weave these into the scenario, do so - but do not over-correct mid-conversation.',
   ]
     .join('\n')
@@ -173,7 +196,9 @@ function _renderTutor(ctx) {
 function _renderStoryContext(ctx) {
   const breadth = ctx.vocab.learned;
   const avoid = ctx.weakTopics.length > 0 ? ctx.weakTopics[0].topic : '';
-  return `STORY CONTEXT: ${ctx.level.cefr} reader; vocabulary breadth ~${breadth} words. Use accessible vocabulary; ${avoid ? `avoid heavy ${avoid} constructions in the first paragraph.` : 'prefer concrete nouns.'}`;
+  const targets = targetVocabList(ctx);
+  const targetLine = targets ? ` Weave in these words the learner is practising: ${targets}.` : '';
+  return `STORY CONTEXT: ${ctx.level.cefr} reader; vocabulary breadth ~${breadth} words. Use accessible vocabulary; ${avoid ? `avoid heavy ${avoid} constructions in the first paragraph.` : 'prefer concrete nouns.'}${targetLine}`;
 }
 
 export function renderContextPrompt(ctx, kind) {

@@ -79,4 +79,20 @@ describe('renderContextPrompt', () => {
     expect(prose).not.toContain('Persistent weakness');
     expect(prose).not.toContain('Recent mistakes');
   });
+
+  it('surfaces vocab.targets in the content-generating renderers (Content-Rec #3)', () => {
+    const ctxWithTargets = {
+      ...validCtx,
+      vocab: { ...validCtx.vocab, targets: ['kuća', 'more', 'jesti'] },
+    };
+    for (const kind of ['correct', 'maja', 'ai-chat-story']) {
+      const prose = renderContextPrompt(ctxWithTargets, kind);
+      expect(prose, kind).toContain('kuća');
+      expect(prose, kind).toContain('jesti');
+    }
+  });
+
+  it('adds no target line when vocab.targets is absent', () => {
+    expect(renderContextPrompt(validCtx, 'correct')).not.toContain('Target vocabulary');
+  });
 });

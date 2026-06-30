@@ -5,6 +5,8 @@ import { getWeakTopics } from './adaptive';
 import { getRecentErrors, type RecentErrorView } from './recentErrors';
 import { getUserCefr } from './cefr';
 import { getContentUnlockLevel } from './cefrCertification';
+import { getSR } from './srs';
+import { getActiveVocabulary } from './activeVocabulary';
 
 export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
@@ -26,6 +28,8 @@ export interface UserContext {
     learned: number;
     dueToday: number;
     hardest: string[];
+    /** Words the learner is actively working on, for in-context recycling (Content-Rec #3). */
+    targets: string[];
   };
 }
 
@@ -115,25 +119,33 @@ function readWeakTopics(): UserContext['weakTopics'] {
 }
 
 function readVocabStats(): UserContext['vocab'] {
-  const profile = _readProfile();
-  const sr = profile?.sr ?? {};
+  // Read the canonical live FSRS map (getSR), not the persisted profile blob.
+  // 2026-bugfix: the previous version read legacy SM-2 fields (`n`, `lapses`)
+  // that migrated FSRS cards no longer carry (they use `r`/`w`/`l`), so `learned`
+  // and `hardest` were silently always 0/empty. FSRS card: r=correct, w=wrong.
+  let sr: Record<string, unknown> = {};
+  try {
+    sr = getSR() as unknown as Record<string, unknown>;
+  } catch {
+    sr = {};
+  }
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
   let learned = 0;
   let dueToday = 0;
-  const entries: Array<{ word: string; lapses: number }> = [];
-  for (const [word, card] of Object.entries(sr)) {
+  for (const card of Object.values(sr)) {
     if (!card || typeof card !== 'object') continue;
-    const n = typeof card.n === 'number' ? card.n : 0;
-    const due = typeof card.due === 'number' ? card.due : 0;
-    const lapses = typeof card.lapses === 'number' ? card.lapses : 0;
-    if (n >= 1) learned += 1;
+    const c = card as Record<string, unknown>;
+    const r = typeof c.r === 'number' ? c.r : 0;
+    const w = typeof c.w === 'number' ? c.w : 0;
+    const due = typeof c.due === 'number' ? c.due : typeof c.nextDue === 'number' ? c.nextDue : 0;
+    if (r + w >= 1) learned += 1; // introduced = reviewed at least once
     if (due > 0 && due - now <= dayMs) dueToday += 1;
-    if (lapses > 0) entries.push({ word, lapses });
   }
-  entries.sort((a, b) => b.lapses - a.lapses);
-  const hardest = entries.slice(0, 5).map((e) => e.word);
-  return { learned, dueToday, hardest };
+  // hardest + targets come from the shared active-vocabulary engine (Content-Rec
+  // #3) so they're consistent with what the contextual generators recycle.
+  const active = getActiveVocabulary({ limit: 8 });
+  return { learned, dueToday, hardest: active.weak.slice(0, 5), targets: active.targets };
 }
 
 export function buildUserContext(): UserContext {

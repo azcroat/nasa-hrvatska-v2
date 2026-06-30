@@ -135,4 +135,20 @@ describe('parseUserContext', () => {
     const ctx = parseUserContext(body);
     expect(ctx.vocab.hardest).toHaveLength(5);
   });
+
+  it('parses vocab.targets (Content-Rec #3), capped at 10 sanitized strings', () => {
+    const body = validBody();
+    body.userContext.vocab.targets = ['kuća', 'more', 'jesti', 'piti'];
+    const ctx = parseUserContext(body);
+    expect(ctx.vocab.targets).toEqual(['kuća', 'more', 'jesti', 'piti']);
+  });
+
+  it('caps vocab.targets at 10 and defaults to [] when absent', () => {
+    const many = Array.from({ length: 15 }, (_, i) => `w${i}`);
+    const body = validBody();
+    body.userContext.vocab.targets = many;
+    expect(parseUserContext(body).vocab.targets).toHaveLength(10);
+    const noTargets = validBody(); // validBody's vocab has no `targets` key
+    expect(parseUserContext(noTargets).vocab.targets).toEqual([]);
+  });
 });

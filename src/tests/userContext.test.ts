@@ -128,46 +128,51 @@ describe('buildUserContext', () => {
     expect(ctx.vocab.hardest).toEqual([]);
   });
 
-  it('vocab.hardest returns up to 5 words sorted by lapse count', () => {
-    seedProfile();
-    const profileKey = 'uP_' + TEST_EMAIL;
-    const profile = JSON.parse(localStorage.getItem(profileKey)!);
-    profile.sr = {
-      knjiga: { i: 5, e: 2.5, n: 1, due: Date.now() + 86400000, q: 4, lapses: 1 },
-      studeni: { i: 1, e: 1.5, n: 3, due: Date.now() + 86400000, q: 2, lapses: 6 },
-      cekati: { i: 2, e: 1.8, n: 2, due: Date.now() + 86400000, q: 3, lapses: 4 },
-    };
-    localStorage.setItem(profileKey, JSON.stringify(profile));
+  // vocab stats now read the canonical live FSRS map (nh_sr) — FSRS cards use
+  // r (right) / w (wrong) / l (lapses), not the legacy n/lapses fields.
+  it('vocab.hardest returns the lapsing words (from the live FSRS map), worst first', () => {
+    localStorage.setItem(
+      'nh_sr',
+      JSON.stringify({
+        knjiga: { s: 5, d: 5, r: 4, w: 1, l: 1, b: 2, due: Date.now() + 86400000 },
+        studeni: { s: 1, d: 8, r: 2, w: 5, l: 6, b: 0, due: Date.now() + 86400000 },
+        cekati: { s: 2, d: 6, r: 3, w: 3, l: 4, b: 1, due: Date.now() + 86400000 },
+      }),
+    );
     const ctx = buildUserContext();
     expect(ctx.vocab.hardest.length).toBeLessThanOrEqual(5);
-    expect(ctx.vocab.hardest[0]).toBe('studeni');
+    expect(ctx.vocab.hardest[0]).toBe('studeni'); // most lapses → worst
   });
 
   it('vocab.dueToday counts cards due in next 24h', () => {
-    seedProfile();
-    const profileKey = 'uP_' + TEST_EMAIL;
-    const profile = JSON.parse(localStorage.getItem(profileKey)!);
-    profile.sr = {
-      a: { i: 1, e: 2.5, n: 1, due: Date.now() + 1000, q: 4, lapses: 0 },
-      b: { i: 1, e: 2.5, n: 1, due: Date.now() + 26 * 60 * 60 * 1000, q: 4, lapses: 0 },
-    };
-    localStorage.setItem(profileKey, JSON.stringify(profile));
+    localStorage.setItem(
+      'nh_sr',
+      JSON.stringify({
+        a: { s: 1, d: 5, r: 1, w: 0, l: 0, b: 1, due: Date.now() + 1000 },
+        b: { s: 1, d: 5, r: 1, w: 0, l: 0, b: 1, due: Date.now() + 26 * 60 * 60 * 1000 },
+      }),
+    );
     const ctx = buildUserContext();
     expect(ctx.vocab.dueToday).toBe(1);
   });
 
-  it('vocab.learned counts mature/young cards (n >= 1)', () => {
-    seedProfile();
-    const profileKey = 'uP_' + TEST_EMAIL;
-    const profile = JSON.parse(localStorage.getItem(profileKey)!);
-    profile.sr = {
-      a: { i: 1, e: 2.5, n: 0, due: 0, q: 0, lapses: 0 },
-      b: { i: 1, e: 2.5, n: 2, due: 0, q: 4, lapses: 0 },
-      c: { i: 1, e: 2.5, n: 1, due: 0, q: 4, lapses: 0 },
-    };
-    localStorage.setItem(profileKey, JSON.stringify(profile));
+  it('vocab.learned counts cards reviewed at least once (r + w >= 1)', () => {
+    localStorage.setItem(
+      'nh_sr',
+      JSON.stringify({
+        a: { s: 0, d: 5, r: 0, w: 0, l: 0, b: 0, due: 0 }, // never reviewed → not learned
+        b: { s: 3, d: 5, r: 2, w: 0, l: 0, b: 2, due: 0 },
+        c: { s: 1, d: 5, r: 1, w: 0, l: 0, b: 1, due: 0 },
+      }),
+    );
     const ctx = buildUserContext();
     expect(ctx.vocab.learned).toBe(2);
+  });
+
+  it('vocab.targets is populated for in-context recycling (frequency core when SR empty)', () => {
+    const ctx = buildUserContext();
+    expect(Array.isArray(ctx.vocab.targets)).toBe(true);
+    expect(ctx.vocab.targets.length).toBeGreaterThan(0);
   });
 
   it('generatedAt is within 100ms of Date.now() at call time', () => {

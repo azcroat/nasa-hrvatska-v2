@@ -9,7 +9,7 @@ import DialogueResultsScreen from './DialogueResultsScreen';
 import DialogueGuidedMode from './DialogueGuidedMode';
 import DialogueAiMode from './DialogueAiMode';
 import { SCENARIOS } from './dialogueScenarios.js';
-import { apiFetch } from '../../lib/apiFetch.js';
+import { _aiPost } from '../../lib/aiPost';
 
 // Normalize Croatian diacritics for lenient free-text comparison
 function normCro(s: string) {
@@ -172,18 +172,19 @@ export default function DialogueSim({
     const newHistory = [...aiHistory, { role: 'user', content: userMsg, id: Date.now() }];
     setAiHistory(newHistory);
     try {
-      const res = await apiFetch('/api/dialogue', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      // _aiPost attaches the userContext payload (incl. active-vocab targets) so
+      // the AI partner weaves in the learner's words in context (Rec #3 part 2).
+      const res = await _aiPost(
+        '/api/dialogue',
+        {
           scenario_id: scenario.id,
           userMessage: userMsg,
           // Cap to last 14 messages (7 turns) — prevents context window overflow on long sessions
           history: aiHistory.slice(-14),
           level: userLevel || 'A2',
-        }),
-        signal: AbortSignal.timeout(25000),
-      });
+        },
+        { signal: AbortSignal.timeout(25000) },
+      );
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
       setAiHistory([...newHistory, { role: 'assistant', content: data.reply, id: Date.now() + 1 }]);
