@@ -46,7 +46,29 @@ describe('getGenerationCefr', () => {
   });
 
   it('tolerates missing/partial stats', () => {
-    expect(getGenerationCefr(undefined)).toBe('A1');
     expect(getGenerationCefr({})).toBe('A1');
+  });
+
+  // ── no-arg path: reads xp/lc/gc from the persisted profile (uS → uP_<email>) ──
+  function seedProfile(st: { xp?: number; lc?: number; gc?: number }) {
+    localStorage.setItem('uS', JSON.stringify({ u: 'test@nh.com' }));
+    localStorage.setItem('uP_test@nh.com', JSON.stringify({ st }));
+  }
+
+  it('with no args, derives the level from the persisted profile', () => {
+    seedProfile({ xp: 10000, lc: 0, gc: 0 }); // C1
+    expect(getGenerationCefr()).toBe('C1');
+  });
+
+  it('with no args and no profile, returns A1 (floored at placement when set)', () => {
+    expect(getGenerationCefr()).toBe('A1');
+    localStorage.setItem('nh_level', 'B2');
+    expect(getGenerationCefr()).toBe('B2'); // placement floor with empty profile
+  });
+
+  it('reads the legacy `stats` profile key as well as `st`', () => {
+    localStorage.setItem('uS', JSON.stringify({ u: 'test@nh.com' }));
+    localStorage.setItem('uP_test@nh.com', JSON.stringify({ stats: { xp: 20000 } }));
+    expect(getGenerationCefr()).toBe('C2');
   });
 });

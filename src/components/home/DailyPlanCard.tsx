@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
+import { getGenerationCefr } from '../../lib/cefrCertification';
 import { getSR, getStreak } from '../../data';
 import AppContext from '../../context/AppContext';
 import { getStyleContextForAPI } from '../../lib/learnerStyle.js';
@@ -195,7 +196,7 @@ export default function DailyPlanCard({
   const [done, setDone] = useState(() => getTodayDone());
 
   const collectPayload = useCallback(() => {
-    const level = localStorage.getItem('nh_level') || 'B1';
+    const level = getGenerationCefr(); // Content-Rec #5: earned CEFR, not stale placement
     const srData = getSR();
     const srWeakWords = Object.entries(srData)
       .filter(([, v]) => v.w > 0)

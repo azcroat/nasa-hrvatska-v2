@@ -601,6 +601,30 @@ export function getEffectiveLevelForUnlock(eligible: CefrLevel): CefrLevel {
 }
 
 /**
+ * Read xp/lc/gc from the persisted profile (uS → uP_<email> → st/stats), the
+ * same source buildUserContext uses. Returns zeros if anything is missing —
+ * which, floored against the placement nh_level in getGenerationCefr, means a
+ * missing profile never serves below what the user already gets.
+ */
+function _readProfileStats(): { xp: number; lc: number; gc: number } {
+  try {
+    if (typeof localStorage === 'undefined') return { xp: 0, lc: 0, gc: 0 };
+    const session = JSON.parse(localStorage.getItem('uS') || 'null');
+    const email = session?.u;
+    if (!email) return { xp: 0, lc: 0, gc: 0 };
+    const profile = JSON.parse(localStorage.getItem('uP_' + email) || 'null');
+    const st = profile?.stats || profile?.st || {};
+    return {
+      xp: typeof st.xp === 'number' ? st.xp : 0,
+      lc: typeof st.lc === 'number' ? st.lc : 0,
+      gc: typeof st.gc === 'number' ? st.gc : 0,
+    };
+  } catch {
+    return { xp: 0, lc: 0, gc: 0 };
+  }
+}
+
+/**
  * The CEFR level AI content generators should produce at (Content-Rec #5 —
  * deepen C1/C2).
  *
@@ -614,7 +638,12 @@ export function getEffectiveLevelForUnlock(eligible: CefrLevel): CefrLevel {
  * runtime, so this deepens C1/C2 with no authored content.
  */
 export function getGenerationCefr(stats?: { xp?: number; lc?: number; gc?: number }): CefrLevel {
-  const earned = getContentUnlockLevel(getUserCefr(stats?.xp || 0, stats?.lc || 0, stats?.gc || 0));
+  // When no live stats are passed, read xp/lc/gc from the persisted profile —
+  // the same source buildUserContext uses — so callers without StatsContext
+  // (McGame, Flashcards, GrammarDiagnosis, DailyPlanCard) can use this with no
+  // hook and no provider-in-test coupling.
+  const s = stats ?? _readProfileStats();
+  const earned = getContentUnlockLevel(getUserCefr(s.xp || 0, s.lc || 0, s.gc || 0));
   let placement: CefrLevel | '' = '';
   try {
     const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('nh_level') : '';
