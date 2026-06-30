@@ -37,6 +37,7 @@ import * as offlineAwardQueue from '../lib/offlineAwardQueue.js';
 import { PRODUCTION_SCREEN_IDS } from './useDailySession';
 import { recordProductionRep } from '../lib/productionMetric';
 import { recordListeningRep } from '../lib/listeningMetric';
+import { recordReadingRep } from '../lib/readingMetric';
 import type { AwardActivityType } from '../lib/activityXp.js';
 import type { Stats } from '../types/index.js';
 
@@ -225,6 +226,13 @@ export function useAward({
       // documented in listeningMetric.ts.
       if (activityType === 'listening') {
         recordListeningRep();
+      }
+      // Content-Rec #2: count a reading rep on completion of any reading-
+      // comprehension exercise (graded ReadingScreen passage or GradedInputScreen
+      // story — both award with activityType 'reading'). Same placement rationale
+      // as the listening rep: before the XP-cooldown gate, device-local bucket.
+      if (activityType === 'reading') {
+        recordReadingRep();
       }
       if (_effectiveEx && !canEarnXP(_effectiveEx)) {
         setXpA(0);
