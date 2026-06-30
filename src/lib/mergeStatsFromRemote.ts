@@ -7,7 +7,7 @@
  *   3. App.jsx onSignedIn (isHydrate + normal)
  *
  * Rules:
- *   - xp, lc, gc, sp, de, rc, str: take Math.max (never decrease)
+ *   - xp, lc, gc, sp, pr, de, rc, str: take Math.max (never decrease)
  *   - diff: take the higher ordinal (beginner < intermediate < advanced) — never regress CEFR level
  *   - ct, vs, badges: union (never lose completed topics/screens)
  *   - all other fields: take remote value (sanitized), falling back to DS default
@@ -41,6 +41,7 @@ export function mergeStatsFromRemote(prev: Stats, rawRemoteSt: unknown, ds: Stat
     lc: Math.max(prev.lc || 0, remoteSt.lc || 0),
     gc: Math.max(prev.gc || 0, remoteSt.gc || 0),
     sp: Math.max(prev.sp || 0, remoteSt.sp || 0),
+    pr: Math.max(prev.pr || 0, remoteSt.pr || 0),
     de: Math.max(prev.de || 0, remoteSt.de || 0),
     rc: Math.max(prev.rc || 0, remoteSt.rc || 0),
     xp: Math.max(prev.xp || 0, remoteSt.xp || 0),

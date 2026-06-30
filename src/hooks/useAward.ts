@@ -34,6 +34,8 @@ import {
 import { knightSpeak } from '../lib/knightSpeak.js';
 import { apiFetch } from '../lib/apiFetch.js';
 import * as offlineAwardQueue from '../lib/offlineAwardQueue.js';
+import { PRODUCTION_SCREEN_IDS } from './useDailySession';
+import { recordProductionRep } from '../lib/productionMetric';
 import type { AwardActivityType } from '../lib/activityXp.js';
 import type { Stats } from '../types/index.js';
 
@@ -199,6 +201,19 @@ export function useAward({
             sessionStorage.setItem('nh_session_completed', _effectiveEx);
           }
         } catch {}
+      }
+      // Session-Rec #6 (synced): count a production rep on completion of ANY
+      // production exercise — daily session OR Practice tab — keyed on the screen
+      // id. Done here, before the XP-cooldown gate, so production is counted even
+      // when XP is on cooldown (production effort is the fluency signal, decoupled
+      // from the XP economy — same rationale as the session-completion signal
+      // above). Updates the device-local weekly bucket AND the synced lifetime
+      // `stats.pr` (Math.max-merged across devices). This is the single counting
+      // site — markDone no longer counts, so session + practice share one scope.
+      if (_effectiveEx && PRODUCTION_SCREEN_IDS.has(_effectiveEx)) {
+        recordProductionRep();
+        setStats((s: Stats) => ({ ...s, pr: (s.pr || 0) + 1 }));
+        if (writeDelta) writeDelta({ pr: 1 });
       }
       if (_effectiveEx && !canEarnXP(_effectiveEx)) {
         setXpA(0);

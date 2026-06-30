@@ -277,9 +277,16 @@ describe('useDailySession — rotation memory + completion (hook)', () => {
     expect(result.current.bonusActivities.length).toBeGreaterThan(0);
   });
 
-  it('completing a production activity increments the production-reps metric (Rec #6)', () => {
+  it('completing a production activity records it for recency rotation; the rep COUNT now lives in useAward (Rec #6)', () => {
     const { result } = renderHook(() => useDailySession('B1'));
-    const productionScreens = ['dialogue', 'writing', 'shadowing', 'production_drill', 'dictation'];
+    const productionScreens = [
+      'dialogue',
+      'writing',
+      'shadowing',
+      'speaking',
+      'production_drill',
+      'dictation',
+    ];
     const prod = result.current.session.activities.find((a) =>
       productionScreens.includes(a.screen),
     );
@@ -287,9 +294,14 @@ describe('useDailySession — rotation memory + completion (hook)', () => {
     act(() => {
       result.current.markDone(prod!.screen);
     });
-    const reps = JSON.parse(localStorage.getItem('nh_production_reps') || '{}');
-    expect(reps.total).toBe(1);
-    expect(reps.weekCount).toBe(1);
+    // markDone still records production recency (3-day rotation of the slot)…
+    const recent = JSON.parse(localStorage.getItem('nh_recent_production') || '[]') as Array<{
+      screen: string;
+    }>;
+    expect(recent.some((e) => e.screen === prod!.screen)).toBe(true);
+    // …but no longer increments the rep metric — that moved to the central
+    // useAward completion point so it also captures Practice-tab production.
+    expect(localStorage.getItem('nh_production_reps')).toBeNull();
   });
 
   it('startFreshSession builds a new non-empty set on demand (the explicit "keep going" path)', () => {

@@ -9,6 +9,9 @@ export interface Stats {
   lc: number;
   gc: number;
   sp: number;
+  /** Production reps — speaking/writing/conversation completions (Session-Rec #6).
+   *  Monotonic counter, Math.max-merged across devices. The real fluency signal. */
+  pr: number;
   de: number;
   rc: number;
   pf: number;
@@ -49,6 +52,7 @@ export interface StatsDelta {
   lc?: number;
   gc?: number;
   sp?: number;
+  pr?: number;
   de?: number;
   rc?: number;
   pf?: number;
