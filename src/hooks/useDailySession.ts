@@ -57,6 +57,37 @@ const SESSION_KEY = 'nh_daily_session';
 const HISTORY_KEY = 'nh_session_history';
 const RECENT_KEY = 'nh_recent_exercises';
 const MINUTES_PER_ACTIVITY = 5;
+const FLUENCY_MODE_KEY = 'nh_fluency_mode';
+
+/**
+ * Opt-in "fluency mode" (Session-Rec #3) — longer, production-heavier daily
+ * sessions for learners who want to push harder. Read from localStorage so
+ * buildSessionActivities (a pure-ish builder that already reads mic/recency/
+ * city state) can consult it without threading a prop through the hook + HomeTab.
+ */
+export function readFluencyMode(): boolean {
+  try {
+    return localStorage.getItem(FLUENCY_MODE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Non-Croatia activity target for a session (Session-Rec #3). Scales with level
+ * so beginners get a lighter session and stronger learners a fuller one, and the
+ * opt-in fluency mode lengthens it further. This caps mandatory + fill slots; the
+ * always-on Croatia slot is added on top, so total activities = this + 1.
+ *   A1  → 3 (lighter — recognition + one production slot)
+ *   A2+ → 4 (standard)
+ *   fluency mode → +2 at every level (more fill on top of the production/
+ *   conversation slots the B1+ shape already guarantees)
+ * Default (mode off) keeps the long-standing 4–6 total-activity envelope.
+ */
+export function getSessionFillTarget(userCefr: string, fluencyMode: boolean): number {
+  const base = cefrRank(userCefr) >= cefrRank('A2') ? 4 : 3;
+  return fluencyMode ? base + 2 : base;
+}
 
 /** Maps adaptive SkillCategory → exercise screen id */
 const CATEGORY_SCREEN_MAP: Partial<Record<SkillCategory, string>> = {
@@ -559,7 +590,8 @@ export function buildSessionActivities(
     }))
     .sort((a, b) => a.dist - b.dist || a.r - b.r)
     .map((o) => o.ex);
-  const fillTarget = 4; // target 4 activities from P1+P2+P3 before Croatia slot
+  // Session-Rec #3: target scales with level + opt-in fluency mode (was a hard 4).
+  const fillTarget = getSessionFillTarget(userCefr, readFluencyMode());
   for (const ex of ordered) {
     if (activities.length >= fillTarget) break;
     if (!usedScreens.has(ex.screen)) {
@@ -762,7 +794,7 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
   const progress =
     session.activities.length === 0 ? 0 : session.completedIds.length / session.activities.length;
   const nextActivity = session.activities.find((a) => !session.completedIds.includes(a.id)) ?? null;
-  const tomorrowLabel = '4–6 activities tomorrow';
+  const tomorrowLabel = readFluencyMode() ? '6–8 activities tomorrow' : '4–6 activities tomorrow';
 
   // Build a brand-new session ON DEMAND — the user taps "Start a fresh session"
   // from the complete state. This used to run automatically in a useEffect the

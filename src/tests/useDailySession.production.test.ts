@@ -13,6 +13,8 @@ import {
   buildSessionActivities,
   recordProductionExercise as recordFn,
   PRODUCTION_SCREEN_IDS,
+  getSessionFillTarget,
+  readFluencyMode,
 } from '../hooks/useDailySession';
 import { CEFR_ORDER, cefrRank } from '../lib/cefr';
 
@@ -349,6 +351,39 @@ describe('PRODUCTION_SCREEN_IDS — markDone integration surface', () => {
 
   it('recordProductionExercise is a function callable from markDone', () => {
     expect(typeof recordFn).toBe('function');
+  });
+});
+
+describe('session sizing + fluency mode (Session-Rec #3)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('getSessionFillTarget: A1 is lighter than A2+; fluency mode adds 2', () => {
+    expect(getSessionFillTarget('A1', false)).toBe(3);
+    expect(getSessionFillTarget('A2', false)).toBe(4);
+    expect(getSessionFillTarget('B2', false)).toBe(4);
+    expect(getSessionFillTarget('A1', true)).toBe(5);
+    expect(getSessionFillTarget('B2', true)).toBe(6);
+  });
+
+  it('readFluencyMode reflects the nh_fluency_mode flag', () => {
+    expect(readFluencyMode()).toBe(false);
+    localStorage.setItem('nh_fluency_mode', 'true');
+    expect(readFluencyMode()).toBe(true);
+  });
+
+  it('fluency mode produces a longer session than standard at the same level', () => {
+    const standard = buildSessionActivities('B1').length;
+    localStorage.setItem('nh_fluency_mode', 'true');
+    const fluency = buildSessionActivities('B1').length;
+    expect(fluency).toBeGreaterThan(standard);
+  });
+
+  it('A1 standard session stays within the long-standing 4–6 envelope', () => {
+    const acts = buildSessionActivities('A1');
+    expect(acts.length).toBeGreaterThanOrEqual(4);
+    expect(acts.length).toBeLessThanOrEqual(6);
   });
 });
 
