@@ -5,22 +5,22 @@
  * Provides: CEFR level computation, ranking, and exercise unlock logic.
  *
  * ── WHICH LEVEL TO USE WHERE (convention — read before wiring a new surface) ──
- * There are intentionally TWO notions of the user's level:
+ * `getUserCefr(xp, lc, gc)` is the raw, XP/activity-derived ELIGIBLE level. It can
+ * be inflated by dwell time, so almost nothing should consume it directly — it is
+ * the INPUT to the two certified-aware helpers in cefrCertification.ts:
  *
- *   • ELIGIBLE  — `getUserCefr(xp, lc, gc)`. XP/activity-derived; can be inflated
- *                 by dwell time. Use for CONTENT availability / generosity:
- *                 daily-session exercise selection, Grad recommendations, "what
- *                 can I practice." Being generous here never lies to the user.
+ *   • PROFICIENCY CLAIMS → `getEffectiveLevelForUnlock(eligible)`. The certified,
+ *     assessment-verified, synced, grandfathered level. Use for anything the user
+ *     reads as truth about their ability: the CEFR badge, "you have reached X",
+ *     certificates.
  *
- *   • CERTIFIED — `getEffectiveLevelForUnlock(eligible)` (cefrCertification.ts);
- *                 assessment-verified, synced, grandfathered, monotonic. Use for
- *                 any PROFICIENCY CLAIM the user reads as truth: the CEFR badge,
- *                 "you have reached X", certificates. This must reflect ability,
- *                 not time-on-task.
+ *   • CONTENT UNLOCK → `getContentUnlockLevel(eligible)`. Also the certified level,
+ *     but RACE-SAFE: until the one-time grandfather migration has run it falls back
+ *     to eligible so first-load content is never wrongly locked. Use for what the
+ *     user can practice: daily-session selection, Grad recommendations, isUnlocked.
  *
- * Rule of thumb: if it CLAIMS a level → certified; if it OFFERS content → eligible.
- * Wiring a badge to eligible (or gating content on certified) is the bug class
- * this convention exists to prevent.
+ * Rule of thumb: pass the raw eligible level into the appropriate helper; don't
+ * consume `getUserCefr` directly for a user-facing claim or a content gate.
  */
 
 export const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;

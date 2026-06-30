@@ -17,6 +17,7 @@ import {
   emptyCheckpointState,
   getCertifiedLevel,
   getCertificationState,
+  getContentUnlockLevel,
   getEffectiveLevelForUnlock,
   getLastAttempt,
   mergeRemoteCertifications,
@@ -41,6 +42,26 @@ describe('CERTIFICATION_REQUIRED feature flag', () => {
     // grandfathered to their eligible level by migrateGrandfatheredCertification
     // on first launch.
     expect(CERTIFICATION_REQUIRED).toBe(true);
+  });
+});
+
+describe('getContentUnlockLevel — race-safe content gate (Rec #4 full activation)', () => {
+  it('RACE SAFETY: before the grandfather migration runs, falls back to eligible (never locks first-load content)', () => {
+    // No migration flag, no passes → must NOT gate down to certified-default A1.
+    expect(getContentUnlockLevel('C1')).toBe('C1');
+    expect(getContentUnlockLevel('B2')).toBe('B2');
+  });
+
+  it('after grandfather migration, gates content at the certified level', () => {
+    migrateGrandfatheredCertification('B1'); // sets the flag + grandfathers certified B1
+    // Eligible has since climbed to C1 (XP), but content stays gated at certified B1.
+    expect(getContentUnlockLevel('C1')).toBe('B1');
+  });
+
+  it('migrated with no passes caps content at certified A1 (the real gate)', () => {
+    localStorage.setItem('nh_cefr_migration_v1_done', '1'); // migrated, but nothing passed
+    expect(getCertifiedLevel()).toBe('A1');
+    expect(getContentUnlockLevel('C1')).toBe('A1');
   });
 });
 
