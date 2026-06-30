@@ -180,4 +180,27 @@ test.describe('AIListeningScreen', () => {
     // assertion — readyVisible=true is a real UI state that must appear.
     await expect(page.getByText("I'm Ready — Take the Quiz →")).toBeVisible({ timeout: 20_000 });
   });
+
+  // ── Content-Rec #1: the structured listening path ──────────────────────────
+  test('setup shows the "Your Listening Path" curriculum banner with a Start recommended CTA', async ({
+    page,
+  }) => {
+    await openAIListening(page);
+    await expect(page.getByText('Your Listening Path')).toBeVisible({ timeout: 5_000 });
+    // Progress counter "<done>/<total> at <level>" and the recommended CTA.
+    await expect(page.getByText(/\d+\/\d+ at [A-C][12]/)).toBeVisible({ timeout: 3_000 });
+    await expect(
+      page.locator('button').filter({ hasText: 'Start recommended' }),
+    ).toBeVisible({ timeout: 3_000 });
+  });
+
+  test('clicking "Start recommended" generates and transitions to the listening phase', async ({
+    page,
+  }) => {
+    await openAIListening(page);
+    await page.locator('button').filter({ hasText: 'Start recommended' }).click();
+    // Recommended start runs the generator (mocked) → loading → listening phase,
+    // whose heading shows the mock content title.
+    await expect(page.getByText('U kafiću')).toBeVisible({ timeout: 10_000 });
+  });
 });

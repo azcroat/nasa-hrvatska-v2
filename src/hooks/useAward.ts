@@ -36,6 +36,7 @@ import { apiFetch } from '../lib/apiFetch.js';
 import * as offlineAwardQueue from '../lib/offlineAwardQueue.js';
 import { PRODUCTION_SCREEN_IDS } from './useDailySession';
 import { recordProductionRep } from '../lib/productionMetric';
+import { recordListeningRep } from '../lib/listeningMetric';
 import type { AwardActivityType } from '../lib/activityXp.js';
 import type { Stats } from '../types/index.js';
 
@@ -214,6 +215,16 @@ export function useAward({
         recordProductionRep();
         setStats((s: Stats) => ({ ...s, pr: (s.pr || 0) + 1 }));
         if (writeDelta) writeDelta({ pr: 1 });
+      }
+      // Content-Rec #1: count a listening rep on completion of ANY listening
+      // activity (AI Listening, Dictation, Shadowing, Daily Listening, the
+      // static listening quiz — every one awards with activityType 'listening').
+      // Keyed on activityType, before the XP-cooldown gate, so input volume is
+      // measured even when XP is on cooldown — same rationale as production reps.
+      // Device-local weekly+lifetime bucket; the synced-promotion path is
+      // documented in listeningMetric.ts.
+      if (activityType === 'listening') {
+        recordListeningRep();
       }
       if (_effectiveEx && !canEarnXP(_effectiveEx)) {
         setXpA(0);
