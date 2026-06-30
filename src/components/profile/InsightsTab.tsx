@@ -5,6 +5,7 @@ import { getUserCefr, cefrRank } from '../../lib/cefr';
 import { getEffectiveLevelForUnlock } from '../../lib/cefrCertification';
 import { getProductionReps } from '../../hooks/useDailySession';
 import { getListeningReps } from '../../lib/listeningMetric';
+import { getReadingReps } from '../../lib/readingMetric';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import ProgressCharts from './ProgressCharts';
@@ -88,6 +89,9 @@ export default function InsightsTab() {
   // Content-Rec #1: listening reps are the input-volume signal — comprehension
   // is built by hours of listening, not XP. Device-local (weekly + lifetime).
   const listenReps = getListeningReps();
+  // Content-Rec #2: reading reps are the extensive-reading volume signal —
+  // reading fluency is built by passages read, not XP. Device-local.
+  const readReps = getReadingReps();
 
   return (
     <React.Fragment>
@@ -173,6 +177,41 @@ export default function InsightsTab() {
           </div>
           <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
             this week · {listenReps.total} total
+          </div>
+        </div>
+      </div>
+
+      {/* ── READING PRACTICE (Content-Rec #2) — fluency is built by input volume ── */}
+      <div
+        style={{
+          background: 'var(--card)',
+          borderRadius: 16,
+          padding: '16px',
+          marginTop: 0,
+          marginBottom: 16,
+          border: '1px solid var(--card-b)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+        }}
+      >
+        <div style={{ fontSize: 30, lineHeight: 1 }} aria-hidden="true">
+          📖
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
+            Reading Practice
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, lineHeight: 1.4 }}>
+            Graded passages &amp; stories read — the extensive reading that builds fluency.
+          </div>
+        </div>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--info,#0284c7)' }}>
+            {readReps.thisWeek}
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
+            this week · {readReps.total} total
           </div>
         </div>
       </div>
