@@ -7,6 +7,12 @@ import { CONJ_LAB_ENABLED } from '../lib/conjugation/conjugationConfig';
 import { isUnlocked, cefrRank } from '../lib/cefr';
 import { localDateStr } from '../lib/dateUtils';
 import { rnd } from '../lib/random.js';
+import { recordProductionRep } from '../lib/productionMetric';
+
+// Re-exported so existing consumers/tests can keep importing the production-rep
+// metric from this module (Session-Rec #6 lives in ../lib/productionMetric).
+export { recordProductionRep, getProductionReps } from '../lib/productionMetric';
+export type { ProductionReps } from '../lib/productionMetric';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -744,6 +750,8 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
       // SP4b: track production exercises for recent-exclusion rotation
       if (PRODUCTION_SCREEN_IDS.has(match.screen)) {
         recordProductionExercise(match.screen);
+        // Session-Rec #6: count the completed production rep (the fluency signal).
+        recordProductionRep();
       }
       // Check for session completion
       if (updated.completedIds.length === updated.activities.length) {

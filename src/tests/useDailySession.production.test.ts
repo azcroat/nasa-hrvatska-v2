@@ -15,6 +15,8 @@ import {
   PRODUCTION_SCREEN_IDS,
   getSessionFillTarget,
   readFluencyMode,
+  recordProductionRep,
+  getProductionReps,
 } from '../hooks/useDailySession';
 import { CEFR_ORDER, cefrRank } from '../lib/cefr';
 
@@ -384,6 +386,47 @@ describe('session sizing + fluency mode (Session-Rec #3)', () => {
     const acts = buildSessionActivities('A1');
     expect(acts.length).toBeGreaterThanOrEqual(4);
     expect(acts.length).toBeLessThanOrEqual(6);
+  });
+});
+
+describe('production reps metric (Session-Rec #6)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('records and reads production reps (total + thisWeek)', () => {
+    expect(getProductionReps()).toEqual({ total: 0, thisWeek: 0 });
+    recordProductionRep();
+    recordProductionRep();
+    expect(getProductionReps()).toEqual({ total: 2, thisWeek: 2 });
+  });
+
+  it('thisWeek resets on a new week key but total persists', () => {
+    // Seed a value stored under a long-past week key.
+    localStorage.setItem(
+      'nh_production_reps',
+      JSON.stringify({ total: 5, week: '2000-W01', weekCount: 5 }),
+    );
+    const reps = getProductionReps();
+    expect(reps.total).toBe(5);
+    expect(reps.thisWeek).toBe(0); // stored week != current week → this-week rolls to 0
+  });
+
+  it('a new rep after a week rollover keeps total monotonic and restarts the week count', () => {
+    localStorage.setItem(
+      'nh_production_reps',
+      JSON.stringify({ total: 5, week: '2000-W01', weekCount: 5 }),
+    );
+    recordProductionRep();
+    const reps = getProductionReps();
+    expect(reps.total).toBe(6); // 5 + 1, never decreases
+    expect(reps.thisWeek).toBe(1); // fresh week count
+  });
+
+  it('handles corrupt storage gracefully', () => {
+    localStorage.setItem('nh_production_reps', '{bad json');
+    expect(getProductionReps()).toEqual({ total: 0, thisWeek: 0 });
+    expect(() => recordProductionRep()).not.toThrow();
   });
 });
 
