@@ -139,6 +139,7 @@ const DS: Stats = {
   pf: 0,
   gc: 0,
   sp: 0,
+  pr: 0,
   de: 0,
   rc: 0,
   authLoading: 0,

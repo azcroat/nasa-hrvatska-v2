@@ -1,9 +1,10 @@
 // src/tests/useDailySession.production.test.ts
 // Production-slot behaviour after Session-Rec #1 (AI modes routed into the pool)
 // and Session-Rec #2 (a GUARANTEED production slot every session with a keyboard
-// fallback). Pool, in array order: dialogue (A1, keyboard, converse),
-// writing (A2, keyboard, write), shadowing (A2, mic, speak),
-// production_drill (B1, mic, speak), dictation (B1, keyboard, write).
+// fallback), plus the follow-up that auto-routes open Speaking. Pool, in array
+// order: dialogue (A1, keyboard, converse), writing (A2, keyboard, write),
+// shadowing (A2, mic, speak), speaking (A2, mic, speak), production_drill
+// (B1, mic, speak), dictation (B1, keyboard, write).
 // rnd() is mocked to 0, so the selector deterministically returns the FIRST
 // surviving candidate after the CEFR / mic / exclude / recency / kind filters.
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -22,7 +23,16 @@ import { CEFR_ORDER, cefrRank } from '../lib/cefr';
 
 vi.mock('../lib/random.js', () => ({ rnd: () => 0 }));
 
-const PRODUCTION_SCREENS = ['dialogue', 'writing', 'shadowing', 'production_drill', 'dictation'];
+const PRODUCTION_SCREENS = [
+  'dialogue',
+  'writing',
+  'shadowing',
+  'speaking',
+  'production_drill',
+  'dictation',
+];
+// The mic-required members — a mic-blocked user must never be handed one of these.
+const MIC_REQUIRED = ['shadowing', 'speaking', 'production_drill'];
 
 describe('readMicState', () => {
   beforeEach(() => {
@@ -74,7 +84,7 @@ describe('selectProductionExercise — CEFR gating', () => {
     expect(result?.screen).toBe('dialogue');
   });
 
-  it('B1 user → all five unlocked, first eligible is dialogue', () => {
+  it('B1 user → all six unlocked, first eligible is dialogue', () => {
     const result = selectProductionExercise({
       cefr: 'B1',
       micState: 'available',
@@ -108,9 +118,9 @@ describe('selectProductionExercise — GUARANTEE (Session-Rec #2)', () => {
     for (const cefr of CEFR_ORDER) {
       const denied = selectProductionExercise({ cefr, micState: 'denied', recentScreens: [] });
       expect(denied, `mic-denied ${cefr} must still get production`).not.toBeNull();
-      // shadowing + production_drill are the only mic-required members; a
+      // shadowing / speaking / production_drill are the mic-required members; a
       // mic-blocked slot must never be one of them.
-      expect(['shadowing', 'production_drill']).not.toContain(denied!.screen);
+      expect(MIC_REQUIRED).not.toContain(denied!.screen);
     }
   });
 });
@@ -285,7 +295,7 @@ describe('buildSessionActivities — P2.5 production slot', () => {
     );
     expect(matches.length).toBeGreaterThanOrEqual(1);
     for (const m of matches) {
-      expect(['shadowing', 'production_drill']).not.toContain(m.screen);
+      expect(MIC_REQUIRED).not.toContain(m.screen);
     }
   });
 });
@@ -337,12 +347,12 @@ describe('buildSessionActivities — conversation anchor (Session-Rec #4)', () =
 });
 
 describe('PRODUCTION_SCREEN_IDS — markDone integration surface', () => {
-  it('includes all five production screens', () => {
-    expect(PRODUCTION_SCREEN_IDS.has('dialogue')).toBe(true);
-    expect(PRODUCTION_SCREEN_IDS.has('writing')).toBe(true);
-    expect(PRODUCTION_SCREEN_IDS.has('shadowing')).toBe(true);
-    expect(PRODUCTION_SCREEN_IDS.has('production_drill')).toBe(true);
-    expect(PRODUCTION_SCREEN_IDS.has('dictation')).toBe(true);
+  it('includes all six production screens', () => {
+    for (const screen of PRODUCTION_SCREENS) {
+      expect(PRODUCTION_SCREEN_IDS.has(screen), `${screen} should be a production screen`).toBe(
+        true,
+      );
+    }
   });
 
   it('excludes a non-production screen', () => {

@@ -78,8 +78,12 @@ export default function InsightsTab() {
 
   const streak = getStreak();
   // Session-Rec #6: production reps are the real fluency signal — speaking,
-  // writing and conversation completed, not raw XP or slot-count.
+  // writing and conversation completed, not raw XP or slot-count. Lifetime total
+  // comes from the synced `stats.pr` (cross-device, Math.max-merged); the
+  // this-week figure is the device-local weekly bucket. Math.max guards the
+  // total against a device whose synced stat hasn't hydrated yet.
   const reps = getProductionReps();
+  const totalReps = Math.max(st.pr || 0, reps.total);
 
   return (
     <React.Fragment>
@@ -129,7 +133,7 @@ export default function InsightsTab() {
             {reps.thisWeek}
           </div>
           <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
-            this week · {reps.total} total
+            this week · {totalReps} total
           </div>
         </div>
       </div>

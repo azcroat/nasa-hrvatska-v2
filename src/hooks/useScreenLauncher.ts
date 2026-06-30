@@ -763,6 +763,31 @@ export function useScreenLauncher({
         sessionStorage.setItem('nh_ex_start', Date.now().toString());
         trackStart('listening');
         setScr('listening');
+      } else if (screen === 'speaking') {
+        // SpeakingScreen depends on parent-held state (speakItems/Word/Index/…);
+        // the generic branch below sets only curEx + setScr, so a cold session
+        // launch would hit the screen's `if (!sw || !sw[0]) return null` guard and
+        // render BLANK. Initialise the spoken-vocab pool here (mirroring the
+        // Practice-tab launchSpeaking path) BEFORE navigating, and bail without
+        // navigating if no vocab is available — never route to an empty screen
+        // (the dead-lesson class the session-routes guard protects against).
+        // Unlike launchSpeaking we keep the home return-context set at the top.
+        const _d = (await _getData()) as { V?: Record<string, string[][]> };
+        const V: Record<string, string[][]> = _d.V ?? {};
+        const pool = allCats
+          .flatMap((t) => (V[t] ?? []) as string[][])
+          .filter((w) => w?.[0] && w?.[1]);
+        if (pool.length === 0) return;
+        const items = _sh(pool).slice(0, 6);
+        sSi(items);
+        sSx(0);
+        sSw(items[0]);
+        sSr(null);
+        sSsc(0);
+        sCurEx('speaking');
+        sessionStorage.setItem('nh_ex_start', Date.now().toString());
+        trackStart('speaking');
+        setScr('speaking');
       } else {
         // Conjugation drill carries its target category in curEx so the screen
         // can pick the right form-type; screen id stays 'conjpractice' for routing.
@@ -782,7 +807,20 @@ export function useScreenLauncher({
         setScr(screen);
       }
     },
-    [setScr, sCurEx, setFcInitPool, setMcInitQ, setMatchInitPool, setLsInitQ, allCats],
+    [
+      setScr,
+      sCurEx,
+      setFcInitPool,
+      setMcInitQ,
+      setMatchInitPool,
+      setLsInitQ,
+      allCats,
+      sSi,
+      sSx,
+      sSw,
+      sSr,
+      sSsc,
+    ],
   );
 
   const goBack = useCallback((): void => {

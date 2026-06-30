@@ -375,7 +375,7 @@ export async function fbSaveProgress(
 // flush as ONE write. Writes still use Firestore increment()/arrayUnion(),
 // so cross-device atomicity is preserved (no client-side race possible —
 // the merged write sums client-local accumulator before the increment).
-const _DELTA_NUMERIC = ['xp', 'lc', 'gc', 'sp', 'de', 'rc', 'pf', 'mv', 'hi'];
+const _DELTA_NUMERIC = ['xp', 'lc', 'gc', 'sp', 'pr', 'de', 'rc', 'pf', 'mv', 'hi'];
 const _DELTA_ARRAYS = ['ct', 'vs', 'badges'];
 // 2026-05-22: reduced from 4 s → 1.2 s as defense against pending-delta loss
 // on hard tab close. fbSaveProgress flushes pending deltas via

@@ -697,3 +697,40 @@ describe('award — activityType / online validation', () => {
     expect(offlineAwardQueue.enqueue).not.toHaveBeenCalled();
   });
 });
+
+// ── Production-rep counting (Session-Rec #6, synced) ─────────────────────────
+describe('useAward — production-rep counting', () => {
+  it('counts a rep (synced pr delta + local stat + device-local bucket) on a production-screen completion', async () => {
+    const writeDelta = vi.fn();
+    let state: Record<string, unknown> = { ...DS, pr: 0 };
+    const setStats = vi.fn((fn: (s: typeof state) => typeof state) => {
+      state = fn(state);
+    });
+    const { result } = renderHook(() =>
+      useAward({ curEx: 'writing', stats: { ...DS }, setStats, writeDelta }),
+    );
+    await act(async () => {
+      await result.current.award(5, false, 'writing');
+    });
+    // Synced atomic delta for cross-device Math.max merge.
+    expect(writeDelta).toHaveBeenCalledWith({ pr: 1 });
+    // Local stat incremented (survives the subsequent XP setStats which spreads prev).
+    expect(state.pr).toBe(1);
+    // Device-local weekly bucket (weekKey mocked to 2026-W16).
+    const reps = JSON.parse(localStorage.getItem('nh_production_reps') || '{}');
+    expect(reps.total).toBe(1);
+    expect(reps.weekCount).toBe(1);
+  });
+
+  it('does NOT count a rep for a non-production screen', async () => {
+    const writeDelta = vi.fn();
+    const { result } = renderHook(() =>
+      useAward({ curEx: 'cloze', stats: { ...DS }, setStats: vi.fn(), writeDelta }),
+    );
+    await act(async () => {
+      await result.current.award(5, false, 'grammar');
+    });
+    expect(writeDelta).not.toHaveBeenCalledWith({ pr: 1 });
+    expect(localStorage.getItem('nh_production_reps')).toBeNull();
+  });
+});
