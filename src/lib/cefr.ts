@@ -3,6 +3,24 @@
  *
  * CEFR utility functions for the Naša Hrvatska learning app.
  * Provides: CEFR level computation, ranking, and exercise unlock logic.
+ *
+ * ── WHICH LEVEL TO USE WHERE (convention — read before wiring a new surface) ──
+ * `getUserCefr(xp, lc, gc)` is the raw, XP/activity-derived ELIGIBLE level. It can
+ * be inflated by dwell time, so almost nothing should consume it directly — it is
+ * the INPUT to the two certified-aware helpers in cefrCertification.ts:
+ *
+ *   • PROFICIENCY CLAIMS → `getEffectiveLevelForUnlock(eligible)`. The certified,
+ *     assessment-verified, synced, grandfathered level. Use for anything the user
+ *     reads as truth about their ability: the CEFR badge, "you have reached X",
+ *     certificates.
+ *
+ *   • CONTENT UNLOCK → `getContentUnlockLevel(eligible)`. Also the certified level,
+ *     but RACE-SAFE: until the one-time grandfather migration has run it falls back
+ *     to eligible so first-load content is never wrongly locked. Use for what the
+ *     user can practice: daily-session selection, Grad recommendations, isUnlocked.
+ *
+ * Rule of thumb: pass the raw eligible level into the appropriate helper; don't
+ * consume `getUserCefr` directly for a user-facing claim or a content gate.
  */
 
 export const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;

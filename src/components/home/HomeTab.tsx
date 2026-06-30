@@ -76,6 +76,7 @@ import {
   consumeSessionCategoryOutcome,
 } from '../../lib/sessionCategory';
 import { getUserCefr } from '../../lib/cefr';
+import { getContentUnlockLevel } from '../../lib/cefrCertification';
 import SessionCard from './SessionCard';
 import RazgovorHomeCard from './RazgovorHomeCard';
 import WeakWordsPanel from './WeakWordsPanel';
@@ -347,7 +348,10 @@ export default function HomeTab({
     LEVEL_PALETTE[(pathData.activeLv.level - 1) % LEVEL_PALETTE.length]!;
 
   // ── Daily Session Hub ──────────────────────────────────────────────────────
-  const userCefr = getUserCefr(st.xp, st.lc, st.gc);
+  // Full activation (Rec #4): the daily session unlocks content at the CERTIFIED
+  // level (race-safe via getContentUnlockLevel), so reaching a new tier's content
+  // requires passing its assessment. Grandfathered, so no current content is lost.
+  const userCefr = getContentUnlockLevel(getUserCefr(st.xp, st.lc, st.gc));
   // Build the set of words currently in the active vocabulary pool — used to
   // count SRS reviews that /review can actually serve (orphan cards whose word
   // was later removed from a category get dropped, matching ReviewScreen's

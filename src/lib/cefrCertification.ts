@@ -604,6 +604,32 @@ export function getEffectiveLevelForUnlock(eligible: CefrLevel): CefrLevel {
 const MIGRATION_FLAG_KEY = 'nh_cefr_migration_v1_done';
 
 /**
+ * Content-unlock level (Rec #4 — full activation). Like getEffectiveLevelForUnlock,
+ * but RACE-SAFE for the first load. The grandfather migration runs asynchronously
+ * (a dynamic import inside a startup effect), so until it has set MIGRATION_FLAG_KEY
+ * the certified level still defaults to A1 — gating content on that would briefly
+ * lock a returning user's content on first paint (and would break E2E, where the
+ * fixture seeds eligible XP, not certification). So until the grandfather has run
+ * we fall back to the generous `eligible` level; afterwards (and on every
+ * subsequent load) we return the certified level, so unlocking a new tier's
+ * content requires passing that tier's assessment.
+ *
+ * Net effect: content is never locked below what the user could already reach;
+ * only NEW tiers beyond the grandfathered/certified level require an assessment.
+ */
+export function getContentUnlockLevel(eligible: CefrLevel): CefrLevel {
+  if (!CERTIFICATION_REQUIRED) return eligible;
+  try {
+    if (typeof localStorage === 'undefined' || !localStorage.getItem(MIGRATION_FLAG_KEY)) {
+      return eligible; // pre-grandfather: be generous, never lock content on first load
+    }
+  } catch {
+    return eligible;
+  }
+  return getCertifiedLevel();
+}
+
+/**
  * On the user's first launch after hard CEFR gating ships, grandfather
  * their current activity-derived level into certification. This means:
  *

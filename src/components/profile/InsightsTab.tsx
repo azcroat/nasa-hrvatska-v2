@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { getStreak } from '../../data';
 import { getWeakTopics } from '../../lib/adaptive.js';
 import { getUserCefr, cefrRank } from '../../lib/cefr';
+import { getEffectiveLevelForUnlock } from '../../lib/cefrCertification';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import ProgressCharts from './ProgressCharts';
@@ -64,8 +65,11 @@ export default function InsightsTab() {
   const { setScr } = useApp();
   const { stats: st } = useStats();
   // CEFR level is the single source of truth for any proficiency claim — never
-  // the numeric gamification `level`. The B1+ roadmap gates on the real CEFR.
-  const cefr = getUserCefr(st.xp || 0, st.lc || 0, st.gc || 0);
+  // the numeric gamification `level`. Rec #4: a proficiency claim ("You have
+  // reached X") must reflect the CERTIFIED, assessment-verified level, not raw
+  // XP — so route through getEffectiveLevelForUnlock (certified when gating is
+  // active; falls back to eligible if the flag is off). The B1+ roadmap gates on it.
+  const cefr = getEffectiveLevelForUnlock(getUserCefr(st.xp || 0, st.lc || 0, st.gc || 0));
   const [imdOpen, setImdOpen] = useState(false);
   const [letterText, setLetterText] = useState(
     () => localStorage.getItem('nh_letter_to_self') || '',

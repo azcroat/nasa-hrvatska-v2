@@ -6,26 +6,39 @@ import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import XPActivityCalendar from './XPActivityCalendar';
 import SkillRadar from './SkillRadar';
+import { getUserCefr, cefrRank } from '../../lib/cefr';
+import { getEffectiveLevelForUnlock } from '../../lib/cefrCertification';
 
+const CEFR_META: Record<
+  string,
+  { label: string; color: string; next: string | null; needed: number | null }
+> = {
+  A1: { label: 'Beginner', color: 'var(--success)', next: 'A2', needed: 300 },
+  A2: { label: 'Elementary', color: 'var(--success)', next: 'B1', needed: 1200 },
+  B1: { label: 'Intermediate', color: 'var(--warning)', next: 'B2', needed: 3500 },
+  B2: { label: 'Upper-Int.', color: 'var(--warning)', next: 'C1', needed: 8000 },
+  C1: { label: 'Advanced', color: 'var(--info)', next: 'C2', needed: 18000 },
+  C2: { label: 'Mastery', color: 'var(--lavender)', next: null, needed: null },
+};
+
+// Rec #4 (display-only) — the badge shows the CERTIFIED (assessment-verified)
+// level, not the raw XP-eligible level, so it reflects demonstrated ability
+// rather than dwell time. Existing users are grandfathered at startup
+// (migrateGrandfatheredCertification), so certified == eligible for them and no
+// badge drops; only FUTURE advancement requires passing the level's assessment.
+// Content unlock intentionally still uses the eligible XP level elsewhere.
 function getCEFR(xp: number, lc: number, gc: number) {
-  const total = xp + lc * 15 + gc * 25;
-  if (total < 300)
-    return { level: 'A1', label: 'Beginner', color: 'var(--success)', next: 'A2', needed: 300 };
-  if (total < 1200)
-    return { level: 'A2', label: 'Elementary', color: 'var(--success)', next: 'B1', needed: 1200 };
-  if (total < 3500)
-    return {
-      level: 'B1',
-      label: 'Intermediate',
-      color: 'var(--warning)',
-      next: 'B2',
-      needed: 3500,
-    };
-  if (total < 8000)
-    return { level: 'B2', label: 'Upper-Int.', color: 'var(--warning)', next: 'C1', needed: 8000 };
-  if (total < 18000)
-    return { level: 'C1', label: 'Advanced', color: 'var(--info)', next: 'C2', needed: 18000 };
-  return { level: 'C2', label: 'Mastery', color: 'var(--lavender)', next: null, needed: null };
+  const eligible = getUserCefr(xp, lc, gc);
+  const level = getEffectiveLevelForUnlock(eligible); // certified when gating is active
+  const meta = CEFR_META[level] ?? CEFR_META.A1!;
+  return {
+    level,
+    ...meta,
+    eligibleLevel: eligible,
+    // True when practice (XP) has reached a higher band than the user has
+    // certified — the UI prompts the assessment instead of implying XP advances.
+    awaitingAssessment: cefrRank(eligible) > cefrRank(level),
+  };
 }
 
 function getWordsLearned() {
@@ -435,7 +448,7 @@ export default function StatsTab({ onSyncNow }: { onSyncNow?: () => void }) {
                   <div
                     style={{ fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--heading)' }}
                   >
-                    CEFR Level: {cefr.level}
+                    Verified Level: {cefr.level}
                   </div>
                   <div
                     style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)', fontWeight: 600 }}
@@ -454,6 +467,30 @@ export default function StatsTab({ onSyncNow }: { onSyncNow?: () => void }) {
                   </div>
                 </div>
               </div>
+              {cefr.awaitingAssessment && (
+                <button
+                  onClick={() => setScr('equivalency')}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    fontSize: 'var(--text-xs)',
+                    fontFamily: "'Outfit',sans-serif",
+                    color: 'var(--info,#0284c7)',
+                    fontWeight: 700,
+                    background: 'rgba(2,132,199,.08)',
+                    border: '1px solid rgba(2,132,199,.2)',
+                    borderRadius: 10,
+                    padding: '10px 12px',
+                    marginBottom: 12,
+                    lineHeight: 1.5,
+                    cursor: 'pointer',
+                  }}
+                >
+                  📋 Your practice has reached {cefr.eligibleLevel}-level. Take the {cefr.level}→
+                  {cefr.next} assessment to certify it and advance your level →
+                </button>
+              )}
               {cefr.needed && (
                 <div>
                   <div
