@@ -3,11 +3,9 @@ import { getStreak } from '../../data';
 import { getWeakTopics } from '../../lib/adaptive.js';
 import { getUserCefr, cefrRank } from '../../lib/cefr';
 import { getEffectiveLevelForUnlock } from '../../lib/cefrCertification';
-import { getProductionReps } from '../../hooks/useDailySession';
-import { getListeningReps } from '../../lib/listeningMetric';
-import { getReadingReps } from '../../lib/readingMetric';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
+import FluencySnapshot from './FluencySnapshot';
 import ProgressCharts from './ProgressCharts';
 import JourneyTimeline from './JourneyTimeline';
 import LearningInsights from './LearningInsights';
@@ -79,22 +77,15 @@ export default function InsightsTab() {
   );
 
   const streak = getStreak();
-  // Session-Rec #6: production reps are the real fluency signal — speaking,
-  // writing and conversation completed, not raw XP or slot-count. Lifetime total
-  // comes from the synced `stats.pr` (cross-device, Math.max-merged); the
-  // this-week figure is the device-local weekly bucket. Math.max guards the
-  // total against a device whose synced stat hasn't hydrated yet.
-  const reps = getProductionReps();
-  const totalReps = Math.max(st.pr || 0, reps.total);
-  // Content-Rec #1: listening reps are the input-volume signal — comprehension
-  // is built by hours of listening, not XP. Device-local (weekly + lifetime).
-  const listenReps = getListeningReps();
-  // Content-Rec #2: reading reps are the extensive-reading volume signal —
-  // reading fluency is built by passages read, not XP. Device-local.
-  const readReps = getReadingReps();
 
   return (
     <React.Fragment>
+      {/* ── FLUENCY SNAPSHOT (Content-Rec #10) — the fluency-building skills
+          at a glance, nudging the lightest. Consolidates the production (Rec #6),
+          listening (Rec #1) and reading (Rec #2) rep signals into one panel.
+          stats.pr is the synced production total (Math.max with device-local). ── */}
+      <FluencySnapshot cefr={cefr} setScr={setScr} syncedProductionTotal={st.pr || 0} />
+
       {/* ── CROATIAN ERROR ANALYSIS (competitive moat — no other app does this) ── */}
       <h3 className="sh">Croatian Error Analysis</h3>
       <CroatianErrorInsights />
@@ -110,111 +101,6 @@ export default function InsightsTab() {
         My Progress
       </h3>
       <ProgressCharts stats={st} />
-
-      {/* ── PRODUCTION PRACTICE (Rec #6) — fluency is built by output, not XP ── */}
-      <div
-        style={{
-          background: 'var(--card)',
-          borderRadius: 16,
-          padding: '16px',
-          marginTop: 12,
-          marginBottom: 16,
-          border: '1px solid var(--card-b)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-        }}
-      >
-        <div style={{ fontSize: 30, lineHeight: 1 }} aria-hidden="true">
-          🗣️
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
-            Production Practice
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, lineHeight: 1.4 }}>
-            Speaking, writing &amp; conversation completed — the reps that actually build fluency.
-          </div>
-        </div>
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--info,#0284c7)' }}>
-            {reps.thisWeek}
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
-            this week · {totalReps} total
-          </div>
-        </div>
-      </div>
-
-      {/* ── LISTENING PRACTICE (Content-Rec #1) — comprehension is built by input ── */}
-      <div
-        style={{
-          background: 'var(--card)',
-          borderRadius: 16,
-          padding: '16px',
-          marginTop: 0,
-          marginBottom: 16,
-          border: '1px solid var(--card-b)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-        }}
-      >
-        <div style={{ fontSize: 30, lineHeight: 1 }} aria-hidden="true">
-          🎧
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
-            Listening Practice
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, lineHeight: 1.4 }}>
-            Listening exercises completed — the input hours that build comprehension.
-          </div>
-        </div>
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--info,#0284c7)' }}>
-            {listenReps.thisWeek}
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
-            this week · {listenReps.total} total
-          </div>
-        </div>
-      </div>
-
-      {/* ── READING PRACTICE (Content-Rec #2) — fluency is built by input volume ── */}
-      <div
-        style={{
-          background: 'var(--card)',
-          borderRadius: 16,
-          padding: '16px',
-          marginTop: 0,
-          marginBottom: 16,
-          border: '1px solid var(--card-b)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-        }}
-      >
-        <div style={{ fontSize: 30, lineHeight: 1 }} aria-hidden="true">
-          📖
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
-            Reading Practice
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, lineHeight: 1.4 }}>
-            Graded passages &amp; stories read — the extensive reading that builds fluency.
-          </div>
-        </div>
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--info,#0284c7)' }}>
-            {readReps.thisWeek}
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
-            this week · {readReps.total} total
-          </div>
-        </div>
-      </div>
 
       {/* ── MY CROATIAN JOURNEY ── */}
       <h3 className="sh" style={{ marginTop: 24 }}>
