@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { H, Bar, speak } from '../../data';
 import { useStats } from '../../context/StatsContext';
+import { useApp } from '../../context/AppContext';
 import { rnd } from '../../lib/random.js';
 import { markQuest } from '../../lib/quests.js';
 
@@ -42,6 +43,7 @@ export default function DialogueSim({
   award?: (xp: number, celebrate?: boolean, activityType?: string) => void;
 }) {
   const { level: userLevel } = useStats();
+  const { setScr, sCurEx } = useApp();
   const finishFired = useRef(false);
   const [scenario, setScenario] = useState<any>(null);
   const [turnIdx, setTurnIdx] = useState(0);
@@ -200,7 +202,18 @@ export default function DialogueSim({
 
   // --- MENU SCREEN ---
   if (!scenario) {
-    return <DialogueScenarioMenu scenarios={SCENARIOS} onSelect={startScenario} />;
+    return (
+      <DialogueScenarioMenu
+        scenarios={SCENARIOS}
+        onSelect={startScenario}
+        userLevel={String(userLevel || 'A1')}
+        onAdvanced={() => {
+          // Route to the advanced (B2–C2) AIConversation scenarios (Content-Rec #4).
+          sCurEx?.('aiconvo');
+          setScr('aiconvo');
+        }}
+      />
+    );
   }
 
   const totalTurns = scenario.turns.length;
