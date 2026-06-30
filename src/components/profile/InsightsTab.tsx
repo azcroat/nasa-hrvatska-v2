@@ -3,6 +3,7 @@ import { getStreak } from '../../data';
 import { getWeakTopics } from '../../lib/adaptive.js';
 import { getUserCefr, cefrRank } from '../../lib/cefr';
 import { getEffectiveLevelForUnlock } from '../../lib/cefrCertification';
+import { getProductionReps } from '../../hooks/useDailySession';
 import { useApp } from '../../context/AppContext';
 import { useStats } from '../../context/StatsContext';
 import ProgressCharts from './ProgressCharts';
@@ -76,6 +77,9 @@ export default function InsightsTab() {
   );
 
   const streak = getStreak();
+  // Session-Rec #6: production reps are the real fluency signal — speaking,
+  // writing and conversation completed, not raw XP or slot-count.
+  const reps = getProductionReps();
 
   return (
     <React.Fragment>
@@ -94,6 +98,41 @@ export default function InsightsTab() {
         My Progress
       </h3>
       <ProgressCharts stats={st} />
+
+      {/* ── PRODUCTION PRACTICE (Rec #6) — fluency is built by output, not XP ── */}
+      <div
+        style={{
+          background: 'var(--card)',
+          borderRadius: 16,
+          padding: '16px',
+          marginTop: 12,
+          marginBottom: 16,
+          border: '1px solid var(--card-b)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+        }}
+      >
+        <div style={{ fontSize: 30, lineHeight: 1 }} aria-hidden="true">
+          🗣️
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--heading)' }}>
+            Production Practice
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--subtext)', marginTop: 2, lineHeight: 1.4 }}>
+            Speaking, writing &amp; conversation completed — the reps that actually build fluency.
+          </div>
+        </div>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--info,#0284c7)' }}>
+            {reps.thisWeek}
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--subtext)', fontWeight: 700 }}>
+            this week · {reps.total} total
+          </div>
+        </div>
+      </div>
 
       {/* ── MY CROATIAN JOURNEY ── */}
       <h3 className="sh" style={{ marginTop: 24 }}>

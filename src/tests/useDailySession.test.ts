@@ -277,6 +277,21 @@ describe('useDailySession — rotation memory + completion (hook)', () => {
     expect(result.current.bonusActivities.length).toBeGreaterThan(0);
   });
 
+  it('completing a production activity increments the production-reps metric (Rec #6)', () => {
+    const { result } = renderHook(() => useDailySession('B1'));
+    const productionScreens = ['dialogue', 'writing', 'shadowing', 'production_drill', 'dictation'];
+    const prod = result.current.session.activities.find((a) =>
+      productionScreens.includes(a.screen),
+    );
+    expect(prod, 'a B1 session must contain a production activity').toBeTruthy();
+    act(() => {
+      result.current.markDone(prod!.screen);
+    });
+    const reps = JSON.parse(localStorage.getItem('nh_production_reps') || '{}');
+    expect(reps.total).toBe(1);
+    expect(reps.weekCount).toBe(1);
+  });
+
   it('startFreshSession builds a new non-empty set on demand (the explicit "keep going" path)', () => {
     const { result } = renderHook(() => useDailySession('A2'));
     const firstIds = result.current.session.activities.map((a) => a.id);

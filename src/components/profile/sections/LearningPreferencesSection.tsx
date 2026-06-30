@@ -38,6 +38,9 @@ export default function LearningPreferencesSection() {
   const [microQuizEnabled, setMicroQuizEnabled] = useState(
     () => localStorage.getItem('nh_microquiz_enabled') !== 'false',
   );
+  const [fluencyMode, setFluencyMode] = useState(
+    () => localStorage.getItem('nh_fluency_mode') === 'true',
+  );
 
   async function handleAudioTest() {
     setAudioTestStatus('testing');
@@ -351,6 +354,62 @@ export default function LearningPreferencesSection() {
               position: 'absolute',
               top: 3,
               left: microQuizEnabled ? 21 : 3,
+              width: 20,
+              height: 20,
+              borderRadius: '50%',
+              background: 'white',
+              transition: 'left .2s',
+              boxShadow: '0 1px 4px rgba(0,0,0,.2)',
+            }}
+          />
+        </button>
+      </div>
+
+      {/* Fluency Mode toggle — longer, production-heavier daily sessions */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '14px 0',
+          borderBottom: '1px solid var(--card-b)',
+        }}
+      >
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>🗣️ Fluency Mode</div>
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--subtext)', marginTop: 2 }}>
+            Longer daily sessions with more speaking, writing & conversation. For when you want to
+            push toward fluency.
+          </div>
+        </div>
+        <button
+          role="switch"
+          aria-checked={fluencyMode ? 'true' : 'false'}
+          aria-label="Fluency Mode"
+          onClick={() => {
+            const v = !fluencyMode;
+            setFluencyMode(v);
+            try {
+              localStorage.setItem('nh_fluency_mode', v ? 'true' : 'false');
+            } catch (_) {}
+          }}
+          style={{
+            width: 44,
+            height: 26,
+            borderRadius: 13,
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background .2s',
+            background: fluencyMode ? 'var(--success)' : 'var(--bar-bg)',
+            position: 'relative',
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              position: 'absolute',
+              top: 3,
+              left: fluencyMode ? 21 : 3,
               width: 20,
               height: 20,
               borderRadius: '50%',

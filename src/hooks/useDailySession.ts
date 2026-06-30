@@ -7,6 +7,12 @@ import { CONJ_LAB_ENABLED } from '../lib/conjugation/conjugationConfig';
 import { isUnlocked, cefrRank } from '../lib/cefr';
 import { localDateStr } from '../lib/dateUtils';
 import { rnd } from '../lib/random.js';
+import { recordProductionRep } from '../lib/productionMetric';
+
+// Re-exported so existing consumers/tests can keep importing the production-rep
+// metric from this module (Session-Rec #6 lives in ../lib/productionMetric).
+export { recordProductionRep, getProductionReps } from '../lib/productionMetric';
+export type { ProductionReps } from '../lib/productionMetric';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -57,6 +63,37 @@ const SESSION_KEY = 'nh_daily_session';
 const HISTORY_KEY = 'nh_session_history';
 const RECENT_KEY = 'nh_recent_exercises';
 const MINUTES_PER_ACTIVITY = 5;
+const FLUENCY_MODE_KEY = 'nh_fluency_mode';
+
+/**
+ * Opt-in "fluency mode" (Session-Rec #3) — longer, production-heavier daily
+ * sessions for learners who want to push harder. Read from localStorage so
+ * buildSessionActivities (a pure-ish builder that already reads mic/recency/
+ * city state) can consult it without threading a prop through the hook + HomeTab.
+ */
+export function readFluencyMode(): boolean {
+  try {
+    return localStorage.getItem(FLUENCY_MODE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Non-Croatia activity target for a session (Session-Rec #3). Scales with level
+ * so beginners get a lighter session and stronger learners a fuller one, and the
+ * opt-in fluency mode lengthens it further. This caps mandatory + fill slots; the
+ * always-on Croatia slot is added on top, so total activities = this + 1.
+ *   A1  → 3 (lighter — recognition + one production slot)
+ *   A2+ → 4 (standard)
+ *   fluency mode → +2 at every level (more fill on top of the production/
+ *   conversation slots the B1+ shape already guarantees)
+ * Default (mode off) keeps the long-standing 4–6 total-activity envelope.
+ */
+export function getSessionFillTarget(userCefr: string, fluencyMode: boolean): number {
+  const base = cefrRank(userCefr) >= cefrRank('A2') ? 4 : 3;
+  return fluencyMode ? base + 2 : base;
+}
 
 /** Maps adaptive SkillCategory → exercise screen id */
 const CATEGORY_SCREEN_MAP: Partial<Record<SkillCategory, string>> = {
@@ -466,15 +503,42 @@ export function buildSessionActivities(
   );
   if (adaptiveActivity) activities.push(adaptiveActivity);
 
-  // Build usedScreens once, here, so P2.5 and P3 both dedup against it.
+  // Build usedScreens once, here, so the production slots and P3 all dedup.
   const usedScreens = new Set(activities.map((a) => a.screen));
 
-  // Priority 2.5: Production — guarantee one speaking/writing slot per session
-  // SP4b. Uses pure helper that filters by CEFR + mic state + recent exclusion.
+  // Priority 2.4: Conversation anchor at B1+ (Session-Rec #4). Spontaneous
+  // interactive output is the fluency lever recognition can't replace, so every
+  // B1+ session guarantees one conversation turn (guided Dialogue by default —
+  // zero AI cost — with the unbounded AI mode one tap away). Added BEFORE the
+  // general production slot, and recency is intentionally ignored here (we WANT
+  // conversation daily; DialogueSim rotates its own scenarios), so it never
+  // degrades into a non-conversation. A1/A2 skip this — they get a single
+  // combined output slot via P2.5 — keeping early sessions light (Rec #3 will
+  // formalise the per-level shape).
+  if (cefrRank(userCefr) >= cefrRank('B1')) {
+    const conversation = selectProductionExercise({
+      cefr: userCefr,
+      micState: readMicState(),
+      recentScreens: [],
+      excludeScreens: [...usedScreens],
+      kindBias: 'converse',
+    });
+    if (conversation && !usedScreens.has(conversation.screen)) {
+      activities.push(conversation);
+      usedScreens.add(conversation.screen);
+    }
+  }
+
+  // Priority 2.5: Production — a guaranteed active-output slot every session
+  // (Session-Rec #2). The expanded pool (Rec #1) includes keyboard modes down to
+  // A1 (`dialogue`) / A2 (`writing`), so the helper returns a slot for every A1+
+  // user in every mic state — production is no longer a sometimes-thing. Excludes
+  // screens already queued so it never double-books an earlier slot.
   const productionActivity = selectProductionExercise({
     cefr: userCefr,
     micState: readMicState(),
     recentScreens: getRecentProduction(),
+    excludeScreens: [...usedScreens],
   });
   if (productionActivity && !usedScreens.has(productionActivity.screen)) {
     activities.push(productionActivity);
@@ -532,7 +596,8 @@ export function buildSessionActivities(
     }))
     .sort((a, b) => a.dist - b.dist || a.r - b.r)
     .map((o) => o.ex);
-  const fillTarget = 4; // target 4 activities from P1+P2+P3 before Croatia slot
+  // Session-Rec #3: target scales with level + opt-in fluency mode (was a hard 4).
+  const fillTarget = getSessionFillTarget(userCefr, readFluencyMode());
   for (const ex of ordered) {
     if (activities.length >= fillTarget) break;
     if (!usedScreens.has(ex.screen)) {
@@ -685,6 +750,8 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
       // SP4b: track production exercises for recent-exclusion rotation
       if (PRODUCTION_SCREEN_IDS.has(match.screen)) {
         recordProductionExercise(match.screen);
+        // Session-Rec #6: count the completed production rep (the fluency signal).
+        recordProductionRep();
       }
       // Check for session completion
       if (updated.completedIds.length === updated.activities.length) {
@@ -735,7 +802,7 @@ export function useDailySession(userCefr: string, poolWords?: Set<string>): UseD
   const progress =
     session.activities.length === 0 ? 0 : session.completedIds.length / session.activities.length;
   const nextActivity = session.activities.find((a) => !session.completedIds.includes(a.id)) ?? null;
-  const tomorrowLabel = '4–6 activities tomorrow';
+  const tomorrowLabel = readFluencyMode() ? '6–8 activities tomorrow' : '4–6 activities tomorrow';
 
   // Build a brand-new session ON DEMAND — the user taps "Start a fresh session"
   // from the complete state. This used to run automatically in a useEffect the
@@ -877,9 +944,26 @@ export function getRecentProduction(): string[] {
   }
 }
 
-// ── Production pool (SP4b) ───────────────────────────────────────────────────
-// Five-member pool of exercises that require active learner output.
-// micRequired === false members are eligible as fallback for mic-blocked users.
+// ── Production pool (SP4b; expanded — Session-Rec #1/#2) ──────────────────────
+// Exercises that require ACTIVE learner output, the fluency driver the daily
+// loop was missing. `micRequired === false` members are eligible as the
+// keyboard fallback for mic-blocked users — and, post Session-Rec #2, they
+// guarantee the slot is never empty at any level (see selectProductionExercise).
+//
+// `kind` classifies the output mode so Session-Rec #4 can anchor an interactive
+// CONVERSATION at B1+:
+//   • 'speak'    — spoken output, scored acoustically (mic).
+//   • 'write'    — typed free/guided output (keyboard).
+//   • 'converse' — interactive turn-taking dialogue (keyboard).
+//
+// Session-Rec #1 routes the two unbounded AI modes into the loop (reversing the
+// earlier "AI-consolidation" that confined them to the AI Tutor tab): `writing`
+// (→ /api/correct, AI-graded free production) and `dialogue` (guided scenarios
+// by default with an unbounded AI-conversation mode one tap away → /api/dialogue).
+// Both are keyboard-only and BOTH endpoints are quota-gated (requireAuthedAI +
+// _aiQuota: ≤1 unit/use, 300/user/day ceiling), so the daily-loop cost is bounded
+// — the "Balanced" posture. `dialogue` at A1 + keyboard finally gives A1 and every
+// mic-blocked user a real production slot (the old pool floored at A2/mic).
 const PRODUCTION_POOL: Array<{
   id: string;
   label: string;
@@ -887,7 +971,32 @@ const PRODUCTION_POOL: Array<{
   cefr: string;
   category: SkillCategory;
   micRequired: boolean;
+  kind: 'speak' | 'write' | 'converse';
 }> = [
+  {
+    id: 'dialogue',
+    label: 'Conversation',
+    // Guided scenarios (A1+) by default — zero AI cost — with an unbounded
+    // AI-conversation mode available in-screen. Keyboard-capable (free-text or
+    // multiple-choice turns), so it is eligible for mic-blocked users and is the
+    // lowest-CEFR production option, which is what guarantees the slot at A1.
+    screen: 'dialogue',
+    cefr: 'A1',
+    category: 'speaking',
+    micRequired: false,
+    kind: 'converse',
+  },
+  {
+    id: 'writing',
+    label: 'Writing',
+    // Free typed production, AI-corrected via /api/correct (one quota unit on
+    // submit). Keyboard-only → the universal fallback for mic-blocked users.
+    screen: 'writing',
+    cefr: 'A2',
+    category: 'speaking',
+    micRequired: false,
+    kind: 'write',
+  },
   {
     id: 'shadowing',
     label: 'Shadowing',
@@ -895,6 +1004,7 @@ const PRODUCTION_POOL: Array<{
     cefr: 'A2',
     category: 'speaking',
     micRequired: true,
+    kind: 'speak',
   },
   {
     id: 'production_drill',
@@ -906,6 +1016,7 @@ const PRODUCTION_POOL: Array<{
     cefr: 'B1',
     category: 'speaking',
     micRequired: true,
+    kind: 'speak',
   },
   {
     id: 'dictation',
@@ -914,6 +1025,7 @@ const PRODUCTION_POOL: Array<{
     cefr: 'B1',
     category: 'speaking',
     micRequired: false,
+    kind: 'write',
   },
 ];
 
@@ -937,26 +1049,49 @@ export const SESSION_SCREEN_IDS: ReadonlySet<string> = new Set<string>([
   ...PRODUCTION_POOL.map((p) => p.screen),
 ]);
 
-// ── Production exercise selector (SP4b) ──────────────────────────────────────
+// ── Production exercise selector (SP4b; expanded — Session-Rec #2) ────────────
 // Pure function — returns one SessionActivity from PRODUCTION_POOL, applying
-// CEFR / mic / recent filters. Returns null when the unlocked pool is empty
-// (e.g., A1 user with all 5 exercises locked).
+// CEFR / mic / explicit-exclude / recent filters.
+//
+// GUARANTEE (Session-Rec #2): with `dialogue` (A1, keyboard) and `writing` (A2,
+// keyboard) now in the pool, at least one member is unlocked and keyboard-safe
+// for every level A1–C2 in every mic state — so this returns non-null for any
+// A1+ user. It can still return null only when `excludeScreens` removes every
+// remaining candidate (e.g. the Rec-#4 conversation anchor already took the sole
+// option); callers treat null as "nothing left to add", never as a hard failure.
+//
+// `kindBias` (Session-Rec #4): when set, candidates whose `kind` matches are
+// preferred — the conversation anchor passes 'converse' so B1+ reliably gets an
+// interactive turn without forbidding the other modes when none is available.
 export function selectProductionExercise(opts: {
   cefr: string;
   micState: MicState;
   recentScreens: string[];
+  excludeScreens?: string[];
+  kindBias?: 'speak' | 'write' | 'converse';
 }): SessionActivity | null {
-  const { cefr, micState, recentScreens } = opts;
+  const { cefr, micState, recentScreens, excludeScreens = [], kindBias } = opts;
   // Step 1 — CEFR gate
   let pool = PRODUCTION_POOL.filter((p) => isUnlocked(p.cefr, cefr));
   // Step 2 — mic-required filter (keyboard-only when denied/unsupported)
   if (micState === 'denied' || micState === 'unsupported') {
     pool = pool.filter((p) => !p.micRequired);
   }
+  // Step 2b — hard exclude screens already queued this session (no fallback: a
+  // dup would double-book the same screen). Unlike recency this is never relaxed.
+  if (excludeScreens.length > 0) {
+    pool = pool.filter((p) => !excludeScreens.includes(p.screen));
+  }
   if (pool.length === 0) return null;
   // Step 3 — recent-exclusion (fall back to pre-filter if it empties)
   let candidates = pool.filter((p) => !recentScreens.includes(p.screen));
   if (candidates.length === 0) candidates = pool;
+  // Step 3b — kind bias (Rec #4): prefer the requested output mode when present,
+  // but never strand the slot if no member of that kind survived the filters.
+  if (kindBias) {
+    const biased = candidates.filter((p) => p.kind === kindBias);
+    if (biased.length > 0) candidates = biased;
+  }
   // Step 4 — random uniform pick
   const idx = Math.min(Math.floor(rnd() * candidates.length), candidates.length - 1);
   const picked = candidates[idx]!;

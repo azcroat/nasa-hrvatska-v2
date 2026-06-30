@@ -1,9 +1,12 @@
-import { getUserCefr, cefrRank } from '../cefr';
+import { getUserCefr, cefrRank, isUnlocked } from '../cefr';
 import { getContentUnlockLevel } from '../cefrCertification';
 import { PLACE } from '../../data/exercises.js';
 
-// PLACE is the MC vocab pool ({q,o,c,d,skill}, ~85 valid entries; ~21 at
-// difficulty <=1 for A1, the rest unlock at B1+). Comfortably >= the 9 a ride needs.
+// PLACE is the MC vocab/grammar pool ({q,o,c,d,cefr?,skill}, 85 valid entries):
+// 21 at difficulty 1, 19 at 2, 45 at 3. The difficulty ceiling scales with the
+// user's level (see selectQuestions) — A1 sees d1, A2 sees d≤2, B1+ sees d≤3 —
+// so the 45 hardest questions are actually reachable (they were dead before).
+// Comfortably >= the 9 a ride needs at every level.
 
 export interface GameQuestion {
   id: string;
@@ -17,6 +20,8 @@ interface RawExercise {
   o: string[];
   c: number;
   d?: number;
+  /** Optional explicit CEFR gate (e.g. 'B2' grammar items) — finer than `d`. */
+  cefr?: string;
   skill?: string;
 }
 
@@ -61,14 +66,26 @@ interface SelectOpts {
 
 export function selectQuestions(opts: SelectOpts): GameQuestion[] {
   const userCefr = getContentUnlockLevel(getUserCefr(opts.xp, opts.lc, opts.gc));
-  const allowDifficulty2 = cefrRank(userCefr) >= cefrRank('B1');
+  // Difficulty ceiling scales with level (Session-Rec #5). The old code hard-
+  // capped at d≤2, so all 45 difficulty-3 questions (53% of PLACE) were NEVER
+  // served — not even to C1/C2. Now: A1 → d1, A2 → d≤2, B1+ → d≤3.
+  const rank = cefrRank(userCefr);
+  const maxDifficulty = rank >= cefrRank('B1') ? 3 : rank >= cefrRank('A2') ? 2 : 1;
   const pool = (PLACE as RawExercise[])
     .filter(isValid)
-    .filter((e) => (e.d ?? 1) <= (allowDifficulty2 ? 2 : 1));
+    .filter((e) => (e.d ?? 1) <= maxDifficulty)
+    // Respect an explicit CEFR tag (the B2-tagged grammar items) so raising the
+    // difficulty ceiling can't leak above-level questions to a B1 user — the tag
+    // gates finer than the coarse `d` tier.
+    .filter((e) => !e.cefr || isUnlocked(e.cefr, userCefr));
   const picked = shuffle(pool).slice(0, opts.count);
   const mapped = picked.map((raw, i) =>
     opts._debugReturnRaw
-      ? ({ ...toGameQuestion(raw, i), _d: raw.d ?? 1 } as GameQuestion & { _d: number })
+      ? ({
+          ...toGameQuestion(raw, i),
+          _d: raw.d ?? 1,
+          _cefr: raw.cefr ?? null,
+        } as GameQuestion & { _d: number; _cefr: string | null })
       : toGameQuestion(raw, i),
   );
   return mapped;
