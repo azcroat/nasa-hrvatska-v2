@@ -50,14 +50,46 @@ describe('selectQuestions', () => {
     expect(qs.every((q) => q._d === 1)).toBe(true);
   });
 
-  it('advanced user (B1+) may include difficulty-2 questions', () => {
+  it('A2 user gets difficulty ≤ 2 (never difficulty-3)', () => {
+    // xp 800 → A2 (300 ≤ 800 < 1200).
+    const qs = selectQuestions({
+      xp: 800,
+      lc: 0,
+      gc: 0,
+      count: 85,
+      _debugReturnRaw: true,
+    }) as DebugQuestion[];
+    expect(qs.some((q) => q._d === 2)).toBe(true);
+    expect(qs.every((q) => q._d <= 2)).toBe(true);
+  });
+
+  // Session-Rec #5: difficulty-3 questions (53% of PLACE) used to be dead for
+  // everyone. B1+ now reaches them.
+  it('B1 user reaches difficulty-3 questions, but NOT the B2-tagged ones', () => {
+    // xp 2000 → B1 (1200 ≤ 2000 < 3500).
+    const qs = selectQuestions({
+      xp: 2000,
+      lc: 0,
+      gc: 0,
+      count: 85,
+      _debugReturnRaw: true,
+    }) as DebugQuestion[];
+    expect(qs.some((q) => q._d === 3)).toBe(true);
+    // The 17 B2-tagged items must stay gated above B1 (the cefr tag is finer
+    // than the difficulty tier).
+    expect(qs.every((q) => q._cefr !== 'B2')).toBe(true);
+  });
+
+  it('B2 user reaches both difficulty-3 and the B2-tagged grammar questions', () => {
+    // xp 5000 → B2 (3500 ≤ 5000 < 8000).
     const qs = selectQuestions({
       xp: 5000,
       lc: 0,
       gc: 0,
-      count: 50,
+      count: 85,
       _debugReturnRaw: true,
     }) as DebugQuestion[];
-    expect(qs.some((q) => q._d === 2)).toBe(true);
+    expect(qs.some((q) => q._d === 3)).toBe(true);
+    expect(qs.some((q) => q._cefr === 'B2')).toBe(true);
   });
 });
