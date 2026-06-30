@@ -448,7 +448,7 @@ export default function StatsTab({ onSyncNow }: { onSyncNow?: () => void }) {
                   <div
                     style={{ fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--heading)' }}
                   >
-                    CEFR Level: {cefr.level}
+                    Verified Level: {cefr.level}
                   </div>
                   <div
                     style={{ fontSize: 'var(--text-sm)', color: 'var(--subtext)', fontWeight: 600 }}
@@ -468,22 +468,28 @@ export default function StatsTab({ onSyncNow }: { onSyncNow?: () => void }) {
                 </div>
               </div>
               {cefr.awaitingAssessment && (
-                <div
+                <button
+                  onClick={() => setScr('equivalency')}
                   style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
                     fontSize: 'var(--text-xs)',
+                    fontFamily: "'Outfit',sans-serif",
                     color: 'var(--info,#0284c7)',
                     fontWeight: 700,
                     background: 'rgba(2,132,199,.08)',
                     border: '1px solid rgba(2,132,199,.2)',
                     borderRadius: 10,
-                    padding: '8px 10px',
+                    padding: '10px 12px',
                     marginBottom: 12,
                     lineHeight: 1.5,
+                    cursor: 'pointer',
                   }}
                 >
-                  📋 Your practice has reached {cefr.eligibleLevel}-level. Pass the {cefr.level}→
-                  {cefr.next} assessment to certify it and advance your CEFR level.
-                </div>
+                  📋 Your practice has reached {cefr.eligibleLevel}-level. Take the {cefr.level}→
+                  {cefr.next} assessment to certify it and advance your level →
+                </button>
               )}
               {cefr.needed && (
                 <div>
