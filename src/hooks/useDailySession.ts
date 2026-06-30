@@ -466,8 +466,31 @@ export function buildSessionActivities(
   );
   if (adaptiveActivity) activities.push(adaptiveActivity);
 
-  // Build usedScreens once, here, so P2.5 and P3 both dedup against it.
+  // Build usedScreens once, here, so the production slots and P3 all dedup.
   const usedScreens = new Set(activities.map((a) => a.screen));
+
+  // Priority 2.4: Conversation anchor at B1+ (Session-Rec #4). Spontaneous
+  // interactive output is the fluency lever recognition can't replace, so every
+  // B1+ session guarantees one conversation turn (guided Dialogue by default —
+  // zero AI cost — with the unbounded AI mode one tap away). Added BEFORE the
+  // general production slot, and recency is intentionally ignored here (we WANT
+  // conversation daily; DialogueSim rotates its own scenarios), so it never
+  // degrades into a non-conversation. A1/A2 skip this — they get a single
+  // combined output slot via P2.5 — keeping early sessions light (Rec #3 will
+  // formalise the per-level shape).
+  if (cefrRank(userCefr) >= cefrRank('B1')) {
+    const conversation = selectProductionExercise({
+      cefr: userCefr,
+      micState: readMicState(),
+      recentScreens: [],
+      excludeScreens: [...usedScreens],
+      kindBias: 'converse',
+    });
+    if (conversation && !usedScreens.has(conversation.screen)) {
+      activities.push(conversation);
+      usedScreens.add(conversation.screen);
+    }
+  }
 
   // Priority 2.5: Production — a guaranteed active-output slot every session
   // (Session-Rec #2). The expanded pool (Rec #1) includes keyboard modes down to

@@ -14,7 +14,7 @@ import {
   recordProductionExercise as recordFn,
   PRODUCTION_SCREEN_IDS,
 } from '../hooks/useDailySession';
-import { CEFR_ORDER } from '../lib/cefr';
+import { CEFR_ORDER, cefrRank } from '../lib/cefr';
 
 vi.mock('../lib/random.js', () => ({ rnd: () => 0 }));
 
@@ -264,20 +264,71 @@ describe('buildSessionActivities — P2.5 production slot', () => {
     expect(matches.length).toBe(1);
   });
 
-  it('every level A1–C2 gets exactly one production slot', () => {
+  it('A1/A2 get exactly one output slot; B1+ get two (production + conversation anchor)', () => {
     for (const cefr of CEFR_ORDER) {
-      const result = buildSessionActivities(cefr);
-      const matches = result.filter((a) => PRODUCTION_SCREENS.includes(a.screen));
-      expect(matches.length, `level ${cefr} should have exactly one production slot`).toBe(1);
+      const matches = buildSessionActivities(cefr).filter((a) =>
+        PRODUCTION_SCREENS.includes(a.screen),
+      );
+      const expected = cefrRank(cefr) >= cefrRank('B1') ? 2 : 1;
+      expect(matches.length, `level ${cefr} output slots`).toBe(expected);
     }
   });
 
-  it('mic-denied user at B1 gets a keyboard production slot (never a mic-required one)', () => {
+  it('mic-denied user at B1 gets only keyboard production slots (never a mic-required one)', () => {
     localStorage.setItem('nh_mic_state', 'denied');
-    const result = buildSessionActivities('B1');
-    const productionMatch = result.find((a) => PRODUCTION_SCREENS.includes(a.screen));
-    expect(productionMatch).toBeTruthy();
-    expect(['shadowing', 'production_drill']).not.toContain(productionMatch!.screen);
+    const matches = buildSessionActivities('B1').filter((a) =>
+      PRODUCTION_SCREENS.includes(a.screen),
+    );
+    expect(matches.length).toBeGreaterThanOrEqual(1);
+    for (const m of matches) {
+      expect(['shadowing', 'production_drill']).not.toContain(m.screen);
+    }
+  });
+});
+
+describe('buildSessionActivities — conversation anchor (Session-Rec #4)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('every B1+ level includes a conversation (dialogue) activity', () => {
+    for (const cefr of ['B1', 'B2', 'C1', 'C2']) {
+      const acts = buildSessionActivities(cefr);
+      expect(
+        acts.some((a) => a.screen === 'dialogue'),
+        `${cefr} needs a conversation`,
+      ).toBe(true);
+    }
+  });
+
+  it('A1/A2 do NOT get a separate conversation anchor (single combined output slot)', () => {
+    for (const cefr of ['A1', 'A2']) {
+      const matches = buildSessionActivities(cefr).filter((a) =>
+        PRODUCTION_SCREENS.includes(a.screen),
+      );
+      expect(matches.length, `${cefr} should have a single output slot`).toBe(1);
+    }
+  });
+
+  it('B1+ conversation is DISTINCT from the production slot (two different output modes)', () => {
+    const screens = buildSessionActivities('B2')
+      .filter((a) => PRODUCTION_SCREENS.includes(a.screen))
+      .map((a) => a.screen);
+    expect(screens).toHaveLength(2);
+    expect(screens).toContain('dialogue'); // the anchor
+    expect(screens.filter((s) => s === 'dialogue')).toHaveLength(1); // production is something else
+  });
+
+  it('the anchor ignores recent-production rotation (conversation is guaranteed daily)', () => {
+    // Even with dialogue marked done in the last 3 days, B1+ still gets it as the
+    // anchor — recency only rotates the GENERAL production slot, not the anchor.
+    const today = new Date().toISOString().slice(0, 10);
+    localStorage.setItem(
+      'nh_recent_production',
+      JSON.stringify([{ screen: 'dialogue', date: today }]),
+    );
+    const acts = buildSessionActivities('B1');
+    expect(acts.some((a) => a.screen === 'dialogue')).toBe(true);
   });
 });
 
