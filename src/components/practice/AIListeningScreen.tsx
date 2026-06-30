@@ -7,6 +7,8 @@ import { _aiPost } from '../../lib/aiPost';
 import { getVoicePreference } from '../../lib/soundSettings.js';
 import { unlockAudio, ttsFetch } from '../../lib/audio.js';
 import { recordTopicResult } from '../../lib/adaptive';
+import { useStats } from '../../context/StatsContext';
+import { getGenerationCefr } from '../../lib/cefrCertification';
 import {
   getNextListeningUnit,
   getListeningProgress,
@@ -68,6 +70,7 @@ export default function AIListeningScreen({
   // and the offline UI never engaged; the typed ListeningPathBanner prop
   // surfaced it.)
   const { isOnline } = useOnlineStatus();
+  const { stats } = useStats();
   const [phase, setPhase] = useState('setup');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [style, setStyle] = useState('dialogue');
@@ -89,7 +92,11 @@ export default function AIListeningScreen({
   const mountedRef = useRef(true);
   const readyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const level = localStorage.getItem('nh_level') || 'B1';
+  // Content-Rec #5: generate at the learner's EARNED CEFR (certification-aware,
+  // floored at their placement), not the stale placement-only nh_level — so a
+  // learner who reached C1/C2 gets C1/C2 listening + curriculum path. The
+  // /api/listening generator already accepts C1/C2; this routes them to it.
+  const level = getGenerationCefr(stats);
 
   useEffect(
     () => () => {
