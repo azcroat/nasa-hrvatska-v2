@@ -1,7 +1,6 @@
 // e2e/sp4b-production-slot.spec.js
 import { test, expect } from '@playwright/test';
 import { seedAuth, blockFirebase, mockTTS, mockContent } from './fixtures/seed-auth.js';
-import { TID } from './fixtures/testids.js';
 import { forceCefr } from './fixtures/forceCefr.js';
 import { mockRnd } from './fixtures/mockRnd.js';
 
@@ -39,6 +38,36 @@ test.describe('SP4b — production slot in daily session', () => {
     // production_drill, dictation]. With rnd=0 + mic-available + B1, the first
     // eligible item is `dialogue` (label "Conversation").
     await expect(page.getByText('Conversation')).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('open Speaking is routed into the session as a production slot (B1, mic available)', async ({
+    page,
+  }) => {
+    // At B1 the conversation anchor takes `dialogue`, so the production pick is
+    // chosen from [writing, shadowing, speaking, production_drill, dictation].
+    // rnd=0.5 → index 2 → `speaking`. This proves SpeakingScreen is now a session
+    // production option (the follow-up that auto-routes it); the launcher
+    // initialises its vocab pool so it can't render blank (render path covered by
+    // pronunciation.spec.js + the verbatim launchSpeaking init reuse).
+    await mockRnd(page, 0.5);
+    await page.addInitScript(() => {
+      localStorage.setItem('nh_mic_state', 'available');
+      const uS = JSON.parse(localStorage.getItem('uS') || '{}');
+      const email = uS.u;
+      if (email) {
+        const profileKey = 'uP_' + email;
+        const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
+        profile.st = { ...(profile.st || {}), xp: 2000, lc: 0, gc: 0 };
+        localStorage.setItem(profileKey, JSON.stringify(profile));
+      }
+    });
+    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByTestId('session-card').getByText('Speaking')).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test('mic-denied user gets a keyboard production slot; mic-required exercises are filtered out', async ({

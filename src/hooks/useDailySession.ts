@@ -1007,6 +1007,19 @@ const PRODUCTION_POOL: Array<{
     kind: 'speak',
   },
   {
+    id: 'speaking',
+    // Open spoken production. SpeakingScreen depends on parent-held state, so the
+    // launcher (useScreenLauncher.launchSessionActivity) initialises its vocab
+    // pool before navigating — without that init a cold session launch renders
+    // blank, which is why this was deferred from the initial fluency series.
+    label: 'Speaking',
+    screen: 'speaking',
+    cefr: 'A2',
+    category: 'speaking',
+    micRequired: true,
+    kind: 'speak',
+  },
+  {
     id: 'production_drill',
     // screen MUST match the AppRouter route id ('production_drill', with
     // underscore) — a prior 'productiondrill' typo routed Today's Session →
