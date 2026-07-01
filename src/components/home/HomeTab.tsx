@@ -78,6 +78,7 @@ import {
 import { getUserCefr } from '../../lib/cefr';
 import { getContentUnlockLevel } from '../../lib/cefrCertification';
 import SessionCard from './SessionCard';
+import DailyInputCard from './DailyInputCard';
 import RazgovorHomeCard from './RazgovorHomeCard';
 import WeakWordsPanel from './WeakWordsPanel';
 import { hostOfDay } from './hostFamily';
@@ -614,6 +615,11 @@ export default function HomeTab({
         }}
         onStartFresh={startFreshSession}
       />
+
+      {/* ── TODAY'S INPUT — comprehensible-input spine (Content-Rec #6): the next
+          level-appropriate listening + reading in one place, so a daily dose of
+          understandable Croatian is a first-class habit right after the session. ── */}
+      <DailyInputCard stats={st} setScr={setScr} sCurEx={sCurEx} />
 
       {/* ── WHAT TO FIX NEXT — surface the weak-areas insight on Today, where the
           "what should I do now" decision is made (it previously lived only in
