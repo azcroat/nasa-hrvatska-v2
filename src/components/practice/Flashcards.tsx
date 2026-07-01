@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getGenerationCefr } from '../../lib/cefrCertification';
 import { motion } from 'framer-motion';
 import { Bar, srMark } from '../../data';
 import { markQuest } from '../../lib/quests.js';
@@ -210,7 +211,7 @@ export default function Flashcards({
       setAiSentence(aiCacheRef.current[word]);
       return undefined;
     }
-    const level = localStorage.getItem('nh_level') || 'B1';
+    const level = getGenerationCefr(); // Content-Rec #5: earned CEFR, not stale placement
     setAiSentence(null);
     setAiLoading(true);
     setAiError(false);

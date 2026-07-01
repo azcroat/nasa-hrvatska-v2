@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { getGenerationCefr } from '../../lib/cefrCertification';
 import type { McQuestion } from '../../hooks/useMcGameReducer';
 import { srMark, recordMistake } from '../../data';
 import { recordTopicResult } from '../../lib/adaptive.js';
@@ -233,7 +234,7 @@ export default function McGame({
         correct: currentQ.correct,
         context: currentQ.hr || currentQ.q || '',
         type: 'multiple_choice',
-        level: localStorage.getItem('nh_level') || 'B1',
+        level: getGenerationCefr(), // Content-Rec #5: earned CEFR, not stale placement
       })
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => {
